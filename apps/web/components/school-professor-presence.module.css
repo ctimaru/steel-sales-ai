@@ -1,0 +1,45 @@
+/*
+ * SCHOOL-MOTION1 — micro-presence only.
+ * Animates the already approved vector's compositor transform; no new media,
+ * scripting, filters, third-party libraries, or layout-affecting properties.
+ */
+.portrait {
+  --professor-lift: -1.4px;
+  --professor-nod: 1px;
+  transform-origin: 50% 72%;
+}
+
+@media (max-width: 639px) {
+  .portrait {
+    --professor-lift: -0.8px;
+    --professor-nod: 0.6px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .portrait {
+    animation: professor-breathe 9s ease-in-out infinite;
+  }
+
+  .consulting {
+    animation: professor-consult 1100ms ease-in-out 1;
+  }
+}
+
+@keyframes professor-breathe {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(var(--professor-lift)) rotate(-0.35deg); }
+}
+
+@keyframes professor-consult {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  32% { transform: translateY(var(--professor-nod)) rotate(0.6deg); }
+  72% { transform: translateY(-0.5px) rotate(-0.15deg); }
+}
+
+@media (prefers-reduced-motion: reduce), (prefers-reduced-data: reduce) {
+  .portrait, .consulting {
+    animation: none;
+    transform: none;
+  }
+}
