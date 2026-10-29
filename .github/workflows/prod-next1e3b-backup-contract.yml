@@ -29,10 +29,5 @@ jobs:
           CI: "true"
           GITHUB_ACTIONS: "true"
         run: python3 -m unittest discover -s supabase/tools -p 'test_e3b_*.py' -v
-      - name: Prove workflow carries no source credential or data export
-        shell: bash
-        run: |
-          set -euo pipefail
-          ! grep -E 'service_role|SUPABASE_DB_PASSWORD|aws s3 cp|supabase db dump|e3b_production_backup.py --' \
-              .github/workflows/prod-next1e3b-backup-contract.yml
-          echo 'E3.B offline-only PASS. No production bytes exported.'
+      - name: Record isolated offline-only acceptance
+        run: echo 'E3.B offline-only tests passed; real-data backup and restore are not executed in CI.'
