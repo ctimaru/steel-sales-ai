@@ -37,7 +37,7 @@ def extract_verified(encrypted: Path, identity: Path, scratch: Path) -> tuple[di
     dest.mkdir(mode=0o700)
     with tarfile.open(archive, mode="r:") as tar:
         members = {item.name: item for item in tar.getmembers()}
-        if set(members) < {"manifest.json", "db.dump"} or any(
+        if "manifest.json" not in members or any(
             not m.isfile() or m.issym() or m.islnk() for m in members.values()
         ):
             raise RuntimeError("Invalid sealed archive member types")
@@ -57,9 +57,15 @@ def extract_verified(encrypted: Path, identity: Path, scratch: Path) -> tuple[di
             raise RuntimeError("Duplicate object names")
         if not set(obj["bucket_id"] for obj in objects).issubset({b["id"] for b in buckets}):
             raise RuntimeError("Unknown object bucket")
-        expected = {"manifest.json", "db.dump"} | {
+        files = manifest.get("database_files")
+        if not isinstance(files, dict) or set(files) != {
+            "roles.sql", "schema.sql", "data.sql", "auth_data.sql", "storage_metadata.sql",
+            "history_schema.sql", "history_data.sql"
+        }:
+            raise RuntimeError("Incomplete filtered Supabase export set")
+        expected = {"manifest.json"} | {
             "objects/" + obj["file"] for obj in objects
-        }
+        } | {"database/" + filename for filename in files}
         if set(members) != expected or any(
             not re.fullmatch(r"\d{6}\.blob", obj["file"]) for obj in objects
         ):
@@ -73,9 +79,10 @@ def extract_verified(encrypted: Path, identity: Path, scratch: Path) -> tuple[di
             with output.open("xb") as handle:
                 while block := member.read(CHUNK):
                     handle.write(block)
-        if ((dest / "db.dump").stat().st_size != manifest["db_bytes"] or
-                sha256_file(dest / "db.dump") != manifest["db_sha256"]):
-            raise RuntimeError("Database archive integrity mismatch")
+        for filename, evidence in files.items():
+            path = dest / "database" / filename
+            if path.stat().st_size != evidence["bytes"] or sha256_file(path) != evidence["sha256"]:
+                raise RuntimeError("Filtered database export integrity mismatch")
         for obj in objects:
             path = dest / "objects" / obj["file"]
             if path.stat().st_size != obj["bytes"] or sha256_file(path) != obj["sha256"]:
@@ -161,12 +168,21 @@ def restore_db(directory: Path, manifest: dict) -> None:
         "and nspname not in ('public','information_schema');"], environment=pg_env)
     if non_system != "0":
         raise RuntimeError("Destination contains schemas; refusing non-disposable restore")
-    run_checked(["pg_restore", "--no-owner", "--no-acl", "--exit-on-error",
-                 "--dbname", database, str(directory / "db.dump")], environment=pg_env)
+    # Restore only into independently provisioned compatible Supabase PostgreSQL.
+    # Auth/Storage are separately managed schemas; validate their data imports in
+    # a dedicated disposable environment before expecting a real production recovery.
+    args = ["psql", "-X", "--single-transaction", "-v", "ON_ERROR_STOP=1"]
+    for name in ("roles.sql", "schema.sql"):
+        args.extend(["--file", str(directory / "database" / name)])
+    args.extend(["--command", "SET session_replication_role = replica"])
+    for name in ("data.sql", "auth_data.sql", "storage_metadata.sql"):
+        args.extend(["--file", str(directory / "database" / name)])
+    run_checked(args, environment=pg_env)
+    # Migration ledger is evidence only; global drift #780 forbids repair/replay.
     rows = run_checked(["psql", "-X", "-A", "-t", "-c",
                         "select count(*) from storage.objects;"], environment=pg_env)
     if int(rows) != len(manifest["objects"]):
-        raise RuntimeError("Restored metadata object count does not match manifest")
+        raise RuntimeError("Restored Storage metadata row count does not match manifest")
 
 
 def main() -> int:
