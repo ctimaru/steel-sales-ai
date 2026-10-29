@@ -128,7 +128,7 @@ export default async function SavedBuyerDistintaPage({
         )}
       </section>
       <p className="text-xs leading-5 text-[var(--text-secondary)]">
-        Articoli, pesi e snapshot RFQ collegati restano immutabili: per una nuova richiesta utilizza
+        Lo snapshot è immutabile: articoli, pesi e RFQ collegate non cambiano quando rinomini o archivi. Per una nuova richiesta utilizza
         {" "}<Link href={appRoutes.rfqHub.createDistinta} className="font-bold underline">Nuova distinta</Link>.
         Le campagne RFQ e gli eventuali ordini sono gestiti nelle rispettive sezioni private.
       </p>
