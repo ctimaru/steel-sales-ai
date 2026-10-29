@@ -17,7 +17,7 @@ test("SCHOOL-TUTOR2 presents one professor journey in both public/private School
   assert.equal((tutor.match(/id="school-professor-title"/g)||[]).length, 1);
   assert.match(tutor, /Consultazione guidata · Fonti pubblicate K2/);
   assert.match(tutor, /viewBox="0 0 180 180"/);
-  assert.match(tutor, /Ciao, cosa vuoi capire\?/);
+  assert.match(tutor, /Come posso aiutarti\?/);
   assert.doesNotMatch(tutor, /href="\/school\/assistant"|Apri l.assistente aziendale/);
   // Do not delete or activate experimental capabilities; legacy guarded route remains.
   assert.match(legacyAssistant, /SCHOOL6B_AI_ENABLED/);
