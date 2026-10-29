@@ -37,7 +37,7 @@ for(const width of [390,1440]){
     await page.locator('[data-testid="calculator-cart-trigger"]').click();
  await drawer.locator("article").first().waitFor({state:"visible"});
  assert.equal(await drawer.locator("article").count(),1);
- await drawer.getByRole("button",{name:/Chiudi/}).click();
+ await drawer.locator('[data-cart-back="true"]').click();
  assert.equal(new URL(page.url()).pathname,"/knowledge/tubes");
  await technical.locator(":scope > summary").click();
  assert.equal(await technical.evaluate(el=>el.open),true);
