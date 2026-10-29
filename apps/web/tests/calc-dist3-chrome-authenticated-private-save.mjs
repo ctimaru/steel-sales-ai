@@ -129,6 +129,98 @@ try {
       const outsider=await readRows(differentOrgDb.from("buyer_distintas")
         .select("id").eq("id",distinctId));
       assert.equal(outsider.length,0,"Cross-tenant user must not read private snapshot");
+
+      // CALC-DIST4: manage the same REAL authenticated local record.
+      const manage=page.locator("[data-saved-distinta-actions]").first();
+      await manage.locator("[data-action-rename]").click();
+      const renamedTitle="CALC-DIST4 RENAMED "+width;
+      await manage.locator("[data-saved-distinta-rename-input]").fill(renamedTitle);
+      await manage.getByRole("button",{name:"Conferma"}).click();
+      await page.getByRole("heading",{name:renamedTitle}).waitFor();
+      const renamed=await readRows(buyerDb.from("buyer_distintas")
+        .select("title,archived_at,total_meters,line_count").eq("id",distinctId));
+      assert.equal(renamed[0].title,renamedTitle);
+      assert.equal(renamed[0].archived_at,null);
+      assert.equal(renamed[0].line_count,3);
+      assert.equal(Number(renamed[0].total_meters),50);
+
+      // Non-owner and non-business data are inaccessible on both SELECT and UPDATE.
+      const {data:deniedRename,error:crossError}=await differentOrgDb.from("buyer_distintas")
+        .update({title:"UNAUTHORIZED"}).eq("id",distinctId).select("id");
+      assert.ok(crossError!==null||!deniedRename?.length,"RLS must reject cross-org metadata edit");
+      const {error:deniedTechnical}=await buyerDb.from("buyer_distintas")
+        .update({total_tonnes:999}).eq("id",distinctId);
+      assert.ok(deniedTechnical,"Column-level UPDATE must reject technical mass rewrite");
+
+      const oldLines=await readRows(buyerDb.from("buyer_distinta_lines")
+        .select("line_position,description,standard_code,weight_kg_m,quantity,bar_length_m,target_eur_t")
+        .eq("distinta_id",distinctId).order("line_position"));
+      await manage.locator("[data-action-duplicate]").click();
+      await page.waitForURL(u=>u.pathname.startsWith("/rfq-hub/distinte/")&&
+        u.pathname!=="/rfq-hub/distinte/"+distinctId,{timeout:60000});
+      const copyId=page.url().split("/").at(-1);
+      const copy=await readRows(buyerDb.from("buyer_distintas")
+        .select("id,title,line_count,total_meters,total_tonnes,archived_at")
+        .eq("id",copyId));
+      assert.equal(copy.length,1);
+      assert.equal(copy[0].title,"Copia di "+renamedTitle);
+      assert.equal(copy[0].line_count,3);
+      assert.equal(copy[0].archived_at,null);
+      const copyLines=await readRows(buyerDb.from("buyer_distinta_lines")
+        .select("line_position,description,standard_code,weight_kg_m,quantity,bar_length_m,target_eur_t")
+        .eq("distinta_id",copyId).order("line_position"));
+      assert.deepEqual(copyLines,oldLines,"Duplicate must preserve every technical/private line exactly");
+      const copyCampaigns=await readRows(buyerDb.from("buyer_rfq_campaigns")
+        .select("id").eq("source_distinta_id",copyId));
+      assert.equal(copyCampaigns.length,0,"Duplicate must never create an RFQ");
+
+      // Archive and restore are reversible, preserving the same snapshot id.
+      await page.goto(URL_ROOT+"/rfq-hub/distinte/"+distinctId,{waitUntil:"domcontentloaded"});
+      // A server-rendered button can be clickable before React hydration.
+      // Opening and cancelling the editor verifies that client event handlers are attached.
+      const activeActions=page.locator("[data-saved-distinta-actions]").first();
+      await activeActions.locator("[data-action-rename]").click();
+      await activeActions.locator("[data-saved-distinta-rename-input]").waitFor({state:"visible",timeout:20000});
+      await activeActions.getByRole("button",{name:"Annulla"}).click();
+      await activeActions.locator("[data-action-archive]").click();
+      try {
+        await page.getByText(/Distinta archiviata: conservata/).waitFor({timeout:30000});
+      } catch (e) {
+        const status=await activeActions.locator('[role="alert"],[role="status"]').allTextContents();
+        const db=await readRows(buyerDb.from("buyer_distintas").select("archived_at").eq("id",distinctId));
+        throw new Error("Archive not accepted. UI="+JSON.stringify(status)+" DB archived="+Boolean(db?.[0]?.archived_at),{cause:e});
+      }
+      await page.goto(URL_ROOT+"/rfq-hub/distinte?q="+encodeURIComponent(renamedTitle),{waitUntil:"domcontentloaded"});
+      // Search matches the active duplicate "Copia di ..." as well as the
+      // original. Assert by immutable snapshot ID, never the result count.
+      await page.locator("[data-dist4-row]").first().waitFor({state:"visible",timeout:30000});
+      assert.equal(await page.locator('[data-dist4-row] [data-distinta-id="'+distinctId+'"]').count(),0,
+        "Archived original must be absent from active results");
+      assert.equal(await page.locator('[data-dist4-row] [data-distinta-id="'+copyId+'"]').count(),1,
+        "Independent duplicate stays active");
+      await page.locator("[data-dist4-archived-tab]").click();
+      await page.waitForURL(u=>u.searchParams.get("view")==="archived",{timeout:30000});
+      const archivedRow=page.locator('[data-dist4-row] [data-distinta-id="'+distinctId+'"]');
+      await archivedRow.waitFor({state:"visible",timeout:30000});
+      assert.equal(await page.locator('[data-dist4-row] [data-distinta-id="'+copyId+'"]').count(),0,
+        "Active duplicate must not appear in archived view");
+      await archivedRow.locator("[data-action-archive]").click();
+      // Restoration removes this row from the archived view; no transient toast dependency.
+      await archivedRow.waitFor({state:"detached",timeout:30000});
+      await page.locator("[data-dist4-active-tab]").click();
+      await page.waitForURL(u=>u.searchParams.get("view")!== "archived",{timeout:30000});
+      await page.locator('[data-dist4-row] [data-distinta-id="'+distinctId+'"]').waitFor({timeout:30000});
+      assert.equal(await page.locator('[data-dist4-row] [data-distinta-id="'+copyId+'"]').count(),1,
+        "Duplicate remains unchanged after original restoration");
+      const restored=await readRows(buyerDb.from("buyer_distintas")
+        .select("id,archived_at,title").eq("id",distinctId));
+      assert.equal(restored[0].id,distinctId);
+      assert.equal(restored[0].archived_at,null);
+      assert.equal(restored[0].title,renamedTitle);
+      const afterLines=await readRows(buyerDb.from("buyer_distinta_lines")
+        .select("line_position,description,standard_code,weight_kg_m,quantity,bar_length_m,target_eur_t")
+        .eq("distinta_id",distinctId).order("line_position"));
+      assert.deepEqual(afterLines,oldLines,"Rename/archive/restore must never edit buyer lines");
       assert.deepEqual(errors,[],"No browser exceptions");
       console.log("CALC-DIST3 AUTHENTICATED SAVE/REOPEN/RLS PASS",width);
     } finally {await ctx.close();}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { RfqHubCreateFromSnapshot } from "@/components/rfq-hub-create-from-snapshot";
+import { SavedDistintaActions } from "@/components/saved-distinta-actions";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { formatBuyerDocumentRequirements, normalizeBuyerDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { appRoutes } from "@/lib/routes";
@@ -28,7 +29,7 @@ export default async function SavedBuyerDistintaPage({
   const supabase = await createClient();
   // Critical: both current org and existing Supabase RLS must authorize reads.
   const { data: snapshot, error } = await supabase.from("buyer_distintas")
-    .select("id,title,line_count,total_meters,total_tonnes,target_total_eur,created_at,owner_user_id,document_requirements")
+    .select("id,title,line_count,total_meters,total_tonnes,target_total_eur,created_at,owner_user_id,document_requirements,archived_at")
     .eq("id", distintaId).eq("organization_id", context.organizationId).maybeSingle();
   if (error || !snapshot) notFound();
 
@@ -59,9 +60,20 @@ export default async function SavedBuyerDistintaPage({
           <h1 className="mt-1 break-words text-xl font-extrabold text-[var(--brand-deep)]">{snapshot.title || "Distinta"}</h1>
           <p className="mt-1 text-xs text-[var(--text-secondary)]">Salvata {formatHubDate(snapshot.created_at)} · {snapshot.line_count} righe · {formatNumber(Number(snapshot.total_tonnes), 3)} t</p>
         </div>
-        {canCreateRfq ? <RfqHubCreateFromSnapshot distintaId={snapshot.id} /> :
-          <Link href={appRoutes.rfqHub.home} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-semibold">Torna alle RFQ</Link>}
+        <div className="flex flex-wrap items-center gap-2">
+          {canCreateRfq && !snapshot.archived_at ? <RfqHubCreateFromSnapshot distintaId={snapshot.id}/>:null}
+          <Link href={appRoutes.rfqHub.savedDistinte}
+            className="app-secondary inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-semibold">Tutte le distinte</Link>
+        </div>
       </header>
+
+      {snapshot.archived_at?<p role="status" className="rounded-lg border border-[var(--border)] bg-[var(--brand-primary-soft)] px-3 py-2 text-xs font-semibold text-[var(--brand-deep)]">
+        Distinta archiviata: conservata per consultazione e storico commerciale. Ripristinala per preparare una nuova RFQ.
+      </p>:null}
+      {canWriteWorkspace(context.role)&&snapshot.owner_user_id===context.userId?
+        <section aria-label="Gestisci distinta salvata" className="rounded-xl border border-[var(--border)] bg-white p-3">
+          <SavedDistintaActions id={snapshot.id} title={snapshot.title} archived={Boolean(snapshot.archived_at)}/>
+        </section>:null}
 
       {relatedCampaigns?.length ? (
         <section className="rounded-xl border border-[var(--border)] bg-white p-4">
@@ -116,7 +128,7 @@ export default async function SavedBuyerDistintaPage({
         )}
       </section>
       <p className="text-xs leading-5 text-[var(--text-secondary)]">
-        Lo snapshot è immutabile: per una nuova richiesta utilizza
+        Lo snapshot è immutabile: articoli, pesi e RFQ collegate non cambiano quando rinomini o archivi. Per una nuova richiesta utilizza
         {" "}<Link href={appRoutes.rfqHub.createDistinta} className="font-bold underline">Nuova distinta</Link>.
         Le campagne RFQ e gli eventuali ordini sono gestiti nelle rispettive sezioni private.
       </p>
