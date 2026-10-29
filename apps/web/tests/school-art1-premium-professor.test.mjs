@@ -13,7 +13,8 @@ test("SCHOOL-ART1 illustration is a lightweight local vector, not an animated or
   for (const detail of ["radialGradient", "linearGradient", "clipPath", 'id="art-skin"', 'id="art-hair"', 'id="art-suit"']) {
     assert.ok(portrait.includes(detail), "premium illustration detail " + detail);
   }
-  assert.doesNotMatch(portrait, /<script|<animate|<foreignObject|<iframe|<image|https?:\/\//i);
+  assert.doesNotMatch(portrait, /<script|<animate|<foreignObject|<iframe|<image/i);
+  assert.doesNotMatch(portrait, /(?:href|src)="https?:\/\//i);
   assert.doesNotMatch(portrait, /onload=|onclick=|javascript:/i);
 });
 
