@@ -133,7 +133,7 @@ export function SchoolTechnicalTutor() {
             <div className="mt-3 flex flex-wrap items-center gap-2 sm:mt-4">
               <div data-testid="school-qa3-mobile-portrait" aria-hidden="true"
                 className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#a9d2b8]/50 bg-[#24503b]/75 sm:hidden">
-                <TeacherPortrait state={state} className="h-12 w-12"/>
+                <TeacherPortrait state={state} className="h-[72px] w-[72px] shrink-0 translate-y-1"/>
               </div>
               <span data-testid="school-tutor3-presence" className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-[#e1f2e6]">
                 <span aria-hidden="true" className={state === "loading"
