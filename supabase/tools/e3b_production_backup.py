@@ -122,6 +122,8 @@ def safe_config() -> tuple[str, Path, str, str]:
     require_env("PGDATABASE")
     require_env("PGPORT")
     token = require_env("E3B_SOURCE_SERVICE_ROLE_KEY")
+    if token.startswith("sb_secret_") or token.count(".") != 2:
+        raise RuntimeError("This REST adapter requires a legacy signed service_role JWT")
     recipient = require_env("E3B_AGE_RECIPIENT")
     if not re.fullmatch(r"age1[0-9a-z]{55,}", recipient):
         raise RuntimeError("Expected an age X25519 public recipient")
@@ -243,6 +245,11 @@ def main() -> int:
             saved.append({"bucket_id": obj["bucket_id"], "key": obj["name"], "file": filename,
                           "bytes": size, "sha256": sha,
                           "mimetype": obj.get("mimetype") or "application/octet-stream"})
+        # Fail rather than seal an export when buckets, keys or sizes changed
+        # during the DB/Storage read window; this is not an atomic snapshot.
+        if json.loads(db_query(INVENTORY_SQL)) != inventory:
+            raise RuntimeError("Source Storage inventory changed during export")
+        ensure_no_go()
         (source / "manifest.json").write_text(json.dumps({
             "schema": SCHEMA, "source_ref": ref, "started_at_utc": timestamp,
             "completed_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
@@ -262,6 +269,13 @@ def main() -> int:
                                        "--bucket", bucket, "--key", key]))
         if head.get("ContentLength") != cipher.stat().st_size or not head.get("VersionId"):
             raise RuntimeError("Offsite encrypted object not verifiable; do not approve")
+        # Do not certify upload on size alone. Verify the bytes actually returned
+        # by the encrypted offsite destination; never decrypt at S3.
+        fetched = directory / "offsite-roundtrip.age"
+        run_checked(["aws", "s3", "cp", "s3://" + bucket + "/" + key,
+                     str(fetched), "--only-show-errors"])
+        if sha256_file(fetched) != cipher_hash:
+            raise RuntimeError("Encrypted offsite round-trip checksum mismatch")
         evidence = {"phase": "EXPORTED_NOT_RESTORED", "source_ref": ref,
                     "database_exports": len(db_files), "ciphertext_sha256": cipher_hash,
                     "storage_buckets": len(buckets), "storage_objects": len(saved),
