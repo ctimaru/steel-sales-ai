@@ -15,6 +15,7 @@ type PublicEvidence = {
 };
 type LookupState = "idle" | "loading" | "ready" | "topic" | "need_code" | "no_evidence" | "error";
 type TutorTopic = { id: string; title: string; description: string; href: string };
+type GuidedFollowUp = { evidenceId: string; kind: "context" | "caution" };
 
 const examples = [
   "Qual è la differenza tra EN 10210 e EN 10219?",
@@ -44,6 +45,12 @@ export function SchoolTechnicalTutor() {
   const [state, setState] = useState<LookupState>("idle");
   const [items, setItems] = useState<PublicEvidence[]>([]);
   const [topic, setTopic] = useState<TutorTopic | null>(null);
+  const [followUp, setFollowUp] = useState<GuidedFollowUp | null>(null);
+  const presence = state === "loading" ? "Consulto le fonti…"
+    : state === "ready" ? "Ho trovato le fonti"
+    : state === "topic" ? "Ti propongo una lettura"
+    : state === "idle" ? "Sono qui per aiutarti"
+    : "Verifichiamo insieme le fonti";
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
 
@@ -56,6 +63,7 @@ export function SchoolTechnicalTutor() {
     setQuestion(text);
     setItems([]);
     setTopic(null);
+    setFollowUp(null);
     setDraft("");
     const codes = parseSteelAssistantInput(text).codes.slice(0, 2);
     if (!codes.length) {
@@ -103,9 +111,14 @@ export function SchoolTechnicalTutor() {
             <p className="text-[11px] font-bold uppercase tracking-[.15em] text-[#b9dfc7]">Smart Steel School · Il Professore</p>
             <h1 id="school-professor-title" className="mt-2 max-w-[17ch] text-[2rem] font-semibold leading-[1.12] tracking-[-.045em] text-white sm:text-[2.55rem]">Ciao, cosa vuoi capire?</h1>
             <p className="mt-2 max-w-[55ch] text-sm leading-6 text-[#dfefe4]">Chiedimi di norme, acciai o tubi. Partiamo insieme dalle fonti pubblicate.</p>
-            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-medium text-[#d8efe1]">
-              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#9bdfb8]"/>
-              Consultazione guidata · Fonti pubblicate K2
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <span data-testid="school-tutor3-presence" className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-[#e1f2e6]">
+                <span aria-hidden="true" className={state === "loading"
+                  ? "h-2 w-2 rounded-full bg-[#9bdfb8] motion-safe:animate-pulse"
+                  : "h-2 w-2 rounded-full bg-[#9bdfb8]"} />
+                {presence}
+              </span>
+              <span className="text-[11px] font-medium text-[#c9e1d2]">Consultazione guidata · Fonti pubblicate K2</span>
             </div>
           </div>
           <div aria-hidden="true" className="hidden h-[176px] w-[176px] items-center justify-center justify-self-center rounded-[30px] border border-[#a9d2b8]/35 bg-[#24503b]/65 shadow-[0_20px_40px_-20px_rgba(2,18,12,.6)] sm:flex">
@@ -116,7 +129,11 @@ export function SchoolTechnicalTutor() {
               <path d="M64 63c0-22 10-37 26-37s26 15 26 37v13c0 23-12 40-26 40S64 99 64 76V63Z" fill="#EBC7A7"/>
               <path d="M60 70c-2-31 10-49 32-49 20 0 33 17 28 46l-5-9c-2-15-10-23-21-23-7 0-16 9-30 9l-4 26Z" fill="#20392E"/>
               <path d="M67 73h18m10 0h18M85 73h10" stroke="#20392E" strokeWidth="4" strokeLinecap="round"/>
-              <path d="M83 95c4 3 10 3 14 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
+              {state === "loading"
+                ? <path d="M83 95h14" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
+                : state === "ready" || state === "topic"
+                  ? <path d="M81 94q9 9 18 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
+                  : <path d="M83 95c4 3 10 3 14 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>}
               <path d="m69 126 20 24 21-24" stroke="#356A4E" strokeWidth="4" strokeLinejoin="round"/>
               <path d="M34 156h112" stroke="#A9D2B8" strokeWidth="3" strokeLinecap="round"/>
             </svg>
@@ -175,11 +192,36 @@ export function SchoolTechnicalTutor() {
                 <h3 className="mt-3 text-base font-semibold text-[#193d2e]">{item.title}</h3>
                 <p className="mt-1 text-[11px] font-bold uppercase tracking-[.1em] text-[#286446]">In breve · Riferimento pubblicato</p>
                 <p className="mt-2 text-sm leading-6 text-[#344e3f]">{item.summary}</p>
-                <details className="mt-3 rounded-xl border border-[#dde9e0] bg-white px-3 py-2.5">
-                  <summary className="min-h-9 cursor-pointer text-xs font-semibold leading-9 text-[#1a5b3d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">Approfondisci il contesto tecnico</summary>
-                  <p className="pb-2 text-sm leading-6 text-[#4c6055]">{item.technicalContext.slice(0, 500)}</p>
-                </details>
-                {item.caution ? <p className="mt-3 border-l-2 border-[#a0b9a8] pl-3 text-xs leading-5 text-[#516b5c]">{item.caution.slice(0, 260)}</p> : null}
+                <div data-testid="school-tutor3-guided-followups" role="group" aria-label={"Approfondimenti per " + item.code}
+                  className="mt-3 flex flex-wrap items-center gap-2">
+                  <span className="w-full text-xs font-medium text-[#586d60]">Vuoi approfondire?</span>
+                  {([
+                    { kind: "context", label: "Approfondisci il contesto tecnico" },
+                    { kind: "caution", label: "Che cosa devo verificare?" },
+                  ] as const).map(option => {
+                    const selected = followUp?.evidenceId === item.id && followUp.kind === option.kind;
+                    return <button key={option.kind} type="button"
+                      aria-expanded={selected} aria-controls={selected ? "tutor-followup-" + item.id : undefined}
+                      onClick={() => setFollowUp(selected ? null : { evidenceId: item.id, kind: option.kind })}
+                      className={selected
+                        ? "min-h-10 rounded-xl border border-[#247455] bg-[#e9f4ed] px-3 text-xs font-bold text-[#194f38] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"
+                        : "min-h-10 rounded-xl border border-[#d3e2d8] bg-white px-3 text-xs font-semibold text-[#225940] hover:bg-[#f1f7f3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"}>
+                      {option.label} <span aria-hidden="true">↗</span>
+                    </button>;
+                  })}
+                </div>
+                {followUp?.evidenceId === item.id ? (
+                  <div id={"tutor-followup-" + item.id} data-testid="school-tutor3-grounded-followup"
+                    className="mt-3 rounded-xl border-l-2 border-[#3a8763] bg-white px-4 py-3"
+                    aria-label={followUp.kind === "context" ? "Contesto tratto dalla fonte" : "Cautele e limiti"}>
+                    <p className="text-xs font-bold text-[#1a5b3d]">{followUp.kind === "context" ? "Dalla scheda pubblicata" : "Prima di applicare questa informazione"}</p>
+                    <p className="mt-1 text-sm leading-6 text-[#425c4d]">{followUp.kind === "context"
+                      ? item.technicalContext.slice(0, 500)
+                      : item.caution
+                        ? item.caution.slice(0, 260)
+                        : "La scheda non indica cautele specifiche. Verifica sempre l'edizione ufficiale e le condizioni applicabili al tuo caso."}</p>
+                  </div>
+                ) : null}
                 <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t border-[#e0eae2] pt-3 text-xs font-bold text-[#176747]">
                   {page ? <a href={page.url} className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">Leggi la scheda completa ↗</a> : null}
                   {more.map(source => <a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer"
@@ -190,7 +232,8 @@ export function SchoolTechnicalTutor() {
           </div>
           <p className="mt-4 text-xs leading-6 text-[#617468]">Verifica sempre l'edizione ufficiale della norma e la specifica applicabile prima di usarla per una richiesta d'offerta. Questa consultazione non certifica materiali e non invia RFQ.</p>
         </> : null}
-        <div className="mt-5 flex flex-wrap gap-3 border-t border-[#e4ece6] pt-4 text-xs font-semibold">
+        <div data-testid="school-tutor3-next-steps" className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-[#e4ece6] pt-4 text-xs font-semibold">
+          <span className="w-full text-[11px] font-bold uppercase tracking-[.1em] text-[#607467]">Continua il tuo percorso</span>
           <Link href="/knowledge/norme" className="text-[#19563b] underline underline-offset-4">Catalogo norme</Link>
           <Link href="/knowledge/gradi" className="text-[#19563b] underline underline-offset-4">Catalogo materiali</Link>
           <Link href="/knowledge/tubes?source=school&surface=tutor#calcolatore-pesi" className="text-[#19563b] underline underline-offset-4">Calcolatore pesi</Link>

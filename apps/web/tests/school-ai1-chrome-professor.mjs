@@ -45,7 +45,10 @@ try {
     assert.equal(await detail.isVisible(),false,"longer technical context starts collapsed");
     await page.getByText("Approfondisci il contesto tecnico").click();
     assert.equal(await detail.isVisible(),true,"learner can expand published technical context");
-    assert.equal(queries.length, 1);
+    await page.getByRole("button", {name: /Che cosa devo verificare/}).click();
+    await page.getByText("La scheda non indica cautele specifiche.").waitFor();
+    assert.equal(await detail.isVisible(),false,"switching follow-up hides previously selected context");
+    assert.equal(queries.length, 1,"guided source-only follow-ups must never contact the endpoint again");
     assert.equal(queries[0].q, "en10219");
     assert.equal(queries[0].locale, "it");
     assert.equal(queries[0].limit, "2");
