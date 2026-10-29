@@ -52,10 +52,19 @@ jobs:
         run: |
           psql -X -h 127.0.0.1 -p 54322 -U postgres -d postgres \
             -v ON_ERROR_STOP=1 -f supabase/tests/prod_next1e3_live_no_go.sql
+      - name: Use PostgreSQL 17 backup tools matching local Supabase server
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -x /usr/lib/postgresql/17/bin/pg_dump ]; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq postgresql-client-17
+          fi
+          /usr/lib/postgresql/17/bin/pg_dump --version
       - name: Validate portable synthetic backup and restore in a separate database
         shell: bash
         run: |
-          bash supabase/tools/prod_next1e3_restore_drill.sh
+          PATH="/usr/lib/postgresql/17/bin:$PATH" bash supabase/tools/prod_next1e3_restore_drill.sh
       - name: Destroy local databases and temporary logs
         if: always()
         run: |
