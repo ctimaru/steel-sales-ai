@@ -54,6 +54,8 @@ jobs:
         run: node tests/calc-dist1-chrome-drawer.mjs
       - name: CALC-DIST2 5–10 row density and commercial handoff safety
         run: node tests/calc-dist2-chrome-multi-row.mjs
+      - name: CALC-DIST2 eight heterogeneous products and private commercial integrity
+        run: node tests/calc-dist2-chrome-mixed-materials.mjs
       - name: Upload isolated screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -62,6 +64,7 @@ jobs:
           path: |
             /tmp/calc-dist1-visual/*.png
             /tmp/calc-dist2-visual/*.png
+            /tmp/calc-dist2-mixed-materials/*.png
           if-no-files-found: warn
           retention-days: 7
       - name: Stop local server
