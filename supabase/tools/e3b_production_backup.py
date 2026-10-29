@@ -167,7 +167,8 @@ def encrypt_bundle(directory: Path, output: Path, recipient: str) -> None:
         assert proc.stdin is not None
         try:
             with tarfile.open(fileobj=proc.stdin, mode="w|") as tar:
-                tar.add(directory / "db.dump", arcname="db.dump", recursive=False)
+                for file in sorted((directory / "database").iterdir()):
+                    tar.add(file, arcname="database/" + file.name, recursive=False)
                 tar.add(directory / "manifest.json", arcname="manifest.json", recursive=False)
                 for file in sorted((directory / "objects").iterdir()):
                     tar.add(file, arcname="objects/" + file.name, recursive=False)
@@ -182,14 +183,17 @@ def main() -> int:
     ref, root, token, recipient = safe_config()
     bucket = require_env("E3B_S3_BUCKET")
     s3_preflight(bucket)
-    for cmd in ("psql", "pg_dump", "age", "aws"):
+    for cmd in ("psql", "supabase", "age", "aws", "docker"):
         if shutil.which(cmd) is None:
             raise RuntimeError("Missing prerequisite binary: " + cmd)
-    server_major = int(db_query("select current_setting('server_version_num')::int / 10000"))
-    dump_version = run_checked(["pg_dump", "--version"])
-    if not re.search(r"\b" + str(server_major) + r"\.\d+", dump_version):
-        raise RuntimeError("pg_dump major version must equal the source PostgreSQL major")
-
+    linked = Path("supabase/.temp/project-ref")
+    if not linked.is_file() or linked.read_text(encoding="utf-8").strip() != ref:
+        raise RuntimeError("Supabase CLI must be linked to the approved source project")
+    require_env("SUPABASE_ACCESS_TOKEN")
+    flags = run_checked(["supabase", "db", "dump", "--help"])
+    for required in ("--linked", "--role-only", "--data-only", "--use-copy", "--schema"):
+        if required not in flags:
+            raise RuntimeError("Unsupported Supabase CLI dump contract: " + required)
     ensure_no_go()
     timestamp = dt.datetime.now(dt.timezone.utc).isoformat()
     base_url = "https://" + ref + ".supabase.co"
@@ -197,6 +201,7 @@ def main() -> int:
         directory = Path(temp)
         source = directory / "plaintext"
         (source / "objects").mkdir(parents=True, mode=0o700)
+        (source / "database").mkdir(mode=0o700)
         os.chmod(source, 0o700)
         inventory = json.loads(db_query(INVENTORY_SQL))
         buckets, objects = inventory["buckets"], inventory["objects"]
@@ -208,12 +213,26 @@ def main() -> int:
         if len({(o["bucket_id"], o["name"]) for o in objects}) != len(objects):
             raise RuntimeError("Ambiguous Storage object keys")
 
-        run_checked(["pg_dump", "--format=custom", "--no-owner", "--no-acl",
-                     "--file", str(source / "db.dump")])
-        db_size = (source / "db.dump").stat().st_size
-        if not db_size:
-            raise RuntimeError("Empty database archive")
-        db_hash = sha256_file(source / "db.dump")
+        # Supabase official filtered exports, NOT raw pg_dump of managed internals.
+        # Explicit Auth/Storage data and migration provenance are supplemental.
+        dumps = {
+            "roles.sql": ["--role-only"],
+            "schema.sql": [],
+            "data.sql": ["--data-only", "--use-copy", "--exclude", "storage.buckets_vectors",
+                         "--exclude", "storage.vector_indexes"],
+            "auth_data.sql": ["--data-only", "--use-copy", "--schema", "auth"],
+            "storage_metadata.sql": ["--data-only", "--use-copy", "--schema", "storage"],
+            "history_schema.sql": ["--schema", "supabase_migrations"],
+            "history_data.sql": ["--data-only", "--use-copy", "--schema", "supabase_migrations"],
+        }
+        db_files = {}
+        for filename, extra in dumps.items():
+            destination = source / "database" / filename
+            run_checked(["supabase", "db", "dump", "--linked", "--file", str(destination), *extra])
+            if not destination.is_file() or destination.stat().st_size == 0:
+                raise RuntimeError("A required filtered database export was empty: " + filename)
+            db_files[filename] = {"bytes": destination.stat().st_size,
+                                  "sha256": sha256_file(destination)}
         saved = []
         for idx, obj in enumerate(objects):
             filename = ("%06d.blob" % idx)
@@ -227,7 +246,7 @@ def main() -> int:
         (source / "manifest.json").write_text(json.dumps({
             "schema": SCHEMA, "source_ref": ref, "started_at_utc": timestamp,
             "completed_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-            "db_bytes": db_size, "db_sha256": db_hash, "buckets": buckets, "objects": saved,
+            "database_files": db_files, "buckets": buckets, "objects": saved,
             "consistency_note": "Non-atomic DB/Storage snapshot; operator must validate recovery point."
         }, separators=(",", ":")), encoding="utf-8")
         cipher = directory / "encrypted-snapshot.age"
@@ -244,7 +263,7 @@ def main() -> int:
         if head.get("ContentLength") != cipher.stat().st_size or not head.get("VersionId"):
             raise RuntimeError("Offsite encrypted object not verifiable; do not approve")
         evidence = {"phase": "EXPORTED_NOT_RESTORED", "source_ref": ref,
-                    "db_archive_sha256": db_hash, "ciphertext_sha256": cipher_hash,
+                    "database_exports": len(db_files), "ciphertext_sha256": cipher_hash,
                     "storage_buckets": len(buckets), "storage_objects": len(saved),
                     "storage_object_bytes": sum(x["bytes"] for x in saved),
                     "offsite_versioned": True,
