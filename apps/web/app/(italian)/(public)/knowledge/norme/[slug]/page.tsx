@@ -43,8 +43,12 @@ export async function generateMetadata({
     };
   }
 
+  const seoTitle = standard.slug === "en-10219"
+    ? "EN 10219: profili cavi a freddo"
+    : standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "");
+
   return {
-    title: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
+    title: seoTitle,
     description: standard.seo_description,
     alternates: {
       canonical: absoluteUrl(`/knowledge/norme/${standard.slug}`),
@@ -59,7 +63,7 @@ export async function generateMetadata({
       }} : {}),
     },
     openGraph: {
-      title: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
+      title: seoTitle,
       description: standard.seo_description,
       url: absoluteUrl(`/knowledge/norme/${standard.slug}`),
       type: "article",
@@ -172,6 +176,20 @@ export default async function StandardDetailPage({
             `Rivisto ${formatReviewDate(standard.last_reviewed_at)}`,
           ]}
         />
+
+        {standard.slug === "en-10219" ? (
+          <section aria-label="Dalla EN 10219 al calcolo del peso" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d0e3d8] bg-white px-4 py-3 sm:px-5">
+            <div className="max-w-[64ch]">
+              <p className="text-sm font-bold text-[#123b34]">EN 10219: dal riferimento tecnico al peso teorico</p>
+              <p className="mt-1 text-xs leading-5 text-[#52615b]">
+                Scegli le dimensioni di un profilo cavo formato a freddo e calcola kg/m, peso delle barre e tonnellaggio. Non sostituisce i dati certificati di fornitura.
+              </p>
+            </div>
+            <Link href="/knowledge/tubes?standard=en10219&source=school" className="school-primary-action min-h-10 shrink-0 px-4 text-xs">
+              Calcola peso EN 10219 →
+            </Link>
+          </section>
+        ) : null}
 
         <SchoolReadingIndex locale="it" entries={[
           { id: "standard-reading-main", label: "Ambito della norma" },
