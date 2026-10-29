@@ -25,20 +25,29 @@ type AnalyticsWindow = Window & {
   __sssGaConfigured?: string;
 };
 
-function isPublicMeasurementPath(pathname: string) {
+function isPublicMeasurementPath(rawPathname: string) {
+  // International routes share the same public allowlist: never track /en/network,
+  // /en/platform, /de/school, or any other private workspace route.
+  const pathname = rawPathname.replace(/^\/(?:en|de|fr|es)(?=\/|$)/, "") || "/";
   return (
     pathname === "/" ||
-    pathname === "/en" ||
-    pathname.startsWith("/en/") ||
-    pathname === "/de" || pathname.startsWith("/de/") ||
-    pathname === "/fr" || pathname.startsWith("/fr/") ||
-    pathname === "/es" || pathname.startsWith("/es/") ||
     pathname.startsWith("/knowledge") ||
     pathname.startsWith("/azienda") ||
     pathname.startsWith("/distinta") ||
     pathname.startsWith("/register") ||
-    pathname.startsWith("/login")
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/investors") ||
+    pathname.startsWith("/investitori")
   );
+}
+
+/** Strip visitor-supplied query and hash, including calculator inputs and RFQ data. */
+function safePublicPageView(pathname: string) {
+  return {
+    page_path: pathname,
+    page_location: `${window.location.origin}${pathname}`,
+    page_title: document.title,
+  };
 }
 
 function clearGoogleAnalyticsCookies() {
@@ -186,11 +195,7 @@ export function GoogleAnalyticsConsent({
     if (!measurementId || !shouldMeasure || !consentReady) return;
 
     const analyticsWindow = window as AnalyticsWindow;
-    analyticsWindow.gtag?.("event", "page_view", {
-      page_path: `${pathname}${window.location.search}`,
-      page_location: window.location.href,
-      page_title: document.title,
-    });
+    analyticsWindow.gtag?.("event", "page_view", safePublicPageView(pathname));
   }, [consentReady, measurementId, pathname, shouldMeasure]);
 
   if (!measurementId || !shouldMeasure) return null;
@@ -218,11 +223,7 @@ export function GoogleAnalyticsConsent({
     } else if (consent !== "granted" && shouldMeasure) {
       // On the first opt-in, emit a granted hit immediately.
       // The initial cookieless page_view was sent before the visitor chose.
-      analyticsWindow.gtag?.("event", "page_view", {
-        page_path: `${pathname}${window.location.search}`,
-        page_location: window.location.href,
-        page_title: document.title,
-      });
+      analyticsWindow.gtag?.("event", "page_view", safePublicPageView(pathname));
     }
   }
 

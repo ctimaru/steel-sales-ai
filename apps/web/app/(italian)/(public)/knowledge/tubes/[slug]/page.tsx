@@ -113,11 +113,12 @@ export async function generateMetadata({
 
   const size = dimensionLabel(dimension);
   const product = familyName(dimension.product_family);
-  // GSC 2026-10-01..21: limit CTR title experiment to high-position IT dimension pages.
+  // GSC 2026-10-03..27: measured IT dimensional pages with top-10 average positions.
+  // One additional low-sample trial; do not infer CTR uplift without a later settled comparison.
   // Preserve certified-reference kg/m in the title; avoid generic keyword stuffing.
   const ctrPilotSlugs = new Set([
     "tondo-114-3x6-02", "quadro-120x120x10",
-    "quadro-250x250x8", "rettangolare-200x100x6",
+    "quadro-120x120x5", "quadro-250x250x8", "rettangolare-200x100x6",
   ]);
   const title = ctrPilotSlugs.has(dimension.dimension_slug)
     ? "Peso " + product + " " + size + " | " + formatNumber(dimension.weight_kg_m) + " kg/m e barre"
