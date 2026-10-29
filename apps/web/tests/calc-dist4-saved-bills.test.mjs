@@ -52,6 +52,6 @@ test("CALC-DIST4: duplicate preserves snapshot numerics and documents, never cop
     assert.ok(controls.includes(x),x);
   assert.ok(flow.includes("calc-dist3-chrome-authenticated-private-save.mjs"));
   for(const action of ["data-action-rename","data-action-duplicate","data-action-archive",
-    "UNAUTHORIZED","deniedTechnical","Archived bill absent","Duplicate must preserve"])
+    "UNAUTHORIZED","deniedTechnical","Archived original must be absent","Duplicate must preserve"])
     assert.ok(authenticated.includes(action),action);
 });
