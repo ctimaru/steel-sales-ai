@@ -42,8 +42,12 @@ export async function generateMetadata({
     };
   }
 
+  const seoTitle = grade.slug === "16mo3"
+    ? "16Mo3 (1.5415): tubi per pressione"
+    : grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "");
+
   return {
-    title: grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
+    title: seoTitle,
     description: grade.seo_description,
     alternates: {
       canonical: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
@@ -58,7 +62,7 @@ export async function generateMetadata({
       }} : {}),
     },
     openGraph: {
-      title: grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
+      title: seoTitle,
       description: grade.seo_description,
       url: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
       type: "article",
