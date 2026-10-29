@@ -6,6 +6,7 @@ import {
   getPilotActivationGovernance,
   PILOT_ACTIVATION_KPIS,
 } from "@/lib/pilot-activation-governance";
+import { PILOT_E3_LIVE_AUTHORIZED, PILOT_E3_RECOVERY_EVIDENCE } from "@/lib/pilot-e3-authorization";
 import { reviewPilotAdmission } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +56,43 @@ export default async function PilotActivationReadinessPage({
           Modifica non applicata: controllare la verifica documentale, i permessi e lo stato del partecipante.
         </p>
       ) : null}
+
+      <section aria-labelledby="pilot-e3-recovery" className="rounded-3xl border border-[#d6e2da] bg-white p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#1d624d]">PROD-NEXT1.E3 · Recovery & Authorization</p>
+            <h2 id="pilot-e3-recovery" className="mt-1 text-xl font-semibold text-[#173c32]">Prima la prova, poi il pilot</h2>
+            <p className="mt-1 max-w-3xl text-sm leading-6 text-[#52625b]">
+              Il ripristino sintetico in CI è un controllo tecnico, non dimostra il recupero del database
+              produttivo né degli oggetti Storage. Nessuna autorizzazione viene dedotta automaticamente.
+            </p>
+          </div>
+          <span className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-900">
+            {PILOT_E3_LIVE_AUTHORIZED ? "GO" : "NO-GO · evidenze da approvare"}
+          </span>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {PILOT_E3_RECOVERY_EVIDENCE.map((evidence, index) => (
+            <div key={evidence.id} className="rounded-2xl border border-[#e0e9e3] bg-[#f7faf8] p-4">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[#4b695b]">
+                {String(index + 1).padStart(2, "0")} · {evidence.label}
+              </p>
+              <p className="mt-2 text-sm leading-5 text-[#365349]">{evidence.detail}</p>
+              <p className="mt-3 border-t border-[#e2eae5] pt-2 text-xs font-semibold leading-5 text-amber-900">
+                Da verificare: {evidence.proof}
+              </p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-[#52625b]">
+          <a href="https://github.com/ctimaru/steel-sales-ai/blob/main/docs/operations/prod-next1e3-recovery-and-pilot-authorization.md"
+            target="_blank" rel="noopener noreferrer"
+            className="font-semibold text-[#175640] underline underline-offset-4">
+            Procedura e registro delle evidenze
+          </a>
+          <span>Il gate database resta indipendente da questo pannello e non ha un pulsante di attivazione.</span>
+        </div>
+      </section>
 
       <section aria-labelledby="pilot-five-kpis" className="rounded-3xl border border-[#dce5df] bg-white p-5 sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
