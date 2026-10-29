@@ -8,7 +8,7 @@ const archive=read("../app/(italian)/(workspace)/rfq-hub/distinte/page.tsx");
 const detail=read("../app/(italian)/(workspace)/rfq-hub/distinte/[distintaId]/page.tsx");
 const actions=read("../app/(italian)/(workspace)/rfq-hub/distinte/actions.ts");
 const controls=read("../components/saved-distinta-actions.tsx");
-const migration=read("../../../supabase/migrations/20261029164000_calc_dist4_saved_bill_management.sql");
+const migration=read("../../../supabase/migrations/20261029165849_calc_dist4_saved_bill_management.sql");
 const flow=read("../../../.github/workflows/product-flow1-e2e.yml");
 const authenticated=read("./calc-dist3-chrome-authenticated-private-save.mjs");
 
