@@ -37,6 +37,6 @@ test("SEO-GROWTH2.C: visible, compact CHS/SHS/RHS answers follow the real shared
 });
 
 test("SEO-GROWTH2.C: English header hierarchy fixes only a semantic heading, not calculator formulas", () => {
-  assert.match(calculator, /locale === "en" \|\| locale === "de" \|\| locale === "fr" \|\| locale === "es" \? <h2/);
+  assert.match(calculator, /inEmbeddedBuilder \|\| locale === "de" \|\| locale === "fr" \|\| locale === "es" \|\| locale === "en" \? <h2/);
   assert.match(calculator, /: <h1 className="text-sm font-bold/);
 });
