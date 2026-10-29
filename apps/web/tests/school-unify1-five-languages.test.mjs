@@ -28,7 +28,8 @@ test("SCHOOL-UNIFY1 shared School navigation includes exactly five published hom
 test("SCHOOL-UNIFY1 public and workspace share diagrams and navigation, keep private boundaries",()=>{
   assert.match(italian,/<SchoolJourney locale="it"/);
   assert.match(italian,/<SchoolPageLanguageSelector locale="it"/);
-  assert.match(workspace,/<SchoolJourney locale="it" workspace/);
+  assert.doesNotMatch(workspace, /<SchoolJourney locale="it" workspace/);
+  assert.match(workspace, /<SchoolWorkspaceFirstViewport locale="it"/);
   assert.match(workspace,/<SchoolTechnicalSections locale="it"/);
   assert.doesNotMatch(workspace,/appRoutes\.knowledge\.explorer/);
   assert.match(shared,/workspace \? \[/);
