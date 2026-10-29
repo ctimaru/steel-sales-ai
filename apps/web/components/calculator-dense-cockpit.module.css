@@ -139,3 +139,22 @@
     margin-left:2px; font-size:9px;
   }
 }
+
+/* CALC-UX5: shared cockpit visual contracts for public and authenticated buyer.
+   Contrast, touch target and numeric tabular alignment must not fork by route. */
+.fields [data-commercial-targets] {
+  min-width:0;
+  margin-top:12px;
+}
+.fields [data-commercial-targets] :is(input,button) { min-height:44px; }
+.fields [data-commercial-targets] input { font-variant-numeric:tabular-nums; }
+.fields [data-commercial-targets] label { min-width:0; }
+.results [data-effective-order-summary] {
+  font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;
+}
+.results [data-cockpit-kpis] > div { min-width:0; }
+@media (max-width:400px) {
+  .fields [data-commercial-targets] { padding:10px; }
+  .fields [data-commercial-targets] input { min-width:0; }
+}
