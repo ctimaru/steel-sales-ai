@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SavedDistintaActions } from "@/components/saved-distinta-actions";
 
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
@@ -11,6 +12,13 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Distinte salvate · RFQ Hub", robots: privateNoIndexRobots };
 
 const PAGE_SIZE = 25;
+function archiveUrl(query:string,mode:"active"|"archived",page=1) {
+  const params=new URLSearchParams();
+  if(query) params.set("q",query);
+  if(mode==="archived") params.set("view","archived");
+  if(page>1) params.set("page",String(page));
+  return appRoutes.rfqHub.savedDistinte+(params.toString()?"?"+params.toString():"");
+}
 function pageNumber(raw: unknown): number {
   if (typeof raw !== "string" || !/^[1-9]\d{0,3}$/.test(raw)) return 1;
   const parsed = Number(raw);
@@ -24,17 +32,28 @@ function formatTonnes(value: number | null): string {
 
 export default async function RfqSavedDistinteArchive({
   searchParams,
-}: { searchParams: Promise<{ page?: string }> }) {
-  const { page: rawPage } = await searchParams;
+}: { searchParams: Promise<{ page?: string; q?: string; view?: string }> }) {
+  const { page: rawPage,q:rawQuery,view } = await searchParams;
   const page = pageNumber(rawPage);
+  const query=typeof rawQuery==="string"?rawQuery.trim().slice(0,80):"";
+  const mode=view==="archived"?"archived":"active";
   const context = await getWorkspaceContext();
   const supabase = await createClient();
-  const { data, error, count } = await supabase.from("buyer_distintas")
+  let request=supabase.from("buyer_distintas")
+    .select("id,title,owner_user_id,created_at,line_count,total_tonnes,archived_at",{count:"exact"})
+    .eq("organization_id",context.organizationId);
+  if(mode==="active") request=request.is("archived_at",null);
+  else request=request.not("archived_at","is",null);
+  if(query) request=request.ilike("title","%"+query.replace(/[\\%_]/g,"\\  const { data, error, count } = await supabase.from("buyer_distintas")
     .select("id,title,owner_user_id,created_at,line_count,total_tonnes", { count: "exact" })
     .eq("organization_id", context.organizationId)
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
-    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);")+"%");
+  const {data,error,count}=await request
+    .order("created_at",{ascending:false})
+    .order("id",{ascending:false})
+    .range((page-1)*PAGE_SIZE,page*PAGE_SIZE-1);
   const pages = count === null ? 1 : Math.max(1, Math.ceil(count / PAGE_SIZE));
 
   return (
@@ -45,10 +64,10 @@ export default async function RfqSavedDistinteArchive({
       </nav>
       <header className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-strong)] bg-white p-4">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">Archivio aziendale · sola lettura</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">Archivio aziendale · privato</p>
           <h1 className="mt-1 text-xl font-extrabold text-[var(--brand-deep)]">Distinte salvate</h1>
           <p className="mt-1 text-xs text-[var(--text-secondary)]">
-            Snapshot autorizzati per l'azienda attiva. Non include le bozze temporanee del browser.
+            Distinte private dell'azienda. Rinomina, duplica o archivia senza alterare articoli e RFQ.
           </p>
         </div>
         {canWriteWorkspace(context.role) ? (
