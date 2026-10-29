@@ -17,7 +17,7 @@ test("CALC-UX DENSE2 removes redundant thickness disclosure and retains intellig
 });
 
 test("CALC-UX DENSE2 keeps editable length and compact quantity stepper", () => {
-  assert.match(calculator, /lengthPresets\.some\(\(preset\) => preset === length\)/);
+  assert.match(calculator, /lengthPresets\.map\(\(preset\) =>/);
   assert.match(calculator, /aria-label=\{t\("Lunghezza barra personalizzata"\)\}/);
   assert.match(calculator, /grid-cols-\[36px_52px_36px\]/);
   assert.match(calculator, /setQuantity\(String\(Math\.max\(1, current - 1\)\)\)/);

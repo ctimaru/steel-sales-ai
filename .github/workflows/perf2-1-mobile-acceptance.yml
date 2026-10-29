@@ -69,6 +69,8 @@ on:
       - "apps/web/lib/us-pipe-rfq-handoff.ts"
       - "apps/web/components/calculator-install-guide.tsx"
       - "apps/web/tests/calc-ux3-*"
+      - "apps/web/tests/calc-ux4-*"
+      - "apps/web/lib/calculator-commercial-quantity.ts"
       - "apps/web/tests/i18n8-*"
       - "apps/web/tests/bd11-*"
       - "apps/web/components/us-pipe-sample-calculator.tsx"
@@ -165,6 +167,8 @@ jobs:
           retention-days: 3
       - name: CALC-CINE1A five-language cinematic calculator, real shapes and bill
         run: node tests/calc-cine1a-chrome-acceptance.mjs
+      - name: CALC-UX4 five-language whole-bar quantity and Distinta integrity
+        run: node tests/calc-ux4-chrome-quantity.mjs
       - name: Upload CALC-CINE1A calculator screenshots
         if: always()
         uses: actions/upload-artifact@v4

@@ -49,9 +49,9 @@ test("CALC-PARITY public and embedded calculators retain one shared commercial w
   assert.ok(calculator.includes("data-commercial-price-fields"));
   assert.ok(calculator.includes("onClick={() => setFamily(option.value as TubeFamily)}"));
   assert.ok(calculator.includes("onAddToDistinta(item)"));
-  assert.ok(calculator.includes("inEmbeddedBuilder ? sectionDiagram : null"));
+  assert.ok(calculator.includes("{sectionDiagram}"),"Shared parametric preview is visible beside the weight");
   assert.ok(calculator.includes("!inEmbeddedBuilder ? ("),
     "Only the decorative cinematic stage may be omitted in embedded mode");
-  assert.ok(calculator.indexOf("data-commercial-targets")>calculator.indexOf("data-cockpit-add"));
+  assert.ok(calculator.indexOf("data-commercial-targets")<calculator.indexOf("data-cockpit-add"),"Quantity targets remain with editable dimensions");
   assert.ok(calculator.indexOf("data-commercial-targets")<calculator.indexOf("data-cinematic-geometry"));
 });

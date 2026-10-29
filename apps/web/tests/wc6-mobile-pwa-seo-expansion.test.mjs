@@ -72,9 +72,8 @@ test("WC6 hardens one-hand mobile interaction without removing the desktop cockp
   assert.doesNotMatch(calculator, /overflow-y-auto/);
   assert.match(cartStyles, /safe-area-inset-bottom/);
   assert.match(calculator, /min-h-11/);
-  // CALC-UX uses a 44px mobile preset inside a single compact rail;
-  // at desktop widths presets shrink to 36px to fit the measures panel.
-  assert.match(calculator, /flex w-fit items-center gap-1\.5/);
+  // CALC-UX4 retains accessible editable length and compact preset chips.
+  assert.match(calculator, /flex min-w-0 flex-wrap items-center gap-1\.5/);
   assert.match(calculator, /aria-label=\{t\("Lunghezza barra personalizzata"\)\}/);
   assert.match(calculator, /data-cockpit-length-quantity/);
   assert.match(denseStyles, /\.lengthQuantity \{grid-template-columns:minmax\(0,1\.15fr\) minmax\(170px,\.85fr\)/);
