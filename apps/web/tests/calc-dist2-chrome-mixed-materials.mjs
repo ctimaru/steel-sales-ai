@@ -7,6 +7,8 @@ import { mkdir } from "node:fs/promises";
 import { chromium } from "playwright";
 const BASE=process.env.NEXT_PUBLIC_SITE_URL || "http://127.0.0.1:3000";
 const OUTPUT="/tmp/calc-dist2-mixed-materials";
+// The Buyer Distinta canonical parser accepts both comma and dot decimals.
+const numeric=value=>Number(String(value).replace(",", "."));
 await mkdir(OUTPUT,{recursive:true});
 const articles=[
   {standard:"en10219",shape:0,dims:["168.3","6"],bars:"1",length:"12"},
@@ -72,13 +74,13 @@ try {
         "Distinct geometry/standards cannot collapse into duplicate rows");
       assert.equal(persisted.lines.filter(l=>l.standard==="EN 10210").length,3);
       assert.equal(persisted.lines.filter(l=>l.standard==="EN 10219").length,5);
-      assert.ok(persisted.lines.every(l=>Number(l.weightKgM)>0));
+      assert.ok(persisted.lines.every(l=>numeric(l.weightKgM)>0));
       assert.ok(persisted.lines.every(l=>l.targetEurT===""),"No private rate in stored cart");
 
       const initialMeters=persisted.lines.reduce((total,l)=>
-        total+Number(l.quantity)*Number(l.barLengthM),0);
+        total+numeric(l.quantity)*numeric(l.barLengthM),0);
       const initialTonnes=persisted.lines.reduce((total,l)=>
-        total+Number(l.quantity)*Number(l.barLengthM)*Number(l.weightKgM)/1000,0);
+        total+numeric(l.quantity)*numeric(l.barLengthM)*numeric(l.weightKgM)/1000,0);
       const summary=drawer.locator("[data-technical-cart-summary]");
       assert.ok((await summary.innerText()).includes(initialMeters+" m"));
       assert.ok((await summary.innerText()).includes(initialTonnes.toLocaleString("it-IT",
