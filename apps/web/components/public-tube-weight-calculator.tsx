@@ -472,6 +472,13 @@ export function PublicTubeWeightCalculator({
     fr: {heading:"Objectif de la demande",tonnes:"Tonnes",price:"Prix €",metres:"Modifiez les barres et la longueur à gauche."},
     es: {heading:"Objetivo de la solicitud",tonnes:"Toneladas",price:"Precio €",metres:"Modifica las barras y la longitud a la izquierda."},
   }[locale];
+  const ux4Copy = ({
+    it:{ quickLengths:"Lunghezze rapide", invalid:"Inserisci un obiettivo quantità valido." },
+    en:{ quickLengths:"Quick bar lengths", invalid:"Enter a valid requested quantity." },
+    de:{ quickLengths:"Schnelle Stablängen", invalid:"Bitte eine gültige Zielmenge eingeben." },
+    fr:{ quickLengths:"Longueurs rapides", invalid:"Saisissez une quantité demandée valide." },
+    es:{ quickLengths:"Longitudes rápidas", invalid:"Introduce una cantidad solicitada válida." },
+  } as const)[locale];
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
   const initialStandard = initialValues?.standard ?? "en10219";
   const [standard, setStandard] = useState<StandardValue>(initialStandard);
@@ -1217,7 +1224,7 @@ export function PublicTubeWeightCalculator({
                         <datalist id="tube-calculator-length-presets">
                           {lengthPresets.map((preset) => <option key={preset} value={preset} />)}
                         </datalist>
-                        <div className="flex flex-wrap gap-1" role="group" aria-label={t("Lunghezze rapide")}>
+                        <div className="flex flex-wrap gap-1" role="group" aria-label={ux4Copy.quickLengths}>
                           {lengthPresets.map((preset) => (
                             <button type="button" key={preset} aria-pressed={length === preset}
                               onClick={() => setLength(preset)}
@@ -1268,7 +1275,7 @@ export function PublicTubeWeightCalculator({
 
                   {values.error ? (
                     <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">
-                      {t(values.error)}
+                      {values.error === "Inserisci un obiettivo quantità valido." ? ux4Copy.invalid : t(values.error)}
                     </p>
                   ) : null}
                 </div>
@@ -1357,7 +1364,7 @@ export function PublicTubeWeightCalculator({
               <div className={cinematic.stageHeading}>
                 <span>{cine.visual}</span><strong>{t(currentStandard.label)}</strong>
               </div>
-              {values.error ? <p role="status" className={cinematic.invalid}>{t(values.error)}</p> : <>
+              {values.error ? <p role="status" className={cinematic.invalid}>{values.error === "Inserisci un obiettivo quantità valido." ? ux4Copy.invalid : t(values.error)}</p> : <>
                 <div className={cinematic.productPhoto} data-cinematic-product={family}>
                   <picture>
                     <source media="(prefers-reduced-data: reduce)" srcSet={`/calculator/tube-${family.replace("_tube", "")}-384.webp`} />
