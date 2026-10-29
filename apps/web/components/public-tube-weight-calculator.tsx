@@ -1401,7 +1401,7 @@ export function PublicTubeWeightCalculator({
                     <span className="ml-1 text-base font-semibold tracking-normal text-white/85">kg/m</span>
                   </p>
                 </div>
-                {sectionDiagram}
+                {!values.error ? sectionDiagram : null}
               </div>
 
               {!inEmbeddedBuilder ? <p className={cinematic.resultContext} data-cinematic-context>
