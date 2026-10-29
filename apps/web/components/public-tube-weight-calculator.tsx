@@ -1462,8 +1462,11 @@ export function PublicTubeWeightCalculator({
                 className="tube-calculator-rfq-link mt-1.5 inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#c3e5d5] bg-[#e3f4eb] px-3 py-2 text-center text-sm font-bold leading-snug text-[#123b34] transition-colors hover:border-[#98d6b6] hover:bg-[#ccebdc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {!inEmbeddedBuilder ? <svg aria-hidden="true" className={cinematic.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 4h2l2 12h12l2-9H6M9 20h.01M18 20h.01" strokeLinecap="round" strokeLinejoin="round" /></svg> : null}
-                {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}{values.qty != null && values.totalMeters != null ? ` · ${formatOutput(values.qty,0)} ${t("barre")} / ${formatOutput(values.totalMeters,3)} m` : ""}
+                {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}{values.qty != null && values.totalMeters != null ? <span className="hidden sm:inline">{` · ${formatOutput(values.qty,0)} ${t("barre")} / ${formatOutput(values.totalMeters,3)} m`}</span> : null}
               </button>
+              <p data-effective-order-summary className="mt-1 text-[11px] font-semibold leading-4 text-white/90">
+                {values.qty != null && values.totalMeters != null ? `${formatOutput(values.qty,0)} ${t("barre")} · ${formatOutput(values.totalMeters,3)} m` : "—"}
+              </p>
               <p className="mt-1 text-[11px] leading-4 text-white/85">
                 {inlinePublicDistinta ? inlineCopy.billWeightNote : t(onAddToDistinta
                   ? "Il peso è teorico: la riga appare subito a fianco, senza inviare una RFQ."
