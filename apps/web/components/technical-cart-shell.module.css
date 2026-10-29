@@ -152,7 +152,21 @@
   box-shadow:0 -8px 20px rgba(14,57,39,.08);
 }
 @media (min-width:640px) {
-  .dialogCompact { width:min(510px,95vw); }
+  .dialogCompact {
+    width:min(510px,95vw);
+    height:auto;
+    min-height:0;
+    max-height:calc(100dvh - 32px);
+    align-self:center;
+    border-radius:18px;
+  }
+  /* One-line bills shrink to their content; longer bills scroll independently. */
+  .dialogCompact .body {
+    flex:0 1 auto;
+    min-height:0;
+    max-height:calc(100dvh - 225px);
+    overflow-y:auto;
+  }
 }
 @media (max-width:639px) {
   .dialogCompact .header { padding:12px 14px; }
