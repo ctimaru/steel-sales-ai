@@ -34,8 +34,10 @@ test("DENSE1C: compact grid and sticky drawer footer keep one canonical RFQ acti
 test("DENSE1C: explicit validated quantity save never writes a second state model or private prices", () => {
   assert.ok(model.includes("EDITABLE_KEYS"));
   assert.ok(model.includes("const next = validatedLine({ ...state.lines[index], ...patch })"));
-  assert.ok(component.includes("if (hasPendingQuantities()) { setRfqError(c.unsavedQuantity); return; }"));
-  assert.ok(component.includes("if (hasPendingQuantities()) { setMessage(c.unsavedQuantity); return; }"));
+  // CALC-DIST2 strengthens the same guard to cover open full-row and target editors.
+  assert.ok(component.includes("if (hasPendingQuantities() || editingId !== null || editingTargetId !== null)"));
+  assert.ok(component.includes("setRfqError(hasPendingQuantities() ? c.unsavedQuantity : drawerCopy.pendingReview)"));
+  assert.ok(component.includes("setMessage(hasPendingQuantities() ? c.unsavedQuantity : drawerCopy.pendingReview)"));
   assert.ok(component.includes("setQuickQuantities"));
   assert.ok(component.includes("sessionStorage"));
   assert.ok(component.includes("pruneBuyerTargets(result.state, current)"));
