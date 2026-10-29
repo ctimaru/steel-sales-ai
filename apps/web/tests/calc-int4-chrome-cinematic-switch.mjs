@@ -31,9 +31,12 @@ try {
     const us=group.getByRole("button",{name:/USA/i});
     assert.equal(await eu.getAttribute("aria-pressed"),"true");
     assert.equal(await us.getAttribute("aria-pressed"),"false");
-    const original=page.locator("#calcolatore-pesi input").first();
+    // The first input can now be the dimension-discovery search, which is not geometry.
+    // Verify the actual controlled EU dimension field across the region switch.
+    const original=page.locator("#calcolatore-pesi [data-cockpit-measurements] input").first();
     await original.waitFor({state:"visible"});
     await original.fill("153.9");
+    assert.equal(await original.inputValue(),"153.9","EU diameter should be edited before switching");
     await us.click();
     assert.equal(page.url(),BASE+spec.url,"Switch must not navigate or change canonical URL");
     assert.equal(await us.getAttribute("aria-pressed"),"true");
@@ -44,7 +47,7 @@ try {
     assert.equal(await page.locator("#calcolatore-pesi").count(),1,"EU calculator should remain mounted");
     assert.equal(await page.locator("#calcolatore-pesi").isVisible(),false,"Inactive EU must be hidden");
     await eu.click();
-    const restored=page.locator("#calcolatore-pesi input").first();
+    const restored=page.locator("#calcolatore-pesi [data-cockpit-measurements] input").first();
     await restored.waitFor({state:"visible"});
     assert.equal(await restored.inputValue(),"153.9","EU geometry must survive region switch");
     await us.click();

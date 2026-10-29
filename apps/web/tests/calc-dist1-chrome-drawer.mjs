@@ -32,7 +32,11 @@ try {
     assert.equal(await drawer.locator("[data-distinta-count-badge]").count(),1);
     assert.equal(await drawer.locator("[data-cart-back]").count(),1);
     assert.equal(await drawer.locator("[data-distinta-compact-row]").count(),1);
-    assert.equal(await drawer.locator("[data-distinta-footer-actions] button").count(),2);
+    // CALC-DIST3 separates copy, private save, and supplier preparation.
+    assert.equal(await drawer.locator("[data-distinta-footer-actions] button").count(),3);
+    assert.equal(await drawer.locator("[data-save-private-distinta]").count(),1);
+    assert.equal(await drawer.locator("[data-distinta-name-field] input").count(),1);
+    assert.equal(await drawer.locator("[data-commercial-saved-distinte-link]").count(),1);
     assert.equal(await drawer.locator("[data-create-inline-private-rfq]").count(),1);
     assert.equal(await drawer.locator("[data-distinta-privacy-info]").count(),1);
     assert.equal(await drawer.locator("[data-distinta-rfq-help]").count(),1);

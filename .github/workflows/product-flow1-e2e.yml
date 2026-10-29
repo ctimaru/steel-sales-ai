@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/product-flow1-e2e.yml"
       - "apps/web/tests/product-flow1-*.mjs"
+      - "apps/web/tests/calc-dist3-chrome-authenticated-private-save.mjs"
       - "apps/web/tests/product-flow1-*.cjs"
       - "apps/web/tests/demotest23-seed-auth.mjs"
       - "apps/web/tests/rfqh14-2-prepare-portal.mjs"
@@ -189,6 +190,10 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/product-flow1-chrome-journey.mjs
+      - name: CALC-DIST3 real buyer named save, Commerciale archive, company RLS, no RFQ dispatch
+        working-directory: apps/web
+        timeout-minutes: 9
+        run: node tests/calc-dist3-chrome-authenticated-private-save.mjs
       # Raw logs and provider captures can contain capability URLs. Never upload them.
       - name: Stop local processes and destroy temporary data and capabilities
         if: always()

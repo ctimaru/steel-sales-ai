@@ -1,28 +1,28 @@
 /* CALC-DIST1 — calm technical-commercial cart, same semantics as the canonical bill.
    Responsive to the compact 510px drawer, not just to the outer page viewport. */
-.rows { display:grid; gap:9px; }
+.rows { display:grid; gap:6px; }
 .gridHeader { display:none; }
 .row {
-  min-width:0; padding:12px; border:1px solid #c7dfd0; border-radius:12px;
+  min-width:0; padding:8px 10px; border:1px solid #c7dfd0; border-radius:10px;
   background:#fff; box-shadow:0 2px 7px rgba(12,52,33,.035);
 }
 .row:focus-within { background:#f9fdfb; border-color:#79b797; }
 .mainRow {
   display:grid; min-width:0;
   grid-template-columns:minmax(80px,.8fr) minmax(0,2.1fr);
-  gap:10px 12px; align-items:start;
+  gap:5px 9px; align-items:start;
 }
-.description { grid-column:1/-1; min-width:0; border-bottom:1px solid #e1ede5; padding-bottom:9px; }
+.description { grid-column:1/-1; min-width:0; border-bottom:1px solid #e1ede5; padding-bottom:4px; }
 .description strong {
-  display:block; font-size:14px; font-weight:800; line-height:1.35;
+  display:block; font-size:13px; font-weight:800; line-height:1.25;
   color:#143d2a; overflow-wrap:anywhere;
 }
 .description span {
-  display:block; margin-top:3px; font-size:11px; line-height:1.45;
+  display:block; margin-top:2px; font-size:10px; line-height:1.3;
   color:#537360; overflow-wrap:anywhere;
 }
 .fieldLabel {
-  display:block; margin-bottom:4px; color:#51735f;
+  display:block; margin-bottom:2px; color:#51735f;
   font-size:10px; font-weight:750; line-height:1.3;
 }
 .quantity { min-width:0; }
@@ -35,18 +35,18 @@
 }
 .metrics {
   display:grid; grid-template-columns:repeat(2,minmax(0,1fr));
-  min-width:0; gap:4px 8px; font-variant-numeric:tabular-nums;
+  min-width:0; gap:2px 6px; font-variant-numeric:tabular-nums;
 }
 .metrics > div { min-width:0; }
 .metrics strong {
-  display:block; color:#15442f; font-size:13px; line-height:1.8;
+  display:block; color:#15442f; font-size:12px; line-height:1.5;
   font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .weightLine { grid-column:1/-1; font-size:10px; color:#527261; text-align:right; }
 .actions {
   display:flex; grid-column:1/-1; flex-wrap:wrap;
-  align-items:center; gap:6px; min-width:0;
-  padding-top:9px; border-top:1px solid #e1ede5;
+  align-items:center; gap:5px; min-width:0;
+  padding-top:5px; border-top:1px solid #e1ede5;
 }
 .action,.actionDanger,.actionTarget {
   display:inline-flex; flex:0 0 44px; align-items:center; justify-content:center;
@@ -92,6 +92,49 @@
   .actions { gap:5px; }
   .action,.actionDanger,.actionTarget { flex-basis:40px; width:40px; height:44px; }
   .lengthInput { width:43px; }
+}
+/* CALC-DIST2 — long bills keep all canonical quantities and tools at one glance.
+   Opt-in detail view retains the exact CALC-DIST1 card instead of a second editor. */
+.rowsBatch { gap:5px; }
+.rowsBatch .row { padding:6px 9px; border-radius:10px; box-shadow:none; }
+.rowsBatch .mainRow {
+  grid-template-columns:minmax(82px,.78fr) minmax(0,2.22fr);
+  gap:3px 8px; align-items:center;
+}
+.rowsBatch .description {
+  grid-column:1/-1; display:flex; align-items:baseline; justify-content:space-between;
+  gap:8px; padding-bottom:2px; border-bottom:0;
+}
+.rowsBatch .description strong {
+  flex:1 1 50%; min-width:0; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; font-size:12px; line-height:1.4;
+}
+.rowsBatch .description span {
+  flex:0 1 46%; min-width:0; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; margin-top:0; text-align:right;
+  font-size:10px; line-height:1.4;
+}
+.rowsBatch .quantity { grid-column:1; }
+.rowsBatch .quantity input { height:44px; font-size:13px; }
+.rowsBatch .metrics { grid-column:2; gap:2px 6px; }
+.rowsBatch .metrics strong { font-size:12px; line-height:1.5; }
+.rowsBatch .fieldLabel { margin-bottom:2px; }
+.rowsBatch .weightLine { display:none; }
+.rowsBatch .actions {
+  grid-column:1/-1; gap:4px; padding-top:2px; border-top:0;
+}
+.rowsBatch .action,.rowsBatch .actionDanger,.rowsBatch .actionTarget {
+  flex-basis:44px; width:44px; height:44px;
+}
+.rowsBatch .lengthControl { margin-left:auto; }
+.rowsBatch .lengthInput { height:40px; }
+@media (max-width:359px) {
+  .rowsBatch .row { padding:7px 8px; }
+  .rowsBatch .mainRow { grid-template-columns:minmax(72px,.75fr) minmax(0,2.25fr); gap:3px 7px; }
+  .rowsBatch .description { gap:5px; }
+  .rowsBatch .description span { flex-basis:42%; }
+  .rowsBatch .actions { gap:4px; }
+  .rowsBatch .action,.rowsBatch .actionDanger,.rowsBatch .actionTarget { flex-basis:40px; width:40px; height:44px; }
 }
 @media (prefers-reduced-motion:reduce) {
   .action,.actionDanger,.actionTarget { transition:none; }
