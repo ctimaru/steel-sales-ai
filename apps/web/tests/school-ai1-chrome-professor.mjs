@@ -33,6 +33,18 @@ try {
     assert.equal(res?.status(), 200, "public route " + width);
     assert.equal(await page.locator("h1").count(), 1, "one headline");
     await page.screenshot({ path: out + "/professor-" + width + "-initial.png", animations: "disabled" });
+    const samples = page.locator('[data-testid="school-qa3-prompt-suggestions"]');
+    assert.equal(await samples.getByRole("button").count(), 2, "two initial visible sample prompts at "+width);
+    const moreQuestions = page.locator('[data-testid="school-qa3-more-questions"]');
+    assert.equal(await moreQuestions.getAttribute("open"), null, "more questions start collapsed");
+    if (width === 390) {
+      const portrait = page.locator('[data-testid="school-qa3-mobile-portrait"]');
+      assert.equal(await portrait.isVisible(), true, "teacher stays visible on mobile");
+      const status = page.locator('[data-testid="school-tutor3-presence"]');
+      assert.equal(await status.isVisible(), true, "teacher status text remains visible on mobile");
+    }
+    await moreQuestions.locator("summary").click();
+    assert.equal(await moreQuestions.getAttribute("open"), "", "extra sample questions can be opened");
     await page.getByRole("button", { name: /Come si producono i tubi/ }).click();
     await page.getByRole("link", { name: /Apri la guida con fonti/ }).waitFor();
     assert.equal(queries.length, 0, "topic-only question must not contact source or model");
@@ -45,7 +57,10 @@ try {
     assert.equal(await detail.isVisible(),false,"longer technical context starts collapsed");
     await page.getByText("Approfondisci il contesto tecnico").click();
     assert.equal(await detail.isVisible(),true,"learner can expand published technical context");
-    assert.equal(queries.length, 1);
+    await page.getByRole("button", {name: /Che cosa devo verificare/}).click();
+    await page.getByText("La scheda non indica cautele specifiche.").waitFor();
+    assert.equal(await detail.isVisible(),false,"switching follow-up hides previously selected context");
+    assert.equal(queries.length, 1,"guided source-only follow-ups must never contact the endpoint again");
     assert.equal(queries[0].q, "en10219");
     assert.equal(queries[0].locale, "it");
     assert.equal(queries[0].limit, "2");
