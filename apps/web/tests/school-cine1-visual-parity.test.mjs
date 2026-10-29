@@ -33,7 +33,8 @@ test("SCHOOL-CINE1 preserves public editorial routes and private boundaries", ()
   assert.match(internationalPublic, /generateStaticParams/);
   assert.match(internationalPublic, /isNewCalculatorLocale/);
   assert.doesNotMatch(italianPrivate, /SchoolAssistantEntry/);
-  assert.match(internationalPrivate, /schoolWorkspaceHref/);
+  assert.match(sharedPrivateHero, /schoolWorkspaceHref/);
+  assert.match(internationalPrivate, /SchoolWorkspaceFirstViewport/);
   assert.doesNotMatch(internationalPublic, /href="\/school\/explorer"/);
 });
 

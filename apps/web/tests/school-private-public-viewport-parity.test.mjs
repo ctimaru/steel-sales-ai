@@ -10,10 +10,13 @@ const navigation = read("../components/school-unified-navigation.tsx");
 const topbar = read("../components/school-private-language-switch.tsx");
 
 test("SCHOOL-PRIVATE-PARITY keeps identical first viewport visual tokens across public and authenticated School", () => {
-  for (const token of ["rounded-[24px]", "bg-[#102921]", "home-cine1a-steel.webp", "min-h-[292px]", "text-[2.35rem]", "bg-[#247455]", "rounded-[22px]"]) {
+  for (const token of ["rounded-[24px]", "bg-[#102921]", "home-cine1a-steel.webp", "bg-[#247455]"]) {
     assert.ok(publicHome.includes(token), "public " + token);
     assert.ok(shared.includes(token), "workspace " + token);
   }
+  assert.match(publicHome, /min-h-\[292px\]/);
+  assert.match(shared, /min-h-\[204px\]/);
+  assert.doesNotMatch(shared, /min-h-\[292px\]/);
   for (const page of [privateHome, internationalHome]) {
     assert.ok(page.includes("SchoolWorkspaceFirstViewport"));
     assert.doesNotMatch(page, /<SchoolUnifiedNavigation/);

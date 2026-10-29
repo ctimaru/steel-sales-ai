@@ -28,38 +28,38 @@ export async function SchoolPrivateReferenceIndex({locale,kind,query}:{locale:Sc
     if(q&&!normalize(label+" "+title+" "+summary).includes(normalize(q)))return [];
     return [{slug,label,title,summary,lang:locale==="en"?"en":"it"}];
   }).slice(0,120);
-  return <div lang={locale} className="mx-auto max-w-[1160px] space-y-6 px-4 py-8 sm:px-6">
-    <SchoolPrivateTopbar locale={locale} pathname={collectionPath}/>
+  return <div lang={locale} className="mx-auto max-w-[1160px] space-y-4 px-3 py-3 sm:px-5 sm:py-4">
+    <SchoolPrivateTopbar locale={locale} pathname={collectionPath} compact/>
     <header>
-      <Link href={origin} className="inline-flex min-h-10 items-center text-sm font-bold text-[#174b3c] underline underline-offset-4">← {c.returnHome}</Link>
-      <p className="mt-4 text-xs font-bold uppercase tracking-[.13em] text-[#1a5144]">{c.listed}</p>
-      <h1 className="mt-2 text-3xl font-semibold text-[#173f35]">{isStandard?c.standards:c.grades}</h1>
-      <p className="mt-2 max-w-3xl text-sm leading-7 text-[#52615b]">{c.sourceNote}</p>
+      <Link href={origin} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#174b3c] underline underline-offset-4">← {c.returnHome}</Link>
+      <p className="mt-1 text-[11px] font-bold uppercase tracking-[.12em] text-[#1a5144]">{c.listed}</p>
+      <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[#173f35]">{isStandard?c.standards:c.grades}</h1>
+      <p className="mt-1 max-w-3xl text-xs leading-5 text-[#52615b]">{c.sourceNote}</p>
     </header>
     <form action={collectionPath} method="get" role="search"
-      className="flex flex-wrap items-end gap-3 rounded-2xl border border-[#dce5df] bg-white p-4 sm:p-5">
+      className="flex flex-wrap items-end gap-2 rounded-2xl border border-[#dce5df] bg-white p-3 sm:p-4">
       {locale!=="it"?<input type="hidden" name="lang" value={locale}/>:null}
       <label htmlFor={"private-"+kind+"-query"} className="min-w-[220px] flex-1 text-sm font-bold text-[#365247]">
         {isStandard?c.standards:c.grades}
         <input id={"private-"+kind+"-query"} name="q" type="search" maxLength={120} defaultValue={q}
           placeholder={isStandard?"EN 10219":"S355J2H"}
-          className="mt-2 block min-h-11 w-full rounded-xl border border-[#b8cac0] bg-white px-3 text-base text-[#1d2824] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"/>
+          className="mt-1 block min-h-11 w-full rounded-xl border border-[#b8cac0] bg-white px-3 text-base text-[#1d2824] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]"/>
       </label>
       <button type="submit" className="school-primary-action">{c.searchAction}</button>
       {q?<Link href={schoolWorkspaceHref(collectionPath,locale)} className="school-secondary-action">{c.clear}</Link>:null}
     </form>
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
       {rows.map(item=><Link key={item.slug} href={schoolWorkspaceHref(collectionPath+"/"+item.slug,locale)}
-        className="group flex min-h-[186px] flex-col rounded-2xl border border-[#dce5df] bg-white p-5 transition hover:border-[#89b9a4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
+        className="group flex min-h-[148px] flex-col rounded-2xl border border-[#dce5df] bg-white p-4 transition hover:border-[#89b9a4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
         <div className="flex items-center justify-between gap-2">
           <span className="text-xs font-bold text-[#174b3c]">{item.label}</span>
-          <span className="rounded-lg border border-[#d7e7dd] bg-[#f2f8f4] px-2 py-1 text-[11px] font-semibold text-[#1a5144]" lang={item.lang}>
+          {locale!=="it" ? <span className="rounded-lg border border-[#d7e7dd] bg-[#f2f8f4] px-2 py-1 text-[11px] font-semibold text-[#1a5144]" lang={item.lang}>
             {item.lang==="en"?c.englishGuides:c.originalItalian}
-          </span>
+          </span> : null}
         </div>
-        <h2 className="mt-3 text-base font-semibold text-[#173f35]" lang={item.lang}>{item.title}</h2>
-        <p className="mt-2 flex-1 text-sm leading-6 text-[#52615b]" lang={item.lang}>{item.summary}</p>
-        <span className="mt-3 text-sm font-bold text-[#174b3c]">{c.read} →</span>
+        <h2 className="mt-2 text-sm font-semibold text-[#173f35]" lang={item.lang}>{item.title}</h2>
+        <p className="mt-1 flex-1 text-xs leading-5 text-[#52615b]" lang={item.lang}>{item.summary}</p>
+        <span className="mt-2 text-xs font-bold text-[#174b3c]">{c.read} →</span>
       </Link>)}
     </div>
     {!rows.length?<p role="status" className="rounded-xl border border-[#dce5df] bg-white p-6 text-sm text-[#52615b]">{c.none}</p>:null}
