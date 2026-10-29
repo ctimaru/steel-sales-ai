@@ -10,6 +10,7 @@ const actions=read("../app/(italian)/(workspace)/rfq-hub/distinte/actions.ts");
 const controls=read("../components/saved-distinta-actions.tsx");
 const migration=read("../../../supabase/migrations/20261029164000_calc_dist4_saved_bill_management.sql");
 const flow=read("../../../.github/workflows/product-flow1-e2e.yml");
+const authenticated=read("./calc-dist3-chrome-authenticated-private-save.mjs");
 
 test("CALC-DIST4: typechecked inputs and compact search/pagination preserves active and archived state",()=>{
   for(const code of [archive,detail,actions,controls]) {
@@ -49,5 +50,8 @@ test("CALC-DIST4: duplicate preserves snapshot numerics and documents, never cop
   assert.ok(!actions.includes("createPrivateRfqOneStep"));
   for(const x of ["Rinomina","Duplica","Archivia","Ripristina","data-action-rename","data-action-duplicate","data-action-archive","aria-label"])
     assert.ok(controls.includes(x),x);
-  assert.ok(flow.includes("calc-dist4-chrome-authenticated-archive.mjs"));
+  assert.ok(flow.includes("calc-dist3-chrome-authenticated-private-save.mjs"));
+  for(const action of ["data-action-rename","data-action-duplicate","data-action-archive",
+    "UNAUTHORIZED","deniedTechnical","Archived bill absent","Duplicate must preserve"])
+    assert.ok(authenticated.includes(action),action);
 });
