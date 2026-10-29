@@ -38,6 +38,25 @@ function validEvidence(value: unknown): PublicEvidence[] {
   }).slice(0, 4);
 }
 
+/** One original teacher illustration reused on mobile and desktop, without any new media or AI. */
+function TeacherPortrait({ state, className }: { state: LookupState; className: string }) {
+  return (<svg viewBox="0 0 180 180" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="90" cy="77" r="62" fill="#366B50" stroke="#A9D2B8" strokeOpacity=".5"/>
+              <path d="M36 154c5-31 24-45 54-45s49 14 54 45" fill="#D3E9DD"/>
+              <path d="m72 110 18 18 18-18-5-8H77l-5 8Z" fill="#B4D8BF"/>
+              <path d="M64 63c0-22 10-37 26-37s26 15 26 37v13c0 23-12 40-26 40S64 99 64 76V63Z" fill="#EBC7A7"/>
+              <path d="M60 70c-2-31 10-49 32-49 20 0 33 17 28 46l-5-9c-2-15-10-23-21-23-7 0-16 9-30 9l-4 26Z" fill="#20392E"/>
+              <path d="M67 73h18m10 0h18M85 73h10" stroke="#20392E" strokeWidth="4" strokeLinecap="round"/>
+              {state === "loading"
+                ? <path d="M83 95h14" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
+                : state === "ready" || state === "topic"
+                  ? <path d="M81 94q9 9 18 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
+                  : <path d="M83 95c4 3 10 3 14 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>}
+              <path d="m69 126 20 24 21-24" stroke="#356A4E" strokeWidth="4" strokeLinejoin="round"/>
+              <path d="M34 156h112" stroke="#A9D2B8" strokeWidth="3" strokeLinecap="round"/>
+            </svg>);
+}
+
 /** Public foundation: raw questions remain in the browser, only recognized codes reach public K2. */
 export function SchoolTechnicalTutor() {
   const [draft, setDraft] = useState("");
@@ -103,7 +122,7 @@ export function SchoolTechnicalTutor() {
 
   return <div className="space-y-4">
     <section className="overflow-hidden rounded-[26px] border border-[#d1ded5] bg-white shadow-[0_12px_45px_-35px_rgba(9,44,30,.5)]" aria-labelledby="school-professor-title">
-      <div className="relative isolate overflow-hidden bg-[#0b251d] px-5 py-7 text-white sm:px-8 sm:py-9">
+      <div className="relative isolate overflow-hidden bg-[#0b251d] px-5 py-5 text-white sm:px-8 sm:py-9">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:75%_center] opacity-35" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,#0b251d_0%,rgba(11,37,29,.95)_64%,rgba(11,37,29,.62)_100%)]" />
         <div className="relative grid max-w-[930px] items-center gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(145px,210px)] sm:gap-8">
@@ -111,7 +130,11 @@ export function SchoolTechnicalTutor() {
             <p className="text-[11px] font-bold uppercase tracking-[.15em] text-[#b9dfc7]">Smart Steel School · Il Professore</p>
             <h1 id="school-professor-title" className="mt-2 max-w-[17ch] text-[2rem] font-semibold leading-[1.12] tracking-[-.045em] text-white sm:text-[2.55rem]">Ciao, cosa vuoi capire?</h1>
             <p className="mt-2 max-w-[55ch] text-sm leading-6 text-[#dfefe4]">Chiedimi di norme, acciai o tubi. Partiamo insieme dalle fonti pubblicate.</p>
-            <div className="mt-4 flex flex-wrap items-center gap-2">
+            <div className="mt-3 flex flex-wrap items-center gap-2 sm:mt-4">
+              <div data-testid="school-qa3-mobile-portrait" aria-hidden="true"
+                className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full border border-[#a9d2b8]/50 bg-[#24503b]/75 sm:hidden">
+                <TeacherPortrait state={state} className="h-[72px] w-[72px] shrink-0 translate-y-1"/>
+              </div>
               <span data-testid="school-tutor3-presence" className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-semibold text-[#e1f2e6]">
                 <span aria-hidden="true" className={state === "loading"
                   ? "h-2 w-2 rounded-full bg-[#9bdfb8] motion-safe:animate-pulse"
@@ -122,21 +145,7 @@ export function SchoolTechnicalTutor() {
             </div>
           </div>
           <div aria-hidden="true" className="hidden h-[176px] w-[176px] items-center justify-center justify-self-center rounded-[30px] border border-[#a9d2b8]/35 bg-[#24503b]/65 shadow-[0_20px_40px_-20px_rgba(2,18,12,.6)] sm:flex">
-            <svg viewBox="0 0 180 180" className="h-[155px] w-[155px]" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="90" cy="77" r="62" fill="#366B50" stroke="#A9D2B8" strokeOpacity=".5"/>
-              <path d="M36 154c5-31 24-45 54-45s49 14 54 45" fill="#D3E9DD"/>
-              <path d="m72 110 18 18 18-18-5-8H77l-5 8Z" fill="#B4D8BF"/>
-              <path d="M64 63c0-22 10-37 26-37s26 15 26 37v13c0 23-12 40-26 40S64 99 64 76V63Z" fill="#EBC7A7"/>
-              <path d="M60 70c-2-31 10-49 32-49 20 0 33 17 28 46l-5-9c-2-15-10-23-21-23-7 0-16 9-30 9l-4 26Z" fill="#20392E"/>
-              <path d="M67 73h18m10 0h18M85 73h10" stroke="#20392E" strokeWidth="4" strokeLinecap="round"/>
-              {state === "loading"
-                ? <path d="M83 95h14" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
-                : state === "ready" || state === "topic"
-                  ? <path d="M81 94q9 9 18 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
-                  : <path d="M83 95c4 3 10 3 14 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>}
-              <path d="m69 126 20 24 21-24" stroke="#356A4E" strokeWidth="4" strokeLinejoin="round"/>
-              <path d="M34 156h112" stroke="#A9D2B8" strokeWidth="3" strokeLinecap="round"/>
-            </svg>
+            <TeacherPortrait state={state} className="h-[155px] w-[155px]"/>
           </div>
         </div>
       </div>
@@ -153,12 +162,23 @@ export function SchoolTechnicalTutor() {
             </button>
           </div>
         </form>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-[#607166]">Puoi iniziare da qui:</span>
-          {examples.map(example => <button key={example} type="button" onClick={() => void ask(example)}
-            disabled={state === "loading"} className="rounded-full border border-[#d4e0d7] bg-[#f4f8f5] px-3 py-2 text-left text-xs font-semibold text-[#25533e] transition hover:border-[#8bb6a0] hover:bg-[#eaf4ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] disabled:opacity-50">
+        <div className="mt-3 flex flex-wrap items-center gap-2" data-testid="school-qa3-prompt-suggestions">
+          <span className="w-full text-xs text-[#607166] sm:w-auto">Puoi iniziare da qui:</span>
+          {examples.slice(0, 2).map(example => <button key={example} type="button" onClick={() => void ask(example)}
+            disabled={state === "loading"} className="min-h-10 rounded-full border border-[#d4e0d7] bg-[#f4f8f5] px-3 py-2 text-left text-xs font-semibold text-[#25533e] transition hover:border-[#8bb6a0] hover:bg-[#eaf4ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] disabled:opacity-50">
             {example}
           </button>)}
+          <details data-testid="school-qa3-more-questions" className="w-full sm:w-auto">
+            <summary className="inline-flex min-h-10 cursor-pointer list-none items-center rounded-full border border-[#d4e0d7] bg-white px-3 text-xs font-semibold text-[#25533e] hover:bg-[#f4f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] [&::-webkit-details-marker]:hidden">
+              Altre domande <span aria-hidden="true" className="ml-2">+</span>
+            </summary>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {examples.slice(2).map(example => <button key={example} type="button" onClick={() => void ask(example)}
+                disabled={state === "loading"} className="min-h-10 rounded-full border border-[#d4e0d7] bg-[#f4f8f5] px-3 py-2 text-left text-xs font-semibold text-[#25533e] transition hover:border-[#8bb6a0] hover:bg-[#eaf4ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] disabled:opacity-50">
+                {example}
+              </button>)}
+            </div>
+          </details>
         </div>
         <p className="mt-3 text-[11px] leading-5 text-[#617469]">Consultazione guidata delle fonti pubblicate, non conversazione AI generativa. La domanda resta nel browser: alla ricerca inviamo solo i codici tecnici riconosciuti.</p>
       </div>
