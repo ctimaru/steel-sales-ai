@@ -1547,8 +1547,11 @@ export function PublicTubeWeightCalculator({
           </aside>
         </div>
         <div data-cockpit-details className={styles.detailStrip}>
-              <details className="mt-2 rounded-xl border border-white/10 bg-white/5">
-                <summary className="flex min-h-11 cursor-pointer items-center px-3 py-2 text-xs font-bold">
+              <details className="group min-w-0 rounded-xl border border-white/15 bg-white/5">
+                <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-2 px-3 py-2 text-xs font-bold">
+                  <span>{t("Metodo e provenienza")}</span><span aria-hidden="true" className="text-[#b5daca] group-open:rotate-180">⌄</span>
+                </summary>
+                <div className="border-t border-white/10 px-3 py-2 text-xs leading-5 text-white/85">
                   {t("Metodo e provenienza")}
                 </summary>
                 <div className="border-t border-white/10 px-3 py-2 text-xs leading-5 text-white/85">
@@ -1646,7 +1649,10 @@ export function PublicTubeWeightCalculator({
                           <button
                             type="button"
                             aria-label={`${t("Rimuovi")} ${calculationDimensionLabel(calculation)} ${t("dai preferiti")}`}
-                            onClick={() => saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key))}
+                            onClick={() => {
+                              const saved = saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key));
+                              setActionFeedback(saved ? utilityCopy.removed : utilityCopy.storage);
+                            }}
                             className="min-h-11 min-w-11 rounded-md px-2 py-2 text-xs font-bold hover:bg-white/10"
                           >
                             ×
@@ -1657,6 +1663,7 @@ export function PublicTubeWeightCalculator({
                       )}
                     </div>
                   </div>
+                    </div>
                   </details>
                   <button type="button" data-calc-save-favorite
                     disabled={!retentionReady || !currentSnapshot}
