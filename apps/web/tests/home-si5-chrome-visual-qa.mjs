@@ -376,17 +376,18 @@ try {
         // I18N7: one source of truth for the IT and EN calculator.
         await context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: BASE });
         for (const tube of [
-          { path: "/knowledge/tubes", locale: "it", copy: "Copia risultato", builder: "/distinta" },
-          { path: "/en/knowledge/tubes", locale: "en", copy: "Copy result", builder: "/en/distinta" },
+          { path: "/knowledge/tubes", locale: "it", copy: "Copia risultati", builder: "/distinta" },
+          { path: "/en/knowledge/tubes", locale: "en", copy: "Copy results", builder: "/en/distinta" },
         ]) {
           const tubeResponse = await page.goto(BASE + tube.path, { waitUntil: "domcontentloaded", timeout: 50000 });
           assert.equal(tubeResponse?.status(), 200, "I18N7 calculator page HTTP status");
           const calculator = page.locator("#calcolatore-pesi");
           await calculator.waitFor({ state: "visible" });
           check(await calculator.locator('select option[value="en10219"]').count() === 1, "Missing shared standard control");
-          // DENSE1A: copy and sharing are secondary actions behind an explicit disclosure.
-          await calculator.locator("details[class*=\'group/extra\'] > summary").click();
-          const copy = calculator.getByRole("button", { name: tube.copy, exact: true });
+          // CALC-UX6: result and share actions are directly accessible beside the live result.
+          const copy = calculator.locator('[data-cinematic-copy]');
+          assert.equal(await copy.count(),1,"One canonical copy control");
+          assert.equal((await copy.innerText()).trim(),tube.copy,"Localized copy action");
           await copy.waitFor({ state: "visible" });
           check(!(await copy.isDisabled()), "Copy should be enabled for valid default section");
           await copy.click();
