@@ -53,8 +53,12 @@ try {
   if(width===1440){
    const kpiGrid=await calc.locator('[data-cockpit-kpis]').evaluate(el=>getComputedStyle(el).gridTemplateColumns.trim().split(/\s+/).length);
    assert.equal(kpiGrid,3,"Desktop KPIs should occupy a single compact row");
-   const fields=await calc.locator('[data-cockpit-fields]').boundingBox();
-   assert.ok(fields&&Math.abs(fields.y-resultBox.y)<4,"Balanced main columns");
+   // The gallery scrolls into view above. Measure both columns in the same
+   // scroll position; comparing an old viewport-relative box is misleading.
+   const [fields,alignedResults]=await Promise.all([
+    calc.locator('[data-cockpit-fields]').boundingBox(),result.boundingBox()
+   ]);
+   assert.ok(fields&&alignedResults&&Math.abs(fields.y-alignedResults.y)<4,"Balanced main columns");
    const buttonBox=await calc.locator('[data-cockpit-add]').boundingBox();
    const toolbarBox=await calc.locator('[data-cockpit-toolbar]').boundingBox();
    assert.ok(buttonBox&&toolbarBox&&buttonBox.y-toolbarBox.y<430,"Primary action remains in the working viewport");
