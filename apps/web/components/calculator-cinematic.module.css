@@ -92,9 +92,10 @@
 }
 @container steel-calculator (min-width:1000px) {
   .root [data-cockpit-toolbar] { grid-template-columns:minmax(0,1fr) minmax(0,1.4fr); }
-  .root [data-cockpit-workspace] { grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(0,.95fr); }
-  .stage { grid-column:auto; order:2; min-height:370px; }
-  .root [data-cockpit-results] { order:3; }
+  /* CALC-UX4: balanced two-column cockpit; cinematic proof becomes secondary. */
+  .root [data-cockpit-workspace] { grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr); }
+  .stage { grid-column:1/-1; order:3; min-height:240px; }
+  .root [data-cockpit-results] { order:2; }
   .stage [data-cockpit-preview] figure > svg { max-width:330px; max-height:290px; }
   .root [data-cockpit-kpis] { grid-template-columns:minmax(0,1fr); gap:6px; }
   .root [data-cockpit-kpis] > div { display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:45px; }
@@ -196,4 +197,220 @@
   .root [data-cockpit-length-quantity] > div:first-child select { width:76px; padding-inline:3px; font-size:11px; }
   .root [data-cockpit-length-quantity] > div:first-child input { width:48px; }
   .root [data-cockpit-length-quantity] > div:last-child > div { grid-template-columns:44px minmax(30px,1fr) 44px; width:100%; gap:0; padding:0; }
+}
+
+/* CALC-UX4: quantity/price live with inputs. Result and parametric section stay
+   visible next to each other; no empty third column in the primary work surface. */
+.root [data-cockpit-results] [data-cockpit-preview] {
+  width:clamp(74px,10vw,112px);
+  flex:0 1 112px;
+  align-self:center;
+}
+.root [data-cockpit-results] [data-cockpit-preview] figure {
+  margin:0;
+  padding:0;
+  background:transparent;
+}
+.root [data-cockpit-results] [data-cockpit-preview] figure > svg {
+  display:block;
+  width:100%;
+  height:auto;
+  max-width:110px;
+  max-height:106px;
+}
+.root [data-cockpit-fields] [data-commercial-targets] {
+  margin-top:12px;
+  border-color:#3a7558;
+  background:#0a2f23;
+}
+.root [data-cockpit-fields] [data-commercial-targets] input {
+  min-height:39px;
+  border:0;
+  background:transparent;
+  color:#f1fff7;
+}
+@container steel-calculator (min-width:680px) {
+  .root [data-cockpit-fields] [data-cockpit-length-quantity] {
+    grid-template-columns:minmax(0,1.1fr) minmax(135px,.9fr);
+    align-items:start;
+  }
+}
+@container steel-calculator (max-width:359px) {
+  .root [data-cockpit-results] [data-cockpit-preview] { width:70px; flex-basis:70px; }
+  .root [data-cockpit-results] [data-cockpit-preview] figure > svg { max-width:70px; }
+}
+
+@container steel-calculator (min-width:360px) and (max-width:679px) {
+  /* Override the obsolete 48px field that accompanied the removed length selector. */
+  .root [data-cockpit-length-quantity] > div:first-child input { width:78px; }
+}
+@container steel-calculator (min-width:1000px) {
+  /* The live section must remain a compact orientation cue beside kg/m:
+     its former 112px height pushed the primary RFQ action below the fold. */
+  .root [data-cockpit-results] [data-cockpit-preview] {
+    width:70px;
+    flex:0 0 70px;
+  }
+  .root [data-cockpit-results] [data-cockpit-preview] figure > svg {
+    max-width:70px;
+    max-height:68px;
+  }
+  .root [data-cockpit-results] .resultTitle { margin-bottom:7px; }
+  .root [data-cockpit-results] > div:first-child { padding-block:10px; }
+}
+
+/* CALC-UX5 — FINAL VISUAL PASS
+   The industrial proof is a compact secondary gallery, never a full-width
+   3:2 photograph that pushes the commercial cockpit several viewports down. */
+@container steel-calculator (min-width:680px) {
+  .stage {
+    display:grid;
+    grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);
+    grid-template-rows:auto minmax(0,1fr) auto;
+    align-items:center;
+    column-gap:16px;
+    row-gap:8px;
+    min-height:0;
+    padding:12px 14px;
+  }
+  .stageHeading,.stage .sectionMetric { grid-column:1/-1; }
+  .stage .productPhoto {
+    width:100%;
+    height:148px;
+    min-height:0;
+    aspect-ratio:auto;
+    margin:0;
+    overflow:hidden;
+    border:1px solid #35634e;
+    border-radius:10px;
+  }
+  .stage .technicalInset { min-width:0; align-self:center; }
+  .stage .technicalInset figure {
+    grid-template-columns:minmax(0,130px) minmax(0,1fr);
+    gap:12px;
+  }
+  .stage .technicalInset figure > svg { max-width:125px; max-height:124px; }
+  .stage .technicalInset figcaption span { padding:5px 6px; font-size:10px; }
+  .stage .sectionMetric { margin-top:0; padding-top:8px; }
+}
+@container steel-calculator (max-width:679px) {
+  .stage { min-height:0; }
+  .stage .productPhoto {
+    height:118px;
+    min-height:0;
+    aspect-ratio:auto;
+    overflow:hidden;
+    border-radius:9px;
+  }
+  .stage .technicalInset figure { gap:6px; }
+  .stage .technicalInset figure > svg { max-height:95px; }
+  .stage .technicalInset figcaption span { font-size:10px; padding:5px; }
+}
+@container steel-calculator (min-width:1000px) {
+  /* The industrial gallery should not force three vertical full-height KPIs. */
+  .root [data-cockpit-kpis] {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:6px;
+  }
+  .root [data-cockpit-kpis] > div {
+    display:block;
+    min-width:0;
+    min-height:63px;
+    padding:8px;
+  }
+  .root [data-cockpit-kpis] > div > p:first-child { font-size:9px; line-height:1.25; }
+  .root [data-cockpit-kpis] > div > p:nth-of-type(2) {
+    margin-top:5px;
+    font-size:clamp(12px,1.12vw,16px);
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+}
+.root [data-cockpit-results] [data-effective-order-summary] {
+  margin-top:10px;
+  margin-bottom:3px;
+  padding:7px 10px;
+  border:1px solid #386f55;
+  border-radius:8px;
+  color:#d9f9e9;
+  background:#0e3727;
+  font-size:12px;
+  font-variant-numeric:tabular-nums;
+}
+.root [data-cockpit-fields] [data-commercial-targets] {
+  background:linear-gradient(165deg,#0c3829,#09271e);
+  border-color:#47866a;
+}
+.root [data-cockpit-fields] [data-commercial-targets] [data-commercial-price-fields] input {
+  min-height:44px;
+  border:1px solid #62977e;
+  border-radius:8px;
+  padding-inline:10px;
+  background:#123f30;
+  color:#f6fff9;
+  -webkit-text-fill-color:#f6fff9;
+}
+.root [data-cockpit-fields] [data-commercial-targets] label > span:first-child {
+  color:#e0f5e9;
+  font-size:11px;
+}
+.root [data-cockpit-fields] [data-commercial-targets] label > span:nth-child(2) {
+  min-height:44px;
+  border-color:#62977e;
+}
+.root:global(#calcolatore-pesi) [data-commercial-targets] :is(input,button):focus-visible {
+  outline-color:#8cfac8;
+}
+.root [data-cockpit-fields] [data-commercial-targets] [aria-live="polite"] {
+  background:#194a38;
+  border-left:3px solid #51df9e;
+}
+.root [data-cockpit-fields] [data-commercial-targets] input[aria-invalid="true"] {
+  border-color:#ffc078;
+  outline-color:#ffc078;
+}
+
+/* CALC-UX6 — avoid repeating section area, copy buttons or favorite controls. */
+@container steel-calculator (min-width:680px) {
+  .stage { grid-template-rows:auto minmax(0,1fr); }
+}
+.root [data-calc-copy-actions] .copy {
+  flex:1 1 148px;
+  width:auto;
+  min-width:0;
+  margin:0;
+  border-radius:9px;
+}
+.root [data-calc-copy-actions] > button {
+  min-height:44px;
+  font-variant-numeric:tabular-nums;
+}
+.root [data-cockpit-details] > details,
+.root [data-cockpit-details] > section {
+  background:#0b2d21;
+  border-color:#35644e;
+}
+.root [data-cockpit-details] > details[open],
+.root [data-cockpit-details] [data-calc-library] details[open] {
+  background:#103627;
+}
+.root [data-cockpit-details] summary { color:#e2f8ec; }
+.root [data-calc-save-favorite][aria-pressed="true"] {
+  background:#1a6044;
+  color:#eefff6;
+}
+
+@container steel-calculator (max-width:400px) {
+  /* Long translations must never turn the primary copy control into a 2-line
+     oversized touch target. Two 44px rows are clearer on narrow phones. */
+  .root [data-calc-copy-actions] {
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:6px;
+  }
+  .root [data-calc-copy-actions] > button {
+    width:100%;
+    min-height:44px;
+    white-space:nowrap;
+  }
 }

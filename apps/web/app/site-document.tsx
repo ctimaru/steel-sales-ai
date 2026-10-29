@@ -52,6 +52,9 @@ export const metadata: Metadata = {
 export function SiteDocument({ children, lang }: { children: ReactNode; lang: "it" | "en" | "de" | "fr" | "es" }) {
   // Keep the production Google tag canonical even if an older Vercel environment value lingers.
   const requestedGoogleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim();
+  // SEO-GROWTH2.A: keep GA4 traffic out of preview/local QA environments.
+  const isProductionDeployment = process.env.VERCEL_ENV === "production";
+  // Preserve consent UI on previews for QA without loading a GA4 transport.
   const googleAnalyticsId =
     requestedGoogleAnalyticsId === "G-F5QWLD98HD"
       ? requestedGoogleAnalyticsId
@@ -94,15 +97,19 @@ window.gtag("set", "ads_data_redaction", true);
         {/* PERF2.1: Consent Mode v2 defaults and queued events stay in the
             synchronous inline stub; the external GA library is fetched
             after page load/idle instead of competing with mobile LCP. */}
-        <Script
-          id="sss-google-analytics"
-          strategy="lazyOnload"
-          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-        />
-        <script
-          id="sss-google-analytics-config"
-          dangerouslySetInnerHTML={{ __html: googleAnalyticsConfig }}
-        />
+        {isProductionDeployment ? (
+          <>
+            <Script
+              id="sss-google-analytics"
+              strategy="lazyOnload"
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+            />
+            <script
+              id="sss-google-analytics-config"
+              dangerouslySetInnerHTML={{ __html: googleAnalyticsConfig }}
+            />
+          </>
+        ) : null}
       </head>
       <body>
         {children}

@@ -69,6 +69,10 @@ on:
       - "apps/web/lib/us-pipe-rfq-handoff.ts"
       - "apps/web/components/calculator-install-guide.tsx"
       - "apps/web/tests/calc-ux3-*"
+      - "apps/web/tests/calc-ux4-*"
+      - "apps/web/tests/calc-ux5-*"
+      - "apps/web/tests/calc-ux6-*"
+      - "apps/web/lib/calculator-commercial-quantity.ts"
       - "apps/web/tests/i18n8-*"
       - "apps/web/tests/bd11-*"
       - "apps/web/components/us-pipe-sample-calculator.tsx"
@@ -165,6 +169,28 @@ jobs:
           retention-days: 3
       - name: CALC-CINE1A five-language cinematic calculator, real shapes and bill
         run: node tests/calc-cine1a-chrome-acceptance.mjs
+      - name: CALC-UX4 five-language whole-bar quantity and Distinta integrity
+        run: node tests/calc-ux4-chrome-quantity.mjs
+      - name: CALC-UX5 20 production visual sign-off browser cases
+        run: node tests/calc-ux5-chrome-visual-signoff.mjs
+      - name: CALC-UX6 compact footer, persistent favorites and copy utilities
+        run: node tests/calc-ux6-chrome-utilities.mjs
+      - name: Upload CALC-UX6 utility and favorites screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-ux6-utility-qa
+          path: /tmp/calc-ux6-utilities/*.png
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Upload CALC-UX5 public workstation visual screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: calc-ux5-production-visual-signoff
+          path: /tmp/calc-ux5-production-visual-signoff/*.png
+          if-no-files-found: warn
+          retention-days: 7
       - name: Upload CALC-CINE1A calculator screenshots
         if: always()
         uses: actions/upload-artifact@v4

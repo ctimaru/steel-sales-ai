@@ -19,7 +19,7 @@ const cachedPublicTubeReferences = unstable_cache(listPublicTubeDimensionPages, 
 const baseMetadata: Metadata = {
   title: "Steel Tube Weight Calculator | CHS, SHS & RHS kg/m",
   description:
-    "Free steel tube weight calculator for circular, square and rectangular hollow sections. Get CHS, SHS and RHS kg/m, bar weights and tonnes using EN 10210 or EN 10219.",
+    "Free steel tube weight calculator for circular, square and rectangular hollow sections. Get CHS/SHS/RHS kg/m, bar weights and tonnes with EN 10210/10219.",
   alternates: {
     canonical: absoluteUrl("/en/knowledge/tubes"),
     languages: {
@@ -139,6 +139,40 @@ export default async function EnglishTubeWeightsPage({ searchParams }: { searchP
           references={references} initialValues={initialValues}
           euAfter={<EnStructuralMethodEvidence locale="en" />} />
       </div>
+      <section aria-labelledby="steel-hollow-section-quick-guide" data-testid="seo-growth2c-quick-reference"
+        className="mx-auto mb-4 max-w-[1120px] px-4 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-[#d1e0d7] bg-white px-4 py-4 sm:px-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">Technical quick reference</p>
+              <h2 id="steel-hollow-section-quick-guide" className="mt-1 text-lg font-semibold text-[#123b34]">
+                CHS, SHS and RHS steel weight per metre
+              </h2>
+              <p className="mt-1 max-w-[72ch] text-xs leading-5 text-[#52615b]">
+                Use the single calculator above for kg/m, bar weight and tonnage. Choose outside dimensions, wall thickness and EN 10210 or EN 10219; then add the result to your RFQ bill.
+              </p>
+            </div>
+            <Link href="/en/distinta"
+              className="inline-flex min-h-10 items-center rounded-lg border border-[#bcd2c5] bg-white px-3 text-xs font-bold text-[#175d44] hover:bg-[#f2f7f4]">
+              Prepare RFQ bill →
+            </Link>
+          </div>
+          <dl className="mt-3 grid gap-2 sm:grid-cols-3">
+            <div className="rounded-lg bg-[#f5f8f6] p-3">
+              <dt className="text-xs font-bold text-[#123b34]">CHS · Circular hollow section</dt>
+              <dd className="mt-1 text-xs leading-5 text-[#52615b]">Enter outside diameter D and wall thickness t. The round-section area is π × t × (D − t).</dd>
+            </div>
+            <div className="rounded-lg bg-[#f5f8f6] p-3">
+              <dt className="text-xs font-bold text-[#123b34]">SHS · Square hollow section</dt>
+              <dd className="mt-1 text-xs leading-5 text-[#52615b]">Enter outside side B and thickness t. Nominal EN section weights account for corner radii.</dd>
+            </div>
+            <div className="rounded-lg bg-[#f5f8f6] p-3">
+              <dt className="text-xs font-bold text-[#123b34]">RHS · Rectangular hollow section</dt>
+              <dd className="mt-1 text-xs leading-5 text-[#52615b]">Enter outside width B, height H and thickness t. Sharp-corner formulas are estimates, not certified EN weights.</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
       <details data-testid="school-growth1b-en-editorial" className="mx-auto mb-8 max-w-[1120px] overflow-hidden rounded-2xl border border-[#cbded2] bg-white">
         <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-bold text-[#174c3a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175d44] sm:px-6">
           Hollow section weight & cross-sectional area: formulas, standards and guidance

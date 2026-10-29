@@ -1,0 +1,63 @@
+name: PROD-NEXT1.E3 Disposable Recovery and NO-GO Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/tools/prod_next1e3_restore_drill.sh'
+      - 'supabase/tests/prod_next1e3_live_no_go.sql'
+      - '.github/workflows/prod-next1e3-recovery.yml'
+      - 'apps/web/lib/pilot-e3-authorization.ts'
+      - 'apps/web/app/(italian)/(platform)/platform/pilot/readiness/page.tsx'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  disposable-recovery:
+    name: disposable database restore (synthetic only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: true
+      PGPASSWORD: postgres
+      E3_LOCAL_RESTORE_ACK: disposable-local-only
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0
+      - name: Inject CI-only historical baselines
+        run: |
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Reset disposable local Supabase (no remote connection)
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! supabase start > "$RUNNER_TEMP/e3-start.log" 2>&1; then
+            echo "::error::Local Supabase failed to start (not a production migration)"
+            grep -iE 'error|fail|timeout' "$RUNNER_TEMP/e3-start.log" | tail -n 15 || true
+            exit 1
+          fi
+          if ! supabase db reset --local > "$RUNNER_TEMP/e3-reset.log" 2>&1; then
+            echo "::error::Local migration replay failed"
+            grep -iE 'error|fail|migration' "$RUNNER_TEMP/e3-reset.log" | tail -n 20 || true
+            exit 1
+          fi
+      - name: Verify default NO-GO and least-privilege SQL
+        run: |
+          psql -X -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 -f supabase/tests/prod_next1e3_live_no_go.sql
+      - name: Validate portable synthetic backup and restore in a separate database
+        shell: bash
+        run: |
+          bash supabase/tools/prod_next1e3_restore_drill.sh
+      - name: Destroy local databases and temporary logs
+        if: always()
+        run: |
+          supabase stop --no-backup >/dev/null 2>&1 || true
+          rm -f "$RUNNER_TEMP/e3-start.log" "$RUNNER_TEMP/e3-reset.log"

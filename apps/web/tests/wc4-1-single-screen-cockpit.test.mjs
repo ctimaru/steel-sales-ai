@@ -60,8 +60,8 @@ test("WC4.1 preserves compact parametric geometry and extends it to mobile", () 
 
 test("WC4.1 keeps the result dominant and actions immediately reachable", () => {
   assert.match(calculator, /text-2xl font-semibold/);
-  assert.match(calculator, /Copia risultato/);
-  assert.match(calculator, /Copia link/);
-  assert.match(calculator, /Aggiungi ai preferiti/);
+  assert.match(calculator, /data-cinematic-copy/);
+  assert.match(calculator, /data-calc-copy-link/);
+  assert.match(calculator, /data-calc-save-favorite/);
   assert.match(calculator, /Salva il Calcolatore/);
 });

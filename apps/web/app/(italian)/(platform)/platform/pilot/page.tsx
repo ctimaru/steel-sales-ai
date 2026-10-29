@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requirePlatformSuperadmin } from "@/lib/platform-admin";
 import {
   getMarketplacePilotControl,
@@ -98,10 +99,10 @@ function ParticipantActions({ participant }: { participant: PilotParticipant }) 
           <button
             name="action"
             value="activate"
-            disabled={!readiness.ready}
+            disabled
             className="rounded-xl bg-[#1a5144] px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#b8c6c0]"
           >
-            Attiva
+            Attivazione bloccata · E1
           </button>
         </form>
       ) : null}
@@ -123,10 +124,10 @@ function ParticipantActions({ participant }: { participant: PilotParticipant }) 
           <button
             name="action"
             value="resume"
-            disabled={!readiness.ready}
+            disabled
             className="rounded-xl bg-[#1a5144] px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:bg-[#b8c6c0]"
           >
-            Riattiva
+            Riattivazione bloccata · E1
           </button>
         </form>
       ) : null}
@@ -189,6 +190,22 @@ export default async function PlatformPilotPage({
         </p>
       </section>
 
+      <section className="rounded-2xl border border-amber-300 bg-amber-50 p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-bold text-amber-950">Pilot aziende reali: NO-GO</p>
+            <p className="mt-1 text-xs leading-5 text-amber-900">
+              PROD-NEXT1.E1: ammissioni, privacy e gate globale in preparazione.
+              Attivazione e riattivazione bloccate anche dal database; nessuna
+              metrica commerciale reale è abilitata.
+            </p>
+          </div>
+          <Link href="/platform/pilot/readiness" className="inline-flex min-h-10 items-center rounded-xl bg-[#185241] px-4 text-sm font-semibold text-white">
+            Governance e 5 metriche
+          </Link>
+        </div>
+      </section>
+
       {params.message ? (
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-800">
           {params.message}
@@ -209,7 +226,7 @@ export default async function PlatformPilotPage({
             Apri la finestra P5.6
           </h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
-            L&apos;avvio crea soltanto la finestra di pilot e il ledger di controllo.
+            La preparazione crea soltanto una finestra amministrativa e il ledger di controllo.
             Nessuna azienda viene attivata automaticamente.
           </p>
           <form
@@ -230,7 +247,7 @@ export default async function PlatformPilotPage({
               className="h-11 rounded-xl border border-[#d7dfdb] px-3 text-sm"
             />
             <button className="platform-primary h-11 rounded-xl px-5 text-sm font-semibold">
-              Avvia pilot
+              Crea finestra preparatoria
             </button>
           </form>
         </section>
