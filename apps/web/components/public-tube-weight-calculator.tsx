@@ -1638,6 +1638,7 @@ export function PublicTubeWeightCalculator({
                         <div key={calculation.key} className="flex items-center gap-1 rounded-lg bg-white/8 p-1">
                           <button
                             type="button"
+                            data-calc-restore-favorite
                             onClick={() => restoreCalculation(calculation)}
                             className="min-h-11 min-w-0 flex-1 px-1.5 py-2 text-left text-xs"
                           >
@@ -1645,6 +1646,7 @@ export function PublicTubeWeightCalculator({
                           </button>
                           <button
                             type="button"
+                            data-calc-remove-favorite
                             aria-label={`${t("Rimuovi")} ${calculationDimensionLabel(calculation)} ${t("dai preferiti")}`}
                             onClick={() => {
                               const saved = saveFavorites(favoriteCalculations.filter((item) => item.key !== calculation.key));
