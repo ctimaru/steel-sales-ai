@@ -44,6 +44,8 @@ export type WorkspaceContextKey =
   | "marketplace:responses"
   | "marketplace:new"
   | "knowledge:home"
+  | "knowledge:professor"
+  | "knowledge:guides"
   | "knowledge:explorer"
   | "knowledge:catalog"
   | "knowledge:standards"
@@ -144,6 +146,8 @@ function networkContext(pathname: string): WorkspaceContextKey {
 }
 
 function knowledgeContext(pathname: string): WorkspaceContextKey {
+  if (isPath(pathname, appRoutes.knowledge.professor) || isPath(pathname, appRoutes.knowledge.assistant)) return "knowledge:professor";
+  if (isPath(pathname, appRoutes.knowledge.guides)) return "knowledge:guides";
   if (
     isAnyPath(pathname, [
       appRoutes.knowledge.explorer,
@@ -186,7 +190,7 @@ function commercialContext(pathname: string): WorkspaceContextKey {
   if (isAnyPath(pathname, [appRoutes.commercial.assistant, legacyRoutes.assistant])) {
     return "commercial:assistant";
   }
-  if (isAnyPath(pathname, [appRoutes.commercial.explorer, legacyRoutes.explorer])) {
+  if (isAnyPath(pathname, [appRoutes.commercial.explorer, appRoutes.commercial.knowledgeExplorer, legacyRoutes.explorer])) {
     return "commercial:intelligence:explorer";
   }
   if (isAnyPath(pathname, [appRoutes.commercial.priceIntelligence, legacyRoutes.priceIntelligence])) {

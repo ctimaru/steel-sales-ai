@@ -17,8 +17,11 @@ const tools: SchoolEntry[] = [
   { href: "/school/tubes", label: "Calcolo pesi" },
   { href: "/school/norme", label: "Norme" },
   { href: "/school/gradi", label: "Gradi" },
-  { href: "/school/explorer", label: "Documenti aziendali" },
+  { href: "/school/professore", label: "Professore" },
 ];
+
+const isSchoolLearningPath = (href: string) =>
+  /^\/school\/(?:tubes|norme|gradi|professore|guide|catalogo)(?:\/[a-z0-9-]+)*$/.test(href);
 
 function readEntries(key: string) {
   try {
@@ -31,7 +34,7 @@ function readEntries(key: string) {
         Boolean(item) &&
         typeof item.href === "string" &&
         item.href.startsWith("/school") &&
-        /^\/school(?:\/[a-z0-9-]+)*$/.test(item.href) &&
+        isSchoolLearningPath(item.href) &&
         typeof item.label === "string",
     );
   } catch {
@@ -47,7 +50,7 @@ function labelForPath(pathname: string) {
   if (pathname.startsWith("/school/tubes")) return "Calcolo pesi";
   if (pathname.startsWith("/school/norme")) return "Norme";
   if (pathname.startsWith("/school/gradi")) return "Gradi";
-  if (pathname.startsWith("/school/explorer")) return "Documenti aziendali";
+  if (pathname.startsWith("/school/professore")) return "Professore";
   if (pathname.startsWith("/school/catalogo")) return "Catalogo completo";
   return "Scuola";
 }
@@ -56,7 +59,7 @@ export function SchoolVisitTracker() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!pathname || pathname === "/school" || !pathname.startsWith("/school/")) return;
+    if (!pathname || !isSchoolLearningPath(pathname)) return;
 
     const entry = { href: pathname, label: labelForPath(pathname) };
     const current = readEntries(RECENT_KEY).filter((item) => item.href !== pathname);
@@ -72,7 +75,7 @@ export function SchoolQuickAccess({locale="it"}:{locale?:SchoolWorkspaceLocale})
     if(path.startsWith("/school/tubes"))return copy.calculator;
     if(path.startsWith("/school/norme"))return copy.standards;
     if(path.startsWith("/school/gradi"))return copy.grades;
-    if(path.startsWith("/school/explorer"))return copy.docs;
+    if(path.startsWith("/school/professore"))return locale==="it"?"Professore":locale==="en"?"Professor":locale==="de"?"Professor":locale==="fr"?"Professeur":"Profesor";
     return label;
   };
   const [favorites, setFavorites] = useState<SchoolEntry[]>([]);

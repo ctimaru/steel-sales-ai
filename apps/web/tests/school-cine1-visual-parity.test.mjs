@@ -18,7 +18,7 @@ test("SCHOOL-CINE1 keeps a consistent first-viewport identity on public and priv
     assert.match(page, /SchoolTechnicalSections|CHS|rounded-\[55px\]|school-private-calculator-heading/, name);
   }
   for (const [name, page] of Object.entries({ italianPrivate, internationalPrivate })) {
-    assert.match(page, /SchoolUnifiedNavigation/, name);
+    assert.doesNotMatch(page, /SchoolUnifiedNavigation/, name);
     assert.match(page, /SchoolWorkspaceFirstViewport/, name);
     assert.match(page, /SchoolTechnicalSections/, name);
   }
@@ -32,7 +32,7 @@ test("SCHOOL-CINE1 preserves public editorial routes and private boundaries", ()
   assert.match(englishPublic, /\/en\/knowledge\/tubes/);
   assert.match(internationalPublic, /generateStaticParams/);
   assert.match(internationalPublic, /isNewCalculatorLocale/);
-  assert.match(italianPrivate, /SchoolAssistantEntry/);
+  assert.doesNotMatch(italianPrivate, /SchoolAssistantEntry/);
   assert.match(internationalPrivate, /schoolWorkspaceHref/);
   assert.doesNotMatch(internationalPublic, /href="\/school\/explorer"/);
 });

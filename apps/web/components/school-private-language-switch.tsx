@@ -38,7 +38,10 @@ export function SchoolPrivateTopbar({locale,pathname="/school",compact=false}:{
     <span className="text-xs font-bold uppercase tracking-[.1em] text-[#174b3c]">{c.kicker} · Smart Steel Sales</span>
     <div className="flex flex-wrap items-center gap-3">
       <SchoolPrivateLanguageSwitch locale={locale} pathname={pathname}/>
-      {!compact ? <Link href={SCHOOL_HUB_ROUTES[locale]} hrefLang={locale} className="school-secondary-action">{c.publicLabel} ↗</Link> : null}
+      <Link href={SCHOOL_HUB_ROUTES[locale] + (SCHOOL_HUB_ROUTES[locale].includes("?") ? "&" : "?") + "public=1"} hrefLang={locale}
+        className={compact ? "inline-flex min-h-10 items-center rounded-xl border border-[#c9ddd1] bg-white px-3 text-xs font-semibold text-[#174b3c] hover:bg-[#edf5f0]" : "school-secondary-action"}>
+        {c.publicLabel} ↗
+      </Link>
     </div>
   </div>;
 }

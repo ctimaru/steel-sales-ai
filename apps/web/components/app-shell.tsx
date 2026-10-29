@@ -45,11 +45,11 @@ const marketplaceNav: NavItem[] = [
 ];
 
 const knowledgeNav: NavItem[] = [
-  { href: appRoutes.knowledge.workspace, label: "Home", contextKey: "knowledge:home" },
-  { href: appRoutes.knowledge.schoolTubes, label: "Calcolo pesi", contextKey: "knowledge:tubes" },
+  { href: appRoutes.knowledge.workspace, label: "Scuola", contextKey: "knowledge:home" },
+  { href: appRoutes.knowledge.professor, label: "Professore", contextKey: "knowledge:professor" },
   { href: appRoutes.knowledge.schoolStandards, label: "Norme", contextKey: "knowledge:standards" },
-  { href: appRoutes.knowledge.schoolGrades, label: "Gradi", contextKey: "knowledge:grades" },
-  { href: appRoutes.knowledge.explorer, label: "Documenti", contextKey: "knowledge:explorer" },
+  { href: appRoutes.knowledge.schoolGrades, label: "Materiali", contextKey: "knowledge:grades" },
+  { href: appRoutes.knowledge.guides, label: "Guide", contextKey: "knowledge:guides" },
 ];
 
 function roleLabel(role: string) {

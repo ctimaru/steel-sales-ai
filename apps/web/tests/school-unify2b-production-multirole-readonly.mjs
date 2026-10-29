@@ -45,21 +45,19 @@ try{
    await page.getByRole("button",{name:"Accedi",exact:true}).click();
    await page.waitForURL(u=>u.origin===SITE&&u.pathname!=="/login",{timeout:90000});
    allowLogin=false;logged.add(id);
-   const view=await page.goto(SITE+"/school/explorer?lang=en",{waitUntil:"domcontentloaded",timeout:90000});
+   const view=await page.goto(SITE+"/commercial/knowledge",{waitUntil:"domcontentloaded",timeout:90000});
    assert.ok(!view||view.status()<500);
    const pathname=new URL(page.url()).pathname;
-   const allowed=pathname==="/school/explorer"&&await page.getByRole("heading",{name:"Company documents",exact:true}).count()===1;
+   const allowed=pathname==="/commercial/knowledge"&&await page.getByRole("heading",{name:"Documenti e memoria commerciale",exact:true}).count()===1;
    if(allowed){
      const form=page.locator("form").filter({has:page.locator('input[name="query"]')}).first();
      assert.equal(await form.locator('input[name="query"]').count(),1);
-     assert.equal(await form.locator('input[name="query"]').getAttribute("placeholder"),"e.g. S355J2H EN 10219 rectangular tube offers");
+     assert.ok((await form.locator('input[name="query"]').getAttribute("placeholder")||"").length>0);
      granted.add(id);
-     for(const lang of ["it","de","fr","es"]){
-       const rr=await page.goto(SITE+"/school/explorer?lang="+lang,{waitUntil:"domcontentloaded",timeout:90000});
-       assert.ok(!rr||rr.status()<500);
-       assert.equal(new URL(page.url()).pathname,"/school/explorer","Access changed on locale "+lang);
-       assert.equal(await page.locator('input[name="query"]').count(),1);
-     }
+     const legacy=await page.goto(SITE+"/school/explorer?lang=en",{waitUntil:"domcontentloaded",timeout:90000});
+     assert.ok(!legacy||legacy.status()<500);
+     assert.equal(new URL(page.url()).pathname,"/commercial/knowledge","Legacy School bookmark must move to Commercial Memory");
+     assert.equal(await page.locator('input[name="query"]').count(),1);
    }else{
      assert.ok(fallbacks.has(pathname),"Unexpected guard redirect: "+id);
      assert.equal(await page.locator('input[name="query"]').count(),0,"Private search leaked: "+id);

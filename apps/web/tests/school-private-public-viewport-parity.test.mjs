@@ -16,8 +16,8 @@ test("SCHOOL-PRIVATE-PARITY keeps identical first viewport visual tokens across 
   }
   for (const page of [privateHome, internationalHome]) {
     assert.ok(page.includes("SchoolWorkspaceFirstViewport"));
-    assert.match(page, /<SchoolUnifiedNavigation locale=\{?[^\s]+\}? scope="workspace" compact/);
-    assert.match(page, /<SchoolAssistantEntry/);
+    assert.doesNotMatch(page, /<SchoolUnifiedNavigation/);
+    assert.doesNotMatch(page, /<SchoolAssistantEntry/);
     assert.match(page, /<SchoolQuickAccess/);
     assert.match(page, /<SchoolTechnicalSections/);
   }
@@ -32,8 +32,8 @@ test("SCHOOL-PRIVATE-PARITY makes search and calculator immediately available, k
   assert.ok(shared.includes('"/school/tubes?source=school&surface=home_card#calcolatore-pesi"'));
   assert.ok(shared.includes("CALCULATOR_ROUTES[locale]"));
   assert.ok(shared.includes('schoolWorkspaceHref("/school/professore",locale)'));
-  assert.ok(privateHome.includes("appRoutes.knowledge.explorer"));
-  assert.ok(internationalHome.includes('schoolWorkspaceHref("/school/explorer",locale)'));
+  assert.doesNotMatch(privateHome,/knowledge\.explorer|school-private-documents/);
+  assert.doesNotMatch(internationalHome,/\/school\/explorer|school-private-documents/);
   assert.match(topbar, /compact\?:boolean/);
   assert.match(navigation, /if \(compact\) return/);
   assert.match(navigation, /scope==="public" \?/);
@@ -52,6 +52,6 @@ test("SCHOOL-PRIVATE-PARITY renders a logged-in Professor route without private 
   assert.match(professor, /SchoolTechnicalTutor/);
   assert.match(professor, /privateNoIndexRobots/);
   assert.match(professor, /SchoolPrivateTopbar/);
-  assert.match(professor, /SchoolUnifiedNavigation/);
+  assert.doesNotMatch(professor, /SchoolUnifiedNavigation/);
   assert.doesNotMatch(professor, /getWorkspaceContext|supabase|service_role|company_records/);
 });

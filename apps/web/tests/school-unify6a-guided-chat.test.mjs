@@ -78,9 +78,9 @@ test("SCHOOL-UNIFY6A five-language private UX, no fake generative AI or private-
   for(const locale of ["it","en","de","fr","es"]){
     assert.ok(translations.includes(locale+":{"),"locale missing: "+locale);
   }
-  assert.match(navigation,/schoolWorkspaceHref\("\/school\/assistant",locale\)/);
-  assert.match(itHome,/<SchoolAssistantEntry locale="it"\/>/);
-  assert.match(internationalHome,/<SchoolAssistantEntry locale=\{locale\}\/>/);
+  assert.match(navigation,/schoolWorkspaceHref\("\/school\/professore",locale\)/);
+  assert.doesNotMatch(itHome,/<SchoolAssistantEntry/);
+  assert.doesNotMatch(internationalHome,/<SchoolAssistantEntry/);
   assert.match(privatePage,/privateNoIndexRobots/);
   assert.match(privatePage,/schoolWorkspaceLocale/);
   assert.match(client,/api\/public\/school-evidence/);

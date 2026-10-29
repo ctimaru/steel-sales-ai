@@ -6,6 +6,20 @@ import {
   type SchoolWorkspaceLocale,
 } from "@/lib/school-workspace-i18n";
 
+const descriptions: Record<SchoolWorkspaceLocale, string> = {
+  it: "Norme, materiali e geometrie dei tubi, con spiegazioni tecniche e fonti pubblicate.",
+  en: "Tube standards, steel grades and geometry explained with published technical references.",
+  de: "Rohrnormen, Stahlsorten und Geometrie anhand veröffentlichter Quellen erklärt.",
+  fr: "Normes, nuances et géométries des tubes expliquées avec des sources publiées.",
+  es: "Normas, calidades y geometrías de tubos explicadas con fuentes publicadas.",
+};
+const sourceNotes: Record<SchoolWorkspaceLocale, string> = {
+  it: "Le spiegazioni non sostituiscono le norme ufficiali.",
+  en: "Editorial information does not replace official standards.",
+  de: "Redaktionelle Informationen ersetzen keine offiziellen Normen.",
+  fr: "Les explications ne remplacent pas les normes officielles.",
+  es: "Las explicaciones no sustituyen las normas oficiales.",
+};
 const titles: Record<SchoolWorkspaceLocale, string> = {
   it: "L’acciaio, spiegato bene.",
   en: "Steel, explained clearly.",
@@ -58,8 +72,8 @@ export function SchoolWorkspaceFirstViewport({locale}:{locale: SchoolWorkspaceLo
         <p className="text-[11px] font-bold uppercase tracking-[.17em] text-[#b3ddc4]">SMART STEEL SALES / SCHOOL</p>
         <h1 id="school-workspace-cine-heading"
           className="mt-3 max-w-2xl text-[2.35rem] font-semibold leading-[1.1] tracking-[-.045em] text-white sm:text-[3.15rem]">{titles[locale]}</h1>
-        <p className="mt-3 max-w-xl text-sm leading-6 text-[#e0ece4] sm:text-[15px]">{t.intro}</p>
-        <p className="mt-2 text-xs leading-5 text-[#b4cebf]">{t.sourceDisclosure}</p>
+        <p className="mt-3 max-w-xl text-sm leading-6 text-[#e0ece4] sm:text-[15px]">{descriptions[locale]}</p>
+        <p className="mt-2 text-xs leading-5 text-[#b4cebf]">{sourceNotes[locale]}</p>
         <div className="mt-5 flex flex-wrap gap-2">
           <a href="#school-private-search" className="school-primary-action min-h-11 !rounded-xl !border-[#39876a] !bg-[#247455] !px-5 !text-white transition hover:!bg-[#2c8461] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
             {t.search} <span aria-hidden="true" className="ml-2">→</span>

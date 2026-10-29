@@ -63,8 +63,8 @@ test("K1 makes public Knowledge discoverable from the product while preserving p
   assert.match(root, /href="\/knowledge"/);
   assert.match(root, /Scuola/);
   assert.match(hero, /Strumenti pubblici senza account/);
-  assert.match(schoolHome, /appRoutes\.knowledge\.catalog/);
-  assert.match(schoolHome, /Catalogo completo/);
+  assert.match(schoolHome, /SchoolTechnicalSections locale="it"/);
+  assert.doesNotMatch(schoolHome, /knowledge\.explorer|school-private-documents/);
   assert.match(nav, /label: "Scuola"/);
   assert.match(publicKnowledge, /Risposte tecniche chiare, da consultare liberamente/);
   assert.match(publicKnowledge, /separat[oa] dai dati commerciali privati/);

@@ -28,16 +28,16 @@ test("HP10 gives daily tools canonical routes inside their product space", () =>
   assert.match(routes, /priceIntelligence: "\/commercial\/price-intelligence"/);
   assert.match(routes, /marketIntelligence: "\/commercial\/market-intelligence"/);
   assert.match(routes, /explorer: "\/school\/explorer"/);
-  assert.match(routes, /knowledgeExplorer: "\/school\/explorer"/);
+  assert.match(routes, /knowledgeExplorer: "\/commercial\/knowledge"/);
 
   for (const wrapper of canonicalWrappers) {
     assert.match(wrapper, /export \{ default \} from/);
   }
   // School's canonical route now provides a language-aware wrapper while
   // preserving the identical authorized KnowledgeExplorer server action.
-  assert.match(schoolExplorer, /<KnowledgeExplorer locale=\{locale\}/);
-  assert.match(schoolExplorer, /SchoolPrivateTopbar/);
-  assert.match(schoolExplorer, /force-dynamic/);
+  assert.match(schoolExplorer, /redirect\(appRoutes\.commercial\.knowledgeExplorer\)/);
+  assert.match(read("../app/(workspace)/commercial/knowledge/page.tsx"), /KnowledgeExplorer locale="it"/);
+  assert.match(read("../app/(workspace)/commercial/knowledge/page.tsx"), /force-dynamic/);
 });
 
 test("HP10 keeps legacy route aliases explicit instead of using them as primary navigation", () => {
@@ -53,8 +53,8 @@ test("HP10 keeps legacy route aliases explicit instead of using them as primary 
   assert.match(analysisHub, /appRoutes\.commercial\.explorer/);
   assert.match(analysisHub, /appRoutes\.commercial\.priceIntelligence/);
   assert.match(analysisHub, /appRoutes\.commercial\.marketIntelligence/);
-  assert.match(shell, /appRoutes\.knowledge\.explorer/);
-  assert.match(schoolHome, /appRoutes\.knowledge\.explorer/);
+  assert.doesNotMatch(shell.slice(shell.indexOf("const knowledgeNav"),shell.indexOf("function roleLabel")),/Documenti|knowledge\.explorer/);
+  assert.doesNotMatch(schoolHome,/knowledge\.explorer|school-private-documents/);
 });
 
 test("HP10 centralizes route-to-context resolution so root tabs do not double-select", () => {
@@ -97,10 +97,11 @@ test("HP10 keeps Scuola private navigation separate from public Steel Knowledge"
   assert.match(ia, /knowledge:standards/);
   assert.match(ia, /knowledge:grades/);
   assert.match(ia, /knowledge:tubes/);
-  assert.match(shell, /label: "Calcolo pesi"/);
+  assert.match(shell, /label: "Professore"/);
   assert.match(shell, /label: "Norme"/);
-  assert.match(shell, /label: "Gradi"/);
-  assert.match(shell, /label: "Documenti"/);
+  assert.match(shell, /label: "Materiali"/);
+  assert.match(shell, /label: "Guide"/);
+  assert.doesNotMatch(shell.slice(shell.indexOf("const knowledgeNav"),shell.indexOf("function roleLabel")), /Documenti/);
 });
 
 test("HP10 groups Platform navigation identically across desktop and mobile", () => {

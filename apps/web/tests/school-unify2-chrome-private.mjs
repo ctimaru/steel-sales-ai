@@ -40,11 +40,11 @@ try {
    if(locale!=="it"){
      assert.ok(await page.locator('div[lang="'+locale+'"] h1').count()>0,locale+" accessible language subtree");
      const cards=page.locator('[data-testid="school-private-tool-card"]');
-     assert.equal(await cards.count(),4,locale+" four secondary private School cards");
-     assert.equal(await cards.filter({has:page.locator("h3")}).count(),4);
+     assert.equal(await cards.count(),3,locale+" three learning cards");
+     assert.equal(await cards.filter({has:page.locator("h3")}).count(),3);
      assert.ok(await page.locator('form[action="/school/norme"] input[name="lang"][value="'+locale+'"]').count()>0,locale+" standards preserves language");
      assert.ok(await page.locator('form[action="/school/gradi"] input[name="lang"][value="'+locale+'"]').count()>0,locale+" grades preserves language");
-     assert.ok(await page.locator('a[href="/school/explorer?lang='+locale+'"]').count()>0,locale+" documents link");
+     assert.equal(await page.locator('a[href*="/school/explorer"]').count(),0,locale+" no commercial document link");
    }
    const dim=await page.evaluate(()=>({viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
    if(dim.scroll>dim.viewport+12){
@@ -74,14 +74,17 @@ try {
  for(const [path,expect] of [
   ["/school/norme?lang=en","Technical standards"],
   ["/school/gradi?lang=de","Stahlsorten"],
-  ["/school/explorer?lang=fr","Documents de l’entreprise"],
+  ["/school/guide","Dentro il mondo dei tubi"],
  ]){
   const response=await page.goto(base+path,{waitUntil:"domcontentloaded",timeout:60000});
   assert.equal(response?.status(),200,path+" localized private route");
   assert.ok((await page.locator("h1").first().textContent()||"").includes(expect),path+" heading");
   console.log("SCHOOL-UNIFY2 CHROME PASS",path);
  }
- assert.ok(await page.locator('a[href="/fr/knowledge"]').count()>0 || (await page.goto(base+"/school/explorer?lang=fr",{waitUntil:"domcontentloaded"}))?.status()===200,"public transition explicit");
+ const oldBookmark=await page.goto(base+"/school/explorer?lang=fr",{waitUntil:"domcontentloaded"});
+ assert.equal(oldBookmark?.status(),200,"old bookmark resolves to a protected Commercial route");
+ await page.waitForURL(u=>u.pathname==="/commercial/knowledge",{timeout:15000});
+ assert.ok(page.url().includes("/commercial/knowledge"),"legacy bookmark redirects to Commercial Memory");
  await context.close();
 }finally{await browser.close();}
-console.log("SCHOOL-UNIFY2 CHROME PASS all five private home languages and reference/document views in demo mode");
+console.log("SCHOOL-UNIFY2 CHROME PASS all five private home languages and reference/guide views in demo mode");

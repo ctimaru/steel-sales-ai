@@ -39,10 +39,10 @@ test("UXA2B renames the authenticated macro-space to Scuola", () => {
 test("UXA2B keeps Scuola contextual navigation inside authenticated routes", () => {
   for (const routeRef of [
     "appRoutes.knowledge.workspace",
-    "appRoutes.knowledge.schoolTubes",
+    "appRoutes.knowledge.professor",
     "appRoutes.knowledge.schoolStandards",
     "appRoutes.knowledge.schoolGrades",
-    "appRoutes.knowledge.schoolTubes",
+    "appRoutes.knowledge.guides",
   ]) {
     assert.ok(shell.includes(routeRef), `missing Scuola route reference ${routeRef}`);
   }
