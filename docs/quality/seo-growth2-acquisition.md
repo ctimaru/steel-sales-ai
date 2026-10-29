@@ -33,3 +33,14 @@ Baseline: GSC property `sc-domain:smartsteelsales.com`, **Web**, 2026-10-03–20
 Monitor weekly: settled 7d vs previous 7d and 28d, clicks, impressions, positions for priority URLs, real consented GA4 sessions, calculator uses, bill adds and RFQ starts. Report test versus real events separately. Never infer conversion rates from aggregates across unrelated populations.
 
 Dependencies: Notion G1 — Google Measurement & Organic Growth; SI — Scuola Iteration Series; WC — Weight Calculator Experience; CALC-INT4.2 evidence runbook. Existing implementation: SCHOOL-GROWTH1A/B/D, SEO-GROWTH1C, SEO-ITA1D. No new paid services.
+
+
+## SEO-GROWTH2.A — Verified diagnostics and implementation (2026-10-29)
+- GA4 property `properties/557280842`, 2026-10-03–27: 119 sessions, 21 active users, 0 key events, 0 Google Organic attributed sessions.
+- GA4 hostName: `www.smartsteelsales.com` 98 sessions; 21 sessions from Vercel-generated preview URLs. GA4 source/medium by host confirms production 80 Direct, 14 chatgpt.com / ai-assistant, 3 vercel.com referral, 1 not set.
+- GA4 actual events: `calculator_used` **25**, `rfq_bill_add` **12**, `rfq_create_start` **2**. These are real analytics event observations, NOT proof of real customers or completed RFQs. Some sessions can be synthetic/internal.
+- Root `SiteDocument` previously loaded canonical GA4 tag even on previews. New guard only loads it when server-side `VERCEL_ENV === "production"`; preview/local must not emit GA4 anymore after deployment. Existing historical preview events cannot be removed from GA4 retrospectively by this code change.
+- Public route allowlist in `GoogleAnalyticsConsent` now strips the locale prefix before evaluating explicit public sections. Broad `/en/*`, `/de/*`, `/fr/*`, `/es/*` previously included private paths. Query strings/fragments stripped from explicit pageview payloads, including re-consent path.
+- **Residual validation**: GA4 enhanced-measurement history tracking might still emit automatically on private production navigation after global tag setup; browser Network panel acceptance is mandatory. Do not claim private-route suppression is complete without network verification and review GA4 web stream Enhanced Measurement settings.
+- **Attribution still unresolved**: GSC 8 search clicks vs GA4 0 google / organic, 0 key events. Difference can be caused by consent, sampling, analytics blocking and session attribution, but no verified root cause yet.
+- **Not deployed / no real-user verification yet**: PR code must pass protected P0, mobile and browser acceptance.
