@@ -64,6 +64,13 @@ try {
      const professorResponse=await page.goto(base+"/school/professore",{waitUntil:"domcontentloaded",timeout:60000});
      assert.equal(professorResponse?.status(),200,"authenticated professor route in demo mode");
      assert.ok((await page.locator("h1").first().textContent()||"").includes("Ciao, cosa vuoi capire?"));
+     assert.equal(await page.locator('[data-testid="school-qa3-mobile-portrait"]').isVisible(),width===390,"mobile professor portrait responsive state");
+     assert.equal(await page.locator('[data-testid="school-qa3-prompt-suggestions"]').getByRole("button").count(),2,"compact authenticated first prompts");
+     const teacherMain=page.locator("main").filter({has:page.locator('[data-testid="school-tutor3-presence"]')}).last();
+     if(width===390){
+       const bottomPadding=await teacherMain.evaluate(node=>parseFloat(getComputedStyle(node).paddingBottom));
+       assert.ok(bottomPadding>=120,"fixed workspace dock clearance in authenticated Professor: "+bottomPadding);
+     }
      await page.screenshot({path:dir+"/professor-authenticated-"+width+".png",animations:"disabled"});
    }
    console.log("SCHOOL-UNIFY2 CHROME PASS",locale,width);
