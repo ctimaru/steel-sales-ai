@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { appRoutes } from "@/lib/routes";
 import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 
@@ -42,7 +44,11 @@ export function CommercialCalculatorQuickAccess({ references }: { references: Pu
         className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#17583f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0d4630] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17583f]">
         <span aria-hidden="true">▦</span> Calcolatrice pesi
       </button>
-      <span className="text-xs text-[#61736a]">Calcola → aggiungi alla distinta → prepara la RFQ</span>
+      <Link href={appRoutes.rfqHub.savedDistinte} data-commercial-saved-distinte-entry
+        className="inline-flex min-h-11 items-center rounded-lg border border-[#bdd7c6] bg-white px-3 text-xs font-bold text-[#17583f] hover:bg-[#edf8f1]">
+        Distinte salvate →
+      </Link>
+      <span className="text-xs text-[#61736a]">Calcola → assegna un nome → salva nel Commerciale → scegli i fornitori</span>
       {open ? (
         <div className="fixed inset-0 z-[80] bg-[#08291e]/70 p-2 sm:p-4" data-commercial-calculator-overlay
           onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
