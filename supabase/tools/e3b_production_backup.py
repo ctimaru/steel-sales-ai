@@ -27,6 +27,7 @@ SCHEMA = "e3b-backup-v1"
 CHUNK = 1024 * 256
 INVENTORY_SQL = """
 select jsonb_build_object(
+  'auth_users_count',(select count(*) from auth.users),
   'buckets',coalesce((
     select jsonb_agg(jsonb_build_object(
       'id',b.id,'public',b.public,
@@ -253,7 +254,8 @@ def main() -> int:
         (source / "manifest.json").write_text(json.dumps({
             "schema": SCHEMA, "source_ref": ref, "started_at_utc": timestamp,
             "completed_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-            "database_files": db_files, "buckets": buckets, "objects": saved,
+            "database_files": db_files, "auth_users_count": inventory["auth_users_count"],
+            "buckets": buckets, "objects": saved,
             "consistency_note": "Non-atomic DB/Storage snapshot; operator must validate recovery point."
         }, separators=(",", ":")), encoding="utf-8")
         cipher = directory / "encrypted-snapshot.age"
