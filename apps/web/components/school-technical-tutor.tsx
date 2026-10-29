@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { parseSteelAssistantInput } from "@/lib/school-assistant-intent.mjs";
 import { matchSchoolTutorTopic } from "@/lib/school-tutor-topics.mjs";
+import styles from "./school-professor-presence.module.css";
 
 type PublicCitation = { url: string; label: string; role: string };
 type PublicEvidence = {
@@ -40,7 +41,7 @@ function validEvidence(value: unknown): PublicEvidence[] {
 
 /** One original teacher illustration reused on mobile and desktop, without any new media or AI. */
 function TeacherPortrait({ state, className }: { state: LookupState; className: string }) {
-  return (<svg viewBox="0 0 180 180" className={className} fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  return (<svg viewBox="0 0 180 180" className={`${className} ${styles.portrait} ${state === "loading" ? styles.consulting : ""}`} fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
     {/* SCHOOL-ART1: same single lightweight vector asset on mobile and desktop. */}
     <image href="/school-professor-art1.svg" width="180" height="180" />
     {/* Preserve the three restrained presence expressions, not animated lip-sync. */}
