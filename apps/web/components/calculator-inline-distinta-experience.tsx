@@ -79,11 +79,11 @@ export function CalculatorInlineDistintaExperience({
   // Compact drawer copy is presentational only; the RFQ and private target
   // business contracts remain in the existing shared five-language strings.
   const drawerCopy = ({
-    it: { back:"Torna alla calcolatrice", quantity:"Quantità", safety:"I target economici restano privati", more:"Dettagli privacy", help:"Come funziona la RFQ privata", actions:"Azioni riga" },
-    en: { back:"Back to calculator", quantity:"Quantity", safety:"Commercial targets stay private", more:"Privacy details", help:"How private RFQs work", actions:"Line actions" },
-    de: { back:"Zurück zum Rechner", quantity:"Menge", safety:"Preisziele bleiben privat", more:"Datenschutzdetails", help:"So funktionieren private Anfragen", actions:"Zeilenaktionen" },
-    fr: { back:"Retour à la calculatrice", quantity:"Quantité", safety:"Les objectifs de prix restent privés", more:"Détails de confidentialité", help:"Fonctionnement des demandes privées", actions:"Actions de ligne" },
-    es: { back:"Volver a la calculadora", quantity:"Cantidad", safety:"Los precios objetivo siguen siendo privados", more:"Detalles de privacidad", help:"Cómo funcionan las solicitudes privadas", actions:"Acciones de línea" },
+    it: { back:"Torna alla calcolatrice", quantity:"Quantità", safety:"I target economici restano privati", more:"Dettagli privacy", help:"Come funziona la RFQ privata", actions:"Azioni riga", detailView:"Mostra dettagli", compactView:"Compatta righe", pendingReview:"Salva o annulla le modifiche prima di creare la RFQ o copiare la distinta" },
+    en: { back:"Back to calculator", quantity:"Quantity", safety:"Commercial targets stay private", more:"Privacy details", help:"How private RFQs work", actions:"Line actions", detailView:"Show all details", compactView:"Compact rows", pendingReview:"Save or cancel edits before creating an RFQ or copying the bill" },
+    de: { back:"Zurück zum Rechner", quantity:"Menge", safety:"Preisziele bleiben privat", more:"Datenschutzdetails", help:"So funktionieren private Anfragen", actions:"Zeilenaktionen", detailView:"Details anzeigen", compactView:"Zeilen verdichten", pendingReview:"Änderungen speichern oder abbrechen, bevor Sie die Anfrage erstellen oder die Liste kopieren" },
+    fr: { back:"Retour à la calculatrice", quantity:"Quantité", safety:"Les objectifs de prix restent privés", more:"Détails de confidentialité", help:"Fonctionnement des demandes privées", actions:"Actions de ligne", detailView:"Afficher les détails", compactView:"Compacter les lignes", pendingReview:"Enregistrez ou annulez les modifications avant la demande ou la copie" },
+    es: { back:"Volver a la calculadora", quantity:"Cantidad", safety:"Los precios objetivo siguen siendo privados", more:"Detalles de privacidad", help:"Cómo funcionan las solicitudes privadas", actions:"Acciones de línea", detailView:"Ver detalles", compactView:"Compactar filas", pendingReview:"Guarda o cancela los cambios antes de crear la solicitud o copiar la lista" },
   } as const)[locale];
   const number = (value: number | null, digits: number) =>
     value === null || !Number.isFinite(value) ? "—" :
@@ -102,6 +102,9 @@ export function CalculatorInlineDistintaExperience({
   const [ready, setReady] = useState(false);
   const [open, setOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  // CALC-DIST2: default to dense cards only for five or more articles.
+  // A user can expand all rows without touching the technical/RFQ snapshot.
+  const [expandedBatch, setExpandedBatch] = useState(false);
   const [draft, setDraft] = useState<Editable | null>(null);
   // DENSE1C: local drafts per row; no session/RFQ data is changed before Save.
   const [quickQuantities, setQuickQuantities] = useState<Record<string, string>>({});
@@ -255,7 +258,10 @@ export function CalculatorInlineDistintaExperience({
 
   async function createPrivateRfq() {
     if (creatingRef.current || createdRfq || !ready || !liveState.current.lines.length) return;
-    if (hasPendingQuantities()) { setRfqError(c.unsavedQuantity); return; }
+    if (hasPendingQuantities() || editingId !== null || editingTargetId !== null) {
+      setRfqError(hasPendingQuantities() ? c.unsavedQuantity : drawerCopy.pendingReview);
+      return;
+    }
     const built = prepareInlinePrivateRfq(liveState.current, targets, includePrivateTargets);
     if (!built.ok) { setRfqError(built.error); return; }
     creatingRef.current = true;
@@ -305,7 +311,10 @@ export function CalculatorInlineDistintaExperience({
   }
 
   function copyBill() {
-    if (hasPendingQuantities()) { setMessage(c.unsavedQuantity); return; }
+    if (hasPendingQuantities() || editingId !== null || editingTargetId !== null) {
+      setMessage(hasPendingQuantities() ? c.unsavedQuantity : drawerCopy.pendingReview);
+      return;
+    }
     const calculated = liveState.current.lines.map(calculateBuyerDistintaLine);
     if (!calculated.length || calculated.some(line => !line.complete)) {
       setMessage(c.copyIncomplete);
@@ -344,6 +353,9 @@ export function CalculatorInlineDistintaExperience({
   const totals = inlineDistintaTotals(state);
   const count = state.lines.length;
   const hasUnsavedQuantity = hasPendingQuantities();
+  const hasUnsavedEdits = hasUnsavedQuantity || editingId !== null || editingTargetId !== null;
+  const multiRow = count >= 5;
+  const compactBatch = multiRow && !expandedBatch;
   // Technical cart always monitorable; details open in a real portal dialog.
   const bill = (
     <section id="distinta-inline" aria-label={c.title} className="mt-2 min-w-0 scroll-mt-24">
@@ -369,15 +381,15 @@ export function CalculatorInlineDistintaExperience({
             </div>
             <span className="shrink-0 rounded-md bg-[#eef6f0] px-2 py-1 text-xs font-bold text-[#285a43]">{count} {c.lines}</span>
           </div>
-          {hasUnsavedQuantity ? <p role="status" className="text-[11px] font-semibold text-[#915421]">{c.unsavedQuantity}</p> : null}
+          {hasUnsavedEdits ? <p role="status" data-distinta-unsaved-edits className="text-[11px] font-semibold text-[#915421]">{hasUnsavedQuantity ? c.unsavedQuantity : drawerCopy.pendingReview}</p> : null}
           <div data-distinta-footer-actions className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] gap-2">
             <button type="button" className={cn(actionClasses({variant:"secondary",size:"sm"}),"min-h-11 rounded-lg border border-[#a6cdb6] bg-white px-2 text-xs font-semibold text-[#1a533b] sm:text-sm")}
-              disabled={hasUnsavedQuantity} onClick={copyBill} aria-label={c.copyBill}>
+              disabled={hasUnsavedEdits} onClick={copyBill} aria-label={c.copyBill}>
               <span className="sm:hidden">{c.shortCopy}</span><span className="hidden sm:inline">{c.copyBill}</span>
             </button>
             <button type="button" data-create-inline-private-rfq
               className={cn(actionClasses({variant:"default"}),"min-h-11 rounded-lg !bg-[#16694b] px-2 text-xs font-bold !text-white hover:!bg-[#0e5137] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f9c69] sm:text-sm")}
-              disabled={rfqPending || Boolean(createdRfq) || !ready || hasUnsavedQuantity}
+              disabled={rfqPending || Boolean(createdRfq) || !ready || hasUnsavedEdits}
               aria-label={createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : c.createRfqButton}
               onClick={() => { void createPrivateRfq(); }}>
               {createdRfq ? c.rfqCreated : rfqPending ? c.rfqPending : <>
@@ -400,11 +412,19 @@ export function CalculatorInlineDistintaExperience({
             </div>
           ) : null}
 
+          {multiRow ? <div data-distinta-batch-toolbar className="mb-2 flex items-center justify-between gap-2 rounded-lg border border-[#cee2d5] bg-white px-3 py-2">
+            <span className="text-[11px] font-bold tabular-nums text-[#315e49]">{count} {c.lines} · {number(totals?.totalTonnes ?? null, 3)} t</span>
+            <button type="button" data-distinta-toggle-density aria-pressed={expandedBatch}
+              className="min-h-10 rounded-md border border-[#b4d5c2] bg-[#eff8f2] px-3 text-xs font-bold text-[#17563d] hover:bg-[#e1f1e7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#16724e]"
+              onClick={() => setExpandedBatch(value => !value)}>
+              {compactBatch ? drawerCopy.detailView : drawerCopy.compactView}
+            </button>
+          </div> : null}
           {/* Legacy header remains a non-visual landmark; metric labels live within each card. */}
           <div data-distinta-grid-header className={styles.gridHeader} aria-hidden="true">
             <span>{c.oneItem}</span><span>{c.quantity}</span><span>{c.tonnes}</span><span>•••</span>
           </div>
-          <div data-distinta-compact-grid className={styles.rows}>
+          <div data-distinta-compact-grid data-distinta-multi-row-mode={compactBatch ? "compact" : "detailed"} className={cn(styles.rows, compactBatch && styles.rowsBatch)}>
             {state.lines.map((line, index) => {
               const computed = calculateBuyerDistintaLine(line);
               const editing = editingId === line.id;
@@ -453,14 +473,17 @@ export function CalculatorInlineDistintaExperience({
                       aria-expanded={editing} aria-controls={editing ? "distinta-inline-edit-" + line.id : undefined}
                       onClick={() => { if (editing) { setEditingId(null); setDraft(null); } else beginEdit(line); }}>✎</button>
                     <button type="button" className={styles.action} title={c.duplicateLine}
-                      disabled={count >= INLINE_DISTINTA_MAX_LINES}
+                      disabled={count >= INLINE_DISTINTA_MAX_LINES || quickChanged || editing || editingTargetId === line.id}
                       aria-label={c.duplicateLine + " " + c.row.toLowerCase() + " " + (index + 1)}
                       onClick={() => commit(duplicateInlineDistintaLine(liveState.current, line.id, makeId()))}>⧉</button>
                     <button type="button" className={styles.actionDanger} title={c.remove}
                       aria-label={c.remove + " " + c.row.toLowerCase() + " " + (index + 1)}
                       onClick={() => {
-                        if (commit(removeInlineDistintaLine(liveState.current, line.id)) && editing) {
-                          setEditingId(null); setDraft(null);
+                        if (commit(removeInlineDistintaLine(liveState.current, line.id))) {
+                          if (editing) { setEditingId(null); setDraft(null); }
+                          if (editingTargetId === line.id) setEditingTargetId(null);
+                          setQuickQuantities(current => { const next = { ...current }; delete next[line.id]; return next; });
+                          setQuickLengths(current => { const next = { ...current }; delete next[line.id]; return next; });
                         }
                       }}>×</button>
                     <button type="button" className={styles.actionTarget} title={privateTarget ? c.editTarget : c.setTarget}
