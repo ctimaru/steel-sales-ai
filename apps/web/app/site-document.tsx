@@ -54,11 +54,11 @@ export function SiteDocument({ children, lang }: { children: ReactNode; lang: "i
   const requestedGoogleAnalyticsId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID?.trim();
   // SEO-GROWTH2.A: keep GA4 traffic out of preview/local QA environments.
   const isProductionDeployment = process.env.VERCEL_ENV === "production";
-  const googleAnalyticsId = isProductionDeployment
-    ? requestedGoogleAnalyticsId === "G-F5QWLD98HD"
+  // Preserve consent UI on previews for QA without loading a GA4 transport.
+  const googleAnalyticsId =
+    requestedGoogleAnalyticsId === "G-F5QWLD98HD"
       ? requestedGoogleAnalyticsId
-      : "G-F5QWLD98HD"
-    : undefined;
+      : "G-F5QWLD98HD";
 
   const googleConsentBootstrap = `
 window.dataLayer = window.dataLayer || [];
@@ -97,7 +97,7 @@ window.gtag("set", "ads_data_redaction", true);
         {/* PERF2.1: Consent Mode v2 defaults and queued events stay in the
             synchronous inline stub; the external GA library is fetched
             after page load/idle instead of competing with mobile LCP. */}
-        {googleAnalyticsId ? (
+        {isProductionDeployment ? (
           <>
             <Script
               id="sss-google-analytics"
