@@ -1615,7 +1615,7 @@ export function PublicTubeWeightCalculator({
                       ) : null}
                     </div>
                     <div className="mt-1.5 space-y-1">
-                      {recentCalculations.length ? recentCalculations.slice(0, 4).map((calculation) => (
+                      {recentCalculations.length ? recentCalculations.map((calculation) => (
                         <button
                           type="button"
                           key={`${calculation.key}-${calculation.savedAt}`}
@@ -1623,7 +1623,7 @@ export function PublicTubeWeightCalculator({
                           className="block min-h-11 w-full rounded-lg bg-white/8 px-2 py-2 text-left text-xs hover:bg-white/12"
                         >
                           <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
-                          <span className="text-white/85">{formatOutput(calculation.kgM, 3)} kg/m · {t("Ripristina")}</span>
+                          <span className="block text-white/85">{calculation.quantity} {t("barre")} × {calculation.length} m · {t("Ripristina")}</span>
                         </button>
                       )) : (
                         <p className="text-[10px] text-white/85">{t("Nessun calcolo recente.")}</p>
@@ -1634,7 +1634,7 @@ export function PublicTubeWeightCalculator({
                   <div>
                     <p className="text-[10px] font-extrabold uppercase tracking-[0.1em] text-white/85">{t("Preferiti")}</p>
                     <div className="mt-1.5 space-y-1">
-                      {favoriteCalculations.length ? favoriteCalculations.slice(0, 4).map((calculation) => (
+                      {favoriteCalculations.length ? favoriteCalculations.map((calculation) => (
                         <div key={calculation.key} className="flex items-center gap-1 rounded-lg bg-white/8 p-1">
                           <button
                             type="button"
@@ -1643,6 +1643,7 @@ export function PublicTubeWeightCalculator({
                             className="min-h-11 min-w-0 flex-1 px-1.5 py-2 text-left text-xs"
                           >
                             <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
+                            <span className="block text-white/85">{calculation.quantity} {t("barre")} × {calculation.length} m</span>
                           </button>
                           <button
                             type="button"
