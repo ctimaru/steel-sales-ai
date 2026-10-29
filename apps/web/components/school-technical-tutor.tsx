@@ -128,7 +128,7 @@ export function SchoolTechnicalTutor() {
         <div className="relative grid max-w-[930px] items-center gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(145px,210px)] sm:gap-8">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[.15em] text-[#b9dfc7]">Smart Steel School · Il Professore</p>
-            <h1 id="school-professor-title" className="mt-2 max-w-[17ch] text-[2rem] font-semibold leading-[1.12] tracking-[-.045em] text-white sm:text-[2.55rem]">Ciao, cosa vuoi capire?</h1>
+            <h1 id="school-professor-title" className="mt-2 max-w-[17ch] text-[2rem] font-semibold leading-[1.12] tracking-[-.045em] text-white sm:text-[2.55rem]">Come posso aiutarti?</h1>
             <p className="mt-2 max-w-[55ch] text-sm leading-6 text-[#dfefe4]">Chiedimi di norme, acciai o tubi. Partiamo insieme dalle fonti pubblicate.</p>
             <div className="mt-3 flex flex-wrap items-center gap-2 sm:mt-4">
               <div data-testid="school-qa3-mobile-portrait" aria-hidden="true"
