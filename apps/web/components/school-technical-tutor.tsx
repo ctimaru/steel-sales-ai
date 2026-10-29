@@ -98,25 +98,37 @@ export function SchoolTechnicalTutor() {
       <div className="relative isolate overflow-hidden bg-[#0b251d] px-5 py-7 text-white sm:px-8 sm:py-9">
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-cover bg-[position:75%_center] opacity-35" style={{backgroundImage:"url('/home-cine1a-steel.webp')"}} />
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,#0b251d_0%,rgba(11,37,29,.95)_64%,rgba(11,37,29,.62)_100%)]" />
-        <div className="relative flex max-w-3xl items-start gap-4">
-          <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#87b9a0]/40 bg-[#254e3d] shadow-inner sm:h-16 sm:w-16">
-            <svg viewBox="0 0 48 48" className="h-9 w-9 text-[#d3efdb]" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 17 24 9l17 8-17 8L7 17Z" /><path d="M14 22v8c6 5 14 5 20 0v-8M41 17v13" /><path d="M16 39c5-3 11-3 16 0" />
-            </svg>
-          </div>
+        <div className="relative grid max-w-[930px] items-center gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(145px,210px)] sm:gap-8">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[.16em] text-[#b9dfc7]">Smart Steel School · Professore tecnico</p>
-            <h1 id="school-professor-title" className="mt-2 text-3xl font-semibold tracking-[-.04em] text-white sm:text-[2.6rem]">Ciao, cosa vuoi capire?</h1>
-            <p className="mt-3 max-w-[62ch] text-sm leading-7 text-[#dfefe4]">Chiedimi di norme, acciai o tubi. Partiamo insieme dalle fonti pubblicate.</p>
+            <p className="text-[11px] font-bold uppercase tracking-[.15em] text-[#b9dfc7]">Smart Steel School · Il Professore</p>
+            <h1 id="school-professor-title" className="mt-2 max-w-[17ch] text-[2rem] font-semibold leading-[1.12] tracking-[-.045em] text-white sm:text-[2.55rem]">Ciao, cosa vuoi capire?</h1>
+            <p className="mt-2 max-w-[55ch] text-sm leading-6 text-[#dfefe4]">Chiedimi di norme, acciai o tubi. Partiamo insieme dalle fonti pubblicate.</p>
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-[11px] font-medium text-[#d8efe1]">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#9bdfb8]"/>
+              Consultazione guidata · Fonti pubblicate K2
+            </div>
+          </div>
+          <div aria-hidden="true" className="hidden h-[176px] w-[176px] items-center justify-center justify-self-center rounded-[30px] border border-[#a9d2b8]/35 bg-[#24503b]/65 shadow-[0_20px_40px_-20px_rgba(2,18,12,.6)] sm:flex">
+            <svg viewBox="0 0 180 180" className="h-[155px] w-[155px]" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="90" cy="77" r="62" fill="#366B50" stroke="#A9D2B8" strokeOpacity=".5"/>
+              <path d="M36 154c5-31 24-45 54-45s49 14 54 45" fill="#D3E9DD"/>
+              <path d="m72 110 18 18 18-18-5-8H77l-5 8Z" fill="#B4D8BF"/>
+              <path d="M64 63c0-22 10-37 26-37s26 15 26 37v13c0 23-12 40-26 40S64 99 64 76V63Z" fill="#EBC7A7"/>
+              <path d="M60 70c-2-31 10-49 32-49 20 0 33 17 28 46l-5-9c-2-15-10-23-21-23-7 0-16 9-30 9l-4 26Z" fill="#20392E"/>
+              <path d="M67 73h18m10 0h18M85 73h10" stroke="#20392E" strokeWidth="4" strokeLinecap="round"/>
+              <path d="M83 95c4 3 10 3 14 0" stroke="#985E46" strokeWidth="2.5" strokeLinecap="round"/>
+              <path d="m69 126 20 24 21-24" stroke="#356A4E" strokeWidth="4" strokeLinejoin="round"/>
+              <path d="M34 156h112" stroke="#A9D2B8" strokeWidth="3" strokeLinecap="round"/>
+            </svg>
           </div>
         </div>
       </div>
-      <div className="px-5 py-5 sm:px-8 sm:py-6">
-        <form onSubmit={submit} role="search" aria-label="Consulta il Professore tecnico" className="space-y-3">
+      <div className="px-4 py-4 sm:px-7 sm:py-5">
+        <form onSubmit={submit} role="search" aria-label="Consulta il Professore tecnico" className="space-y-2">
           <label htmlFor="tutor-question" className="block text-sm font-semibold text-[#244d3c]">La tua domanda</label>
           <div className="flex flex-col gap-2 sm:flex-row">
             <input id="tutor-question" type="search" maxLength={500} value={draft}
-              onChange={event => setDraft(event.target.value)} placeholder="Es. Che cos’è EN 10219?"
+              onChange={event => setDraft(event.target.value)} placeholder="Es. Qual è la differenza tra EN 10210 e EN 10219?"
               className="min-h-12 min-w-0 flex-1 rounded-xl border border-[#bfd3c5] bg-white px-4 text-[15px] text-[#1a3027] placeholder:text-[#6a7b70] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#247455]" />
             <button type="submit" disabled={!draft.trim() || state === "loading"}
               className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-xl bg-[#176747] px-5 text-sm font-bold text-white transition hover:bg-[#23583f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] disabled:cursor-not-allowed disabled:bg-[#dce8df] disabled:text-[#28543c] disabled:hover:bg-[#dce8df]">
@@ -124,20 +136,20 @@ export function SchoolTechnicalTutor() {
             </button>
           </div>
         </form>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-xs text-[#607166]">Puoi iniziare da qui:</span>
           {examples.map(example => <button key={example} type="button" onClick={() => void ask(example)}
             disabled={state === "loading"} className="rounded-full border border-[#d4e0d7] bg-[#f4f8f5] px-3 py-2 text-left text-xs font-semibold text-[#25533e] transition hover:border-[#8bb6a0] hover:bg-[#eaf4ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c] disabled:opacity-50">
             {example}
           </button>)}
         </div>
-        <p className="mt-4 text-xs leading-5 text-[#617469]">Modalità iniziale: consultazione guidata delle fonti verificate, non conversazione AI generativa. La domanda completa rimane nel browser; vengono trasmessi solo i codici tecnici riconosciuti.</p>
+        <p className="mt-3 text-[11px] leading-5 text-[#617469]">Consultazione guidata delle fonti pubblicate, non conversazione AI generativa. La domanda resta nel browser: alla ricerca inviamo solo i codici tecnici riconosciuti.</p>
       </div>
     </section>
 
     <section aria-live="polite" aria-atomic="false" className="min-h-0">
-      {state !== "idle" ? <div className="rounded-[22px] border border-[#d4e1d8] bg-white p-5 sm:p-6">
-        <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#2b7150]">Consultazione tecnica</p>
+      {state !== "idle" ? <div className="rounded-[22px] border border-[#d4e1d8] bg-white p-4 sm:p-6">
+        <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#2b7150]">Il Professore risponde con le fonti</p>
         <h2 className="mt-2 text-lg font-semibold text-[#173c2d]">{question}</h2>
         {state === "loading" ? <p className="mt-3 text-sm text-[#536b5e]">Verifico i riferimenti pubblicati…</p> : null}
         {state === "topic" && topic ? <div className="mt-4 rounded-[18px] border border-[#d2e3d6] bg-[#f4f8f5] p-4">
@@ -150,21 +162,25 @@ export function SchoolTechnicalTutor() {
         {state === "no_evidence" ? <p className="mt-3 text-sm leading-6 text-[#536b5e]">Non ho trovato schede pubblicate verificabili per questi codici. Non significa che la norma o il materiale non esistano: puoi cercare direttamente nel catalogo.</p> : null}
         {state === "error" ? <p className="mt-3 text-sm leading-6 text-[#536b5e]">Le fonti non sono disponibili in questo momento. Non presenterò spiegazioni tecniche senza riscontro.</p> : null}
         {state === "ready" ? <>
-          <p className="mt-3 text-sm leading-6 text-[#536b5e]">Ho trovato {items.length} {items.length === 1 ? "scheda pubblicata" : "schede pubblicate"}. Ecco cosa riportano le fonti, senza dedurre equivalenze o idoneità del prodotto.</p>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
+          <p className="mt-3 text-sm leading-6 text-[#536b5e]">Ho consultato {items.length} {items.length === 1 ? "riferimento pubblicato" : "riferimenti pubblicati"}. Ti riporto le informazioni disponibili, senza dedurre equivalenze o idoneità del prodotto.</p>
+          <div className="mt-4 grid gap-3">
             {items.map(item => {
               const page = item.citations.find(c => c.role === "public_page" && safeUrl(c.url));
               const more = item.citations.filter(c => c.role !== "public_page" && safeUrl(c.url)).slice(0, 2);
-              return <article key={item.id} className="flex flex-col rounded-[18px] border border-[#d8e4dc] bg-[#fafcfb] p-4">
+              return <article key={item.id} className="flex flex-col rounded-[18px] border border-[#d8e4dc] bg-[#fafcfb] p-4 sm:p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="rounded-lg bg-[#e8f2eb] px-2 py-1 font-mono text-[11px] font-bold text-[#225a40]">{item.code}</span>
                   <span className="text-[11px] text-[#617468]">Rivisto: {item.provenance.k2LastReviewedAt}</span>
                 </div>
                 <h3 className="mt-3 text-base font-semibold text-[#193d2e]">{item.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-[#4c6055]">{item.summary}</p>
-                <p className="mt-2 text-sm leading-6 text-[#4c6055]">{item.technicalContext.slice(0, 500)}</p>
+                <p className="mt-1 text-[11px] font-bold uppercase tracking-[.1em] text-[#286446]">In breve · Riferimento pubblicato</p>
+                <p className="mt-2 text-sm leading-6 text-[#344e3f]">{item.summary}</p>
+                <details className="mt-3 rounded-xl border border-[#dde9e0] bg-white px-3 py-2.5">
+                  <summary className="min-h-9 cursor-pointer text-xs font-semibold leading-9 text-[#1a5b3d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">Approfondisci il contesto tecnico</summary>
+                  <p className="pb-2 text-sm leading-6 text-[#4c6055]">{item.technicalContext.slice(0, 500)}</p>
+                </details>
                 {item.caution ? <p className="mt-3 border-l-2 border-[#a0b9a8] pl-3 text-xs leading-5 text-[#516b5c]">{item.caution.slice(0, 260)}</p> : null}
-                <div className="mt-auto flex flex-wrap gap-3 border-t border-[#e0eae2] pt-4 text-xs font-bold text-[#176747]">
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 border-t border-[#e0eae2] pt-3 text-xs font-bold text-[#176747]">
                   {page ? <a href={page.url} className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">Leggi la scheda completa ↗</a> : null}
                   {more.map(source => <a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer"
                     className="underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">{source.label} ↗</a>)}
@@ -182,12 +198,5 @@ export function SchoolTechnicalTutor() {
       </div> : null}
     </section>
 
-    <section className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] border border-[#d6e3db] bg-[#eef5f0] p-4 sm:px-5">
-      <div>
-        <p className="text-sm font-semibold text-[#1e4a35]">Vuoi continuare nell'area aziendale?</p>
-        <p className="mt-1 max-w-xl text-xs leading-5 text-[#556d5c]">L'assistente riservato permette un dialogo guidato e, solo quando abilitata, una sintesi AI con fonti e controlli di utilizzo.</p>
-      </div>
-      <Link href="/school/assistant" className="inline-flex min-h-10 items-center rounded-xl border border-[#b5d0bf] bg-white px-4 text-xs font-bold text-[#1c5138] hover:bg-[#e7f1e8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">Apri l'assistente aziendale ↗</Link>
-    </section>
   </div>;
 }
