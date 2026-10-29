@@ -176,8 +176,20 @@ try {
 
       // Archive and restore are reversible, preserving the same snapshot id.
       await page.goto(URL_ROOT+"/rfq-hub/distinte/"+distinctId,{waitUntil:"domcontentloaded"});
-      await page.locator("[data-saved-distinta-actions] [data-action-archive]").click();
-      await page.getByText(/Distinta archiviata: conservata/).waitFor({timeout:60000});
+      // A server-rendered button can be clickable before React hydration.
+      // Opening and cancelling the editor verifies that client event handlers are attached.
+      const activeActions=page.locator("[data-saved-distinta-actions]").first();
+      await activeActions.locator("[data-action-rename]").click();
+      await activeActions.locator("[data-saved-distinta-rename-input]").waitFor({state:"visible",timeout:20000});
+      await activeActions.getByRole("button",{name:"Annulla"}).click();
+      await activeActions.locator("[data-action-archive]").click();
+      try {
+        await page.getByText(/Distinta archiviata: conservata/).waitFor({timeout:30000});
+      } catch (e) {
+        const status=await activeActions.locator('[role="alert"],[role="status"]').allTextContents();
+        const db=await readRows(buyerDb.from("buyer_distintas").select("archived_at").eq("id",distinctId));
+        throw new Error("Archive not accepted. UI="+JSON.stringify(status)+" DB archived="+Boolean(db?.[0]?.archived_at),{cause:e});
+      }
       await page.goto(URL_ROOT+"/rfq-hub/distinte?q="+encodeURIComponent(renamedTitle),{waitUntil:"domcontentloaded"});
       assert.equal(await page.locator("[data-dist4-row]").count(),0,"Archived bill absent in active list");
       await page.locator("[data-dist4-archived-tab]").click();
