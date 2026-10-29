@@ -46,6 +46,7 @@ try {
     assert.ok(actionBoxes.every(b=>b&&b.height>=43.5&&b.width>=39),"44px touch actions");
     const box=await drawer.boundingBox();
     assert.ok(box&&box.width<=(width>=640?515:width+2),"Drawer width should not dominate");
+    if(width===1440) assert.ok(box.height<760,"One-line drawer must not consume an empty full screen: "+box.height);
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+4),false,
       "No page horizontal overflow at "+locale+" "+width);
     assert.equal(await drawer.locator("[data-distinta-privacy-info]").getAttribute("open"),null,
