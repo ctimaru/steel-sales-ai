@@ -19,7 +19,7 @@ test("CALC-DIST4: typechecked inputs and compact search/pagination preserves act
   }
   for(const x of ["data-dist4-archive","data-dist4-row","data-dist4-active-tab","data-dist4-archived-tab",
     'name="q"','name="view"','archiveUrl(query,mode,page+1)','archiveUrl(query,mode,page-1)',
-    '.eq("organization_id",context.organizationId)','request.is("archived_at",null)','request.not("archived_at","is",null)'])
+    '.eq("organization_id", context.organizationId)','request.is("archived_at",null)','request.not("archived_at","is",null)'])
     assert.ok(archive.includes(x),x);
   for(const x of ["SavedDistintaActions","archived_at","Campagne RFQ collegate","owner_user_id===context.userId"])
     assert.ok(detail.includes(x),x);
