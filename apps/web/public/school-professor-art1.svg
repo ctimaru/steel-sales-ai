@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" role="img" aria-labelledby="title">
+<title id="title">Il Professore — ritratto illustrato Smart Steel School</title>
+<defs>
+ <radialGradient id="art-halo" cx="0" cy="0" r="1" gradientTransform="translate(75 43) rotate(67) scale(130 118)" gradientUnits="userSpaceOnUse"><stop stop-color="#63917B"/><stop offset=".53" stop-color="#315C4C"/><stop offset="1" stop-color="#183C31"/></radialGradient>
+ <linearGradient id="art-skin" x1="68" y1="41" x2="119" y2="119" gradientUnits="userSpaceOnUse"><stop stop-color="#FFE1BF"/><stop offset=".48" stop-color="#E8BC97"/><stop offset="1" stop-color="#C99476"/></linearGradient>
+ <linearGradient id="art-suit" x1="52" y1="112" x2="125" y2="166" gradientUnits="userSpaceOnUse"><stop stop-color="#40665A"/><stop offset=".4" stop-color="#25493F"/><stop offset="1" stop-color="#102D27"/></linearGradient>
+ <linearGradient id="art-shirt" x1="81" y1="122" x2="102" y2="156" gradientUnits="userSpaceOnUse"><stop stop-color="#FFF9E9"/><stop offset="1" stop-color="#C4D8D1"/></linearGradient>
+ <linearGradient id="art-hair" x1="65" y1="26" x2="125" y2="69" gradientUnits="userSpaceOnUse"><stop stop-color="#65746B"/><stop offset=".24" stop-color="#344A43"/><stop offset=".74" stop-color="#1B302C"/><stop offset="1" stop-color="#56655A"/></linearGradient>
+ <clipPath id="art-crop"><circle cx="90" cy="84" r="72"/></clipPath>
+</defs>
+<circle cx="90" cy="84" r="72" fill="url(#art-halo)" stroke="#9CCCB3" stroke-opacity=".66" stroke-width="1.4"/>
+<g clip-path="url(#art-crop)">
+ <path d="M28 41c24-21 54-30 91-25M45 141c28 16 69 20 111-4" stroke="#D4EEDC" stroke-opacity=".13" stroke-width="1.4"/>
+ <path d="M131 25v21h22V25M130 46l13 8 13-8" stroke="#A0D0B5" stroke-opacity=".16" stroke-width="1.5"/>
+ <path d="M40 157c3-25 15-38 38-45 7-3 19-3 27-1 27 3 44 17 49 46l5 30H22Z" fill="url(#art-suit)"/>
+ <path d="M63 118l18-8 11 14-22 34-13-30 6-10ZM115 117l-15-7-10 14 19 34 14-29-8-12Z" fill="#2F5448" stroke="#658976" stroke-opacity=".7" stroke-width="1.5"/>
+ <path d="M77 112c4 6 8 11 13 12 8-4 12-8 15-14l8 9-21 43-23-40Z" fill="url(#art-shirt)"/>
+ <path d="M78 113l-2 13 12 11 4-13-14-11ZM103 111l2 14-13 12-2-13 13-13Z" fill="#F0EEE2" stroke="#BDCFC8" stroke-width="1"/>
+ <path d="M91 133l-5 9 5 22 5-22-5-9Z" fill="#2E7560"/><path d="M90 130l-5 6 6 6 6-6-7-6Z" fill="#487E6D"/>
+ <path d="M59 125l13 27-7 15M121 124l-12 28 7 15" stroke="#7CA18F" stroke-opacity=".5" stroke-width="1.8"/>
+ <path d="M127 141h9" stroke="#B9D9C7" stroke-width="2.3" stroke-linecap="round"/><circle cx="137" cy="144" r="2.6" fill="#C1E2CF"/>
+ <path d="M73 102h34l1 16c-3 10-11 17-17 17-6-1-15-8-18-18v-15Z" fill="#BE876C"/>
+ <path d="M77 109c6 8 20 9 29 0v8c-3 10-11 17-17 17-6-1-12-8-12-17v-8Z" fill="#D8A78A"/>
+ <path d="M63 74c-8-7-12 2-9 11 1 8 6 12 13 13l-4-24ZM118 72c10-8 13 3 11 12-1 9-6 14-13 13l2-25Z" fill="#D5A17E"/>
+ <path d="M58 77c-1-23 9-42 33-45 23-2 36 17 34 42l-5 23c-3 13-10 23-20 28-7 3-16 3-23-1-10-7-17-18-19-31V77Z" fill="url(#art-skin)" stroke="#A77863" stroke-opacity=".75" stroke-width="1"/>
+ <path d="M66 78c-3 8-3 20 2 29 4 11 10 16 19 20-16-3-27-16-29-35l2-21Z" fill="#AC7C65" opacity=".38"/>
+ <path d="M111 83c2 20-4 34-14 42 14-3 23-17 25-37l1-16Z" fill="#B8866E" opacity=".32"/>
+ <path d="M59 70c-4-22 4-39 20-45 13-6 27-6 38 5 11 9 14 23 9 40l-6 3-4-23c-8 0-18-3-25-11-9 11-20 13-29 14l-3 17Z" fill="url(#art-hair)"/>
+ <path d="M61 50c7-6 15-7 24-11m-9-9c14-7 26-5 35 1m-24 4c13-8 24-3 31 5" stroke="#9EB0A4" stroke-opacity=".66" stroke-width="2" stroke-linecap="round"/>
+ <path d="M117 50c5 9 6 16 6 24M59 71c-2 8-2 15 0 20" stroke="#98A99E" stroke-opacity=".43" stroke-width="2"/>
+ <path d="M70 71c6-4 12-5 19-3m8 1c7-3 13-2 18 1" stroke="#443C32" stroke-width="2.5" stroke-linecap="round"/>
+ <path d="M70 81c5-5 12-5 18-1m12 0c5-4 11-4 16 0" stroke="#47382F" stroke-width="1.8" stroke-linecap="round"/>
+ <circle cx="80" cy="81" r="2" fill="#263E36"/><circle cx="108" cy="81" r="2" fill="#263E36"/>
+ <path d="M80 80.2l.6-.6m27.5.6.7-.6" stroke="#F4F3E8" stroke-width="1.1" stroke-linecap="round"/>
+ <path d="M92 81l-2 15c2 2 5 3 8 1" stroke="#9C6A55" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+ <rect x="67" y="72" width="24" height="18" rx="7" stroke="#213B33" stroke-width="2.4"/><rect x="97" y="72" width="23" height="18" rx="7" stroke="#213B33" stroke-width="2.4"/>
+ <path d="M91 78c2-2 4-2 6 0m-29-3-7-2m59 2 6-2" stroke="#213B33" stroke-width="2.2" stroke-linecap="round"/>
+ <path d="M71 75l15-2m14 0 13 1" stroke="#F4EACB" stroke-opacity=".48" stroke-width="1" stroke-linecap="round"/>
+ <path d="M74 102c1 12 9 21 17 22 11 0 18-8 21-21-5 10-12 15-21 16-7 0-13-5-17-17Z" fill="#66756B" opacity=".16"/>
+ <path d="M75 113c8 7 21 9 31-1" stroke="#8E7464" stroke-opacity=".35" stroke-width="2"/>
+ <path d="M76 122c10 6 20 6 30-2" stroke="#EBC5A5" stroke-opacity=".6" stroke-width="1"/>
+</g>
+<path d="M36 151c15 8 33 12 54 12 21 0 41-4 54-12" stroke="#B1DCC2" stroke-opacity=".3" stroke-width="1"/>
+</svg>
