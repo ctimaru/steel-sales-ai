@@ -172,6 +172,7 @@ export default async function SteelPulseEditorialStudio({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Link href="/platform/steel-pulse/workflow" className="inline-flex min-h-11 items-center rounded-lg border border-[#c3d7cb] bg-white px-3 text-xs font-semibold text-[#175640]">Bozze e revisioni →</Link>
             <Link href="/platform/steel-pulse" className="inline-flex min-h-11 items-center rounded-lg border border-[#c3d7cb] bg-white px-3 text-xs font-semibold text-[#175640]">Verifica readiness →</Link>
             <Link href="/platform/people#editorial-staff-invite" className="inline-flex min-h-11 items-center rounded-lg border border-[#c3d7cb] bg-white px-3 text-xs font-semibold text-[#175640]">Operatori →</Link>
           </div>
