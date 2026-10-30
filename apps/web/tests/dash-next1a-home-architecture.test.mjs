@@ -13,12 +13,13 @@ test("DASH-NEXT1A Home places a truthful action-first entry above feed", () => {
   const attention = home.indexOf('<section aria-labelledby="daily-priorities"');
   const feed = home.indexOf("<DashboardSteelPulse state={pulse} />");
   assert.ok(hero >= 0 && attention > hero && feed > attention);
-  assert.match(home, /Dalle informazioni alle opportunità/);
+  assert.match(home, /Come posso aiutarti oggi\?/);
   assert.match(home, /aria-label="Cerca RFQ, offerte, ordini, aziende e documenti nello storico commerciale"/);
   assert.match(home, /href=\{appRoutes\.commercial\.search\}/);
   assert.match(home, /href=\{appRoutes\.commercial\.home\}/);
   assert.match(home, /aria-label="Aree di lavoro"/);
   assert.match(home, /orderedQuickActions\.map/);
+  assert.match(home, /\.filter\(\(action\) => action\.href !== appRoutes\.commercial\.search\)/);
 });
 
 test("DASH-NEXT1A keeps network discovery and primary action role-aware", () => {
