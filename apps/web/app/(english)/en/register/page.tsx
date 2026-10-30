@@ -52,9 +52,9 @@ export default async function EnglishRegistrationPage({ searchParams }: {
           </header>
           <div className="mt-4 hidden max-w-3xl lg:block">
             <p className="text-xs font-bold uppercase tracking-wide text-[#1f6b5a]">Company registration · Free account</p>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#123b34] sm:text-3xl">
+            <p className="mt-1 text-2xl font-bold tracking-tight text-[#123b34] sm:text-3xl">
               {claimRef ? "Continue with your company profile" : "Create your company account"}
-            </h1>
+            </p>
             <p className="mt-1 hidden text-sm leading-5 text-[#52615b] sm:block">
               Start with your account. You can check your company now or after verifying your email.
             </p>
