@@ -72,23 +72,112 @@ export default async function RegisterPage({
             </Link>
           </div>
 
-          <div className="mt-6 space-y-5">
-            <aside className="rounded-2xl border border-[#d9e8e2] bg-[#edf5f2] p-5 sm:p-6">
-              <p className="app-kicker">Registrazione aziendale</p>
-              <h1 className="mt-2 text-2xl font-semibold tracking-[-0.02em] text-[#123d34] sm:text-3xl">
-                {claimRef ? "Continua il claim della tua azienda" : "Prima verifica se la tua azienda è già presente"}
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#52615b]">
-                {claimRef
-                  ? "Il profilo scelto è già collegato al percorso. Crea l’accesso e prosegui senza duplicare l’identità aziendale."
-                  : "Cerca ragione sociale o Partita IVA. Se trovi un profilo claimable lo colleghiamo alla registrazione; altrimenti puoi creare la nuova richiesta. Completa la richiesta dopo la verifica email."}
-              </p>
-            </aside>
+          <div className="mt-4 max-w-3xl">
+            <p className="app-kicker">Registrazione aziendale · Accesso gratuito</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-[#123d34] sm:text-3xl">
+              {claimRef ? "Continua con il profilo selezionato" : "Crea il tuo account aziendale"}
+            </h1>
+            <p className="mt-1 text-sm leading-5 text-[#52615b]">
+              Inizia dall’account. Puoi controllare se l’azienda è già presente prima o dopo la verifica email.
+            </p>
+          </div>
+          <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-6">
+              <section
+                id="account"
+                className="min-w-0 scroll-mt-4 rounded-[24px] border border-[#cbded5] bg-white p-4 shadow-[0_14px_44px_rgba(18,61,52,0.05)] sm:p-6" data-testid="onboarding-ux2-account"
+              >
+                <div className="hidden sm:block"><RegistrationJourney current={1} compact /></div>
 
-            <div className="space-y-5">
+                <div className="mt-1 sm:mt-5">
+                  <p className="app-kicker">Passo 1 di 4 · Account</p>
+                  <h2 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-[#1d2824]">
+                    {claimRef ? "Crea l’account per la tua azienda" : "Crea account"}
+                  </h2>
+                  <p className="mt-3 text-sm leading-6 text-[#5d6a65]">
+                    Riceverai un link via email. La richiesta aziendale si completa dopo la verifica.
+                  </p>
+                </div>
+
+                {error ? (
+                  <div
+                    role="alert"
+                    className="mt-6 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
+                  >
+                    {error}
+                  </div>
+                ) : null}
+
+                {message ? (
+                  <div className="mt-6 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm leading-6 text-[#173f35]">
+                    {message}
+                  </div>
+                ) : null}
+
+                {returnTo ? <p role="status" className="mt-4 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm text-[#173f35]">Il percorso verso la tua attività commerciale sarà conservato. I dati della distinta restano nel browser, non nell’email.</p> : null}
+                <form action={signup} className="mt-4 space-y-3">
+                  <input type="hidden" name="next" value={registrationPath} />
+                  <label className="block text-sm font-semibold text-[#43524c]">
+                    Email
+                    <Input
+                      className="mt-1.5 h-12"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      inputMode="email"
+                      required
+                    />
+                  </label>
+
+                  <label className="block text-sm font-semibold text-[#43524c]">
+                    Password
+                    <Input
+                      className="mt-2 h-12"
+                      name="password"
+                      type="password"
+                      autoComplete="new-password"
+                      minLength={8}
+                      required
+                    />
+                    <span className="mt-1 block text-xs leading-5 text-[#5d6a65]">
+                      Almeno 8 caratteri. Usa una password personale e non riutilizzata.
+                    </span>
+                  </label>
+
+                  <p className="text-xs leading-5 text-[#66736e]">
+                    Consulta l’{" "}
+                    <Link
+                      href="/privacy"
+                      target="_blank"
+                      className="font-semibold text-[#173f35] underline underline-offset-4"
+                    >
+                      Informativa privacy
+                    </Link>{" "}
+                    sul trattamento dei dati e i{" "}
+                    <Link
+                      href="/terms"
+                      target="_blank"
+                      className="font-semibold text-[#173f35] underline underline-offset-4"
+                    >
+                      Termini d’uso
+                    </Link>.
+                    Le conferme richieste saranno raccolte prima della richiesta aziendale.
+                  </p>
+
+                  <PendingSubmitButton
+                    pendingLabel="Creazione account…"
+                    className="app-primary h-12 w-full rounded-xl px-5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Crea account
+                  </PendingSubmitButton>
+                </form>
+
+                <div className="mt-3 rounded-xl border border-[#e2e7e4] bg-[#f7f9f8] px-3 py-2 text-xs leading-5 text-[#5d6a65]">
+                  L’azienda si attiva solo dopo la verifica email e l’approvazione della richiesta.
+                </div>
+              </section>
               <section
                 id="company-check"
-                className="scroll-mt-6 rounded-[28px] border border-[#dce2df] bg-white p-5 shadow-[0_14px_44px_rgba(18,61,52,0.05)] sm:p-7"
+                className="min-w-0 scroll-mt-4 rounded-[24px] border border-[#dce2df] bg-white p-4 shadow-[0_14px_44px_rgba(18,61,52,0.05)] sm:p-6" data-testid="onboarding-ux2-company-check"
               >
                 {claimRef ? (
                   <div className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5">
@@ -130,110 +219,14 @@ export default async function RegisterPage({
                     returnTo={returnTo}
                     initialQuery={initialCompanySearch}
                     notFoundHref="#account"
-                    notFoundLabel="Non è presente: continua con una nuova registrazione ↓"
+                    notFoundLabel="Nessun risultato? Puoi creare l’account ↑"
                     showNetworkNote={false}
                   />
                   </>
                 )}
               </section>
 
-              <section
-                id="account"
-                className="scroll-mt-6 rounded-[28px] border border-[#dce2df] bg-white p-6 shadow-[0_14px_44px_rgba(18,61,52,0.05)] sm:p-8"
-              >
-                <RegistrationJourney current={1} compact />
 
-                <div className="mt-7">
-                  <p className="app-kicker">Step 1 · Account</p>
-                  <h2 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#1d2824]">
-                    {claimRef ? "Crea l’account e continua il claim" : "Crea il tuo accesso"}
-                  </h2>
-                  <p className="mt-3 text-sm leading-6 text-[#5d6a65]">
-                    Ti invieremo un link di verifica. Dopo la conferma potrai completare la
-                    richiesta aziendale.
-                  </p>
-                </div>
-
-                {error ? (
-                  <div
-                    role="alert"
-                    className="mt-6 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
-                  >
-                    {error}
-                  </div>
-                ) : null}
-
-                {message ? (
-                  <div className="mt-6 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm leading-6 text-[#173f35]">
-                    {message}
-                  </div>
-                ) : null}
-
-                {returnTo ? <p role="status" className="mt-4 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm text-[#173f35]">Il percorso verso la tua attività commerciale sarà conservato. I dati della distinta restano nel browser, non nell’email.</p> : null}
-                <form action={signup} className="mt-6 space-y-5">
-                  <input type="hidden" name="next" value={registrationPath} />
-                  <label className="block text-sm font-semibold text-[#43524c]">
-                    Email
-                    <Input
-                      className="mt-2 h-12"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      inputMode="email"
-                      required
-                    />
-                  </label>
-
-                  <label className="block text-sm font-semibold text-[#43524c]">
-                    Password
-                    <Input
-                      className="mt-2 h-12"
-                      name="password"
-                      type="password"
-                      autoComplete="new-password"
-                      minLength={8}
-                      required
-                    />
-                    <span className="mt-1.5 block text-xs leading-5 text-[#5d6a65]">
-                      Almeno 8 caratteri. Usa una password personale e non riutilizzata.
-                    </span>
-                  </label>
-
-                  <p className="text-xs leading-5 text-[#66736e]">
-                    Prima di creare l’account consulta l’{" "}
-                    <Link
-                      href="/privacy"
-                      target="_blank"
-                      className="font-semibold text-[#173f35] underline underline-offset-4"
-                    >
-                      Informativa privacy
-                    </Link>{" "}
-                    sul trattamento dei dati e i{" "}
-                    <Link
-                      href="/terms"
-                      target="_blank"
-                      className="font-semibold text-[#173f35] underline underline-offset-4"
-                    >
-                      Termini d’uso
-                    </Link>.
-                    Le conferme versionate verranno raccolte separatamente prima dell’invio della
-                    richiesta aziendale.
-                  </p>
-
-                  <PendingSubmitButton
-                    pendingLabel="Creazione account…"
-                    className="app-primary h-12 w-full rounded-xl px-5 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    Crea account e continua
-                  </PendingSubmitButton>
-                </form>
-
-                <div className="mt-5 rounded-xl border border-[#e2e7e4] bg-[#f7f9f8] px-4 py-3 text-xs leading-5 text-[#5d6a65]">
-                  La creazione dell&apos;account non attiva automaticamente l&apos;azienda: dopo la
-                  verifica email completerai la richiesta, che resta soggetta a revisione.
-                </div>
-              </section>
-            </div>
           </div>
         </div>
       </main>
