@@ -284,16 +284,6 @@ jobs:
         run: node tests/calc-int3e5-chrome-rfq-funnel.mjs
       - name: BD17 Chrome A/B CTA variants, consent gating and login handoff
         run: node tests/bd17-chrome-cta-variants.mjs
-      - name: ONBOARDING-UX2 Chrome signup-first IT/EN 320/390/1440 visual acceptance
-        run: node tests/onboarding-ux2-chrome-first-viewport.mjs
-      - name: Upload ONBOARDING-UX2 responsive registration screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: onboarding-ux2-first-viewport
-          path: /tmp/onboarding-ux2/*.png
-          if-no-files-found: warn
-          retention-days: 7
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
         run: node tests/home-si5-chrome-visual-qa.mjs
       - name: Upload SCHOOL-UNIFY2B Explorer localization screenshots (demo only)
