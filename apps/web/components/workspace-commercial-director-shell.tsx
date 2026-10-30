@@ -84,9 +84,16 @@ function CommercialDirectorNavigation({ mobile = false }: { mobile?: boolean }) 
   const pathname = usePathname();
   const view = useSearchParams().get("view");
   const [mobileOpen, setMobileOpen] = useState(false);
-  const selectedLabel = commercialDirectorGroups
-    .flatMap(group => group.items)
-    .find(item => commercialDirectorLinkSelected(item.href, pathname, view))?.label;
+  let selectedLabel: string | undefined;
+  for (const group of commercialDirectorGroups) {
+    for (const item of group.items) {
+      if (commercialDirectorLinkSelected(item.href, pathname, view)) {
+        selectedLabel = item.label;
+        break;
+      }
+    }
+    if (selectedLabel) break;
+  }
 
   // Close the mobile disclosure after a route/filter change. Selecting an
   // in-page anchor must close it too, even if the pathname does not change.
