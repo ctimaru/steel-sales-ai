@@ -142,6 +142,16 @@ try {
         await intelligence.waitFor({ state: "visible", timeout: 60000 });
         await intelligence.getByRole("heading", { name: "Il quadro della trattativa" })
           .waitFor({ state: "visible" });
+        const readiness = intelligence.getByTestId("commercial-decision-readiness");
+        await readiness.getByRole("heading", { name: "Prima di decidere" })
+          .waitFor({ state: "visible" });
+        const advice = await readiness.innerText();
+        assert.match(advice, /Da confermare:/);
+        assert.match(advice, /Conferma i destinatari nella RFQ originale/);
+        assert.match(advice, /Controlla scadenze e condizioni/);
+        assert.match(advice, /non una validazione automatica/);
+        assert.equal(await readiness.locator("button").count(), 0,
+          "Decision checklist must not execute RFQ/PO operations");
         const materialText = await intelligence.getByTestId("commercial-deal-materials").innerText();
         assert.match(materialText, /(?:SHS 100x100x5|RHS 200x100x6)/);
         assert.match(materialText, /EN 10219/);
