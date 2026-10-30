@@ -5,6 +5,8 @@ import type { UnifiedCommercialItem } from "@/lib/commercial-unified-data";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
+import type { UnifiedCommercialKind } from "@/lib/commercial-unified-data";
+import { commercialDecisionReadiness } from "@/lib/commercial-decision-readiness";
 
 type Material = { description: string; specification: string; quantity: string; target: string | null };
 type Source = { href: string; label: string };
@@ -161,7 +163,8 @@ export async function loadCommercialDealFacts(
   catch { return null; } // Fail closed if membership or RLS data cannot be resolved.
 }
 
-export function CommercialDealIntelligence({ facts }: { facts: CommercialDealFacts | null }) {
+export function CommercialDealIntelligence({ facts, kind, canWrite }: { facts: CommercialDealFacts | null; kind: UnifiedCommercialKind; canWrite: boolean }) {
+  const readiness = commercialDecisionReadiness(kind, facts, canWrite);
   return (
     <section data-testid="commercial-deal-intelligence" aria-labelledby="commercial-deal-intelligence-title"
       className="rounded-xl border border-[#d3e6da] bg-[#f8fbf9] p-3 sm:p-4">
@@ -181,6 +184,30 @@ export function CommercialDealIntelligence({ facts }: { facts: CommercialDealFac
               <dd className="mt-1 break-words font-semibold text-[#173f35]">{facts.quantity ?? "Vedi articoli"}</dd>
             </div>
           </dl>
+          <section aria-labelledby="commercial-decision-readiness-title" data-testid="commercial-decision-readiness"
+            className="rounded-lg border border-[#dce9df] bg-white p-2.5 sm:p-3">
+            <div className="flex flex-wrap items-baseline justify-between gap-1.5">
+              <h5 id="commercial-decision-readiness-title" className="text-xs font-semibold text-[#173f35]">
+                Prima di decidere
+              </h5>
+              <span className="text-[10px] text-[#52685b]">Verifica nel record originale</span>
+            </div>
+            {readiness.checks.length ? (
+              <ul className="mt-2 grid gap-1.5 text-xs sm:grid-cols-2">
+                {readiness.checks.map((check, index) => (
+                  <li key={index} className="min-w-0 rounded-md bg-[#f7faf8] px-2.5 py-2 leading-4 text-[#34584a]">
+                    <span className="mr-1 font-semibold text-[#175640]">
+                      {check.category === "missing" ? "Non disponibile qui:" : "Da confermare:"}
+                    </span>
+                    {check.label}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-xs text-[#52685b]">Non emergono lacune dai campi visibili. Le condizioni commerciali richiedono comunque verifica.</p>
+            )}
+            <p className="mt-2 text-[11px] leading-4 text-[#61766a]">{readiness.notice}</p>
+          </section>
           <div data-testid="commercial-deal-materials">
             <p className="mb-1.5 text-xs font-semibold text-[#173f35]">Materiali e quantità registrate</p>
             {facts.materials.length ? (
