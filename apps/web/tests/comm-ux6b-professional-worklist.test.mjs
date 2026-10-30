@@ -21,6 +21,9 @@ test("COMM-UX6.B removes second promotional banner and creates compact workspace
 
 test("COMM-UX6.B maintains 70px compact rows with all real deal fields and no invented status", () => {
   assert.match(worklist, /min-h-\[70px\]/);
+  assert.match(worklist, /min-h-\[102px\]/);
+  assert.match(worklist, /line-clamp-2[^"]*sm:line-clamp-1/);
+  assert.match(worklist, /col-span-2 min-w-0 space-y-0\.5 sm:col-span-1/);
   assert.match(worklist, /data-testid="commercial-smart-deal-card"/);
   for (const field of ["itemType(item)", "item.origin", "item.title", "item.subtitle", "item.status", "formatHubDate(item.at)"]) {
     assert.ok(worklist.includes(field), field + " must remain visible from the existing view-model");
