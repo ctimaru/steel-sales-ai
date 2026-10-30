@@ -177,59 +177,68 @@ export default async function CommercialHomePage({
     <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
-        className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white shadow-[0_24px_75px_-35px_rgba(4,39,30,0.9)] " + cinematic.hero}>
-        <div className={"grid gap-6 px-5 pb-7 pt-6 sm:min-h-[290px] sm:px-9 sm:pb-10 sm:pt-9 lg:min-h-[328px] lg:items-center lg:px-11 lg:py-9 " + cinematic.heroGrid}>
-          <div className="relative z-10 min-w-0 max-w-[670px]">
-            <div className="inline-flex items-center gap-2 border-b border-[#7dad91]/50 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#add4bb]">
+        className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white " + cinematic.hero}>
+        <div className={"grid items-center gap-4 px-5 py-5 sm:px-7 lg:min-h-[172px] lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-7 lg:px-8 lg:py-5 " + cinematic.heroGrid}>
+          <div className="relative z-10 min-w-0">
+            <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#add4bb]">
               <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9fe4b5]" />
-              Smart Steel Sales / Commercial Intelligence
+              Smart Steel Sales / Commerciale
             </div>
-            <h1 className={"mt-4 max-w-[650px] text-[clamp(2rem,3.8vw,3.5rem)] font-semibold leading-[1.06] tracking-[-0.05em] text-white " + cinematic.heroTitle}>
-              Le tue trattative.<br /><span className="text-[#b4dec2]">Un’unica visione.</span>
+            <h1 className={"mt-2 text-[clamp(1.65rem,2.5vw,2.25rem)] font-semibold leading-[1.08] tracking-[-0.04em] text-white " + cinematic.heroTitle}>
+              Le tue trattative. <span className="text-[#b4dec2]">Un’unica visione.</span>
             </h1>
-            <p className="mt-3 hidden max-w-[475px] text-sm leading-6 text-[#d2e7db] sm:block">
-              Dal materiale che cerchi alla trattativa conclusa. Richieste, offerte e ordini in un solo spazio.
+            <p className="mt-2 text-xs leading-5 text-[#d2e7db]">
+              Richieste, offerte e ordini in un unico spazio.
             </p>
-            <p className="mt-2 text-[13px] leading-5 text-[#d2e7db] sm:hidden">Richieste, offerte e ordini in un unico spazio.</p>
-            <div aria-label="Il tuo centro operativo" className={"mt-5 hidden max-w-[510px] sm:block " + cinematic.heroMetrics}>
-              <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo</p>
-              <dl className="grid grid-cols-3 gap-2">
-                <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.rfqs}</dd></div>
-                <div><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.offers}</dd></div>
-                <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.orders}</dd></div>
-              </dl>
-            </div>
-            <p className="mt-4 hidden flex-wrap items-center gap-2 text-[11px] font-medium text-[#b8d8c6] sm:flex">
-              <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#a0ddba]" />
-              {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Dati in attesa di associazione"}
-              <span aria-hidden="true" className="mx-1 text-white/30">/</span> Workspace privato
+          </div>
+          <div aria-label="Il tuo centro operativo" className={"relative z-10 hidden lg:block " + cinematic.heroMetrics}>
+            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo</p>
+            <dl className="grid grid-cols-3 gap-2">
+              <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-xl font-semibold tabular-nums text-white">{operational.rfqs}</dd></div>
+              <div><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-xl font-semibold tabular-nums text-white">{operational.offers}</dd></div>
+              <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-xl font-semibold tabular-nums text-white">{operational.orders}</dd></div>
+            </dl>
+            <p className="mt-2 text-[10px] font-medium text-[#b8d8c6]">
+              {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Dati in attesa di associazione"} · Workspace privato
             </p>
           </div>
         </div>
       </section>
-      <div data-testid="comm-cine13-first-workspace" className="relative z-10 -mt-4 px-2 sm:-mt-5 sm:px-5">
+
+      <div data-testid="comm-cine13-first-workspace" className="relative z-10 px-1 sm:px-2">
         <CommercialAiCompanion canWrite={canWrite} />
       </div>
 
+      <section id="commercial-tool-access" aria-label="Azioni rapide Commerciale"
+        data-testid="commercial-primary-quick-actions"
+        className="scroll-mt-28 rounded-2xl border border-[#d6e5db] bg-white px-3 py-2.5 sm:px-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <CommercialCalculatorQuickAccess references={calculatorReferences} />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            {networkAvailable ? (
+              <nav aria-label="Relazioni commerciali" className="flex flex-wrap items-center gap-3">
+                <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
+                  className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] hover:underline">
+                  Aziende da seguire →
+                </Link>
+                <Link href={appRoutes.network.directory}
+                  className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] hover:underline">
+                  Network
+                </Link>
+              </nav>
+            ) : null}
+          {canWrite ? (
+            <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
+              className="app-primary inline-flex min-h-10 items-center rounded-lg border border-[#175640] bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2">
+              + Nuova richiesta
+            </Link>
+          ) : null}
+          </div>
+        </div>
+      </section>
 
-      <nav aria-label="Sezioni del Commerciale" data-testid="commercial-cockpit-tabs"
-        className="flex flex-wrap items-center gap-1.5 overflow-x-auto border-b border-[#dce9e0] pb-3 pt-1 text-xs sm:gap-2">
-        <span className="mr-2 shrink-0 font-bold uppercase tracking-[0.12em] text-[#64796c]">Vai a</span>
-        <a href="#commercial-today" className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Priorità</a>
-        <a href="#commercial-worklist" className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Trattative</a>
-        <a href="#commercial-tools-panel" className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Strumenti</a>
-        {networkAvailable ? (
-          <>
-            <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
-              className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Aziende da seguire →</Link>
-            <Link href={appRoutes.network.directory}
-              className="inline-flex min-h-9 items-center rounded-lg px-3 font-semibold text-[#175640] hover:bg-[#edf5ef]">Network</Link>
-          </>
-        ) : null}
-      </nav>
-
-      <section aria-labelledby="commercial-today-heading" id="commercial-today" className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-4 py-4 sm:px-5" data-testid="commercial-compact-actions">
-        <h2 id="commercial-today-heading" className="mb-2 text-sm font-semibold text-[#173f35]">Cosa richiede attenzione</h2>
+      <section aria-labelledby="commercial-today-heading" id="commercial-today" className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-4 py-2.5 sm:px-5" data-testid="commercial-compact-actions">
+        <h2 id="commercial-today-heading" className="mb-1 text-xs font-semibold text-[#173f35]">Cosa richiede attenzione</h2>
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs" data-testid="commercial-compact-attention">
           <div className="flex items-center gap-2">
             <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53] underline-offset-2 hover:underline">Apri inbox →</Link>
@@ -301,9 +310,6 @@ export default async function CommercialHomePage({
       />
 
 
-      <section id="commercial-tool-access" aria-label="Calcolo tecnico e distinta" className="scroll-mt-28 rounded-2xl border border-[#e1eae4] bg-white px-4 py-3 sm:px-5">
-        <CommercialCalculatorQuickAccess references={calculatorReferences} />
-      </section>
       {(networkContext || showProspects) ? (
         <section id="commercial-relations" aria-label="Relazioni dal Network" className="scroll-mt-28 space-y-3">
 

@@ -41,9 +41,9 @@
   font-kerning: normal;
 }
 .heroMetrics {
-  border-top: 1px solid rgba(187,230,204,.26);
-  padding-top: 12px;
-  max-width: 480px;
+  border-left: 1px solid rgba(187,230,204,.3);
+  padding-left: 20px;
+  max-width: 340px;
 }
 .heroMetrics dl { margin: 0; }
 .heroMetrics dl > div {
@@ -64,15 +64,12 @@
 }
 .companionTitle { text-wrap: balance; }
 .companionForm {
-  border: 1px solid #d9e8dd;
-  border-radius: 16px;
-  background: #f7faf8;
-  padding: 12px;
+  min-width: 0;
 }
 .companionForm textarea {
   background: #fff;
-  min-height: 96px;
-  line-height: 1.6;
+  min-height: 64px;
+  line-height: 1.4;
 }
 .companionForm textarea:focus-visible {
   outline: 2px solid #175640;
@@ -115,8 +112,7 @@
 }
 
 /* One visual grammar for the existing page surfaces; no new panels or layout wrappers. */
-.page :global([data-testid="commercial-cockpit-tabs"]) {
-  scrollbar-width: thin;
+.page :global([data-testid="commercial-primary-quick-actions"]) {
   border-color: #d6e5db;
 }
 .page :global(#commercial-today),
@@ -145,8 +141,7 @@
 }
 
 @media (min-width: 1024px) {
-  .heroGrid { grid-template-columns: minmax(0,1.04fr) minmax(0,.96fr); }
-  .companionForm { flex: 0 0 min(39%, 420px); max-width: 420px; }
+  .heroGrid { grid-template-columns: minmax(0,1fr) 340px; }
 }
 @media (max-width: 1023px) {
   .hero::before { background-position: center, 63% center; }

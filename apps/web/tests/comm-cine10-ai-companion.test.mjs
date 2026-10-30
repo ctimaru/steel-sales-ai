@@ -13,8 +13,8 @@ test("COMM-CINE10 provides a single integrated AI companion", () => {
   assert.match(component, /data-testid="commercial-ai-first-cta"/);
 });
 test("COMM-CINE10 offers only real user-triggered commercial entry points", () => {
-  assert.match(component, /sss:open-commercial-calculator/);
-  assert.match(component, /appRoutes\.commercial\.assistant/);
+  assert.doesNotMatch(component, /sss:open-commercial-calculator/); // calculator has a dedicated first-viewport entry
+  assert.match(page, /<CommercialCalculatorQuickAccess references=\{calculatorReferences\}/);
   assert.match(component, /appRoutes\.commercial\.home/);
   assert.match(component, /canWrite \? \(/);
   assert.match(component, /comm-cine11-prompt/);
