@@ -295,18 +295,18 @@ export async function CommercialUnifiedWorklist({
               {filtered.map((item) => (
                 <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
                   aria-current={item.key === active?.key ? "true" : undefined}
-                  className={"group grid min-h-[70px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 border-l-[3px] px-3 py-2 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] sm:px-4 " +
+                  className={"group grid min-h-[102px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-l-[3px] px-3 py-2 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] sm:min-h-[70px] sm:gap-x-3 sm:gap-y-0 sm:px-4 " +
                     (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : "border-l-transparent")}>
-                  <div className="min-w-0 space-y-0.5" data-testid="commercial-smart-deal-card">
+                  <div className="col-span-2 min-w-0 space-y-0.5 sm:col-span-1" data-testid="commercial-smart-deal-card">
                     <div className="flex min-w-0 items-center gap-1.5 text-[10px] leading-4">
                       <span className="shrink-0 font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</span>
                       <span aria-hidden="true" className="text-[var(--text-secondary)]">·</span>
                       <span className="min-w-0 truncate text-[var(--text-secondary)]">{item.origin}</span>
                     </div>
-                    <p className="truncate text-sm font-semibold leading-5 text-[var(--brand-deep)]" title={item.title}>{item.title}</p>
+                    <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)] sm:line-clamp-1" title={item.title}>{item.title}</p>
                     {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)]">{item.subtitle}</p> : null}
                   </div>
-                  <div className="flex min-w-[64px] max-w-[120px] flex-col items-end gap-1 text-right sm:min-w-[104px] sm:max-w-[180px]">
+                  <div className="col-span-2 flex min-w-0 items-center justify-between gap-2 border-t border-[#edf3ee] pt-1 text-right sm:col-span-1 sm:min-w-[104px] sm:max-w-[180px] sm:flex-col sm:items-end sm:gap-1 sm:border-0 sm:pt-0">
                     <span className="max-w-full truncate rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold leading-4 text-[var(--brand-deep)]" title={item.status}>{item.status}</span>
                     <div className="flex items-center gap-2">
                       {item.at ? <time className="text-[10px] tabular-nums text-[var(--text-secondary)]">{formatHubDate(item.at)}</time> : null}
