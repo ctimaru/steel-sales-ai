@@ -102,6 +102,15 @@ async function publicChecks(width, language) {
     await widthGuard(page, width + loginPath);
     await page.screenshot({ path: path.join(output, `login-${language}-${width}.png`),
       fullPage: false, animations: "disabled" });
+    // Exercise a real first-visit essential-cookie choice instead of forcing
+    // clicks through the fixed consent panel on a 320px viewport.
+    const consentPanel = page.getByTestId("mobile-cookie-consent");
+    if (await consentPanel.isVisible()) {
+      await consentPanel.getByRole("button", {
+        name: /essential cookies only|cookie necessari/i,
+      }).first().click();
+      await consentPanel.waitFor({ state: "hidden", timeout: 10000 });
+    }
     await registerLink.click();
     await page.waitForURL(url => url.pathname === registerPath, { timeout: 30000 });
     assert.equal(new URL(page.url()).searchParams.get("return_to"), destination);
