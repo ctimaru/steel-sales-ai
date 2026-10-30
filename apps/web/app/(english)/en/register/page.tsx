@@ -50,7 +50,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
               <Link href={`/en/login?next=${encodeURIComponent(registrationPath)}`} className="font-bold text-[#173f35] underline">Sign in</Link>
             </nav>
           </header>
-          <div className="mt-4 max-w-3xl">
+          <div className="mt-4 hidden max-w-3xl lg:block">
             <p className="text-xs font-bold uppercase tracking-wide text-[#1f6b5a]">Company registration · Free account</p>
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#123b34] sm:text-3xl">
               {claimRef ? "Continue with your company profile" : "Create your company account"}
@@ -63,7 +63,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
             <section id="create-account" className="min-w-0 scroll-mt-4 rounded-[24px] border border-[#cbded5] bg-white p-4 sm:p-6" data-testid="onboarding-ux2-account" aria-label="Create your account">
               <div className="hidden sm:block"><RegistrationJourney current={1} compact locale="en" /></div>
               <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 1 of 4 · Your account</p>
-              <h2 className="mt-1 text-2xl font-bold text-[#123b34]">Create account</h2>
+              <h1 className="mt-1 text-2xl font-bold text-[#123b34]">Create account</h1>
               <p className="mt-2 text-sm leading-5 text-[#52615b]">We'll email a verification link. Your company application comes next.</p>
               {error ? <p role="alert" className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] p-3 text-sm text-[#9f2f24]">We could not create the account. Please review your email and password, then try again. {error}</p> : null}
               {message ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-3 text-sm">{message}</p> : null}
