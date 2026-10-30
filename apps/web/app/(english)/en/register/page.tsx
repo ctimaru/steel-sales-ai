@@ -50,48 +50,57 @@ export default async function EnglishRegistrationPage({ searchParams }: {
               <Link href={`/en/login?next=${encodeURIComponent(registrationPath)}`} className="font-bold text-[#173f35] underline">Sign in</Link>
             </nav>
           </header>
-          <div className="mt-8 grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div className="min-w-0 space-y-5">
-              <div className="rounded-[24px] border border-[#dce2df] bg-white p-6 sm:p-8">
-                <p className="text-xs font-extrabold uppercase tracking-wider text-[#1f6b5a]">Step 1 — Company discovery</p>
-                <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#123b34]">Join Smart Steel Sales</h1>
-                <p className="mt-3 text-sm leading-7 text-[#52615b]">Search for your company first. If your profile already exists and is available to claim, we will link it to your account application rather than create a duplicate.</p>
-                {claimRef ? <div className="mt-5 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] p-4 text-sm">
-                  <strong>Company profile selected</strong>
-                  <p className="mt-1 text-[#52615b]">Your claim reference is preserved through email verification.</p>
-                  <Link href="/en/register" className="mt-2 inline-flex font-bold text-[#1f6b5a] underline">Search for another company</Link>
-                </div> : <div className="mt-6"><PublicCompanyLookup locale="en" context="registration" returnTo={returnTo} notFoundHref="#create-account"
-                  notFoundLabel="Not listed? Create an account below ↓" showNetworkNote={false} /></div>}
-              </div>
-              <div className="rounded-xl border border-[#dce2df] bg-[#f8faf9] p-5 text-sm leading-6 text-[#52615b]">
-                <strong className="text-[#123b34]">Your company remains private until approved.</strong>
-                <p className="mt-2">After your email is verified, you will submit the company details for review. Creating an account does not grant automatic access to private RFQs or the Network.</p>
-              </div>
-            </div>
-            <section id="create-account" className="min-w-0 scroll-mt-6 rounded-[24px] border border-[#dce2df] bg-white p-5 sm:p-8" aria-label="Create your account">
-              <RegistrationJourney current={1} compact locale="en" />
-              <p className="mt-7 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 2 — Personal account</p>
-              <h2 className="mt-2 text-2xl font-bold text-[#123b34]">Create your account</h2>
-              <p className="mt-3 text-sm leading-6 text-[#52615b]">We'll send an email verification link. Once confirmed, you'll return to the English company form.</p>
+          <div className="mt-4 max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-wide text-[#1f6b5a]">Company registration · Free account</p>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#123b34] sm:text-3xl">
+              {claimRef ? "Continue with your company profile" : "Create your company account"}
+            </h1>
+            <p className="mt-1 text-sm leading-5 text-[#52615b]">
+              Start with your account. You can check your company now or after verifying your email.
+            </p>
+          </div>
+          <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-6">
+            <section id="create-account" className="min-w-0 scroll-mt-4 rounded-[24px] border border-[#cbded5] bg-white p-4 sm:p-6" data-testid="onboarding-ux2-account" aria-label="Create your account">
+              <div className="hidden sm:block"><RegistrationJourney current={1} compact locale="en" /></div>
+              <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 1 of 4 · Your account</p>
+              <h2 className="mt-1 text-2xl font-bold text-[#123b34]">Create account</h2>
+              <p className="mt-2 text-sm leading-5 text-[#52615b]">We'll email a verification link. Your company application comes next.</p>
               {error ? <p role="alert" className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] p-3 text-sm text-[#9f2f24]">We could not create the account. Please review your email and password, then try again. {error}</p> : null}
               {message ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-3 text-sm">{message}</p> : null}
               {returnTo ? <p role="status" className="mt-4 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] p-3 text-sm text-[#173f35]">Your commercial destination will be retained. Your draft stays in this browser, not in the email link.</p> : null}
-              <form action={signup} className="mt-6 space-y-4">
+              <form action={signup} className="mt-4 space-y-3">
                 <input type="hidden" name="next" value={registrationPath} />
                 <label className="block text-sm font-bold text-[#43524c]">Work email
-                  <Input name="email" type="email" autoComplete="email" required className="mt-2 h-12" />
+                  <Input name="email" type="email" autoComplete="email" required className="mt-1.5 h-12" />
                 </label>
                 <label className="block text-sm font-bold text-[#43524c]">Password
                   <Input name="password" type="password" autoComplete="new-password" minLength={8} required className="mt-2 h-12" />
                   <span className="mt-1 block text-xs font-normal text-[#52615b]">At least eight characters. Use a unique password.</span>
                 </label>
                 <p className="text-xs leading-5 text-[#52615b]">
-                  Review the <Link href="/privacy" hrefLang="it" target="_blank" className="font-bold underline">Privacy notice (IT)</Link> and <Link href="/terms" hrefLang="it" target="_blank" className="font-bold underline">Terms (IT)</Link> before creating the account. Legal acknowledgements are collected separately when submitting your company application.
+                  Read the <Link href="/privacy" hrefLang="it" target="_blank" className="font-bold underline">Privacy notice (IT)</Link> and <Link href="/terms" hrefLang="it" target="_blank" className="font-bold underline">Terms (IT)</Link> before creating an account. Company consents are collected separately.
                 </p>
-                <PendingSubmitButton pendingLabel="Creating account…" className="app-primary h-12 w-full rounded-xl px-4 text-sm font-bold disabled:opacity-50">Create account and verify email</PendingSubmitButton>
+                <PendingSubmitButton pendingLabel="Creating account…" className="app-primary h-12 w-full rounded-xl px-4 text-sm font-bold disabled:opacity-50">Create account</PendingSubmitButton>
               </form>
-              <p className="mt-5 text-xs text-[#52615b]">Already have an account? <Link href={`/en/login?next=${encodeURIComponent(registrationPath)}`} className="font-bold underline">Sign in to continue</Link>.</p>
+              <p className="mt-3 text-xs text-[#52615b]">Already have an account? <Link href={`/en/login?next=${encodeURIComponent(registrationPath)}`} className="font-bold underline">Sign in to continue</Link>.</p>
             </section>
+            <div className="min-w-0 space-y-3">
+              <div className="min-w-0 rounded-[24px] border border-[#dce2df] bg-white p-4 sm:p-6">
+                <p className="text-xs font-extrabold uppercase tracking-wider text-[#1f6b5a]">Company lookup · Optional for now</p>
+                <h1 className="mt-1 text-xl font-bold tracking-tight text-[#123b34]">Find your company</h1>
+                <p className="mt-2 text-sm leading-5 text-[#52615b]">You can search now or after verifying your email. Existing profiles can be linked without creating duplicates.</p>
+                {claimRef ? <div className="mt-5 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] p-4 text-sm">
+                  <strong>Company profile selected</strong>
+                  <p className="mt-1 text-[#52615b]">Your claim reference is preserved through email verification.</p>
+                  <Link href="/en/register" className="mt-2 inline-flex font-bold text-[#1f6b5a] underline">Search for another company</Link>
+                </div> : <div className="mt-3"><PublicCompanyLookup locale="en" context="registration" returnTo={returnTo} notFoundHref="#create-account"
+                  notFoundLabel="Not listed? Continue with your account ↑" showNetworkNote={false} /></div>}
+              </div>
+              <div className="rounded-xl border border-[#dce2df] bg-[#f8faf9] p-3 text-xs leading-5 text-[#52615b]">
+                <strong className="text-[#123b34]">Your company remains private until approved.</strong>
+                <p className="mt-2">Private company tools become available only after your application is approved.</p>
+              </div>
+            </div>
           </div>
         </div>
       </main>
