@@ -4,7 +4,9 @@ on:
     paths:
       - "apps/web/app/**/platform/steel-pulse/**"
       - "apps/web/tests/sp8a-*.mjs"
+      - "apps/web/tests/sp8b-*.mjs"
       - "supabase/tests/sp8a_*.sql"
+      - "supabase/tests/sp8b_*.sql"
       - ".github/workflows/sp8a-editorial-visual.yml"
   workflow_dispatch:
 
@@ -95,6 +97,18 @@ jobs:
         timeout-minutes: 10
         working-directory: apps/web
         run: node tests/sp8a-editorial-visual-chrome.mjs
+      - name: Seed two distinct editorial identities and non-publishable approved LOCAL source
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/sp8a-vars.sql" \
+            -f supabase/tests/sp8b_editorial_journey_seed.sql
+      - name: SP8.B real GoTrue author and independent reviewer journey
+        timeout-minutes: 10
+        working-directory: apps/web
+        run: node tests/sp8b-editorial-journey-chrome.mjs
       - name: Upload synthetic-only UI evidence
         if: always()
         uses: actions/upload-artifact@v4
