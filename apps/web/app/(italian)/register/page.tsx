@@ -172,7 +172,7 @@ export default async function RegisterPage({
                 </form>
 
                 <div className="mt-3 rounded-xl border border-[#e2e7e4] bg-[#f7f9f8] px-3 py-2 text-xs leading-5 text-[#5d6a65]">
-                  Creare l’account non attiva automaticamente l&apos;azienda: la richiesta sarà verificata.
+                  Creare l’account non attiva automaticamente l&apos;azienda: la domanda resta soggetta a revisione.
                 </div>
               </section>
               <section
