@@ -201,6 +201,13 @@ try {
         .waitFor({ state: "visible", timeout: 60000 });
       await noHorizontalPageOverflow(page, "Commerciale 390px " + id);
       await verifyCinematic(page, "Commerciale mobile 390px " + id);
+      if (id === "buyer") {
+        await open(page, "/commercial");
+        await noHorizontalPageOverflow(page, "Director menu open at 390px");
+        await page.screenshot({ path: path.join(screenshotsDir, "commercial-director-mobile-menu-open.png"),
+          fullPage: false, animations: "disabled" });
+        await page.getByTestId("commercial-director-mobile").locator("summary").first().click();
+      }
       assert.equal(await page.locator('[data-testid="commercial-compact-filters"]').count(), 1);
       const f = page.locator("#commercial-worklist");
       assert.equal(await f.getByRole("searchbox").count(), 1);
