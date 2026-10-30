@@ -20,5 +20,5 @@ test("COMM-CINE1 unifies commercial visual hierarchy without losing essential wo
   assert.match(companion, /data-testid="commercial-ai-first"/);
   assert.match(source, /<CommercialCalculatorQuickAccess/);
   assert.match(source, /<CommercialUnifiedWorklist/);
-  assert.match(source, /data-testid="commercial-cockpit-tabs"/);
+  assert.match(source, /data-testid="commercial-primary-quick-actions"/);
 });
