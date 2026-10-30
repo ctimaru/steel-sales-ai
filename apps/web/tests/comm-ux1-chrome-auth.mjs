@@ -15,6 +15,9 @@ assert.ok(temp, "CI ephemeral runner directory required");
 const personas = JSON.parse(readFileSync(path.join(temp, "demotest23-personas.json"), "utf8"));
 assert.equal(personas.length, 5);
 const screenshotsDir = path.join(temp, "comm-ux1-safe-screenshots");
+// Playwright screenshot defaults to caret:"hide" and may inject caret-color:transparent
+// into an SSR search input before React hydrates, creating a test-only mismatch.
+// Preserve the browser input DOM during screenshots; do NOT hide Next diagnostics.
 mkdirSync(screenshotsDir, { recursive: true });
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 
@@ -236,10 +239,10 @@ try {
       console.log("COMM-UX1 PASS desktop navigation, compact layout and tenant:", p.id);
       if (p.id === "buyer") {
         await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-desktop.png"),
-          fullPage: false, animations: "disabled" });
+          fullPage: false, animations: "disabled", caret: "initial" });
         await page.locator("#commercial-worklist").scrollIntoViewIfNeeded();
         await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-deals-desktop.png"),
-          fullPage: false, animations: "disabled" });
+          fullPage: false, animations: "disabled", caret: "initial" });
       }
       // Every specialist page retains a correctly highlighted area.
       await verifyArea(page, "/commercial/analysis", "Analisi commerciale");
@@ -283,7 +286,7 @@ try {
         await open(page, "/commercial");
         await noHorizontalPageOverflow(page, "Director menu open at 390px");
         await page.screenshot({ path: path.join(screenshotsDir, "commercial-director-mobile-menu-open.png"),
-          fullPage: false, animations: "disabled" });
+          fullPage: false, animations: "disabled", caret: "initial" });
         await page.getByTestId("commercial-director-mobile").locator("summary").first().click();
       }
       assert.equal(await page.locator('[data-testid="commercial-compact-filters"]').count(), 1);
@@ -302,7 +305,7 @@ try {
         assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 1);
       }
       await page.screenshot({ path: path.join(screenshotsDir, "commercial-" + id + "-mobile.png"),
-        fullPage: false, animations: "disabled" });
+        fullPage: false, animations: "disabled", caret: "initial" });
       if (id === "buyer") {
         const next = await inspectNextDevIndicator(page);
         const issue = next.visibleIssues.some(x => /\b\d+\s+Issues?\b/i.test(x.text));
@@ -335,7 +338,7 @@ try {
     await page.goto(base + "/commercial", { waitUntil: "domcontentloaded" });
     await verifyCinematic(page, "Commerciale mobile 320px buyer");
     await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-mobile-320.png"),
-      fullPage: false, animations: "disabled" });
+      fullPage: false, animations: "disabled", caret: "initial" });
   } finally {
     await narrow.close();
   }
