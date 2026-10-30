@@ -46,7 +46,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
           <header className="flex flex-wrap items-center justify-between gap-3">
             <ProductBrand href="/en" showDescriptor={false} />
             <nav aria-label="English account navigation" className="flex gap-3 text-sm">
-              <Link href="/en" className="font-semibold text-[#52615b]">English home</Link>
+              
               <Link href={`/en/login?next=${encodeURIComponent(registrationPath)}`} className="font-bold text-[#173f35] underline">Sign in</Link>
             </nav>
           </header>
@@ -64,10 +64,10 @@ export default async function EnglishRegistrationPage({ searchParams }: {
               <div className="hidden sm:block"><RegistrationJourney current={1} compact locale="en" /></div>
               <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 1 of 4 · Your account</p>
               <h1 className="mt-1 text-2xl font-bold text-[#123b34]">Create account</h1>
-              <p className="mt-2 text-sm leading-5 text-[#52615b]">We'll email a verification link. Your company application comes next.</p>
+              <p className="mt-2 text-sm leading-5 text-[#52615b]">Verify your email, then complete your company application.</p>
               {error ? <p role="alert" className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] p-3 text-sm text-[#9f2f24]">We could not create the account. Please review your email and password, then try again. {error}</p> : null}
               {message ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-3 text-sm">{message}</p> : null}
-              {returnTo ? <p role="status" className="mt-4 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] p-3 text-sm text-[#173f35]">Your commercial destination will be retained. Your draft stays in this browser, not in the email link.</p> : null}
+              {returnTo ? <p role="status" className="mt-3 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-3 py-2 text-xs leading-5 text-[#173f35]">Your commercial destination is retained. Your draft stays in this tab.</p> : null}
               <form action={signup} className="mt-4 space-y-3">
                 <input type="hidden" name="next" value={registrationPath} />
                 <label className="block text-sm font-bold text-[#43524c]">Work email
@@ -75,10 +75,10 @@ export default async function EnglishRegistrationPage({ searchParams }: {
                 </label>
                 <label className="block text-sm font-bold text-[#43524c]">Password
                   <Input name="password" type="password" autoComplete="new-password" minLength={8} required className="mt-2 h-12" />
-                  <span className="mt-1 block text-xs font-normal text-[#52615b]">At least eight characters. Use a unique password.</span>
+                  <span className="mt-1 block text-xs font-normal text-[#52615b]">Eight characters minimum; use a unique password.</span>
                 </label>
                 <p className="text-xs leading-5 text-[#52615b]">
-                  Read the <Link href="/privacy" hrefLang="it" target="_blank" className="font-bold underline">Privacy notice (IT)</Link> and <Link href="/terms" hrefLang="it" target="_blank" className="font-bold underline">Terms (IT)</Link> before creating an account. Company consents are collected separately.
+                  Read the <Link href="/privacy" hrefLang="it" target="_blank" className="font-bold underline">Privacy notice (IT)</Link> and <Link href="/terms" hrefLang="it" target="_blank" className="font-bold underline">Terms (IT)</Link> before registering. Company consent follows after email verification.
                 </p>
                 <PendingSubmitButton pendingLabel="Creating account…" className="app-primary h-12 w-full rounded-xl px-4 text-sm font-bold disabled:opacity-50">Create account</PendingSubmitButton>
               </form>
