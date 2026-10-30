@@ -205,6 +205,7 @@ try {
       const f = page.locator("#commercial-worklist");
       assert.equal(await f.getByRole("searchbox").count(), 1);
       const mobileMenu = await open(page, "/commercial");
+      await mobileMenu.locator("summary").filter({ hasText: "Analisi e opportunità" }).click();
       await mobileMenu.getByRole("link", { name: "Analisi commerciale", exact: true }).click();
       await page.waitForURL(u => u.pathname === "/commercial/analysis", { timeout: 60000 });
       await verifyArea(page, "/commercial/analysis", "Analisi commerciale");
