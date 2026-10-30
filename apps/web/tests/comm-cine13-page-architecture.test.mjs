@@ -6,12 +6,12 @@ const page = readFileSync(new URL("../app/(italian)/(workspace)/commercial/page.
 const list = readFileSync(new URL("../components/commercial-unified-worklist.tsx", import.meta.url), "utf8");
 const priorities = readFileSync(new URL("../components/commercial-director-priority-desk.tsx", import.meta.url), "utf8");
 
-test("COMM-UX6.A places technical actions before attention and deals without duplicate editors", () => {
+test("COMM-NAV9.M places director decisions before AI and tools, then deals, without duplicate editors", () => {
   const positions = [
     'data-testid="comm-cine1-hero"',
+    "<CommercialDirectorPriorityDesk",
     'data-testid="comm-cine13-first-workspace"',
     'data-testid="commercial-primary-quick-actions"',
-    "<CommercialDirectorPriorityDesk",
     "<CommercialUnifiedWorklist",
     'id="commercial-memory-panel"',
     'id="commercial-tools-panel"',

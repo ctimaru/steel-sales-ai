@@ -50,7 +50,8 @@ async function viewportCheck(page, { width, height, role }) {
     [hero, companion, tools, attention, worklist].map(x => x.boundingBox())
   );
   assert.ok([h, c, t, a, w].every(Boolean), "All first viewport surfaces should render");
-  assert.ok(h.y < c.y && c.y < t.y && t.y < a.y && a.y < w.y, "Correct work-first reading order");
+  assert.ok(h.y < a.y && a.y < c.y && c.y < t.y && t.y < w.y,
+    "COMM-NAV9.M director priorities precede AI and tools in visual and DOM order");
   assert.ok(await page.getByRole("button", { name: "Calcolatrice pesi" }).isVisible());
   // COMM-NAV9: a decision-first summary must remain compact, honest about
   // missing RFQ data and read-only for viewer roles.
@@ -59,7 +60,23 @@ async function viewportCheck(page, { width, height, role }) {
   assert.equal(await priorities.count(), 1);
   assert.equal(await resume.count(), 1);
   assert.equal(await attention.getByRole("heading", { name: "Cosa richiede attenzione" }).count(), 1);
-  assert.equal(await attention.getByRole("link", { name: "Apri inbox →" }).count(), 1);
+  const inboxLink = attention.getByRole("link", { name: "Apri inbox →" });
+  assert.equal(await inboxLink.count(), 1);
+  if (width < 1000) {
+    const inboxBox = await inboxLink.boundingBox();
+    assert.ok(inboxBox && inboxBox.y + inboxBox.height <= height,
+      "COMM-NAV9.M priority inbox action must be inside the FIRST mobile viewport: " + JSON.stringify(inboxBox));
+    const priorityBox = await attention.boundingBox();
+    assert.ok(priorityBox && priorityBox.y < height / 1.5,
+      "COMM-NAV9.M priority panel must start in the upper mobile viewport: " + JSON.stringify(priorityBox));
+    const topVisualNodes = await page.evaluate(() => [
+      document.querySelector("#commercial-today"),
+      document.querySelector('[data-testid="comm-cine13-first-workspace"]'),
+      document.querySelector("#commercial-tool-access"),
+    ].map(x => x?.getBoundingClientRect().top));
+    assert.ok(topVisualNodes.every(Number.isFinite) && topVisualNodes[0] < topVisualNodes[1] && topVisualNodes[1] < topVisualNodes[2],
+      "Priority links must follow the natural keyboard/DOM order on mobile");
+  }
   assert.equal(await attention.getByRole("link", { name: "Le mie trattative →" }).count(), 1);
   if (role === "buyerViewer") {
     assert.match(await priorities.innerText(), /Consultazione in sola lettura/);
