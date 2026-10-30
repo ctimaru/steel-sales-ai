@@ -11,7 +11,7 @@ test("DASH-FEED2 keeps compact shortcuts above personalized news", () => {
   const recent = home.indexOf('<section aria-labelledby="recent-activity"');
   assert.ok(actions > 0 && news > actions && recent > news);
   assert.match(home, /orderedQuickActions\.map/);
-  assert.match(home, /min-h-10 max-w-full items-center gap-2 rounded-full/);
+  assert.match(home, /min-h-10 max-w-full items-center gap-1\.5 rounded-full/);
 });
 
 test("DASH-FEED2 attention contains only actionable work and disappears when empty", () => {
