@@ -8,18 +8,19 @@ const css = readFileSync(new URL("../components/commercial-cinematic.module.css"
 const chrome = readFileSync(new URL("./comm-ux1-chrome-auth.mjs", import.meta.url), "utf8");
 const legacy = readFileSync(new URL("./demotest23-chrome-auth.mjs", import.meta.url), "utf8");
 
-test("COMM-CINE17 keeps a photo-first hero but gives mobile users immediate AI access", () => {
+test("COMM-UX6.A reduces the industrial hero and keeps AI accessible on small screens", () => {
   assert.match(css, /@media \(max-width: 640px\)/);
   assert.match(css, /\.heroTitle \{ font-size: clamp\(1\.625rem, 7vw, 1\.95rem\)/);
   assert.match(page, /Richieste, offerte e ordini in un unico spazio\./);
-  assert.match(page, /mt-5 hidden max-w-\[510px\] sm:block/);
-  assert.match(page, /sm:min-h-\[290px\]/);
-  assert.match(ai, /lg:items-start/);
-  assert.doesNotMatch(ai, /sm:hidden\s*>\s*Descrivi il materiale/);
-  assert.match(ai, /Scegli tu cosa aprire: nessuna richiesta viene inviata automaticamente/);
-  assert.match(page, /mt-4 hidden flex-wrap items-center/);
+  assert.match(page, /lg:min-h-\[172px\]/);
+  assert.doesNotMatch(page, /lg:min-h-\[328px\]/);
+  assert.match(page, /lg:grid-cols-\[minmax\(0,1fr\)_340px\]/);
+  assert.match(ai, /lg:grid-cols-\[minmax\(0,0\.9fr\)_minmax\(0,1\.1fr\)\]/);
+  assert.match(ai, /rows=\{2\}/);
+  assert.match(ai, /nessuna richiesta viene inviata automaticamente/);
   assert.ok(page.indexOf("comm-cine1-hero") < page.indexOf("comm-cine13-first-workspace"));
-  assert.ok(page.indexOf("comm-cine13-first-workspace") < page.indexOf("commercial-worklist"));
+  assert.ok(page.indexOf("comm-cine13-first-workspace") < page.indexOf("commercial-primary-quick-actions"));
+  assert.ok(page.indexOf("commercial-primary-quick-actions") < page.indexOf("commercial-worklist"));
 });
 
 test("COMM-CINE17 authenticated Chrome evidence covers the owner, viewer and a 320px layout", () => {
