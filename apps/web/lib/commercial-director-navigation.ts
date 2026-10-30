@@ -21,6 +21,7 @@ export const commercialDirectorGroups = [
     label: "Trattative e acquisti",
     description: "Dal materiale all'ordine",
     items: [
+      { label: "Centro RFQ", href: appRoutes.rfqHub.home },
       { label: "Inbox operativa", href: appRoutes.rfqHub.inbox },
       { label: "Richieste ricevute", href: appRoutes.commercial.home + "?view=received#commercial-worklist" },
       { label: "RFQ ai fornitori", href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
