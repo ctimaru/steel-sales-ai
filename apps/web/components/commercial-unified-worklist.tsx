@@ -2,7 +2,7 @@ import Link from "next/link";
 import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealQuickActions } from "@/components/commercial-deal-quick-actions";
-import { CommercialDealIntelligence, loadCommercialDealFacts } from "@/components/commercial-deal-intelligence";
+import { CommercialDealDecisionReadiness, CommercialDealIntelligence, loadCommercialDealFacts } from "@/components/commercial-deal-intelligence";
 import { commercialDealNextStep } from "@/lib/commercial-deal-next-step";
 
 import { getOperationalEntityData } from "@/lib/commercial-data";
@@ -70,6 +70,21 @@ async function SelectedDetail({
         <h3 className="mt-1 break-words text-lg font-bold text-[var(--brand-deep)]">{item.title}</h3>
         <p className="mt-1 text-sm text-[var(--text-secondary)]">{item.subtitle}</p>
       </div>
+      <CommercialDealDecisionReadiness facts={facts} kind={item.kind} canWrite={canWrite} />
+      <section aria-labelledby="commercial-deal-next-step" data-testid="commercial-deal-next-step"
+        className="rounded-xl border border-[#b5d7c3] bg-[#f3f9f5] p-3 sm:p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Prossimo passo</p>
+        <h4 id="commercial-deal-next-step" className="mt-1 text-sm font-semibold text-[#173f35]">
+          {nextStep.title}
+        </h4>
+        <p className="mt-1 text-xs leading-5 text-[#52685b]">
+          {nextStep.description}
+        </p>
+        <Link href={item.href}
+          className="app-primary mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+          {nextStep.actionLabel}
+        </Link>
+      </section>
       <dl className="grid grid-cols-2 gap-2 text-xs">
         <div className="rounded-lg bg-[var(--surface-subtle)] p-2.5">
           <dt className="text-[var(--text-secondary)]">Stato</dt>
@@ -139,20 +154,7 @@ async function SelectedDetail({
           ) : null}
         </div>
       )}
-      <section aria-labelledby="commercial-deal-next-step" data-testid="commercial-deal-next-step"
-        className="rounded-xl border border-[#b5d7c3] bg-[#f3f9f5] p-3 sm:p-4">
-        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Prossimo passo</p>
-        <h4 id="commercial-deal-next-step" className="mt-1 text-sm font-semibold text-[#173f35]">
-          {nextStep.title}
-        </h4>
-        <p className="mt-1 text-xs leading-5 text-[#52685b]">
-          {nextStep.description}
-        </p>
-        <Link href={item.href}
-          className="app-primary mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
-          {nextStep.actionLabel}
-        </Link>
-      </section>
+
       <CommercialDealQuickActions canWrite={canWrite} composeHref={appRoutes.commercial.home + "?compose=1#commercial-compose"} originalHref={item.href} />
       <section aria-labelledby="commercial-deal-memory-heading" data-testid="commercial-deal-memory-entry"
         className="overflow-hidden rounded-2xl border border-[#c9e1d3] bg-[#f3faf5]">
