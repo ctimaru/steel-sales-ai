@@ -229,7 +229,7 @@ export default async function CommercialHomePage({
             ) : null}
           {canWrite ? (
             <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
-              className="inline-flex min-h-10 items-center rounded-lg border border-[#175640] bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2">
+              className="app-primary inline-flex min-h-10 items-center rounded-lg border border-[#175640] bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2">
               + Nuova richiesta
             </Link>
           ) : null}
