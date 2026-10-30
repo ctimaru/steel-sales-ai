@@ -121,14 +121,14 @@ async function openNextDevIssueAndRead(page) {
         const style = getComputedStyle(owner);
         if (style.display === "none" || style.visibility === "hidden") continue;
         const value = (node.textContent || "").replace(/\s+/g, " ").trim();
-        if (value && value.length < 700 && lines.length < 120) lines.push(value);
+        if (value && value.length < 700 && lines.length < 280) lines.push(value);
       }
       for (const el of parent.querySelectorAll("*")) {
         if (el.shadowRoot) visit(el.shadowRoot);
       }
     };
     visit(root);
-    return [...new Set(lines)].slice(0, 70);
+    return [...new Set(lines)].slice(0, 240);
   });
   return { clicked: true, details };
 }
