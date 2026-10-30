@@ -44,6 +44,8 @@ async function inspectList(page, width, persona) {
   assert.equal(response?.status(), 200);
   const heading = page.getByRole("heading", { name: "Le mie trattative", exact: true });
   await heading.waitFor({ state: "visible", timeout: 60000 });
+  assert.equal(await page.getByText("Trattative e attività", { exact: true }).count(), 0,
+    "Duplicate worklist sub-heading must not return");
   const header = page.getByTestId("comm-cine9-workspace-heading");
   const list = page.getByTestId("commercial-list-pane");
   await list.waitFor({ state: "visible", timeout: 60000 });
@@ -136,6 +138,15 @@ try {
         const detail = page.locator("#commercial-detail");
         await detail.waitFor({ state: "visible", timeout: 60000 });
         await detail.getByRole("heading", { name: "Trattativa selezionata" }).waitFor({ state: "visible" });
+        const continueAction = detail.getByRole("link", { name: /Continua →|Apri dettaglio →/ });
+        await continueAction.waitFor({ state: "visible" });
+        const actualColors = await continueAction.evaluate(el => ({
+          foreground: getComputedStyle(el).color,
+          fill: getComputedStyle(el).webkitTextFillColor
+        }));
+        assert.equal(actualColors.foreground, "rgb(255, 255, 255)", "Selected deal CTA must be white on green");
+        assert.equal(actualColors.fill, "rgb(255, 255, 255)", "Selected deal CTA WebKit text fill must be white");
+
         await assertNoOverflow(page, "selected deal " + width);
         await detail.scrollIntoViewIfNeeded();
         await page.screenshot({
