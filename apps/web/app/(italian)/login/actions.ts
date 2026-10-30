@@ -8,7 +8,7 @@ import {
   PENDING_SIGNUP_NEXT_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
-import { isRegistrationNext, safeInternalNext } from "@/lib/auth-next";
+import { isRegistrationNext, registrationEntryForNext, safeCommercialReturnTo, safeInternalNext } from "@/lib/auth-next";
 import { siteUrl } from "@/lib/site";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { createClient } from "@/lib/supabase/server";
@@ -111,7 +111,9 @@ async function routeAfterAuthentication(nextPath?: string) {
       .limit(1)
       .maybeSingle();
 
-    redirect(application ? "/registration/status" : "/register");
+    const destination = application ? "/registration/status" : "/register";
+    const returnTo = safeCommercialReturnTo(nextPath);
+    redirect(returnTo ? destination + "?return_to=" + encodeURIComponent(returnTo) : destination);
   }
 
   const { data: organization } = await supabase
@@ -147,7 +149,8 @@ export async function login(formData: FormData) {
   const nextSuffix = nextPath
     ? "&next=" + encodeURIComponent(nextPath)
     : "";
-  const loginPath = nextPath?.startsWith("/en/register") ? "/en/login" : "/login";
+  const isEnglish = formData.get("auth_locale") === "en" || nextPath?.startsWith("/en/register");
+  const loginPath = isEnglish ? "/en/login" : "/login";
 
   if (!email || !password) {
     redirect(loginPath + "?error=Inserisci%20email%20e%20password" + nextSuffix);
@@ -164,8 +167,8 @@ export async function login(formData: FormData) {
         pendingSignupEmailCookieOptions,
       );
       redirect(
-        (nextPath?.startsWith("/en/register") ? "/en/verify-email?source=login" : "/verify-email?source=login") +
-          (nextPath ? "&next=" + encodeURIComponent(nextPath) : ""),
+        (isEnglish ? "/en/verify-email?source=login" : "/verify-email?source=login") +
+          (nextPath ? "&next=" + encodeURIComponent(registrationEntryForNext(nextPath, isEnglish ? "en" : "it")) : ""),
       );
     }
 
