@@ -90,6 +90,49 @@ async function inspectNextDevIndicator(page) {
   });
 }
 
+/**
+ * Open the Next 16 devtools issue panel and capture *visible* text nodes only.
+ * Styles, browser storage, cookies, requests and screenshots of credentials
+ * are intentionally excluded. This is a local synthetic-user diagnostic.
+ */
+async function openNextDevIssueAndRead(page) {
+  const clicked = await page.evaluate(() => {
+    const root = document.querySelector("nextjs-portal")?.shadowRoot;
+    const candidates = root ? [...root.querySelectorAll("button,[data-issues-open]")] : [];
+    const button = candidates.find(el =>
+      /\b\d+\s+Issues?\b/i.test((el.textContent || "").replace(/\s+/g, " "))
+    );
+    if (!button) return false;
+    button.click();
+    return true;
+  });
+  if (!clicked) return { clicked: false, details: [] };
+  await page.waitForTimeout(500);
+  const details = await page.evaluate(() => {
+    const root = document.querySelector("nextjs-portal")?.shadowRoot;
+    if (!root) return [];
+    const lines = [];
+    const visit = parent => {
+      const walker = document.createTreeWalker(parent, NodeFilter.SHOW_TEXT);
+      let node;
+      while ((node = walker.nextNode())) {
+        const owner = node.parentElement;
+        if (!owner || owner.closest("style,script,template")) continue;
+        const style = getComputedStyle(owner);
+        if (style.display === "none" || style.visibility === "hidden") continue;
+        const value = (node.textContent || "").replace(/\s+/g, " ").trim();
+        if (value && value.length < 700 && lines.length < 120) lines.push(value);
+      }
+      for (const el of parent.querySelectorAll("*")) {
+        if (el.shadowRoot) visit(el.shadowRoot);
+      }
+    };
+    visit(root);
+    return [...new Set(lines)].slice(0, 70);
+  });
+  return { clicked: true, details };
+}
+
 async function noHorizontalPageOverflow(page, label) {
   const sizes = await page.evaluate(() => ({
     client: document.documentElement.clientWidth,
@@ -268,6 +311,10 @@ try {
           present: next.present, visibleIssues: next.visibleIssues,
           panelTail: issue ? next.panelText : "",
         }));
+        if (issue) {
+          const panel = await openNextDevIssueAndRead(page);
+          console.log("COMM-NAV7 NEXT DEV ISSUE DETAILS", JSON.stringify(panel));
+        }
         assert.ok(!issue,
           "Next dev displays issue badge after authenticated mobile navigation; see diagnostic above");
       }
