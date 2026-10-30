@@ -9,6 +9,7 @@ import {
   type PublicCompanyLookupState,
 } from "@/lib/public-company-lookup-contract";
 import { trackProductEvent } from "@/lib/product-analytics-events.client";
+import { withCommercialReturnTo } from "@/lib/auth-next";
 
 function claimBadge(state: PublicCompanyLookupItem["claim_state"], locale: "it" | "en") {
   if (state === "claimable") {
@@ -29,11 +30,11 @@ function claimBadge(state: PublicCompanyLookupItem["claim_state"], locale: "it" 
   };
 }
 
-function ResultAction({ item, locale }: { item: PublicCompanyLookupItem; locale: "it" | "en" }) {
+function ResultAction({ item, locale, returnTo }: { item: PublicCompanyLookupItem; locale: "it" | "en"; returnTo?: string | null }) {
   if (item.claim_state === "claimable") {
     const claimPath = locale === "en"
-      ? `/en/register?claim_ref=${encodeURIComponent(item.claim_ref)}`
-      : `/register?claim_ref=${encodeURIComponent(item.claim_ref)}`;
+      ? withCommercialReturnTo(`/en/register?claim_ref=${encodeURIComponent(item.claim_ref)}`, returnTo)
+      : withCommercialReturnTo(`/register?claim_ref=${encodeURIComponent(item.claim_ref)}`, returnTo);
     return (
       <Link
         href={claimPath}
@@ -68,6 +69,7 @@ type PublicCompanyLookupProps = {
   showNetworkNote?: boolean;
   locale?: "it" | "en";
   initialQuery?: string;
+  returnTo?: string | null;
 };
 
 export function PublicCompanyLookup({
@@ -77,6 +79,7 @@ export function PublicCompanyLookup({
   showNetworkNote = true,
   locale = "it",
   initialQuery = "",
+  returnTo = null,
 }: PublicCompanyLookupProps = {}) {
   const registrationContext = context === "registration";
   const [state, setState] = useState<PublicCompanyLookupState>(
@@ -238,7 +241,7 @@ export function PublicCompanyLookup({
                         {item.vat_hint ? (locale === "en" ? " · VAT " : " · P.IVA ") + item.vat_hint : ""}
                       </p>
                     </div>
-                    <ResultAction item={item} locale={locale} />
+                    <ResultAction item={item} locale={locale} returnTo={registrationContext ? returnTo : null} />
                   </div>
                 </article>
               );
