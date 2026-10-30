@@ -48,9 +48,9 @@ test("UXM1.3 closes dropdowns on route changes and Escape", () => {
   assert.match(controller, /closeHeaderMenus\(\)/);
 });
 
-test("UXM1.3 keeps Platform mobile dropdown while Commerciale uses three direct tabs", () => {
+test("UXM1.3 keeps Platform mobile dropdown while Commerciale uses director sidebar", () => {
   assert.doesNotMatch(workspaceNav, /<details className="relative shrink-0">/);
-  assert.match(workspaceNav, /getCommercialNavigationArea/);
+  assert.match(workspaceNav, /current === "home" \|\| current === "commercial"/);
   assert.match(platformNav, /<details className="relative w-\[86px\] min-w-0 max-w-\[86px\] flex-none lg:hidden">/);
   assert.match(platformNav, />\s*Menu\s*/);
 });

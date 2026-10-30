@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { logout } from "@/app/(workspace)/actions";
 import { ContextSwitchLink } from "@/components/context-switch-link";
+import { WorkspaceCommercialDirectorShell } from "@/components/workspace-commercial-director-shell";
 import { HeaderMenuDismissController } from "@/components/header-menu-dismiss-controller";
 import { WorkspaceNotificationBell } from "@/components/workspace-notification-bell";
 import { ProductBrand } from "@/components/product-brand";
@@ -186,8 +187,8 @@ export function AppShell({
         />
       </header>
 
-      <main id="main-content" tabIndex={-1} className="mvp-focus-shell mx-auto w-full max-w-[1280px] p-4 sm:p-6 lg:p-8">
-        {children}
+      <main id="main-content" tabIndex={-1} className="mvp-focus-shell mx-auto w-full max-w-[1500px] p-4 sm:p-6 lg:p-8">
+        <WorkspaceCommercialDirectorShell>{children}</WorkspaceCommercialDirectorShell>
       </main>
 
       <WorkspaceMobileBottomNavigation

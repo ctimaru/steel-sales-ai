@@ -7,7 +7,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { appRoutes } from "@/lib/routes";
 import {
   getWorkspaceNavigationContext,
-  getCommercialNavigationArea,
   type WorkspaceContextKey,
 } from "@/lib/workspace-information-architecture";
 
@@ -300,7 +299,8 @@ export function WorkspaceContextNavigation({
   const navigation = getWorkspaceNavigationContext(pathname);
   const current = navigation.primary;
 
-  if (current === "home") return null;
+  // Commerciale now has one hierarchical director sidebar, not duplicate top tabs.
+  if (current === "home" || current === "commercial") return null;
 
   const items =
     current === "network" ? networkItems
@@ -310,21 +310,15 @@ export function WorkspaceContextNavigation({
 
   if (current === "network" && items.length === 0) return null;
 
-  const selectedCommercialArea = current === "commercial"
-    ? getCommercialNavigationArea(navigation.context)
-    : null;
-
   return (
-    <nav aria-label={current === "commercial" ? "Sezioni Commerciale" : "Sezioni workspace"}
+    <nav aria-label="Sezioni workspace"
       className="border-t border-[#eef1ef] bg-white">
       <div className="workspace-context-scroll mx-auto flex max-w-[1280px] items-center gap-1 overflow-x-auto px-3 sm:px-5 lg:px-8">
         {items.map((item) => (
           <ContextLink
             key={item.contextKey}
             item={item}
-            selected={current === "commercial"
-              ? selectedCommercialArea === item.contextKey
-              : navigation.context === item.contextKey}
+            selected={navigation.context === item.contextKey}
           />
         ))}
       </div>

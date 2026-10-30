@@ -67,8 +67,8 @@ test("HP10 centralizes route-to-context resolution so root tabs do not double-se
 
   assert.match(nav, /navigation\.context === item\.contextKey/);
   assert.doesNotMatch(nav, /pathname === href \|\| pathname\.startsWith\(href \+ "\/"\)/);
-  assert.match(nav, /getCommercialNavigationArea/);
-  assert.match(nav, /selectedCommercialArea === item.contextKey/);
+  assert.match(nav, /current === "home" \|\| current === "commercial"/);
+  assert.match(nav, /selected=\{navigation.context === item.contextKey\}/);
 });
 
 test("HP10 gives Commerciale a real contextual home and complete intelligence entry points", () => {

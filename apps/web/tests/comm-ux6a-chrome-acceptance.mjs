@@ -52,7 +52,7 @@ async function viewportCheck(page, { width, height, role }) {
   assert.ok([h, c, t, a, w].every(Boolean), "All first viewport surfaces should render");
   assert.ok(h.y < c.y && c.y < t.y && t.y < a.y && a.y < w.y, "Correct work-first reading order");
   assert.ok(await page.getByRole("button", { name: "Calcolatrice pesi" }).isVisible());
-  assert.ok(await page.getByRole("link", { name: /Distinte salvate/ }).isVisible());
+  assert.ok(await page.locator('[data-commercial-saved-distinte-entry="true"]').isVisible(), "Saved Distinte CTA remains visible inside the cockpit");
   assert.equal(await page.getByTestId("commercial-cockpit-tabs").count(), 0);
   await noOverflow(page, role + "/" + width);
   if (width === 1440) {
