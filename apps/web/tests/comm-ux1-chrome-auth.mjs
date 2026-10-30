@@ -252,6 +252,13 @@ try {
       assert.equal(await page.getByRole("link", { name: /Storico prezzi/ }).count(), 1);
       await verifyArea(page, "/commercial/companies", "Aziende");
       await verifyArea(page, "/rfq-hub", "Centro RFQ");
+      if (p.id === "buyer") {
+        await verifyArea(page, "/rfq-hub/inbox", "Inbox operativa");
+        await verifyArea(page, "/rfq-hub/distinte", "Distinte salvate");
+        await verifyArea(page, "/commercial?view=offers#commercial-worklist", "Offerte");
+        await verifyArea(page, "/commercial?view=orders#commercial-worklist", "Ordini");
+        console.log("COMM-NAV8 PASS canonical RFQ sections and filtered commercial worklist");
+      }
       await verifyArea(page, "/commercial/products", "Prodotti");
       if (p.id === "buyer" || p.id === "buyerViewer") {
         await verifyArea(page, "/commercial/search", "Ricerca nello storico");
@@ -296,6 +303,15 @@ try {
       await mobileMenu.locator("summary").filter({ hasText: "Analisi e opportunità" }).click();
       await mobileMenu.getByRole("link", { name: "Analisi commerciale", exact: true }).click();
       await page.waitForURL(u => u.pathname === "/commercial/analysis", { timeout: 60000 });
+      // COMM-NAV8: selecting an item closes the mobile disclosure without
+      // losing the current section label in the compact header.
+      await page.waitForFunction(() => {
+        const disclosure = document.querySelector('[data-testid="commercial-director-mobile"]');
+        return disclosure instanceof HTMLDetailsElement && !disclosure.open;
+      }, { timeout: 15000 });
+      const navDisclosure = page.getByTestId("commercial-director-mobile");
+      assert.match(await navDisclosure.locator("summary").innerText(), /Attuale: Analisi commerciale/);
+      console.log("COMM-NAV8 PASS mobile disclosure closes after navigation:", id);
       await verifyArea(page, "/commercial/analysis", "Analisi commerciale");
       await noHorizontalPageOverflow(page, "Analisi 390px " + id);
       await page.goto(base + "/commercial", { waitUntil: "domcontentloaded" });
