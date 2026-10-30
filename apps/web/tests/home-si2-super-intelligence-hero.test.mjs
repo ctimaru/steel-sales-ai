@@ -35,7 +35,7 @@ test("HOME-SI2 keeps public navigation and registration accessible on narrow scr
   assert.match(publicNav, /xl:hidden/);
   assert.doesNotMatch(publicNav, /overflow-x-auto/);
   assert.match(header, /Area aziende/);
-  assert.match(header, /Registra azienda/);
+  assert.match(header, /Registrati/);
   assert.match(header, /min-h-11/);
   assert.match(hero, /aria-labelledby="home-cinematic-title"/);
 });
