@@ -179,8 +179,12 @@ try {
       await login(page, { email: "onboarding-ux1-unaffiliated@example.test", password }, "/rfq-hub/distinta");
       await page.waitForURL(u => u.pathname === "/register", { timeout: 90000 });
       assert.equal(new URL(page.url()).searchParams.get("return_to"), "/rfq-hub/distinta");
-      assert.equal(await page.locator('input[name="next"]').inputValue(),
-        "/register?return_to=%2Frfq-hub%2Fdistinta");
+      // This user is already authenticated: /register renders the company
+      // application, NOT the anonymous account-signup form.
+      assert.equal(await page.locator('input[name="return_to"]').inputValue(),
+        "/rfq-hub/distinta");
+      assert.ok(await page.getByRole("heading", { name: /Raccontaci chi siete|Aggiorna la richiesta aziendale/ }).count() > 0,
+        "User without membership must complete a company application");
       assert.ok(!(await page.locator("body").innerText()).includes("RFQ privata attiva"));
       await widthGuard(page, "unaffiliated user blocked");
       checks++;
