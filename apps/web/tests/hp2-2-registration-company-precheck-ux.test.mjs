@@ -26,7 +26,8 @@ test("HP2.2 puts the governed company lookup before anonymous account creation",
 
 test("HP2.2 keeps claimable results on the existing PA1.4 registration handoff", () => {
   assert.match(lookup, /\/register\?claim_ref=/);
-  assert.match(register, /registrationPath = claimRef/);
+  assert.match(register, /registrationPath = withCommercialReturnTo/);
+  assert.match(register, /claimRef \? "\/register\?claim_ref="/);
   assert.match(registerActions, /pa1_4_company_claim_context/);
   assert.match(registerActions, /pa1_4_bind_registration_claim/);
   assert.match(registerActions, /p0a_submit_registration_application/);
