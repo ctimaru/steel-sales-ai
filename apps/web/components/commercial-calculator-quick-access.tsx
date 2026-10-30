@@ -48,7 +48,7 @@ export function CommercialCalculatorQuickAccess({ references }: { references: Pu
         className="inline-flex min-h-11 items-center rounded-lg border border-[#bdd7c6] bg-white px-3 text-xs font-bold text-[#17583f] hover:bg-[#edf8f1]">
         Distinte salvate →
       </Link>
-      <span className="text-xs text-[#61736a]">Calcola → assegna un nome → salva nel Commerciale → scegli i fornitori</span>
+      <span className="hidden text-[11px] text-[#61736a] xl:inline">Calcola → salva → scegli i fornitori</span>
       {open ? (
         <div className="fixed inset-0 z-[80] bg-[#08291e]/70 p-2 sm:p-4" data-commercial-calculator-overlay
           onMouseDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}>
