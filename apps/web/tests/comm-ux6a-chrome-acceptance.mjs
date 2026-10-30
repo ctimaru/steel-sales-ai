@@ -61,7 +61,18 @@ async function viewportCheck(page, { width, height, role }) {
   }
   const canWrite = role === "buyer";
   assert.equal(await companion.getByTestId("comm-cine11-prompt").count(), canWrite ? 1 : 0);
-  assert.equal(await page.getByRole("link", { name: "+ Nuova richiesta" }).count(), canWrite ? 1 : 0);
+  const createRequest = page.getByRole("link", { name: "+ Nuova richiesta" });
+  assert.equal(await createRequest.count(), canWrite ? 1 : 0);
+  if (canWrite) {
+    const fg = await createRequest.evaluate(el => ({
+      color: getComputedStyle(el).color,
+      textFill: getComputedStyle(el).webkitTextFillColor,
+      background: getComputedStyle(el).backgroundColor,
+    }));
+    assert.equal(fg.color, "rgb(255, 255, 255)", "New request link must use readable white text");
+    assert.equal(fg.textFill, "rgb(255, 255, 255)", "New request Safari/WebKit fill must be white");
+    assert.notEqual(fg.background, "rgba(0, 0, 0, 0)", "New request CTA must have a solid background");
+  }
   if (width === 1440 && canWrite) {
     const launch = page.getByRole("button", { name: "Calcolatrice pesi" });
     await launch.click();
