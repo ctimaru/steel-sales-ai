@@ -6,6 +6,8 @@ import ts from "typescript";
 const read = (path) => fs.readFileSync(new URL(path, import.meta.url), "utf8");
 const shell = read("../components/app-shell.tsx");
 const nav = read("../components/workspace-navigation.tsx");
+const directorShell = read("../components/workspace-commercial-director-shell.tsx");
+const directorGroups = read("../lib/commercial-director-navigation.ts");
 const routes = read("../lib/routes.ts");
 const ia = read("../lib/workspace-information-architecture.ts");
 const commercial = read("../app/(italian)/(workspace)/commercial/page.tsx");
@@ -20,18 +22,18 @@ const { getWorkspaceNavigationContext, getCommercialNavigationArea } = await imp
   Buffer.from(transpile(routes) + "\n" + transpile(iaSource)).toString("base64")
 );
 
-test("COMM-UX1A renders exactly three persistent Commerciale destinations", () => {
-  const entries = shell.slice(shell.indexOf("const commercialNav:"), shell.indexOf("const networkNav:"));
-  assert.equal((entries.match(/contextKey:/g) || []).length, 3);
-  for (const label of ["Attività", "Relazioni", "Analisi"]) {
-    assert.match(entries, new RegExp('label: "' + label + '"'));
-  }
-  for (const oldLabel of ["RFQ e offerte", "Cerca", "Prodotti", "Aziende", "Assistente", "Intelligence"]) {
-    assert.doesNotMatch(entries, new RegExp('label: "' + oldLabel + '"'));
-  }
-  assert.match(nav, /aria-label=\{current === "commercial" \? "Sezioni Commerciale"/);
-  assert.match(nav, /getCommercialNavigationArea\(navigation.context\)/);
-  assert.doesNotMatch(nav, /intelligenceItems|rfqItems/);
+test("COMM-NAV7 uses grouped director navigation instead of duplicated Commerciale top tabs", () => {
+  assert.match(shell, /<WorkspaceCommercialDirectorShell>\{children\}<\/WorkspaceCommercialDirectorShell>/);
+  assert.match(nav, /if \(current === "home" \|\| current === "commercial"\) return null/);
+  assert.match(directorShell, /aria-label="Menu Commerciale"/);
+  assert.match(directorShell, /aria-label="Menu Commerciale mobile"/);
+  assert.match(directorShell, /getWorkspaceNavigationContext\(pathname\)\.primary !== "commercial"/);
+  assert.match(directorShell, /xl:grid-cols-\[214px_minmax\(0,1fr\)\]/);
+  for (const title of [
+    "La mia scrivania", "Trattative e acquisti", "Clienti e fornitori",
+    "Analisi e opportunità", "Strumenti e memoria",
+  ]) assert.ok(directorGroups.includes(title), title);
+  assert.match(directorShell, /aria-current=\{current \? "page" : undefined\}/);
   assert.match(nav, /WorkspaceMobileBottomNavigation/);
 });
 
