@@ -83,6 +83,12 @@ export default async function SteelPulseReadinessPage() {
           <span className="rounded-full bg-[#ecf5ee] px-3 py-2 text-[#1e674b]">DG Trade · {rights?.source_status ?? "Verifica non disponibile"}</span>
           <span className="rounded-full bg-[#fff3df] px-3 py-2 text-[#806024]">{publicOff ? "Feed pubblico spento" : "Verificare stato pubblicazione"}</span>
         </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link href="/platform/steel-pulse/editorial"
+            className="inline-flex min-h-11 items-center rounded-xl border border-[#bad5c6] bg-[#f1f8f3] px-4 text-sm font-semibold text-[#175640] hover:bg-[#e8f4eb] focus-visible:outline-2 focus-visible:outline-offset-2">
+            Apri Editorial Studio (sola lettura) →
+          </Link>
+        </div>
         {!rights ? <p role="alert" className="mt-4 text-sm font-semibold text-[#9a6518]">
           Il controllo del database non è disponibile: nessuna fonte può essere considerata pronta.
         </p> : null}
