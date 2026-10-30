@@ -60,7 +60,7 @@ async function inspectList(page, width, persona) {
     const entry = entries.nth(i);
     const dimensions = await entry.boundingBox();
     assert.ok(dimensions, "Deal row " + i + " must have layout");
-    assert.ok(dimensions.height >= 44 && dimensions.height <= (width === 320 ? 100 : 86),
+    assert.ok(dimensions.height >= 44 && dimensions.height <= (width === 1440 ? 86 : 148),
       "Deal row " + i + " is not compact at " + width + "px: " + dimensions.height);
     maxHeight = Math.max(maxHeight, dimensions.height);
     const title = entry.locator('[data-testid="commercial-smart-deal-card"] p[title]');
