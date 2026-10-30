@@ -9,9 +9,11 @@ const worklist = read("../components/commercial-unified-worklist.tsx");
 
 test("COMM-UX6.C presents a single verified deal summary before the governed next step", () => {
   assert.match(worklist, /const facts = await loadCommercialDealFacts\(item, detail\)/);
-  const contextAt = worklist.indexOf("<CommercialDealIntelligence facts={facts} />");
+  const readinessAt = worklist.indexOf("<CommercialDealDecisionReadiness facts={facts} kind={item.kind} canWrite={canWrite} />");
   const actionAt = worklist.indexOf('data-testid="commercial-deal-next-step"');
-  assert.ok(contextAt > 0 && actionAt > contextAt);
+  const contextAt = worklist.indexOf("<CommercialDealIntelligence facts={facts} />");
+  assert.ok(readinessAt > 0 && actionAt > readinessAt && contextAt > actionAt,
+    "decision checks and governed next action precede the in-depth facts");
   assert.equal(worklist.split("<CommercialDealIntelligence facts={facts} />").length - 1, 1);
   for (const id of ["commercial-deal-intelligence", "commercial-deal-materials", "commercial-deal-sources"]) {
     assert.match(summary, new RegExp('data-testid="' + id + '"'));
