@@ -28,7 +28,7 @@ export function PublicHomeHeader({ locale }: { locale: "it" | "en" }) {
               <Link href={loginHref} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#6c9b83] px-3 text-xs font-semibold text-white transition hover:bg-[#183a2c] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8af3c0] sm:px-4 sm:text-sm">
                 {en ? "Sign in" : "Accedi"}
               </Link>
-              <Link href={registerHref} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#e8f4ec] px-2.5 text-xs font-bold text-[#11513a] transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8af3c0] sm:px-4 sm:text-sm">
+              <Link href={registerHref} style={{ color: "#11513a", WebkitTextFillColor: "#11513a" }} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#e8f4ec] px-2.5 text-xs font-bold text-[#11513a] transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8af3c0] sm:px-4 sm:text-sm">
                 {en ? "Register" : "Registrati"}
               </Link>
             </nav>
