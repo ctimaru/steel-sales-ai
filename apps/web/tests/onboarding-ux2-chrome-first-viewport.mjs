@@ -73,8 +73,8 @@ try {
           "Account must come before optional lookup on mobile");
         assert.ok(emailBox.y < height * 0.68,
           "Email field must be in first viewport: " + locale + "/" + width + " y=" + emailBox.y);
-        assert.ok(signupBox.y + signupBox.height <= height + 12,
-          "Signup CTA must fit first viewport: " + locale + "/" + width +
+        assert.ok(signupBox.y + signupBox.height <= (width < 768 ? height - 56 : height + 12),
+          "Signup CTA must clear fixed privacy toggle in first viewport: " + locale + "/" + width +
           " bottom=" + (signupBox.y + signupBox.height));
         await noOverflow(page, locale + "/" + width);
         const cookie = page.getByTestId("mobile-cookie-consent");
@@ -82,6 +82,14 @@ try {
           await cookie.getByRole("button", { name: /essential cookies only|cookie necessari/i }).first().click();
           await cookie.waitFor({ state: "hidden" });
         }
+        // After the essential-cookie choice, the fixed Privacy control must
+        // NOT cover the left edge of the prominent signup button on mobile.
+        const hittable = await signup.evaluate(el => {
+          const box = el.getBoundingClientRect();
+          const hit = document.elementFromPoint(box.left + 16, box.top + box.height / 2);
+          return hit === el || (hit !== null && el.contains(hit));
+        });
+        assert.ok(hittable, "Floating privacy settings must not obscure signup CTA: " + locale + "/" + width);
         await email.fill("synthetic@example.test");
         assert.equal(await email.inputValue(), "synthetic@example.test");
         await page.screenshot({
