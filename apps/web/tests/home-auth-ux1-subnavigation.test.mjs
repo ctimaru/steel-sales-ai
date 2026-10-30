@@ -22,6 +22,9 @@ test("HOME-AUTH-UX1 routes to actual assistant and existing commercial tools", (
   assert.match(home, /href=\{appRoutes\.commercial\.assistant\}/);
   assert.match(home, /href=\{appRoutes\.commercial\.search\}/);
   assert.match(home, /orderedQuickActions\.map/);
+  assert.match(home, /\.filter\(\(action\) => action\.href !== appRoutes\.commercial\.search\)/);
+  assert.match(home, /!text-white/);
+  assert.match(home, /<FocusHeader[\s\S]*?compact/);
   assert.match(home, /href: "\/distinta"/);
   assert.doesNotMatch(navigation, /fetch\(|supabase|service_role|sendEmail/);
 });

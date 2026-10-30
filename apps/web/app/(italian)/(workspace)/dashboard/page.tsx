@@ -203,22 +203,23 @@ export default async function DashboardPage({
   ];
 
   // Sector only orders already permitted shortcuts; it never changes access.
-  const orderedQuickActions = presentation.primaryIntent === "create_rfq"
+  const orderedQuickActions = (presentation.primaryIntent === "create_rfq"
     ? [quickActions[1], quickActions[2], quickActions[0], quickActions[3]]
     : presentation.primaryIntent === "review_inquiries"
       ? [quickActions[2], quickActions[0], quickActions[1], quickActions[3]]
-      : quickActions;
+      : quickActions).filter((action) => action.href !== appRoutes.commercial.search);
 
   return (
-    <FocusPage className="max-w-[1360px] space-y-4 sm:space-y-5">
+    <FocusPage className="max-w-[1360px] space-y-3 sm:space-y-4">
       <PilotEvent eventName="workspace_home_viewed" metadata={{ surface: "workspace_home" }} />
       <FocusHeader
+        compact
         eyebrow="Steel Intelligence · La tua Home"
         title={<>Oggi in {context.organizationName}</>}
         description={
           <>
-            Attività, aziende e strumenti utili per il tuo prossimo passo.
-            <span className="mt-1 block text-xs font-medium text-[#53645b]">
+            Il tuo spazio di lavoro commerciale.
+            <span className="mt-0.5 block text-xs font-medium text-[#53645b]">
               {workspaceRoleLabel(context.role)} · Workspace privato
             </span>
           </>
@@ -250,12 +251,12 @@ export default async function DashboardPage({
               Come posso aiutarti oggi?
             </h2>
             <p className="mt-1 max-w-2xl text-xs leading-5 text-[#52645a] sm:text-sm">
-              Dalle informazioni alle opportunità. Cerca nello storico aziendale o apri gli strumenti commerciali già disponibili.
+              Prepara una distinta, consulta lo storico o interroga l’assistente commerciale.
             </p>
           </div>
           <Link
             href={appRoutes.commercial.assistant}
-            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-[#176045] px-4 text-xs font-semibold text-white transition hover:bg-[#114b36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
+            className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-[#176045] px-4 text-xs font-semibold !text-white transition hover:bg-[#114b36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
           >
             Apri assistente AI <span aria-hidden="true">→</span>
           </Link>
@@ -276,14 +277,14 @@ export default async function DashboardPage({
           <span className="shrink-0 text-[11px] font-semibold text-[#176045]">Cerca <span aria-hidden="true">↗</span></span>
         </Link>
 
-        <div data-testid="quick-action-shortcuts" className="mt-2 flex flex-wrap items-center gap-2">
+        <div data-testid="quick-action-shortcuts" className="mt-2 flex flex-wrap items-center gap-1.5">
           <span aria-hidden="true" className="mr-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#53675b]">Azioni rapide</span>
           {orderedQuickActions.map((action) => (
             <Link
               key={action.href}
               href={action.href}
               title={action.description}
-              className="inline-flex min-h-10 max-w-full items-center gap-2 rounded-full border border-[#b9d2c5] bg-[#f9fcfa] px-3 text-xs font-semibold text-[#175640] transition hover:border-[#7fae97] hover:bg-[#e8f3ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]"
+              className="inline-flex min-h-10 max-w-full items-center gap-1.5 rounded-full border border-[#b9d2c5] bg-[#f9fcfa] px-2.5 text-xs font-semibold text-[#175640] transition hover:border-[#7fae97] hover:bg-[#e8f3ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246a50]"
             >
               <span className="truncate">{action.title}</span>
               <span aria-hidden="true">↗</span>
@@ -327,6 +328,25 @@ export default async function DashboardPage({
                 </dl>
                 <p className="mt-2 text-[11px] leading-4 text-[#68766d]">Totali registrati · non rappresentano attività aperte.</p>
               </>
+            ) : procurementKpis && procurementKpis.length > 0 ? (
+              <>
+                <div className="mt-3 space-y-1">
+                  {procurementKpis.map((kpi) => (
+                    <Link key={kpi.label} href={kpi.href} className="flex min-h-9 items-center justify-between rounded-lg px-2 text-xs text-[#52615b] hover:bg-[#f1f7f3] focus-visible:outline-2 focus-visible:outline-offset-2">
+                      <span>{kpi.label}</span>
+                      <span className="font-semibold tabular-nums text-[#173f35]">{kpi.value.toLocaleString("it-IT")}</span>
+                    </Link>
+                  ))}
+                </div>
+                <p className="mt-2 text-[11px] leading-4 text-[#68766d]">Stato acquisti verificato · non è lo storico commerciale.</p>
+              </>
+            ) : nextSetupAction ? (
+              <div className="mt-3 space-y-2">
+                <p className="text-xs leading-5 text-[#52615b]">Completa la configurazione per iniziare a valorizzare il tuo Workspace.</p>
+                <Link href={nextSetupAction.href} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
+                  {nextSetupAction.label} →
+                </Link>
+              </div>
             ) : (
               <p role="status" className="mt-3 text-xs leading-5 text-[#52615b]">
                 I dati commerciali non sono disponibili o non ancora associati al workspace. Nessun dato dimostrativo viene mostrato come reale.
@@ -445,30 +465,11 @@ export default async function DashboardPage({
             networkDiscoveryAvailable={networkCatalog !== null}
             canWriteCommercial={canWrite}
           />
-          <section aria-label="Aree di lavoro" className="grid gap-3 sm:grid-cols-2">
-            <Link
-              href={appRoutes.commercial.home}
-              className="group flex min-h-[104px] flex-col justify-between rounded-2xl border border-[#d9e5dc] bg-white p-4 transition hover:border-[#9ebfac] hover:shadow-[0_5px_22px_rgba(18,61,52,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
-            >
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#537263]">01 / Commerciale</p>
-                <h2 className="mt-1 text-base font-semibold text-[#173f35]">Richieste, offerte e ordini</h2>
-                <p className="mt-1 text-xs leading-5 text-[#52645a]">Il lavoro quotidiano e le tue trattative in un'unica vista.</p>
-              </div>
-              <span className="mt-2 text-xs font-semibold text-[#176045]">Vai al Commerciale <span aria-hidden="true" className="inline-block transition group-hover:translate-x-1">→</span></span>
-            </Link>
-            <Link
-              href={networkEnabled ? appRoutes.network.directory : appRoutes.knowledge.workspace}
-              className="group flex min-h-[104px] flex-col justify-between rounded-2xl border border-[#cddfd2] bg-[#f3f8f4] p-4 transition hover:border-[#8cb99e] hover:shadow-[0_5px_22px_rgba(18,61,52,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
-            >
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#537263]">02 / {networkEnabled ? "Network" : "Scuola"}</p>
-                <h2 className="mt-1 text-base font-semibold text-[#173f35]">{networkEnabled ? "Scopri aziende industriali" : "Esplora la conoscenza tecnica"}</h2>
-                <p className="mt-1 text-xs leading-5 text-[#52645a]">
-                  {networkEnabled ? "Ricerca per territorio, prodotti e capacità documentate." : "Norme, materiali e strumenti tecnici per il tuo lavoro."}
-                </p>
-              </div>
-              <span className="mt-2 text-xs font-semibold text-[#176045]">{networkEnabled ? "Esplora Network" : "Apri Scuola"} <span aria-hidden="true" className="inline-block transition group-hover:translate-x-1">→</span></span>
+          <section aria-label="Aree di lavoro" className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-[#dce6df] pt-3 text-xs">
+            <span className="font-semibold text-[#53675b]">Approfondisci:</span>
+            <Link href={appRoutes.commercial.home} className="inline-flex min-h-10 items-center font-semibold text-[#175640] underline underline-offset-4">Commerciale →</Link>
+            <Link href={networkEnabled ? appRoutes.network.directory : appRoutes.knowledge.workspace} className="inline-flex min-h-10 items-center font-semibold text-[#175640] underline underline-offset-4">
+              {networkEnabled ? "Network" : "Scuola"} →
             </Link>
           </section>
           </div>
