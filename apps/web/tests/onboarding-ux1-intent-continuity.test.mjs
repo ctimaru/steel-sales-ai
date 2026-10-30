@@ -18,6 +18,10 @@ test("UX1 accepts only local commercial destinations and does not leak query dat
   assert.equal(safeCommercialReturnTo("/rfq-hub/distinta?email=private@example.com#secret"), "/rfq-hub/distinta");
   assert.equal(safeCommercialReturnTo("/commercial/rfqs/abc"), "/commercial/rfqs/abc");
   assert.equal(safeCommercialReturnTo("/distinta"), "/distinta");
+  assert.equal(safeCommercialReturnTo("/en/distinta?company=secret"), "/en/distinta");
+  assert.equal(safeCommercialReturnTo("/en/network/abc/claim"), "/en/network/abc/claim");
+  assert.equal(safeCommercialReturnTo("/en/marketplace/new"), "/en/marketplace/new");
+  assert.equal(safeCommercialReturnTo("/en/login"), null);
   assert.equal(safeCommercialReturnTo("/network/example/claim"), "/network/example/claim");
   for (const rejected of ["https://evil.example/steal", "//evil.example", "/login", "/register", "/platform", "/auth/finish", "/\u005cevil.example", "not-a-path", "/rfq-hub-evil", "/" + "x".repeat(520)]) {
     assert.equal(safeCommercialReturnTo(rejected), null, rejected);
@@ -27,6 +31,7 @@ test("UX1 accepts only local commercial destinations and does not leak query dat
 test("UX1 preserves the commercial destination across IT/EN login-to-registration", () => {
   assert.equal(registrationEntryForNext("/rfq-hub/distinta", "it"), "/register?return_to=%2Frfq-hub%2Fdistinta");
   assert.equal(registrationEntryForNext("/rfq-hub/distinta", "en"), "/en/register?return_to=%2Frfq-hub%2Fdistinta");
+  assert.equal(registrationEntryForNext("/en/distinta", "en"), "/en/register?return_to=%2Fen%2Fdistinta");
   assert.equal(registrationEntryForNext("/en/register?claim_ref=abc", "en"), "/en/register?claim_ref=abc");
   assert.equal(registrationEntryForNext("/dashboard", "it"), "/register");
   assert.equal(
