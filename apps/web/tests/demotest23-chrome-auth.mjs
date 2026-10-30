@@ -165,9 +165,11 @@ try {
       }
       const pulsePreview = page.getByTestId("dashboard-pulse-preview");
       assert.equal(await pulsePreview.isVisible(), true, "Steel Pulse previews must appear on the Overview");
-      assert.equal(await pulsePreview.getByTestId("steel-pulse-preview-card").count(), 3,
-        "Overview shows three compact editorial previews");
+      const previewCount = await pulsePreview.getByTestId("steel-pulse-preview-card").count();
+      assert.ok(previewCount >= 1 && previewCount <= 3,
+        "Overview shows up to three governed or illustrative previews");
       if (await pulsePreview.getByTestId("steel-pulse-demo-badge").count()) {
+        assert.equal(previewCount, 3, "Empty feed uses exactly three labeled demo examples");
         assert.equal(await pulsePreview.locator('a[target="_blank"]').count(), 0,
           "Demonstration previews must not impersonate verified source links");
       }
