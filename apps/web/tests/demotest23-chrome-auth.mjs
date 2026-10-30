@@ -4,7 +4,7 @@
  * Test output avoids exposing passwords/session cookies to CI artifacts.
  */
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 
@@ -14,6 +14,9 @@ assert.equal(base, "http://127.0.0.1:3000", "External/public web host prohibited
 assert.ok(temp, "RUNNER_TEMP required");
 const personas = JSON.parse(readFileSync(path.join(temp, "demotest23-personas.json"), "utf8"));
 assert.equal(personas.length, 5);
+// Screenshots contain synthetic four-tenant fixtures only (never tokens, cookies or production data).
+const homeEvidenceDir = path.join(temp, "home-auth-ux1-safe-screenshots");
+mkdirSync(homeEvidenceDir, { recursive: true });
 const browser = await chromium.launch({ headless: true, channel: "chrome" });
 const checks = [];
 
@@ -135,30 +138,51 @@ try {
         .waitFor({ state: "visible", timeout: 60000 });
       const actions = page.locator('section[aria-labelledby="quick-actions"]');
       const priorities = page.locator('section[aria-labelledby="daily-priorities"]');
-      const feed = page.getByRole("heading", { name: "Il tuo aggiornamento sull’acciaio" });
-      await feed.waitFor({ state: "visible", timeout: 60000 });
+      const homeNav = page.locator('nav[aria-label="Sezioni della Home"]:visible');
+      await page.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible", timeout: 60000 });
+      assert.equal(await homeNav.count(), 1, "Exactly one local Home navigation must be visible");
       assert.equal(await actions.count(), 1, "Missing quick action section");
       assert.ok((await priorities.count()) <= 1, "Duplicate daily priorities section");
       const shortcuts = actions.locator('[data-testid="quick-action-shortcuts"] a');
-      assert.equal(await shortcuts.count(), 4, "Expected four safe quick actions");
+      assert.equal(await shortcuts.count(), 3, "Search is already available above; only three distinct shortcuts");
       assert.equal(await actions.locator('a[aria-label^="Cerca RFQ"]').count(), 1,
         "Dedicated search must open the existing private commercial history");
-      assert.equal(await actions.getByRole("link", { name: /Apri Commerciale/ }).count(), 1,
-        "The cockpit must expose one primary Commerciale CTA");
+      assert.equal(await actions.getByRole("link", { name: /Apri assistente AI/ }).count(), 1,
+        "AI entry must route to the real Commerciale assistant, not fake a Home chat");
+      assert.equal(await actions.locator('a[href="/commercial/assistant"]').count(), 1);
       assert.equal(await page.locator('section[aria-labelledby="daily-priorities"] a[href="/operations/review"]').count(), 0,
         "Technical parser review must not appear as a buyer dashboard action");
       assert.equal(await page.getByRole("link", { name: /Elementi da verificare/ }).count(), 0,
         "Technical data-quality queue is not a commercial priority");
       const actionBounds = await actions.boundingBox();
-      const feedBounds = await feed.boundingBox();
-      assert.ok(actionBounds && feedBounds && actionBounds.y < feedBounds.y,
-        "Quick actions must precede the news feed");
-      if (await priorities.count()) {
-        const priorityBounds = await priorities.boundingBox();
-        assert.ok(priorityBounds && actionBounds.y < priorityBounds.y && priorityBounds.y < feedBounds.y,
-          "Only actionable priorities may appear between shortcuts and feed");
+      assert.ok(actionBounds, "Action-first first viewport must be visible");
+      if (p.id === personas[0].id) {
+        await page.screenshot({
+          path: path.join(homeEvidenceDir, "home-auth-ux1-desktop-1440-overview.png"),
+          animations: "disabled",
+          fullPage: false,
+        });
       }
+      assert.equal(await page.getByTestId("workspace-home-panel-pulse").isVisible(), false,
+        "News must not occupy the first viewport");
+      await homeNav.getByRole("button", { name: /Da fare/ }).click();
+      await page.getByTestId("workspace-home-panel-tasks").waitFor({ state: "visible" });
+      if (p.id === personas[0].id) {
+        await page.screenshot({
+          path: path.join(homeEvidenceDir, "home-auth-ux1-desktop-1440-tasks.png"),
+          animations: "disabled",
+          fullPage: false,
+        });
+      }
+      if (await priorities.count()) {
+        assert.equal(await priorities.isVisible(), true, "Buyer attention must be in Da fare");
+        assert.ok(await priorities.boundingBox(), "Buyer priorities must remain legible");
+      }
+      await homeNav.getByRole("button", { name: /Steel Pulse/ }).click();
+      const feed = page.getByRole("heading", { name: "Il tuo aggiornamento sull’acciaio" });
+      await feed.waitFor({ state: "visible", timeout: 60000 });
       if (p.id === "buyerViewer") {
+        await homeNav.getByRole("button", { name: /Panoramica/ }).click();
         assert.equal(await actions.getByRole("link", { name: /Gestisci richieste e offerte/ }).count(), 0,
           "Viewer must not receive buyer-action shortcut");
       }
@@ -168,8 +192,16 @@ try {
       await navigate(page, "/dashboard");
       await page.getByRole("heading", { name: "Oggi in " + p.name, exact: true })
         .waitFor({ state: "visible", timeout: 60000 });
+      await page.locator('nav[aria-label="Sezioni della Home"]:visible').getByRole("button", { name: /Opportunità/ }).click();
       const discovery = page.locator("#dashboard-discovery");
-      await discovery.waitFor({ state: "attached", timeout: 60000 });
+      await discovery.waitFor({ state: "visible", timeout: 60000 });
+      if (p.id === personas[0].id) {
+        await page.screenshot({
+          path: path.join(homeEvidenceDir, "home-auth-ux1-desktop-1440-opportunities.png"),
+          animations: "disabled",
+          fullPage: false,
+        });
+      }
       assert.equal(await page.getByRole("heading", { name: "Dalla rete, per te" }).count(), 1);
       assert.equal(await page.locator('a[href="#dashboard-discovery"]').count(), 1,
         "Keyboard/touch jump to Marketplace opportunities required");
@@ -449,8 +481,14 @@ try {
     await navigate(mobilePage, "/dashboard");
     await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
       .waitFor({ state: "visible", timeout: 60000 });
+    await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
+    await mobilePage.screenshot({
+      path: path.join(homeEvidenceDir, "home-auth-ux1-mobile-390-overview.png"),
+      animations: "disabled",
+      fullPage: false,
+    });
     const tiles = mobilePage.locator('section[aria-labelledby="quick-actions"] [data-testid="quick-action-shortcuts"] a');
-    assert.equal(await tiles.count(), 4, "The mobile cockpit has exactly four action shortcuts");
+    assert.equal(await tiles.count(), 3, "The mobile cockpit has three unique action shortcuts");
     const first = await tiles.nth(0).boundingBox();
     const second = await tiles.nth(1).boundingBox();
     assert.ok(first && second, "Mobile actions must be visible");
@@ -467,7 +505,15 @@ try {
     await navigate(mobilePage, "/dashboard");
     await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
       .waitFor({ state: "visible", timeout: 60000 });
+    await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
+    await mobilePage.screenshot({
+      path: path.join(homeEvidenceDir, "home-auth-ux1-mobile-320-overview.png"),
+      animations: "disabled",
+      fullPage: false,
+    });
     await mobilePage.locator("#dashboard-discovery").waitFor({ state: "attached", timeout: 60000 });
+    const mobileHomeNav = mobilePage.locator('nav[aria-label="Sezioni della Home"]:visible');
+    await mobileHomeNav.getByRole("button", { name: /Steel Pulse/ }).click();
     const jump = mobilePage.getByRole("link", { name: /Vai alle opportunità/ });
     assert.equal(await jump.count(), 1);
     const size = await mobilePage.evaluate(() => ({
@@ -477,6 +523,7 @@ try {
     assert.ok(size.scroll <= size.client + 12, "320px dashboard horizontal overflow");
     await jump.click();
     assert.equal(new URL(mobilePage.url()).hash, "#dashboard-discovery");
+    await mobilePage.locator("#dashboard-discovery").waitFor({ state: "visible", timeout: 60000 });
     assert.equal(await mobilePage.getByRole("heading", { name: "Dalla rete, per te" }).count(), 1);
   });
   await mobile.close();

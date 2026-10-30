@@ -29,6 +29,15 @@ try {
    const hero=page.locator('section[aria-labelledby="school-workspace-cine-heading"]');
    assert.equal(await hero.count(),1,locale+" one cinematic hero");
    assert.equal(await hero.locator('[data-testid="school-ux6-professor-entry"]').count(),1,locale+" exactly one featured teacher entry");
+   // Next.js can stream the correct heading before the section has a laid-out
+   // bounding box. Wait for the real painted hero, but keep both size bounds:
+   // a genuinely collapsed or oversized School hero must still fail CI.
+   await page.waitForFunction(() => {
+     const section = document.querySelector('section[aria-labelledby="school-workspace-cine-heading"]');
+     if (!section) return false;
+     const bounds = section.getBoundingClientRect();
+     return bounds.width > 0 && bounds.height > 160;
+   }, null, {timeout: 15000});
    const heroHeight=(await hero.boundingBox())?.height??0;
    assert.ok(heroHeight>160&&heroHeight<(width===390?365:290),locale+" compact hero height "+heroHeight);
    assert.ok((await hero.getAttribute("class")||"").includes("rounded-[24px]"),locale+" public hero radius");
