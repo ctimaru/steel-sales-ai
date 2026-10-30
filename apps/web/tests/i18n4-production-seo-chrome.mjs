@@ -84,8 +84,14 @@ async function checkContext(label, viewport, mobile) {
       // calculator that is already in production, without writing data.
       const calc = page.locator("#calcolatore-pesi");
       assert.ok(await calc.count(), "Shared English calculator missing");
-      assert.ok(await calc.getByRole("button", {name:"EN 10219"}).count() > 0,
-        "Standard selection missing");
+      // CALC-UX4 moved EN 10219 / EN 10210 into one accessible select.
+      // Check the real production UI contract, not the retired button.
+      const standardPicker = calc.getByRole("combobox", { name: "Standard", exact: true });
+      await standardPicker.waitFor({ state: "visible", timeout: 12000 });
+      assert.ok(await standardPicker.locator('option[value="en10219"]').count() > 0,
+        "EN 10219 standard option missing");
+      assert.ok(await standardPicker.locator('option[value="en10210"]').count() > 0,
+        "EN 10210 standard option missing");
       assert.ok(await calc.getByRole("button", {name:"Copy result",exact:true}).count() > 0,
         "English copy action missing");
       // Production smoke checks deployed main, which may still have the old
