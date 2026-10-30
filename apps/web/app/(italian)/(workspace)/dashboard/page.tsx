@@ -5,6 +5,7 @@ import { WorkspaceHomePanels } from "@/components/workspace-home-panels";
 import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { getCompanySetupState } from "@/lib/company-setup";
 import { DashboardSteelPulse } from "@/components/dashboard-steel-pulse";
+import { DashboardPulsePreview } from "@/components/dashboard-pulse-preview";
 import { DashboardDiscoveryFeed } from "@/components/dashboard-discovery-feed";
 import { loadDashboardPulse } from "@/lib/dashboard-pulse";
 import { getDashboardData } from "@/lib/commercial-data";
@@ -294,19 +295,6 @@ export default async function DashboardPage({
       </section>
 
 
-                {attentionCount > 0 ? (
-                  <section aria-label="Priorità in evidenza" className="rounded-xl border border-[#e5d1ae] bg-[#fffbf4] px-3 py-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h2 className="text-sm font-semibold text-[#173f35]">Richiede la tua attenzione</h2>
-                      <span className="rounded-full bg-[#f4e9d6] px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[#805c31]">{attentionCount} da gestire</span>
-                    </div>
-                    {attentionItems.slice(0, 1).map((item) => (
-                      <Link key={item.href} href={item.href} className="mt-2 flex min-h-11 items-center justify-between gap-3 rounded-lg border border-[#eadbc4] bg-white px-3 py-2 text-xs font-semibold text-[#173f35] hover:bg-[#fffaf1] focus-visible:outline-2 focus-visible:outline-offset-2">
-                        <span className="min-w-0 truncate">{item.title}</span><span className="shrink-0 text-[#175640]">Apri →</span>
-                      </Link>
-                    ))}
-                  </section>
-                ) : null}
               </div>
               <div className="min-w-0 space-y-3">
           <section aria-label="Indicatori commerciali" className="rounded-2xl border border-[#dce5df] bg-white p-4">
@@ -356,6 +344,7 @@ export default async function DashboardPage({
 
               </div>
             </div>
+            <DashboardPulsePreview state={pulse} />
           </div>
         }
         tasks={

@@ -163,8 +163,20 @@ try {
           fullPage: false,
         });
       }
+      const pulsePreview = page.getByTestId("dashboard-pulse-preview");
+      assert.equal(await pulsePreview.isVisible(), true, "Steel Pulse previews must appear on the Overview");
+      const previewCount = await pulsePreview.getByTestId("steel-pulse-preview-card").count();
+      assert.ok(previewCount >= 1 && previewCount <= 3,
+        "Overview shows up to three governed or illustrative previews");
+      if (await pulsePreview.getByTestId("steel-pulse-demo-badge").count()) {
+        assert.equal(previewCount, 3, "Empty feed uses exactly three labeled demo examples");
+        assert.equal(await pulsePreview.locator('a[target="_blank"]').count(), 0,
+          "Demonstration previews must not impersonate verified source links");
+      }
+      assert.equal(await page.locator('section[aria-label="Priorità in evidenza"]').count(), 0,
+        "Attention banner must be removed from the Overview");
       assert.equal(await page.getByTestId("workspace-home-panel-pulse").isVisible(), false,
-        "News must not occupy the first viewport");
+        "The full Steel Pulse tab stays separate from compact Overview previews");
       await homeNav.getByRole("button", { name: /Da fare/ }).click();
       await page.getByTestId("workspace-home-panel-tasks").waitFor({ state: "visible" });
       if (p.id === personas[0].id) {
@@ -482,6 +494,7 @@ try {
     await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
       .waitFor({ state: "visible", timeout: 60000 });
     await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
+    assert.equal(await mobilePage.getByTestId("dashboard-pulse-preview").count(), 1);
     await mobilePage.screenshot({
       path: path.join(homeEvidenceDir, "home-auth-ux1-mobile-390-overview.png"),
       animations: "disabled",
@@ -506,6 +519,7 @@ try {
     await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
       .waitFor({ state: "visible", timeout: 60000 });
     await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
+    assert.equal(await mobilePage.getByTestId("dashboard-pulse-preview").count(), 1);
     await mobilePage.screenshot({
       path: path.join(homeEvidenceDir, "home-auth-ux1-mobile-320-overview.png"),
       animations: "disabled",
