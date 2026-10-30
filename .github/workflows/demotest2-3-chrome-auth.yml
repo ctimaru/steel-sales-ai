@@ -154,6 +154,14 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/demotest23-chrome-auth.mjs
+      - name: "HOME-AUTH-UX1 — Authenticated synthetic first-viewport screenshots"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: home-auth-ux1-synthetic-visual-acceptance
+          path: ${{ runner.temp }}/home-auth-ux1-safe-screenshots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: "RFQH14.2 Chrome: buyer, isolated supplier portals, quote, mobile 390 + 430"
         working-directory: apps/web
         timeout-minutes: 20

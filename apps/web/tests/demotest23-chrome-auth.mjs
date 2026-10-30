@@ -4,7 +4,7 @@
  * Test output avoids exposing passwords/session cookies to CI artifacts.
  */
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 
@@ -14,6 +14,9 @@ assert.equal(base, "http://127.0.0.1:3000", "External/public web host prohibited
 assert.ok(temp, "RUNNER_TEMP required");
 const personas = JSON.parse(readFileSync(path.join(temp, "demotest23-personas.json"), "utf8"));
 assert.equal(personas.length, 5);
+// Screenshots contain synthetic four-tenant fixtures only (never tokens, cookies or production data).
+const homeEvidenceDir = path.join(temp, "home-auth-ux1-safe-screenshots");
+mkdirSync(homeEvidenceDir, { recursive: true });
 const browser = await chromium.launch({ headless: true, channel: "chrome" });
 const checks = [];
 
@@ -153,10 +156,24 @@ try {
         "Technical data-quality queue is not a commercial priority");
       const actionBounds = await actions.boundingBox();
       assert.ok(actionBounds, "Action-first first viewport must be visible");
+      if (p.id === personas[0].id) {
+        await page.screenshot({
+          path: path.join(homeEvidenceDir, "home-auth-ux1-desktop-1440-overview.png"),
+          animations: "disabled",
+          fullPage: false,
+        });
+      }
       assert.equal(await page.getByTestId("workspace-home-panel-pulse").isVisible(), false,
         "News must not occupy the first viewport");
       await homeNav.getByRole("button", { name: /Da fare/ }).click();
       await page.getByTestId("workspace-home-panel-tasks").waitFor({ state: "visible" });
+      if (p.id === personas[0].id) {
+        await page.screenshot({
+          path: path.join(homeEvidenceDir, "home-auth-ux1-desktop-1440-tasks.png"),
+          animations: "disabled",
+          fullPage: false,
+        });
+      }
       if (await priorities.count()) {
         assert.equal(await priorities.isVisible(), true, "Buyer attention must be in Da fare");
         assert.ok(await priorities.boundingBox(), "Buyer priorities must remain legible");
@@ -178,6 +195,13 @@ try {
       await page.locator('nav[aria-label="Sezioni della Home"]:visible').getByRole("button", { name: /Opportunità/ }).click();
       const discovery = page.locator("#dashboard-discovery");
       await discovery.waitFor({ state: "visible", timeout: 60000 });
+      if (p.id === personas[0].id) {
+        await page.screenshot({
+          path: path.join(homeEvidenceDir, "home-auth-ux1-desktop-1440-opportunities.png"),
+          animations: "disabled",
+          fullPage: false,
+        });
+      }
       assert.equal(await page.getByRole("heading", { name: "Dalla rete, per te" }).count(), 1);
       assert.equal(await page.locator('a[href="#dashboard-discovery"]').count(), 1,
         "Keyboard/touch jump to Marketplace opportunities required");
@@ -457,6 +481,12 @@ try {
     await navigate(mobilePage, "/dashboard");
     await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
       .waitFor({ state: "visible", timeout: 60000 });
+    await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
+    await mobilePage.screenshot({
+      path: path.join(homeEvidenceDir, "home-auth-ux1-mobile-390-overview.png"),
+      animations: "disabled",
+      fullPage: false,
+    });
     const tiles = mobilePage.locator('section[aria-labelledby="quick-actions"] [data-testid="quick-action-shortcuts"] a');
     assert.equal(await tiles.count(), 4, "The mobile cockpit has exactly four action shortcuts");
     const first = await tiles.nth(0).boundingBox();
@@ -475,6 +505,12 @@ try {
     await navigate(mobilePage, "/dashboard");
     await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
       .waitFor({ state: "visible", timeout: 60000 });
+    await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
+    await mobilePage.screenshot({
+      path: path.join(homeEvidenceDir, "home-auth-ux1-mobile-320-overview.png"),
+      animations: "disabled",
+      fullPage: false,
+    });
     await mobilePage.locator("#dashboard-discovery").waitFor({ state: "attached", timeout: 60000 });
     const mobileHomeNav = mobilePage.locator('nav[aria-label="Sezioni della Home"]:visible');
     await mobileHomeNav.getByRole("button", { name: /Steel Pulse/ }).click();
