@@ -12,7 +12,8 @@ test("DASH-NEXT1A Home places a truthful action-first entry above feed", () => {
   const hero = home.indexOf('<section aria-labelledby="quick-actions"');
   const attention = home.indexOf('<section aria-labelledby="daily-priorities"');
   const feed = home.indexOf("<DashboardSteelPulse state={pulse} />");
-  assert.ok(hero >= 0 && attention > hero && feed > attention);
+  const pulsePreview = home.indexOf("<DashboardPulsePreview state={pulse} />");
+  assert.ok(hero >= 0 && pulsePreview > hero && attention > pulsePreview && feed > attention);
   assert.match(home, /Come posso aiutarti oggi\?/);
   assert.match(home, /aria-label="Cerca RFQ, offerte, ordini, aziende e documenti nello storico commerciale"/);
   assert.match(home, /href=\{appRoutes\.commercial\.search\}/);
