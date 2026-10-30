@@ -153,7 +153,7 @@ try {
         await detail.getByRole("heading", { name: "Completa la RFQ e verifica i fornitori" })
           .waitFor({ state: "visible" });
 
-        const continueAction = detail.getByRole("link", { name: /Continua →|Apri dettaglio →/ });
+        const continueAction = detail.getByTestId("commercial-deal-next-step").getByRole("link");
         await continueAction.waitFor({ state: "visible" });
         const actualColors = await continueAction.evaluate(el => ({
           foreground: getComputedStyle(el).color,
