@@ -52,6 +52,21 @@ async function viewportCheck(page, { width, height, role }) {
   assert.ok([h, c, t, a, w].every(Boolean), "All first viewport surfaces should render");
   assert.ok(h.y < c.y && c.y < t.y && t.y < a.y && a.y < w.y, "Correct work-first reading order");
   assert.ok(await page.getByRole("button", { name: "Calcolatrice pesi" }).isVisible());
+  // COMM-NAV9: a decision-first summary must remain compact, honest about
+  // missing RFQ data and read-only for viewer roles.
+  const priorities = page.getByTestId("commercial-director-rfq-priorities");
+  const resume = page.getByTestId("commercial-director-resume");
+  assert.equal(await priorities.count(), 1);
+  assert.equal(await resume.count(), 1);
+  assert.equal(await attention.getByRole("heading", { name: "Cosa richiede attenzione" }).count(), 1);
+  assert.equal(await attention.getByRole("link", { name: "Apri inbox →" }).count(), 1);
+  assert.equal(await attention.getByRole("link", { name: "Le mie trattative →" }).count(), 1);
+  if (role === "buyerViewer") {
+    assert.match(await priorities.innerText(), /Consultazione in sola lettura/);
+    assert.equal(await priorities.getByTestId("commercial-director-attention-summary").count(), 0);
+  } else {
+    assert.equal(await priorities.getByTestId("commercial-director-attention-summary").count(), 1);
+  }
   assert.ok(await page.locator('[data-commercial-saved-distinte-entry="true"]').isVisible(), "Saved Distinte CTA remains visible inside the cockpit");
   assert.equal(await page.getByTestId("commercial-cockpit-tabs").count(), 0);
   await noOverflow(page, role + "/" + width);
