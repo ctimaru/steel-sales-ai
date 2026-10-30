@@ -70,12 +70,12 @@ async function inspectNextDevIndicator(page) {
         if (el.shadowRoot) scan(el.shadowRoot);
         if (!el.matches("button,[role='button'],[data-nextjs-toast],nextjs-toast")) continue;
         const text = (el.innerText || el.textContent || el.getAttribute("aria-label") || "")
-          .replace(/\\s+/g, " ").trim().slice(0, 180);
+          .replace(/\s+/g, " ").trim().slice(0, 180);
         if (!text) continue;
         const css = getComputedStyle(el);
         const rect = el.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0 && css.visibility !== "hidden" &&
-            css.display !== "none" && /\\b(?:\\d+\\s+Issues?|Error|Warning)\\b/i.test(text)) {
+            css.display !== "none" && /\b(?:\d+\s+Issues?|Error|Warning)\b/i.test(text)) {
           collect.push({ text, tag: el.tagName.toLowerCase() });
         }
       }
@@ -85,7 +85,7 @@ async function inspectNextDevIndicator(page) {
     return {
       present: true,
       visibleIssues: collect.slice(0, 8),
-      panelText: content.replace(/\\s+/g, " ").trim().slice(-3500),
+      panelText: content.replace(/\s+/g, " ").trim().slice(-3500),
     };
   });
 }
@@ -262,7 +262,7 @@ try {
         fullPage: false, animations: "disabled" });
       if (id === "buyer") {
         const next = await inspectNextDevIndicator(page);
-        const issue = next.visibleIssues.some(x => /\\b\\d+\\s+Issues?\\b/i.test(x.text));
+        const issue = next.visibleIssues.some(x => /\b\d+\s+Issues?\b/i.test(x.text));
         // Log ONLY synthetic local Next warning text; never browser storage or URLs.
         console.log("COMM-NAV7 NEXT DEV INDICATOR", JSON.stringify({
           present: next.present, visibleIssues: next.visibleIssues,
