@@ -142,9 +142,15 @@ try {
         await intelligence.waitFor({ state: "visible", timeout: 60000 });
         await intelligence.getByRole("heading", { name: "Il quadro della trattativa" })
           .waitFor({ state: "visible" });
-        const readiness = intelligence.getByTestId("commercial-decision-readiness");
+        const readiness = detail.getByTestId("commercial-decision-readiness");
         await readiness.getByRole("heading", { name: "Prima di decidere" })
           .waitFor({ state: "visible" });
+        const readinessRect = await readiness.boundingBox();
+        const actionRect = await detail.getByTestId("commercial-deal-next-step").boundingBox();
+        const factsRect = await intelligence.boundingBox();
+        assert.ok(readinessRect && actionRect && factsRect &&
+          readinessRect.y < actionRect.y && actionRect.y < factsRect.y,
+          "Decision checks and next action must appear before the detailed commercial facts");
         const advice = await readiness.innerText();
         assert.match(advice, /Da confermare:/);
         assert.match(advice, /Conferma i destinatari nella RFQ originale/);
