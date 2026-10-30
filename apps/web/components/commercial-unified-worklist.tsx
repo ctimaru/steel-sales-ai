@@ -147,7 +147,7 @@ async function SelectedDetail({
                 : "Apri il dettaglio originale per continuare senza creare copie della richiesta."}
         </p>
         <Link href={item.href}
-          className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+          className="app-primary mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
           {canWrite ? "Continua →" : "Apri dettaglio →"}
         </Link>
       </section>
@@ -290,12 +290,6 @@ export async function CommercialUnifiedWorklist({
 
       <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(380px,0.9fr)]" : "grid min-w-0 gap-4"} data-testid="comm-cine2-split-view">
         <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-[22px] border border-[#dce7e0] bg-white shadow-[0_18px_55px_-40px_rgba(4,46,32,0.50)]"}>
-          <div className="flex items-center justify-between border-b border-[#e0ebe3] bg-[#fafdfa] px-4 py-2.5">
-            <p className="text-sm font-semibold tracking-tight text-[#173f35]">Trattative e attività</p>
-            <span className="text-xs tabular-nums text-[var(--text-secondary)]">{data.paging?.exact && data.paging.total !== null
-              ? data.paging.total + " totali"
-              : filtered.length + " visualizzate"}</span>
-          </div>
           {filtered.length ? (
             <div className="divide-y divide-[var(--border)]">
               {filtered.map((item) => (
