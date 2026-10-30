@@ -50,8 +50,8 @@ export default async function EnglishRegistrationPage({ searchParams }: {
               <Link href={`/en/login?next=${encodeURIComponent(registrationPath)}`} className="font-bold text-[#173f35] underline">Sign in</Link>
             </nav>
           </header>
-          <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div className="space-y-5">
+          <div className="mt-8 grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <div className="min-w-0 space-y-5">
               <div className="rounded-[24px] border border-[#dce2df] bg-white p-6 sm:p-8">
                 <p className="text-xs font-extrabold uppercase tracking-wider text-[#1f6b5a]">Step 1 — Company discovery</p>
                 <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#123b34]">Join Smart Steel Sales</h1>
@@ -68,7 +68,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
                 <p className="mt-2">After your email is verified, you will submit the company details for review. Creating an account does not grant automatic access to private RFQs or the Network.</p>
               </div>
             </div>
-            <section id="create-account" className="scroll-mt-6 rounded-[24px] border border-[#dce2df] bg-white p-6 sm:p-8" aria-label="Create your account">
+            <section id="create-account" className="min-w-0 scroll-mt-6 rounded-[24px] border border-[#dce2df] bg-white p-5 sm:p-8" aria-label="Create your account">
               <RegistrationJourney current={1} compact locale="en" />
               <p className="mt-7 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 2 — Personal account</p>
               <h2 className="mt-2 text-2xl font-bold text-[#123b34]">Create your account</h2>
