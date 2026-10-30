@@ -19,20 +19,20 @@ type PulsePreviewCard = {
 // No dates, prices, fabricated sources or publishing/engagement mutations.
 const DEMO_CARDS: readonly PulsePreviewCard[] = [
   {
-    category: "Mercato · Esempio",
-    headline: "Tubi d’acciaio: quali fattori incidono sui prezzi?",
+    category: "Mercato",
+    headline: "Prezzi dei tubi: cosa incide?", 
     summary: "Materie prime, geometrie, quantità e tempi di consegna da considerare.",
     image: "/calculator/tube-round-384.webp",
   },
   {
-    category: "Acquisti · Esempio",
-    headline: "RFQ industriali: come descrivere il materiale",
+    category: "Acquisti",
+    headline: "RFQ industriali: dati essenziali",
     summary: "Norme, qualità, misure e documentazione utili per chiedere un’offerta.",
     image: "/home-cine2a2b-factory-desktop.webp",
   },
   {
-    category: "Sostenibilità · Esempio",
-    headline: "Acciaio a basse emissioni: cosa verificare",
+    category: "Sostenibilità",
+    headline: "Acciaio low-carbon: cosa verificare",
     summary: "Dichiarazioni ambientali, tracciabilità e dati da richiedere ai fornitori.",
     image: "/calculator/tube-rectangular-384.webp",
   },
