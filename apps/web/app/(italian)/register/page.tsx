@@ -94,7 +94,7 @@ export default async function RegisterPage({
                     {claimRef ? "Crea l’account per la tua azienda" : "Crea account"}
                   </h2>
                   <p className="mt-1 text-sm leading-5 text-[#5d6a65]">
-                    Riceverai un link via email. La richiesta aziendale si completa dopo la verifica.
+                    Riceverai un link via email. Completa la richiesta aziendale dopo la verifica.
                   </p>
                 </div>
 
@@ -172,7 +172,7 @@ export default async function RegisterPage({
                 </form>
 
                 <div className="mt-3 rounded-xl border border-[#e2e7e4] bg-[#f7f9f8] px-3 py-2 text-xs leading-5 text-[#5d6a65]">
-                  L’azienda si attiva solo dopo la verifica email e l’approvazione della richiesta.
+                  Creare l’account non attiva automaticamente l&apos;azienda: la richiesta sarà verificata.
                 </div>
               </section>
               <section
