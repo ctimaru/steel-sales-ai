@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { logout } from "@/app/(workspace)/actions";
 import { ContextSwitchLink } from "@/components/context-switch-link";
 import { WorkspaceCommercialDirectorShell } from "@/components/workspace-commercial-director-shell";
+import { WorkspaceSearchBar } from "@/components/workspace-search-bar";
 import { HeaderMenuDismissController } from "@/components/header-menu-dismiss-controller";
 import { WorkspaceNotificationBell } from "@/components/workspace-notification-bell";
 import { ProductBrand } from "@/components/product-brand";
@@ -11,7 +12,6 @@ import {
   WorkspaceDesktopPrimaryNavigation,
   WorkspaceMobileBottomNavigation,
   WorkspaceProfileMenu,
-  WorkspaceSearchBar,
   type WorkspaceNavItem,
 } from "@/components/workspace-navigation";
 import { canAdministerCompany, canWriteWorkspace } from "@/lib/access-policy";
