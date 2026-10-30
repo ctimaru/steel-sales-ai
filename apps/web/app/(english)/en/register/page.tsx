@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { signup } from "@/app/login/actions";
+import { safeCommercialReturnTo, withCommercialReturnTo } from "@/lib/auth-next";
 import { logoutRegistration } from "@/app/register/actions";
 import { EnglishCompanyRegistrationForm } from "@/components/english-company-registration-form";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
@@ -25,13 +26,14 @@ type ClaimContext = {
 };
 
 export default async function EnglishRegistrationPage({ searchParams }: {
-  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string; return_to?: string }>; 
 }) {
-  const { error, message, claim_ref: rawRef } = await searchParams;
+  const { error, message, claim_ref: rawRef, return_to: requestedReturn } = await searchParams;
+  const returnTo = safeCommercialReturnTo(requestedReturn);
   const normalized = String(rawRef ?? "").trim().toLowerCase();
   const claimRef = /^[0-9a-f]{64}$/.test(normalized) ? normalized : null;
   if (normalized && !claimRef) redirect("/en/register");
-  const registrationPath = claimRef ? `/en/register?claim_ref=${encodeURIComponent(claimRef)}` : "/en/register";
+  const registrationPath = withCommercialReturnTo(claimRef ? `/en/register?claim_ref=${encodeURIComponent(claimRef)}` : "/en/register", returnTo);
 
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
@@ -48,8 +50,8 @@ export default async function EnglishRegistrationPage({ searchParams }: {
               <Link href={`/en/login?next=${encodeURIComponent(registrationPath)}`} className="font-bold text-[#173f35] underline">Sign in</Link>
             </nav>
           </header>
-          <div className="mt-8 grid items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div className="space-y-5">
+          <div className="mt-8 grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+            <div className="min-w-0 space-y-5">
               <div className="rounded-[24px] border border-[#dce2df] bg-white p-6 sm:p-8">
                 <p className="text-xs font-extrabold uppercase tracking-wider text-[#1f6b5a]">Step 1 — Company discovery</p>
                 <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#123b34]">Join Smart Steel Sales</h1>
@@ -58,7 +60,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
                   <strong>Company profile selected</strong>
                   <p className="mt-1 text-[#52615b]">Your claim reference is preserved through email verification.</p>
                   <Link href="/en/register" className="mt-2 inline-flex font-bold text-[#1f6b5a] underline">Search for another company</Link>
-                </div> : <div className="mt-6"><PublicCompanyLookup locale="en" context="registration" notFoundHref="#create-account"
+                </div> : <div className="mt-6"><PublicCompanyLookup locale="en" context="registration" returnTo={returnTo} notFoundHref="#create-account"
                   notFoundLabel="Not listed? Create an account below ↓" showNetworkNote={false} /></div>}
               </div>
               <div className="rounded-xl border border-[#dce2df] bg-[#f8faf9] p-5 text-sm leading-6 text-[#52615b]">
@@ -66,13 +68,14 @@ export default async function EnglishRegistrationPage({ searchParams }: {
                 <p className="mt-2">After your email is verified, you will submit the company details for review. Creating an account does not grant automatic access to private RFQs or the Network.</p>
               </div>
             </div>
-            <section id="create-account" className="scroll-mt-6 rounded-[24px] border border-[#dce2df] bg-white p-6 sm:p-8" aria-label="Create your account">
+            <section id="create-account" className="min-w-0 scroll-mt-6 rounded-[24px] border border-[#dce2df] bg-white p-5 sm:p-8" aria-label="Create your account">
               <RegistrationJourney current={1} compact locale="en" />
               <p className="mt-7 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 2 — Personal account</p>
               <h2 className="mt-2 text-2xl font-bold text-[#123b34]">Create your account</h2>
               <p className="mt-3 text-sm leading-6 text-[#52615b]">We'll send an email verification link. Once confirmed, you'll return to the English company form.</p>
               {error ? <p role="alert" className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] p-3 text-sm text-[#9f2f24]">We could not create the account. Please review your email and password, then try again. {error}</p> : null}
               {message ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-3 text-sm">{message}</p> : null}
+              {returnTo ? <p role="status" className="mt-4 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] p-3 text-sm text-[#173f35]">Your commercial destination will be retained. Your draft stays in this browser, not in the email link.</p> : null}
               <form action={signup} className="mt-6 space-y-4">
                 <input type="hidden" name="next" value={registrationPath} />
                 <label className="block text-sm font-bold text-[#43524c]">Work email
@@ -109,7 +112,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
     .select("id,application_status,legal_name,trading_name,country_code,vat_id,registration_id,website_url,primary_company_type,secondary_company_types,contact_name,contact_phone,short_description,claim_target_network_company_id")
     .order("created_at", { ascending: false }).limit(1).maybeSingle();
   if (application && !["draft", "needs_information"].includes(application.application_status)) {
-    redirect("/en/registration/status");
+    redirect(withCommercialReturnTo("/en/registration/status", returnTo));
   }
 
   let claim: ClaimContext | null = null;
@@ -156,13 +159,13 @@ export default async function EnglishRegistrationPage({ searchParams }: {
           {error ? <p role="alert" className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] p-4 text-sm text-[#9f2f24]">Your application could not be submitted. Please review the details and retry. {error}</p> : null}
           {message ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-4 text-sm">{message}</p> : null}
           {application?.application_status === "needs_information" ? <p className="mt-5 rounded-xl bg-[#fff9e8] p-4 text-sm text-[#77551c]">The review team has requested more information. Update and resubmit your application.</p> : null}
-          {!application && !claimRef ? <div className="mt-6"><PublicCompanyLookup locale="en" context="registration" notFoundHref="#company-form" notFoundLabel="No match? Continue with a new company ↓" showNetworkNote={false} /></div> : null}
+          {!application && !claimRef ? <div className="mt-6"><PublicCompanyLookup locale="en" context="registration" returnTo={returnTo} notFoundHref="#company-form" notFoundLabel="No match? Continue with a new company ↓" showNetworkNote={false} /></div> : null}
           <div id="company-form" className="scroll-mt-5">
             {blocked ? <div className="mt-6 rounded-xl border border-[#ead7aa] bg-[#fff9e8] p-5 text-sm text-[#77551c]">
               <strong>This company profile can no longer be claimed.</strong>
               <p className="mt-2">Its status has changed or the claim reference is invalid. Please search again rather than submit a duplicate profile.</p>
               <Link href="/en/register" className="mt-3 inline-flex font-bold underline">Search for a company</Link>
-            </div> : <EnglishCompanyRegistrationForm initial={initial} claim={activeClaim} />}
+            </div> : <EnglishCompanyRegistrationForm initial={initial} claim={activeClaim} returnTo={returnTo} />}
           </div>
         </div>
       </div>

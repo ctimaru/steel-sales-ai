@@ -102,12 +102,17 @@ try {
         await publicDistinta.getAttribute("href") === "/distinta", "Public bill CTA missing");
       check(await page.locator("#home-tools a").count() === 5,
         "Five product-led tool cards must render");
-      const account = publicHeader.locator('nav[aria-label="Area aziende"] details');
-      check(await account.count() === 1, "Company account details menu missing");
-      await account.locator("summary").click();
-      check(await account.locator('a[href="/login"]').count() === 1, "Company login missing");
-      check(await account.locator('a[href="/register"]').count() === 1, "Company registration missing");
-      await account.locator("summary").click();
+      const account = publicHeader.locator('nav[aria-label="Area aziende"]');
+      check(await account.count() === 1, "Company account navigation missing");
+      const accountLogin = account.locator('a[href="/login"]');
+      const accountRegister = account.locator('a[href="/register"]');
+      check(await accountLogin.count() === 1, "One-click company login missing");
+      check(await accountRegister.count() === 1, "One-click registration missing");
+      for (const action of [accountLogin, accountRegister]) {
+        const rect = await action.boundingBox();
+        check(Boolean(rect && rect.height >= 40 && rect.x >= -2 &&
+          rect.x + rect.width <= viewport.width + 2), "Account action clipped");
+      }
       if (viewport.width <= 390) {
         const actionRect = await primaryHeroAction.boundingBox();
         check(Boolean(actionRect && actionRect.width >= 100 && actionRect.height >= 44 &&

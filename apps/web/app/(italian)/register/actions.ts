@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { safeCommercialReturnTo, withCommercialReturnTo } from "@/lib/auth-next";
 import { redirect } from "next/navigation";
 
 import {
@@ -28,9 +29,10 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
   const validClaimRef = /^[0-9a-f]{64}$/.test(claimRef);
   // Locale only selects the return URL; security and approval remain in the same RPCs.
   const root = field(formData, "registration_locale") === "en" ? "/en/register" : "/register";
-  const registerPath = validClaimRef
+  const returnTo = safeCommercialReturnTo(formData.get("return_to"));
+  const registerPath = withCommercialReturnTo(validClaimRef
     ? root + "?claim_ref=" + encodeURIComponent(claimRef)
-    : root;
+    : root, returnTo);
 
   if (claimRef && !validClaimRef) {
     redirect(
@@ -255,7 +257,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     company_type: primaryCompanyType,
   });
 
-  redirect((root === "/en/register" ? "/en/registration/status" : "/registration/status") + "?submitted=1");
+  redirect(withCommercialReturnTo((root === "/en/register" ? "/en/registration/status" : "/registration/status") + "?submitted=1", returnTo));
 }
 
 export async function logoutRegistration(formData?: FormData) {

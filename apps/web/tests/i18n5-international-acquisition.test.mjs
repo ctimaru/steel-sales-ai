@@ -18,7 +18,7 @@ test("I18N5 puts a registration and sign-in handoff on every shared English publ
   assert.match(shell, /href="\/en\/login"/);
   assert.match(header, /"\/en\/login"/);
   assert.match(home, /<PublicCinematicHero locale="en" \/>/);
-  assert.match(header, /Register company/);
+  assert.match(header, /\{en \? "Register" : "Registrati"\}/);
   assert.match(hero, /Standards & weights/);
 });
 

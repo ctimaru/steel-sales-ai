@@ -23,7 +23,7 @@ test("UXF4 preserves public discovery links in both desktop and mobile header", 
 
 test("UXF4 prioritizes registration while keeping a no-account utility CTA", () => {
   assert.match(header, /"\/register"/);
-  assert.match(header, /Registra azienda/);
+  assert.match(header, /Registrati/);
   assert.match(hero, /Norme e pesi/);
   assert.match(hero, /Crea una distinta gratis/);
   assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);

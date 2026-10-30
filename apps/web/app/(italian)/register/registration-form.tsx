@@ -58,9 +58,11 @@ function companyTypeLabel(value: string) {
 export function CompanyRegistrationForm({
   initial,
   claim,
+  returnTo,
 }: {
   initial?: InitialApplication | null;
   claim?: ClaimRegistrationContext | null;
+  returnTo?: string | null;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const mountedRef = useRef(false);
@@ -176,6 +178,7 @@ export function CompanyRegistrationForm({
       onSubmit={handleSubmit}
       className="mt-8"
     >
+      {returnTo ? <input type="hidden" name="return_to" value={returnTo} /> : null}
       {claim ? <input type="hidden" name="claim_ref" value={claim.claim_ref} /> : null}
 
       {claim ? (

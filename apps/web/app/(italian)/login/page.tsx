@@ -7,7 +7,7 @@ import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { SteelPulsePreview } from "@/components/steel-pulse-preview";
 import { Input } from "@/components/ui/input";
-import { safeInternalNext } from "@/lib/auth-next";
+import { registrationEntryForNext, safeCommercialReturnTo, safeInternalNext } from "@/lib/auth-next";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { listSteelPulsePublicCards } from "@/lib/steel-pulse-public";
 
@@ -30,7 +30,8 @@ export default async function LoginPage({
 }) {
   const { error, message, next } = await searchParams;
   const nextPath = next ? safeInternalNext(next, "/dashboard") : null;
-  const registrationHref = nextPath?.startsWith("/register") ? nextPath : "/register";
+  const registrationHref = registrationEntryForNext(nextPath, "it");
+  const returningToCommercial = Boolean(safeCommercialReturnTo(nextPath));
 
   return (
     <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-10">
@@ -50,9 +51,15 @@ export default async function LoginPage({
             Accedi al tuo workspace
           </h1>
           <p className="mt-3 max-w-md text-sm leading-6 text-[#66736e]">
-            Email e password. Tutto il resto viene dopo l’accesso, nel contesto corretto.
+            Email e password per entrare nella tua area aziendale.
           </p>
         </header>
+
+        {returningToCommercial ? (
+          <p className="mt-4 rounded-xl border border-[#c7e1d5] bg-[#edf5f2] px-4 py-3 text-sm leading-6 text-[#173f35]">
+            Dopo l’accesso riprenderai la tua attività commerciale. Se sei nuovo, puoi creare un account senza perdere il percorso.
+          </p>
+        ) : null}
 
         <FocusPanel className="mt-5">
           {error ? (
@@ -95,9 +102,9 @@ export default async function LoginPage({
         </FocusPanel>
 
         <div className="mt-5 text-center text-sm text-[#66736e]">
-          La tua azienda non è ancora attiva?{" "}
+          Non hai ancora un account?{" "}
           <Link href={registrationHref} className="font-semibold text-[#173f35] underline decoration-[#b8d2c8] underline-offset-4">
-            Registra o verifica l’azienda
+            Crea account
           </Link>
         </div>
           </section>
