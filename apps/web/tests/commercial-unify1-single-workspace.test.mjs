@@ -10,6 +10,7 @@ const nav = read("../components/workspace-navigation.tsx");
 const ia = read("../lib/workspace-information-architecture.ts");
 const shell = read("../components/app-shell.tsx");
 const commercial = read("../app/(italian)/(workspace)/commercial/page.tsx");
+const priorities = read("../components/commercial-director-priority-desk.tsx");
 const dashboard = read("../app/(italian)/(workspace)/dashboard/page.tsx");
 const routes = read("../lib/routes.ts");
 
@@ -37,11 +38,12 @@ test("COMMERCIAL-UNIFY1 puts workflow, live buyer actions and Network entry befo
   assert.match(commercial, /Le tue trattative\./);
   assert.match(commercial, /Un’unica visione\./);
   assert.match(commercial, /data-testid="comm-cine13-first-workspace"/);
-  assert.match(commercial, /Cosa richiede attenzione/);
-  assert.ok(commercial.indexOf('aria-labelledby="commercial-today-heading"') < commercial.indexOf("Cerca nella Commercial Memory"));
+  assert.match(commercial, /<CommercialDirectorPriorityDesk/);
+  assert.match(priorities, /Cosa richiede attenzione/);
+  assert.ok(commercial.indexOf("<CommercialDirectorPriorityDesk") < commercial.indexOf("Cerca nella Commercial Memory"));
   assert.match(commercial, /rfqh10_procurement_inbox/);
   assert.match(commercial, /item\.requires_action === true/);
-  assert.match(commercial, /Priorità non disponibili al momento/);
+  assert.match(priorities, /Segnalazioni RFQ non disponibili/);
   assert.match(commercial, /\?compose=1#commercial-ai-intake/);
   assert.match(commercial, /appRoutes\.commercial\.home/);
   assert.match(commercial, /appRoutes\.network\.directory/);

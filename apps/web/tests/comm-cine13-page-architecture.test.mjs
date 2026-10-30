@@ -4,13 +4,14 @@ import test from "node:test";
 
 const page = readFileSync(new URL("../app/(italian)/(workspace)/commercial/page.tsx", import.meta.url), "utf8");
 const list = readFileSync(new URL("../components/commercial-unified-worklist.tsx", import.meta.url), "utf8");
+const priorities = readFileSync(new URL("../components/commercial-director-priority-desk.tsx", import.meta.url), "utf8");
 
 test("COMM-UX6.A places technical actions before attention and deals without duplicate editors", () => {
   const positions = [
     'data-testid="comm-cine1-hero"',
     'data-testid="comm-cine13-first-workspace"',
     'data-testid="commercial-primary-quick-actions"',
-    'data-testid="commercial-compact-attention"',
+    "<CommercialDirectorPriorityDesk",
     "<CommercialUnifiedWorklist",
     'id="commercial-memory-panel"',
     'id="commercial-tools-panel"',
@@ -23,7 +24,8 @@ test("COMM-UX6.A places technical actions before attention and deals without dup
 });
 
 test("COMM-CINE13 removes duplicate status and filters while keeping real operational paths", () => {
-  assert.match(page, /aria-labelledby="commercial-today-heading" id="commercial-today"/);
+  assert.match(page, /<CommercialDirectorPriorityDesk/);
+  assert.match(priorities, /id="commercial-today" aria-labelledby="commercial-today-heading"/);
   assert.doesNotMatch(page, /data-testid="commercial-cockpit-tabs"/);
   assert.doesNotMatch(page, /Che cosa vuoi fare oggi\?/);
   assert.doesNotMatch(page, /Vista rapida delle trattative/);
