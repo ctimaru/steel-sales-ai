@@ -42,7 +42,7 @@ test("ONBOARDING-UX1 exposes one-click company access and registration in both l
   for (const path of ['"/login"', '"/register"', '"/en/login"', '"/en/register"']) {
     assert.ok(header.includes(path), "Missing company route " + path);
   }
-  for (const label of ["Area aziende", "Company area", '"Accedi"', '"Registrati"', '"Sign in"', '"Register"']) {
+  for (const label of ["Area aziende", "Company account", '"Accedi"', '"Registrati"', '"Sign in"', '"Register"']) {
     assert.ok(header.includes(label), "Missing label " + label);
   }
   assert.doesNotMatch(header, /href="\/network"|href="\/rfq-hub"|href="\/platform"/);
