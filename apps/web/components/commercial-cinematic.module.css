@@ -84,8 +84,8 @@
   --comm-cine14-ink: #143b2d;
 }
 .worklist :global([data-testid="comm-cine9-workspace-heading"]) {
-  border-radius: 18px;
-  background: linear-gradient(110deg, #f6faf7, #edf5ef);
+  border-radius: 14px;
+  background: #ffffff;
   box-shadow: none;
 }
 .worklist :global([data-testid="commercial-compact-filters"]) {
@@ -97,9 +97,6 @@
   border-color: var(--comm-cine14-outline);
   border-radius: 18px;
   box-shadow: 0 12px 38px -32px rgba(5,42,29,.42);
-}
-.worklist :global([data-testid="commercial-list-pane"] > div:first-child) {
-  background: #f9fcfa;
 }
 .worklist :global([data-testid="commercial-smart-deal-card"]) {
   min-width: 0;
