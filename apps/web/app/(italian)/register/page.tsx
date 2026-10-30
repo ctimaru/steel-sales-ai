@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { signup } from "@/app/login/actions";
+import { safeCommercialReturnTo, withCommercialReturnTo } from "@/lib/auth-next";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { PublicCompanyLookup } from "@/components/public-company-lookup";
@@ -35,9 +36,10 @@ type ClaimRegistrationContext = {
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string; company?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string; company?: string; return_to?: string }>; 
 }) {
-  const { error, message, claim_ref: rawClaimRef, company: companyHint } = await searchParams;
+  const { error, message, claim_ref: rawClaimRef, company: companyHint, return_to: requestedReturn } = await searchParams;
+  const returnTo = safeCommercialReturnTo(requestedReturn);
   const initialCompanySearch = String(companyHint ?? "").trim().slice(0, 120);
   const normalizedClaimRef = String(rawClaimRef ?? "").trim().toLowerCase();
   const claimRef = /^[0-9a-f]{64}$/.test(normalizedClaimRef)
@@ -48,9 +50,10 @@ export default async function RegisterPage({
     redirect("/#aziende");
   }
 
-  const registrationPath = claimRef
-    ? "/register?claim_ref=" + encodeURIComponent(claimRef)
-    : "/register";
+  const registrationPath = withCommercialReturnTo(
+    claimRef ? "/register?claim_ref=" + encodeURIComponent(claimRef) : "/register",
+    returnTo,
+  );
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
@@ -124,6 +127,7 @@ export default async function RegisterPage({
                   ) : null}
                   <PublicCompanyLookup
                     context="registration"
+                    returnTo={returnTo}
                     initialQuery={initialCompanySearch}
                     notFoundHref="#account"
                     notFoundLabel="Non è presente: continua con una nuova registrazione ↓"
@@ -165,6 +169,7 @@ export default async function RegisterPage({
                   </div>
                 ) : null}
 
+                {returnTo ? <p role="status" className="mt-4 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm text-[#173f35]">Il percorso verso la tua attività commerciale sarà conservato. I dati della distinta restano nel browser, non nell’email.</p> : null}
                 <form action={signup} className="mt-6 space-y-5">
                   <input type="hidden" name="next" value={registrationPath} />
                   <label className="block text-sm font-semibold text-[#43524c]">
@@ -262,7 +267,7 @@ export default async function RegisterPage({
     .maybeSingle();
 
   if (application && !["draft", "needs_information"].includes(application.application_status)) {
-    redirect("/registration/status");
+    redirect(withCommercialReturnTo("/registration/status", returnTo));
   }
 
   let claimContext: ClaimRegistrationContext | null = null;
@@ -392,6 +397,7 @@ export default async function RegisterPage({
                   ) : null}
               <PublicCompanyLookup
                 context="registration"
+                    returnTo={returnTo}
                 initialQuery={initialCompanySearch}
                 notFoundHref="#company-form"
                 notFoundLabel="Non è presente: compila una nuova azienda ↓"
@@ -419,7 +425,7 @@ export default async function RegisterPage({
               </Link>
             </div>
           ) : (
-            <CompanyRegistrationForm initial={formInitial} claim={activeClaim} />
+            <CompanyRegistrationForm initial={formInitial} claim={activeClaim} returnTo={returnTo} />
           )}
           </div>
         </div>
