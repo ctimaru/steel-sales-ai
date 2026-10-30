@@ -80,6 +80,9 @@ export default async function PlatformKnowledgePage({
             >
               Anteprima Listini ↗
             </Link>
+            <Link href="/platform/steel-pulse/workflow" className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold">
+              Steel Pulse · Workflow →
+            </Link>
             <Link
               href="/knowledge"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"

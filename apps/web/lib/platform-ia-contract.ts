@@ -168,6 +168,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/knowledge/[type]/[id]", module: "knowledge" },
   { path: "/platform/steel-pulse", module: "steelPulse" },
   { path: "/platform/steel-pulse/editorial", module: "steelPulse" },
+  { path: "/platform/steel-pulse/workflow", module: "steelPulse" },
   { path: "/platform/novita", module: "privateLab" },
   { path: "/platform/novita/listini/[versionId]", module: "privateLab" },
   { path: "/platform/product-analytics", module: "productAnalytics" },
