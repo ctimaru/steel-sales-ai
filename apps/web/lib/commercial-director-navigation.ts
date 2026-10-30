@@ -86,6 +86,7 @@ export function commercialDirectorLinkSelected(
     return view === null && !href.includes("#");
   }
   if (path === appRoutes.commercial.home) return false;
+  if (path === appRoutes.rfqHub.home) return pathname === path;
   if (path === appRoutes.rfqHub.inbox) return pathname === path;
   if (path === appRoutes.rfqHub.savedDistinte) return pathname === path || pathname.startsWith(path + "/");
   return pathname === path || pathname.startsWith(path + "/");
