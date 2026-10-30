@@ -69,6 +69,14 @@ async function publicChecks(width, language) {
       const bounds = await button.boundingBox();
       assert.ok(bounds && bounds.height >= 40 && bounds.x >= 0 &&
         bounds.x + bounds.width <= width + 1, width + " clipped account link " + name);
+      const ink = await button.evaluate(el => ({
+        computed: getComputedStyle(el).color,
+        webkit: getComputedStyle(el).webkitTextFillColor,
+      }));
+      if (href === registerPath) {
+        assert.equal(ink.computed, "rgb(17, 81, 58)", "Register CTA text must be dark green");
+        assert.equal(ink.webkit, "rgb(17, 81, 58)", "WebKit must not inherit white text");
+      }
       checks++;
     }
     await widthGuard(page, width + root + " homepage");
