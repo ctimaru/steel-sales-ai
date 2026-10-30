@@ -32,7 +32,7 @@ export function CommercialDirectorPriorityDesk({
   return (
     <section id="commercial-today" aria-labelledby="commercial-today-heading"
       data-testid="commercial-compact-actions"
-      className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-3 py-2 sm:px-4">
+      className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-3 py-2 sm:px-4 sm:py-1">
       <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
           <h2 id="commercial-today-heading" className="text-sm font-semibold text-[#173f35]">
@@ -40,12 +40,12 @@ export function CommercialDirectorPriorityDesk({
           </h2>
           <p className="sr-only">Decisioni da verificare e attività da riprendere, senza automatismi.</p>
         </div>
-        <Link href="#commercial-worklist" className="inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline-offset-2 hover:underline">
+        <Link href="#commercial-worklist" className="inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline-offset-2 hover:underline sm:min-h-0">
           Le mie trattative →
         </Link>
       </div>
-      <div className="grid min-w-0 gap-1.5 sm:grid-cols-2" data-testid="commercial-compact-attention">
-        <div className="min-w-0 rounded-xl border border-[#d7e5dc] bg-white px-2.5 py-1.5" data-testid="commercial-director-rfq-priorities">
+      <div className="grid min-w-0 gap-1.5 sm:grid-cols-2 sm:gap-1" data-testid="commercial-compact-attention">
+        <div className="min-w-0 rounded-xl border border-[#d7e5dc] bg-white px-2.5 py-1.5 sm:py-1" data-testid="commercial-director-rfq-priorities">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <p className="text-[11px] font-bold uppercase tracking-[0.07em] text-[#386c55]">RFQ · Da verificare</p>
             <Link href={appRoutes.rfqHub.inbox} className="inline-flex min-h-8 items-center text-xs font-semibold text-[#175640] hover:underline">
@@ -79,7 +79,7 @@ export function CommercialDirectorPriorityDesk({
             </>
           )}
         </div>
-        <div className="min-w-0 rounded-xl border border-[#d7e5dc] bg-white px-2.5 py-1.5" data-testid="commercial-director-resume">
+        <div className="min-w-0 rounded-xl border border-[#d7e5dc] bg-white px-2.5 py-1.5 sm:py-1" data-testid="commercial-director-resume">
           <p className="text-[11px] font-bold uppercase tracking-[0.07em] text-[#386c55]">Riprendi il lavoro</p>
           {resume && resumeHref ? (
             <>
