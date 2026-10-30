@@ -4,9 +4,8 @@ import { PublicHomeNavigation } from "./public-home-navigation";
 import { PublicPageLanguageSelector } from "./calculator-page-language-selector";
 
 /**
- * HOME-CONV1A: calculator-first action persists during scroll while the
- * secondary menu scrolls out. Native <details> keeps access choice simple,
- * with no JS hydration or changes to auth/onboarding.
+ * ONBOARDING-UX1: direct, one-click Sign in and Register links share the
+ * existing static header. No client auth lookup or additional JS hydration.
  */
 export function PublicHomeHeader({ locale }: { locale: "it" | "en" }) {
   const en = locale === "en";
