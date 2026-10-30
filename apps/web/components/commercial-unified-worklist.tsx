@@ -86,8 +86,11 @@ async function SelectedDetail({
           </div>
         ) : null}
       </dl>
+      <CommercialDealIntelligence facts={facts} />
       {detail ? (
-        <div className="space-y-3">
+        <details data-testid="commercial-deal-technical-details" className="rounded-xl border border-[var(--border)] bg-white p-3 text-xs">
+          <summary className="cursor-pointer font-semibold text-[var(--brand-deep)]">Approfondimenti tecnici e tracciabilità</summary>
+          <div className="mt-3 space-y-3">
           {detail.metadata.length ? (
             <dl className="space-y-1.5 text-xs">
               {detail.metadata.map((row) => (
@@ -114,7 +117,8 @@ async function SelectedDetail({
           {detail.relationshipLinks.map((link) => (
             <Link key={link.href} href={link.href} className="block text-xs font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">{link.label} →</Link>
           ))}
-        </div>
+          </div>
+        </details>
       ) : inboundKind ? (
         <p role="status" className="text-xs text-[var(--text-secondary)]">Dettaglio non disponibile per il tuo accesso. Non vengono mostrati dati di altre aziende.</p>
       ) : (
@@ -135,7 +139,6 @@ async function SelectedDetail({
           ) : null}
         </div>
       )}
-      <CommercialDealIntelligence facts={facts} />
       <section aria-labelledby="commercial-deal-next-step" data-testid="commercial-deal-next-step"
         className="rounded-xl border border-[#b5d7c3] bg-[#f3f9f5] p-3 sm:p-4">
         <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Prossimo passo</p>
