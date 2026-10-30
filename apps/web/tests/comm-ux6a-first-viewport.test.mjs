@@ -26,7 +26,7 @@ test("COMM-UX6.A exposes calculator, private Distinte, new request before the ac
     "comm-cine1-hero",
     "comm-cine13-first-workspace",
     "commercial-primary-quick-actions",
-    "commercial-compact-attention",
+    "<CommercialDirectorPriorityDesk",
     "<CommercialUnifiedWorklist",
   ];
   const positions = steps.map((key) => page.indexOf(key));
