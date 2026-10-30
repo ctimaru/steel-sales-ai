@@ -227,19 +227,17 @@ export async function CommercialUnifiedWorklist({
     : [];
 
   return (
-    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-4 " + cinematic.worklist}>
-      <div data-testid="comm-cine9-workspace-heading" className="relative overflow-hidden rounded-[24px] border border-[#d8e8dc] bg-[#f5faf6] px-5 py-5 sm:px-7 sm:py-6">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-14 -top-24 h-64 w-64 rounded-full bg-[#d8eadb]/65 blur-3xl" />
-        <div className="relative flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-[660px]">
-            <p className="text-[10px] font-bold uppercase tracking-[0.19em] text-[#386b50]">Il tuo spazio di lavoro / Deal cockpit</p>
-            <h2 id="commercial-worklist-title" className="mt-2 text-[clamp(1.6rem,2.55vw,2.45rem)] font-semibold leading-[1.12] tracking-[-0.035em] text-[#123c2f]">Le mie trattative</h2>
-            <p className="mt-3 max-w-[520px] text-sm leading-6 text-[#52695d]">Ogni richiesta, offerta e ordine ha il suo contesto. Seleziona una trattativa per lavorarci senza perdere il filo.</p>
-          </div>
-          <div className="flex items-center gap-2 rounded-full border border-[#c7dece] bg-white/80 px-3 py-2 text-xs font-semibold text-[#276147]">
-            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[#4d9567]" />
-            {data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} attività in questa vista
-          </div>
+    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-3 " + cinematic.worklist}>
+      <div data-testid="comm-cine9-workspace-heading"
+        className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-[#dce8df] bg-white px-4 py-3 sm:px-5">
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#386b50]">Workspace commerciale / Deal cockpit</p>
+          <h2 id="commercial-worklist-title" className="mt-0.5 text-xl font-semibold leading-tight tracking-[-0.025em] text-[#123c2f]">
+            Le mie trattative
+          </h2>
+        </div>
+        <div className="shrink-0 rounded-full border border-[#c7dece] bg-[#f6faf7] px-3 py-1.5 text-xs font-semibold tabular-nums text-[#276147]">
+          {data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} attività in questa vista
         </div>
       </div>
 
@@ -292,7 +290,7 @@ export async function CommercialUnifiedWorklist({
 
       <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(380px,0.9fr)]" : "grid min-w-0 gap-4"} data-testid="comm-cine2-split-view">
         <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-[22px] border border-[#dce7e0] bg-white shadow-[0_18px_55px_-40px_rgba(4,46,32,0.50)]"}>
-          <div className="flex items-center justify-between border-b border-[#e0ebe3] bg-[#fafdfa] px-5 py-4">
+          <div className="flex items-center justify-between border-b border-[#e0ebe3] bg-[#fafdfa] px-4 py-2.5">
             <p className="text-sm font-semibold tracking-tight text-[#173f35]">Trattative e attività</p>
             <span className="text-xs tabular-nums text-[var(--text-secondary)]">{data.paging?.exact && data.paging.total !== null
               ? data.paging.total + " totali"
@@ -303,25 +301,26 @@ export async function CommercialUnifiedWorklist({
               {filtered.map((item) => (
                 <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
                   aria-current={item.key === active?.key ? "true" : undefined}
-                  className={"group flex min-h-[88px] items-center justify-between gap-3 border-l-[3px] px-4 py-3 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
+                  className={"group grid min-h-[70px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 border-l-[3px] px-3 py-2 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] sm:px-4 " +
                     (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : "border-l-transparent")}>
-                  <div className="min-w-0 flex-1 space-y-1" data-testid="commercial-smart-deal-card">
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                      <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</p>
+                  <div className="min-w-0 space-y-0.5" data-testid="commercial-smart-deal-card">
+                    <div className="flex min-w-0 items-center gap-1.5 text-[10px] leading-4">
+                      <span className="shrink-0 font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</span>
                       <span aria-hidden="true" className="text-[var(--text-secondary)]">·</span>
-                      <span className="truncate text-[10px] text-[var(--text-secondary)]">{item.origin}</span>
+                      <span className="min-w-0 truncate text-[var(--text-secondary)]">{item.origin}</span>
                     </div>
-                    <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)]">{item.title}</p>
-                    <p className="line-clamp-2 text-xs leading-4 text-[var(--text-secondary)]">{item.subtitle}</p>
-                    <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                      <span className="rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold text-[var(--brand-deep)]">{item.status}</span>
+                    <p className="truncate text-sm font-semibold leading-5 text-[var(--brand-deep)]">{item.title}</p>
+                    {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)]">{item.subtitle}</p> : null}
+                  </div>
+                  <div className="flex min-w-[64px] max-w-[120px] flex-col items-end gap-1 text-right sm:min-w-[104px] sm:max-w-[180px]">
+                    <span className="max-w-full truncate rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold leading-4 text-[var(--brand-deep)]" title={item.status}>{item.status}</span>
+                    <div className="flex items-center gap-2">
                       {item.at ? <time className="text-[10px] tabular-nums text-[var(--text-secondary)]">{formatHubDate(item.at)}</time> : null}
+                      <span aria-hidden="true" className="text-[11px] font-semibold text-[var(--brand-primary)]">Apri →</span>
                     </div>
                   </div>
-                  <span aria-hidden="true" className="shrink-0 rounded-lg border border-[var(--border)] px-2 py-1 text-xs font-semibold text-[var(--brand-primary)]">Apri →</span>
                 </Link>
-              ))}
-            </div>
+              ))}           </div>
           ) : (
             <div className="p-5">
               <p className="text-sm font-semibold text-[var(--brand-deep)]">Nessuna attività in questa vista</p>
