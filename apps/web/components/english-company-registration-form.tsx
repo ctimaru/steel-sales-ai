@@ -22,8 +22,8 @@ const types = [
 ] as const;
 const steps = ["Company identity", "Operations and contact", "Review and submit"] as const;
 
-export function EnglishCompanyRegistrationForm({ initial, claim }: {
-  initial?: CompanyApplication | null; claim?: Claim | null;
+export function EnglishCompanyRegistrationForm({ initial, claim, returnTo }: {
+  initial?: CompanyApplication | null; claim?: Claim | null; returnTo?: string | null;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -66,6 +66,7 @@ export function EnglishCompanyRegistrationForm({ initial, claim }: {
   return (
     <form ref={formRef} action={saveAndSubmitCompanyRegistration} onSubmit={submit} className="mt-8">
       <input type="hidden" name="registration_locale" value="en" />
+      {returnTo ? <input type="hidden" name="return_to" value={returnTo} /> : null}
       {claim ? <input type="hidden" name="claim_ref" value={claim.claim_ref} /> : null}
       {claim ? (
         <aside className="mb-5 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] p-4 text-sm text-[#173f35]">
