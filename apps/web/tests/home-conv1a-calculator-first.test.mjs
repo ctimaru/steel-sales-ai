@@ -34,16 +34,17 @@ test("HOME-CONV1A starts with a real public calculator, not account registration
   assert.match(en, /export const dynamic = "force-static"/);
 });
 
-test("HOME-CONV1A has a single company-area menu with both safe auth paths", () => {
-  assert.match(header, /<details className="group relative">/);
-  assert.match(header, /<summary aria-label=/);
+test("ONBOARDING-UX1 exposes one-click company access and registration in both locales", () => {
+  assert.match(header, /<nav aria-label=/);
+  assert.match(header, /<Link href=\{loginHref\}/);
+  assert.match(header, /<Link href=\{registerHref\}/);
+  assert.doesNotMatch(header, /<details|<summary/);
   for (const path of ['"/login"', '"/register"', '"/en/login"', '"/en/register"']) {
     assert.ok(header.includes(path), "Missing company route " + path);
   }
-  assert.match(header, /Area aziende/);
-  assert.match(header, /Company area/);
-  assert.match(header, /L'accesso aziendale richiede revisione/);
-  assert.match(header, /Company access requires review/);
+  for (const label of ["Area aziende", "Company area", '"Accedi"', '"Registrati"', '"Sign in"', '"Register"']) {
+    assert.ok(header.includes(label), "Missing label " + label);
+  }
   assert.doesNotMatch(header, /href="\/network"|href="\/rfq-hub"|href="\/platform"/);
   assert.doesNotMatch(header, /"use client"|useEffect|useState|fetch\s*\(|createClient|onClick|<dialog|<iframe/);
 });
