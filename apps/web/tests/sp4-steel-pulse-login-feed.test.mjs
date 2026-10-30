@@ -95,7 +95,7 @@ test("SP4 keeps login first and Steel Pulse supplementary and accessible", () =>
   assert.match(login, /aria-label="Accesso al workspace"/);
   assert.match(login, /lg:grid-cols-\[minmax\(0,460px\)_minmax\(0,1fr\)\]/);
   assert.match(login, /<Suspense fallback=\{<SteelPulsePreview cards=\{\[\]\} \/>\}>/);
-  assert.match(login, /Registra o verifica l’azienda/);
+  assert.match(login, /Crea account/);
   assert.match(preview, /<aside[\s\S]*aria-labelledby="steel-pulse-heading"/);
   assert.match(preview, /id="steel-pulse"/);
   assert.match(preview, /In preparazione/);
