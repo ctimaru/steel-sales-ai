@@ -74,9 +74,9 @@ export default async function RegisterPage({
 
           <div className="mt-4 hidden max-w-3xl lg:block">
             <p className="app-kicker">Registrazione aziendale · Accesso gratuito</p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-[#123d34] sm:text-3xl">
+            <p className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-[#123d34] sm:text-3xl">
               {claimRef ? "Continua con il profilo selezionato" : "Crea il tuo account aziendale"}
-            </h1>
+            </p>
             <p className="mt-1 hidden text-sm leading-5 text-[#52615b] sm:block">
               Inizia dall’account. Puoi controllare se l’azienda è già presente prima o dopo la verifica email.
             </p>
