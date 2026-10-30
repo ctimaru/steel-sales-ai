@@ -309,7 +309,7 @@ export async function CommercialUnifiedWorklist({
                       <span aria-hidden="true" className="text-[var(--text-secondary)]">·</span>
                       <span className="min-w-0 truncate text-[var(--text-secondary)]">{item.origin}</span>
                     </div>
-                    <p className="truncate text-sm font-semibold leading-5 text-[var(--brand-deep)]">{item.title}</p>
+                    <p className="truncate text-sm font-semibold leading-5 text-[var(--brand-deep)]" title={item.title}>{item.title}</p>
                     {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)]">{item.subtitle}</p> : null}
                   </div>
                   <div className="flex min-w-[64px] max-w-[120px] flex-col items-end gap-1 text-right sm:min-w-[104px] sm:max-w-[180px]">
