@@ -84,8 +84,8 @@
   --comm-cine14-ink: #143b2d;
 }
 .worklist :global([data-testid="comm-cine9-workspace-heading"]) {
-  border-radius: 18px;
-  background: linear-gradient(110deg, #f6faf7, #edf5ef);
+  border-radius: 14px;
+  background: #ffffff;
   box-shadow: none;
 }
 .worklist :global([data-testid="commercial-compact-filters"]) {
