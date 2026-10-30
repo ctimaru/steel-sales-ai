@@ -14,8 +14,8 @@ test("COMM-UX6.D uses a compact, embedded checklist, not a second CRM or global 
   assert.match(summary, /Non disponibile qui:/);
   assert.match(summary, /Da confermare:/);
   assert.match(summary, /commercialDecisionReadiness\(kind, facts, canWrite\)/);
-  assert.match(worklist, /<CommercialDealDecisionReadiness facts=\\{facts\\} kind=\\{item\\.kind\\} canWrite=\\{canWrite\\} \\/>/);
-  assert.match(worklist, /<CommercialDealIntelligence facts=\\{facts\\} \\/>/);
+  assert.ok(worklist.includes("<CommercialDealDecisionReadiness facts={facts} kind={item.kind} canWrite={canWrite} />"));
+  assert.ok(worklist.includes("<CommercialDealIntelligence facts={facts} />"));
   const checksAt = worklist.indexOf("<CommercialDealDecisionReadiness");
   const actionAt = worklist.indexOf('data-testid="commercial-deal-next-step"');
   const metadataAt = worklist.indexOf('<dl className="grid grid-cols-2 gap-2 text-xs">');
