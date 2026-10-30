@@ -231,13 +231,13 @@ export async function CommercialUnifiedWorklist({
       <div data-testid="comm-cine9-workspace-heading"
         className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-[#dce8df] bg-white px-4 py-3 sm:px-5">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#386b50]">Workspace commerciale / Deal cockpit</p>
+          <p className="hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-[#386b50] sm:block">Workspace commerciale / Deal cockpit</p>
           <h2 id="commercial-worklist-title" className="mt-0.5 text-xl font-semibold leading-tight tracking-[-0.025em] text-[#123c2f]">
             Le mie trattative
           </h2>
         </div>
         <div className="shrink-0 rounded-full border border-[#c7dece] bg-[#f6faf7] px-3 py-1.5 text-xs font-semibold tabular-nums text-[#276147]">
-          {data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} attività in questa vista
+          {data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} <span className="sm:hidden">attività</span><span className="hidden sm:inline">attività in questa vista</span>
         </div>
       </div>
 
