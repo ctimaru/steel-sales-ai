@@ -83,7 +83,7 @@ try {
  assert.equal(await r.getByRole("button",{name:"Salva bozza privata"}).count(),0);
  await capture(r,"reviewer-factcheck");
  await r.locator('input[name="evidence"]').fill("https://example.org/test-fact-check");
- await r.locator('textarea[aria-label="Motivazione fact-check"]').fill("Controllato contenuto sintetico ed evidenza fittizia nell'ambiente temporaneo.");
+ await r.locator('form:has(input[name="decision"][value="editor_approve"]) textarea[name="reason"]').fill("Controllato contenuto sintetico ed evidenza fittizia nell'ambiente temporaneo.");
  await r.getByRole("button",{name:"Approva fact-check (non pubblica)"}).click();
  await r.waitForURL(u=>u.searchParams.get("outcome")==="approved",{timeout:45000});
  const rclient=await clientFor(reviewer);
