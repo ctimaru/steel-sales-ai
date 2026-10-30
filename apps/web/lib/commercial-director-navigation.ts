@@ -80,14 +80,40 @@ export function commercialDirectorLinkSelected(
 ): boolean {
   const [pathWithQuery] = href.split("#");
   const [path, search] = pathWithQuery.split("?");
+  const expectedView = new URLSearchParams(search ?? "").get("view");
+  const isPath = (base: string) => pathname === base || pathname.startsWith(base + "/");
+
+  // Deal detail pages and legacy bookmarks must retain the correct director
+  // context. Their URLs don't carry the homepage ?view filter.
+  if (isPath("/commercial/offers") || isPath("/offers")) {
+    return path === appRoutes.commercial.home && expectedView === "offers";
+  }
+  if (isPath("/commercial/orders") || isPath("/orders")) {
+    return path === appRoutes.commercial.home && expectedView === "orders";
+  }
+  if (isPath("/commercial/rfqs") || isPath("/rfqs")) {
+    return path === appRoutes.rfqHub.home;
+  }
+  if (isPath("/commercial/conversations") || isPath("/conversations")) {
+    return path === appRoutes.rfqHub.inbox;
+  }
+
   if (pathname === appRoutes.commercial.home && path === pathname) {
-    const expected = new URLSearchParams(search ?? "").get("view");
-    if (expected !== null) return expected === view;
+    if (expectedView !== null) return expectedView === view;
     return view === null && !href.includes("#");
   }
   if (path === appRoutes.commercial.home) return false;
-  if (path === appRoutes.rfqHub.home) return pathname === path;
-  if (path === appRoutes.rfqHub.inbox) return pathname === path;
-  if (path === appRoutes.rfqHub.savedDistinte) return pathname === path || pathname.startsWith(path + "/");
-  return pathname === path || pathname.startsWith(path + "/");
+
+  // A campaign, intelligence view or new Distinta belongs to Centro RFQ.
+  // Inbox, suppliers and saved Distinte have their own more specific item:
+  // never highlight both the parent and a child destination.
+  if (path === appRoutes.rfqHub.home) {
+    return isPath(path) && ![
+      appRoutes.rfqHub.inbox,
+      appRoutes.rfqHub.suppliers,
+      appRoutes.rfqHub.savedDistinte,
+    ].some(isPath);
+  }
+
+  return isPath(path);
 }
