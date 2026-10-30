@@ -35,6 +35,10 @@ try {
   await ordinaryPage.waitForURL(url => url.pathname !== "/platform/steel-pulse/editorial", { timeout: 45000 });
   assert.ok(!(await ordinaryPage.locator("body").innerText()).includes("Anteprima editoriale"));
   console.log("SP8.A PASS ordinary user denied");
+  await ordinaryPage.goto(base + "/platform/steel-pulse/workflow", { waitUntil: "domcontentloaded", timeout: 90000 });
+  await ordinaryPage.waitForURL(url => url.pathname !== "/platform/steel-pulse/workflow", { timeout: 45000 });
+  assert.equal(await ordinaryPage.getByRole("heading", { name: "Steel Pulse · Bozze e revisioni" }).count(), 0);
+  console.log("SP8.B PASS ordinary user denied");
   await ordinary.close();
 
   for (const width of [1440, 390, 320]) {
@@ -60,6 +64,19 @@ try {
     const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     assert.ok(overflow <= 1, "Horizontal overflow " + overflow + "px at viewport " + width);
     await page.screenshot({ path: path.join(dir, "sp8a-"+width+"-detail.png"), fullPage: true, animations: "disabled" });
+    await page.goto(base + "/platform/steel-pulse/workflow", { waitUntil: "domcontentloaded", timeout: 90000 });
+    await page.getByRole("heading", { name: "Steel Pulse · Bozze e revisioni" })
+      .waitFor({ state: "visible", timeout: 90000 });
+    assert.ok((await page.locator("body").innerText()).includes("SP7.2 sospeso"));
+    await page.getByRole("link", { name: /Apri/ }).first().click();
+    await page.getByRole("heading", { name: "Scheda e prossima azione" }).waitFor({ state: "visible" });
+    assert.equal(await page.getByRole("button", { name: /Salva bozza privata|Approva fact-check/ }).count(), 0,
+      "Candidate source must not expose draft or review mutations");
+    assert.ok((await page.locator("body").innerText()).includes("Nessuna azione consentita"));
+    const workflowOverflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    assert.ok(workflowOverflow <= 1, "SP8.B overflow " + workflowOverflow + "px at " + width);
+    await page.screenshot({ path: path.join(dir, "sp8b-"+width+"-workflow.png"), fullPage: true, animations: "disabled" });
+    console.log("SP8.B PASS owner auth, candidate source gated, mobile", width);
     console.log("SP8.A PASS real synthetic owner auth and visual", width);
     await context.close();
   }
