@@ -24,7 +24,6 @@ function DirectorMenuGroups({ mobile = false }: { mobile?: boolean }) {
         return (
           <details
             key={group.key + ":" + pathname + ":" + (view ?? "")}
-            open={undefined}
             defaultOpen={active || (!mobile && index < 2)}
             className="group rounded-xl border border-transparent open:border-[#e1ebe5] open:bg-[#f8fbf9]"
           >
@@ -46,7 +45,7 @@ function DirectorMenuGroups({ mobile = false }: { mobile?: boolean }) {
                     className={[
                       "block min-h-9 rounded-md px-3 py-2 text-xs leading-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]",
                       current
-                        ? "bg-[#175640] font-bold text-white"
+                        ? "app-selected-solid font-bold"
                         : "font-medium text-[#476458] hover:bg-[#eaf3ed] hover:text-[#123a2b]",
                     ].join(" ")}
                   >
