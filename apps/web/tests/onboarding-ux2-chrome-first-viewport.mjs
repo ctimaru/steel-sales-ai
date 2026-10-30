@@ -58,6 +58,17 @@ try {
             : page.locator("#company-check")].map(node => node.boundingBox())
         );
         assert.ok(cardBox && emailBox && signupBox && companyBox);
+        console.log("ONBOARDING-UX2 FIRST VIEWPORT", locale, width, {
+          accountY: Math.round(cardBox.y),
+          emailY: Math.round(emailBox.y),
+          ctaBottom: Math.round(signupBox.y + signupBox.height),
+          companyY: Math.round(companyBox.y),
+          height,
+        });
+        await page.screenshot({
+          path: path.join(folder, `register-${locale}-${width}.png`),
+          fullPage: false, animations: "disabled",
+        });
         assert.ok(cardBox.y < companyBox.y || width === 1440,
           "Account must come before optional lookup on mobile");
         assert.ok(emailBox.y < height * 0.68,
