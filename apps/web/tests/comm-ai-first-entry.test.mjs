@@ -11,7 +11,7 @@ test("Commerciale offers one role-gated AI entry before daily actions, with one 
   assert.match(companion, /data-testid="commercial-ai-first-cta"/);
   assert.match(companion, /onSubmit=\{startRequest\}/);
   assert.match(companion, /\?compose=1#commercial-ai-intake/);
-  assert.ok(page.indexOf("<CommercialAiCompanion") < page.indexOf('data-testid="commercial-compact-actions"'));
+  assert.ok(page.indexOf("<CommercialAiCompanion") < page.indexOf("<CommercialDirectorPriorityDesk"));
   assert.match(companion, /\{canWrite \? \(/);
   assert.equal((page.match(/<BuyerDistintaBuilder/g) || []).length, 1);
 });
