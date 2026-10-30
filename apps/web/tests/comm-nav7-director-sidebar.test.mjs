@@ -60,6 +60,6 @@ test("COMM-NAV7 is lateral on desktop and disclosure-based on mobile; keeps role
   assert.match(shell, /getWorkspaceNavigationContext\(pathname\)/);
   assert.match(appShell, /<WorkspaceCommercialDirectorShell>\{children\}<\/WorkspaceCommercialDirectorShell>/);
   assert.match(top, /if \(current === "home" \|\| current === "commercial"\) return null/);
-  assert.match(appShell, /canWriteWorkspace\(organizationRole\)/);
+  assert.match(appShell, /canWriteWorkspace\(role\)/);
   assert.doesNotMatch(shell + groups, /createAdminClient|service_role|autoDispatch|issuePurchaseOrder/);
 });
