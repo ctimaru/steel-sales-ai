@@ -55,6 +55,41 @@ async function verifyArea(page, route, selected) {
   }
   return nav;
 }
+/**
+ * Local Next.js DEV indicator diagnosis. The synthetic browser fixture must
+ * record the real warning, not suppress the red "1 Issue" badge with CSS.
+ * This never runs on production URLs and never copies credentials/cookies.
+ */
+async function inspectNextDevIndicator(page) {
+  return page.evaluate(() => {
+    const portal = document.querySelector("nextjs-portal");
+    if (!portal?.shadowRoot) return { present: false, visibleIssues: [], panelText: "" };
+    const collect = [];
+    const scan = root => {
+      for (const el of root.querySelectorAll("*")) {
+        if (el.shadowRoot) scan(el.shadowRoot);
+        if (!el.matches("button,[role='button'],[data-nextjs-toast],nextjs-toast")) continue;
+        const text = (el.innerText || el.textContent || el.getAttribute("aria-label") || "")
+          .replace(/\\s+/g, " ").trim().slice(0, 180);
+        if (!text) continue;
+        const css = getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0 && css.visibility !== "hidden" &&
+            css.display !== "none" && /\\b(?:\\d+\\s+Issues?|Error|Warning)\\b/i.test(text)) {
+          collect.push({ text, tag: el.tagName.toLowerCase() });
+        }
+      }
+    };
+    scan(portal.shadowRoot);
+    const content = portal.shadowRoot.textContent || "";
+    return {
+      present: true,
+      visibleIssues: collect.slice(0, 8),
+      panelText: content.replace(/\\s+/g, " ").trim().slice(-3500),
+    };
+  });
+}
+
 async function noHorizontalPageOverflow(page, label) {
   const sizes = await page.evaluate(() => ({
     client: document.documentElement.clientWidth,
@@ -225,6 +260,17 @@ try {
       }
       await page.screenshot({ path: path.join(screenshotsDir, "commercial-" + id + "-mobile.png"),
         fullPage: false, animations: "disabled" });
+      if (id === "buyer") {
+        const next = await inspectNextDevIndicator(page);
+        const issue = next.visibleIssues.some(x => /\\b\\d+\\s+Issues?\\b/i.test(x.text));
+        // Log ONLY synthetic local Next warning text; never browser storage or URLs.
+        console.log("COMM-NAV7 NEXT DEV INDICATOR", JSON.stringify({
+          present: next.present, visibleIssues: next.visibleIssues,
+          panelTail: issue ? next.panelText : "",
+        }));
+        assert.ok(!issue,
+          "Next dev displays issue badge after authenticated mobile navigation; see diagnostic above");
+      }
       console.log("COMM-UX1 PASS mobile 390px nav, search, roles:", id);
     } finally {
       await context.close();
