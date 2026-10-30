@@ -196,7 +196,7 @@ try {
     const page = await context.newPage();
     try {
       await signIn(page, p);
-      const nav = await verifyArea(page, "/commercial", "Cruscotto");
+      await verifyArea(page, "/commercial", "Cruscotto");
       await page.getByRole("heading", { name: "Le mie trattative" })
         .waitFor({ state: "visible", timeout: 60000 });
       await noHorizontalPageOverflow(page, "Commerciale 390px " + id);
