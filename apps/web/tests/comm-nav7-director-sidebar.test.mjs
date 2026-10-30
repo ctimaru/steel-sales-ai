@@ -63,3 +63,38 @@ test("COMM-NAV7 is lateral on desktop and disclosure-based on mobile; keeps role
   assert.match(appShell, /canWriteWorkspace\(role\)/);
   assert.doesNotMatch(shell + groups, /createAdminClient|service_role|autoDispatch|issuePurchaseOrder/);
 });
+
+test("COMM-NAV8 keeps a single director destination on deal details and legacy bookmarks", () => {
+  const selected = (pathname, view = null) => commercialDirectorGroups
+    .flatMap(group => group.items)
+    .filter(item => commercialDirectorLinkSelected(item.href, pathname, view))
+    .map(item => item.label);
+
+  assert.deepEqual(selected("/commercial/offers/offer-1"), ["Offerte"]);
+  assert.deepEqual(selected("/offers/offer-1"), ["Offerte"]);
+  assert.deepEqual(selected("/commercial/orders/order-1"), ["Ordini"]);
+  assert.deepEqual(selected("/orders/order-1"), ["Ordini"]);
+  assert.deepEqual(selected("/commercial/rfqs/request-1"), ["Centro RFQ"]);
+  assert.deepEqual(selected("/rfqs/request-1"), ["Centro RFQ"]);
+  assert.deepEqual(selected("/commercial/conversations/thread-1"), ["Inbox operativa"]);
+  assert.deepEqual(selected("/conversations/thread-1"), ["Inbox operativa"]);
+  assert.deepEqual(selected("/rfq-hub/campaign-1"), ["Centro RFQ"]);
+  assert.deepEqual(selected("/rfq-hub/intelligence"), ["Centro RFQ"]);
+  assert.deepEqual(selected("/rfq-hub/distinta"), ["Centro RFQ"]);
+  assert.deepEqual(selected("/rfq-hub/inbox"), ["Inbox operativa"]);
+  assert.deepEqual(selected("/rfq-hub/suppliers/abc"), ["Fornitori RFQ"]);
+  assert.deepEqual(selected("/rfq-hub/distinte/abc"), ["Distinte salvate"]);
+  assert.deepEqual(selected("/commercial?not-a-real-path"), [], "No accidental substring matching");
+  assert.deepEqual(selected("/commercial", "offers"), ["Offerte"]);
+  assert.deepEqual(selected("/commercial", "orders"), ["Ordini"]);
+});
+
+test("COMM-NAV8 mobile section closes after selection and preserves disclosure choices", () => {
+  assert.match(shell, /onClick=\{onNavigate\}/, "Anchor links must also dismiss mobile disclosure");
+  assert.match(shell, /onNavigate=\{\(\) => setMobileOpen\(false\)\}/);
+  assert.match(shell, /onToggle=\{event => setMobileOpen\(event.currentTarget.open\)\}/);
+  assert.match(shell, /setMobileOpen\(false\); \}, \[pathname, view\]/);
+  assert.match(shell, /Attuale: \{selectedLabel\}/, "Current location is visible before opening the menu");
+  assert.match(shell, /<DirectorGroup key=\{group.key\}/, "Do not remount accordions on every filter change");
+  assert.doesNotMatch(shell, /group.key \+ ":" \+ pathname/, "Preserve user expansion choices");
+});

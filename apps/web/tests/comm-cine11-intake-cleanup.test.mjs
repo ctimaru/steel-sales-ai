@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const page = readFileSync(new URL("../app/(italian)/(workspace)/commercial/page.tsx", import.meta.url), "utf8");
+const priorities = readFileSync(new URL("../components/commercial-director-priority-desk.tsx", import.meta.url), "utf8");
 const assistant = readFileSync(new URL("../components/commercial-ai-companion.tsx", import.meta.url), "utf8");
 const intake = readFileSync(new URL("../components/rfq-ai-intake-ux.tsx", import.meta.url), "utf8");
 const handoff = readFileSync(new URL("../lib/commercial-ai-intake-handoff.ts", import.meta.url), "utf8");
@@ -20,9 +21,10 @@ test("COMM-CINE11 transfers only explicitly submitted free text into the existin
 });
 
 test("COMM-CINE12 keeps attention but removes the duplicate activity action bar", () => {
-  assert.match(page, /data-testid="commercial-compact-attention"/);
-  assert.match(page, /Cosa richiede attenzione/);
-  assert.match(page, /id="commercial-today-heading"/);
+  assert.match(page, /<CommercialDirectorPriorityDesk/);
+  assert.match(priorities, /data-testid="commercial-compact-attention"/);
+  assert.match(priorities, /Cosa richiede attenzione/);
+  assert.match(priorities, /id="commercial-today-heading"/);
   assert.doesNotMatch(page, /Che cosa vuoi fare oggi\?/);
   assert.match(page, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.match(page, /<CommercialUnifiedWorklist/);

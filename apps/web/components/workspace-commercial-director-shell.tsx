@@ -11,13 +11,14 @@ import {
 import { getWorkspaceNavigationContext } from "@/lib/workspace-information-architecture";
 
 function DirectorGroup({
-  group, index, mobile, pathname, view,
+  group, index, mobile, pathname, view, onNavigate,
 }: {
   group: (typeof commercialDirectorGroups)[number];
   index: number;
   mobile: boolean;
   pathname: string;
   view: string | null;
+  onNavigate?: () => void;
 }) {
   const active = group.items.some(item =>
     commercialDirectorLinkSelected(item.href, pathname, view)
@@ -47,6 +48,7 @@ function DirectorGroup({
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               aria-current={current ? "page" : undefined}
               className={[
                 "block min-h-9 rounded-md px-3 py-2 text-xs leading-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]",
@@ -64,30 +66,54 @@ function DirectorGroup({
   );
 }
 
-function DirectorMenuGroups({ mobile = false }: { mobile?: boolean }) {
+function DirectorMenuGroups({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
   const pathname = usePathname();
   const view = useSearchParams().get("view");
   return (
     <div className="space-y-1.5" data-testid="commercial-director-groups">
       {commercialDirectorGroups.map((group, index) => (
-        <DirectorGroup key={group.key + ":" + pathname + ":" + (view ?? "")}
-          group={group} index={index} mobile={mobile} pathname={pathname} view={view} />
+        <DirectorGroup key={group.key}
+          group={group} index={index} mobile={mobile} pathname={pathname} view={view}
+          onNavigate={onNavigate} />
       ))}
     </div>
   );
 }
 
 function CommercialDirectorNavigation({ mobile = false }: { mobile?: boolean }) {
+  const pathname = usePathname();
+  const view = useSearchParams().get("view");
+  const [mobileOpen, setMobileOpen] = useState(false);
+  let selectedLabel: string | undefined;
+  for (const group of commercialDirectorGroups) {
+    for (const item of group.items) {
+      if (commercialDirectorLinkSelected(item.href, pathname, view)) {
+        selectedLabel = item.label;
+        break;
+      }
+    }
+    if (selectedLabel) break;
+  }
+
+  // Close the mobile disclosure after a route/filter change. Selecting an
+  // in-page anchor must close it too, even if the pathname does not change.
+  useEffect(() => { setMobileOpen(false); }, [pathname, view]);
+
   if (mobile) {
     return (
-      <details className="rounded-xl border border-[#cddfd2] bg-white shadow-sm xl:hidden"
+      <details open={mobileOpen}
+        onToggle={event => setMobileOpen(event.currentTarget.open)}
+        className="rounded-xl border border-[#cddfd2] bg-white shadow-sm xl:hidden"
         data-testid="commercial-director-mobile">
-        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold text-[#173f35] [&::-webkit-details-marker]:hidden">
-          <span>Sezioni Commerciale</span>
+        <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-2 text-sm font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden">
+          <span className="min-w-0">
+            <span className="block">Sezioni Commerciale</span>
+            {selectedLabel ? <span className="mt-0.5 block truncate text-[11px] font-normal text-[#547666]">Attuale: {selectedLabel}</span> : null}
+          </span>
           <span aria-hidden="true" className="text-lg text-[#34664d]">☰</span>
         </summary>
         <nav aria-label="Menu Commerciale mobile" className="border-t border-[#e0e9e3] p-2.5">
-          <DirectorMenuGroups mobile />
+          <DirectorMenuGroups mobile onNavigate={() => setMobileOpen(false)} />
         </nav>
       </details>
     );

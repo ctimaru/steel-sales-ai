@@ -10,6 +10,7 @@ import { CommercialCalculatorQuickAccess } from "@/components/commercial-calcula
 import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
 import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
+import { CommercialDirectorPriorityDesk } from "@/components/commercial-director-priority-desk";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
@@ -161,8 +162,11 @@ export default async function CommercialHomePage({
       }
     : null;
   const attentionTotal = procurementPayload?.summary?.attention_total;
-  const actionableRfqs = (procurementPayload?.items ?? []).filter((item) =>
-    item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id)
+  const actionableRfqs = (procurementPayload?.items ?? []).filter((item): item is {
+    rfq_id: string; headline?: string; requires_action?: boolean;
+  } =>
+    item.requires_action === true && typeof item.rfq_id === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.rfq_id)
   ).slice(0, 3);
   const metricCards = [
     { label: "Richieste nello storico", value: operational.rfqs },
@@ -237,33 +241,14 @@ export default async function CommercialHomePage({
         </div>
       </section>
 
-      <section aria-labelledby="commercial-today-heading" id="commercial-today" className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-4 py-2.5 sm:px-5" data-testid="commercial-compact-actions">
-        <h2 id="commercial-today-heading" className="mb-1 text-xs font-semibold text-[#173f35]">Cosa richiede attenzione</h2>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs" data-testid="commercial-compact-attention">
-          <div className="flex items-center gap-2">
-            <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53] underline-offset-2 hover:underline">Apri inbox →</Link>
-          </div>
-          {!canWrite ? (
-            <p className="text-[#53665b]">Consultazione in sola lettura; azioni riservate ai ruoli autorizzati.</p>
-          ) : procurementPayload === null ? (
-            <p className="text-[#53665b]">Priorità non disponibili al momento. Puoi comunque aprire le tue RFQ.</p>
-          ) : actionableRfqs.length ? (
-            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
-              {actionableRfqs.slice(0, 2).map((item) => (
-                <Link key={item.rfq_id} href={appRoutes.rfqHub.campaign(item.rfq_id!)}
-                  className="inline-flex min-h-9 max-w-full items-center gap-2 rounded-md border border-[#d6e5dd] bg-[#f7faf8] px-2.5 py-1.5 font-medium text-[#173f35] hover:border-[#8db9a2]">
-                  <span className="max-w-[19rem] truncate">{item.headline || "RFQ da gestire"}</span><span aria-hidden="true">→</span>
-                </Link>
-              ))}
-              {actionableRfqs.length > 2 ? (
-                <Link href={appRoutes.rfqHub.inbox} className="font-semibold text-[#246c53]">Altre priorità →</Link>
-              ) : null}
-            </div>
-          ) : (
-            <p className="text-[#53665b]">{attentionTotal === 0 ? "Nessuna azione buyer in sospeso." : "Controlla l’inbox per eventuali altre azioni."}</p>
-          )}
-        </div>
-      </section>
+      <CommercialDirectorPriorityDesk
+        canWrite={canWrite}
+        attentionTotal={attentionTotal}
+        actionableRfqs={actionableRfqs}
+        procurementAvailable={procurementPayload !== null}
+        data={displayedUnified}
+        view={view}
+      />
 
       {composing && catalogOptions ? (
         <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className="scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5">

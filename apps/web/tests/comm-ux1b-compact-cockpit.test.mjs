@@ -5,6 +5,7 @@ import test from "node:test";
 const read = (name) => fs.readFileSync(new URL(name, import.meta.url), "utf8");
 const commercial = read("../app/(italian)/(workspace)/commercial/page.tsx");
 const worklist = read("../components/commercial-unified-worklist.tsx");
+const priorities = read("../components/commercial-director-priority-desk.tsx");
 const focus = read("../components/focus-ui.tsx");
 const data = read("../lib/commercial-unified-data.ts");
 
@@ -20,17 +21,17 @@ test("COMM-UX1B uses opt-in compact layout without compressing other workspaces"
 });
 
 test("COMM-UX1B replaces the tall action cards with one accessible task strip", () => {
-  assert.match(commercial, /data-testid="commercial-compact-actions"/);
+  assert.match(commercial, /<CommercialDirectorPriorityDesk/);
   assert.match(commercial, /<CommercialAiCompanion canWrite=\{canWrite\}/);
-  assert.match(commercial, /data-testid="commercial-compact-attention"/);
-  assert.match(commercial, /aria-labelledby="commercial-today-heading"/);
-  assert.match(commercial, /Attività da gestire oggi|Cosa richiede attenzione/);
-  assert.match(commercial, /Cosa richiede attenzione/);
-  assert.match(commercial, /actionableRfqs\.slice\(0, 2\)/);
-  assert.match(commercial, /appRoutes\.rfqHub\.inbox/);
-  assert.match(commercial, /canWrite \? \(/);
-  assert.match(commercial, /Priorità non disponibili al momento/);
-  assert.match(commercial, /Consultazione in sola lettura/);
+  assert.match(priorities, /data-testid="commercial-compact-actions"/);
+  assert.match(priorities, /data-testid="commercial-compact-attention"/);
+  assert.match(priorities, /aria-labelledby="commercial-today-heading"/);
+  assert.match(priorities, /Cosa richiede attenzione/);
+  assert.match(priorities, /actionableRfqs\.slice\(0, 2\)/);
+  assert.match(priorities, /appRoutes\.rfqHub\.inbox/);
+  assert.match(priorities, /!canWrite \? \(/);
+  assert.match(priorities, /Segnalazioni RFQ non disponibili/);
+  assert.match(priorities, /Consultazione in sola lettura/);
   assert.doesNotMatch(commercial, /lg:grid-cols-\[1\.15fr_0\.85fr\]/);
 });
 
