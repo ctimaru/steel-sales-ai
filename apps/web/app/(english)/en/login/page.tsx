@@ -5,7 +5,7 @@ import { login } from "@/app/login/actions";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { Input } from "@/components/ui/input";
-import { safeInternalNext } from "@/lib/auth-next";
+import { registrationEntryForNext, safeCommercialReturnTo, safeInternalNext } from "@/lib/auth-next";
 import { privateNoIndexRobots } from "@/lib/seo";
 
 export const metadata: Metadata = { title: "Sign In — Smart Steel Sales", robots: privateNoIndexRobots };
@@ -15,7 +15,8 @@ export default async function EnglishLoginPage({ searchParams }: {
 }) {
   const { error, message, next } = await searchParams;
   const nextPath = safeInternalNext(next, "/en/register");
-  const registrationHref = nextPath.startsWith("/en/register") ? nextPath : "/en/register";
+  const registrationHref = registrationEntryForNext(nextPath, "en");
+  const returningToCommercial = Boolean(safeCommercialReturnTo(nextPath));
   return (
     <main lang="en" className="min-h-screen bg-[#f2f4f3] px-4 py-8 sm:px-6">
       <div className="mx-auto max-w-md">
@@ -29,7 +30,9 @@ export default async function EnglishLoginPage({ searchParams }: {
           <p className="mt-3 text-sm leading-6 text-[#52615b]">Continue an existing company application, or access your company workspace after approval. The private workspace currently uses Italian.</p>
           {error ? <p role="alert" className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] p-4 text-sm text-[#9f2f24]">Sign-in was unsuccessful. Check your credentials or verify your email, then try again.</p> : null}
           {message ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-4 text-sm">{message}</p> : null}
+          {returningToCommercial ? <p className="mt-4 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] p-4 text-sm text-[#173f35]">Your commercial workspace destination will be retained while you sign in or register.</p> : null}
           <form action={login} className="mt-6 space-y-4">
+            <input type="hidden" name="auth_locale" value="en" />
             <input type="hidden" name="next" value={nextPath} />
             <label className="block text-sm font-bold text-[#43524c]">Email
               <Input name="email" type="email" autoComplete="email" required className="mt-2 h-11" />
