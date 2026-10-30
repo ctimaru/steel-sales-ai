@@ -22,7 +22,7 @@ const DEMO_CARDS: readonly PulsePreviewCard[] = [
     category: "Mercato · Esempio",
     headline: "Tubi d’acciaio: quali fattori incidono sui prezzi?",
     summary: "Materie prime, geometrie, quantità e tempi di consegna da considerare.",
-    image: "/home-cine1e-steel-desktop.webp",
+    image: "/calculator/tube-round-384.webp",
   },
   {
     category: "Acquisti · Esempio",
@@ -34,7 +34,7 @@ const DEMO_CARDS: readonly PulsePreviewCard[] = [
     category: "Sostenibilità · Esempio",
     headline: "Acciaio a basse emissioni: cosa verificare",
     summary: "Dichiarazioni ambientali, tracciabilità e dati da richiedere ai fornitori.",
-    image: "/home-cine1a-steel.webp",
+    image: "/calculator/tube-rectangular-384.webp",
   },
 ];
 
