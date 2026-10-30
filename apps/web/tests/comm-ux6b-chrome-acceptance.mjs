@@ -138,6 +138,21 @@ try {
         const detail = page.locator("#commercial-detail");
         await detail.waitFor({ state: "visible", timeout: 60000 });
         await detail.getByRole("heading", { name: "Trattativa selezionata" }).waitFor({ state: "visible" });
+        const intelligence = detail.getByTestId("commercial-deal-intelligence");
+        await intelligence.waitFor({ state: "visible", timeout: 60000 });
+        await intelligence.getByRole("heading", { name: "Il quadro della trattativa" })
+          .waitFor({ state: "visible" });
+        const materialText = await intelligence.getByTestId("commercial-deal-materials").innerText();
+        assert.match(materialText, /(?:SHS 100x100x5|RHS 200x100x6)/);
+        assert.match(materialText, /EN 10219/);
+        assert.match(materialText, /S355J2H/);
+        const sourceText = await intelligence.getByTestId("commercial-deal-sources").innerText();
+        assert.match(sourceText, /RFQ e documenti originali/);
+        assert.match(sourceText, /Distinta privata originale/);
+        assert.doesNotMatch(await intelligence.innerText(), /DEMO Steel Manufacturing/);
+        await detail.getByRole("heading", { name: "Completa la RFQ e verifica i fornitori" })
+          .waitFor({ state: "visible" });
+
         const continueAction = detail.getByRole("link", { name: /Continua →|Apri dettaglio →/ });
         await continueAction.waitFor({ state: "visible" });
         const actualColors = await continueAction.evaluate(el => ({
