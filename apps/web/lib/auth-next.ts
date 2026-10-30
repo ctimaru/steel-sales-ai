@@ -41,7 +41,8 @@ export function safeCommercialReturnTo(
   if (!safe) return null;
   const url = new URL(safe, "https://smartsteelsales.local");
   const allowed = ["/distinta", "/rfq-hub", "/commercial", "/marketplace", "/network"];
-  if (!allowed.some((root) => url.pathname === root || url.pathname.startsWith(root + "/"))) {
+  const pathname = url.pathname.startsWith("/en/") ? url.pathname.slice(3) : url.pathname;
+  if (!allowed.some((root) => pathname === root || pathname.startsWith(root + "/"))) {
     return null;
   }
   // Exclude query strings (customer text, tokens, search terms) and fragments.
