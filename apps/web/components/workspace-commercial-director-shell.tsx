@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Suspense, type ReactNode } from "react";
+import { Suspense, useEffect, useState, type ReactNode } from "react";
 
 import {
   commercialDirectorGroups,
@@ -10,53 +10,69 @@ import {
 } from "@/lib/commercial-director-navigation";
 import { getWorkspaceNavigationContext } from "@/lib/workspace-information-architecture";
 
-function DirectorMenuGroups({ mobile = false }: { mobile?: boolean }) {
-  const pathname = usePathname();
-  const params = useSearchParams();
-  const view = params.get("view");
+function DirectorGroup({
+  group, index, mobile, pathname, view,
+}: {
+  group: (typeof commercialDirectorGroups)[number];
+  index: number;
+  mobile: boolean;
+  pathname: string;
+  view: string | null;
+}) {
+  const active = group.items.some(item =>
+    commercialDirectorLinkSelected(item.href, pathname, view)
+  );
+  const [expanded, setExpanded] = useState(active || (!mobile && index < 2));
+  useEffect(() => {
+    if (active) setExpanded(true);
+  }, [active]);
 
   return (
+    <details
+      open={expanded}
+      onToggle={event => setExpanded(event.currentTarget.open)}
+      className="group rounded-xl border border-transparent open:border-[#e1ebe5] open:bg-[#f8fbf9]"
+    >
+      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-bold text-[#25483b] hover:bg-[#edf5ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden">
+        <span className="min-w-0">
+          <span className="block">{group.label}</span>
+          <span className="mt-0.5 block text-[10px] font-normal text-[#687d72]">{group.description}</span>
+        </span>
+        <span aria-hidden="true" className="shrink-0 text-sm text-[#547666] transition group-open:rotate-90">›</span>
+      </summary>
+      <div className="space-y-0.5 px-1.5 pb-2 pt-0.5">
+        {group.items.map(item => {
+          const current = commercialDirectorLinkSelected(item.href, pathname, view);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={current ? "page" : undefined}
+              className={[
+                "block min-h-9 rounded-md px-3 py-2 text-xs leading-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]",
+                current
+                  ? "app-selected-solid font-bold"
+                  : "font-medium text-[#476458] hover:bg-[#eaf3ed] hover:text-[#123a2b]",
+              ].join(" ")}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </div>
+    </details>
+  );
+}
+
+function DirectorMenuGroups({ mobile = false }: { mobile?: boolean }) {
+  const pathname = usePathname();
+  const view = useSearchParams().get("view");
+  return (
     <div className="space-y-1.5" data-testid="commercial-director-groups">
-      {commercialDirectorGroups.map((group, index) => {
-        const active = group.items.some(item =>
-          commercialDirectorLinkSelected(item.href, pathname, view)
-        );
-        return (
-          <details
-            key={group.key + ":" + pathname + ":" + (view ?? "")}
-            defaultOpen={active || (!mobile && index < 2)}
-            className="group rounded-xl border border-transparent open:border-[#e1ebe5] open:bg-[#f8fbf9]"
-          >
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-bold text-[#25483b] hover:bg-[#edf5ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden">
-              <span className="min-w-0">
-                <span className="block">{group.label}</span>
-                <span className="mt-0.5 block text-[10px] font-normal text-[#687d72]">{group.description}</span>
-              </span>
-              <span aria-hidden="true" className="shrink-0 text-sm text-[#547666] transition group-open:rotate-90">›</span>
-            </summary>
-            <div className="space-y-0.5 px-1.5 pb-2 pt-0.5">
-              {group.items.map(item => {
-                const current = commercialDirectorLinkSelected(item.href, pathname, view);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={current ? "page" : undefined}
-                    className={[
-                      "block min-h-9 rounded-md px-3 py-2 text-xs leading-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]",
-                      current
-                        ? "app-selected-solid font-bold"
-                        : "font-medium text-[#476458] hover:bg-[#eaf3ed] hover:text-[#123a2b]",
-                    ].join(" ")}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </details>
-        );
-      })}
+      {commercialDirectorGroups.map((group, index) => (
+        <DirectorGroup key={group.key + ":" + pathname + ":" + (view ?? "")}
+          group={group} index={index} mobile={mobile} pathname={pathname} view={view} />
+      ))}
     </div>
   );
 }
