@@ -55,7 +55,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-[#123b34] sm:text-3xl">
               {claimRef ? "Continue with your company profile" : "Create your company account"}
             </h1>
-            <p className="mt-1 text-sm leading-5 text-[#52615b]">
+            <p className="mt-1 hidden text-sm leading-5 text-[#52615b] sm:block">
               Start with your account. You can check your company now or after verifying your email.
             </p>
           </div>
