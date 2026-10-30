@@ -308,9 +308,9 @@ try {
       await page.waitForFunction(() => {
         const disclosure = document.querySelector('[data-testid="commercial-director-mobile"]');
         return disclosure instanceof HTMLDetailsElement && !disclosure.open;
-      }, { timeout: 15000 });
+      }, null, { timeout: 15000 });
       const navDisclosure = page.getByTestId("commercial-director-mobile");
-      assert.match(await navDisclosure.locator("summary").innerText(), /Attuale: Analisi commerciale/);
+      assert.match(await navDisclosure.locator("summary").first().innerText(), /Attuale: Analisi commerciale/);
       console.log("COMM-NAV8 PASS mobile disclosure closes after navigation:", id);
       await verifyArea(page, "/commercial/analysis", "Analisi commerciale");
       await noHorizontalPageOverflow(page, "Analisi 390px " + id);
