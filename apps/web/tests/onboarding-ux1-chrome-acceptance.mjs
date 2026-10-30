@@ -33,6 +33,23 @@ async function widthGuard(page, label) {
     client: document.documentElement.clientWidth,
     scroll: document.documentElement.scrollWidth,
   }));
+  if (dims.scroll > dims.client + 12) {
+    const offenders = await page.evaluate(() =>
+      Array.from(document.querySelectorAll("body *"))
+        .map(el => ({ element: el, rect: el.getBoundingClientRect() }))
+        .filter(row => row.rect.width > 0 && row.rect.right > document.documentElement.clientWidth + 3)
+        .sort((a, b) => b.rect.right - a.rect.right)
+        .slice(0, 12)
+        .map(({ element, rect }) => ({
+          tag: element.tagName.toLowerCase(),
+          class: String(element.className || "").slice(0, 130),
+          right: Math.round(rect.right),
+          width: Math.round(rect.width),
+          text: String(element.textContent || "").trim().slice(0, 55),
+        }))
+    );
+    console.error("ONBOARDING-UX1 MOBILE OVERFLOW DIAGNOSTIC", label, JSON.stringify(offenders));
+  }
   assert.ok(dims.scroll <= dims.client + 12, label + " overflows: " + JSON.stringify(dims));
   checks++;
 }
