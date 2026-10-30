@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { PilotEvent } from "@/components/pilot-event";
+import { WorkspaceHomePanels } from "@/components/workspace-home-panels";
 import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { getCompanySetupState } from "@/lib/company-setup";
 import { DashboardSteelPulse } from "@/components/dashboard-steel-pulse";
@@ -224,29 +225,46 @@ export default async function DashboardPage({
         }
       />
 
-      <section aria-labelledby="quick-actions" className="overflow-hidden rounded-2xl border border-[#c5d8cd] bg-[linear-gradient(120deg,#edf6f0_0%,#ffffff_72%)] px-4 py-4 sm:px-5 sm:py-5">
+      {params.engagement_updated === "1" ? (
+        <p role="status" aria-live="polite" className="rounded-lg border border-[#b9d8ca] bg-[#eaf5ef] px-3 py-2 text-xs font-semibold text-[#175640]">
+          La tua raccolta Steel Pulse è stata aggiornata.
+        </p>
+      ) : null}
+      {params.engagement_error ? (
+        <p role="alert" className="rounded-lg border border-[#e7d0a8] bg-[#fff8ed] px-3 py-2 text-xs text-[#815017]">
+          Impossibile aggiornare l’articolo. Riprova più tardi.
+        </p>
+      ) : null}
+
+      <WorkspaceHomePanels
+        attentionCount={attentionCount}
+        overview={
+          <div className="space-y-3">
+            <div className="grid min-w-0 items-start gap-3 lg:grid-cols-[minmax(0,1.85fr)_minmax(275px,0.85fr)]">
+              <div className="min-w-0 space-y-3">
+      <section aria-labelledby="quick-actions" className="overflow-hidden rounded-2xl border border-[#c5d8cd] bg-[linear-gradient(120deg,#edf6f0_0%,#ffffff_72%)] px-4 py-3.5 sm:px-5 sm:py-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#28634f]">Il tuo punto di partenza</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#28634f]">Steel Intelligence · Strumenti operativi</p>
             <h2 id="quick-actions" className="mt-1 text-lg font-semibold tracking-tight text-[#173f35] sm:text-xl">
-              Dalle informazioni alle opportunità.
+              Come posso aiutarti oggi?
             </h2>
             <p className="mt-1 max-w-2xl text-xs leading-5 text-[#52645a] sm:text-sm">
-              Gestisci il lavoro commerciale e trova aziende industriali da un unico spazio.
+              Dalle informazioni alle opportunità. Cerca nello storico aziendale o apri gli strumenti commerciali già disponibili.
             </p>
           </div>
           <Link
-            href={appRoutes.commercial.home}
+            href={appRoutes.commercial.assistant}
             className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-[#176045] px-4 text-xs font-semibold text-white transition hover:bg-[#114b36] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
           >
-            Apri Commerciale <span aria-hidden="true">→</span>
+            Apri assistente AI <span aria-hidden="true">→</span>
           </Link>
         </div>
 
         <Link
           href={appRoutes.commercial.search}
           aria-label="Cerca RFQ, offerte, ordini, aziende e documenti nello storico commerciale"
-          className="mt-4 flex min-h-12 min-w-0 items-center gap-3 rounded-xl border border-[#c2d7ca] bg-white px-3 text-left shadow-[0_2px_10px_rgba(18,61,52,0.04)] transition hover:border-[#82b099] hover:bg-[#f9fcfa] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045] sm:px-4"
+          className="mt-3 flex min-h-12 min-w-0 items-center gap-3 rounded-xl border border-[#c2d7ca] bg-white px-3 text-left shadow-[0_2px_10px_rgba(18,61,52,0.04)] transition hover:border-[#82b099] hover:bg-[#f9fcfa] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045] sm:px-4"
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4 shrink-0 text-[#32654f]">
             <circle cx="10.8" cy="10.8" r="6.8" />
@@ -258,7 +276,7 @@ export default async function DashboardPage({
           <span className="shrink-0 text-[11px] font-semibold text-[#176045]">Cerca <span aria-hidden="true">↗</span></span>
         </Link>
 
-        <div data-testid="quick-action-shortcuts" className="mt-3 flex flex-wrap items-center gap-2">
+        <div data-testid="quick-action-shortcuts" className="mt-2 flex flex-wrap items-center gap-2">
           <span aria-hidden="true" className="mr-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#53675b]">Azioni rapide</span>
           {orderedQuickActions.map((action) => (
             <Link
@@ -274,6 +292,61 @@ export default async function DashboardPage({
         </div>
       </section>
 
+
+                {attentionCount > 0 ? (
+                  <section aria-label="Priorità in evidenza" className="rounded-xl border border-[#e5d1ae] bg-[#fffbf4] px-3 py-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h2 className="text-sm font-semibold text-[#173f35]">Richiede la tua attenzione</h2>
+                      <span className="rounded-full bg-[#f4e9d6] px-2 py-0.5 text-[11px] font-semibold tabular-nums text-[#805c31]">{attentionCount} da gestire</span>
+                    </div>
+                    {attentionItems.slice(0, 1).map((item) => (
+                      <Link key={item.href} href={item.href} className="mt-2 flex min-h-11 items-center justify-between gap-3 rounded-lg border border-[#eadbc4] bg-white px-3 py-2 text-xs font-semibold text-[#173f35] hover:bg-[#fffaf1] focus-visible:outline-2 focus-visible:outline-offset-2">
+                        <span className="min-w-0 truncate">{item.title}</span><span className="shrink-0 text-[#175640]">Apri →</span>
+                      </Link>
+                    ))}
+                  </section>
+                ) : null}
+              </div>
+              <div className="min-w-0 space-y-3">
+          <section aria-label="Indicatori commerciali" className="rounded-2xl border border-[#dce5df] bg-white p-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold text-[#173f35]">Il tuo Workspace</h2>
+              <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-[#175640] underline underline-offset-4">
+                Apri →
+              </Link>
+            </div>
+            {mode === "live" && operationalKpis.length > 0 ? (
+              <>
+                <dl className="mt-3 grid grid-cols-3 gap-2">
+                  {operationalKpis.map((kpi) => (
+                    <div key={kpi.label} className="min-w-0 rounded-xl bg-[#f3f8f5] px-2 py-3 text-center">
+                      <dd className="metric-number text-xl font-semibold tabular-nums text-[#173f35]">{kpi.value.toLocaleString("it-IT")}</dd>
+                      <dt className="mt-1 text-[10px] leading-4 text-[#53645b]">{kpi.label}</dt>
+                    </div>
+                  ))}
+                </dl>
+                <p className="mt-2 text-[11px] leading-4 text-[#68766d]">Totali registrati · non rappresentano attività aperte.</p>
+              </>
+            ) : (
+              <p role="status" className="mt-3 text-xs leading-5 text-[#52615b]">
+                I dati commerciali non sono disponibili o non ancora associati al workspace. Nessun dato dimostrativo viene mostrato come reale.
+              </p>
+            )}
+          </section>
+
+              </div>
+            </div>
+          </div>
+        }
+        tasks={
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#22634f]">Il tuo prossimo passo</p>
+                <h2 className="mt-1 text-lg font-semibold text-[#173f35]">Da fare adesso</h2>
+              </div>
+              <Link href={appRoutes.commercial.home} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">Apri Commerciale →</Link>
+            </div>
       {attentionCount > 0 ? (
         <section aria-labelledby="daily-priorities" className="rounded-2xl border border-[#e7d4b4] bg-[#fffbf5] px-3 py-3 sm:px-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
@@ -322,86 +395,12 @@ export default async function DashboardPage({
         </section>
       ) : null}
 
-      {params.engagement_updated === "1" ? (
-        <p role="status" aria-live="polite" className="rounded-lg border border-[#b9d8ca] bg-[#eaf5ef] px-3 py-2 text-xs font-semibold text-[#175640]">
-          La tua raccolta Steel Pulse è stata aggiornata.
-        </p>
-      ) : null}
-      {params.engagement_error ? (
-        <p role="alert" className="rounded-lg border border-[#e7d0a8] bg-[#fff8ed] px-3 py-2 text-xs text-[#815017]">
-          Impossibile aggiornare l’articolo. Riprova più tardi.
-        </p>
-      ) : null}
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.85fr)_minmax(275px,0.85fr)] lg:gap-6">
-        <div className="min-w-0 space-y-4">
-          {/* DASH-NEXT1C.1: actionable permitted discovery before large navigation cards and news. */}
-          <DashboardDiscoveryFeed
-            networkEnabled={networkEnabled}
-            networkEntitled={networkEntitled}
-            activity={activity.items}
-            marketplace={marketplace}
-            interests={pulse.interests}
-            networkCompanies={networkCompanies}
-            networkDiscoveryAvailable={networkCatalog !== null}
-            canWriteCommercial={canWrite}
-          />
-          <section aria-label="Aree di lavoro" className="grid gap-3 sm:grid-cols-2">
-            <Link
-              href={appRoutes.commercial.home}
-              className="group flex min-h-[146px] flex-col justify-between rounded-2xl border border-[#d9e5dc] bg-white p-4 transition hover:border-[#9ebfac] hover:shadow-[0_5px_22px_rgba(18,61,52,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
-            >
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#537263]">01 / Commerciale</p>
-                <h2 className="mt-2 text-base font-semibold text-[#173f35]">Richieste, offerte e ordini</h2>
-                <p className="mt-1 text-xs leading-5 text-[#52645a]">Il lavoro quotidiano e le tue trattative in un'unica vista.</p>
-              </div>
-              <span className="mt-3 text-xs font-semibold text-[#176045]">Vai al Commerciale <span aria-hidden="true" className="inline-block transition group-hover:translate-x-1">→</span></span>
-            </Link>
-            <Link
-              href={networkEnabled ? appRoutes.network.directory : appRoutes.knowledge.workspace}
-              className="group flex min-h-[146px] flex-col justify-between rounded-2xl border border-[#cddfd2] bg-[#f3f8f4] p-4 transition hover:border-[#8cb99e] hover:shadow-[0_5px_22px_rgba(18,61,52,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
-            >
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#537263]">02 / {networkEnabled ? "Network" : "Scuola"}</p>
-                <h2 className="mt-2 text-base font-semibold text-[#173f35]">{networkEnabled ? "Scopri aziende industriali" : "Esplora la conoscenza tecnica"}</h2>
-                <p className="mt-1 text-xs leading-5 text-[#52645a]">
-                  {networkEnabled ? "Ricerca per territorio, prodotti e capacità documentate." : "Norme, materiali e strumenti tecnici per il tuo lavoro."}
-                </p>
-              </div>
-              <span className="mt-3 text-xs font-semibold text-[#176045]">{networkEnabled ? "Esplora Network" : "Apri Scuola"} <span aria-hidden="true" className="inline-block transition group-hover:translate-x-1">→</span></span>
-            </Link>
-          </section>
-          <DashboardSteelPulse state={pulse} />
-        </div>
-
-        <aside className="min-w-0 space-y-3" aria-label="Riepilogo del Workspace">
-          <section aria-label="Indicatori commerciali" className="rounded-2xl border border-[#dce5df] bg-white p-4">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-sm font-semibold text-[#173f35]">Il tuo Workspace</h2>
-              <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-[#175640] underline underline-offset-4">
-                Apri →
-              </Link>
-            </div>
-            {mode === "live" && operationalKpis.length > 0 ? (
-              <>
-                <dl className="mt-3 grid grid-cols-3 gap-2">
-                  {operationalKpis.map((kpi) => (
-                    <div key={kpi.label} className="min-w-0 rounded-xl bg-[#f3f8f5] px-2 py-3 text-center">
-                      <dd className="metric-number text-xl font-semibold tabular-nums text-[#173f35]">{kpi.value.toLocaleString("it-IT")}</dd>
-                      <dt className="mt-1 text-[10px] leading-4 text-[#53645b]">{kpi.label}</dt>
-                    </div>
-                  ))}
-                </dl>
-                <p className="mt-2 text-[11px] leading-4 text-[#68766d]">Totali registrati · non rappresentano attività aperte.</p>
-              </>
-            ) : (
-              <p role="status" className="mt-3 text-xs leading-5 text-[#52615b]">
-                I dati commerciali non sono disponibili o non ancora associati al workspace. Nessun dato dimostrativo viene mostrato come reale.
+            {attentionCount === 0 ? (
+              <p role="status" className="rounded-xl border border-[#dce7de] bg-white p-4 text-xs leading-5 text-[#52615b]">
+                {procurementPayload ? "Nessuna azione buyer segnalata nella casella attuale." : "Le priorità buyer non sono verificabili adesso. Controlla le richieste in Commerciale."}
               </p>
-            )}
-          </section>
-
+            ) : null}
           {procurementKpis && procurementKpis.length > 0 ? (
             <section aria-label="RFQ lifecycle" className="rounded-2xl border border-[#dce5df] bg-white p-4">
               <h2 className="text-sm font-semibold text-[#173f35]">Acquisti e RFQ</h2>
@@ -432,6 +431,51 @@ export default async function DashboardPage({
             </section>
           ) : null}
 
+          </div>
+        }
+        opportunities={
+          <div className="space-y-4">
+          <DashboardDiscoveryFeed
+            networkEnabled={networkEnabled}
+            networkEntitled={networkEntitled}
+            activity={activity.items}
+            marketplace={marketplace}
+            interests={pulse.interests}
+            networkCompanies={networkCompanies}
+            networkDiscoveryAvailable={networkCatalog !== null}
+            canWriteCommercial={canWrite}
+          />
+          <section aria-label="Aree di lavoro" className="grid gap-3 sm:grid-cols-2">
+            <Link
+              href={appRoutes.commercial.home}
+              className="group flex min-h-[104px] flex-col justify-between rounded-2xl border border-[#d9e5dc] bg-white p-4 transition hover:border-[#9ebfac] hover:shadow-[0_5px_22px_rgba(18,61,52,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
+            >
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#537263]">01 / Commerciale</p>
+                <h2 className="mt-1 text-base font-semibold text-[#173f35]">Richieste, offerte e ordini</h2>
+                <p className="mt-1 text-xs leading-5 text-[#52645a]">Il lavoro quotidiano e le tue trattative in un'unica vista.</p>
+              </div>
+              <span className="mt-2 text-xs font-semibold text-[#176045]">Vai al Commerciale <span aria-hidden="true" className="inline-block transition group-hover:translate-x-1">→</span></span>
+            </Link>
+            <Link
+              href={networkEnabled ? appRoutes.network.directory : appRoutes.knowledge.workspace}
+              className="group flex min-h-[104px] flex-col justify-between rounded-2xl border border-[#cddfd2] bg-[#f3f8f4] p-4 transition hover:border-[#8cb99e] hover:shadow-[0_5px_22px_rgba(18,61,52,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
+            >
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.09em] text-[#537263]">02 / {networkEnabled ? "Network" : "Scuola"}</p>
+                <h2 className="mt-1 text-base font-semibold text-[#173f35]">{networkEnabled ? "Scopri aziende industriali" : "Esplora la conoscenza tecnica"}</h2>
+                <p className="mt-1 text-xs leading-5 text-[#52645a]">
+                  {networkEnabled ? "Ricerca per territorio, prodotti e capacità documentate." : "Norme, materiali e strumenti tecnici per il tuo lavoro."}
+                </p>
+              </div>
+              <span className="mt-2 text-xs font-semibold text-[#176045]">{networkEnabled ? "Esplora Network" : "Apri Scuola"} <span aria-hidden="true" className="inline-block transition group-hover:translate-x-1">→</span></span>
+            </Link>
+          </section>
+          </div>
+        }
+        pulse={<DashboardSteelPulse state={pulse} />}
+        activity={
+          <div className="space-y-3">
           <section aria-labelledby="recent-activity" className="rounded-2xl border border-[#dce5df] bg-white p-4">
             <div className="flex items-center justify-between gap-2">
               <h2 id="recent-activity" className="text-sm font-semibold text-[#173f35]">Ultimi movimenti commerciali</h2>
@@ -473,8 +517,9 @@ export default async function DashboardPage({
               </div>
             )}
           </section>
-        </aside>
-      </div>
+          </div>
+        }
+      />
     </FocusPage>
   );
 }
