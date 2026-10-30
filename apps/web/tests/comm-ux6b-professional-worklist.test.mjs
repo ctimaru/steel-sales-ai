@@ -13,6 +13,8 @@ test("COMM-UX6.B removes second promotional banner and creates compact workspace
   assert.match(worklist, /filtered\.length/);
   assert.doesNotMatch(worklist, /h-64 w-64 rounded-full bg-\[#d8eadb\]/);
   assert.doesNotMatch(worklist, /Ogni richiesta, offerta e ordine ha il suo contesto/);
+  assert.doesNotMatch(worklist, /Trattative e attività/);
+  assert.match(worklist, /className="app-primary mt-3 inline-flex/);
   assert.match(styles, /\[data-testid="comm-cine9-workspace-heading"\]/);
   assert.match(styles, /background: #ffffff/);
 });
