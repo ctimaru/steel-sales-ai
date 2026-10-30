@@ -31,7 +31,7 @@ export function PublicHomeHeader({ locale }: { locale: "it" | "en" }) {
               <Link href={registerHref} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#e8f4ec] px-2.5 text-xs font-bold text-[#11513a] transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8af3c0] sm:px-4 sm:text-sm">
                 {en ? "Register" : "Registrati"}
               </Link>
-            </nav>      </nav>
+            </nav>
           </div>
         </div>
       </header>
