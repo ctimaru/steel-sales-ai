@@ -13,7 +13,9 @@ const admin = createClient(process.env.SUPABASE_URL, key, {
 });
 const actors = [];
 for (const actor of [{ id: "owner", email: "sp8a-owner@example.test" },
-                     { id: "ordinary", email: "sp8a-ordinary@example.test" }]) {
+                     { id: "ordinary", email: "sp8a-ordinary@example.test" },
+                     { id: "editor", email: "sp8b-editor@example.test" },
+                     { id: "reviewer", email: "sp8b-reviewer@example.test" }]) {
   const password = randomBytes(24).toString("base64url") + "Aa1!";
   const { data, error } = await admin.auth.admin.createUser({
     email: actor.email, password, email_confirm: true,
