@@ -24,9 +24,9 @@ test("COMM-UX6.A keeps one compact industrial hero and no duplicate jump navigat
 test("COMM-UX6.A exposes calculator, private Distinte, new request before the actual worklist", () => {
   const steps = [
     "comm-cine1-hero",
+    "<CommercialDirectorPriorityDesk",
     "comm-cine13-first-workspace",
     "commercial-primary-quick-actions",
-    "<CommercialDirectorPriorityDesk",
     "<CommercialUnifiedWorklist",
   ];
   const positions = steps.map((key) => page.indexOf(key));
