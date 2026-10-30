@@ -7,6 +7,7 @@ import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { RegistrationJourney } from "@/components/registration-journey";
 import { privateNoIndexRobots } from "@/lib/seo";
+import { safeCommercialReturnTo, withCommercialReturnTo } from "@/lib/auth-next";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Company Registration Status — English", robots: privateNoIndexRobots };
@@ -38,9 +39,10 @@ const rejectionReasons: Record<string, string> = {
 };
 
 export default async function EnglishRegistrationStatusPage({ searchParams }: {
-  searchParams: Promise<{ submitted?: string; error?: string }>;
+  searchParams: Promise<{ submitted?: string; error?: string; return_to?: string }>; 
 }) {
-  const { submitted, error } = await searchParams;
+  const { submitted, error, return_to: requestedReturn } = await searchParams;
+  const returnTo = safeCommercialReturnTo(requestedReturn);
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
   if (!auth.user) redirect("/en/login?next=" + encodeURIComponent("/en/registration/status"));
@@ -55,7 +57,7 @@ export default async function EnglishRegistrationStatusPage({ searchParams }: {
   if (recoveryError) throw new Error("registration_recovery_state_unavailable");
   const recovery = (data ?? {}) as Recovery;
   const application = recovery.application;
-  if (!application) redirect("/en/register");
+  if (!application) redirect(withCommercialReturnTo("/en/register", returnTo));
   const state = states[application.status] ?? {
     title: "Registration is being processed",
     explanation: "Your company application is recorded. Check back for updates.",
@@ -89,8 +91,10 @@ export default async function EnglishRegistrationStatusPage({ searchParams }: {
             <p className="mt-2 leading-6">{rejectionReasons[application.rejection_reason_code ?? ""] ?? "Manual review is required before another application can proceed."}</p>
             {application.rejection_note ? <p className="mt-3 whitespace-pre-wrap leading-6">{application.rejection_note}</p> : null}
           </div> : null}
+          {returnTo ? <p role="status" className="mt-5 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] p-4 text-sm text-[#173f35]">Your commercial destination is retained. A guest draft remains in the original browser, and private access requires company activation.</p> : null}
           <div className="mt-7 flex flex-wrap gap-3">
-            {(application.status === "draft" || application.status === "needs_information") ? <Link href="/en/register"
+            {application.status === "activated" && returnTo ? <Link href={returnTo} className="app-primary inline-flex min-h-11 items-center rounded-xl px-5 text-sm font-bold">Resume commercial work →</Link> : null}
+            {(application.status === "draft" || application.status === "needs_information") ? <Link href={withCommercialReturnTo("/en/register", returnTo)}
               className="app-primary inline-flex min-h-11 items-center rounded-xl px-5 text-sm font-bold">Update company details →</Link> : null}
             {application.status === "rejected" && recovery.can_reapply === true ? <form action={restartRejectedRegistration}>
               <input type="hidden" name="registration_locale" value="en" />
