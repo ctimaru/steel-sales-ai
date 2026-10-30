@@ -61,7 +61,7 @@ export default async function RegisterPage({
   if (!user) {
     return (
       <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-9">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-[1080px]">
           <div className="flex items-center justify-between gap-4">
             <ProductBrand href="/" showDescriptor={false} />
             <Link
@@ -77,7 +77,7 @@ export default async function RegisterPage({
             <h1 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-[#123d34] sm:text-3xl">
               {claimRef ? "Continua con il profilo selezionato" : "Crea il tuo account aziendale"}
             </h1>
-            <p className="mt-1 text-sm leading-5 text-[#52615b]">
+            <p className="mt-1 hidden text-sm leading-5 text-[#52615b] sm:block">
               Inizia dall’account. Puoi controllare se l’azienda è già presente prima o dopo la verifica email.
             </p>
           </div>
@@ -93,7 +93,7 @@ export default async function RegisterPage({
                   <h2 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-[#1d2824]">
                     {claimRef ? "Crea l’account per la tua azienda" : "Crea account"}
                   </h2>
-                  <p className="mt-3 text-sm leading-6 text-[#5d6a65]">
+                  <p className="mt-1 text-sm leading-5 text-[#5d6a65]">
                     Riceverai un link via email. La richiesta aziendale si completa dopo la verifica.
                   </p>
                 </div>
@@ -144,7 +144,7 @@ export default async function RegisterPage({
                   </label>
 
                   <p className="text-xs leading-5 text-[#66736e]">
-                    Consulta l’{" "}
+                    Leggi l’{" "}
                     <Link
                       href="/privacy"
                       target="_blank"
@@ -152,7 +152,7 @@ export default async function RegisterPage({
                     >
                       Informativa privacy
                     </Link>{" "}
-                    sul trattamento dei dati e i{" "}
+                    e i{" "}
                     <Link
                       href="/terms"
                       target="_blank"
@@ -160,7 +160,7 @@ export default async function RegisterPage({
                     >
                       Termini d’uso
                     </Link>.
-                    Le conferme richieste saranno raccolte prima della richiesta aziendale.
+                    I consensi aziendali sono richiesti prima dell’invio della domanda.
                   </p>
 
                   <PendingSubmitButton
