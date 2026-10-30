@@ -75,6 +75,12 @@ async function viewportCheck(page, { width, height, role }) {
     assert.ok(w.y < height, "Worklist heading should enter the first 900px viewport; y=" + w.y);
   }
   const canWrite = role === "buyer";
+  if (width === 1440 && canWrite) {
+    const firstDeal = page.getByTestId("commercial-smart-deal-card").first();
+    const dealBox = await firstDeal.boundingBox();
+    assert.ok(dealBox && dealBox.y < height,
+      "COMM-NAV9: first deal row should begin inside 900px desktop viewport; y=" + dealBox?.y);
+  }
   assert.equal(await companion.getByTestId("comm-cine11-prompt").count(), canWrite ? 1 : 0);
   const createRequest = page.getByRole("link", { name: "+ Nuova richiesta" });
   assert.equal(await createRequest.count(), canWrite ? 1 : 0);
