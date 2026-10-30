@@ -229,7 +229,7 @@ export async function CommercialUnifiedWorklist({
   return (
     <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-3 " + cinematic.worklist}>
       <div data-testid="comm-cine9-workspace-heading"
-        className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-xl border border-[#dce8df] bg-white px-4 py-3 sm:px-5">
+        className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-[#dce8df] bg-white px-3 py-2 sm:gap-x-4 sm:gap-y-2 sm:px-5 sm:py-3">
         <div className="min-w-0">
           <p className="hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-[#386b50] sm:block">Workspace commerciale / Deal cockpit</p>
           <h2 id="commercial-worklist-title" className="mt-0.5 text-xl font-semibold leading-tight tracking-[-0.025em] text-[#123c2f]">
