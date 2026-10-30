@@ -74,7 +74,7 @@ test("COMMERCIAL-UNIFY1 exposes procurement under Commerciale independently of N
   assert.doesNotMatch(primary, /key: "rfq" as const/);
   assert.match(shell, /label: "Attività", contextKey: "commercial:home"/);
   assert.doesNotMatch(shell, /label: "RFQ e offerte"/);
-  assert.match(nav, /getCommercialNavigationArea\(navigation.context\)/);
+  assert.match(nav, /current === "home" \|\| current === "commercial"/);
   assert.ok(primary.indexOf('key: "commercial" as const') < primary.indexOf('...(networkEnabled'), "Commerciale must not depend on Network entitlement");
 });
 
