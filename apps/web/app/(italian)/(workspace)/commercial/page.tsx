@@ -214,12 +214,26 @@ export default async function CommercialHomePage({
         className="scroll-mt-28 rounded-2xl border border-[#d6e5db] bg-white px-3 py-2.5 sm:px-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CommercialCalculatorQuickAccess references={calculatorReferences} />
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+            {networkAvailable ? (
+              <nav aria-label="Relazioni commerciali" className="flex flex-wrap items-center gap-3">
+                <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
+                  className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] hover:underline">
+                  Aziende da seguire →
+                </Link>
+                <Link href={appRoutes.network.directory}
+                  className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] hover:underline">
+                  Network
+                </Link>
+              </nav>
+            ) : null}
           {canWrite ? (
             <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
               className="inline-flex min-h-10 items-center rounded-lg border border-[#175640] bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2">
               + Nuova richiesta
             </Link>
           ) : null}
+          </div>
         </div>
       </section>
 
