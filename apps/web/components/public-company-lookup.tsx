@@ -133,8 +133,8 @@ export function PublicCompanyLookup({
     <div
       className={
         registrationContext
-          ? "rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
-          : "rounded-[28px] border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
+          ? "min-w-0 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
+          : "min-w-0 rounded-[28px] border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
       }
     >
       <div>
