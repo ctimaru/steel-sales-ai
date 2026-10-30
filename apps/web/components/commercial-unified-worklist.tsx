@@ -86,7 +86,7 @@ async function SelectedDetail({
           </div>
         ) : null}
       </dl>
-      <CommercialDealIntelligence facts={facts} />
+      <CommercialDealIntelligence facts={facts} kind={item.kind} canWrite={canWrite} />
       {detail ? (
         <details data-testid="commercial-deal-technical-details" className="rounded-xl border border-[var(--border)] bg-white p-3 text-xs">
           <summary className="cursor-pointer font-semibold text-[var(--brand-deep)]">Approfondimenti tecnici e tracciabilità</summary>
