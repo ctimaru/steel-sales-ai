@@ -72,7 +72,7 @@ try {
     await page.getByRole("heading", { name: "Scheda e prossima azione" }).waitFor({ state: "visible" });
     assert.equal(await page.getByRole("button", { name: /Salva bozza privata|Approva fact-check/ }).count(), 0,
       "Candidate source must not expose draft or review mutations");
-    assert.ok((await page.locator("body").innerText()).includes("Nessuna azione consentita"));
+    await page.getByText("Nessuna azione consentita", { exact: false }).waitFor({ state: "visible", timeout: 30000 });
     const workflowOverflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
     assert.ok(workflowOverflow <= 1, "SP8.B overflow " + workflowOverflow + "px at " + width);
     await page.screenshot({ path: path.join(dir, "sp8b-"+width+"-workflow.png"), fullPage: true, animations: "disabled" });
