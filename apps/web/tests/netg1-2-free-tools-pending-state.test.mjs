@@ -16,6 +16,7 @@ test("NETG1.2 pending applicant sees only public tools, not private workspace ac
 test("NETG1.2 account access still requires company membership before dashboard", () => {
  const login = read("app/login/actions.ts");
  assert.match(login, /if \(!membership\)/);
- assert.match(login, /redirect\(application \? "\/registration\/status" : "\/register"\)/);
+ assert.match(login, /const destination = application \? "\/registration\/status" : "\/register"/);
+ assert.match(login, /redirect\(returnTo \? destination/);
  assert.match(login, /lr5_account_lifecycle_state/);
 });
