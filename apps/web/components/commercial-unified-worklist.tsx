@@ -2,6 +2,8 @@ import Link from "next/link";
 import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealQuickActions } from "@/components/commercial-deal-quick-actions";
+import { CommercialDealIntelligence, loadCommercialDealFacts } from "@/components/commercial-deal-intelligence";
+import { commercialDealNextStep } from "@/lib/commercial-deal-next-step";
 
 import { getOperationalEntityData } from "@/lib/commercial-data";
 import { isStreamView, mergedCommercialHref } from "@/lib/commercial-unified-streams";
@@ -59,6 +61,8 @@ async function SelectedDetail({
     item.kind === "inbound-offer" ? "offer" :
     item.kind === "inbound-order" ? "order" : null;
   const detail = inboundKind ? await getOperationalEntityData(inboundKind, item.id) : null;
+  const facts = await loadCommercialDealFacts(item, detail);
+  const nextStep = commercialDealNextStep(item.kind, facts?.rawStatus ?? item.status, canWrite);
   return (
     <div className="space-y-4">
       <div className="min-w-0">
@@ -82,8 +86,11 @@ async function SelectedDetail({
           </div>
         ) : null}
       </dl>
+      <CommercialDealIntelligence facts={facts} />
       {detail ? (
-        <div className="space-y-3">
+        <details data-testid="commercial-deal-technical-details" className="rounded-xl border border-[var(--border)] bg-white p-3 text-xs">
+          <summary className="cursor-pointer font-semibold text-[var(--brand-deep)]">Approfondimenti tecnici e tracciabilità</summary>
+          <div className="mt-3 space-y-3">
           {detail.metadata.length ? (
             <dl className="space-y-1.5 text-xs">
               {detail.metadata.map((row) => (
@@ -110,7 +117,8 @@ async function SelectedDetail({
           {detail.relationshipLinks.map((link) => (
             <Link key={link.href} href={link.href} className="block text-xs font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">{link.label} →</Link>
           ))}
-        </div>
+          </div>
+        </details>
       ) : inboundKind ? (
         <p role="status" className="text-xs text-[var(--text-secondary)]">Dettaglio non disponibile per il tuo accesso. Non vengono mostrati dati di altre aziende.</p>
       ) : (
@@ -135,20 +143,14 @@ async function SelectedDetail({
         className="rounded-xl border border-[#b5d7c3] bg-[#f3f9f5] p-3 sm:p-4">
         <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Prossimo passo</p>
         <h4 id="commercial-deal-next-step" className="mt-1 text-sm font-semibold text-[#173f35]">
-          {canWrite ? "Continua questa trattativa" : "Consulta la trattativa"}
+          {nextStep.title}
         </h4>
         <p className="mt-1 text-xs leading-5 text-[#52685b]">
-          {item.kind === "campaign"
-            ? "Apri la RFQ per verificare risposte e destinatari prima di ogni decisione."
-            : item.kind === "quote"
-              ? "Apri la risposta e verifica condizioni e materiale prima di procedere."
-              : item.kind === "purchase-order"
-                ? "Consulta l’ordine e i documenti della trattativa."
-                : "Apri il dettaglio originale per continuare senza creare copie della richiesta."}
+          {nextStep.description}
         </p>
         <Link href={item.href}
           className="app-primary mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
-          {canWrite ? "Continua →" : "Apri dettaglio →"}
+          {nextStep.actionLabel}
         </Link>
       </section>
       <CommercialDealQuickActions canWrite={canWrite} composeHref={appRoutes.commercial.home + "?compose=1#commercial-compose"} originalHref={item.href} />
