@@ -94,7 +94,7 @@ export default async function RegisterPage({
                     {claimRef ? "Crea l’account per la tua azienda" : "Crea account"}
                   </h1>
                   <p className="mt-1 text-sm leading-5 text-[#5d6a65]">
-                    Riceverai un link via email. Completa la richiesta aziendale dopo la verifica.
+                    Completa la richiesta aziendale dopo aver verificato l’email.
                   </p>
                 </div>
 
@@ -113,7 +113,7 @@ export default async function RegisterPage({
                   </div>
                 ) : null}
 
-                {returnTo ? <p role="status" className="mt-4 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm text-[#173f35]">Il percorso verso la tua attività commerciale sarà conservato. I dati della distinta restano nel browser, non nell’email.</p> : null}
+                {returnTo ? <p role="status" className="mt-3 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-3 py-2 text-xs leading-5 text-[#173f35]">Il percorso commerciale resta disponibile dopo l’approvazione. La distinta resta in questa scheda.</p> : null}
                 <form action={signup} className="mt-4 space-y-3">
                   <input type="hidden" name="next" value={registrationPath} />
                   <label className="block text-sm font-semibold text-[#43524c]">
@@ -139,7 +139,7 @@ export default async function RegisterPage({
                       required
                     />
                     <span className="mt-1 block text-xs leading-5 text-[#5d6a65]">
-                      Almeno 8 caratteri. Usa una password personale e non riutilizzata.
+                      Almeno 8 caratteri, con una password personale.
                     </span>
                   </label>
 
