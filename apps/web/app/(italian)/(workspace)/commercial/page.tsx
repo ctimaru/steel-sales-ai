@@ -209,6 +209,18 @@ export default async function CommercialHomePage({
         </div>
       </section>
 
+      {/* COMM-NAV9.M: director decisions must precede tools on the mobile first
+          viewport. The same DOM order on desktop preserves keyboard/screen-reader
+          reading order; do not duplicate the priority links for responsive UX. */}
+      <CommercialDirectorPriorityDesk
+        canWrite={canWrite}
+        attentionTotal={attentionTotal}
+        actionableRfqs={actionableRfqs}
+        procurementAvailable={procurementPayload !== null}
+        data={displayedUnified}
+        view={view}
+      />
+
       <div data-testid="comm-cine13-first-workspace" className="relative z-10 px-1 sm:px-2">
         <CommercialAiCompanion canWrite={canWrite} />
       </div>
@@ -240,15 +252,6 @@ export default async function CommercialHomePage({
           </div>
         </div>
       </section>
-
-      <CommercialDirectorPriorityDesk
-        canWrite={canWrite}
-        attentionTotal={attentionTotal}
-        actionableRfqs={actionableRfqs}
-        procurementAvailable={procurementPayload !== null}
-        data={displayedUnified}
-        view={view}
-      />
 
       {composing && catalogOptions ? (
         <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className="scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5">
