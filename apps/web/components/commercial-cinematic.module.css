@@ -98,9 +98,6 @@
   border-radius: 18px;
   box-shadow: 0 12px 38px -32px rgba(5,42,29,.42);
 }
-.worklist :global([data-testid="commercial-list-pane"] > div:first-child) {
-  background: #f9fcfa;
-}
 .worklist :global([data-testid="commercial-smart-deal-card"]) {
   min-width: 0;
 }
