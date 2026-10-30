@@ -21,7 +21,7 @@ test("COMMERCIAL-UNIFY1 shows one primary Commerciale destination on desktop and
   assert.match(shell, /label: "Attività", contextKey: "commercial:home"/);
   assert.match(shell, /label: "Relazioni", contextKey: "commercial:companies"/);
   assert.match(shell, /label: "Analisi", contextKey: "commercial:analysis"/);
-  assert.match(nav, /getCommercialNavigationArea\(navigation.context\)/);
+  assert.match(nav, /current === "home" \|\| current === "commercial"/);
 });
 
 test("COMMERCIAL-UNIFY1 retains deep links but resolves private procurement within Commerciale", () => {
