@@ -320,7 +320,8 @@ export async function CommercialUnifiedWorklist({
                     </div>
                   </div>
                 </Link>
-              ))}           </div>
+              ))}
+            </div>
           ) : (
             <div className="p-5">
               <p className="text-sm font-semibold text-[var(--brand-deep)]">Nessuna attività in questa vista</p>
