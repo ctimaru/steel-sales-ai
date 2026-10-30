@@ -86,6 +86,32 @@ async function inspectList(page, width, persona) {
   return entries;
 }
 
+async function inspectViewer(page, width) {
+  const response = await page.goto(base + "/commercial?view=sent&q=COMMUX6B", {
+    waitUntil: "domcontentloaded", timeout: 90000
+  });
+  assert.equal(response?.status(), 200);
+  await page.getByRole("heading", { name: "Le mie trattative", exact: true })
+    .waitFor({ state: "visible", timeout: 60000 });
+  const list = page.getByTestId("commercial-list-pane");
+  await list.waitFor({ state: "visible", timeout: 60000 });
+  // A viewer is read-only; tenant RLS may deny campaign rows entirely.
+  // The density fixture is only for the buyer role and must NOT assume viewer grants.
+  const rows = list.locator("div.divide-y > a");
+  const count = await rows.count();
+  assert.ok(count <= 8, "Viewer cannot gain synthetic records from other tenants");
+  assert.doesNotMatch(await list.innerText(), /DEMOTEST23 PRODUCER PRIVATE RFQ/);
+  assert.equal(await page.getByRole("link", { name: "+ Nuova richiesta" }).count(), 0);
+  assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 0);
+  await assertNoOverflow(page, "viewer at " + width);
+  await list.scrollIntoViewIfNeeded();
+  await page.screenshot({
+    path: path.join(dir, "read-only-viewer-" + width + "px.png"),
+    fullPage: false, animations: "disabled"
+  });
+  console.log("COMM-UX6.B READ-ONLY VIEWER PASS", width, "visibleRows", count);
+}
+
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 try {
   for (const width of [1440, 390, 320]) {
@@ -98,6 +124,10 @@ try {
       try {
         const page = await context.newPage();
         await logIn(page, persona);
+        if (persona.id === "buyerViewer") {
+          await inspectViewer(page, width);
+          continue;
+        }
         const entries = await inspectList(page, width, persona);
         const firstUrl = await entries.first().getAttribute("href");
         assert.ok(firstUrl);
@@ -122,8 +152,6 @@ try {
           await page.getByRole("status").filter({ hasText: "Attività non trovata" })
             .waitFor({ state: "visible", timeout: 60000 });
           assert.equal(await page.locator("#commercial-detail").count(), 0);
-        } else {
-          assert.equal(await page.getByRole("link", { name: "+ Nuova richiesta" }).count(), 0);
         }
       } finally {
         await context.close();
