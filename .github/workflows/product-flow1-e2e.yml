@@ -203,6 +203,17 @@ jobs:
           path: ${{ runner.temp }}/onboarding-ux1-visual/*.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: ONBOARDING-UX2 Chrome signup-first IT/EN 320/390/1440 in isolated local Auth
+        working-directory: apps/web
+        run: node tests/onboarding-ux2-chrome-first-viewport.mjs
+      - name: Upload ONBOARDING-UX2 public registration viewport screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: onboarding-ux2-first-viewport
+          path: /tmp/onboarding-ux2/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Chrome desktop 1440 and mobile 390 complete Search to Supplier Response
         working-directory: apps/web
         timeout-minutes: 20
