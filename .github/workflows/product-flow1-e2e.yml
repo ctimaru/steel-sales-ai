@@ -274,6 +274,15 @@ jobs:
           source "$RUNNER_TEMP/demotest23-local.env"
           DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             node tests/onboarding-qa3b-local-lifecycle.mjs
+      - name: ONBOARDING-QA3.B.2 — Worker HP8 invite to Mailpit, Chrome acceptance, revoke, expiry and tenant RLS
+        working-directory: apps/web
+        shell: bash
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/demotest23-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            node tests/onboarding-qa3b2-hp8-real-invitations.mjs
       - name: Stop local processes and destroy temporary data and capabilities
         if: always()
         shell: bash
