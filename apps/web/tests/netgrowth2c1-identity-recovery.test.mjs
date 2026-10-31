@@ -6,7 +6,7 @@ const root=new URL("../",import.meta.url);
 const page=readFileSync(new URL("app/(italian)/(platform)/platform/company-discovery/identity-recovery/page.tsx",root),"utf8");
 const parent=readFileSync(new URL("app/(italian)/(platform)/platform/company-discovery/italian-identities/page.tsx",root),"utf8");
 const ia=readFileSync(new URL("lib/platform-ia-contract.ts",root),"utf8");
-const sql=readFileSync(new URL("../../../supabase/migrations/20261031172700_netgrowth2c1_identity_evidence_queue.sql",import.meta.url),"utf8");
+const sql=readFileSync(new URL("../../../supabase/migrations/20261031164508_netgrowth2c1_identity_evidence_queue.sql",import.meta.url),"utf8");
 const acceptance=readFileSync(new URL("../../../supabase/tests/netgrowth2c1_identity_evidence_queue.sql",import.meta.url),"utf8");
 
 test("Identity recovery stays Platform-only, bounded and source-linked",()=>{
