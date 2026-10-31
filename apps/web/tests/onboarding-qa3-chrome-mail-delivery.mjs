@@ -166,7 +166,20 @@ try {
       const authCookies = (await confirmed.cookies(BASE)).filter(c => /-auth-token(?:\\.\\d+)?$/.test(c.name));
       assert.ok(authCookies.length > 0, "Verified session cookie missing in independent browser");
       const application = otherBrowser.locator("#company-form");
-      await application.waitFor({ state: "visible", timeout: 45000 });
+      if (!(await application.isVisible())) {
+        const authState = await otherBrowser.evaluate(() => ({
+          path: window.location.pathname,
+          registrationHasAccountForm: Boolean(document.querySelector('input[name="email"]')),
+          registrationHasCompanyForm: Boolean(document.querySelector("#company-form")),
+          documentTitle: document.title.slice(0, 90),
+        }));
+        const safeCookieMetadata = (await confirmed.cookies(BASE))
+          .filter(row => /-auth-token(?:\\.\\d+)?$/.test(row.name))
+          .map(row => ({ secure: row.secure, sameSite: row.sameSite, domain: row.domain, path: row.path }));
+        console.error("ONBOARDING-QA3 POST-CONFIRM SAFE STATE", locale,
+          JSON.stringify({ authState, cookieMeta: safeCookieMetadata }));
+      }
+      await application.waitFor({ state: "visible", timeout: 12000 });
       assert.equal(await otherBrowser.locator('input[name="return_to"]').inputValue(), destination);
       assert.equal(await otherBrowser.locator('input[name="company_query"]').count(), 1);
       pass(locale + " cross-browser confirmation reaches company application only");
