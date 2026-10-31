@@ -125,6 +125,7 @@ try {
       const callback = new URL(redir);
       assert.equal(callback.origin, BASE);
       assert.equal(callback.pathname, "/auth/finish");
+      assert.equal(callback.searchParams.get("signup"), "1");
       assert.equal(callback.searchParams.get("next"), next);
       assert.ok(!link.includes("customer=") && !link.includes("price="));
       pass(locale + " branded confirmation email preserves safe commercial next");
