@@ -278,10 +278,14 @@ try {
   assert.equal(expiredResponse.status, 201);
   const expiredIssue = await expiredResponse.json();
   await getMessage(expiredEmail);
-  // Advance only the invitation's expiry in disposable local DB.
-  const past = new Date(Date.now() - 60_000).toISOString();
+  // The DB requires expires_at > invited_at. Simulate an invitation
+  // genuinely issued in the past and now past its seven-day expiry; never
+  // disable constraints, change the clock, or touch hosted Supabase.
+  const issuedInPast = new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString();
+  const elapsedExpiry = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
   const expiredUpdate = await root.from("organization_invitations")
-    .update({ expires_at: past }).eq("id", expiredIssue.invitation_id);
+    .update({ invited_at: issuedInPast, expires_at: elapsedExpiry })
+    .eq("id", expiredIssue.invitation_id);
   assert.ifError(expiredUpdate.error);
   const expiredIdentity = await setInvitePassword(expiredEmail);
   const expiredContext = await expiredIdentity.session.rpc("hp8_invitation_context", {
