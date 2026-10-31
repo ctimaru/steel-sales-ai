@@ -14,6 +14,9 @@
 --  * Evidence whose source host or company domain is suppressed
 --    (public.network_netfast3_suppressed_domains) is never shown.
 --  * Evidence attached to archived/suspended canonical companies is not shown.
+--  * Source URLs carrying userinfo (credentials) or without a parseable host
+--    are never shown; the host is parsed without userinfo before the
+--    suppression check, so user:pw@suppressed-host cannot bypass it.
 --  * Excluded rows stay untouched in the private table (historical provenance
 --    preserved) and are reported only as aggregate counts per reason: no id,
 --    name, domain, URL or excerpt of a quarantined row leaves the database.
@@ -53,9 +56,12 @@ begin
       nullif(regexp_replace(lower(btrim(coalesce(c.website_domain,''))),'^www[.]',''),'') as company_domain,
       d.id as discovery_id,d.company_name as discovery_name,
       nullif(regexp_replace(lower(btrim(coalesce(d.domain,''))),'^www[.]',''),'') as discovery_domain,
+      -- Authority without userinfo: https://user:pw@host/... yields host.
       nullif(regexp_replace(lower(coalesce(
-        substring(e.evidence_url from '^[A-Za-z][A-Za-z0-9+.-]*://([^/:?#]+)'),'')),
-        '^www[.]',''),'') as evidence_host
+        substring(e.evidence_url from '^[A-Za-z][A-Za-z0-9+.-]*://(?:[^/?#]*@)?([^/:?#@\[\]]+)'),'')),
+        '^www[.]',''),'') as evidence_host,
+      -- Userinfo (credentials) in a source URL is never displayed.
+      (e.evidence_url ~ '^[A-Za-z][A-Za-z0-9+.-]*://[^/?#]*@') as evidence_has_userinfo
     from private.network_company_enrichment e
     left join public.network_companies c on c.id=e.canonical_company_id
     left join private.netfast_discovered_records d on d.id=e.discovered_record_id
@@ -65,6 +71,8 @@ begin
       case when r.canonical_company_id is not null then 'canonical' else 'provisional' end as lane,
       case when r.canonical_company_id is not null then r.company_domain else r.discovery_domain end as domain,
       case
+        when r.evidence_has_userinfo or r.evidence_host is null
+          then 'unsafe_source_url'
         when exists (
           select 1 from public.network_netfast3_suppressed_domains s
           where s.domain in (r.evidence_host,r.company_domain,r.discovery_domain)
@@ -114,7 +122,8 @@ begin
     'quarantine_by_reason',jsonb_build_object(
       'discovery_unresolved',(select count(*) from classified where quarantine_reason='discovery_unresolved'),
       'suppressed_domain',(select count(*) from classified where quarantine_reason='suppressed_domain'),
-      'canonical_inactive',(select count(*) from classified where quarantine_reason='canonical_inactive')
+      'canonical_inactive',(select count(*) from classified where quarantine_reason='canonical_inactive'),
+      'unsafe_source_url',(select count(*) from classified where quarantine_reason='unsafe_source_url')
     ),
     'accepted_by_this_process',0,
     'publication_performed',false,

@@ -26,6 +26,7 @@ test("NET-GROWTH2C.2R: page is Platform scoped and consumes the v2 integrity con
  assert.match(page,/publication_performed===false/);
  assert.match(page,/quarantined_total===v\.quarantine_by_reason\.discovery_unresolved\+/);
  assert.match(page,/safeNetworkWebsiteUrl\(item\.source_url\)/);
+ assert.match(page,/\[\.\.\.product\]\.length<=140/,"code-point length like PostgreSQL left()");
  assert.match(page,/requested>pages\) redirect\(href\(lane,pages\)\)/);
  assert.doesNotMatch(page,/\.from\("network_company_enrichment"\)/);
  assert.match(nav,/company-discovery\/product-evidence/);
@@ -37,6 +38,8 @@ test("NET-GROWTH2C.2R: remediation migration quarantines instead of exposing",()
  assert.match(sql,/'discovery_unresolved'/);
  assert.match(sql,/network_netfast3_suppressed_domains/);
  assert.match(sql,/'canonical_inactive'/);
+ assert.match(sql,/'unsafe_source_url'/);
+ assert.match(sql,/:\/\/\(\?:\[\^\/\?#\]\*@\)\?/,"host parsed without userinfo");
  assert.match(sql,/where q\.quarantine_reason is null/);
  assert.match(sql,/from public,anon,authenticated,service_role;\s*grant execute on function public\.netgrowth2c2_product_evidence_page\(text,integer,integer\)\s*to authenticated;/);
  assert.doesNotMatch(sql,/\b(insert\s+into|update\s+\w+\.\w+\s+set|delete\s+from)\b/i);

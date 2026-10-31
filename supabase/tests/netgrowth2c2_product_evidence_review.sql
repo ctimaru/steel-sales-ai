@@ -131,7 +131,7 @@ select pg_temp.g2_assert(
 -- ---------------------------------------------------------------------------
 -- Synthetic evidence. Eligible: 2 canonical + 27 provisional.
 -- Quarantined: archived canonical, orphan discovery, suppressed lead,
--- canonical with a suppressed source host = 4.
+-- canonical with a suppressed source host, 2 source URLs with userinfo = 6.
 -- Out of scope (not candidate / not products) must never be counted.
 -- ---------------------------------------------------------------------------
 insert into private.network_company_enrichment
@@ -163,6 +163,17 @@ values
    null,'00000000-0000-0000-0000-0000000dead1','products',
    jsonb_build_array('Orfana'),
    'https://g2c2r-orphan.example.test/','g2c2r-test',null,'candidate',now()),
+  -- QUARANTINE unsafe_source_url: userinfo must not hide a suppressed host
+  -- (naive parsing would read "reader" as the host) ...
+  ('00000000-0000-0000-0000-0000000e0008',
+   '00000000-0000-0000-0000-00000000c201',null,'products',
+   jsonb_build_array('Credenziali nella fonte'),
+   'https://reader:secret@g2c2r-blocked.example.test/products','g2c2r-test',null,'candidate',now()),
+  -- ... and credentials are never displayed, even on an allowed host.
+  ('00000000-0000-0000-0000-0000000e0009',
+   '00000000-0000-0000-0000-00000000c202',null,'products',
+   jsonb_build_array('Credenziali nella fonte'),
+   'https://user@g2c2r-draft.example.test/p','g2c2r-test',null,'candidate',now()),
   -- Out of scope: accepted products and candidate services.
   ('00000000-0000-0000-0000-0000000e0006',
    '00000000-0000-0000-0000-00000000c201',null,'products',
@@ -184,6 +195,8 @@ select
   ('00000000-0000-0000-0000-0000000c'||lpad(n::text,4,'0'))::uuid,
   'products',
   case when n=27 then jsonb_build_array(jsonb_build_object('name','Oggetto'))
+       -- supplementary-plane characters: cap counts code points, not bytes
+       when n=3 then jsonb_build_array(repeat('🔩',150))
        else jsonb_build_array('Tubo tondo '||n) end,
   case when n=26 then 'https://other-host.example.test/lead-26'
        else 'https://g2c2r-lead-'||lpad(n::text,2,'0')||'.example.test/prodotti' end,
@@ -227,16 +240,18 @@ select pg_temp.g2_assert(
   'total = canonical + provisional');
 select pg_temp.g2_assert(
   ((:'g2_first'::jsonb)->>'quarantined_total')::int
-   -((:'g2_baseline'::jsonb)->>'quarantined_total')::int=4,
-  'exactly 4 synthetic rows are quarantined');
+   -((:'g2_baseline'::jsonb)->>'quarantined_total')::int=6,
+  'exactly 6 synthetic rows are quarantined');
 select pg_temp.g2_assert(
   ((:'g2_first'::jsonb)#>>'{quarantine_by_reason,suppressed_domain}')::int
    -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,suppressed_domain}')::int=2
   and ((:'g2_first'::jsonb)#>>'{quarantine_by_reason,discovery_unresolved}')::int
    -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,discovery_unresolved}')::int=1
   and ((:'g2_first'::jsonb)#>>'{quarantine_by_reason,canonical_inactive}')::int
-   -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,canonical_inactive}')::int=1,
-  'quarantine reasons: 2 suppressed, 1 unresolved, 1 inactive');
+   -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,canonical_inactive}')::int=1
+  and ((:'g2_first'::jsonb)#>>'{quarantine_by_reason,unsafe_source_url}')::int
+   -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,unsafe_source_url}')::int=2,
+  'quarantine reasons: 2 suppressed, 1 unresolved, 1 inactive, 2 unsafe URLs');
 select pg_temp.g2_assert(
   (:'g2_first'::jsonb)->>'accepted_by_this_process'='0'
   and (:'g2_first'::jsonb)->>'publication_performed'='false',
@@ -261,11 +276,13 @@ select pg_temp.g2_assert(
   not exists (select 1 from g2_all where id in (
     '00000000-0000-0000-0000-0000000e0003','00000000-0000-0000-0000-0000000e0004',
     '00000000-0000-0000-0000-0000000e0005','00000000-0000-0000-0000-0000000e0006',
-    '00000000-0000-0000-0000-0000000e0007','00000000-0000-0000-0000-0000000f0028')),
+    '00000000-0000-0000-0000-0000000e0007','00000000-0000-0000-0000-0000000e0008',
+    '00000000-0000-0000-0000-0000000e0009','00000000-0000-0000-0000-0000000f0028')),
   'quarantined, accepted and non-product evidence never listed');
 select pg_temp.g2_assert(
   not exists (select 1 from g2_all where item->>'source_url' like '%g2c2r-blocked%'
      or item->>'source_url' like '%g2c2r-orphan%'
+     or item->>'source_url' like '%@%'
      or item->>'domain' like '%g2c2r-lead-28%'
      or item->>'domain' like '%g2c2r-archived%'),
   'no suppressed, unresolved or inactive source data leaks');
@@ -305,6 +322,11 @@ select pg_temp.g2_assert(
   (select not (item->>'source_domain_match')::boolean
    from g2_all where id='00000000-0000-0000-0000-0000000f0026'),
   'foreign source host is flagged');
+
+select pg_temp.g2_assert(
+  (select length(item->'products'->>0)=140 and octet_length(item->'products'->>0)>140
+   from g2_all where id='00000000-0000-0000-0000-0000000f0003'),
+  '140-character cap counts code points (emoji), matching the UI check');
 
 -- Lanes (back to the auditor).
 set local role authenticated;

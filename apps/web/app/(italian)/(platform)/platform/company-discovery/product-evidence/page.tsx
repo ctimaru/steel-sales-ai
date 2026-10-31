@@ -17,6 +17,7 @@ type ProductEvidence={
 };
 type QuarantineReasons={
  discovery_unresolved:number;suppressed_domain:number;canonical_inactive:number;
+ unsafe_source_url:number;
 };
 type Snapshot={
  contract:"net-growth2c2-product-review-v2";
@@ -58,15 +59,18 @@ export default async function ProductEvidencePage({searchParams}:{
   Number.isInteger(v.selected_total)&&v.selected_total>=0&&
   isCount(v.quarantined_total)&&isCount(v.quarantine_by_reason?.discovery_unresolved)&&
   isCount(v.quarantine_by_reason?.suppressed_domain)&&isCount(v.quarantine_by_reason?.canonical_inactive)&&
+  isCount(v.quarantine_by_reason?.unsafe_source_url)&&
   v.quarantined_total===v.quarantine_by_reason.discovery_unresolved+
-   v.quarantine_by_reason.suppressed_domain+v.quarantine_by_reason.canonical_inactive&&
+   v.quarantine_by_reason.suppressed_domain+v.quarantine_by_reason.canonical_inactive+
+   v.quarantine_by_reason.unsafe_source_url&&
   v.accepted_by_this_process===0&&v.publication_performed===false&&
   Array.isArray(v.items)&&v.items.length<=PAGE_SIZE&&v.items.every(item=>
    item.review_status==="candidate"&&
    (item.lane==="canonical"||item.lane==="provisional")&&
    typeof item.source_domain_match==="boolean"&&formats.includes(item.value_format)&&
    Array.isArray(item.products)&&item.products.length<=4&&
-   item.products.every(product=>typeof product==="string"&&product.length<=140));
+   // PostgreSQL left(...,140) counts code points, not UTF-16 units.
+   item.products.every(product=>typeof product==="string"&&[...product].length<=140));
  const snapshot=valid?v:null;
  const pages=snapshot?Math.max(1,Math.ceil(snapshot.selected_total/PAGE_SIZE)):1;
  // Out-of-range page (stale link, shrinking queue): go to the last valid page.
@@ -101,7 +105,8 @@ export default async function ProductEvidencePage({searchParams}:{
     {snapshot.quarantined_total.toLocaleString("it-IT")} evidenze escluse dalla coda e non mostrate:
     {" "}{snapshot.quarantine_by_reason.discovery_unresolved} con fonte di scoperta non più valida,
     {" "}{snapshot.quarantine_by_reason.suppressed_domain} su domini soppressi,
-    {" "}{snapshot.quarantine_by_reason.canonical_inactive} su schede archiviate o sospese.
+    {" "}{snapshot.quarantine_by_reason.canonical_inactive} su schede archiviate o sospese,
+    {" "}{snapshot.quarantine_by_reason.unsafe_source_url} con URL della fonte non sicuro.
     Restano conservate nell&apos;archivio privato per la provenienza.
    </p>:null}
    <nav aria-label="Filtro stato scheda" className="flex flex-wrap gap-2">

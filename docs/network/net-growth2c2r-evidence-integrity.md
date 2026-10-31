@@ -17,6 +17,7 @@ rolled-back transaction.
 | Provisional evidence whose discovery record left `private.netfast_discovered_records` was still listed (as "Identità da riconciliare", with source URL) | Quarantined: never listed, counted only. |
 | Suppressed domains could still surface through stored evidence | Evidence is quarantined when the source host (or a parent domain), the company domain or the discovery domain is in `public.network_netfast3_suppressed_domains`. |
 | Evidence on archived / suspended canonical companies still queued | Quarantined (`canonical_inactive`). |
+| Source URL with userinfo (`https://user:pw@host/…`) parsed `user` as host, bypassing suppression (Codex review) | Host parsed without userinfo; URLs carrying credentials or without a parseable host are quarantined (`unsafe_source_url`) and never displayed. |
 | `field_value` shape unverifiable; non-array silently empty | Explicit `value_format` (`text`, `string_list`, `mixed_list`, `object`). Only string entries are rendered, max 4 × 140 chars, blanks skipped; objects never rendered raw. |
 | Ordering relied on `confidence` (always null in the in-repo ingestion path) | `confidence desc nulls last, fetched_at desc, company_name, id`. |
 | Unnecessary `service_role` execute | Revoked; only `authenticated`, gated by `discovery.read`. |
@@ -31,11 +32,15 @@ the private table keeps the full historical provenance. The RPC returns, for
 quarantined rows, only aggregate counts:
 
 ```
-quarantined_total, quarantine_by_reason: {discovery_unresolved, suppressed_domain, canonical_inactive}
+quarantined_total, quarantine_by_reason: {discovery_unresolved, suppressed_domain, canonical_inactive, unsafe_source_url}
 ```
 
 No id, name, domain, URL or excerpt of a quarantined row leaves the database.
-Precedence: `suppressed_domain` > `canonical_inactive` > `discovery_unresolved`.
+Precedence: `unsafe_source_url` > `suppressed_domain` > `canonical_inactive` > `discovery_unresolved`.
+
+The UI enforces the same 140-character cap as PostgreSQL `left(…,140)` by
+counting Unicode code points (`[...text].length`), not UTF-16 units, so an
+excerpt with emoji cannot invalidate the whole page (Codex review).
 
 A discovery record leaves the view when its domain is promoted to
 `network_companies`, suppressed, rejected, loses feed grant / source rights,
@@ -67,8 +72,8 @@ Proposed, in order of increasing irreversibility; **none executed by Claude**:
 
 ## 4. Verification
 
-- `supabase/tests/netgrowth2c2_product_evidence_review.sql`, executed by the P0 gate on a full local Supabase rebuild, covers: anon / tenant denial (also with invalid arguments, so no validation oracle), auditor access, `service_role` revoked, exact eligible/quarantine deltas per reason, full pagination traversal (each eligible row exactly once, no duplicates, canonical before provisional), lane filters, limits 1/25/26/0, offsets −1/10000/10001, unknown/null arguments, value formats and truncation, `source_domain_match`, and no change to evidence, catalogue or publication counts.
-- Additionally run locally on a PostgreSQL 16 harness (real enrichment DDL, real discovery view, real RBAC guard functions, both migrations; Supabase auth and tables stubbed). Mutation checks, each expected to fail and failing: original #1069 RPC; quarantine disabled; suppression check removed; permission guard removed; limit 26 allowed.
+- `supabase/tests/netgrowth2c2_product_evidence_review.sql`, executed by the P0 gate on a full local Supabase rebuild, covers: anon / tenant denial (also with invalid arguments, so no validation oracle), auditor access, `service_role` revoked, exact eligible/quarantine deltas per reason, full pagination traversal (each eligible row exactly once, no duplicates, canonical before provisional), lane filters, limits 1/25/26/0, offsets −1/10000/10001, unknown/null arguments, value formats and truncation (incl. supplementary-plane characters), userinfo URLs, `source_domain_match`, and no change to evidence, catalogue or publication counts.
+- Additionally run locally on a PostgreSQL 16 harness (real enrichment DDL, real discovery view, real RBAC guard functions, both migrations; Supabase auth and tables stubbed). Mutation checks, each expected to fail and failing: original #1069 RPC; quarantine disabled; suppression check removed; userinfo guard removed; naive host parsing; permission guard removed; limit 26 allowed; 141-character cap.
 
 ## 5. Still open (not solvable from the repository)
 
