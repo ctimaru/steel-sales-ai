@@ -43,7 +43,10 @@ export default async function ItalianIdentityReviewPage({searchParams}:{
  const items=page===requested?current?.items??[]:[];
  const link=(p:number)=>"/platform/company-discovery/italian-identities?page="+p;
  return <main className="mx-auto w-full max-w-[1250px] space-y-4 px-4 py-6" data-testid="net-it-identity-review">
+  <div className="flex flex-wrap items-center justify-between gap-2">
   <Link href="/platform/company-discovery/steel-coverage" className="inline-flex min-h-10 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">← Copertura industriale</Link>
+  <Link href="/platform/company-discovery/identity-recovery" className="ui-action ui-action-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Recupero identità →</Link>
+  </div>
   <header className="rounded-2xl border border-[#d4e2da] bg-white p-5">
    <p className="text-xs font-bold uppercase tracking-wider text-[#175640]">NET-IT IDENTITY2C · Platform Intelligence</p>
    <h1 className="mt-1 text-2xl font-bold text-[#173f35]">Relazioni societarie · Italia</h1>
