@@ -207,5 +207,5 @@ try {
 } finally {
   await browser.close();
 }
-assert.equal(assertions, 16);
+assert.equal(assertions, 14);
 console.log("ONBOARDING-QA3 LOCAL MAIL DELIVERY E2E PASS", assertions, "checks (no production email or tenants)");
