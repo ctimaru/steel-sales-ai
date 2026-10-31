@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 
 import { PENDING_SIGNUP_EMAIL_COOKIE, PENDING_SIGNUP_NEXT_COOKIE } from "@/lib/auth-email-verification";
 import { safeInternalNext } from "@/lib/auth-next";
+import { siteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 function safeNext(value: string | null) {
@@ -17,7 +18,15 @@ function nextFromSignupRedirect(value: string | null, origin: string): string | 
     const target = new URL(value);
     // RedirectTo comes from a trusted Supabase redirect allow-list, but verify
     // both origin and exact auth callback path on this server regardless.
-    if (target.origin !== origin || target.pathname !== "/auth/finish" || target.searchParams.get("signup") !== "1") return null;
+    // Next.js may normalize request.nextUrl.origin to an internal host when
+    // behind a proxy. The signup callback itself uses the configured public
+    // site origin; allow exactly either trusted origin, never arbitrary hosts.
+    const canonicalOrigin = new URL(siteUrl).origin;
+    if (
+      (target.origin !== origin && target.origin !== canonicalOrigin) ||
+      target.pathname !== "/auth/finish" ||
+      target.searchParams.get("signup") !== "1"
+    ) return null;
     const path = safeInternalNext(target.searchParams.get("next"), "/register");
     return path.startsWith("/en/register") || path.startsWith("/register") ? path : null;
   } catch {
