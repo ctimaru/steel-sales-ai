@@ -195,6 +195,13 @@ try {
         const sentAuthCookie = await Promise.all(registerCookieChecks);
         console.error("ONBOARDING-QA3 POST-CONFIRM SAFE STATE", locale,
           JSON.stringify({ authState, cookieMeta: safeCookieMetadata, registerSentSession: sentAuthCookie }));
+        await otherBrowser.reload({ waitUntil: "domcontentloaded" });
+        const recovered = await application.isVisible();
+        const secondNavigationHasSession = await Promise.all(registerCookieChecks.slice(sentAuthCookie.length));
+        console.error("ONBOARDING-QA3 SAFE RELOAD EVIDENCE", locale,
+          JSON.stringify({ companyFormVisible: recovered, secondNavigationHasSession }));
+        // The gate deliberately still fails unless the FIRST navigation
+        // worked. QA must not normalize manual reload as acceptable UX.
       }
       await application.waitFor({ state: "visible", timeout: 12000 });
       assert.equal(await otherBrowser.locator('input[name="return_to"]').inputValue(), destination);
