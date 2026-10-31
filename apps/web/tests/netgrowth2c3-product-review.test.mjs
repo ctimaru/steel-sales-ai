@@ -1,0 +1,37 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+
+const root=new URL("../",import.meta.url);
+const page=readFileSync(new URL("app/(italian)/(platform)/platform/company-discovery/product-evidence/page.tsx",root),"utf8");
+const actions=readFileSync(new URL("app/(italian)/(platform)/platform/company-discovery/product-evidence/actions.ts",root),"utf8");
+const migration=readFileSync(new URL("../../../supabase/migrations/20261031185000_netgrowth2c3_human_product_review.sql",import.meta.url),"utf8");
+const sqlTest=readFileSync(new URL("../../../supabase/tests/netgrowth2c3_review_decision_security.sql",import.meta.url),"utf8");
+
+test("Product evidence accepts human decisions only, never publishes automatically",()=>{
+ assert.match(page,/requirePlatformPermission\("discovery\.read"\)/);
+ assert.match(page,/getPlatformAccessContext/);
+ assert.match(page,/recordProductEvidenceReview/);
+ assert.match(page,/discovery\.review/);
+ assert.match(page,/discovery\.enrich/);
+ assert.match(page,/reviewer_role/);
+ assert.match(page,/identity_confirmed/);
+ assert.match(page,/source_rights_confirmed/);
+ assert.match(page,/attribute_confirmed/);
+ assert.match(page,/Revisionata · non pubblicata/);
+ assert.match(page,/publication_performed===false/);
+ assert.match(actions,/requirePlatformPermission\("discovery\.review"\)/);
+ assert.match(actions,/requirePlatformPermission\("discovery\.enrich"\)/);
+ assert.match(actions,/netgrowth2c3_record_product_review/);
+ assert.match(actions,/publication_performed!==false/);
+ assert.match(migration,/private\.netgrowth2c3_product_review_events/);
+ assert.match(migration,/netgrowth2c3_reviews_immutable/);
+ assert.match(migration,/private\.require_platform_permission\('discovery\.review'\)/);
+ assert.match(migration,/private\.require_platform_permission\('discovery\.enrich'\)/);
+ assert.match(migration,/v_e\.canonical_company_id is null/);
+ assert.match(migration,/p_source_rights_confirmed/);
+ assert.match(migration,/revoke all on function public\.netgrowth2c3_record_product_review/);
+ assert.match(sqlTest,/Anon may submit decisions/);
+ assert.doesNotMatch(migration,/\binsert into public\.network_companies\b|\bupdate public\.network_companies\b/i);
+ assert.doesNotMatch(migration,/\binsert into public\.network_company_products\b|\bupdate public\.network_company_products\b/i);
+});
