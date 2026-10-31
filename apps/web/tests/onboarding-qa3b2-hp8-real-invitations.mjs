@@ -177,7 +177,7 @@ try {
         const portal = document.querySelector("nextjs-portal");
         const root = portal?.shadowRoot;
         const text = root?.textContent || "";
-        const sanitized = text.replace(/https?:\\/\\/[^\\s"'<>]+/g, "[URL]")
+        const sanitized = text.replace(/https?:\/\/[^\s"'<>]+/g, "[URL]")
           .replace(/[A-Za-z0-9_-]{35,}/g, "[REDACTED]");
         return {
           overlay: Boolean(portal),
