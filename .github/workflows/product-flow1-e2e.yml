@@ -8,6 +8,7 @@ on:
       - "apps/web/tests/calc-dist3-chrome-authenticated-private-save.mjs"
       - "apps/web/tests/product-flow1-*.cjs"
       - "apps/web/tests/demotest23-seed-auth.mjs"
+      - "apps/web/tests/netgrowth2c1-*.mjs"
       - "apps/web/tests/rfqh14-2-prepare-portal.mjs"
       - "apps/web/components/**"
       - "apps/web/lib/**"
@@ -28,6 +29,7 @@ on:
       - "supabase/ci/**"
       - "supabase/tests/product_flow1_local_search_seed.sql"
       - "supabase/tests/demotest2_3_chrome_seed.sql"
+      - "supabase/tests/netgrowth2c1_chrome_synthetic_seed.sql"
       - "supabase/tests/rfqh14_2_chrome_procurement_seed.sql"
   workflow_dispatch:
 
@@ -186,6 +188,28 @@ jobs:
           done
           echo "Local Next.js startup failed; private logs are not published"
           exit 1
+      - name: NET-GROWTH2C.1 — Seed 28 local-only identities and synthetic Platform auditor
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f supabase/tests/netgrowth2c1_chrome_synthetic_seed.sql
+      - name: NET-GROWTH2C.1 — Authenticated Chrome desktop/mobile identity recovery acceptance
+        working-directory: apps/web
+        timeout-minutes: 8
+        run: node tests/netgrowth2c1-chrome-visual-acceptance.mjs
+      - name: NET-GROWTH2C.1 — Upload synthetic Platform identity cockpit screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: netgrowth2c1-synthetic-platform-visual
+          path: ${{ runner.temp }}/netgrowth2c1-safe-screenshots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: ONBOARDING-UX1 — Chrome IT/EN 320/390/1440 and real synthetic GoTrue handoff
         working-directory: apps/web
         shell: bash
