@@ -176,6 +176,17 @@ try {
       throw new Error("Synthetic invitation navigation failed (token redacted)");
     }
     await page.getByRole("heading", { name: /Entra in / }).waitFor({ timeout: 30000 });
+    assert.equal(clientErrors.length, 0, "No runtime browser exceptions allowed during HP8 invitation");
+    // FLOW1 uses next dev; its diagnostic portal ("01 Issue") is not part of
+    // the production build and can intercept otherwise functional UI clicks.
+    // Remove only that DEV-only portal. Never force-click the app's buttons,
+    // hide an application modal or bypass HP8 role/database authorization.
+    const devPortals = await page.locator("nextjs-portal").count();
+    if (devPortals) {
+      await page.locator("nextjs-portal").evaluateAll(elements =>
+        elements.forEach(el => el.remove()));
+      console.log("ONBOARDING-QA3.B2 local Next dev-only portal excluded from pointer acceptance");
+    }
     await page.locator('input[name="password"]').fill(newPassword);
     const acceptanceButton = page.getByRole("button", { name: "Entra nel workspace" });
     try {
