@@ -15,8 +15,9 @@
 --    (public.network_netfast3_suppressed_domains) is never shown.
 --  * Evidence attached to archived/suspended canonical companies is not shown.
 --  * Source URLs carrying userinfo (credentials) or without a parseable host
---    are never shown; the host is parsed without userinfo before the
---    suppression check, so user:pw@suppressed-host cannot bypass it.
+--    are never shown; the host is parsed without userinfo and port before
+--    the suppression check, so user:pw@suppressed-host cannot bypass it, and
+--    any host that is not a canonical DNS name fails closed.
 --  * Excluded rows stay untouched in the private table (historical provenance
 --    preserved) and are reported only as aggregate counts per reason: no id,
 --    name, domain, URL or excerpt of a quarantined row leaves the database.
@@ -71,7 +72,12 @@ begin
       case when r.canonical_company_id is not null then 'canonical' else 'provisional' end as lane,
       case when r.canonical_company_id is not null then r.company_domain else r.discovery_domain end as domain,
       case
+        -- Fail closed: only canonical DNS hostnames (same shape as the
+        -- suppression registry) can be compared safely. IP literals,
+        -- trailing dots, percent-encoding, IDN/Unicode or empty hosts are
+        -- quarantined instead of risking a suppression bypass.
         when r.evidence_has_userinfo or r.evidence_host is null
+          or r.evidence_host !~ '^[a-z0-9]([a-z0-9-]*[a-z0-9])?([.][a-z0-9]([a-z0-9-]*[a-z0-9])?)*[.][a-z]{2,24}$'
           then 'unsafe_source_url'
         when exists (
           select 1 from public.network_netfast3_suppressed_domains s

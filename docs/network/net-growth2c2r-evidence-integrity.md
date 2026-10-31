@@ -17,7 +17,7 @@ rolled-back transaction.
 | Provisional evidence whose discovery record left `private.netfast_discovered_records` was still listed (as "Identità da riconciliare", with source URL) | Quarantined: never listed, counted only. |
 | Suppressed domains could still surface through stored evidence | Evidence is quarantined when the source host (or a parent domain), the company domain or the discovery domain is in `public.network_netfast3_suppressed_domains`. |
 | Evidence on archived / suspended canonical companies still queued | Quarantined (`canonical_inactive`). |
-| Source URL with userinfo (`https://user:pw@host/…`) parsed `user` as host, bypassing suppression (Codex review) | Host parsed without userinfo; URLs carrying credentials or without a parseable host are quarantined (`unsafe_source_url`) and never displayed. |
+| Source URL with userinfo (`https://user:pw@host/…`) parsed `user` as host, bypassing suppression (Codex review) | Host parsed without userinfo and port; URLs carrying credentials, or whose host is not a canonical DNS name (IP literal, trailing dot, percent-encoding, IDN/Unicode, empty), fail closed as `unsafe_source_url` and are never displayed (ChatGPT cross-review). |
 | `field_value` shape unverifiable; non-array silently empty | Explicit `value_format` (`text`, `string_list`, `mixed_list`, `object`). Only string entries are rendered, max 4 × 140 chars, blanks skipped; objects never rendered raw. |
 | Ordering relied on `confidence` (always null in the in-repo ingestion path) | `confidence desc nulls last, fetched_at desc, company_name, id`. |
 | Unnecessary `service_role` execute | Revoked; only `authenticated`, gated by `discovery.read`. |

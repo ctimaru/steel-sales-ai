@@ -131,7 +131,8 @@ select pg_temp.g2_assert(
 -- ---------------------------------------------------------------------------
 -- Synthetic evidence. Eligible: 2 canonical + 27 provisional.
 -- Quarantined: archived canonical, orphan discovery, suppressed lead,
--- canonical with a suppressed source host, 2 source URLs with userinfo = 6.
+-- canonical with a suppressed source host, the same host with a port,
+-- 2 source URLs with userinfo, 2 non-canonical hosts = 9.
 -- Out of scope (not candidate / not products) must never be counted.
 -- ---------------------------------------------------------------------------
 insert into private.network_company_enrichment
@@ -174,6 +175,20 @@ values
    '00000000-0000-0000-0000-00000000c202',null,'products',
    jsonb_build_array('Credenziali nella fonte'),
    'https://user@g2c2r-draft.example.test/p','g2c2r-test',null,'candidate',now()),
+  -- QUARANTINE suppressed_domain: explicit port and upper case on a suppressed host.
+  ('00000000-0000-0000-0000-0000000e000a',
+   '00000000-0000-0000-0000-00000000c201',null,'products',
+   jsonb_build_array('Porta esplicita'),
+   'https://WWW.G2C2R-BLOCKED.example.test:8443/x','g2c2r-test',null,'candidate',now()),
+  -- QUARANTINE unsafe_source_url: non-canonical hosts fail closed.
+  ('00000000-0000-0000-0000-0000000e000b',
+   '00000000-0000-0000-0000-00000000c201',null,'products',
+   jsonb_build_array('Punto finale'),
+   'https://g2c2r-blocked.example.test./x','g2c2r-test',null,'candidate',now()),
+  ('00000000-0000-0000-0000-0000000e000c',
+   '00000000-0000-0000-0000-00000000c202',null,'products',
+   jsonb_build_array('Indirizzo IP'),
+   'https://192.0.2.10/x','g2c2r-test',null,'candidate',now()),
   -- Out of scope: accepted products and candidate services.
   ('00000000-0000-0000-0000-0000000e0006',
    '00000000-0000-0000-0000-00000000c201',null,'products',
@@ -240,18 +255,18 @@ select pg_temp.g2_assert(
   'total = canonical + provisional');
 select pg_temp.g2_assert(
   ((:'g2_first'::jsonb)->>'quarantined_total')::int
-   -((:'g2_baseline'::jsonb)->>'quarantined_total')::int=6,
-  'exactly 6 synthetic rows are quarantined');
+   -((:'g2_baseline'::jsonb)->>'quarantined_total')::int=9,
+  'exactly 9 synthetic rows are quarantined');
 select pg_temp.g2_assert(
   ((:'g2_first'::jsonb)#>>'{quarantine_by_reason,suppressed_domain}')::int
-   -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,suppressed_domain}')::int=2
+   -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,suppressed_domain}')::int=3
   and ((:'g2_first'::jsonb)#>>'{quarantine_by_reason,discovery_unresolved}')::int
    -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,discovery_unresolved}')::int=1
   and ((:'g2_first'::jsonb)#>>'{quarantine_by_reason,canonical_inactive}')::int
    -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,canonical_inactive}')::int=1
   and ((:'g2_first'::jsonb)#>>'{quarantine_by_reason,unsafe_source_url}')::int
-   -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,unsafe_source_url}')::int=2,
-  'quarantine reasons: 2 suppressed, 1 unresolved, 1 inactive, 2 unsafe URLs');
+   -((:'g2_baseline'::jsonb)#>>'{quarantine_by_reason,unsafe_source_url}')::int=4,
+  'quarantine reasons: 3 suppressed, 1 unresolved, 1 inactive, 4 unsafe URLs');
 select pg_temp.g2_assert(
   (:'g2_first'::jsonb)->>'accepted_by_this_process'='0'
   and (:'g2_first'::jsonb)->>'publication_performed'='false',
@@ -277,12 +292,16 @@ select pg_temp.g2_assert(
     '00000000-0000-0000-0000-0000000e0003','00000000-0000-0000-0000-0000000e0004',
     '00000000-0000-0000-0000-0000000e0005','00000000-0000-0000-0000-0000000e0006',
     '00000000-0000-0000-0000-0000000e0007','00000000-0000-0000-0000-0000000e0008',
-    '00000000-0000-0000-0000-0000000e0009','00000000-0000-0000-0000-0000000f0028')),
+    '00000000-0000-0000-0000-0000000e0009','00000000-0000-0000-0000-0000000e000a',
+    '00000000-0000-0000-0000-0000000e000b','00000000-0000-0000-0000-0000000e000c',
+    '00000000-0000-0000-0000-0000000f0028')),
   'quarantined, accepted and non-product evidence never listed');
 select pg_temp.g2_assert(
   not exists (select 1 from g2_all where item->>'source_url' like '%g2c2r-blocked%'
      or item->>'source_url' like '%g2c2r-orphan%'
      or item->>'source_url' like '%@%'
+     or item->>'source_url' ilike '%g2c2r-blocked%'
+     or item->>'source_url' like '%192.0.2.10%'
      or item->>'domain' like '%g2c2r-lead-28%'
      or item->>'domain' like '%g2c2r-archived%'),
   'no suppressed, unresolved or inactive source data leaks');
