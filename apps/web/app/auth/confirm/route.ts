@@ -41,18 +41,23 @@ export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   const pendingNext = safeInternalNext(cookieStore.get(PENDING_SIGNUP_NEXT_COOKIE)?.value, "/register");
   const cookieFallback = legacyNext === "/register" && pendingNext.startsWith("/en/register") ? pendingNext : legacyNext;
-  const next = nextFromSignupRedirect(request.nextUrl.searchParams.get("redirect_to"), request.nextUrl.origin) ?? cookieFallback;
+  const redirectParam = request.nextUrl.searchParams.get("redirect_to");
+  const trustedSignupNext = nextFromSignupRedirect(redirectParam, request.nextUrl.origin);
+  const next = trustedSignupNext ?? cookieFallback;
 
-  const successUrl = request.nextUrl.clone();
+  // The request's internal NextURL may have a proxy-normalized hostname
+  // (e.g. localhost instead of 127.0.0.1). The cookie is scoped to the
+  // hostname used by the user in the original email. Preserve the origin
+  // from the callback ONLY after verifying its origin and exact path above.
+  const redirectOrigin = trustedSignupNext && redirectParam
+    ? new URL(redirectParam).origin
+    : new URL(siteUrl).origin;
   // A claim reference belongs in the query string, not the URL pathname.
-  const destination = new URL(next, request.nextUrl.origin);
-  successUrl.pathname = destination.pathname;
-  successUrl.search = destination.search;
-  successUrl.hash = destination.hash;
-
-  const errorUrl = request.nextUrl.clone();
-  errorUrl.pathname = next.startsWith("/en/register") ? "/en/verify-email" : "/verify-email";
-  errorUrl.search = "";
+  const successUrl = new URL(next, redirectOrigin);
+  const errorUrl = new URL(
+    next.startsWith("/en/register") ? "/en/verify-email" : "/verify-email",
+    redirectOrigin,
+  );
   errorUrl.searchParams.set(
     "error",
     "Il link di verifica non è valido o è scaduto. Richiedi un nuovo link.",
