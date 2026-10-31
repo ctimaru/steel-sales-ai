@@ -163,6 +163,8 @@ try {
         console.error("ONBOARDING-QA3 SAFE REDIRECT DIAGNOSTIC", locale, JSON.stringify(hops));
       }
       assert.equal(actualReturn, destination);
+      const authCookies = (await confirmed.cookies(BASE)).filter(c => /-auth-token(?:\\.\\d+)?$/.test(c.name));
+      assert.ok(authCookies.length > 0, "Verified session cookie missing in independent browser");
       const application = otherBrowser.locator("#company-form");
       await application.waitFor({ state: "visible", timeout: 45000 });
       assert.equal(await otherBrowser.locator('input[name="return_to"]').inputValue(), destination);
