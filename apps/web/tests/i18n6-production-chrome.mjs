@@ -50,7 +50,9 @@ try {
       break;
     }
     assert.equal(registration?.status(), 200, "Public English registration");
-    await page.getByRole("heading", { name: "Join Smart Steel Sales" }).waitFor();
+    // ONBOARDING-UX2 puts the account CTA first; some cached production
+    // regions may still serve the older company-discovery heading.
+    await page.getByRole("heading", { name: /^(Create account|Join Smart Steel Sales)$/ }).first().waitFor();
     assert.ok(await page.locator('input[name="company_query"]').count(), "Existing company lookup reused");
     assert.ok(await page.locator('input[name="email"]').count(), "Email form present");
     assert.ok(await page.locator('input[name="password"]').count(), "Password form present");
