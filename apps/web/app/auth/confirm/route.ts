@@ -71,6 +71,7 @@ export async function GET(request: NextRequest) {
   // response returned to the *other* browser. Setting them only on the
   // next/headers cookie store is insufficient for this redirect path.
   const response = NextResponse.redirect(successUrl);
+  response.headers.set("Cache-Control", "private, no-store");
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
@@ -79,10 +80,14 @@ export async function GET(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet) {
+        setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
             response.cookies.set(name, value, options);
+          });
+          // Propagate Supabase's no-cache security headers when supplied by SSR.
+          Object.entries(headers ?? {}).forEach(([name, value]) => {
+            response.headers.set(name, value);
           });
         },
       },
