@@ -90,7 +90,7 @@ begin
 
  select * into v_prior from private.netgrowth2c3_product_review_events
  where evidence_id=p_evidence_id order by recorded_at desc,id desc limit 1;
- if found and v_prior.decision=p_decision and v_prior.reason=btrim(p_reason)
+ if found and v_prior.reviewed_by=v_actor and v_prior.decision=p_decision and v_prior.reason=btrim(p_reason)
    and v_prior.reviewer_role=p_role
    and v_prior.identity_confirmed=p_identity_confirmed
    and v_prior.source_rights_confirmed=p_source_rights_confirmed
