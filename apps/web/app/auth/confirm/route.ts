@@ -1,11 +1,11 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
 import { PENDING_SIGNUP_EMAIL_COOKIE, PENDING_SIGNUP_NEXT_COOKIE } from "@/lib/auth-email-verification";
 import { safeInternalNext } from "@/lib/auth-next";
 import { siteUrl } from "@/lib/site";
-import { createClient } from "@/lib/supabase/server";
 
 function safeNext(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) return "/register";
@@ -62,17 +62,37 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(errorUrl);
   }
 
-  const supabase = await createClient();
+  // Route handlers must explicitly put GoTrue's new auth cookies on the
+  // response returned to the *other* browser. Setting them only on the
+  // next/headers cookie store is insufficient for this redirect path.
+  const response = NextResponse.redirect(successUrl);
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    },
+  );
+
   const { error } = await supabase.auth.verifyOtp({
     token_hash: tokenHash,
     type,
   });
-
   if (error) {
+    // No session cookies from a failed verification are returned.
     return NextResponse.redirect(errorUrl);
   }
 
-  const response = NextResponse.redirect(successUrl);
   response.cookies.delete(PENDING_SIGNUP_EMAIL_COOKIE);
   response.cookies.delete(PENDING_SIGNUP_NEXT_COOKIE);
   return response;
