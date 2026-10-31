@@ -159,6 +159,14 @@ try {
   });
   try {
     const page = await context.newPage();
+    const clientErrors = [];
+    page.on("pageerror", error => {
+      const cleaned = String(error.message)
+        .replace(/https?:\/\/[^\s"'<>]+/g, "[URL]")
+        .replace(/[A-Za-z0-9_-]{35,}/g, "[REDACTED]")
+        .slice(0, 360);
+      clientErrors.push(cleaned);
+    });
     try {
       await page.goto(mail.action, { waitUntil: "domcontentloaded", timeout: 60000 });
       await page.waitForURL(url => url.pathname === "/auth/finish", { timeout: 30000 });
@@ -184,10 +192,13 @@ try {
           hasHydrationError: /hydration|hydrated|server rendered/i.test(text),
           hasRuntimeError: /runtime error|uncaught|unhandled/i.test(text),
           hasFetchError: /failed to fetch|network error/i.test(text),
-          summary: sanitized.slice(0, 280),
+          summary: sanitized.slice(-350),
+          headings: [...root?.querySelectorAll("h1,h2,[role=alert]") || []]
+            .map(h => String(h.textContent || "").slice(0, 180))
+            .slice(0, 4),
         };
       });
-      console.error("ONBOARDING-QA3.B2 SAFE CHROME OVERLAY", JSON.stringify(errorState));
+      console.error("ONBOARDING-QA3.B2 SAFE CHROME OVERLAY", JSON.stringify({ ...errorState, clientErrors }));
       throw new Error("HP8 browser acceptance blocked before click (details redacted)");
     }
     await page.waitForURL(url => url.pathname === "/legal/accept", { timeout: 30000 });
