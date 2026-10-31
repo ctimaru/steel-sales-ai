@@ -134,6 +134,18 @@ try {
       // email cookie and no signup session in this browser.
       confirmed = await newContext(390);
       const otherBrowser = await confirmed.newPage();
+      const registerCookieChecks = [];
+      otherBrowser.on("request", request => {
+        if (!request.isNavigationRequest()) return;
+        try {
+          if (new URL(request.url()).pathname !== register) return;
+          registerCookieChecks.push(
+            request.allHeaders().then(headers =>
+              /sb-[^;]+-auth-token(?:\\.\\d+)?=/.test(headers.cookie ?? "")
+            ).catch(() => false)
+          );
+        } catch {}
+      });
       // Redact OTP and every query value. Only HTTP status, path and query
       // parameter NAMES may be recorded for redirect-chain diagnostics.
       const hops = [];
@@ -175,9 +187,14 @@ try {
         }));
         const safeCookieMetadata = (await confirmed.cookies(BASE))
           .filter(row => /-auth-token(?:\\.\\d+)?$/.test(row.name))
-          .map(row => ({ secure: row.secure, sameSite: row.sameSite, domain: row.domain, path: row.path }));
+          .map(row => ({
+            secure: row.secure, sameSite: row.sameSite,
+            domain: row.domain, path: row.path, byteLength: row.value.length,
+            hasBase64Prefix: row.value.startsWith("base64-"),
+          }));
+        const sentAuthCookie = await Promise.all(registerCookieChecks);
         console.error("ONBOARDING-QA3 POST-CONFIRM SAFE STATE", locale,
-          JSON.stringify({ authState, cookieMeta: safeCookieMetadata }));
+          JSON.stringify({ authState, cookieMeta: safeCookieMetadata, registerSentSession: sentAuthCookie }));
       }
       await application.waitFor({ state: "visible", timeout: 12000 });
       assert.equal(await otherBrowser.locator('input[name="return_to"]').inputValue(), destination);
