@@ -32,7 +32,7 @@ begin
   if (select count(*) from private.net_growth2b_identity_recovery where canonical_domain like 'netgrowth-qa-%.example')<>28 then
     raise exception 'NET-GROWTH2C.1 synthetic recovery view missing';
   end if;
-  if (select count(*) from public.platform_staff_roles where user_id=:'buyer_user_id'::uuid and role_key='platform_auditor')<>1 then
+  if (select count(*) from public.platform_staff_roles r join auth.users u on u.id=r.user_id where u.email='dt23-buyer@example.test' and r.role_key='platform_auditor')<>1 then
     raise exception 'NET-GROWTH2C.1 local platform auditor missing';
   end if;
 end $$;
