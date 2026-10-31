@@ -32,6 +32,7 @@ test("Product evidence accepts human decisions only, never publishes automatical
  assert.match(migration,/p_decision='accepted'/);
  assert.match(migration,/v_company\.publication_status<>'published'/);
  assert.match(migration,/v_prior\.value_snapshot=v_e\.field_value/);
+ assert.match(migration,/v_prior\.reviewed_by=v_actor/);
  assert.match(page,/item\.lane==="canonical"&&item\.is_published/);
  assert.match(page,/not_yet_reviewed/);
  assert.match(migration,/p_source_rights_confirmed/);
