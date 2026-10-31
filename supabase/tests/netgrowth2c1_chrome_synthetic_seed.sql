@@ -3,9 +3,9 @@
 \set ON_ERROR_STOP on
 begin;
 insert into public.platform_staff(user_id,status)
-values (:'buyer_user_id'::uuid,'active');
+values ( :'netgrowth_auditor_user_id'::uuid,'active');
 insert into public.platform_staff_roles(user_id,role_key,status,assigned_by,reason)
-values (:'buyer_user_id'::uuid,'platform_auditor','active',:'buyer_user_id'::uuid,'Synthetic local Chrome discovery.read acceptance');
+values ( :'netgrowth_auditor_user_id'::uuid,'platform_auditor','active', :'netgrowth_auditor_user_id'::uuid,'Synthetic local Chrome discovery.read acceptance');
 
 insert into public.network_core_target_leads
 (company_name,canonical_domain,evidence_url,evidence_summary,segment,proposed_role,material_signal,status,intake_batch)
@@ -32,7 +32,7 @@ begin
   if (select count(*) from private.net_growth2b_identity_recovery where canonical_domain like 'netgrowth-qa-%.example')<>28 then
     raise exception 'NET-GROWTH2C.1 synthetic recovery view missing';
   end if;
-  if (select count(*) from public.platform_staff_roles r join auth.users u on u.id=r.user_id where u.email='dt23-buyer@example.test' and r.role_key='platform_auditor')<>1 then
+  if (select count(*) from public.platform_staff_roles r join auth.users u on u.id=r.user_id where u.email='netgrowth2c1-auditor@example.test' and r.role_key='platform_auditor')<>1 then
     raise exception 'NET-GROWTH2C.1 local platform auditor missing';
   end if;
 end $$;
