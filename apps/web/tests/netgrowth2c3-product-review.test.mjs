@@ -29,6 +29,11 @@ test("Product evidence accepts human decisions only, never publishes automatical
  assert.match(migration,/private\.require_platform_permission\('discovery\.review'\)/);
  assert.match(migration,/private\.require_platform_permission\('discovery\.enrich'\)/);
  assert.match(migration,/v_e\.canonical_company_id is null/);
+ assert.match(migration,/p_decision='accepted'/);
+ assert.match(migration,/v_company\.publication_status<>'published'/);
+ assert.match(migration,/v_prior\.value_snapshot=v_e\.field_value/);
+ assert.match(page,/item\.lane==="canonical"&&item\.is_published/);
+ assert.match(page,/not_yet_reviewed/);
  assert.match(migration,/p_source_rights_confirmed/);
  assert.match(migration,/revoke all on function public\.netgrowth2c3_record_product_review/);
  assert.match(sqlTest,/Anon may submit decisions/);
