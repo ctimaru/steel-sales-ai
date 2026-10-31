@@ -320,6 +320,7 @@ jobs:
             hp3_registration_state_machine_hardening.sql \
             hp7_first_login_guided_company_setup.sql \
             hp8_team_invitations_role_onboarding.sql \
+            netgrowth2c3_review_decision_security.sql \
             netgrowth2c2_product_evidence_review.sql \
             hp13_permissions_tenant_isolation.sql \
             trader1d3b2_live_source_intelligence.sql \
