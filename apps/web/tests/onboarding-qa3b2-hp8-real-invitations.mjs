@@ -136,11 +136,9 @@ try {
   assert.equal(response.status, 201, "Actual Worker invitation issuance");
   const issued = await response.json();
   assert.equal(issued.status, "pending");
-  assert.equal(issued.delivery_status, "sent");
   assert.equal(issued.email_delivery, "sent");
   assert.equal(issued.role, "member");
   assert.equal(issued.business_role, "salesperson");
-  assert.equal(issued.delivery_mode, "invite");
   assert.equal(issued.send_count, 1);
   pass("Worker issues pending team invite with correct role and delivery");
 
@@ -149,7 +147,7 @@ try {
   pass("Mailpit delivers real HP8 invite with unique claim identifier");
 
   let state = await team();
-  assert.ok(state.invitations.some(i => i.id === issued.invitation_id && i.status === "pending"));
+  assert.ok(state.invitations.some(i => i.id === issued.invitation_id && i.status === "pending" && i.delivery_status === "sent" && i.delivery_mode === "invite"));
   assert.ok(!state.members.some(m => m.email === acceptedEmail));
   pass("admin sees pending invitation, no premature membership");
 
