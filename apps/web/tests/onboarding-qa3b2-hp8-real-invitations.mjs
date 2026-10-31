@@ -159,8 +159,14 @@ try {
   });
   try {
     const page = await context.newPage();
-    await page.goto(mail.action, { waitUntil: "domcontentloaded", timeout: 60000 });
-    await page.waitForURL(url => url.pathname === "/auth/finish", { timeout: 30000 });
+    try {
+      await page.goto(mail.action, { waitUntil: "domcontentloaded", timeout: 60000 });
+      await page.waitForURL(url => url.pathname === "/auth/finish", { timeout: 30000 });
+    } catch {
+      // Playwright's default navigation error includes the visited URL.
+      // Never let a one-time invite token appear in CI logs.
+      throw new Error("Synthetic invitation navigation failed (token redacted)");
+    }
     await page.getByRole("heading", { name: /Entra in / }).waitFor({ timeout: 30000 });
     await page.locator('input[name="password"]').fill(newPassword);
     await page.getByRole("button", { name: "Entra nel workspace" }).click();
