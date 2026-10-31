@@ -265,6 +265,15 @@ jobs:
           path: ${{ runner.temp }}/comm-ux6b-safe-screenshots/*.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: ONBOARDING-QA3.B — GoTrue resend, invite, invalid token and multi-session suspension
+        working-directory: apps/web
+        shell: bash
+        timeout-minutes: 8
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/demotest23-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            node tests/onboarding-qa3b-local-lifecycle.mjs
       - name: Stop local processes and destroy temporary data and capabilities
         if: always()
         shell: bash
