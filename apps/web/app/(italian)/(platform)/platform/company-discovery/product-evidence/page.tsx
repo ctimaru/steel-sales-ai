@@ -22,7 +22,7 @@ type Snapshot={
 };
 const lanes=[
  {key:"all",label:"Tutte"},
- {key:"canonical",label:"Pubblicate"},
+ {key:"canonical",label:"Catalogo canonico"},
  {key:"provisional",label:"Provvisorie"},
 ] as const;
 const pickLane=(v?:string):Lane=>
@@ -74,7 +74,7 @@ export default async function ProductEvidencePage({searchParams}:{
    <section aria-label="Stato delle evidenze prodotti" className="grid grid-cols-3 gap-1.5 sm:gap-3">
     {[
      {label:"Candidate",value:snapshot.total_candidates},
-     {label:"Pubblicate",value:snapshot.canonical_candidates},
+     {label:"Canoniche",value:snapshot.canonical_candidates},
      {label:"Provvisorie",value:snapshot.provisional_candidates},
     ].map(stat=><article key={stat.label} className="min-w-0 rounded-xl border border-[#d7e3dc] bg-white px-3 py-2 sm:p-4">
      <p className="text-[11px] font-semibold text-[#52615b]">{stat.label}</p>
@@ -98,7 +98,7 @@ export default async function ProductEvidencePage({searchParams}:{
       className="rounded-xl border border-[#d7e3dc] bg-white p-3 sm:p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
        <div className="min-w-0">
-        <p className="text-[11px] font-semibold text-[#52615b]">Evidenza {(page-1)*PAGE_SIZE+index+1} · {item.lane==="canonical"?"Catalogo pubblicato":"Scheda provvisoria"}</p>
+        <p className="text-[11px] font-semibold text-[#52615b]">Evidenza {(page-1)*PAGE_SIZE+index+1} · {item.is_published?"Scheda pubblicata":item.lane==="canonical"?"Scheda canonica non pubblicata":"Scheda provvisoria"}</p>
         <h3 className="mt-0.5 break-words text-sm font-bold text-[#173f35]">{item.name}</h3>
         <p className="break-all text-xs text-[#52615b]">{item.domain||"Dominio non risolto"}</p>
        </div>
