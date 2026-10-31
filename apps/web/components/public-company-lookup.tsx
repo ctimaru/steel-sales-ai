@@ -133,23 +133,23 @@ export function PublicCompanyLookup({
     <div
       className={
         registrationContext
-          ? "min-w-0 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
+          ? "min-w-0 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-3 sm:p-5"
           : "min-w-0 rounded-[28px] border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
       }
     >
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-          {locale === "en" ? (registrationContext ? "Before you register" : "Find your company") : (registrationContext ? "Prima di registrarti" : "Trova la tua azienda")}
+          {locale === "en" ? (registrationContext ? "Company check" : "Find your company") : (registrationContext ? "Controllo azienda" : "Trova la tua azienda")}
         </p>
-        <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[#1d2824]">
-          {locale === "en" ? (registrationContext ? "Check if your company is already listed" : "Is your company on Smart Steel Sales?") : (registrationContext ? "Verifica se la tua azienda è già presente" : "È già presente su Smart Steel Sales?")}
+        <h3 className={(registrationContext ? "mt-1 text-lg sm:text-xl" : "mt-2 text-2xl") + " font-semibold tracking-tight text-[#1d2824]"}>
+          {locale === "en" ? (registrationContext ? "Already on Smart Steel Sales?" : "Is your company on Smart Steel Sales?") : (registrationContext ? "Azienda già presente?" : "È già presente su Smart Steel Sales?")}
         </h3>
         <p className="mt-2 text-sm leading-6 text-[#5d6a65]">
-          {locale === "en" ? "Search by legal company name or VAT number. If your company already has a claimable profile, link it to this application instead of creating a duplicate." : (registrationContext ? "Cerca per ragione sociale o Partita IVA. Se esiste già un profilo claimable, lo colleghiamo alla registrazione invece di creare un duplicato." : "Cerca per ragione sociale o Partita IVA. Mostriamo solo l’identità minima necessaria a verificare se il profilo può essere rivendicato.")}
+          {locale === "en" ? (registrationContext ? "Optional now: find an existing company and link its profile, without creating a duplicate." : "Search by legal company name or VAT number. If your company already has a claimable profile, link it to this application instead of creating a duplicate.") : (registrationContext ? "Puoi cercarla ora o dopo la verifica email, senza creare profili duplicati." : "Cerca per ragione sociale o Partita IVA. Mostriamo solo l’identità minima necessaria a verificare se il profilo può essere rivendicato.")}
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="mt-5">
+      <form onSubmit={handleSubmit} className={registrationContext ? "mt-3" : "mt-5"}>
         <div className="sr-only" aria-hidden="true">
           <label>
             Sito aziendale

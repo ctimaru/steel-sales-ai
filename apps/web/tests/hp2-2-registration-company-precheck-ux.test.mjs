@@ -15,13 +15,14 @@ const registrationForm = fs.readFileSync(
 const registerActions = fs.readFileSync(new URL("../app/register/actions.ts", import.meta.url), "utf8");
 const productBrand = fs.readFileSync(new URL("../components/product-brand.tsx", import.meta.url), "utf8");
 
-test("HP2.2 puts the governed company lookup before anonymous account creation", () => {
+test("HP2.2 preserves governed company lookup in a signup-first anonymous flow", () => {
   assert.match(register, /id="company-check"/);
   assert.match(register, /<PublicCompanyLookup/);
   assert.match(register, /context="registration"/);
   assert.match(register, /notFoundHref="#account"/);
   assert.match(register, /id="account"/);
-  assert.match(register, /Prima verifica se la tua azienda è già presente/);
+  assert.ok(register.indexOf('id="account"') < register.indexOf('id="company-check"'), "UX2 puts signup before optional lookup");
+  assert.match(register, /Crea il tuo account aziendale/);
 });
 
 test("HP2.2 keeps claimable results on the existing PA1.4 registration handoff", () => {
@@ -37,7 +38,7 @@ test("HP2.2 gives a not-found company a non-looping path into account creation",
   assert.match(lookup, /notFoundHref/);
   assert.match(lookup, /notFoundLabel/);
   assert.match(register, /notFoundHref="#account"/);
-  assert.match(register, /Non è presente: continua con una nuova registrazione/);
+  assert.match(register, /Nessun risultato\? Puoi creare l’account/);
 });
 
 test("HP2.2 repeats the pre-check after email verification for a fresh unclaimed flow", () => {
