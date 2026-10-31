@@ -214,6 +214,14 @@ jobs:
           path: /tmp/onboarding-ux2/*.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: ONBOARDING-QA3.A — Real GoTrue email to local Mailpit and cross-browser confirmation/recovery
+        working-directory: apps/web
+        shell: bash
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          # All Mailpit/GoTrue traffic remains inside disposable local CI.
+          node tests/onboarding-qa3-chrome-mail-delivery.mjs
       - name: Chrome desktop 1440 and mobile 390 complete Search to Supplier Response
         working-directory: apps/web
         timeout-minutes: 20
