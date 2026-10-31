@@ -169,7 +169,27 @@ try {
     }
     await page.getByRole("heading", { name: /Entra in / }).waitFor({ timeout: 30000 });
     await page.locator('input[name="password"]').fill(newPassword);
-    await page.getByRole("button", { name: "Entra nel workspace" }).click();
+    const acceptanceButton = page.getByRole("button", { name: "Entra nel workspace" });
+    try {
+      await acceptanceButton.click({ timeout: 7000 });
+    } catch {
+      const errorState = await page.evaluate(() => {
+        const portal = document.querySelector("nextjs-portal");
+        const root = portal?.shadowRoot;
+        const text = root?.textContent || "";
+        const sanitized = text.replace(/https?:\\/\\/[^\\s"'<>]+/g, "[URL]")
+          .replace(/[A-Za-z0-9_-]{35,}/g, "[REDACTED]");
+        return {
+          overlay: Boolean(portal),
+          hasHydrationError: /hydration|hydrated|server rendered/i.test(text),
+          hasRuntimeError: /runtime error|uncaught|unhandled/i.test(text),
+          hasFetchError: /failed to fetch|network error/i.test(text),
+          summary: sanitized.slice(0, 280),
+        };
+      });
+      console.error("ONBOARDING-QA3.B2 SAFE CHROME OVERLAY", JSON.stringify(errorState));
+      throw new Error("HP8 browser acceptance blocked before click (details redacted)");
+    }
     await page.waitForURL(url => url.pathname === "/legal/accept", { timeout: 30000 });
     pass("independent Chrome browser accepts invitation and sets password");
   } finally {
