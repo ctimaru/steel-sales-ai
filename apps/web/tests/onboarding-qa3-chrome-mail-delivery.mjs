@@ -170,6 +170,8 @@ try {
         throw new Error("Cross-browser token URL navigation failed (token redacted)");
       }
       await otherBrowser.waitForURL(u => u.pathname === register, { timeout: 45000 });
+      assert.equal(new URL(otherBrowser.url()).origin, BASE,
+        "OTP callback must not switch to a proxy-internal hostname");
       const actualReturn = new URL(otherBrowser.url()).searchParams.get("return_to");
       if (actualReturn !== destination) {
         console.error("ONBOARDING-QA3 SAFE REDIRECT DIAGNOSTIC", locale, JSON.stringify(hops));
