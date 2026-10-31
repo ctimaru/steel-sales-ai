@@ -1,0 +1,30 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const root=new URL("../",import.meta.url);
+const page=readFileSync(new URL("app/(italian)/(platform)/platform/company-discovery/product-evidence/page.tsx",root),"utf8");
+const nav=readFileSync(new URL("app/(italian)/(platform)/platform/company-discovery/steel-coverage/page.tsx",root),"utf8");
+const ia=readFileSync(new URL("lib/platform-ia-contract.ts",root),"utf8");
+const sql=readFileSync(new URL("../../../supabase/migrations/20261031183100_netgrowth2c2_product_evidence_review.sql",import.meta.url),"utf8");
+const tests=readFileSync(new URL("../../../supabase/tests/netgrowth2c2_product_evidence_review.sql",import.meta.url),"utf8");
+
+test("NET-GROWTH2C.2: evidence is candidate-only, read-only and Platform scoped",()=>{
+ assert.match(page,/requirePlatformPermission\("discovery\.read"\)/);
+ assert.match(page,/netgrowth2c2_product_evidence_page/);
+ assert.match(page,/p_limit:PAGE_SIZE/);
+ assert.match(page,/const PAGE_SIZE=25/);
+ assert.match(page,/review_status==="candidate"/);
+ assert.match(page,/publication_performed===false/);
+ assert.match(page,/safeNetworkWebsiteUrl\(item\.source_url\)/);
+ assert.match(nav,/company-discovery\/product-evidence/);
+ assert.match(ia,/company-discovery\/product-evidence/);
+ assert.match(sql,/private\.require_platform_permission\('discovery\.read'\)/);
+ assert.match(sql,/e\.review_status='candidate'/);
+ assert.match(sql,/e\.field_key='products'/);
+ assert.match(sql,/revoke all on function public\.netgrowth2c2_product_evidence_page/);
+ assert.match(sql,/to authenticated,service_role/);
+ assert.match(sql,/p_limit > 25/);
+ assert.match(tests,/Raw candidate evidence directly exposed/);
+ assert.doesNotMatch(sql,/\bupdate\s+public\.network_companies\b|\binsert\s+into\s+public\.network_companies\b/i);
+ assert.doesNotMatch(page,/\.from\("network_company_enrichment"\)/);
+});
