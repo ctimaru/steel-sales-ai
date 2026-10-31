@@ -36,7 +36,7 @@ async function session(person,width) {
  await page.locator('input[name="email"]').fill(person.email);
  await page.locator('input[name="password"]').fill(person.password);
  await page.getByRole("button",{name:"Accedi",exact:true}).click();
- await page.waitForURL(u=>u.pathname==="/dashboard",{timeout:90000});
+ await page.waitForURL(u=>["/dashboard","/platform"].includes(u.pathname),{timeout:90000});
  const cookie=page.getByTestId("mobile-cookie-consent");
  if(await cookie.isVisible().catch(()=>false)){
   const accept=cookie.getByRole("button",{name:/Accetta necessari|Cookie necessari/i});
