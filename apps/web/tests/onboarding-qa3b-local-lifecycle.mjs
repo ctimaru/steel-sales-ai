@@ -195,5 +195,5 @@ try {
 } finally {
   await admin.auth.signOut().catch(() => {});
 }
-assert.equal(checks, 12, "Expected twelve independent QA3.B gates");
+assert.equal(checks, 14, "Expected fourteen independent QA3.B gates");
 console.log("ONBOARDING-QA3.B LOCAL AUTH LIFECYCLE PASS", checks, "readable checks; zero production writes");
