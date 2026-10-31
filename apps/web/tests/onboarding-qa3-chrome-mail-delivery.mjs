@@ -133,9 +133,35 @@ try {
       // email cookie and no signup session in this browser.
       confirmed = await newContext(390);
       const otherBrowser = await confirmed.newPage();
-      await otherBrowser.goto(link, { waitUntil: "domcontentloaded", timeout: 90000 });
+      // Redact OTP and every query value. Only HTTP status, path and query
+      // parameter NAMES may be recorded for redirect-chain diagnostics.
+      const hops = [];
+      otherBrowser.on("response", response => {
+        if (!response.request().isNavigationRequest()) return;
+        try {
+          const url = new URL(response.url());
+          const location = response.headers()["location"];
+          const target = location ? new URL(location, BASE) : null;
+          hops.push({
+            status: response.status(),
+            path: url.pathname,
+            keys: [...url.searchParams.keys()].filter(k => k !== "token_hash"),
+            to: target?.pathname ?? null,
+            toKeys: target ? [...target.searchParams.keys()] : [],
+          });
+        } catch {}
+      });
+      try {
+        await otherBrowser.goto(link, { waitUntil: "domcontentloaded", timeout: 90000 });
+      } catch {
+        throw new Error("Cross-browser token URL navigation failed (token redacted)");
+      }
       await otherBrowser.waitForURL(u => u.pathname === register, { timeout: 45000 });
-      assert.equal(new URL(otherBrowser.url()).searchParams.get("return_to"), destination);
+      const actualReturn = new URL(otherBrowser.url()).searchParams.get("return_to");
+      if (actualReturn !== destination) {
+        console.error("ONBOARDING-QA3 SAFE REDIRECT DIAGNOSTIC", locale, JSON.stringify(hops));
+      }
+      assert.equal(actualReturn, destination);
       const application = otherBrowser.locator("#company-form");
       await application.waitFor({ state: "visible", timeout: 45000 });
       assert.equal(await otherBrowser.locator('input[name="return_to"]').inputValue(), destination);
