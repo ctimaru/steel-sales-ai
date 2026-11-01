@@ -7,6 +7,7 @@ import {withCompactGeoEvidence} from "@/lib/network-compact-geo";
 import {isSupportedNetworkCountry} from "@/lib/network-eu-countries";
 import {europeRegionForCountry} from "@/lib/network-eu-regions";
 import {getEuropeRegionalSearch} from "@/lib/network-europe-regional";
+import {getPublishedCapabilityLabels} from "@/lib/network-compact-capabilities";
 
 /** NET-UX COMPACT1: one honest, stable server-side pagination across BOTH feeds.
  * Keep each existing RLS/entitlement-gated source and its original provenance.
@@ -63,7 +64,20 @@ async function sourceSlice(
   return pieces.flat();
 }
 
+/** NET-AUDIT1.2: every list page carries capability labels for the exact
+ * companies shown, read from published facilities (same source as the
+ * profile). Paths that already return M6 labels keep them unchanged.
+ */
 export async function getCompactNetworkPage(
+  organizationId:string,access:"free"|"pro",filters:CompactNetworkFilters,
+):Promise<CompactNetworkPage>{
+  const page=await buildCompactNetworkPage(organizationId,access,filters);
+  if(page.capabilityLabels)return page;
+  const capabilityLabels=await getPublishedCapabilityLabels(page.items.map(company=>company.id));
+  return {...page,capabilityLabels};
+}
+
+async function buildCompactNetworkPage(
   organizationId:string,access:"free"|"pro",filters:CompactNetworkFilters,
 ):Promise<CompactNetworkPage>{
   filters=normalizeCompactGeoFilters(filters);

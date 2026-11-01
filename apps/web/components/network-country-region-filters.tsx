@@ -4,18 +4,22 @@ import {useState} from "react";
 import {useRouter} from "next/navigation";
 import {EU_MEMBER_COUNTRIES,OTHER_NETWORK_COUNTRIES} from "@/lib/network-eu-countries";
 import {europeRegionsForCountry} from "@/lib/network-eu-regions";
+import {canonicalItalyRegion,italyRegionOptions} from "@/lib/network-italy-regions";
 
 /** Country and region must share one state boundary. Italian regions are not
  * applicable to other countries; changing country clears any stale region.
  * The server also normalizes incoming URLs before reading company data.
+ * NET-AUDIT1.2: Italy always offers the 20 official regions, because the
+ * server filter also matches sourced localities, not only published sites.
  */
 export function NetworkCountryRegionFilters({
-  country="IT",region="",regions=[],
-}:{country?:string;region?:string;regions?:string[]}){
+  country="IT",region="",
+}:{country?:string;region?:string}){
   const router=useRouter();
   const [selectedCountry,setSelectedCountry]=useState(country);
-  const [selectedRegion,setSelectedRegion]=useState(region);
+  const [selectedRegion,setSelectedRegion]=useState(country==="IT"?canonicalItalyRegion(region):region);
   const italy=selectedCountry==="IT";
+  const regions=italy?italyRegionOptions(selectedRegion):[];
   const foreignRegions=italy?[]:europeRegionsForCountry(selectedCountry);
   const canSelectRegion=italy||foreignRegions.length>0;
   // URL is the shared contract for Free/Pro, live search and future map clicks.

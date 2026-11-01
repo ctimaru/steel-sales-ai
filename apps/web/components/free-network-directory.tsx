@@ -64,7 +64,6 @@ export async function FreeNetworkDirectoryView({
         userId={userId} organizationId={organizationId} canCompose={canCompose}
         filters={compactFilters} coverage={compactCoverage} europeCoverage={europeCoverage}
         provisionalCoverage={compactProvisional}
-        regions={compactCoverage?.regions.map(r=>r.name)||[]}
         capabilityLabels={compact.capabilityLabels}
         additionalFilters={{products:compactTaxonomy.products,capabilities:compactTaxonomy.capabilities,markets:compactTaxonomy.markets}}/>
     </FocusPage>;
