@@ -125,17 +125,17 @@ begin
 end
 $t$;
 
--- Rejected source assertion removes the evidence (platform-side change, rolled back).
+-- A rejected scope no longer counts (platform-side change, rolled back).
+-- Assertions are append-only (M4), so rejection is recorded on the scope row.
 reset role;
-update public.network_data_assertions set review_state='rejected'
-where id in (select source_assertion_id from public.network_company_product_dimension_scopes
-  where company_product_id in (select id from public.network_company_products
+update public.network_company_product_dimension_scopes set verification_status='rejected'
+where company_product_id in (select id from public.network_company_products
     where company_id='51100000-0000-5000-8000-000000000005'::uuid)
-    and dimension_type='outer_diameter');
+  and dimension_type='outer_diameter';
 set local role authenticated;
 select pg_temp.na11_ok(not pg_temp.na11_has(
   public.netaudit1_spec_search('00000000-0000-0000-0000-000000110010'::uuid,null,null,'round',60.3),
   '51100000-0000-5000-8000-000000000005'::uuid,'exact'),
-  'rejected assertion no longer counts as exact');
+  'rejected scope no longer counts as exact');
 
 rollback;
