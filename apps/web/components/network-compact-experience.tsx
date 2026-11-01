@@ -12,6 +12,9 @@ import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compa
 import {NetworkEuropeanMap} from "@/components/network-europe-map";
 import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters";
 import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
+import {NetworkRfqSelectionBar} from "@/components/network-rfq-selection-bar";
+import {isRfqSelectable,networkRfqSelectionEnabled} from "@/lib/network-rfq-supplier-handoff";
+import type {RecipientReadinessStatus} from "@/lib/network-recipient-readiness";
 import type {SpecMatch} from "@/lib/network-spec-search";
 import {NETWORK_SPEC_PARAMS,describeSpecFilters} from "@/lib/network-spec-filters";
 import type {ItalyRegionCoverage,ItalyProvisionalGeoCoverage} from "@/lib/network-region-coverage";
@@ -62,7 +65,13 @@ function initialLetters(name:string){
   const words=name.trim().split(/\s+/).filter(Boolean);
   return (words.length>1?words.slice(0,2).map(x=>x[0]).join(""):name.slice(0,2)).toUpperCase();
 }
-function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeCompany;capabilities?:string[];specMatch?:SpecMatch}){
+const READINESS_LABEL:Record<RecipientReadinessStatus,string>={
+  available:"Attiva · contattabile",connected:"Connessa",pending:"Richiesta in corso",unavailable:"Censita",
+};
+function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable}:{
+  company:FreeCompany;capabilities?:string[];specMatch?:SpecMatch;
+  status?:RecipientReadinessStatus;selectable?:boolean;
+}){
   const name=company.trading_name||company.legal_name;
   const role=company.roles[0];
   const domain=companyDomain(company);
@@ -77,6 +86,8 @@ function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeComp
   return <article className={"relative grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 transition-colors last:border-b-0 hover:bg-[#f6faf8] sm:px-4 lg:py-2.5 "+COMPANY_COLUMNS}
     data-testid="network-compact-company-row">
     <div className="flex min-w-0 items-center gap-3">
+      {selectable?<input type="checkbox" form="network-rfq-selection" name="supplier" value={company.id}
+        aria-label={"Seleziona "+name+" per una RFQ"} className="relative z-10 h-4 w-4 shrink-0 accent-[#175640]"/>:null}
       <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e4f0e9] text-[11px] font-bold text-[#175640]">
         {initialLetters(name)}
       </span>
@@ -105,7 +116,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeComp
             aria-label={"Fonte del settore per "+name}>Fonte ↗</a>:null}
         </p>:null}
         <p className="mt-0.5 truncate text-[11px] text-[#52615b] lg:hidden">
-          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}<NetworkCountryFlag code={countryCode}/> {countryLabel}{location?" · "+location:""}{locationIndicative && location?" · località indicativa":""}
+          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}<NetworkCountryFlag code={countryCode}/> {countryLabel}{location?" · "+location:""}{locationIndicative && location?" · località indicativa":""}{status?" · "+READINESS_LABEL[status]:""}
         </p>
         {locationSource&&locationIndicative&&location?
           <a href={locationSource} target="_blank" rel="noopener noreferrer"
@@ -118,6 +129,12 @@ function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeComp
         {role?(keys[role.key]||role.name):"Non indicato"}
       </span>
       {company.discovery_status==="unconfirmed"?<p className="mt-0.5 text-[10px] text-[#52615b]">Ruolo indicativo</p>:null}
+      {status?<p className={"mt-1 text-[10px] font-semibold "+(status==="unavailable"?"text-[#52615b]":"text-[#175640]")}
+        data-testid="network-recipient-status">{READINESS_LABEL[status]}</p>:null}
+      {status==="unavailable"&&company.claimed_status==="unclaimed"&&!company.discovery_status?
+        <Link href={"/network/"+company.id+"/claim"} className="relative z-10 text-[10px] font-semibold text-[#175640] underline underline-offset-2">
+          Rappresenti questa azienda?
+        </Link>:null}
     </div>
     <div className="hidden min-w-0 flex-wrap gap-1 lg:flex">
       {company.products.length?company.products.slice(0,2).map((product,index)=>
@@ -160,6 +177,8 @@ export function NetworkCompactExperience({
   const specActive=NETWORK_SPEC_PARAMS.some(key=>Boolean(filters[key]));
   const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country||filters.steel||specActive);
   const specMode=Boolean(directory.specMode);
+  // NET-AUDIT1.3: off until the RFQ Hub receiver (lane B) exists.
+  const rfqSelection=networkRfqSelectionEnabled();
   const specSummary=directory.spec?describeSpecFilters(directory.spec):"";
   const firstUndeclared=specMode?directory.items.findIndex(company=>directory.specMatches?.[company.id]?.status==="undeclared"):-1;
   const knownTotals=!directory.discoveryUnavailable;
@@ -332,7 +351,9 @@ export function NetworkCompactExperience({
           {index===firstUndeclared?<p className="border-b border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[11px] font-semibold text-[#43524c]" data-testid="network-spec-undeclared-divider">
             Scope tecnico non dichiarato · aziende della filiera tubo da verificare direttamente
           </p>:null}
-          <CompactCompanyRow company={company} capabilities={capabilityLabels[company.id]||[]} specMatch={directory.specMatches?.[company.id]}/>
+          <CompactCompanyRow company={company} capabilities={capabilityLabels[company.id]||[]} specMatch={directory.specMatches?.[company.id]}
+            status={directory.recipientStatus?.[company.id]}
+            selectable={rfqSelection&&accessMode==="pro"&&isRfqSelectable(directory.recipientStatus?.[company.id])}/>
         </Fragment>):
         <div className="px-4 py-9 text-center text-sm text-[#52615b]">{specMode?"Nessuna azienda con scope tecnico compatibile o non dichiarato per "+specSummary+". Prova a togliere un criterio, ad esempio il grado o una misura.":
           directory.regionPublishedOnly?"Nessuna sede pubblicata mappata per questa selezione; la copertura geografica del Network è ancora parziale.":"Nessuna azienda trovata. Prova un altro nome o azzera i filtri."}</div>}
@@ -341,6 +362,7 @@ export function NetworkCompactExperience({
         {directory.discoveryUnavailable?" Alcune aziende censite sono temporaneamente indisponibili.":""}
       </p>
     </section>
+    {rfqSelection&&accessMode==="pro"?<NetworkRfqSelectionBar userId={userId} organizationId={organizationId} specSummary={specSummary||undefined}/>:null}
   </main>;
 }
 
