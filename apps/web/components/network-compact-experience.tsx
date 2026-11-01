@@ -11,6 +11,7 @@ import {safeNetworkWebsiteUrl, type FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compact-directory";
 import {NetworkEuropeanMap} from "@/components/network-europe-map";
 import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters";
+import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
 import type {SpecMatch} from "@/lib/network-spec-search";
 import {NETWORK_SPEC_PARAMS,describeSpecFilters} from "@/lib/network-spec-filters";
 import type {ItalyRegionCoverage,ItalyProvisionalGeoCoverage} from "@/lib/network-region-coverage";
@@ -71,14 +72,19 @@ function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeComp
   const marketSource=safeNetworkWebsiteUrl(company.market_source_url);
   const countryCode=(company.country_code||"").toUpperCase();
   const countryLabel=networkCountryName(countryCode)||countryCode||"Paese non indicato";
-  return <article className={"grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 last:border-b-0 sm:px-4 lg:py-2.5 "+COMPANY_COLUMNS}
+  // NET-AUDIT1.4: the whole row opens the profile (stretched name link);
+  // source links sit above the overlay and stay independently clickable.
+  return <article className={"relative grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 transition-colors last:border-b-0 hover:bg-[#f6faf8] sm:px-4 lg:py-2.5 "+COMPANY_COLUMNS}
     data-testid="network-compact-company-row">
     <div className="flex min-w-0 items-center gap-3">
       <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e4f0e9] text-[11px] font-bold text-[#175640]">
         {initialLetters(name)}
       </span>
       <div className="min-w-0">
-        <h3 className="truncate text-sm font-semibold text-[#173f35]" title={name}>{name}</h3>
+        <h3 className="truncate text-sm font-semibold text-[#173f35]" title={name}>
+          <Link href={"/network/"+company.id} tabIndex={-1} aria-hidden="true"
+            className="after:absolute after:inset-0 after:content-[''] hover:underline">{name}</Link>
+        </h3>
         {domain?<p className="truncate text-xs text-[#52615b]">{domain}</p>:null}
         {specMatch?<SpecMatchLine match={specMatch} name={name}/>:null}
         {company.steel_priority?<p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[11px] leading-4 text-[#43524c]">
@@ -87,7 +93,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeComp
            company.steel_evidence_status==="accepted"?<span>· Fonte revisionata</span>:null}
           {safeNetworkWebsiteUrl(company.steel_source_url)?<a
             href={safeNetworkWebsiteUrl(company.steel_source_url)||"#"} target="_blank" rel="noopener noreferrer"
-            className="font-semibold text-[#175640] underline underline-offset-2"
+            className="relative z-10 font-semibold text-[#175640] underline underline-offset-2"
             aria-label={"Fonte rilevanza acciaio per "+name}>Fonte ↗</a>:null}
         </p>:null}
         {company.market_name?<p className="mt-0.5 truncate text-[11px] text-[#52615b]"
@@ -95,7 +101,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeComp
           <span className="font-semibold text-[#175640]">{company.market_name}</span>
           {" · "}{company.market_evidence_status==="accepted"?"settore documentato":"settore indicativo"}
           {marketSource?<a href={marketSource} target="_blank" rel="noopener noreferrer"
-            className="ml-1 font-semibold text-[#175640] underline underline-offset-2"
+            className="relative z-10 ml-1 font-semibold text-[#175640] underline underline-offset-2"
             aria-label={"Fonte del settore per "+name}>Fonte ↗</a>:null}
         </p>:null}
         <p className="mt-0.5 truncate text-[11px] text-[#52615b] lg:hidden">
@@ -103,7 +109,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeComp
         </p>
         {locationSource&&locationIndicative&&location?
           <a href={locationSource} target="_blank" rel="noopener noreferrer"
-            className="mt-0.5 inline-flex text-[11px] font-semibold text-[#175640] underline underline-offset-2 lg:hidden"
+            className="relative z-10 mt-0.5 inline-flex text-[11px] font-semibold text-[#175640] underline underline-offset-2 lg:hidden"
             aria-label={"Fonte della località indicativa di "+name}>Fonte località ↗</a>:null}
       </div>
     </div>
@@ -137,12 +143,12 @@ function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeComp
         <span>Località indicativa</span>
         {locationSource?<a href={locationSource} target="_blank" rel="noopener noreferrer"
           aria-label={"Fonte della località indicativa di "+name}
-          className="font-semibold text-[#175640] underline underline-offset-2">Fonte ↗</a>:null}
+          className="relative z-10 font-semibold text-[#175640] underline underline-offset-2">Fonte ↗</a>:null}
       </p>:null}
     </div>
     <Link href={"/network/"+company.id}
       aria-label={"Apri profilo di "+name}
-      className="ui-action ui-action-primary inline-flex min-h-10 w-full min-w-[80px] sm:min-w-[112px] items-center justify-center whitespace-nowrap rounded-lg px-2 sm:px-3 text-xs font-semibold">
+      className="ui-action ui-action-secondary relative z-10 inline-flex min-h-10 w-full min-w-[80px] sm:min-w-[112px] items-center justify-center whitespace-nowrap rounded-lg px-2 sm:px-3 text-xs font-semibold">
       <span className="sm:hidden">Apri</span><span className="hidden sm:inline">Esplora azienda</span><span className="ml-1 hidden sm:inline" aria-hidden="true">→</span>
     </Link>
   </article>;
@@ -185,19 +191,28 @@ export function NetworkCompactExperience({
         </div>
       </div>
     </div>
-    <div data-testid="network-europe1d-one-screen-shell" className="grid items-stretch gap-3 lg:grid-cols-[minmax(0,1fr)_260px]">
+    <div data-testid="network-europe1d-one-screen-shell" className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_320px]">
     <section aria-label="Ricerca e filtri delle aziende" className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-3 sm:p-4">
       <NetworkLiveSearch filters={filters}/>
-      <NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/>
-      <div className="mt-2 flex flex-wrap items-center gap-2">
+      <div className="mt-2 flex flex-wrap items-center gap-2" data-testid="network-sort">
+        <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-[#175640]">Ordina</span>
         {!specMode&&!filters.product&&!filters.capability&&!filters.market&&(!filters.country||filters.country==="IT")?
-          <Link href={filterUrl(filters,{steel:directory.steelMode?null:"1",np:null},"#network-results")}
+          <Link href={filterUrl(filters,{steel:null,np:null},"#network-results")}
+            aria-current={directory.steelMode?undefined:"page"}
+            className={"ui-action inline-flex min-h-9 items-center rounded-full px-3 text-xs font-semibold "+
+              (directory.steelMode?"ui-action-secondary":"ui-action-primary")}>
+            Pertinenza
+          </Link>:null}
+        {!specMode&&!filters.product&&!filters.capability&&!filters.market&&(!filters.country||filters.country==="IT")?
+          <Link href={filterUrl(filters,{steel:"1",np:null},"#network-results")}
             aria-current={directory.steelMode?"page":undefined}
             data-testid="network-steel-ranking-toggle"
             className={"ui-action inline-flex min-h-9 items-center rounded-full px-3 text-xs font-semibold "+
               (directory.steelMode?"ui-action-primary":"ui-action-secondary")}>
-            {directory.steelMode?"✓ Priorità acciaio attiva":"✦ Priorità acciaio"}
-          </Link>:null}
+            {directory.steelMode?"✓ Priorità acciaio":"✦ Priorità acciaio"}
+          </Link>:<span className="text-[11px] text-[#52615b]">
+            {specMode?"compatibili prima, poi da verificare":"profili con dati strutturati"}
+          </span>}
         {directory.steelMode?<span className="text-[11px] text-[#43524c]">
           {directory.steelEvidenceTotal??0} profili con evidenza tecnica pertinente o generica; gli altri restano consultabili.
         </span>:null}
@@ -218,7 +233,7 @@ export function NetworkCompactExperience({
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <form method="get" action="/network" aria-label="Filtri tecnici e geografici"
-          className="grid w-full min-w-0 flex-1 grid-cols-2 items-end gap-2 md:grid-cols-[repeat(3,minmax(0,1fr))_auto] xl:grid-cols-[repeat(5,minmax(0,1fr))_auto]">
+          className="grid w-full min-w-0 flex-1 grid-cols-2 items-end gap-2 md:grid-cols-3 xl:grid-cols-5">
           {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
           {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
           {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
@@ -230,18 +245,20 @@ export function NetworkCompactExperience({
             {name:"market",label:"Mercato",options:additionalFilters?.markets||[]},
           ].map(group=><label key={group.name} className="flex min-w-0 flex-col gap-1">
             <span className="text-[11px] font-semibold text-[#315d4a]">{group.label}</span>
-            <select name={group.name} aria-label={group.label}
+            <NetworkAutoSubmitSelect name={group.name} aria-label={group.label}
               defaultValue={filters[group.name as "product"|"capability"|"market"]||""}
               className="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
               <option value="">{group.label}</option>
               {group.options.map(option=><option key={option.canonical_key} value={option.canonical_key}>{option.display_name}</option>)}
-            </select>
+            </NetworkAutoSubmitSelect>
           </label>)}
-          <button type="submit" className="ui-action ui-action-secondary col-span-2 inline-flex min-h-10 items-center justify-center self-end rounded-lg px-3 text-xs font-semibold sm:col-span-1">Applica filtri</button>
+          {/* NET-AUDIT1.4: selects apply on change; this stays for no-JS and keyboard users. */}
+          <button type="submit" className="ui-action ui-action-secondary sr-only inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold focus:not-sr-only">Applica filtri</button>
         </form>
         {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
       </div>
       <NetworkSpecPanel filters={filters} accessMode={accessMode}/>
+      <NetworkActiveFilters filters={filters} additionalFilters={additionalFilters} specSummary={specSummary}/>
       {filters.country||filters.region?<nav aria-label="Territorio selezionato" data-testid="network-europe1d-active-geography"
         className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[#365a48]">
         <span className="font-semibold">Territorio:</span>
@@ -269,9 +286,13 @@ export function NetworkCompactExperience({
           "Filtri tecnici applicati ai soli profili con dati strutturati pubblicati. Le aziende censite senza attributi tecnici non sono incluse; non significa che non offrano questi prodotti o servizi."}
       </p>:null}
     </section>
-      <div className="hidden min-w-0 lg:block">
-        <NetworkEuropeanMap filters={filters} coverage={europeCoverage}
-          fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
+      <div className="min-w-0 space-y-3" data-testid="network-side-column">
+        {/* NET-AUDIT1.4: the chat lives beside the list, which stays visible while chatting. */}
+        <NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/>
+        <div className="hidden lg:block">
+          <NetworkEuropeanMap filters={filters} coverage={europeCoverage}
+            fullMapHref={accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map"}/>
+        </div>
       </div>
     </div>
     <details className="rounded-xl border border-[#d8e5dd] bg-white lg:hidden" data-testid="network-compact-mobile-map">
@@ -321,4 +342,35 @@ export function NetworkCompactExperience({
       </p>
     </section>
   </main>;
+}
+
+/** NET-AUDIT1.4 — every active filter as a removable chip (geography keeps its own row). */
+function NetworkActiveFilters({filters,additionalFilters,specSummary}:{
+  filters:CompactNetworkFilters;specSummary:string;
+  additionalFilters?:Props["additionalFilters"];
+}){
+  const label=(list:{canonical_key:string;display_name:string}[]|undefined,key?:string)=>
+    list?.find(item=>item.canonical_key===key)?.display_name||key||"";
+  type Chip={key:string;text:string;remove:Record<string,string|null>};
+  const specClear:Record<string,string|null>=Object.fromEntries(NETWORK_SPEC_PARAMS.map(key=>[key,null]));
+  const candidates:(Chip|null)[]=[
+    filters.q?{key:"q",text:"Nome: "+filters.q,remove:{q:null}}:null,
+    filters.role?{key:"role",text:roles.find(item=>item.key===filters.role)?.label||filters.role,remove:{role:null}}:null,
+    filters.product?{key:"product",text:label(additionalFilters?.products,filters.product),remove:{product:null}}:null,
+    filters.capability?{key:"capability",text:label(additionalFilters?.capabilities,filters.capability),remove:{capability:null}}:null,
+    filters.market?{key:"market",text:label(additionalFilters?.markets,filters.market),remove:{market:null}}:null,
+    specSummary?{key:"spec",text:"Specifica: "+specSummary,remove:specClear}:null,
+    filters.steel?{key:"steel",text:"Priorità acciaio",remove:{steel:null}}:null,
+  ];
+  const chips=candidates.filter((chip):chip is Chip=>chip!==null);
+  if(!chips.length)return null;
+  return <nav aria-label="Filtri attivi" data-testid="network-active-filters"
+    className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[#365a48]">
+    <span className="font-semibold">Filtri attivi:</span>
+    {chips.map(chip=><Link key={chip.key} href={filterUrl(filters,{...chip.remove,np:null},"#network-results")}
+      aria-label={"Rimuovi filtro "+chip.text}
+      className="ui-action ui-action-secondary inline-flex min-h-8 max-w-[260px] items-center rounded-full px-2.5 font-semibold">
+      <span className="truncate">{chip.text}</span> <span aria-hidden="true" className="ml-1">×</span>
+    </Link>)}
+  </nav>;
 }

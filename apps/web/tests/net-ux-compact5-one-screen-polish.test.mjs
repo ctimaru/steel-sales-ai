@@ -20,7 +20,7 @@ test("COMPACT5 places the region within the single filter form instead of a sepa
   assert.equal((geo.match(/name="region"/g)||[]).length,1);
   assert.match(geo,/name="region" aria-label="Regione"/);
   assert.match(geo,/Tutte le regioni/);
-  assert.match(page,/xl:grid-cols-\[repeat\(5,minmax\(0,1fr\)\)_auto\]/);
+  assert.match(page,/xl:grid-cols-5/);
   assert.match(page,/Applica filtri/);
   assert.doesNotMatch(page,/open=\{Boolean\(filters.region\)\}/);
   // Preserve search query, role and persona when submitting all five facets.

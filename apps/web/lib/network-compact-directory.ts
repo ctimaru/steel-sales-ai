@@ -13,9 +13,12 @@ import {NETWORK_SPEC_PARAMS,hasSpecCriteria,normalizeSpecFilters,specFiltersToPa
 
 /** NET-UX COMPACT1: one honest, stable server-side pagination across BOTH feeds.
  * Keep each existing RLS/entitlement-gated source and its original provenance.
- * 6 real companies per page makes first results visible on standard laptop screens.
+ * NET-AUDIT1.4: 18 companies per page (was 6: 85 pages for 510 companies).
+ * 18 is the largest window every source accepts (M6 pages, steel ranking and
+ * Europe search cap at 18; browse/geo/capability/spec reads cap at 24), so
+ * pages align with M6 windows and no new SQL is needed.
  */
-export const COMPACT_NETWORK_PAGE_SIZE=6;
+export const COMPACT_NETWORK_PAGE_SIZE=18;
 export type CompactNetworkFilters={
   q?:string;role?:string;region?:string;persona?:string;np?:string;
   product?:string;capability?:string;market?:string;country?:string;steel?:string;

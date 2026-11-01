@@ -31,7 +31,8 @@ test("COMPACT1 company rows have one profile action and source-derived attribute
 });
 
 test("COMPACT1 pagination crosses canonical and discovered boundary",()=>{
- assert.match(paging,/COMPACT_NETWORK_PAGE_SIZE=6/);
+ // NET-AUDIT1.4: 18 per page, the largest window every governed source accepts.
+ assert.match(paging,/COMPACT_NETWORK_PAGE_SIZE=18/);
  assert.match(paging,/getNetworkBrowsePage\(organizationId,access,"published"/);
  assert.match(paging,/getNetworkBrowsePage\(organizationId,access,"unconfirmed"/);
  assert.match(paging,/compactSourceWindows\(offset,COMPACT_NETWORK_PAGE_SIZE,publishedCount,discoveredCount\)/);

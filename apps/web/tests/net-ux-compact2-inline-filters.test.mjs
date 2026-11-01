@@ -28,7 +28,8 @@ test("COMPACT2 keeps technical filters inside the same compact page",()=>{
 test("COMPACT2 respects tenant guard, accurate totals and 6 per page",()=>{
  assert.match(search,/await getNetworkBrowsePage\(organizationId,access,"published"/);
  assert.match(search,/const data=await searchNetwork/);
- assert.match(search,/COMPACT_NETWORK_PAGE_SIZE=6/);
+ // NET-AUDIT1.4: 18 per page (title kept for history).
+ assert.match(search,/COMPACT_NETWORK_PAGE_SIZE=18/);
  assert.match(search,/technicalOnly:true/);
  assert.match(search,/capabilityLabels:Object.fromEntries/);
  assert.match(search,/published:total,discovered:0/);
