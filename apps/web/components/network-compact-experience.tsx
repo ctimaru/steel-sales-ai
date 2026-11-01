@@ -16,7 +16,7 @@ type Props={
   userId:string;organizationId:string;canCompose:boolean;
   coverage?:ItalyRegionCoverage|null; provisionalCoverage?:ItalyProvisionalGeoCoverage|null;
   europeCoverage?:EuropeRegionCoverage|null;
-  regions?:string[]; capabilityLabels?:Record<string,string[]>; additionalFilters?:{
+  capabilityLabels?:Record<string,string[]>; additionalFilters?:{
     products:{canonical_key:string;display_name:string}[];
     capabilities:{canonical_key:string;display_name:string}[];
     markets:{canonical_key:string;display_name:string}[];
@@ -114,7 +114,11 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
       ):<span className="text-xs text-[#647269]">Non indicati</span>}
     </div>
     <div className="hidden min-w-0 lg:block">
-      {capabilities.length?<div className="flex flex-wrap gap-1">{capabilities.slice(0,2).map((name,i)=><span key={i} className="max-w-full truncate rounded-full border border-[#d7e3dc] bg-[#f9fbfa] px-2 py-1 text-[11px] text-[#43524c]" title={name}>{name}</span>)}</div>:<span className="text-xs text-[#647269]">Non indicate</span>}
+      {capabilities.length?<div className="flex flex-wrap gap-1" data-testid="network-compact-capabilities">
+        {capabilities.slice(0,2).map((name,i)=><span key={i} className="max-w-full truncate rounded-full border border-[#d7e3dc] bg-[#f9fbfa] px-2 py-1 text-[11px] text-[#43524c]" title={name}>{name}</span>)}
+        {capabilities.length>2?<span className="rounded-full px-1.5 py-1 text-[11px] font-semibold text-[#175640]"
+          title={capabilities.slice(2).join(", ")} aria-label={"Altre "+(capabilities.length-2)+" capability: "+capabilities.slice(2).join(", ")}>+{capabilities.length-2}</span>:null}
+      </div>:<span className="text-xs text-[#647269]" title="Nessuna capability pubblicata sulle sedi">—<span className="sr-only">Nessuna capability pubblicata</span></span>}
     </div>
     <div className="hidden min-w-0 lg:block">
       <p className="flex items-center gap-1.5 truncate text-xs font-semibold text-[#173f35]">
@@ -140,7 +144,7 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
 }
 
 export function NetworkCompactExperience({
-  accessMode,directory,filters,userId,organizationId,canCompose,regions=[],europeCoverage,additionalFilters,capabilityLabels={},
+  accessMode,directory,filters,userId,organizationId,canCompose,europeCoverage,additionalFilters,capabilityLabels={},
 }:Props){
   const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country||filters.steel);
   const knownTotals=!directory.discoveryUnavailable;
@@ -209,7 +213,7 @@ export function NetworkCompactExperience({
           {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
           {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
           {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
-          <NetworkCountryRegionFilters key={(filters.country||"IT")+"|"+(filters.region||"")} country={filters.country||"IT"} region={filters.region||""} regions={regions}/>
+          <NetworkCountryRegionFilters key={(filters.country||"IT")+"|"+(filters.region||"")} country={filters.country||"IT"} region={filters.region||""}/>
           {[
             {name:"product",label:"Prodotti",options:additionalFilters?.products||[]},
             {name:"capability",label:"Capability",options:additionalFilters?.capabilities||[]},

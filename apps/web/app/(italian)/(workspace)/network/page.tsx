@@ -144,26 +144,22 @@ export default async function NetworkDirectoryPage({
   if(!needsTechnicalFinder){
     const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch(()=>null);
     if(compact){
-      const [compactCoverage,compactProvisional,compactGeo,compactLegacyResults,compactTaxonomy,europeCoverage]=await Promise.all([
+      // NET-AUDIT1.2: capability labels come from getCompactNetworkPage for the
+      // exact companies on the page. The previous fallback read a different
+      // legacy page window (18 rows, other ordering), so most rows showed none.
+      const [compactCoverage,compactProvisional,compactTaxonomy,europeCoverage]=await Promise.all([
         getItalyRegionCoverage(context.organizationId).catch(()=>null),
         getItalyProvisionalGeoCoverage(context.organizationId,"pro").catch(()=>null),
-        getNetworkGeoFacets().catch(()=>({regions:[],cities:[],provinces:[]})),
-        compact.technicalOnly?Promise.resolve({items:[],total:0}):searchNetwork({query:params.q,role:params.role,region:params.region,
-          page:Math.max(1,Math.floor(((compact.page-1)*6)/18)+1)}).catch(()=>({items:[],total:0})),
         getNetworkTaxonomy().catch(()=>({roles:[],products:[],capabilities:[],markets:[]})),
         compactFilters.country&&compactFilters.country!=="IT"?
           getEuropeRegionCoverage(context.organizationId,"pro",compactFilters.country).catch(()=>null):Promise.resolve(null),
       ]);
-      const capabilityLabels=compact.capabilityLabels??Object.fromEntries(compactLegacyResults.items.map(item=>[
-        item.id,item.capabilities.map(cap=>cap.name),
-      ]));
       return <FocusPage className="max-w-[1560px]">
         <PilotEvent eventName="network_directory_viewed" metadata={{surface:"network_compact"}}/>
         <NetworkCompactExperience accessMode="pro" directory={compact} filters={compactFilters}
           userId={context.userId} organizationId={context.organizationId} canCompose={canWriteWorkspace(context.role)}
           coverage={compactCoverage} provisionalCoverage={compactProvisional} europeCoverage={europeCoverage}
-          regions={compactGeo.regions.length?compactGeo.regions:compactCoverage?.regions.map(r=>r.name)||[]}
-          capabilityLabels={capabilityLabels}
+          capabilityLabels={compact.capabilityLabels}
           additionalFilters={{products:compactTaxonomy.products,capabilities:compactTaxonomy.capabilities,markets:compactTaxonomy.markets}}/>
       </FocusPage>;
     }
