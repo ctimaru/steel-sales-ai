@@ -44,7 +44,7 @@ export async function FreeNetworkDirectoryView({
   canConnect?:boolean;
   isWorkspaceAdmin?:boolean;
   filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string; map?: string; product?:string;capability?:string;market?:string;country?:string;steel?:string;
-    std?:string;grade?:string;shape?:string;od?:string;wt?:string;side?:string };
+    std?:string;grade?:string;shape?:string;od?:string;wt?:string;side?:string;side2?:string;stock?:string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
@@ -52,7 +52,8 @@ export async function FreeNetworkDirectoryView({
   // All read RPCs enforce active-company access; retain the legacy recovery below.
   const compactFilters=normalizeCompactGeoFilters({q:filters.q,role,region:filters.region,persona:filters.persona,np:filters.np,
     product:filters.product,capability:filters.capability,market:filters.market,country:filters.country,steel:filters.steel,
-    std:filters.std,grade:filters.grade,shape:filters.shape,od:filters.od,wt:filters.wt,side:filters.side});
+    std:filters.std,grade:filters.grade,shape:filters.shape,od:filters.od,wt:filters.wt,side:filters.side,
+    side2:filters.side2,stock:filters.stock});
   const compact=filters.map==="1"?null:await getCompactNetworkPage(organizationId,"free",compactFilters).catch(()=>null);
   if(compact){
     const [compactCoverage,compactProvisional,compactTaxonomy,europeCoverage]=await Promise.all([

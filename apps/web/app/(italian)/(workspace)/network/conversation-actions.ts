@@ -3,7 +3,7 @@
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import {getNetworkAccessState} from "@/lib/network-access";
 import {isNetworkFreeReadEnabled,isNetworkFrontendEnabled} from "@/lib/network-flags";
-import {getNetworkTaxonomy,getNetworkGeoFacets} from "@/lib/network";
+import {getNetworkTaxonomy} from "@/lib/network";
 import {EU_MEMBER_COUNTRIES,OTHER_NETWORK_COUNTRIES} from "@/lib/network-eu-countries";
 import {EUROPE_NUTS2024_REGIONS,europeRegionForCountry} from "@/lib/network-eu-regions";
 import {createClient} from "@/lib/supabase/server";
@@ -196,11 +196,11 @@ export async function askNetworkConversation(
         "altrimenti riformula usando ruolo, regione e attributi pubblicati.",
     };
   }
-  const [rawTaxonomy,geo]=await Promise.all([
-    getNetworkTaxonomy().catch(()=>({products:[],capabilities:[],markets:[],roles:[]})),
-    getNetworkGeoFacets().catch(()=>({regions:[],cities:[],provinces:[]})),
-  ]);
-  const taxonomy=safeTaxonomy({...rawTaxonomy,regions:geo.regions,...europeanIntentTaxonomy()});
+  const rawTaxonomy=await getNetworkTaxonomy().catch(()=>({products:[],capabilities:[],markets:[],roles:[]}));
+  // NET-AUDIT1.1b: the generic chat uses the same 20-region contract as the
+  // Region filter. Published-facility facets miss regions such as Piemonte,
+  // although the regional filter returns real companies there.
+  const taxonomy=safeTaxonomy({...rawTaxonomy,regions:[...ITALY_REGIONS],...europeanIntentTaxonomy()});
   const previous=normalizePrevious(previousFilters,taxonomy);
   // DATA1B.4: direct industrial evidence discovery from natural language.
   // A tube-use request is NOT the legacy published-only technical product filter:

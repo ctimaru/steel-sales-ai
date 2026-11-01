@@ -21,6 +21,7 @@ export type CompactNetworkFilters={
   product?:string;capability?:string;market?:string;country?:string;steel?:string;
   // NET-AUDIT1.1 technical spec (URL strings; see lib/network-spec-filters.ts).
   std?:string;grade?:string;shape?:string;od?:string;wt?:string;side?:string;
+  side2?:string;stock?:string;
 };
 export type CompactNetworkPage={
   items:FreeCompany[];total:number;published:number;discovered:number;

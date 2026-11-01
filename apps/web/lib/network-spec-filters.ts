@@ -1,14 +1,19 @@
 /** NET-AUDIT1.1 — URL contract for technical spec filters (pure, client-safe).
  *
  * Parameters: std (norma), grade (grado), shape (round|square|rectangular),
- * od (Ø esterno mm), wt (spessore mm), side (lato mm). Quantities and cut
+ * od (Ø esterno mm), wt (spessore mm), side (lato mm), side2 (secondo lato,
+ * solo rettangolare), stock=1 (a stock dichiarato). Quantities and cut
  * lengths are deliberately NOT part of the contract: they belong to the RFQ.
  */
 export type NetworkSpecShape="round"|"square"|"rectangular";
 export type NetworkSpecFilters={
   std?:string;grade?:string;shape?:NetworkSpecShape;od?:number;wt?:number;side?:number;
+  /** NET-AUDIT1.1b: second side of a rectangular section. */
+  side2?:number;
+  /** NET-AUDIT1.1b: only declared stock (product relationship or Stockholding site). */
+  stock?:true;
 };
-export const NETWORK_SPEC_PARAMS=["std","grade","shape","od","wt","side"] as const;
+export const NETWORK_SPEC_PARAMS=["std","grade","shape","od","wt","side","side2","stock"] as const;
 export const NETWORK_SPEC_SHAPES:ReadonlyArray<{key:NetworkSpecShape;label:string}>=[
   {key:"round",label:"Tondo"},{key:"square",label:"Quadro"},{key:"rectangular",label:"Rettangolare"},
 ];
@@ -17,7 +22,7 @@ export const NETWORK_SPEC_STANDARD_SUGGESTIONS=[
   "EN 10219","EN 10210","EN 10255","EN 10216-1","EN 10217-1","EN 10305","EN 10296","EN 10297",
 ] as const;
 
-const LIMITS={od:5000,wt:500,side:5000} as const;
+const LIMITS={od:5000,wt:500,side:5000,side2:5000} as const;
 
 /** "60,3" and "60.3 mm" → 60.3; anything invalid or out of range → undefined. */
 export function parseSpecMillimetres(value:unknown,max:number):number|undefined{
@@ -41,11 +46,15 @@ export function normalizeSpecFilters(raw:Record<string,unknown>):NetworkSpecFilt
   const shape=NETWORK_SPEC_SHAPES.some(item=>item.key===shapeRaw)?shapeRaw as NetworkSpecShape:undefined;
   let od=parseSpecMillimetres(raw.od,LIMITS.od);
   let side=parseSpecMillimetres(raw.side,LIMITS.side);
+  let side2=parseSpecMillimetres(raw.side2,LIMITS.side2);
   if(shape==="round")side=undefined;
   if(shape==="square"||shape==="rectangular")od=undefined;
+  // A second side only describes a rectangle, and only next to the first one.
+  if(shape!=="rectangular"||side===undefined)side2=undefined;
   const result:NetworkSpecFilters={
     std:cleanCode(raw.std),grade:cleanCode(raw.grade),shape,od,
-    wt:parseSpecMillimetres(raw.wt,LIMITS.wt),side,
+    wt:parseSpecMillimetres(raw.wt,LIMITS.wt),side,side2,
+    stock:raw.stock==="1"||raw.stock===true?true:undefined,
   };
   for(const key of Object.keys(result) as (keyof NetworkSpecFilters)[]){
     if(result[key]===undefined)delete result[key];
@@ -53,7 +62,7 @@ export function normalizeSpecFilters(raw:Record<string,unknown>):NetworkSpecFilt
   return result;
 }
 
-/** A spec search needs at least one technical criterion (shape alone is not one). */
+/** A spec search needs at least one technical criterion (shape or stock alone is not one). */
 export function hasSpecCriteria(filters:NetworkSpecFilters):boolean{
   return Boolean(filters.std||filters.grade||filters.od||filters.wt||filters.side);
 }
@@ -62,7 +71,8 @@ export function specFiltersToParams(filters:NetworkSpecFilters):Record<string,st
   const params:Record<string,string>={};
   for(const key of NETWORK_SPEC_PARAMS){
     const value=filters[key];
-    if(value!==undefined&&value!=="")params[key]=String(value);
+    if(value===true)params[key]="1";
+    else if(value!==undefined&&value!=="")params[key]=String(value);
   }
   return params;
 }
@@ -75,9 +85,10 @@ export function describeSpecFilters(filters:NetworkSpecFilters):string{
   if(filters.std)parts.push(filters.std);
   if(filters.grade)parts.push(filters.grade);
   if(filters.shape)parts.push(NETWORK_SPEC_SHAPES.find(item=>item.key===filters.shape)?.label.toLowerCase()??"");
-  const size=[filters.od?"Ø "+formatMm(filters.od):null,filters.side?"lato "+formatMm(filters.side):null]
-    .filter(Boolean).join(" ");
+  const side=filters.side?(filters.side2?formatMm(filters.side)+" × "+formatMm(filters.side2):"lato "+formatMm(filters.side)):null;
+  const size=[filters.od?"Ø "+formatMm(filters.od):null,side].filter(Boolean).join(" ");
   if(size||filters.wt)parts.push([size,filters.wt?(size?"× ":"spessore ")+formatMm(filters.wt):null].filter(Boolean).join(" ")+" mm");
+  if(filters.stock)parts.push("a stock");
   return parts.filter(Boolean).join(" · ");
 }
 
