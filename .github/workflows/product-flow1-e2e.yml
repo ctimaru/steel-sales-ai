@@ -247,6 +247,14 @@ jobs:
           path: /tmp/onboarding-ux2/*.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: ONBOARDING-QA3.A — Real GoTrue email to local Mailpit and cross-browser confirmation/recovery
+        working-directory: apps/web
+        shell: bash
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          # All Mailpit/GoTrue traffic remains inside disposable local CI.
+          node tests/onboarding-qa3-chrome-mail-delivery.mjs
       - name: Chrome desktop 1440 and mobile 390 complete Search to Supplier Response
         working-directory: apps/web
         timeout-minutes: 20
@@ -290,6 +298,24 @@ jobs:
           path: ${{ runner.temp }}/comm-ux6b-safe-screenshots/*.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: ONBOARDING-QA3.B — GoTrue resend, invite, invalid token and multi-session suspension
+        working-directory: apps/web
+        shell: bash
+        timeout-minutes: 8
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/demotest23-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            node tests/onboarding-qa3b-local-lifecycle.mjs
+      - name: ONBOARDING-QA3.B.2 — Worker HP8 invite to Mailpit, Chrome acceptance, revoke, expiry and tenant RLS
+        working-directory: apps/web
+        shell: bash
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/demotest23-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            node tests/onboarding-qa3b2-hp8-real-invitations.mjs
       - name: Stop local processes and destroy temporary data and capabilities
         if: always()
         shell: bash

@@ -38,8 +38,9 @@ test("I18N6 redirects and ownership preserve claim reference after email verific
   assert.match(authNext, /path.startsWith\("\/en\/register\?"\)/);
   assert.match(authNext, /path === "\/en\/registration\/status"/);
   assert.match(callback, /safeInternalNext\(/);
-  assert.match(callback, /new URL\(next, request.nextUrl.origin\)/);
-  assert.match(callback, /successUrl\.search = destination\.search/);
+  assert.match(callback, /const successUrl = new URL\(next, redirectOrigin\)/);
+  assert.match(callback, /new URL\(redirectParam\)\.origin/);
+  assert.match(callback, /target\.origin !== canonicalOrigin/);
   assert.match(register, /pa1_4_registration_claim_context/);
   assert.match(register, /pa1_4_company_claim_context/);
   assert.match(register, /can_start_registration !== true/);

@@ -14,7 +14,9 @@ test("Identity recovery stays Platform-only, bounded and source-linked",()=>{
  assert.match(page,/netgrowth2c1_identity_recovery_page/);
  assert.match(page,/p_limit:SIZE/);
  assert.match(page,/const SIZE=25/);
- assert.match(page,/safeNetworkWebsiteUrl\(item\.source_url\)/);
+ assert.match(page,/safeEvidenceUrl\(item\.source_url\)/);
+ assert.match(page,/parsed\.username\|\|parsed\.password\?null:normalized/);
+ assert.match(page,/requested>pages\) redirect\(link\(kind,pages\)\)/);
  assert.match(page,/Nessuna fusione o promozione/);
  assert.match(page,/identity_verified_by_this_process===0/);
  assert.match(parent,/company-discovery\/identity-recovery/);

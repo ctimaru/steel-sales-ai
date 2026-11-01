@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {redirect} from "next/navigation";
 import {createClient} from "@/lib/supabase/server";
 import {requirePlatformPermission} from "@/lib/platform-admin";
 import {safeNetworkWebsiteUrl} from "@/lib/network-free";
@@ -36,6 +37,12 @@ const stateLabel=(value:string)=>({
  legal_identity_enrichment:"Ragione sociale da completare",
  corporate_form_source_review:"Verifica fonte societaria",
 } as Record<string,string>)[value]??"Da esaminare";
+const safeEvidenceUrl=(value:string|null|undefined)=>{
+ const normalized=safeNetworkWebsiteUrl(value);
+ if(!normalized) return null;
+ try { const parsed=new URL(normalized); return parsed.username||parsed.password?null:normalized; }
+ catch { return null; }
+};
 const link=(kind:Kind,page:number)=>
  "/platform/company-discovery/identity-recovery?kind="+kind+"&page="+page;
 
@@ -60,6 +67,8 @@ export default async function IdentityRecoveryPage({searchParams}:{
   typeof item.next_action==="string");
  const current=valid?v:null;
  const pages=current?Math.max(1,Math.ceil(current.selected_total/SIZE)):1;
+ // On stale links the queue must recover to its last real page.
+ if(current&&requested>pages) redirect(link(kind,pages));
  const page=Math.min(requested,pages);
  const items=page===requested?current?.items??[]:[];
  return <main className="mx-auto w-full max-w-[1250px] space-y-2.5 px-3 py-3 sm:space-y-4 sm:px-4 sm:py-6" data-testid="net-growth2c1-identity-recovery">
@@ -114,8 +123,8 @@ export default async function IdentityRecoveryPage({searchParams}:{
      <p className="text-xs text-[#52615b]">Pagina {page}/{pages} · {current.selected_total} casi nella selezione</p>
     </div>
     {items.map(item=>{
-     const source=safeNetworkWebsiteUrl(item.source_url);
-     const reviewSource=item.review_source_url?safeNetworkWebsiteUrl(item.review_source_url):null;
+     const source=safeEvidenceUrl(item.source_url);
+     const reviewSource=item.review_source_url?safeEvidenceUrl(item.review_source_url):null;
      const conflict=item.name_in_catalog||item.domain_in_catalog||item.lead_name_collision;
      return <article key={item.lead_id} className="rounded-xl border border-[#d7e3dc] bg-white p-3 sm:p-4" data-testid="net-growth2c1-identity-item">
       <div className="flex flex-wrap items-start justify-between gap-2">
