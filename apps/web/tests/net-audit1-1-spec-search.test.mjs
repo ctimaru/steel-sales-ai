@@ -162,7 +162,7 @@ test("NET-AUDIT1.1 chat Region never loses Piemonte when legacy facets omit it",
   params.set("role",recognized.filters.role);
   assert.match(params.toString(),/region=Piemonte/);
   assert.match(params.toString(),/role=trader_distributor/);
-  assert.match(actions,/import \{ITALY_REGIONS\} from "@\\/lib\\/network-italy-regions";/);
-  assert.match(actions,/interpretNetworkIntent\(specIntent\\.remainder,\{regions:\[\\.\\.\\.ITALY_REGIONS\]\}\)/);
-  assert.match(actions,/getNetworkSpecPage\(organizationId,spec,\{role:filters\\.role,region:filters\\.region\},0,1\)/);
+  assert.ok(actions.includes('import {ITALY_REGIONS} from "@/lib/network-italy-regions";'));
+  assert.ok(actions.includes("interpretNetworkIntent(specIntent.remainder,{regions:[...ITALY_REGIONS]})"));
+  assert.ok(actions.includes("getNetworkSpecPage(organizationId,spec,{role:filters.role,region:filters.region},0,1)"));
 });
