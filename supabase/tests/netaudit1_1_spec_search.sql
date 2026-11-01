@@ -163,8 +163,10 @@ begin
   perform pg_temp.na11_ok(r->>'contract'='netaudit1-spec-v2','v2 contract');
   perform pg_temp.na11_ok(pg_temp.na11_has(r,morandi,'exact'),'rectangular 120×80 → Morandi exact');
   r:=public.netaudit1_spec_search_v2('00000000-0000-0000-0000-000000110010'::uuid,null,null,'rectangular',null,null,600,null,null,null,0,24,80);
-  perform pg_temp.na11_ok(not exists(select 1 from jsonb_array_elements(r->'items') i where (i->>'id')::uuid=morandi),
-    'rectangular 600×80 beyond declared 500 excluded');
+  -- Morandi may list other hollow-section lines without dimensions (then
+  -- "undeclared"); what must never happen is presenting it as compatible.
+  perform pg_temp.na11_ok(not pg_temp.na11_has(r,morandi,'exact'),
+    'rectangular 600×80 beyond declared 500 is never compatible');
   -- Morandi hollow sections are declared as stocked.
   r:=public.netaudit1_spec_search_v2('00000000-0000-0000-0000-000000110010'::uuid,'EN 10219','S355',null,null,null,null,null,null,null,0,24,null,true);
   perform pg_temp.na11_ok(exists(select 1 from jsonb_array_elements(r->'items') i
