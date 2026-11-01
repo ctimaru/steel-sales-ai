@@ -19,6 +19,7 @@ import {
 import {extractNetworkSpecIntent,describeRfqDetails} from "@/lib/network-spec-intent";
 import {describeSpecFilters,hasSpecCriteria,specFiltersToParams} from "@/lib/network-spec-filters";
 import {getNetworkSpecPage} from "@/lib/network-spec-search";
+import {ITALY_REGIONS} from "@/lib/network-italy-regions";
 
 /** Trusted geographic terms for routing, never company or facility evidence.
  * Use only official ISO/NUTS keys; aliases are curated high-confidence names.
@@ -302,8 +303,10 @@ async function answerSpecRequest(
   const spec=specIntent.spec;
   const summary=describeSpecFilters(spec);
   // Role and Italian region may accompany a spec ("commercianti in Piemonte …").
-  const regions=await getNetworkGeoFacets().then(geo=>geo.regions).catch(()=>[] as string[]);
-  const context=interpretNetworkIntent(specIntent.remainder,{regions});
+  // NET-AUDIT1.1 P1: the legacy geo facets only cover published facilities.
+  // A valid region such as Piemonte may be missing despite matching source-locality companies.
+  // The chat must use the same complete 20-region contract as the Network filter.
+  const context=interpretNetworkIntent(specIntent.remainder,{regions:[...ITALY_REGIONS]});
   const filters:NetworkIntentFilters={};
   if(context.filters.role)filters.role=context.filters.role;
   if(context.filters.region&&(!context.filters.country||context.filters.country==="IT"))filters.region=context.filters.region;

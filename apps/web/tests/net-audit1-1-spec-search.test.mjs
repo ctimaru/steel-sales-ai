@@ -103,6 +103,8 @@ test("NET-AUDIT1.1 UI: GET panel, Pro lock, divider, weakest provenance",()=>{
 
 const intent=await load("../lib/network-spec-intent.ts");
 const actions=read("../app/(italian)/(workspace)/network/conversation-actions.ts");
+const regionCatalog=await load("../lib/network-italy-regions.ts");
+const intentParser=await load("../lib/network-intent-parser.ts");
 const chat=read("../components/network-conversation.tsx");
 
 test("NET-AUDIT1.1 chat extractor: spec becomes filters, quantity and length stay RFQ",()=>{
@@ -143,4 +145,24 @@ test("NET-AUDIT1.1 chat action: spec answered before the RFQ redirect, honestly"
   assert.match(actions,/rfqHref=specIntent\.rfqDetails\.length\?/);
   assert.match(chat,/latestAssistant\?\.result\?\.rfqHref/);
   assert.match(chat,/Mostra fornitori compatibili →/);
+});
+
+test("NET-AUDIT1.1 chat Region never loses Piemonte when legacy facets omit it",()=>{
+  const raw="commercianti in Piemonte con tubi EN 10219 S235";
+  const extracted=intent.extractNetworkSpecIntent(raw);
+  assert.equal(extracted.spec.std,"EN 10219");
+  assert.equal(extracted.spec.grade,"S235");
+  const legacy=intentParser.interpretNetworkIntent(extracted.remainder,{regions:["Lombardia"]});
+  assert.notEqual(legacy.filters.region,"Piemonte","regression reproduces partial legacy facets");
+  const recognized=intentParser.interpretNetworkIntent(extracted.remainder,{regions:[...regionCatalog.ITALY_REGIONS]});
+  assert.equal(recognized.filters.region,"Piemonte");
+  assert.equal(recognized.filters.role,"trader_distributor");
+  const params=new URLSearchParams(spec.specFiltersToParams(extracted.spec));
+  params.set("region",recognized.filters.region);
+  params.set("role",recognized.filters.role);
+  assert.match(params.toString(),/region=Piemonte/);
+  assert.match(params.toString(),/role=trader_distributor/);
+  assert.match(actions,/import \{ITALY_REGIONS\} from "@\\/lib\\/network-italy-regions";/);
+  assert.match(actions,/interpretNetworkIntent\(specIntent\\.remainder,\{regions:\[\\.\\.\\.ITALY_REGIONS\]\}\)/);
+  assert.match(actions,/getNetworkSpecPage\(organizationId,spec,\{role:filters\\.role,region:filters\\.region\},0,1\)/);
 });
