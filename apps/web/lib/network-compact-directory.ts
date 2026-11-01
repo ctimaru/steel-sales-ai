@@ -8,6 +8,8 @@ import {isSupportedNetworkCountry} from "@/lib/network-eu-countries";
 import {europeRegionForCountry} from "@/lib/network-eu-regions";
 import {getEuropeRegionalSearch} from "@/lib/network-europe-regional";
 import {getPublishedCapabilityLabels} from "@/lib/network-compact-capabilities";
+import {getNetworkSpecPage,type SpecMatch} from "@/lib/network-spec-search";
+import {NETWORK_SPEC_PARAMS,hasSpecCriteria,normalizeSpecFilters,specFiltersToParams,type NetworkSpecFilters} from "@/lib/network-spec-filters";
 
 /** NET-UX COMPACT1: one honest, stable server-side pagination across BOTH feeds.
  * Keep each existing RLS/entitlement-gated source and its original provenance.
@@ -17,12 +19,19 @@ export const COMPACT_NETWORK_PAGE_SIZE=6;
 export type CompactNetworkFilters={
   q?:string;role?:string;region?:string;persona?:string;np?:string;
   product?:string;capability?:string;market?:string;country?:string;steel?:string;
+  // NET-AUDIT1.1 technical spec (URL strings; see lib/network-spec-filters.ts).
+  std?:string;grade?:string;shape?:string;od?:string;wt?:string;side?:string;
 };
 export type CompactNetworkPage={
   items:FreeCompany[];total:number;published:number;discovered:number;
   page:number;pages:number;first:number;last:number;discoveryUnavailable:boolean;
   technicalOnly?:boolean;marketEvidence?:boolean;steelMode?:boolean;steelEvidenceTotal?:number;capabilityLabels?:Record<string,string[]>;
   geoInvalid?:boolean;regionPublishedOnly?:boolean;
+  /** NET-AUDIT1.1: rows ranked by published technical scope. */
+  specMode?:boolean;specLocked?:boolean;spec?:NetworkSpecFilters;
+  specExactTotal?:number;specUndeclaredTotal?:number;specMatches?:Record<string,SpecMatch>;
+  /** Filters that cannot be combined with a spec search and were not applied. */
+  specIgnored?:("product"|"capability"|"market"|"country")[];
 };
 /** Normalize URL-originated geographic facets before any Free/Pro data query.
  * Region names here belong to Italy; never combine them with a foreign country.
@@ -31,7 +40,11 @@ export function normalizeCompactGeoFilters(filters:CompactNetworkFilters):Compac
   const requested=filters.country?.trim().toUpperCase();
   const legacyCountries=["IT","DE","FR","ES","US","GB","CH"];
   const country=requested&&(legacyCountries.includes(requested)||isSupportedNetworkCountry(requested))?requested:undefined;
-  return {...filters,country,region:country&&country!=="IT"?filters.region?.trim().toUpperCase():filters.region};
+  // NET-AUDIT1.1: spec values are re-serialized from validated numbers/codes only.
+  const rest:CompactNetworkFilters={...filters};
+  for(const key of NETWORK_SPEC_PARAMS)delete rest[key];
+  const spec=specFiltersToParams(normalizeSpecFilters(filters));
+  return {...rest,...spec,country,region:country&&country!=="IT"?filters.region?.trim().toUpperCase():filters.region};
 }
 
 export type SourceWindow={start:number;end:number};
@@ -81,6 +94,8 @@ async function buildCompactNetworkPage(
   organizationId:string,access:"free"|"pro",filters:CompactNetworkFilters,
 ):Promise<CompactNetworkPage>{
   filters=normalizeCompactGeoFilters(filters);
+  const spec=normalizeSpecFilters(filters);
+  if(hasSpecCriteria(spec))return specCompactPage(organizationId,access,filters,spec);
   if(filters.country&&filters.country!=="IT"&&filters.region){
     const region=europeRegionForCountry(filters.country,filters.region);
     if(!region)return {
@@ -247,5 +262,44 @@ async function buildCompactNetworkPage(
     total,published:publishedCount,discovered:discoveredCount,
     page,pages,first:total?offset+1:0,last:Math.min(offset+COMPACT_NETWORK_PAGE_SIZE,total),
     discoveryUnavailable:!discovered,
+  };
+}
+
+/** NET-AUDIT1.1 — spec search page. Product scope is part of the paid Network
+ * boundary (PA1.3), so Free returns an explicit locked state and no rows.
+ * Product/capability/market and foreign-country filters are not combined with
+ * a spec search: they are reported back as ignored, never silently dropped.
+ */
+async function specCompactPage(
+  organizationId:string,access:"free"|"pro",filters:CompactNetworkFilters,spec:NetworkSpecFilters,
+):Promise<CompactNetworkPage>{
+  const specIgnored=(["product","capability","market"] as const).filter(key=>Boolean(filters[key]));
+  const ignored:CompactNetworkPage["specIgnored"]=[...specIgnored,
+    ...(filters.country&&filters.country!=="IT"?["country" as const]:[])];
+  const base={published:0,discovered:0,discoveryUnavailable:false,technicalOnly:true,
+    specMode:true,spec,specIgnored:ignored};
+  if(access!=="pro")return {...base,items:[],total:0,page:1,pages:1,first:0,last:0,
+    specLocked:true,specExactTotal:0,specUndeclaredTotal:0};
+  const region=filters.country&&filters.country!=="IT"?undefined:filters.region;
+  const requestedPage=parseNetworkPage(filters.np);
+  const first=await getNetworkSpecPage(organizationId,spec,{q:filters.q,role:filters.role,region},
+    (requestedPage-1)*COMPACT_NETWORK_PAGE_SIZE,COMPACT_NETWORK_PAGE_SIZE);
+  const pages=Math.max(1,Math.ceil(first.total/COMPACT_NETWORK_PAGE_SIZE));
+  const page=Math.min(requestedPage,pages);
+  // A stale URL beyond the last page falls back to the last valid window.
+  const selected=page===requestedPage?first:await getNetworkSpecPage(organizationId,spec,
+    {q:filters.q,role:filters.role,region},(page-1)*COMPACT_NETWORK_PAGE_SIZE,COMPACT_NETWORK_PAGE_SIZE);
+  const specMatches=Object.fromEntries(selected.items.map(item=>[item.id,item.spec_match]));
+  const items:FreeCompany[]=selected.items.map(item=>{
+    const company:FreeCompany&{spec_match?:SpecMatch}={...item};
+    delete company.spec_match;
+    return company;
+  });
+  return {...base,
+    items:await withCompactGeoEvidence(organizationId,access,items),
+    total:selected.total,published:selected.total,page,pages,
+    first:selected.total?(page-1)*COMPACT_NETWORK_PAGE_SIZE+1:0,
+    last:Math.min(page*COMPACT_NETWORK_PAGE_SIZE,selected.total),
+    specExactTotal:selected.exactTotal,specUndeclaredTotal:selected.undeclaredTotal,specMatches,
   };
 }

@@ -1,3 +1,4 @@
+import {Fragment} from "react";
 import {NetworkCountryFlag} from "@/components/network-country-flag";
 import {NetworkCountryRegionFilters} from "@/components/network-country-region-filters";
 import {networkCountryName} from "@/lib/network-eu-countries";
@@ -9,6 +10,9 @@ import Link from "next/link";
 import {safeNetworkWebsiteUrl, type FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compact-directory";
 import {NetworkEuropeanMap} from "@/components/network-europe-map";
+import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters";
+import type {SpecMatch} from "@/lib/network-spec-search";
+import {NETWORK_SPEC_PARAMS,describeSpecFilters} from "@/lib/network-spec-filters";
 import type {ItalyRegionCoverage,ItalyProvisionalGeoCoverage} from "@/lib/network-region-coverage";
 
 type Props={
@@ -57,7 +61,7 @@ function initialLetters(name:string){
   const words=name.trim().split(/\s+/).filter(Boolean);
   return (words.length>1?words.slice(0,2).map(x=>x[0]).join(""):name.slice(0,2)).toUpperCase();
 }
-function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabilities?:string[]}){
+function CompactCompanyRow({company,capabilities=[],specMatch}:{company:FreeCompany;capabilities?:string[];specMatch?:SpecMatch}){
   const name=company.trading_name||company.legal_name;
   const role=company.roles[0];
   const domain=companyDomain(company);
@@ -76,6 +80,7 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
       <div className="min-w-0">
         <h3 className="truncate text-sm font-semibold text-[#173f35]" title={name}>{name}</h3>
         {domain?<p className="truncate text-xs text-[#52615b]">{domain}</p>:null}
+        {specMatch?<SpecMatchLine match={specMatch} name={name}/>:null}
         {company.steel_priority?<p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[11px] leading-4 text-[#43524c]">
           <span className="font-semibold text-[#175640]">{company.steel_reason}</span>
           {company.steel_evidence_status==="candidate"?<span>· Da confermare</span>:
@@ -146,7 +151,11 @@ function CompactCompanyRow({company,capabilities=[]}:{company:FreeCompany;capabi
 export function NetworkCompactExperience({
   accessMode,directory,filters,userId,organizationId,canCompose,europeCoverage,additionalFilters,capabilityLabels={},
 }:Props){
-  const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country||filters.steel);
+  const specActive=NETWORK_SPEC_PARAMS.some(key=>Boolean(filters[key]));
+  const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country||filters.steel||specActive);
+  const specMode=Boolean(directory.specMode);
+  const specSummary=directory.spec?describeSpecFilters(directory.spec):"";
+  const firstUndeclared=specMode?directory.items.findIndex(company=>directory.specMatches?.[company.id]?.status==="undeclared"):-1;
   const knownTotals=!directory.discoveryUnavailable;
   const technicalOnly=Boolean(directory.technicalOnly);
   const companyCount=directory.total;
@@ -181,7 +190,7 @@ export function NetworkCompactExperience({
       <NetworkLiveSearch filters={filters}/>
       <NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/>
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        {!filters.product&&!filters.capability&&!filters.market&&(!filters.country||filters.country==="IT")?
+        {!specMode&&!filters.product&&!filters.capability&&!filters.market&&(!filters.country||filters.country==="IT")?
           <Link href={filterUrl(filters,{steel:directory.steelMode?null:"1",np:null},"#network-results")}
             aria-current={directory.steelMode?"page":undefined}
             data-testid="network-steel-ranking-toggle"
@@ -213,6 +222,7 @@ export function NetworkCompactExperience({
           {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
           {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
           {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
+          {NETWORK_SPEC_PARAMS.map(key=>filters[key]?<input key={key} type="hidden" name={key} value={filters[key]}/>:null)}
           <NetworkCountryRegionFilters key={(filters.country||"IT")+"|"+(filters.region||"")} country={filters.country||"IT"} region={filters.region||""}/>
           {[
             {name:"product",label:"Prodotti",options:additionalFilters?.products||[]},
@@ -231,6 +241,7 @@ export function NetworkCompactExperience({
         </form>
         {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
       </div>
+      <NetworkSpecPanel filters={filters} accessMode={accessMode}/>
       {filters.country||filters.region?<nav aria-label="Territorio selezionato" data-testid="network-europe1d-active-geography"
         className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-[#365a48]">
         <span className="font-semibold">Territorio:</span>
@@ -244,7 +255,11 @@ export function NetworkCompactExperience({
         </Link>:null}
         <span className="text-[#52615b]">Mappa e risultati sincronizzati</span>
       </nav>:null}
-      {directory.regionPublishedOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
+      {specMode?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]" data-testid="network-spec-status">
+        {directory.specLocked?"Ricerca per specifica disponibile nel Network Pro: lo scope tecnico dei profili (norme, gradi, misure) non è incluso nel Free.":
+          "Specifica "+specSummary+": prima le aziende con scope tecnico pubblicato compatibile, poi quelle che non lo hanno dichiarato. Chi dichiara una norma, un grado o una misura diversi è escluso. La compatibilità dichiarata non è una conferma di disponibilità."}
+        {directory.specIgnored?.length?" Non combinati con la specifica: "+directory.specIgnored.map(key=>({product:"prodotto",capability:"capability",market:"mercato",country:"Paese estero"} as const)[key]).join(", ")+".":""}
+      </p>:directory.regionPublishedOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
         {directory.geoInvalid?"Regione europea non riconosciuta. Seleziona una regione valida dai filtri. Nessuna ricerca nazionale è stata eseguita.":"Area "+(europeNutsRegionName(filters.country||"",filters.region||"")||filters.region)+" · risultati limitati a sedi pubblicate associate con codice NUTS 2024 o nome ufficiale. L'assenza di risultati non dimostra che non esistano aziende nella regione."}
       </p>:technicalOnly?<p role="status" className="mt-2 text-[11px] leading-5 text-[#52615b]">
         {directory.steelMode?
@@ -272,7 +287,9 @@ export function NetworkCompactExperience({
     <section id="network-results" aria-label="Risultati aziende" className="overflow-hidden rounded-2xl border border-[#d7e3dc] bg-white">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e8eeeb] px-3 py-2.5 sm:px-4">
         <h2 className="text-base font-semibold text-[#173f35]">
-          {knownTotals?companyCount.toLocaleString("it-IT")+" aziende trovate":"Profili disponibili"}
+          {specMode?(directory.specExactTotal??0).toLocaleString("it-IT")+" compatibili"+
+            (directory.specUndeclaredTotal?" · "+directory.specUndeclaredTotal.toLocaleString("it-IT")+" da verificare":""):
+            knownTotals?companyCount.toLocaleString("it-IT")+" aziende trovate":"Profili disponibili"}
         </h2>
         <div className="flex items-center gap-2 text-xs text-[#52615b]">
           <span className="hidden text-[11px] text-[#52615b] md:inline" title="Località pubblicate o provenienti da fonti consultabili; quelle indicative non equivalgono a una sede certificata">Località disponibili: {listedLocationCount}/{directory.items.length}</span>
@@ -287,8 +304,17 @@ export function NetworkCompactExperience({
       <div className={"hidden gap-3 border-b border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#52615b] lg:grid "+COMPANY_COLUMNS}>
         <span>Azienda</span><span>Ruolo</span><span>Prodotti dichiarati</span><span>Capability</span><span>Località</span><span className="sr-only">Azione</span>
       </div>
-      {directory.items.length?directory.items.map(company=><CompactCompanyRow key={company.id} company={company} capabilities={capabilityLabels[company.id]||[]}/>):
-        <div className="px-4 py-9 text-center text-sm text-[#52615b]">{directory.regionPublishedOnly?"Nessuna sede pubblicata mappata per questa selezione; la copertura geografica del Network è ancora parziale.":"Nessuna azienda trovata. Prova un altro nome o azzera i filtri."}</div>}
+      {directory.specLocked?<div className="px-4 py-9 text-center text-sm text-[#52615b]" data-testid="network-spec-locked">
+          La ricerca per norma, grado e misure è inclusa nel Network Pro. Puoi continuare a cercare per nome, ruolo e regione.
+        </div>:
+      directory.items.length?directory.items.map((company,index)=><Fragment key={company.id}>
+          {index===firstUndeclared?<p className="border-b border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[11px] font-semibold text-[#43524c]" data-testid="network-spec-undeclared-divider">
+            Scope tecnico non dichiarato · aziende della filiera tubo da verificare direttamente
+          </p>:null}
+          <CompactCompanyRow company={company} capabilities={capabilityLabels[company.id]||[]} specMatch={directory.specMatches?.[company.id]}/>
+        </Fragment>):
+        <div className="px-4 py-9 text-center text-sm text-[#52615b]">{specMode?"Nessuna azienda con scope tecnico compatibile o non dichiarato per "+specSummary+". Prova a togliere un criterio, ad esempio il grado o una misura.":
+          directory.regionPublishedOnly?"Nessuna sede pubblicata mappata per questa selezione; la copertura geografica del Network è ancora parziale.":"Nessuna azienda trovata. Prova un altro nome o azzera i filtri."}</div>}
       <p className="border-t border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[11px] leading-5 text-[#52615b]">
         I profili comprendono aziende registrate e dati raccolti da fonti pubbliche. Per verifiche, fonti e rivendicazione apri il profilo. Le connessioni sono disponibili solo verso aziende attive.
         {directory.discoveryUnavailable?" Alcune aziende censite sono temporaneamente indisponibili.":""}

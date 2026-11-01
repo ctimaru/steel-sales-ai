@@ -44,7 +44,8 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
   const latestFilters=useRef<NetworkIntentFilters|undefined>(undefined);
   const id=useRef(0);
   const latestAssistant=[...turns].reverse().find(turn=>turn.speaker==="assistant");
-  const rfqSource=latestAssistant?.result?.status==="rfq"?latestAssistant.sourceText:null;
+  // NET-AUDIT1.1: a spec answer with quantity/length keeps the RFQ bridge next to the results.
+  const rfqSource=latestAssistant?.result?.status==="rfq"||latestAssistant?.result?.rfqHref?latestAssistant.sourceText:null;
   useEffect(()=>{
     const w=window as VoiceWindow;
     setVoiceSupported(Boolean(window.isSecureContext&&(w.SpeechRecognition||w.webkitSpeechRecognition)));
@@ -140,7 +141,7 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
     </summary>
     <div className="border-t border-[#e6efea] px-3 pb-3 pt-3">
       <p className="text-xs leading-5 text-[#52615b]">
-        Cerca per ruolo, prodotto, Paese o regione europea. La chat prepara filtri e ti rimanda ai risultati reali del Network.
+        Cerca per ruolo, prodotto, Paese o regione europea, oppure per norma, grado e misure. La chat prepara filtri e ti rimanda ai risultati reali del Network.
         Non inventa aziende, numeri o capacità. Nessuna RFQ viene inviata senza la tua azione.
       </p>
       <div className="mt-2 max-h-[260px] space-y-2 overflow-y-auto rounded-lg bg-[#f7faf8] p-2"
@@ -156,7 +157,7 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
               {chip}</span>)}</div>:null}
           {turn.result?.href&&turn.result.status!=="rfq"?<Link href={turn.result.href}
             className="ui-action ui-action-primary mt-2 inline-flex min-h-9 items-center rounded-lg px-3 text-xs font-semibold">
-            Mostra risultati verificabili →
+            {turn.result.specCounts?"Mostra fornitori compatibili →":"Mostra risultati verificabili →"}
           </Link>:null}
           {turn.speaker==="assistant"?<button type="button"
             onClick={()=>readAnswer(turn.text)}

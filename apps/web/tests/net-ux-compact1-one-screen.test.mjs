@@ -19,7 +19,9 @@ test("COMPACT1 both access modes share the one-screen directory",()=>{
 });
 
 test("COMPACT1 company rows have one profile action and source-derived attributes",()=>{
- assert.match(ui,/directory.items.map\(company=><CompactCompanyRow/);
+ // NET-AUDIT1.1: rows are keyed fragments so the spec divider can sit between them.
+ assert.match(ui,/directory.items.map\(\(company,index\)=><Fragment key=\{company.id\}>/);
+ assert.match(ui,/<CompactCompanyRow company=\{company\}/);
  assert.match(ui,/Esplora azienda/);
  assert.match(ui,/company.products.length/);
  assert.match(ui,/capabilityLabels\[company.id\]/);

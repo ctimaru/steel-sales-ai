@@ -1,6 +1,7 @@
 import {getNetworkTaxonomy} from "@/lib/network";
 import {NetworkCompactExperience} from "@/components/network-compact-experience";
 import {getCompactNetworkPage,normalizeCompactGeoFilters} from "@/lib/network-compact-directory";
+import {hasSpecCriteria,normalizeSpecFilters} from "@/lib/network-spec-filters";
 import {getEuropeRegionCoverage} from "@/lib/network-europe-regional";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
@@ -42,14 +43,16 @@ export async function FreeNetworkDirectoryView({
   organizationName: string;
   canConnect?:boolean;
   isWorkspaceAdmin?:boolean;
-  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string; map?: string; product?:string;capability?:string;market?:string;country?:string;steel?:string };
+  filters: { q?: string; role?: string; region?: string; persona?: string; p?: string; dpage?: string; view?: string; np?: string; map?: string; product?:string;capability?:string;market?:string;country?:string;steel?:string;
+    std?:string;grade?:string;shape?:string;od?:string;wt?:string;side?:string };
 }) {
   const role = NETWORK_COMPANY_ROLES.includes(filters.role as (typeof NETWORK_COMPANY_ROLES)[number])
     ? filters.role : undefined;
   // Default Free view uses the same one-screen design and source ordering as Pro.
   // All read RPCs enforce active-company access; retain the legacy recovery below.
   const compactFilters=normalizeCompactGeoFilters({q:filters.q,role,region:filters.region,persona:filters.persona,np:filters.np,
-    product:filters.product,capability:filters.capability,market:filters.market,country:filters.country,steel:filters.steel});
+    product:filters.product,capability:filters.capability,market:filters.market,country:filters.country,steel:filters.steel,
+    std:filters.std,grade:filters.grade,shape:filters.shape,od:filters.od,wt:filters.wt,side:filters.side});
   const compact=filters.map==="1"?null:await getCompactNetworkPage(organizationId,"free",compactFilters).catch(()=>null);
   if(compact){
     const [compactCoverage,compactProvisional,compactTaxonomy,europeCoverage]=await Promise.all([
@@ -69,7 +72,7 @@ export async function FreeNetworkDirectoryView({
     </FocusPage>;
   }
   // Never silently discard a technical filter when its structured search fails.
-  if(filters.product||filters.capability||filters.market||
+  if(filters.product||filters.capability||filters.market||hasSpecCriteria(normalizeSpecFilters(filters))||
     (filters.country && filters.country.toUpperCase()!=="IT")){
     return <NetworkRecoveryScreen />;
   }
