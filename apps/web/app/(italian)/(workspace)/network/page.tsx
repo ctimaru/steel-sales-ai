@@ -1,6 +1,7 @@
 import {NetworkCompactExperience} from "@/components/network-compact-experience";
 import {getCompactNetworkPage,normalizeCompactGeoFilters} from "@/lib/network-compact-directory";
 import {getEuropeRegionCoverage} from "@/lib/network-europe-regional";
+import {hasSpecCriteria,normalizeSpecFilters} from "@/lib/network-spec-filters";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
@@ -105,6 +106,7 @@ export default async function NetworkDirectoryPage({
     map?: string;
     error?: string;
     message?: string;
+    std?: string; grade?: string; shape?: string; od?: string; wt?: string; side?: string;
   }>;
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
@@ -123,7 +125,8 @@ export default async function NetworkDirectoryPage({
           organizationName={context.organizationName}
           isWorkspaceAdmin={context.role==="admin"}
           canConnect={canInteractWithNetwork(context.role)}
-          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage,view:params.view, np:params.np, map:params.map, product:params.product, capability:params.capability, market:params.market, country:params.country, steel:params.steel }}
+          filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage,view:params.view, np:params.np, map:params.map, product:params.product, capability:params.capability, market:params.market, country:params.country, steel:params.steel,
+            std:params.std, grade:params.grade, shape:params.shape, od:params.od, wt:params.wt, side:params.side }}
         />
       );
     }
@@ -139,7 +142,8 @@ export default async function NetworkDirectoryPage({
   // NET-UX COMPACT1: fast, unified first-screen browse. Keep the existing rich
   // technical finder as an explicit advanced route and as a resilient fallback.
   const compactFilters=normalizeCompactGeoFilters({q:params.q,role:params.role,region:params.region,persona:params.persona,np:params.np,
-    product:params.product,capability:params.capability,market:params.market,country:params.country,steel:params.steel});
+    product:params.product,capability:params.capability,market:params.market,country:params.country,steel:params.steel,
+    std:params.std,grade:params.grade,shape:params.shape,od:params.od,wt:params.wt,side:params.side});
   const needsTechnicalFinder=Boolean(params.advanced==="1"||params.province||params.city);
   if(!needsTechnicalFinder){
     const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch(()=>null);
@@ -161,6 +165,13 @@ export default async function NetworkDirectoryPage({
           coverage={compactCoverage} provisionalCoverage={compactProvisional} europeCoverage={europeCoverage}
           capabilityLabels={compact.capabilityLabels}
           additionalFilters={{products:compactTaxonomy.products,capabilities:compactTaxonomy.capabilities,markets:compactTaxonomy.markets}}/>
+      </FocusPage>;
+    }
+    // NET-AUDIT1.1: never fall back to a listing that silently ignores the spec.
+    if(hasSpecCriteria(normalizeSpecFilters(compactFilters))){
+      return <FocusPage className="max-w-[1180px]">
+        <NetworkAvailabilityNotice label="Ricerca per specifica tecnica temporaneamente non disponibile. Riprova tra poco oppure rimuovi norma, grado e misure per vedere l'elenco completo."/>
+        <Link href="/network" className="app-secondary mt-4 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Torna all'elenco aziende</Link>
       </FocusPage>;
     }
   }

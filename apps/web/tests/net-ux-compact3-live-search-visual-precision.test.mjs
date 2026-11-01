@@ -14,7 +14,8 @@ test("COMPACT3.1 auto-search: debounce, keep focus, preserve filters, reset pagi
   assert.match(live,/window\.clearTimeout\(handle\)/);
   assert.match(live,/router\.replace\(href,\{scroll:false\}\)/);
   assert.match(live,/document\.activeElement!==field\.current/);
-  assert.match(live,/\["role","region","persona","product","capability","market","country"\]/);
+  // NET-AUDIT1.1: technical spec parameters are preserved too.
+  assert.match(live,/\["role","region","persona","product","capability","market","country","std","grade","shape","od","wt","side"\]/);
   assert.match(live,/\/\/ Reset np to page 1/);
   assert.match(live,/onSubmit=\{submit\}/);
   assert.match(live,/const clear=\(\)=>/);

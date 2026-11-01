@@ -16,6 +16,9 @@ import {
   looksLikeRfqRequest,hasUnmappableConditions,mergeNetworkFollowup,
   type NetworkAiValidated,
 } from "@/lib/network-ai-contract";
+import {extractNetworkSpecIntent,describeRfqDetails} from "@/lib/network-spec-intent";
+import {describeSpecFilters,hasSpecCriteria,specFiltersToParams} from "@/lib/network-spec-filters";
+import {getNetworkSpecPage} from "@/lib/network-spec-search";
 
 /** Trusted geographic terms for routing, never company or facility evidence.
  * Use only official ISO/NUTS keys; aliases are curated high-confidence names.
@@ -65,6 +68,9 @@ export type NetworkConversationAnswer={
   filters?:NetworkIntentFilters;
   mode:"rules"|"ai"|"safe_fallback";
   technicalOnly?:boolean;
+  /** NET-AUDIT1.1: quantities/lengths found next to a spec: offer the RFQ too. */
+  rfqHref?:string;
+  specCounts?:{exact:number;undeclared:number};
 };
 const errorAnswer=(answer:string):NetworkConversationAnswer=>({
   status:"error",answer,mode:"safe_fallback",
@@ -156,6 +162,13 @@ export async function askNetworkConversation(
     return errorAnswer("Scrivi una richiesta da 3 a 400 caratteri.");
   }
   const query=queryRaw.trim();
+  // NET-AUDIT1.1 (founder decision 2026-11-01): standard, grade and dimensions
+  // become Network filters on the published technical scope; quantities and
+  // cut lengths still go to the RFQ; unsupported requirements are named.
+  const specIntent=extractNetworkSpecIntent(query);
+  if(hasSpecCriteria(specIntent.spec)){
+    return answerSpecRequest(context.organizationId,access.can_access_network,specIntent,query);
+  }
   if(looksLikeRfqRequest(query)){
     return {
       status:"rfq",mode:"rules",
@@ -280,4 +293,49 @@ export async function askNetworkConversation(
       answer:"Non sono riuscito a verificare una risposta affidabile. "+
         "Usa i filtri del Network oppure riformula la richiesta."};
   }finally{clearTimeout(timeout);}
+}
+
+async function answerSpecRequest(
+  organizationId:string,isPro:boolean,
+  specIntent:ReturnType<typeof extractNetworkSpecIntent>,query:string,
+):Promise<NetworkConversationAnswer>{
+  const spec=specIntent.spec;
+  const summary=describeSpecFilters(spec);
+  // Role and Italian region may accompany a spec ("commercianti in Piemonte …").
+  const regions=await getNetworkGeoFacets().then(geo=>geo.regions).catch(()=>[] as string[]);
+  const context=interpretNetworkIntent(specIntent.remainder,{regions});
+  const filters:NetworkIntentFilters={};
+  if(context.filters.role)filters.role=context.filters.role;
+  if(context.filters.region&&(!context.filters.country||context.filters.country==="IT"))filters.region=context.filters.region;
+  const params=new URLSearchParams(specFiltersToParams(spec));
+  if(filters.role)params.set("role",filters.role);
+  if(filters.region)params.set("region",filters.region);
+  const href="/network?"+params.toString()+"#network-results";
+  const rfqHref=specIntent.rfqDetails.length?"/commercial?compose=1#commercial-compose":undefined;
+  const chips=[summary,...context.chips.filter(chip=>chip!=="Tubi (prodotti dichiarati)")].filter(Boolean);
+  const notes=[
+    specIntent.rfqDetails.length?" "+describeRfqDetails(specIntent.rfqDetails)+": restano per la richiesta d'offerta, non sono filtri del Network.":"",
+    specIntent.notApplied.length?" Non applicati perché non filtrabili: "+specIntent.notApplied.join(", ")+".":"",
+  ].join("");
+  if(!isPro){
+    return {status:"clarify",mode:"rules",href,chips,rfqHref,
+      answer:"Ho riconosciuto la specifica "+summary+". La ricerca per norma, grado e misure usa lo scope tecnico dei profili, disponibile nel Network Pro."+notes};
+  }
+  try{
+    const counts=await getNetworkSpecPage(organizationId,spec,{role:filters.role,region:filters.region},0,1);
+    const exact=counts.exactTotal,undeclared=counts.undeclaredTotal;
+    return {
+      status:"ready",mode:"rules",href,chips,filters,technicalOnly:true,rfqHref,
+      specCounts:{exact,undeclared},
+      answer:(exact?
+        exact.toLocaleString("it-IT")+(exact===1?" azienda ha":" aziende hanno")+" scope tecnico pubblicato compatibile con "+summary+".":
+        "Nessuna azienda ha scope tecnico pubblicato compatibile con "+summary+".")+
+        (undeclared?" Altre "+undeclared.toLocaleString("it-IT")+" della filiera tubo non lo dichiarano: da verificare.":"")+
+        " Compatibilità dichiarata, non disponibilità confermata."+notes,
+    };
+  }catch{
+    console.warn("[NETAUDIT1] spec_count_unavailable",{length:query.length});
+    return {status:"ready",mode:"safe_fallback",href,chips,filters,technicalOnly:true,rfqHref,
+      answer:"Ho preparato la ricerca per "+summary+", ma il conteggio non è disponibile adesso. Apri i risultati per vederli."+notes};
+  }
 }
