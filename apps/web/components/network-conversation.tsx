@@ -20,12 +20,14 @@ type VoiceWindow=Window&{
   SpeechRecognition?:new()=>VoiceRecognition;
   webkitSpeechRecognition?:new()=>VoiceRecognition;
 };
+// NET-AUDIT1.5: opening questions only (a follow-up such as "e invece in ..."
+// makes no sense as a first message); two examples show the spec search.
 const EXAMPLES=[
   "Quanti commercianti ci sono in Lombardia?",
-  "Cerco commercianti di tubi in Baviera",
-  "Mostrami i produttori in Île-de-France",
-  "E invece in Polonia?",
+  "Commercianti di tubi in Piemonte",
+  "Tubo quadro 100x100x4 S355 a stock",
   "40 tubi EN 10219 S235 da 3 metri",
+  "Cerco commercianti di tubi in Baviera",
 ] as const;
 
 /** Local, ephemeral conversation: no microphone before click, no audio or
@@ -141,8 +143,8 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
     </summary>
     <div className="border-t border-[#e6efea] px-3 pb-3 pt-3">
       <p className="text-xs leading-5 text-[#52615b]">
-        Cerca per ruolo, prodotto, Paese o regione europea, oppure per norma, grado e misure. La chat prepara filtri e ti rimanda ai risultati reali del Network.
-        Non inventa aziende, numeri o capacità. Nessuna RFQ viene inviata senza la tua azione.
+        Chiedi per ruolo, prodotto, regione, oppure per norma, grado e misure: la chat applica i filtri ai risultati reali.
+        Non inventa aziende né numeri. Nessuna RFQ viene inviata senza la tua azione.
       </p>
       <div className="mt-2 max-h-[260px] space-y-2 overflow-y-auto rounded-lg bg-[#f7faf8] p-2"
         role="log" aria-label="Conversazione Network" aria-live="polite">
@@ -195,10 +197,15 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
       </form>
       {voiceIssue?<p role="alert" className="mt-1 text-[11px] text-[#875117]">{voiceIssue}</p>:null}
       <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-        <p className="max-w-[680px] text-[11px] leading-4 text-[#52615b]">
-          Il microfono si attiva solo con il tuo clic; il riconoscimento può inviare audio
-          al fornitore del browser. Per interpretare frasi non riconosciute localmente, il testo può essere inviato a Vercel AI Gateway. Non viene trasmessa la memoria commerciale privata. La chat non conserva la trascrizione dopo la chiusura della pagina.
-        </p>
+        {/* NET-AUDIT1.5: same disclosure, one click away instead of three paragraphs. */}
+        <details className="max-w-[680px] text-[11px] leading-4 text-[#52615b]" data-testid="network-chat-privacy">
+          <summary className="cursor-pointer font-semibold text-[#175640]">Privacy, voce e AI</summary>
+          <p className="mt-1">
+            Il microfono si attiva solo con il tuo clic; il riconoscimento può inviare audio
+            al fornitore del browser. Per interpretare frasi non riconosciute localmente, il testo può essere inviato a Vercel AI Gateway. Non viene trasmessa la memoria commerciale privata. La chat non conserva la trascrizione dopo la chiusura della pagina.
+          </p>
+          <p className="mt-1">IT · EN · DE · FR · ES · Fallback deterministico quando AI non disponibile.</p>
+        </details>
         <div className="flex gap-2">
           {speaking?<button type="button" onClick={()=>{
             window.speechSynthesis.cancel();setSpeaking(false);
@@ -211,9 +218,6 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
           </button>
         </div>
       </div>
-      <p className="mt-1 text-[10px] text-[#52615b]">
-        IT · EN · DE · FR · ES · Fallback deterministico quando AI non disponibile.
-      </p>
     </div>
   </details>;
 }

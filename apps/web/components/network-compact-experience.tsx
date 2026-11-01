@@ -15,6 +15,7 @@ import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
 import {NetworkRfqSelectionBar} from "@/components/network-rfq-selection-bar";
 import {isRfqSelectable,networkRfqSelectionEnabled} from "@/lib/network-rfq-supplier-handoff";
 import type {RecipientReadinessStatus} from "@/lib/network-recipient-readiness";
+import {localizeTaxonomyOptions,networkLabelIt,networkNameIt} from "@/lib/network-taxonomy-it";
 import type {SpecMatch} from "@/lib/network-spec-search";
 import {NETWORK_SPEC_PARAMS,describeSpecFilters} from "@/lib/network-spec-filters";
 import type {ItalyRegionCoverage,ItalyProvisionalGeoCoverage} from "@/lib/network-region-coverage";
@@ -138,14 +139,14 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable}
     </div>
     <div className="hidden min-w-0 flex-wrap gap-1 lg:flex">
       {company.products.length?company.products.slice(0,2).map((product,index)=>
-        <span key={index} className="max-w-full truncate rounded-full bg-[#f1f5f2] px-2 py-1 text-[11px] text-[#43524c]" title={product}>{product}</span>
+        <span key={index} className="max-w-full truncate rounded-full bg-[#f1f5f2] px-2 py-1 text-[11px] text-[#43524c]" title={networkNameIt(product)}>{networkNameIt(product)}</span>
       ):<span className="text-xs text-[#647269]">Non indicati</span>}
     </div>
     <div className="hidden min-w-0 lg:block">
       {capabilities.length?<div className="flex flex-wrap gap-1" data-testid="network-compact-capabilities">
-        {capabilities.slice(0,2).map((name,i)=><span key={i} className="max-w-full truncate rounded-full border border-[#d7e3dc] bg-[#f9fbfa] px-2 py-1 text-[11px] text-[#43524c]" title={name}>{name}</span>)}
+        {capabilities.slice(0,2).map((name,i)=><span key={i} className="max-w-full truncate rounded-full border border-[#d7e3dc] bg-[#f9fbfa] px-2 py-1 text-[11px] text-[#43524c]" title={networkNameIt(name)}>{networkNameIt(name)}</span>)}
         {capabilities.length>2?<span className="rounded-full px-1.5 py-1 text-[11px] font-semibold text-[#175640]"
-          title={capabilities.slice(2).join(", ")} aria-label={"Altre "+(capabilities.length-2)+" capability: "+capabilities.slice(2).join(", ")}>+{capabilities.length-2}</span>:null}
+          title={capabilities.slice(2).map(networkNameIt).join(", ")} aria-label={"Altri "+(capabilities.length-2)+" servizi: "+capabilities.slice(2).map(networkNameIt).join(", ")}>+{capabilities.length-2}</span>:null}
       </div>:<span className="text-xs text-[#647269]" title="Nessuna capability pubblicata sulle sedi">—<span className="sr-only">Nessuna capability pubblicata</span></span>}
     </div>
     <div className="hidden min-w-0 lg:block">
@@ -259,9 +260,9 @@ export function NetworkCompactExperience({
           {NETWORK_SPEC_PARAMS.map(key=>filters[key]?<input key={key} type="hidden" name={key} value={filters[key]}/>:null)}
           <NetworkCountryRegionFilters key={(filters.country||"IT")+"|"+(filters.region||"")} country={filters.country||"IT"} region={filters.region||""}/>
           {[
-            {name:"product",label:"Prodotti",options:additionalFilters?.products||[]},
-            {name:"capability",label:"Capability",options:additionalFilters?.capabilities||[]},
-            {name:"market",label:"Mercato",options:additionalFilters?.markets||[]},
+            {name:"product",label:"Prodotti",options:localizeTaxonomyOptions(additionalFilters?.products||[])},
+            {name:"capability",label:"Capability",options:localizeTaxonomyOptions(additionalFilters?.capabilities||[])},
+            {name:"market",label:"Mercato",options:localizeTaxonomyOptions(additionalFilters?.markets||[])},
           ].map(group=><label key={group.name} className="flex min-w-0 flex-col gap-1">
             <span className="text-[11px] font-semibold text-[#315d4a]">{group.label}</span>
             <NetworkAutoSubmitSelect name={group.name} aria-label={group.label}
@@ -372,7 +373,7 @@ function NetworkActiveFilters({filters,additionalFilters,specSummary}:{
   additionalFilters?:Props["additionalFilters"];
 }){
   const label=(list:{canonical_key:string;display_name:string}[]|undefined,key?:string)=>
-    list?.find(item=>item.canonical_key===key)?.display_name||key||"";
+    networkLabelIt(key,list?.find(item=>item.canonical_key===key)?.display_name);
   type Chip={key:string;text:string;remove:Record<string,string|null>};
   const specClear:Record<string,string|null>=Object.fromEntries(NETWORK_SPEC_PARAMS.map(key=>[key,null]));
   const candidates:(Chip|null)[]=[

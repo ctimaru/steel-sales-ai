@@ -185,7 +185,8 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage}:MapProps){
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[.12em] text-[#32745a]">Mappa Europa</p>
-          <p className="text-xs font-semibold text-[#173f35]">27 Paesi selezionabili</p>
+          {/* NET-AUDIT1.5: the map shows the 27 EU members; CH, UK and US are in the Paese menu only. */}
+          <p className="text-xs font-semibold text-[#173f35]">27 Paesi UE sulla mappa</p>
         </div>
         <button type="button" onClick={()=>setExpanded(true)}
           aria-label="Espandi mappa europea"

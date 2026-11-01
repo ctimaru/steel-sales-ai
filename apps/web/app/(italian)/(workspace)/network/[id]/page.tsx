@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {networkNameIt} from "@/lib/network-taxonomy-it";
 import { notFound, redirect } from "next/navigation";
 
 import { PilotEvent } from "@/components/pilot-event";
@@ -333,7 +334,7 @@ export default async function NetworkCompanyProfilePage({
                   </span>
                   {primaryRole ? (
                     <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-xs font-semibold text-[#1a5144]">
-                      {primaryRole.name}
+                      {networkNameIt(primaryRole.name)}
                     </span>
                   ) : null}
                   {profile.trust.claimed ? (
@@ -467,7 +468,7 @@ export default async function NetworkCompanyProfilePage({
           <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#52615b]">Posizionamento</p>
             <p className="mt-2 text-sm font-semibold text-[#2f4059]">
-              {primaryRole?.name ?? "Ruolo non definito"}
+              {primaryRole ? networkNameIt(primaryRole.name) : "Ruolo non definito"}
             </p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {profile.subtypes.slice(0, 4).map((subtype) => (
@@ -483,7 +484,7 @@ export default async function NetworkCompanyProfilePage({
             <div className="mt-2 space-y-2">
               {productGroups.slice(0, 4).map((product) => (
                 <div key={product.key + String(product.facility_id)}>
-                  <p className="text-sm font-semibold text-[#2f4059]">{product.name}</p>
+                  <p className="text-sm font-semibold text-[#2f4059]">{networkNameIt(product.name)}</p>
                   <p className="mt-0.5 text-xs text-[#52615b]">
                     {product.relationships
                       .map((relationship) => relationshipLabels[relationship] || relationship)
@@ -519,12 +520,12 @@ export default async function NetworkCompanyProfilePage({
             <div className="mt-2 flex flex-wrap gap-1.5">
               {capabilities.slice(0, 5).map((capability) => (
                 <span key={capability.key} className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[11px] font-semibold text-[#1a5144]">
-                  {capability.name}
+                  {networkNameIt(capability.name)}
                 </span>
               ))}
               {profile.markets.slice(0, 4).map((market) => (
                 <span key={market.key} className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[11px] font-semibold text-[#65758a]">
-                  {market.name}
+                  {networkNameIt(market.name)}
                 </span>
               ))}
             </div>
@@ -559,7 +560,7 @@ export default async function NetworkCompanyProfilePage({
                     >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div>
-                          <p className="text-lg font-semibold text-[#2f4059]">{product.name}</p>
+                          <p className="text-lg font-semibold text-[#2f4059]">{networkNameIt(product.name)}</p>
                           {facility ? (
                             <p className="mt-1 text-xs text-[#7b8a9d]">{facility.name}</p>
                           ) : null}
@@ -691,7 +692,7 @@ export default async function NetworkCompanyProfilePage({
                       <div key={role.key} className="rounded-2xl border border-[#e4eaf2] bg-[#fafbfa] p-3.5">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <p className="text-sm font-semibold text-[#34445c]">
-                            {role.name}{role.is_primary ? " · principale" : ""}
+                            {networkNameIt(role.name)}{role.is_primary ? " · principale" : ""}
                           </p>
                           <ProvenanceBadge kind={role.provenance_kind} />
                         </div>
@@ -758,7 +759,7 @@ export default async function NetworkCompanyProfilePage({
                           facility.capabilities.map((capability) => (
                             <div key={capability.key} className="rounded-xl border border-[#e5ebf3] bg-white px-3 py-2.5">
                               <div className="flex flex-wrap items-center justify-between gap-2">
-                                <p className="text-sm font-semibold text-[#475970]">{capability.name}</p>
+                                <p className="text-sm font-semibold text-[#475970]">{networkNameIt(capability.name)}</p>
                                 <VerificationBadge status={capability.verification_status} />
                               </div>
                               <div className="mt-2"><ProvenanceBadge kind={capability.provenance_kind} /></div>
@@ -787,7 +788,7 @@ export default async function NetworkCompanyProfilePage({
               {profile.markets.length ? (
                 profile.markets.map((market) => (
                   <div key={market.key} className="rounded-2xl border border-[#dce2df] bg-[#fafbfa] px-3.5 py-2.5">
-                    <p className="text-sm font-semibold text-[#43524c]">{market.name}</p>
+                    <p className="text-sm font-semibold text-[#43524c]">{networkNameIt(market.name)}</p>
                     <div className="mt-1.5"><ProvenanceBadge kind={market.provenance_kind} /></div>
                   </div>
                 ))
