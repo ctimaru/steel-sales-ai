@@ -270,6 +270,8 @@ select pg_temp.hp13_assert(
         -- NET-GROWTH2C.1: bounded, read-only Platform discovery identity recovery.
         -- Immutable private evidence, no merge or legal verification.
         'netgrowth2c1_identity_recovery_page',
+        -- NET-GROWTH2C.2: candidate-only product review, Platform discovery.read, no publish.
+        'netgrowth2c2_product_evidence_page',
         -- TRADER1D.2: reviewed singleton-owner-only bridge; private data never
         -- granted to browser roles, append-only decisions, no publish action.
         'trader1d2_superadmin_queue',

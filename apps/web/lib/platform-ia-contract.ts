@@ -161,6 +161,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/company-discovery/identity-recovery", module: "discovery" },
   { path: "/platform/company-discovery/market-review", module: "discovery" },
   { path: "/platform/company-discovery/steel-coverage", module: "discovery" },
+  { path: "/platform/company-discovery/product-evidence", module: "discovery" },
   { path: "/platform/company-discovery/trader-verification", module: "traderVerification" },
   { path: "/platform/company-discovery/sources", module: "discovery" },
   { path: "/platform/company-claims", module: "claims" },
