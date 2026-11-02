@@ -6,7 +6,7 @@ import { confirmRfqOptOut } from "./actions";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Annulla iscrizione alle richieste di offerta · Smart Steel Sales",
+  title: "Annulla iscrizione alle richieste di offerta",
   robots: { index: false, follow: false },
 };
 
