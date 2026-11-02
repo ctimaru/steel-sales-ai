@@ -149,6 +149,11 @@ export default function SchoolContent1CPage() {
               <Link key={link.href} href={link.href}
                 className="school-secondary-action min-h-10 text-xs">{link.label} →</Link>
             ))}
+            <Link href={"/knowledge/professore?topic=" + encodeURIComponent(comparison.id)}
+              className="school-secondary-action min-h-10 text-xs"
+              aria-label={"Chiedi al Professore di spiegare " + comparison.title}>
+              Chiedi al Professore →
+            </Link>
           </div>
           <References sources={comparison.sources} />
         </section>
