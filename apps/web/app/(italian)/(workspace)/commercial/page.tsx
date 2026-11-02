@@ -182,27 +182,27 @@ export default async function CommercialHomePage({
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
         className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white " + cinematic.hero}>
-        <div className={"grid items-center gap-4 px-5 py-5 sm:px-7 lg:min-h-[172px] lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-7 lg:px-8 lg:py-5 " + cinematic.heroGrid}>
+        <div className={"grid items-center gap-3 px-4 py-3 sm:px-6 lg:min-h-[112px] lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-4 lg:px-6 lg:py-2.5 " + cinematic.heroGrid}>
           <div className="relative z-10 min-w-0">
             <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#add4bb]">
               <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9fe4b5]" />
               Smart Steel Sales / Commerciale
             </div>
-            <h1 className={"mt-2 text-[clamp(1.65rem,2.5vw,2.25rem)] font-semibold leading-[1.08] tracking-[-0.04em] text-white " + cinematic.heroTitle}>
+            <h1 className={"mt-1 text-[clamp(1.5rem,2.2vw,2rem)] font-semibold leading-[1.08] tracking-[-0.04em] text-white " + cinematic.heroTitle}>
               Le tue trattative. <span className="text-[#b4dec2]">Un’unica visione.</span>
             </h1>
-            <p className="mt-2 text-xs leading-5 text-[#d2e7db]">
+            <p className="mt-1 text-xs leading-4 text-[#d2e7db]">
               Richieste, offerte e ordini in un unico spazio.
             </p>
           </div>
           <div aria-label="Il tuo centro operativo" className={"relative z-10 hidden lg:block " + cinematic.heroMetrics}>
-            <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo</p>
+            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo · Storico commerciale</p>
             <dl className="grid grid-cols-3 gap-2">
-              <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-xl font-semibold tabular-nums text-white">{operational.rfqs}</dd></div>
-              <div><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-xl font-semibold tabular-nums text-white">{operational.offers}</dd></div>
-              <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-xl font-semibold tabular-nums text-white">{operational.orders}</dd></div>
+              <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.rfqs}</dd></div>
+              <div><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.offers}</dd></div>
+              <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.orders}</dd></div>
             </dl>
-            <p className="mt-2 text-[10px] font-medium text-[#b8d8c6]">
+            <p className="mt-1 text-[10px] font-medium text-[#b8d8c6]">
               {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Dati in attesa di associazione"} · Workspace privato
             </p>
           </div>
