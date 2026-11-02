@@ -109,8 +109,8 @@ def test_dry_run_never_writes():
 
 
 def test_next_batch_is_bounded_and_domain_bound():
-    entries, total = next_batch(FakeDb(), 5)
-    assert total == 1 and entries[0]["domain"] == "morandispa.it"
+    entries, total, skipped = next_batch(FakeDb(), 5)
+    assert total == 1 and entries[0]["domain"] == "morandispa.it" and skipped == []
     with pytest.raises(ValueError):
         next_batch(FakeDb(), 26)
 
@@ -135,3 +135,24 @@ def test_persist_records_every_attempt_even_without_channels():
         out = asyncio.run(run_batch([item()], persist=True, db=db, pause=0))
     assert out["outcomes"][0]["status"] == "no_company_channel"
     assert db.calls == [("netcontact1_record_attempt", {"p_company_id": ID, "p_outcome": "no_company_channel"})]
+
+
+def test_next_batch_skips_mismatched_identity_and_allows_shared_group_domain():
+    other = "61100000-0000-5000-8000-000000000006"
+    stray = "71100000-0000-5000-8000-000000000007"
+    items = [dict(kind="canonical", company_id=ID, site=SITE, domain="morandispa.it", company_name="Morandi S.p.A."),
+             dict(kind="canonical", company_id=other, site=SITE, domain="morandispa.it", company_name="Morandi Group"),
+             dict(kind="canonical", company_id=stray, site="https://other.example/", domain="morandispa.it", company_name="Stray")]
+
+    class Db:
+        def rpc(self, name, params):
+            class Q:
+                def execute(self):
+                    class R:
+                        data = {"contract": "netcontact1-next-v1", "eligible": 3, "items": items}
+                    return R()
+            return Q()
+
+    entries, total, skipped = next_batch(Db(), 5)
+    assert [e["company_id"] for e in entries] == [ID, other]
+    assert skipped == [stray]
