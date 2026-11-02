@@ -39,6 +39,7 @@ function References({ sources }: { sources: { label: string; url: string }[] }) 
 }
 
 export default function SchoolContent1CPage() {
+  const alphabeticalGlossary = [...schoolGlossary].sort((a, b) => a.term.localeCompare(b.term, "it"));
   const allSourceUrls = [...new Set(schoolComparisons.flatMap((entry) => entry.sources.map((source) => source.url)))];
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -158,7 +159,7 @@ export default function SchoolContent1CPage() {
         <h2 id="glossario-title" className="mt-2 text-2xl font-semibold text-[#1d2824]">Glossario tecnico</h2>
         <p className="mt-2 text-sm leading-6 text-[#52615b]">Definizioni introduttive collegate alle schede; per certificazioni e dimensioni prevale sempre la norma pertinente.</p>
         <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-          {schoolGlossary.map((item) => (
+          {alphabeticalGlossary.map((item) => (
             <div key={item.term} className="rounded-xl border border-[#e0e8e2] bg-[#f9fbfa] p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <dt className="text-sm font-bold text-[#173f35]">{item.term}</dt>
