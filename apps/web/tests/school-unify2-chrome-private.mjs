@@ -104,5 +104,37 @@ try {
  await page.waitForURL(u=>u.pathname==="/commercial/knowledge",{timeout:15000});
  assert.ok(page.url().includes("/commercial/knowledge"),"legacy bookmark redirects to Commercial Memory");
  await context.close();
+ // SCHOOL-CONTENT1.C: visual-contract Chrome acceptance for the actual new
+ // public guide, independently of protected Vercel SSO. This is synthetic
+ // browser evidence, not a real-account production sign-off.
+ for (const width of [390, 1440]) {
+   const guideContext=await browser.newContext({viewport:{width,height:width===390?844:900},reducedMotion:"reduce"});
+   await guideContext.route("**/*",route=>{
+     const request=route.request(),url=new URL(request.url());
+     if(url.origin!==base||!["GET","HEAD"].includes(request.method()))return route.abort();
+     return route.continue();
+   });
+   const guidePage=await guideContext.newPage();
+   const response=await guidePage.goto(base+"/knowledge/articoli/confronti-glossario",{waitUntil:"domcontentloaded",timeout:60000});
+   assert.equal(response?.status(),200,"CONTENT1.C public reference "+width);
+   await guidePage.getByRole("heading",{name:"Confronta prima di specificare."}).waitFor({timeout:15000});
+   assert.equal(await guidePage.locator("section#en-10210-vs-en-10219").count(),1,"EN 10210/10219 comparison "+width);
+   assert.equal(await guidePage.locator("section#documenti-en-10204").count(),1,"EN 10204 comparison "+width);
+   assert.equal(await guidePage.locator("section#saldato-vs-seamless").count(),1,"production comparison "+width);
+   assert.equal(await guidePage.locator("section#tolleranze-peso-teorico").count(),1,"mass and tolerances "+width);
+   assert.equal(await guidePage.locator("#glossario-tecnico dt").count(),16,"all 16 glossary entries "+width);
+   const allNames=await guidePage.locator("#glossario-tecnico dt").allTextContents();
+   const expectedNames=[...allNames].sort((a,b)=>a.localeCompare(b,"it"));
+   assert.deepEqual(allNames,expectedNames,"alphabetical glossary "+width);
+   const firstComparison=guidePage.locator("#en-10210-vs-en-10219");
+   assert.ok((await firstComparison.boundingBox())?.height>150,"readable first comparison "+width);
+   const glossary=guidePage.locator("#glossario-tecnico");
+   assert.ok((await glossary.boundingBox())?.height>100,"readable glossary "+width);
+   const dim=await guidePage.evaluate(()=>({viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth}));
+   assert.ok(dim.scroll<=dim.viewport+12,"CONTENT1.C no horizontal overflow "+width+" "+JSON.stringify(dim));
+   await guidePage.screenshot({path:dir+"/school-content1c-"+width+".png",fullPage:true,animations:"disabled"});
+   console.log("SCHOOL-CONTENT1.C CHROME PASS",width,JSON.stringify(dim));
+   await guideContext.close();
+ }
 }finally{await browser.close();}
 console.log("SCHOOL-UNIFY2 CHROME PASS all five private home languages and reference/guide views in demo mode");
