@@ -73,9 +73,26 @@ function initialLetters(name:string){
 // NET-CONTACT1: not active on the platform, but has a reviewed public company email.
 const EMAIL_REACHABLE_LABEL="Contattabile via email";
 // NET-UX LOT1: "Connetti" is the only relationship with a Network company.
-function ContactCell({company,name,status,emailReachable}:{
-  company:FreeCompany;name:string;status?:RecipientReadinessStatus;emailReachable?:boolean;
+// NET-CONN3: companies not yet active keep a visible but disabled Connetti, so the
+// relationship is discoverable. Readiness stays SQL-bound: only "available" links.
+const CONNECT_UNAVAILABLE_HINT="Connetti sarà disponibile quando l’azienda sarà attiva sulla piattaforma";
+function DisabledConnect({name,emailReachable}:{name:string;emailReachable?:boolean}){
+  return <span className="relative z-10 flex flex-col items-end gap-0.5">
+    <span role="button" aria-disabled="true" tabIndex={0} data-testid="network-row-connect-disabled"
+      aria-label={"Connetti con "+name+": non ancora disponibile"} title={CONNECT_UNAVAILABLE_HINT}
+      className="inline-flex min-h-10 cursor-not-allowed select-none items-center justify-center rounded-lg border border-[#d7e3dc] bg-[#f3f6f4] px-3 text-xs font-semibold text-[#7d8c85]">
+      Connetti
+    </span>
+    <span className="text-[10px] leading-3 text-[#52615b]">
+      {emailReachable?<span data-testid="network-email-reachable" title="Riceve la RFQ via email al contatto aziendale pubblico">{EMAIL_REACHABLE_LABEL}</span>:"Non ancora attiva"}
+    </span>
+  </span>;
+}
+function ContactCell({company,name,status,emailReachable,canAct}:{
+  company:FreeCompany;name:string;status?:RecipientReadinessStatus;emailReachable?:boolean;canAct?:boolean;
 }){
+  // Unknown readiness (load failure) or non-canonical discovered records: say nothing rather than guess.
+  if(status==="unavailable"&&canAct&&!company.discovery_status)return <DisabledConnect name={name} emailReachable={emailReachable}/>;
   if(status==="available")return <Link href={"/network/"+company.id+"/connect"} data-testid="network-row-connect"
     aria-label={"Connetti con "+name}
     className="ui-action ui-action-primary relative z-10 inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">
@@ -88,10 +105,10 @@ function ContactCell({company,name,status,emailReachable}:{
   // NET-UX touch-up: no label when there is nothing to do (most companies are not yet active).
   return null;
 }
-function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,emailReachable,saved,returnTo}:{
+function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,emailReachable,saved,returnTo,canAct}:{
   company:FreeCompany;capabilities?:string[];specMatch?:SpecMatch;
   status?:RecipientReadinessStatus;selectable?:boolean;emailReachable?:boolean;
-  saved?:boolean;returnTo?:string;
+  saved?:boolean;returnTo?:string;canAct?:boolean;
 }){
   const name=company.trading_name||company.legal_name;
   const role=company.roles[0];
@@ -166,7 +183,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,
       </p>:!location?<p className="text-[10px] text-[#52615b]">Località da integrare</p>:null}
     </div>
     <div className="flex min-w-0 items-center justify-end gap-2 lg:justify-between">
-      <ContactCell company={company} name={name} status={status} emailReachable={emailReachable}/>
+      <ContactCell company={company} name={name} status={status} emailReachable={emailReachable} canAct={canAct}/>
       {/* NET-UX LOT1B: private list. Discovered (unconfirmed) records have no canonical profile to save. */}
       {returnTo&&!company.discovery_status?<NetworkSaveToggle companyId={company.id} name={name} saved={Boolean(saved)} returnTo={returnTo} compact/>:null}
     </div>
@@ -347,7 +364,7 @@ export function NetworkCompactExperience({
           <CompactCompanyRow company={company} capabilities={capabilityLabels[company.id]||[]} specMatch={directory.specMatches?.[company.id]}
             status={directory.recipientStatus?.[company.id]}
             emailReachable={directory.rfqChannel?.[company.id]==="email"&&!["available","connected"].includes(directory.recipientStatus?.[company.id]??"")}
-            saved={savedIds.has(company.id)} returnTo={accessMode==="pro"&&canCompose?returnTo:undefined}
+            saved={savedIds.has(company.id)} returnTo={accessMode==="pro"&&canCompose?returnTo:undefined} canAct={canCompose}
             selectable={rfqSelection&&accessMode==="pro"&&isRfqReachable(directory.recipientStatus?.[company.id],directory.rfqChannel?.[company.id])}/>
         </Fragment>):
         <div className="px-4 py-9 text-center text-sm text-[#52615b]">{specMode?"Nessuna azienda con scope tecnico compatibile o non dichiarato per "+specSummary+". Prova a togliere un criterio, ad esempio il grado o una misura.":
