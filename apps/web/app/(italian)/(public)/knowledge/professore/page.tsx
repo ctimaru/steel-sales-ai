@@ -9,13 +9,16 @@ export const metadata: Metadata = {
   alternates: { canonical: absoluteUrl("/knowledge/professore") },
   robots: { index: false, follow: true },
 };
-export default function SchoolTechnicalTutorPage() {
+export default async function SchoolTechnicalTutorPage({ searchParams }: {
+  searchParams: Promise<{ topic?: string }>;
+}) {
+  const { topic } = await searchParams;
   return <div className="mx-auto max-w-[1100px] space-y-4 px-4 py-5 sm:px-6 sm:py-8">
     <nav aria-label="Percorso nella Scuola" className="flex items-center gap-2 text-xs font-semibold text-[#516a59]">
       <Link href="/knowledge" className="underline underline-offset-4">Scuola</Link>
       <span aria-hidden="true">/</span>
       <span aria-current="page">Professore tecnico</span>
     </nav>
-    <SchoolTechnicalTutor />
+    <SchoolTechnicalTutor initialTopic={topic} />
   </div>;
 }
