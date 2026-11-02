@@ -1272,9 +1272,9 @@ export default async function ManagedNetworkProfilePage({
         <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="inquiries"
-          eyebrow="08 · Network availability"
-          title="Ricezione inquiry"
-          description="Decidi se gli altri membri del Network possono contattare l'organizzazione dal profilo. La modifica non cancella lo storico."
+          eyebrow="08 · Disponibilità nel Network"
+          title="Richieste di connessione"
+          description="Decidi se le altre aziende del Network possono chiederti di connettervi dal tuo profilo. La modifica non cancella lo storico."
         />
         <div className="flex flex-col gap-4 rounded-2xl border border-[#e6ebe8] bg-[#fafbfa] p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

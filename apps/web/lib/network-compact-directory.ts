@@ -10,6 +10,7 @@ import {getEuropeRegionalSearch} from "@/lib/network-europe-regional";
 import {getPublishedCapabilityLabels} from "@/lib/network-compact-capabilities";
 import {getNetworkRecipientReadiness,type RecipientReadinessStatus} from "@/lib/network-recipient-readiness";
 import {getNetworkRfqReachability,type RfqChannel} from "@/lib/network-rfq-reachability";
+import {getSavedNetworkCompanyIds} from "@/lib/network-saved-set";
 import {getNetworkSpecPage,type SpecMatch} from "@/lib/network-spec-search";
 import {NETWORK_SPEC_PARAMS,hasSpecCriteria,normalizeSpecFilters,specFiltersToParams,type NetworkSpecFilters} from "@/lib/network-spec-filters";
 
@@ -42,6 +43,8 @@ export type CompactNetworkPage={
   recipientStatus?:Record<string,RecipientReadinessStatus>;
   /** NET-CONTACT1: platform / email / none, Pro only (paid guard in SQL). */
   rfqChannel?:Record<string,RfqChannel>;
+  /** NET-UX LOT1B: companies on this page already in the user's private list. */
+  savedIds?:string[];
 };
 /** Normalize URL-originated geographic facets before any Free/Pro data query.
  * Region names here belong to Italy; never combine them with a foreign country.
@@ -98,7 +101,7 @@ export async function getCompactNetworkPage(
   const ids=page.items.map(company=>company.id);
   // NET-AUDIT1.3: same SQL-bound readiness used by connections; never optimistic.
   const readiness=getNetworkRecipientReadiness(organizationId,ids).catch(()=>undefined);
-  const [capabilityLabels,readinessMap,rfqChannel]=await Promise.all([
+  const [capabilityLabels,readinessMap,rfqChannel,savedIds]=await Promise.all([
     page.capabilityLabels?Promise.resolve(page.capabilityLabels):getPublishedCapabilityLabels(ids),
     readiness,
     // NET-CONTACT1: companies with a reviewed public company email can receive RFQs too.
@@ -106,9 +109,10 @@ export async function getCompactNetworkPage(
       ?readiness.then(map=>getNetworkRfqReachability(organizationId,ids,map))
         .then(map=>Object.fromEntries(map) as Record<string,RfqChannel>).catch(()=>undefined)
       :Promise.resolve(undefined),
+    getSavedNetworkCompanyIds(organizationId,ids).catch(()=>[] as string[]),
   ]);
   const recipientStatus=readinessMap?Object.fromEntries(readinessMap) as Record<string,RecipientReadinessStatus>:undefined;
-  return {...page,capabilityLabels,recipientStatus,rfqChannel};
+  return {...page,capabilityLabels,recipientStatus,rfqChannel,savedIds};
 }
 
 async function buildCompactNetworkPage(

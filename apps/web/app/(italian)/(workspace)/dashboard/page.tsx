@@ -11,10 +11,7 @@ import { loadDashboardPulse } from "@/lib/dashboard-pulse";
 import { getDashboardData } from "@/lib/commercial-data";
 import { getNetworkAccessState } from "@/lib/network-access";
 import { getMarketplaceFeed } from "@/lib/marketplace";
-import {
-  getNetworkActivityFeed,
-  getNetworkInquiries,
-} from "@/lib/network";
+import { getNetworkActivityFeed } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { searchNetwork } from "@/lib/network";
 import { selectDashboardNetworkCompanies } from "@/lib/dashboard-network-discovery";
@@ -52,14 +49,11 @@ export default async function DashboardPage({
   const isAdmin = context.role === "admin";
   const canWrite = canWriteWorkspace(context.role);
 
-  const [setup, commercial, received, activity, sector, procurement, pulse, marketplace, networkCatalog] = await Promise.all([
+  const [setup, commercial, activity, sector, procurement, pulse, marketplace, networkCatalog] = await Promise.all([
     isAdmin
       ? getCompanySetupState(context.organizationId).catch(() => null)
       : Promise.resolve(null),
     getDashboardData(),
-    networkEntitled
-      ? getNetworkInquiries(context.organizationId, "received")
-      : Promise.resolve({ items: [], total: 0 }),
     networkEntitled
       ? getNetworkActivityFeed(context.organizationId, false)
       : Promise.resolve({ items: [], total: 0, unread: 0 }),
@@ -424,16 +418,7 @@ export default async function DashboardPage({
             </section>
           ) : null}
 
-          {networkEntitled && received.total > 0 ? (
-            <section aria-label="Dalla tua rete" className="rounded-2xl border border-[#dce5df] bg-white p-4">
-              <h2 className="text-sm font-semibold text-[#173f35]">Dalla tua rete</h2>
-              {received.total > 0 ? (
-                <Link href={appRoutes.network.inquiries + "?box=received"} className="mt-3 flex min-h-10 items-center justify-between gap-2 text-xs font-medium text-[#175640] underline underline-offset-4">
-                  Richieste ricevute <span className="tabular-nums">{received.total} →</span>
-                </Link>
-              ) : null}
-            </section>
-          ) : null}
+          {/* NET-UX LOT1B: Network inquiries retired; requests go through the RFQ Hub. */}
 
           </div>
         }

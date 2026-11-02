@@ -34,6 +34,8 @@ const commercialNav: NavItem[] = [
 const networkNav: NavItem[] = [
   { href: appRoutes.network.directory, label: "Cerca aziende", contextKey: "network:directory" },
   { href: appRoutes.network.connections, label: "Connessioni", contextKey: "network:connections" },
+  // NET-UX LOT1B: private list to work on later (founder decision 2 Nov 2026).
+  { href: appRoutes.network.saved, label: "Salvate", contextKey: "network:saved" },
   // NET-UX LOT1: the company's own Network profile, previously reachable only from scattered links.
   { href: appRoutes.network.manage, label: "Il mio profilo", contextKey: "network:profile" },
 ];

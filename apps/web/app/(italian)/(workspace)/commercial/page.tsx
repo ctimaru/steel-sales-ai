@@ -378,7 +378,7 @@ export default async function CommercialHomePage({
                 </label>
                 <button type="submit"
                   className="inline-flex min-h-10 w-fit items-center rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#246c53] focus-visible:outline-2 focus-visible:outline-offset-2"
-                >Salva azienda da seguire</button>
+                >Salva nella mia lista</button>
               </form>
             ) : (
               <p className="mt-2 text-xs leading-5 text-[#52615b]">

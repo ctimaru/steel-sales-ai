@@ -9,7 +9,7 @@ const browser = fs.readFileSync(new URL("./demotest23-chrome-auth.mjs", import.m
 test("DEMOTEST2.3 Dashboard does not call privileged Network reads without tenant entitlement", () => {
   assert.match(source, /getNetworkAccessState\(context\.organizationId\)/);
   assert.match(source, /can_access_network/);
-  assert.match(source, /networkEntitled\s*\?\s*getNetworkInquiries/);
+  assert.doesNotMatch(source, /getNetworkInquiries/); // NET-UX LOT1B: requests only from the RFQ Hub
   assert.match(source, /networkEntitled\s*\?\s*getNetworkActivityFeed/);
   assert.doesNotMatch(source, /networkEnabled\s*\?\s*getNetwork(Inquiries|ActivityFeed)/);
 });

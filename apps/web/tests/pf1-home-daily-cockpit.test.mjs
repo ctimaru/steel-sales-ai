@@ -38,6 +38,6 @@ test("PF1 reduces Home data loading to cockpit signals", () => {
   assert.doesNotMatch(home, /getFollowedNetworkCompanies/);
   assert.doesNotMatch(home, /getSavedNetworkCompanies/);
   assert.doesNotMatch(home, /getNetworkInquiries\(context\.organizationId, "sent"\)/);
-  assert.match(home, /getNetworkInquiries\(context\.organizationId, "received"\)/);
+  assert.doesNotMatch(home, /getNetworkInquiries/); // NET-UX LOT1B: Network inquiries retired; requests go through the RFQ Hub
   assert.match(home, /getNetworkActivityFeed/);
 });

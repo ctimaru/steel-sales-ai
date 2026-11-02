@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { canWriteWorkspace } from "@/lib/access-policy";
+import { NetworkSaveToggle } from "@/components/network-save-toggle";
+import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import {networkNameIt} from "@/lib/network-taxonomy-it";
 import { notFound, redirect } from "next/navigation";
 
@@ -171,6 +174,8 @@ export default async function NetworkCompanyProfilePage({
   let adminOrganizationId: string | null = null;
   let canInteract = false;
   let inquiryEligible = false;
+  let isSaved = false;
+  let membershipRole = "";
   let claimState: CompanyClaimState | null = null;
 
   if (userId) {
@@ -182,6 +187,7 @@ export default async function NetworkCompanyProfilePage({
 
     const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
     organizationId = membership?.organization_id ?? null;
+    membershipRole = membership?.role ?? "";
     canInteract = membership ? canInteractWithNetwork(membership.role) : false;
 
     adminOrganizationId =
@@ -192,9 +198,13 @@ export default async function NetworkCompanyProfilePage({
     }
 
     if (organizationId) {
-      const eligibility = await getInquiryEligibility(organizationId, profile.company.id)
-        .catch(() => ({eligible:false,reason:"unavailable"}));
+      const [eligibility, savedIds] = await Promise.all([
+        getInquiryEligibility(organizationId, profile.company.id)
+          .catch(() => ({eligible:false,reason:"unavailable"})),
+        getSavedNetworkCompanyIds(organizationId, [profile.company.id]),
+      ]);
       inquiryEligible = eligibility.eligible;
+      isSaved = savedIds.includes(profile.company.id);
     }
   }
 
@@ -384,6 +394,10 @@ export default async function NetworkCompanyProfilePage({
                 </a>
               ) : null}
 
+              {organizationId && canWriteWorkspace(membershipRole) ? (
+                <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
+                  returnTo={"/network/" + profile.company.id} />
+              ) : null}
               {inquiryEligible && !canInteract ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Per connetterti serve un ruolo commerciale abilitato.</p> :
                 !inquiryEligible ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Potrai connetterti quando l'azienda sarà attiva sulla piattaforma.</p> : null}
               {/* NET-UX LOT1: public company channels at the top, next to the actions. */}
