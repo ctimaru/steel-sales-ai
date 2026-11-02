@@ -1,4 +1,5 @@
 import "server-only";
+import { commercialRowQuantity, type CommercialRowFacts } from "@/lib/commercial-row-facts";
 
 import { getExplorerData } from "@/lib/commercial-data";
 import { formatHubDate, rfqCampaignStatusLabel, rfqOrderStatusLabel } from "@/lib/rfq-hub-overview";
@@ -19,6 +20,8 @@ export type UnifiedCommercialItem = {
   href: string;
   campaignId: string | null;
   origin: "memoria privata" | "acquisti privati";
+  /** Presentation only: verified fields from authorized records, never inferred. */
+  rowFacts?: CommercialRowFacts;
 };
 export type UnifiedCommercialData = {
   items: UnifiedCommercialItem[];
@@ -67,7 +70,7 @@ export async function loadUnifiedCommercialData(organizationId: string): Promise
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: false }).limit(40),
     db.from("buyer_distintas")
-      .select("id,title,line_count,created_at")
+      .select("id,title,line_count,total_meters,total_tonnes,created_at")
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: false }).limit(40),
   ]);
@@ -92,6 +95,7 @@ export async function loadUnifiedCommercialData(organizationId: string): Promise
         key: kind + ":" + id, id, kind, view,
         title: row.company || "Cliente non attribuito",
         subtitle: [row.product, row.standard, row.grade].filter(Boolean).join(" · "),
+        rowFacts: { counterparty: row.company || undefined, material: [row.product, row.standard, row.grade].filter(Boolean).join(" · ") || undefined },
         status: row.role === "requested" ? "Richiesta nello storico" : row.role === "offered" ? "Offerta nello storico" : "Ordine nello storico",
         // The explorer formats its date. Never fabricate a timestamp from it.
         at: null,
@@ -144,6 +148,7 @@ export async function loadUnifiedCommercialData(organizationId: string): Promise
       key: "purchase-order:" + order.id, id: order.id, kind: "purchase-order", view: "orders",
       title: asLabel(order.po_draft_ref, "Purchase Order"),
       subtitle: asLabel(order.supplier_name_snapshot, campaign.title),
+      rowFacts: { counterparty: typeof order.supplier_name_snapshot === "string" ? order.supplier_name_snapshot.trim() || undefined : undefined, totalEur: order.total_eur },
       status: rfqOrderStatusLabel(order.status),
       at: order.created_at ?? null, href: appRoutes.rfqHub.campaign(order.rfq_id),
       campaignId: order.rfq_id, origin: "acquisti privati",
@@ -156,6 +161,7 @@ export async function loadUnifiedCommercialData(organizationId: string): Promise
       key: "distinta:" + draft.id, id: draft.id, kind: "distinta", view: "drafts",
       title: asLabel(draft.title, "Distinta privata"),
       subtitle: String(draft.line_count ?? "—") + " righe · distinta salvata",
+      rowFacts: { quantity: commercialRowQuantity(draft.total_tonnes, draft.total_meters) ?? undefined },
       status: "Salvata", at: draft.created_at ?? null,
       href: appRoutes.rfqHub.savedDistinta(draft.id),
       campaignId: null, origin: "acquisti privati",
