@@ -174,6 +174,7 @@ export default async function NetworkCompanyProfilePage({
   let adminOrganizationId: string | null = null;
   let canInteract = false;
   let inquiryEligible = false;
+  let inquiryReason = "";
   let isSaved = false;
   let membershipRole = "";
   let claimState: CompanyClaimState | null = null;
@@ -204,6 +205,7 @@ export default async function NetworkCompanyProfilePage({
         getSavedNetworkCompanyIds(organizationId, [profile.company.id]),
       ]);
       inquiryEligible = eligibility.eligible;
+      inquiryReason = String(eligibility.reason ?? "");
       isSaved = savedIds.includes(profile.company.id);
     }
   }
@@ -383,6 +385,14 @@ export default async function NetworkCompanyProfilePage({
                   Connetti
                 </Link>
               ) : null}
+              {/* NET-CONN3: visible but disabled Connetti while the company is not active; never on your own company. */}
+              {!inquiryEligible && canInteract && inquiryReason !== "self_inquiry" ? (
+                <span role="button" aria-disabled="true" tabIndex={0} data-testid="network-profile-connect-disabled"
+                  aria-describedby="network-connect-unavailable" title="Connetti sarà disponibile quando l’azienda sarà attiva sulla piattaforma"
+                  className="inline-flex min-h-11 w-full cursor-not-allowed select-none items-center justify-center rounded-xl border border-[#d7e3dc] bg-[#f3f6f4] px-4 text-sm font-semibold text-[#52615b]">
+                  Connetti
+                </span>
+              ) : null}
               {website ? (
                 <a
                   href={website}
@@ -399,7 +409,7 @@ export default async function NetworkCompanyProfilePage({
                   returnTo={"/network/" + profile.company.id} />
               ) : null}
               {inquiryEligible && !canInteract ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Per connetterti serve un ruolo commerciale abilitato.</p> :
-                !inquiryEligible ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Potrai connetterti quando l'azienda sarà attiva sulla piattaforma.</p> : null}
+                !inquiryEligible && inquiryReason !== "self_inquiry" ? <p id="network-connect-unavailable" className="max-w-xs text-xs leading-5 text-[#52615b]">Potrai connetterti quando l&apos;azienda sarà attiva sulla piattaforma.</p> : null}
               {/* NET-UX LOT1: public company channels at the top, next to the actions. */}
               {headerContact ? (
                 <div className="w-full rounded-xl border border-[#dce2df] bg-white px-3 py-2 text-xs" data-testid="network-profile-header-contact">
