@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { parseSteelAssistantInput } from "@/lib/school-assistant-intent.mjs";
 import { matchSchoolTutorTopic } from "@/lib/school-tutor-topics.mjs";
+import { getSchoolContent1Guide, SCHOOL_CONTENT1_REVIEW_DATE } from "@/lib/school-content1-guides.mjs";
+import { SCHOOL_CONTENT1C_PATH, SCHOOL_CONTENT1C_REVIEW_DATE } from "@/lib/school-content1c-guides.mjs";
+import { getSchoolProfessorComparison, matchSchoolProfessorComparison } from "@/lib/school-content1d-professor.mjs";
+import { schoolAssistantCalculatorUrl } from "@/lib/school-assistant-intent.mjs";
 import styles from "./school-professor-presence.module.css";
 
 type PublicCitation = { url: string; label: string; role: string };
@@ -14,7 +18,8 @@ type PublicEvidence = {
   citations: PublicCitation[];
   provenance: { status: "k2_published"; k2LastReviewedAt: string };
 };
-type LookupState = "idle" | "loading" | "ready" | "topic" | "need_code" | "no_evidence" | "error";
+type LookupState = "idle" | "loading" | "ready" | "topic" | "comparison" | "need_code" | "no_evidence" | "error";
+type CuratedComparison = NonNullable<ReturnType<typeof matchSchoolProfessorComparison>>;
 type TutorTopic = { id: string; title: string; description: string; href: string };
 type GuidedFollowUp = { evidenceId: string; kind: "context" | "caution" };
 
@@ -47,23 +52,28 @@ function TeacherPortrait({ state, className }: { state: LookupState; className: 
     {/* Preserve the three restrained presence expressions, not animated lip-sync. */}
     {state === "loading"
       ? <path d="M85 107q7 2 15 0" stroke="#8D5B49" strokeWidth="2.2" strokeLinecap="round"/>
-      : state === "ready" || state === "topic"
+      : state === "ready" || state === "topic" || state === "comparison"
         ? <path d="M82 104q10 11 20 0" stroke="#895340" strokeWidth="2.2" strokeLinecap="round"/>
         : <path d="M83 107q9 6 18 0" stroke="#895340" strokeWidth="2.2" strokeLinecap="round"/>}
   </svg>);
 }
 
 /** Public foundation: raw questions remain in the browser, only recognized codes reach public K2. */
-export function SchoolTechnicalTutor() {
+export function SchoolTechnicalTutor({ initialTopic }: { initialTopic?: string }) {
+  // Only a published editorial comparison ID can initialize the Professor.
+  // An arbitrary query string is never sent to K2 or interpreted as an answer.
+  const initialComparison = getSchoolProfessorComparison(initialTopic);
   const [draft, setDraft] = useState("");
-  const [question, setQuestion] = useState("");
-  const [state, setState] = useState<LookupState>("idle");
+  const [question, setQuestion] = useState(initialComparison?.title ?? "");
+  const [state, setState] = useState<LookupState>(initialComparison ? "comparison" : "idle");
   const [items, setItems] = useState<PublicEvidence[]>([]);
   const [topic, setTopic] = useState<TutorTopic | null>(null);
+  const [comparison, setComparison] = useState<CuratedComparison | null>(initialComparison);
   const [followUp, setFollowUp] = useState<GuidedFollowUp | null>(null);
   const presence = state === "loading" ? "Consulto le fonti…"
     : state === "ready" ? "Ho trovato le fonti"
     : state === "topic" ? "Ti propongo una lettura"
+    : state === "comparison" ? "Rispondo con le guide verificate"
     : state === "idle" ? "Sono qui per aiutarti"
     : "Verifichiamo insieme le fonti";
   const pending = useRef<AbortController | null>(null);
@@ -78,9 +88,18 @@ export function SchoolTechnicalTutor() {
     setQuestion(text);
     setItems([]);
     setTopic(null);
+    setComparison(null);
     setFollowUp(null);
     setDraft("");
     const codes = parseSteelAssistantInput(text).codes.slice(0, 2);
+    // Comparison questions use the published C guide as one coherent answer
+    // before individual K2 lookups can split an EN 10210 / EN 10219 question.
+    const curated = matchSchoolProfessorComparison(text);
+    if (curated) {
+      setComparison(curated);
+      setState("comparison");
+      return;
+    }
     if (!codes.length) {
       const guide = matchSchoolTutorTopic(text);
       setTopic(guide);
@@ -180,11 +199,33 @@ export function SchoolTechnicalTutor() {
       </div>
     </section>
 
-    <section aria-live="polite" aria-atomic="false" className="min-h-0">
+    <section id="school-professor-answer" aria-live="polite" aria-atomic="false" className="min-h-0 scroll-mt-24">
       {state !== "idle" ? <div className="rounded-[22px] border border-[#d4e1d8] bg-white p-4 sm:p-6">
         <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#2b7150]">Il Professore risponde con le fonti</p>
-        <h2 className="mt-2 text-lg font-semibold text-[#173c2d]">{question}</h2>
+        <h2 className="mt-2 text-lg font-semibold text-[#173c2d]">{state === "comparison" && question === comparison?.title ? "Confronto tecnico" : question}</h2>
         {state === "loading" ? <p className="mt-3 text-sm text-[#536b5e]">Verifico i riferimenti pubblicati…</p> : null}
+
+        {state === "comparison" && comparison ? <article data-testid="school-content1d-comparison"
+          className="mt-4 rounded-[18px] border border-[#d2e3d6] bg-[#f7faf8] p-4 sm:p-5">
+          <p className="text-[11px] font-bold uppercase tracking-[.1em] text-[#246548]">Dalla guida tecnica pubblicata · Rivista {SCHOOL_CONTENT1C_REVIEW_DATE}</p>
+          <h3 className="mt-2 text-lg font-semibold text-[#194330]">{comparison.title}</h3>
+          <p className="mt-2 text-sm leading-6 text-[#52695a]">{comparison.subtitle}</p>
+          <p className="mt-3 rounded-xl border border-[#d4e4d8] bg-white px-4 py-3 text-sm leading-6 text-[#244c39]"><strong>Da ricordare: </strong>{comparison.takeaway}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href={SCHOOL_CONTENT1C_PATH + "#" + comparison.id}
+              className="school-primary-action min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
+              Leggi il confronto completo →
+            </Link>
+            {comparison.links.slice(0, 2).map(link => <Link key={link.href} href={link.href}
+              className="inline-flex min-h-11 items-center rounded-xl border border-[#c5d9ce] bg-white px-3 text-xs font-semibold text-[#174b3c] hover:bg-[#eaf4ed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">{link.label} →</Link>)}
+          </div>
+          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-t border-[#dbe8df] pt-3">
+            {comparison.sources.slice(0, 4).map(source => <a key={source.url} href={source.url}
+              target="_blank" rel="noopener noreferrer"
+              className="inline-flex min-h-9 items-center text-xs font-semibold text-[#17563a] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">{source.label} ↗</a>)}
+          </div>
+          <p className="mt-3 text-xs leading-5 text-[#617468]">Il Professore riprende contenuti editoriali già pubblicati, non interpreta il testo integrale della norma e non decide la conformità di un prodotto.</p>
+        </article> : null}
         {state === "topic" && topic ? <div className="mt-4 rounded-[18px] border border-[#d2e3d6] bg-[#f4f8f5] p-4">
           <p className="text-xs font-bold uppercase tracking-[.1em] text-[#246548]">Percorso di approfondimento</p>
           <h3 className="mt-2 text-lg font-semibold text-[#194330]">{topic.title}</h3>
@@ -200,6 +241,11 @@ export function SchoolTechnicalTutor() {
             {items.map(item => {
               const page = item.citations.find(c => c.role === "public_page" && safeUrl(c.url));
               const more = item.citations.filter(c => c.role !== "public_page" && safeUrl(c.url)).slice(0, 2);
+              // The overlay may appear ONLY after K2 returned a published record.
+              const slug = item.kind === "standards"
+                ? item.code.toLowerCase().replace(/\s+/g, "-")
+                : item.code.toLowerCase();
+              const curatedGuide = getSchoolContent1Guide(item.kind === "standards" ? "standard" : "grade", slug);
               return <article key={item.id} className="flex flex-col rounded-[18px] border border-[#d8e4dc] bg-[#fafcfb] p-4 sm:p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="rounded-lg bg-[#e8f2eb] px-2 py-1 font-mono text-[11px] font-bold text-[#225a40]">{item.code}</span>
@@ -208,6 +254,19 @@ export function SchoolTechnicalTutor() {
                 <h3 className="mt-3 text-base font-semibold text-[#193d2e]">{item.title}</h3>
                 <p className="mt-1 text-[11px] font-bold uppercase tracking-[.1em] text-[#286446]">In breve · Riferimento pubblicato</p>
                 <p className="mt-2 text-sm leading-6 text-[#344e3f]">{item.summary}</p>
+                {curatedGuide ? <div data-testid="school-content1d-curated-k2" className="mt-3 rounded-xl border border-[#d5e5dc] bg-white px-4 py-3">
+                  <p className="text-[11px] font-bold uppercase tracking-[.1em] text-[#286446]">Dalla guida operativa · Rivista {SCHOOL_CONTENT1_REVIEW_DATE}</p>
+                  <p className="mt-2 text-sm leading-6 text-[#344e3f]">{curatedGuide.takeaway}</p>
+                  <p className="mt-3 text-xs font-bold text-[#24563b]">Prima di specificare o ordinare</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-4 text-xs leading-5 text-[#52695a]">
+                    {curatedGuide.checks.slice(0, 2).map(check => <li key={check}>{check}</li>)}
+                  </ul>
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs font-bold">
+                    <Link href={curatedGuide.compare.href} className="text-[#176747] underline underline-offset-4">{curatedGuide.compare.label} →</Link>
+                    {curatedGuide.sources.slice(0, 2).map(source => <a key={source.url} href={source.url} target="_blank" rel="noopener noreferrer"
+                      className="text-[#176747] underline underline-offset-4">{source.label} ↗</a>)}
+                  </div>
+                </div> : null}
                 <div data-testid="school-tutor3-guided-followups" role="group" aria-label={"Approfondimenti per " + item.code}
                   className="mt-3 flex flex-wrap items-center gap-2">
                   <span className="w-full text-xs font-medium text-[#586d60]">Vuoi approfondire?</span>
@@ -252,7 +311,9 @@ export function SchoolTechnicalTutor() {
           <span className="w-full text-[11px] font-bold uppercase tracking-[.1em] text-[#607467]">Continua il tuo percorso</span>
           <Link href="/knowledge/norme" className="text-[#19563b] underline underline-offset-4">Catalogo norme</Link>
           <Link href="/knowledge/gradi" className="text-[#19563b] underline underline-offset-4">Catalogo materiali</Link>
-          <Link href="/knowledge/tubes?source=school&surface=tutor#calcolatore-pesi" className="text-[#19563b] underline underline-offset-4">Calcolatore pesi</Link>
+          <Link data-testid="school-content1d-calculator"
+            href={schoolAssistantCalculatorUrl("it", parseSteelAssistantInput(question).facts) ?? "/knowledge/tubes?source=school&surface=tutor#calcolatore-pesi"}
+            className="text-[#19563b] underline underline-offset-4">Calcolatore pesi</Link>
         </div>
       </div> : null}
     </section>
