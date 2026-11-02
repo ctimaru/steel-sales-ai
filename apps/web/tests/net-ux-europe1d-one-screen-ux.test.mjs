@@ -12,16 +12,15 @@ test("EUROPE1D puts map next to shared filter pane, not next to a giant empty he
   const desktopMap=page.indexOf('<NetworkEuropeanMap ');
   const results=page.indexOf('id="network-results"');
   assert.ok(header>=0&&shell>header&&search>shell&&desktopMap>search&&results>desktopMap);
-  assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,2);
-  // NET-AUDIT1.4: side column widened to 320px to host the chat above the map.
-  assert.match(page,/lg:grid-cols-\[minmax\(0,1fr\)_320px\]/);
+  // NET-UX LOT1: filters (with the collapsed map) in a 280px left column, list on the right.
+  assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,1);
+  assert.match(page,/lg:grid-cols-\[280px_minmax\(0,1fr\)\]/);
 });
 test("EUROPE1D respects mobile disclosure and visible aligned facet labels",()=>{
   assert.match(page,/data-testid="network-compact-mobile-map"/);
-  assert.match(page,/lg:hidden/);
-  assert.match(page,/items-end gap-2/);
+  assert.match(page,/<NetworkFilterDrawer activeCount=/); // NET-UX LOT1
   for(const label of ["Paese","Regione"])assert.match(geo,new RegExp('text-\\[11px\\].*>'+label+'</span>'));
-  for(const label of ["Prodotti","Capability","Mercato"])assert.ok(page.includes('label:"'+label+'"'));
+  for(const label of ["Prodotti","Lavorazioni e servizi","Mercato"])assert.ok(page.includes('label:"'+label+'"'));
   assert.match(page,/europeNutsRegionName\(filters.country\|\|""/);
   assert.match(page,/data-testid="network-europe1d-active-geography"/);
   assert.match(page,/aria-label="Territorio selezionato"/);

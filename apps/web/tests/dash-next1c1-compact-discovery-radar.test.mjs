@@ -22,11 +22,11 @@ test("NEXT1C.1 discovery is visible before redundant tiles and the news feed", (
 
 test("NEXT1C.1 keeps Network data entitlement-bound, never reveals private signals", () => {
   assert.match(home, /networkEntitled\s*\?\s*getNetworkActivityFeed/);
-  assert.match(radar, /networkEnabled && networkEntitled\s*\? selectDashboardFollowedUpdates\(activity, 2\)/);
-  assert.match(radar, /networkEntitled\s*\? appRoutes\.network\.activity : appRoutes\.network\.directory/);
-  assert.match(radar, /networkEntitled\s*\? "Nessun nuovo aggiornamento/);
+  assert.doesNotMatch(radar, /selectDashboardFollowedUpdates/); // NET-UX LOT1: followed-company updates removed (Connetti only)
+  assert.match(radar, /networkEntitled \? appRoutes\.network\.connections : appRoutes\.network\.directory/);
+  assert.doesNotMatch(radar, /Nessun nuovo aggiornamento|aziende seguite/);
   assert.match(radar, /engagementKind="network_profile"/);
-  assert.match(radar, /href=\{appRoutes\.network\.company\(item\.companyId\)\}/);
+  assert.match(radar, /href=\{appRoutes\.network\.company\(company\.id\)\}/);
   assert.match(radar, /Le RFQ private e i dettagli riservati non compaiono/);
 });
 

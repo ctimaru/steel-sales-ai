@@ -35,7 +35,10 @@ test("NET-AUDIT1.4 chat beside the list, sort control, whole-row link",()=>{
   assert.match(ui,/data-testid="network-sort"/);
   assert.match(ui,/>\s*Pertinenza\s*</);
   assert.match(ui,/after:absolute after:inset-0/);
-  assert.match(ui,/ui-action ui-action-secondary relative z-10 inline-flex min-h-10 w-full/);
+  // NET-UX LOT1: the name link opens the profile; "Connetti" is the only button in the row.
+  assert.match(ui,/aria-label=\{"Apri profilo di "\+name\}/);
+  assert.match(ui,/data-testid="network-row-connect"/);
+  assert.doesNotMatch(ui,/Esplora azienda/);
   assert.ok((ui.match(/className="relative z-10 /g)||[]).length>=4,"source links stay clickable above the row link");
 });
 

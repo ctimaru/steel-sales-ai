@@ -42,7 +42,8 @@ test("P3.7B preserves provenance, audit and verification boundaries", () => {
 });
 
 test("P3.7B turns network manage into a structured Company Profile Manager", () => {
-  assert.match(page, /Company Profile Manager · P3\.7B/);
+  assert.match(page, /Il mio profilo Network/); // NET-UX LOT1: internal codes removed from user-facing headings
+  assert.doesNotMatch(page, /P3\.7[A-Z]/);
   assert.match(page, /Tipologia e posizionamento/);
   assert.match(page, /Prodotti e relazione commerciale/);
   assert.match(page, /Sedi, stabilimenti e capability/);

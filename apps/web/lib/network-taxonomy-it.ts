@@ -24,6 +24,19 @@ const IT:Record<string,string>={
   agri_machinery:"Macchine agricole",appliances:"Elettrodomestici",automotive:"Automotive",
   construction_infrastructure:"Edilizia e infrastrutture",energy:"Energia",hvac:"Climatizzazione (HVAC)",
   marine:"Navale",mechanical_engineering_market:"Meccanica",
+  // Subtypes / specializations (NET-UX LOT1).
+  appliance_manufacturer:"Produttore di elettrodomestici",automotive_supplier:"Fornitore automotive",
+  coating_galvanizing:"Rivestimenti e zincatura",construction_contractor:"Impresa di costruzioni",
+  cutting_specialist:"Centro taglio",distributor:"Distributore",eaf_mill:"Acciaieria a forno elettrico",
+  energy_equipment:"Impianti per l'energia",epc_contractor:"Contractor EPC",exporter:"Esportatore",
+  fabricator:"Carpenteria metallica",hvac_manufacturer:"Produttore HVAC",importer:"Importatore",
+  integrated_mill:"Acciaieria a ciclo integrale",international_trader:"Trader internazionale",
+  logistics_warehousing:"Logistica e magazzino",machining_specialist:"Lavorazioni meccaniche",
+  marine_shipbuilding:"Cantieristica navale",mechanical_engineering:"Azienda meccanica",oem:"OEM",
+  rolling_mill:"Laminatoio / rilaminatore",section_profile_producer:"Produttore di profilati",
+  special_steel_producer:"Produttore di acciai speciali",stainless_producer:"Produttore di inox",
+  steel_service_center:"Centro servizi acciaio",stockholder:"Stockista",testing_inspection:"Prove e ispezioni",
+  toll_processor:"Lavorazioni conto terzi",tube_pipe_producer:"Produttore di tubi",wire_rod_producer:"Produttore di vergella e filo",
 };
 /** Server display names as stored today (English), mapped to their key. */
 const KEY_BY_NAME:Record<string,string>={
@@ -41,6 +54,7 @@ const KEY_BY_NAME:Record<string,string>={
   "Agriculture machinery":"agri_machinery","Appliances":"appliances","Automotive":"automotive",
   "Construction & infrastructure":"construction_infrastructure","Energy":"energy","HVAC":"hvac",
   "Marine":"marine","Mechanical engineering":"mechanical_engineering_market",
+  "Appliance manufacturer":"appliance_manufacturer","Automotive supplier":"automotive_supplier","Coating / galvanizing specialist":"coating_galvanizing","Construction contractor":"construction_contractor","Cutting specialist":"cutting_specialist","Distributor":"distributor","EAF mill":"eaf_mill","Energy equipment user":"energy_equipment","EPC contractor":"epc_contractor","Exporter":"exporter","Fabricator":"fabricator","HVAC manufacturer":"hvac_manufacturer","Importer":"importer","Integrated steel mill":"integrated_mill","International trader":"international_trader","Logistics / warehousing provider":"logistics_warehousing","Machining specialist":"machining_specialist","Marine / shipbuilding":"marine_shipbuilding","Mechanical engineering company":"mechanical_engineering","OEM":"oem","Rolling mill / reroller":"rolling_mill","Section / profile producer":"section_profile_producer","Special steel producer":"special_steel_producer","Stainless producer":"stainless_producer","Steel service center":"steel_service_center","Stockholder":"stockholder","Testing / inspection provider":"testing_inspection","Toll processor":"toll_processor","Tube & pipe producer":"tube_pipe_producer","Wire / rod producer":"wire_rod_producer",
 };
 
 /** Italian label for a canonical key, or the given fallback. */

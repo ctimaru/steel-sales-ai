@@ -48,7 +48,7 @@ export default async function NetworkConnectionsPage({
     <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#32745a]">Network professionale</p>
     <h1 className="mt-2 text-2xl font-semibold text-[#173f35]">Connessioni aziendali</h1>
     <p className="mt-2 max-w-2xl text-sm leading-6 text-[#52615b]">Proposte con un obiettivo commerciale, inviate e ricevute tra aziende. Una connessione esiste soltanto quando il destinatario l'ha accettata.</p>
-    <Link href="/network" className="mt-4 inline-flex min-h-10 items-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-sm font-semibold text-[#173f35]">Esplora aziende →</Link>
+    <Link href="/network" className="mt-4 inline-flex min-h-10 items-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-sm font-semibold text-[#173f35]">Cerca aziende →</Link>
     <Link href="/network/start" className="ml-2 inline-flex min-h-10 items-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-sm font-semibold text-[#173f35]">Il mio percorso →</Link>
    </div>
    <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center rounded-2xl border border-[#c8dfd0] bg-white p-4 sm:p-5">
@@ -74,7 +74,7 @@ export default async function NetworkConnectionsPage({
     </section>:items.length===0?<section className="rounded-2xl border border-[#dce7df] bg-white p-6">
       <h2 className="text-lg font-semibold text-[#173f35]">Nessuna richiesta {box==="received"?"ricevuta":"inviata"}</h2>
       <p className="mt-2 text-sm text-[#52615b]">{box==="received"?"Quando un’azienda ti invierà una richiesta motivata, potrai accettarla o rifiutarla da qui.":"Esplora le aziende e invia una proposta motivata per ciò che offri, cerchi o vuoi sviluppare insieme."}</p>
-      <Link href="/network" className="app-primary mt-4 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Esplora aziende</Link>
+      <Link href="/network" className="app-primary mt-4 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Cerca aziende</Link>
     </section>:<section aria-label="Elenco richieste" className="space-y-3">
      {ordered.map(item=><article key={item.id} className="rounded-2xl border border-[#dce6de] bg-white p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">

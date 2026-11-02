@@ -37,7 +37,7 @@ export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFil
     </summary>
     <form method="get" action="/network" aria-label="Ricerca per specifica tecnica" className="border-t border-[#d9e8e2] px-3 pb-3 pt-2">
       {PRESERVED.map(key=>filters[key]?<input key={key} type="hidden" name={key} value={filters[key]}/>:null)}
-      <div className="grid grid-cols-2 items-end gap-2 md:grid-cols-4 xl:grid-cols-[1.2fr_1fr_1fr_.8fr_.8fr_.8fr_.8fr]">
+      <div className="grid grid-cols-2 items-end gap-2">
         <label className="flex min-w-0 flex-col gap-1">
           <span className="text-[11px] font-semibold text-[#315d4a]">Norma</span>
           <input name="std" list="network-spec-standards" defaultValue={filters.std||""} placeholder="es. EN 10219"

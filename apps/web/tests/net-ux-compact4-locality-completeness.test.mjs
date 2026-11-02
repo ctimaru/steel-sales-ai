@@ -12,7 +12,6 @@ const security=read("../../../supabase/tests/hp13_permissions_tenant_isolation.s
 test("COMPACT4 shows published or sourced locality without claiming a verified office",()=>{
   assert.match(page,/Località indicativa/);
   assert.match(page,/Località da integrare/);
-  assert.match(page,/Fonte località ↗/);
   assert.match(page,/safeNetworkWebsiteUrl\(company.geo_source_url\)/);
   assert.match(page,/Località disponibili: \{listedLocationCount\}\/\{directory.items.length\}/);
   assert.match(page,/geography_status==="sourced_unverified"/);

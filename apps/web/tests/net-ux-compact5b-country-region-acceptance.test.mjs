@@ -36,14 +36,14 @@ test("EUROPE1B updates COMPACT5B: European map is contextual for every supported
   assert.doesNotMatch(ui,/const italySelected=!filters.country/);
   assert.match(ui,/NetworkEuropeanMap filters=\{filters\}/);
   assert.match(ui,/data-testid="network-compact-mobile-map"/);
-  assert.equal((ui.match(/<NetworkEuropeanMap /g)||[]).length,2);
+  assert.equal((ui.match(/<NetworkEuropeanMap /g)||[]).length,1); // NET-UX LOT1
 });
 
 test("COMPACT5B mobile rows show a short usable action with descriptive accessible name",()=>{
   assert.match(ui,/aria-label=\{"Apri profilo di "\+name\}/);
-  assert.match(ui,/sm:min-w-\[112px\]/);
-  assert.match(ui,/<span className="sm:hidden">Apri<\/span>/);
-  assert.match(ui,/<span className="hidden sm:inline">Esplora azienda<\/span>/);
+  // NET-UX LOT1: the whole row opens the profile; "Connetti" is the only button.
+  assert.match(ui,/aria-label=\{"Connetti con "\+name\}/);
+  assert.doesNotMatch(ui,/Esplora azienda/);
   assert.match(ui,/ui-action-primary/);
   assert.match(ui,/ui-action-secondary/);
 });
@@ -53,8 +53,8 @@ test("COMPACT5B keeps one form and the existing live search, source and access b
   assert.match(ui,/<NetworkCountryRegionFilters key=/);
   assert.match(ui,/name=\{group.name\}/);
   assert.match(ui,/Località indicativa/);
-  assert.match(ui,/Fonte località ↗/);
-  assert.match(ui,/Modalità \{accessMode===/);
+  assert.match(ui,/Fonte ↗/);
+  assert.match(ui,/\{accessMode==="pro"\?"Pro":"Free"\}/);
   assert.match(live,/window\.setTimeout\(\(\)=>navigate\(draft\),350\)/);
   assert.match(live,/router\.replace\(href,\{scroll:false\}\)/);
 });

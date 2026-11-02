@@ -34,6 +34,7 @@ export type WorkspaceContextKey =
   | "network:following"
   | "network:activity"
   | "network:inquiries"
+  | "network:profile"
   | "marketplace:opportunities"
   | "marketplace:inbox"
   | "marketplace:suppliers"

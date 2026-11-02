@@ -80,14 +80,10 @@ test("HP9 gives every main Network zero state a concrete continuation", () => {
   assert.match(network, /Ricerca senza risultati/);
   assert.match(network, /Azzera ricerca e filtri/);
   assert.match(network, /Completa Company Profile/);
-  assert.match(networkActivity, /Mostra tutte le activity/);
-  assert.match(networkActivity, /Gestisci aziende seguite/);
+  // NET-UX LOT1: following, activity and saved pages are retired (redirect to /network).
+  for (const retired of [networkActivity, networkFollowing, networkSaved]) assert.match(retired, /redirect\("\/network"\)/);
   assert.match(networkInquiries, /Trova aziende nel Network/);
   assert.match(networkInquiries, /Controlla Company Profile/);
-  assert.match(networkFollowing, /FirstUseEmptyState/);
-  assert.match(networkFollowing, /Esplora il Network/);
-  assert.match(networkSaved, /FirstUseEmptyState/);
-  assert.match(networkSaved, /Esplora il Network/);
 });
 
 test("HP9 makes Marketplace first use role-aware and filter-aware", () => {

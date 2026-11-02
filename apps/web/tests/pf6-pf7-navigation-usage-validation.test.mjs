@@ -44,7 +44,7 @@ test("PF6 aligns focused page hierarchy across the five macro-spaces", () => {
 });
 
 test("PF6 aligns navigation language and interaction states", () => {
-  assert.match(shell, /label: "Esplora aziende"/);
+  assert.match(shell, /label: "Cerca aziende"/);
   assert.match(shell, /label: "Connessioni"/);
   assert.match(shell, /return "Amministratore azienda"/);
   assert.match(shell, /return "Sola lettura"/);

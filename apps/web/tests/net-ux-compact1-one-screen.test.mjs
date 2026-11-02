@@ -14,7 +14,7 @@ test("COMPACT1 both access modes share the one-screen directory",()=>{
  assert.match(pro,/<NetworkCompactExperience accessMode="pro"/);
  assert.match(free,/<NetworkCompactExperience accessMode="free"/);
  assert.match(ui,/data-testid="network-compact-experience"/);
- assert.match(ui,/Trova aziende steel/);
+ assert.match(ui,/>Cerca aziende/); // NET-UX LOT1
  assert.match(ui,/Ricerca e filtri delle aziende/);
 });
 
@@ -22,7 +22,8 @@ test("COMPACT1 company rows have one profile action and source-derived attribute
  // NET-AUDIT1.1: rows are keyed fragments so the spec divider can sit between them.
  assert.match(ui,/directory.items.map\(\(company,index\)=><Fragment key=\{company.id\}>/);
  assert.match(ui,/<CompactCompanyRow company=\{company\}/);
- assert.match(ui,/Esplora azienda/);
+ assert.match(ui,/>\s*Connetti\s*</); // NET-UX LOT1: the only row action
+ assert.doesNotMatch(ui,/Esplora azienda/);
  assert.match(ui,/company.products.length/);
  assert.match(ui,/capabilityLabels\[company.id\]/);
  assert.match(ui,/company.location\?\.region/);

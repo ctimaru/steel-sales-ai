@@ -33,26 +33,20 @@ const networkLib = fs.readFileSync(
 
 test("NET-CONNECT1 leaves legacy private follow actions stored, but removes social profile CTA", () => {
   assert.doesNotMatch(profile, /Segui aggiornamenti|Non seguire più|Salva azienda/);
-  assert.match(profile, /Richiedi connessione/);
+  assert.match(profile, />\n\s*Connetti\n\s*<\/Link>/); // NET-UX LOT1: CTA renamed
   assert.match(actions, /p4_follow_company/);
   assert.match(actions, /p4_unfollow_company/);
 });
 
-test("P4.7 followed-company UX is explicitly private and non-social", () => {
-  assert.match(following, /Il follow è privato/);
-  assert.match(following, /Non crea connection, endorsement o follower count pubblico/);
-  assert.match(following, /Aziende seguite/);
+// NET-UX LOT1 (founder decision 2 Nov 2026): following and its activity feed are
+// retired from the interface; stored data and RPCs stay, the pages redirect.
+test("NET-UX LOT1 retires followed companies and the activity feed without dropping data", () => {
+  for (const page of [following, activity]) {
+    assert.match(page, /redirect\("\/network"\)/);
+    assert.doesNotMatch(page, /p4_follow_company|p4_list_activity_feed|Segui/);
+  }
   assert.match(actions, /p4_follow_company/);
   assert.match(actions, /p4_unfollow_company/);
-});
-
-test("P4.7 activity feed exposes only Network activity semantics and read controls", () => {
-  assert.match(activity, /Aggiornamenti aziende seguite/);
-  assert.match(activity, /Commercial Memory non compaiono qui/);
-  assert.match(activity, /Solo non lette/);
-  assert.match(activity, /Segna tutte lette/);
-  assert.match(actions, /p4_mark_activity_read/);
-  assert.match(actions, /p4_mark_all_activity_read/);
   assert.match(networkLib, /p4_list_activity_feed/);
 });
 

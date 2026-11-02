@@ -193,10 +193,10 @@ export default async function ManagedNetworkProfilePage({
     return (
       <div className="mx-auto max-w-5xl space-y-6">
         <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
-          ← Torna alla directory
+          ← Torna alla ricerca
         </Link>
         <section className="rounded-3xl border border-[#dce2df] bg-white p-8 text-center shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Company Profile Manager</p>
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Il mio profilo Network</p>
           <h1 className="mt-2 text-2xl font-semibold text-[#1d2824]">Nessun profilo azienda gestibile</h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
             Per gestire un profilo Network servono Organization Admin attivo, link organizzazione-azienda
@@ -230,7 +230,7 @@ export default async function ManagedNetworkProfilePage({
     <div className="uxf2-dense-page mx-auto max-w-[1180px] space-y-5 pb-16">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
-          ← Torna alla directory
+          ← Torna alla ricerca
         </Link>
         <Link href="/network/start" className={secondaryButton}>Il mio percorso →</Link>
         <Link href={"/network/" + companyId} className={secondaryButton}>
@@ -252,15 +252,14 @@ export default async function ManagedNetworkProfilePage({
       <section className="rounded-3xl border border-[#dfe7f1] bg-white p-6 shadow-sm sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Company Profile Manager · P3.7B</p>
-            <p className="mt-1 text-xs font-semibold text-[#718197]">P3.7D · Identity & Public Contacts</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Il mio profilo Network</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
               {state.company.trading_name || state.company.legal_name}
             </h1>
             <p className="mt-2 text-sm text-[#7a899d]">{state.company.legal_name}</p>
             <div className="mt-4 flex flex-wrap gap-2">
               <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                Claim {state.company.claimed_status}
+                {({ claimed: "Profilo rivendicato", unclaimed: "Profilo non rivendicato", revoked: "Rivendicazione revocata" } as Record<string, string>)[state.company.claimed_status] ?? "Stato rivendicazione: " + state.company.claimed_status}
               </span>
               <VerificationBadge status={state.company.verification_status} />
               <span className="rounded-full bg-[#eef3fa] px-3 py-1 text-xs font-semibold text-[#4a5b72]">
@@ -268,8 +267,8 @@ export default async function ManagedNetworkProfilePage({
               </span>
             </div>
             <p className="mt-5 max-w-3xl text-sm leading-6 text-[#66736e]">
-              Gestisci il profilo industriale che il Network utilizzerà per directory, discovery e in futuro
-              per il matching Marketplace. Le dichiarazioni aziendali restano distinte dalle verifiche della piattaforma.
+              Questi sono i dati che le altre aziende vedono nella ricerca e nel tuo profilo. Ciò che dichiari resta
+              distinto dalle verifiche della piattaforma.
             </p>
           </div>
 
