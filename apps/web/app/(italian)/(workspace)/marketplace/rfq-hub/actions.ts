@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 
 import {
   buildRfqh3Email,
-  buildRfqh3InviteUrl,
+  buildRfqh3RecipientLinks,
   buildRfqh3ReminderEmail,
   createRfqh3DispatchSecurity,
   createRfqh3ReminderIdempotencyKey,
@@ -368,6 +368,7 @@ async function sendRfqh3Email(input: {
   subject: string;
   html: string;
   text: string;
+  headers?: Record<string, string>;
 }) {
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -383,6 +384,8 @@ async function sendRfqh3Email(input: {
       html: input.html,
       text: input.text,
       reply_to: input.replyTo ? [input.replyTo] : undefined,
+      // RFQ-MAIL1: RFC 8058 one-click unsubscribe.
+      headers: input.headers,
     }),
     cache: "no-store",
   });
@@ -479,14 +482,15 @@ export async function launchBuyerRfq(
   let failedCount = 0;
 
   for (const dispatch of dispatches) {
-    const inviteUrl = buildRfqh3InviteUrl(dispatch.token);
+    const links = buildRfqh3RecipientLinks(dispatch.token);
     const email = buildRfqh3Email({
       buyerOrganizationName: context.organizationName,
       supplierName: dispatch.supplier.supplier_name,
       title: context.campaign.title,
       buyerMessage,
       dueAt,
-      inviteUrl,
+      inviteUrl: links.inviteUrl,
+      optOutUrl: links.optOutUrl,
       lines: context.lines,
     });
 
@@ -497,6 +501,7 @@ export async function launchBuyerRfq(
         replyTo: user.email ?? null,
         recipient: dispatch.supplier.supplier_email_normalized!,
         idempotencyKey: dispatch.idempotencyKey,
+        headers: links.headers,
         ...email,
       });
 
@@ -591,13 +596,15 @@ export async function retryFailedBuyerRfq(
       continue;
     }
 
+    const retryLinks = buildRfqh3RecipientLinks(security.token);
     const email = buildRfqh3Email({
       buyerOrganizationName: context.organizationName,
       supplierName: supplier.supplier_name,
       title: context.campaign.title,
       buyerMessage: context.campaign.buyer_message,
       dueAt: context.campaign.due_at,
-      inviteUrl: buildRfqh3InviteUrl(security.token),
+      inviteUrl: retryLinks.inviteUrl,
+      optOutUrl: retryLinks.optOutUrl,
       lines: context.lines,
     });
 
@@ -608,6 +615,7 @@ export async function retryFailedBuyerRfq(
         replyTo: user.email ?? null,
         recipient: supplier.supplier_email_normalized,
         idempotencyKey: security.idempotencyKey,
+        headers: retryLinks.headers,
         ...email,
       });
 
@@ -735,12 +743,14 @@ export async function sendBuyerRfqReminders(
       attemptVersion,
     });
 
+    const reminderLinks = buildRfqh3RecipientLinks(security.token);
     const email = buildRfqh3ReminderEmail({
       buyerOrganizationName: context.organizationName,
       supplierName: supplier.supplier_name,
       title: context.campaign.title,
       dueAt: context.campaign.due_at,
-      inviteUrl: buildRfqh3InviteUrl(security.token),
+      inviteUrl: reminderLinks.inviteUrl,
+      optOutUrl: reminderLinks.optOutUrl,
       reminderSequence: preparedSequence,
     });
 
@@ -751,6 +761,7 @@ export async function sendBuyerRfqReminders(
         replyTo: user.email ?? null,
         recipient: supplier.supplier_email_normalized,
         idempotencyKey,
+        headers: reminderLinks.headers,
         ...email,
       });
 
