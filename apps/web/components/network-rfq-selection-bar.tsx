@@ -13,6 +13,12 @@ import {
  * Writing the handoff never creates or sends an RFQ: the RFQ Hub asks for
  * explicit confirmation after revalidating every supplier server-side.
  */
+/** Suppliers checked among the rows currently rendered. Selection is per page by design. */
+function checkedSuppliers():string[]{
+  return Array.from(document.querySelectorAll<HTMLInputElement>(
+    'input[form="network-rfq-selection"][name="supplier"]:checked')).map(input=>input.value);
+}
+
 export function NetworkRfqSelectionBar({userId,organizationId,specSummary}:{
   userId:string;organizationId:string;specSummary?:string;
 }){
@@ -20,16 +26,24 @@ export function NetworkRfqSelectionBar({userId,organizationId,specSummary}:{
   const [selected,setSelected]=useState<string[]>([]);
   const [issue,setIssue]=useState("");
   useEffect(()=>{
-    const read=()=>setSelected(Array.from(document.querySelectorAll<HTMLInputElement>(
-      'input[form="network-rfq-selection"][name="supplier"]:checked')).map(input=>input.value));
+    const read=()=>setSelected(checkedSuppliers());
     document.addEventListener("change",read);
+    // Codex review (#1078): page changes, chip removal or live search replace
+    // the rows without a change event. Reconcile with what is on screen, so a
+    // supplier that is no longer listed can never be handed to the RFQ Hub.
+    const observer=new MutationObserver(read);
+    observer.observe(document.body,{childList:true,subtree:true});
     read();
-    return ()=>document.removeEventListener("change",read);
+    return ()=>{document.removeEventListener("change",read);observer.disconnect();};
   },[]);
   if(!selected.length)return null;
   const tooMany=selected.length>NETWORK_RFQ_HANDOFF_MAX_SUPPLIERS;
   const send=()=>{
-    const value=serializeNetworkRfqHandoff(selected,specSummary);
+    // The DOM is the source of truth at submit time, not the last state snapshot.
+    const visible=checkedSuppliers();
+    setSelected(visible);
+    if(!visible.length)return;
+    const value=serializeNetworkRfqHandoff(visible,specSummary);
     if(!value){setIssue("Selezione non valida: massimo "+NETWORK_RFQ_HANDOFF_MAX_SUPPLIERS+" aziende.");return;}
     try{
       window.sessionStorage.setItem(networkRfqHandoffKey(userId,organizationId),value);
@@ -52,7 +66,7 @@ export function NetworkRfqSelectionBar({userId,organizationId,specSummary}:{
         Prepara RFQ con i selezionati →
       </button>
     </div>
-    <p className="w-full text-[11px] text-[#52615b]">Nell&apos;RFQ Hub rivedi fornitori e distinta prima dell&apos;invio. Nessuna richiesta parte automaticamente.</p>
+    <p className="w-full text-[11px] text-[#52615b]">La selezione vale per i risultati mostrati. Nell&apos;RFQ Hub rivedi fornitori e distinta prima dell&apos;invio. Nessuna richiesta parte automaticamente.</p>
     {issue?<p role="alert" className="w-full text-[11px] text-[#875117]">{issue}</p>:null}
   </form>;
 }

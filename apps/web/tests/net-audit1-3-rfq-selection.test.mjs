@@ -66,3 +66,12 @@ test("NET-AUDIT1.3 selection bar writes the handoff and never sends anything",()
   assert.match(bar,/Nessuna richiesta parte automaticamente/);
   assert.doesNotMatch(bar,/fetch\(|rpc\(|addSupplier/);
 });
+
+test("NET-AUDIT1.3 selection reconciles with the rows on screen (Codex review #1078)",()=>{
+  assert.match(bar,/new MutationObserver\(read\)/);
+  assert.match(bar,/observer\.observe\(document\.body,\{childList:true,subtree:true\}\)/);
+  assert.match(bar,/observer\.disconnect\(\)/);
+  assert.match(bar,/const visible=checkedSuppliers\(\);/);
+  assert.match(bar,/serializeNetworkRfqHandoff\(visible,specSummary\)/);
+  assert.match(bar,/La selezione vale per i risultati mostrati/);
+});
