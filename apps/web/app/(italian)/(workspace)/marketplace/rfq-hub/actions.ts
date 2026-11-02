@@ -11,6 +11,7 @@ import {
   createRfqh3ReminderIdempotencyKey,
   type Rfqh3EmailLine,
 } from "@/lib/rfqh3-dispatch";
+import { legalIdentityConfigured } from "@/lib/legal";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { matchesConfirmedRecipients } from "@/lib/rfq-dispatch-recipient-check";
 import { createClient } from "@/lib/supabase/server";
@@ -328,7 +329,7 @@ async function loadRfqh3EmailContext(
       .maybeSingle(),
     supabase
       .from("buyer_rfq_suppliers")
-      .select("id,supplier_name,supplier_email_normalized,status")
+      .select("id,supplier_name,supplier_email_normalized,status,supplier_network_contact_id,supplier_organization_id")
       .eq("rfq_id", rfqId)
       .order("created_at", { ascending: true }),
     supabase
@@ -430,6 +431,21 @@ export async function launchBuyerRfq(
   }
   if (!context.suppliers.length) {
     return { ok: false, error: "Aggiungi almeno un fornitore prima dell'invio." };
+  }
+  // RFQ-MAIL2: companies reached only through a Network public company
+  // channel (not registered on the platform) receive email only once the
+  // controller identity is configured for /privacy and the email footer.
+  if (
+    !legalIdentityConfigured() &&
+    context.suppliers.some(
+      (supplier) => supplier.supplier_network_contact_id && !supplier.supplier_organization_id,
+    )
+  ) {
+    return {
+      ok: false,
+      error:
+        "L'invio ad aziende non registrate non è ancora attivo. Rimuovi i fornitori trovati nel Network senza account oppure attendi l'attivazione del canale email.",
+    };
   }
   if (context.suppliers.some((supplier) => !supplier.supplier_email_normalized)) {
     return {

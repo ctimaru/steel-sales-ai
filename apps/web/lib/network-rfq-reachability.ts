@@ -1,5 +1,6 @@
 import "server-only";
 
+import { legalIdentityConfigured } from "@/lib/legal";
 import { createClient } from "@/lib/supabase/server";
 import type { RecipientReadinessStatus } from "@/lib/network-recipient-readiness";
 
@@ -10,7 +11,13 @@ import type { RecipientReadinessStatus } from "@/lib/network-recipient-readiness
  *  none:     not reachable yet.
  * The address itself never leaves SQL. Before the migration is applied the
  * RPC is missing (PGRST202): fall back to readiness, i.e. platform-only.
+ * RFQ-MAIL2: the email channel stays off until the controller identity is
+ * configured (NEXT_PUBLIC_LEGAL_CONTROLLER_NAME/ADDRESS/PRIVACY_EMAIL); it
+ * turns on with the first deployment that has those environment values.
  */
+export function emailChannelEnabled(): boolean {
+  return legalIdentityConfigured();
+}
 export type RfqChannel = "platform" | "email" | "none";
 type Batch = { contract: "netcontact1-reach-v1"; items: { company_id: string; channel: RfqChannel }[] };
 const CHANNELS = new Set<RfqChannel>(["platform", "email", "none"]);
@@ -45,7 +52,7 @@ export async function getNetworkRfqReachability(
     if (!entry || !expected.has(entry.company_id) || !CHANNELS.has(entry.channel)) {
       throw new Error("network_reachability_invalid_entry");
     }
-    channels.set(entry.company_id, entry.channel);
+    channels.set(entry.company_id, entry.channel === "email" && !emailChannelEnabled() ? "none" : entry.channel);
   }
   return channels;
 }
