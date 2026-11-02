@@ -108,7 +108,10 @@ export function RfqNetworkSupplierReceiver({ userId, organizationId }: { userId:
                   <span className={"truncate " + (supplier.selectable ? "font-semibold text-[var(--brand-deep)]" : "text-[var(--text-secondary)] line-through")}>
                     {supplier.name ?? "Azienda non disponibile"}
                   </span>
-                  <span className="shrink-0 text-[11px] text-[var(--text-secondary)]">{STATUS_LABEL[supplier.status] ?? supplier.status}</span>
+                  <span className="shrink-0 text-[11px] text-[var(--text-secondary)]">
+                    {supplier.channel === "email" && supplier.status !== "available" && supplier.status !== "connected"
+                      ? "Via email aziendale" : STATUS_LABEL[supplier.status] ?? supplier.status}
+                  </span>
                 </li>
               ))}
             </ul>

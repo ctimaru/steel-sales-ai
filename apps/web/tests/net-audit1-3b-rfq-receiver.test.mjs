@@ -13,7 +13,8 @@ test("NET-AUDIT1.3b server actions trust nothing from the browser",()=>{
   assert.match(actions,/unique\.length !== ids\.length \|\| unique\.length > NETWORK_RFQ_HANDOFF_MAX_SUPPLIERS/);
   assert.match(actions,/\.eq\("publication_status", "published"\)\.is\("archived_at", null\)/);
   assert.match(actions,/getNetworkRecipientReadiness\(organizationId, ids\)/);
-  assert.match(actions,/selectable: Boolean\(name\) && isRfqSelectable\(status\)/);
+  // NET-CONTACT1: email-reachable companies are accepted too, re-resolved server-side.
+  assert.match(actions,/selectable: Boolean\(name\) && isRfqReachable\(status, channel\)/);
   assert.match(actions,/\.in\("status", \[\.\.\.OPEN_STATUSES\]\)/);
   assert.match(actions,/const OPEN_STATUSES = \["draft", "ready"\] as const;/);
 });

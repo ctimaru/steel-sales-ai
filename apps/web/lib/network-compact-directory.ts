@@ -9,6 +9,7 @@ import {europeRegionForCountry} from "@/lib/network-eu-regions";
 import {getEuropeRegionalSearch} from "@/lib/network-europe-regional";
 import {getPublishedCapabilityLabels} from "@/lib/network-compact-capabilities";
 import {getNetworkRecipientReadiness,type RecipientReadinessStatus} from "@/lib/network-recipient-readiness";
+import {getNetworkRfqReachability,type RfqChannel} from "@/lib/network-rfq-reachability";
 import {getNetworkSpecPage,type SpecMatch} from "@/lib/network-spec-search";
 import {NETWORK_SPEC_PARAMS,hasSpecCriteria,normalizeSpecFilters,specFiltersToParams,type NetworkSpecFilters} from "@/lib/network-spec-filters";
 
@@ -39,6 +40,8 @@ export type CompactNetworkPage={
   specIgnored?:("product"|"capability"|"market"|"country")[];
   /** NET-AUDIT1.3: contactability of each listed company (absent if unavailable). */
   recipientStatus?:Record<string,RecipientReadinessStatus>;
+  /** NET-CONTACT1: platform / email / none, Pro only (paid guard in SQL). */
+  rfqChannel?:Record<string,RfqChannel>;
 };
 /** Normalize URL-originated geographic facets before any Free/Pro data query.
  * Region names here belong to Italy; never combine them with a foreign country.
@@ -94,12 +97,18 @@ export async function getCompactNetworkPage(
   const page=await buildCompactNetworkPage(organizationId,access,filters);
   const ids=page.items.map(company=>company.id);
   // NET-AUDIT1.3: same SQL-bound readiness used by connections; never optimistic.
-  const [capabilityLabels,recipientStatus]=await Promise.all([
+  const readiness=getNetworkRecipientReadiness(organizationId,ids).catch(()=>undefined);
+  const [capabilityLabels,readinessMap,rfqChannel]=await Promise.all([
     page.capabilityLabels?Promise.resolve(page.capabilityLabels):getPublishedCapabilityLabels(ids),
-    getNetworkRecipientReadiness(organizationId,ids)
-      .then(map=>Object.fromEntries(map) as Record<string,RecipientReadinessStatus>).catch(()=>undefined),
+    readiness,
+    // NET-CONTACT1: companies with a reviewed public company email can receive RFQs too.
+    access==="pro"&&ids.length
+      ?readiness.then(map=>getNetworkRfqReachability(organizationId,ids,map))
+        .then(map=>Object.fromEntries(map) as Record<string,RfqChannel>).catch(()=>undefined)
+      :Promise.resolve(undefined),
   ]);
-  return {...page,capabilityLabels,recipientStatus};
+  const recipientStatus=readinessMap?Object.fromEntries(readinessMap) as Record<string,RecipientReadinessStatus>:undefined;
+  return {...page,capabilityLabels,recipientStatus,rfqChannel};
 }
 
 async function buildCompactNetworkPage(

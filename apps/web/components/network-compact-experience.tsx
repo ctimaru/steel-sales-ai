@@ -13,7 +13,7 @@ import {NetworkEuropeanMap} from "@/components/network-europe-map";
 import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters";
 import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
 import {NetworkRfqSelectionBar} from "@/components/network-rfq-selection-bar";
-import {isRfqSelectable,networkRfqSelectionEnabled} from "@/lib/network-rfq-supplier-handoff";
+import {isRfqReachable,networkRfqSelectionEnabled} from "@/lib/network-rfq-supplier-handoff";
 import type {RecipientReadinessStatus} from "@/lib/network-recipient-readiness";
 import {localizeTaxonomyOptions,networkLabelIt,networkNameIt} from "@/lib/network-taxonomy-it";
 import type {SpecMatch} from "@/lib/network-spec-search";
@@ -66,12 +66,14 @@ function initialLetters(name:string){
   const words=name.trim().split(/\s+/).filter(Boolean);
   return (words.length>1?words.slice(0,2).map(x=>x[0]).join(""):name.slice(0,2)).toUpperCase();
 }
+// NET-CONTACT1: not active on the platform, but has a reviewed public company email.
+const EMAIL_REACHABLE_LABEL="Contattabile via email";
 const READINESS_LABEL:Record<RecipientReadinessStatus,string>={
   available:"Attiva · contattabile",connected:"Connessa",pending:"Richiesta in corso",unavailable:"Censita",
 };
-function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable}:{
+function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,emailReachable}:{
   company:FreeCompany;capabilities?:string[];specMatch?:SpecMatch;
-  status?:RecipientReadinessStatus;selectable?:boolean;
+  status?:RecipientReadinessStatus;selectable?:boolean;emailReachable?:boolean;
 }){
   const name=company.trading_name||company.legal_name;
   const role=company.roles[0];
@@ -117,7 +119,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable}
             aria-label={"Fonte del settore per "+name}>Fonte ↗</a>:null}
         </p>:null}
         <p className="mt-0.5 truncate text-[11px] text-[#52615b] lg:hidden">
-          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}<NetworkCountryFlag code={countryCode}/> {countryLabel}{location?" · "+location:""}{locationIndicative && location?" · località indicativa":""}{status?" · "+READINESS_LABEL[status]:""}
+          {role?(keys[role.key]||role.name):"Ruolo non indicato"}{" · "}<NetworkCountryFlag code={countryCode}/> {countryLabel}{location?" · "+location:""}{locationIndicative && location?" · località indicativa":""}{status?" · "+READINESS_LABEL[status]:""}{emailReachable?" · "+EMAIL_REACHABLE_LABEL:""}
         </p>
         {locationSource&&locationIndicative&&location?
           <a href={locationSource} target="_blank" rel="noopener noreferrer"
@@ -132,6 +134,8 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable}
       {company.discovery_status==="unconfirmed"?<p className="mt-0.5 text-[10px] text-[#52615b]">Ruolo indicativo</p>:null}
       {status?<p className={"mt-1 text-[10px] font-semibold "+(status==="unavailable"?"text-[#52615b]":"text-[#175640]")}
         data-testid="network-recipient-status">{READINESS_LABEL[status]}</p>:null}
+      {emailReachable?<p className="text-[10px] font-semibold text-[#175640]" data-testid="network-email-reachable"
+        title="Riceve la RFQ via email al contatto aziendale pubblico">{EMAIL_REACHABLE_LABEL}</p>:null}
       {status==="unavailable"&&company.claimed_status==="unclaimed"&&!company.discovery_status?
         <Link href={"/network/"+company.id+"/claim"} className="relative z-10 text-[10px] font-semibold text-[#175640] underline underline-offset-2">
           Rappresenti questa azienda?
@@ -354,7 +358,8 @@ export function NetworkCompactExperience({
           </p>:null}
           <CompactCompanyRow company={company} capabilities={capabilityLabels[company.id]||[]} specMatch={directory.specMatches?.[company.id]}
             status={directory.recipientStatus?.[company.id]}
-            selectable={rfqSelection&&accessMode==="pro"&&isRfqSelectable(directory.recipientStatus?.[company.id])}/>
+            emailReachable={directory.rfqChannel?.[company.id]==="email"&&!["available","connected"].includes(directory.recipientStatus?.[company.id]??"")}
+            selectable={rfqSelection&&accessMode==="pro"&&isRfqReachable(directory.recipientStatus?.[company.id],directory.rfqChannel?.[company.id])}/>
         </Fragment>):
         <div className="px-4 py-9 text-center text-sm text-[#52615b]">{specMode?"Nessuna azienda con scope tecnico compatibile o non dichiarato per "+specSummary+". Prova a togliere un criterio, ad esempio il grado o una misura.":
           directory.regionPublishedOnly?"Nessuna sede pubblicata mappata per questa selezione; la copertura geografica del Network è ancora parziale.":"Nessuna azienda trovata. Prova un altro nome o azzera i filtri."}</div>}

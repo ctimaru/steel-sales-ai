@@ -1,0 +1,66 @@
+name: "NET-CONTACT1 — Public company channels batch"
+
+# Collects only company channels (generic mailbox on the company domain and the
+# switchboard phone) from official websites. Dry-run by default; with
+# persist_pending_review the channels are staged as pending_review and become
+# public only after human bulk review in Platform (LR4). Nothing is published here.
+on:
+  workflow_dispatch:
+    inputs:
+      max_sites:
+        description: "Number of official-company sites to process (1–25)"
+        required: true
+        default: "5"
+        type: choice
+        options: ["1", "5", "10", "25"]
+      persist_pending_review:
+        description: "Explicitly stage found channels as pending_review (founder-authorized runs only)"
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: netcontact1-public-company-channels
+  cancel-in-progress: false
+
+jobs:
+  public-channels:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bounded worker dependencies
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Check secure runtime configuration
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Missing worker-only Supabase secrets; no writes performed"
+            exit 1
+          fi
+      - name: Collect company channels from exact-domain pages
+        working-directory: services/worker
+        env:
+          PERSIST: ${{ inputs.persist_pending_review }}
+          MAX_SITES: ${{ inputs.max_sites }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ "$PERSIST" = "true" ]; then
+            python -m app.netcontact1_public_contacts --max-sites "$MAX_SITES" --persist
+          else
+            python -m app.netcontact1_public_contacts --max-sites "$MAX_SITES"
+          fi

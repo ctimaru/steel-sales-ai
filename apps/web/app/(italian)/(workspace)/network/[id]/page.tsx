@@ -21,6 +21,12 @@ import { isNetworkFreeReadEnabled } from "@/lib/network-flags";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { createClient } from "@/lib/supabase/server";
 
+// NET-CONTACT1: contact types shown in Italian.
+const CONTACT_TYPE_IT: Record<string, string> = {
+  general: "Contatti aziendali", sales: "Commerciale", purchasing: "Acquisti",
+  technical: "Ufficio tecnico", quality: "Qualità", logistics: "Logistica",
+};
+
 const relationshipLabels: Record<string, string> = {
   produces: "Produce",
   distributes: "Distribuisce",
@@ -872,14 +878,22 @@ export default async function NetworkCompanyProfilePage({
                         <p className="text-sm font-semibold text-[#34445c]">
                           {contact.display_name ?? contact.contact_type}
                         </p>
-                        <p className="mt-0.5 text-[11px] uppercase tracking-wide text-[#95a2b3]">
-                          {contact.contact_type}
+                        <p className="mt-0.5 text-[11px] uppercase tracking-wide text-[#52615b]">
+                          {CONTACT_TYPE_IT[contact.contact_type] ?? contact.contact_type}
                         </p>
                       </div>
                       <VerificationBadge status={contact.verification_status} />
                     </div>
-                    {contact.email ? <p className="mt-2 break-all text-xs text-[#66736e]">{contact.email}</p> : null}
-                    {contact.phone ? <p className="mt-1 text-xs text-[#66736e]">{contact.phone}</p> : null}
+                    {contact.email ? (
+                      <a href={"mailto:" + contact.email} className="mt-2 block break-all text-xs font-semibold text-[#1a5144] underline underline-offset-2">
+                        {contact.email}
+                      </a>
+                    ) : null}
+                    {contact.phone ? (
+                      <a href={"tel:" + contact.phone.replace(/[^\d+]/g, "")} className="mt-1 block text-xs font-semibold text-[#1a5144] underline underline-offset-2">
+                        {contact.phone.replace(/^\+39(?=0)/, "+39 ")}
+                      </a>
+                    ) : null}
                     {contact.website_url ? (
                       <a href={contact.website_url} target="_blank" rel="noreferrer" className="mt-2 inline-flex text-xs font-semibold text-[#1a5144]">
                         Apri riferimento ↗
