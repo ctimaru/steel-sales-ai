@@ -65,7 +65,8 @@ test("SCHOOL-CONTENT1.C — one route, discoverable from editorial index and pub
   assert.match(route, /SchoolHero/);
   assert.match(route, /SchoolReadingIndex/);
   assert.match(route, /schoolComparisons\.map/);
-  assert.match(route, /schoolGlossary\.map/);
+  assert.match(route, /alphabeticalGlossary\.map/);
+  assert.match(route, /\.sort\(\(a, b\) => a\.term\.localeCompare\(b\.term, "it"\)\)/);
   assert.match(route, /DefinedTermSet/);
   assert.match(route, /TechArticle/);
   assert.match(route, /canonical: absoluteUrl\(SCHOOL_CONTENT1C_PATH\)/);
