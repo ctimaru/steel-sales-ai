@@ -6,7 +6,7 @@ import { cache } from "react";
 import { SchoolHero } from "@/components/school-ui";
 import { SchoolReadingIndex } from "@/components/school-reading-index";
 import { SchoolContent1Panel } from "@/components/school-content1-panel";
-import { getSchoolContent1Guide } from "@/lib/school-content1-guides.mjs";
+import { getSchoolContent1Guide, SCHOOL_CONTENT1_REVIEW_DATE } from "@/lib/school-content1-guides.mjs";
 
 import {
   applicabilityLabel,
@@ -44,6 +44,7 @@ export async function generateMetadata({
     };
   }
 
+  const contentGuide = getSchoolContent1Guide("grade", grade.slug);
   const seoTitle = grade.slug === "16mo3"
     ? "16Mo3 (1.5415): tubi per pressione"
     : grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "");
@@ -69,7 +70,7 @@ export async function generateMetadata({
       url: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
       type: "article",
       publishedTime: grade.published_at,
-      modifiedTime: `${grade.last_reviewed_at}T00:00:00Z`,
+      modifiedTime: `${contentGuide ? SCHOOL_CONTENT1_REVIEW_DATE : grade.last_reviewed_at}T00:00:00Z`,
     },
   };
 }
@@ -90,13 +91,16 @@ export default async function GradeDetailPage({
     headline: grade.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
     description: grade.seo_description,
     datePublished: grade.published_at,
-    dateModified: grade.last_reviewed_at,
+    dateModified: practicalGuide ? SCHOOL_CONTENT1_REVIEW_DATE : grade.last_reviewed_at,
     mainEntityOfPage: absoluteUrl(`/knowledge/gradi/${grade.slug}`),
     author: {
       "@type": "Organization",
       name: "Smart Steel Sales",
     },
-    citation: grade.source_references.map((source) => source.url),
+    citation: Array.from(new Set([
+      ...grade.source_references.map((source) => source.url),
+      ...(practicalGuide?.sources.map((source) => source.url) ?? []),
+    ])),
   };
 
   const breadcrumbJsonLd = {
