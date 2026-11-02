@@ -11,14 +11,13 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
-import os
 import re
 from urllib.parse import unquote, urlsplit
 
 import httpx
-from supabase import create_client
 
 from .company_discovery import CompanyDiscoveryError, _fetch_page, _walk_structured_nodes, canonical_domain
+from .github_actions_crawler import credentials_from_environment
 from .netcompact4b_geo_batch import contact_links
 from .network_profile_batch import validated_seeds
 
@@ -38,6 +37,43 @@ PRIORITY = ("commerciale", "ufficio", "vendite", "vendita", "sales", "ordini", "
 EMAIL_RE = re.compile(r"[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}", re.I)
 PHONE_TEXT_RE = re.compile(
     r"(?:\btel(?:efono)?\b\.?|\bphone\b|\bcentralino\b|\bt\.)\s*[:.]?\s*(\+?\(?\d[\d\s()./-]{5,20}\d)", re.I)
+
+
+ALLOWED_RPCS = ("netcontact1_next_batch", "netcontact1_stage_company_channel")
+
+
+class SecretKeyRpc:
+    """Minimal PostgREST RPC client for the dedicated crawler secret key
+    (CRAWL_IT65B_*, same project guard as the other GitHub Actions crawlers).
+    sb_secret keys go in the apikey header only, never as a Bearer JWT."""
+
+    def __init__(self, url: str, key: str):
+        self._url, self._key = url, key
+
+    def rpc(self, name: str, params: dict):
+        if name not in ALLOWED_RPCS:
+            raise ValueError("Unexpected RPC")
+        client = self
+
+        class _Call:
+            def execute(self):
+                response = httpx.post(
+                    f"{client._url}/rest/v1/rpc/{name}", json=params, timeout=httpx.Timeout(15),
+                    headers={"apikey": client._key, "Content-Type": "application/json",
+                             "Accept": "application/json", "User-Agent": "SmartSteelSales-NetContact1/1.0"},
+                    follow_redirects=False)
+                if response.status_code != 200:
+                    # Never echo the body: it could carry request metadata.
+                    raise RuntimeError(f"RPC {name} returned HTTP {response.status_code}")
+
+                class _Result:
+                    data = response.json()
+                return _Result()
+        return _Call()
+
+
+def db_from_environment() -> SecretKeyRpc:
+    return SecretKeyRpc(*credentials_from_environment())
 
 
 def is_company_email(email: str, domain: str) -> bool:
@@ -148,7 +184,7 @@ async def run_batch(entries, *, persist=False, max_sites=25, pause=2, db=None) -
     if not 1 <= max_sites <= MAX_SITES or len(entries) > MAX_SITES:
         raise ValueError("Batch limit exceeded")
     if persist and db is None:
-        db = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
+        db = db_from_environment()
     results = []
     async with httpx.AsyncClient(timeout=httpx.Timeout(10), follow_redirects=False) as client:
         for index, item in enumerate(entries[:max_sites]):
@@ -206,7 +242,7 @@ def main():
     args = parser.parse_args()
     if not 1 <= args.max_sites <= MAX_SITES:
         parser.error("Invalid size")
-    db = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
+    db = db_from_environment()
     entries, total = next_batch(db, args.max_sites)
     output = asyncio.run(run_batch(entries, persist=args.persist, max_sites=args.max_sites, db=db)) if entries \
         else dict(contract="netcontact1-crawl-v1", mode="nothing_eligible", sites=0, outcomes=[])

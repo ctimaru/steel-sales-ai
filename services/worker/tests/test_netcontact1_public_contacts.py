@@ -113,3 +113,13 @@ def test_next_batch_is_bounded_and_domain_bound():
     assert total == 1 and entries[0]["domain"] == "morandispa.it"
     with pytest.raises(ValueError):
         next_batch(FakeDb(), 26)
+
+
+def test_secret_key_client_is_bounded_and_project_pinned(monkeypatch):
+    from app.netcontact1_public_contacts import SecretKeyRpc, db_from_environment
+    with pytest.raises(ValueError):
+        SecretKeyRpc("https://ecrafjdummcdfycznitx.supabase.co", "sb_secret_x" * 4).rpc("netfast3_bulk_import", {})
+    monkeypatch.setenv("CRAWL_IT65B_SUPABASE_URL", "https://attacker.example")
+    monkeypatch.setenv("CRAWL_IT65B_SUPABASE_SECRET_KEY", "sb_secret_" + "x" * 30)
+    with pytest.raises(ValueError):
+        db_from_environment()
