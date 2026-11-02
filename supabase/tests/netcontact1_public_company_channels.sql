@@ -30,13 +30,17 @@ select pg_temp.nc1_ok(not has_function_privilege('authenticated','public.netcont
 select pg_temp.nc1_ok(not has_function_privilege('anon','public.netcontact1_approve_company_channels(uuid[])','EXECUTE'),'anon cannot approve');
 select pg_temp.nc1_ok(not has_function_privilege('anon','public.netcontact1_rfq_reachability(uuid,uuid[])','EXECUTE'),'anon cannot read reachability');
 select pg_temp.nc1_ok(position('network.privacy_governance_review' in
-  pg_get_functiondef('public.netcontact1_approve_company_channels(uuid[])'::regprocedure))>0,'approve requires privacy review permission');
+  pg_get_functiondef('private.netcontact1_approve_company_channels_impl(uuid[])'::regprocedure))>0,'approve requires privacy review permission');
 select pg_temp.nc1_ok(position('lr4_review_contact_privacy_impl' in
-  pg_get_functiondef('public.netcontact1_approve_company_channels(uuid[])'::regprocedure))>0,'approve goes through LR4');
+  pg_get_functiondef('private.netcontact1_approve_company_channels_impl(uuid[])'::regprocedure))>0,'approve goes through LR4');
 select pg_temp.nc1_ok(position('pa1_3_require_network_access' in
-  pg_get_functiondef('public.netcontact1_rfq_reachability(uuid,uuid[])'::regprocedure))>0,'reachability carries the paid Network guard');
+  pg_get_functiondef('private.netcontact1_rfq_reachability_impl(uuid,uuid[])'::regprocedure))>0,'reachability carries the paid Network guard');
 select pg_temp.nc1_ok(position('''email'',' in
-  pg_get_functiondef('public.netcontact1_rfq_reachability(uuid,uuid[])'::regprocedure))=0,'reachability never returns the address');
+  pg_get_functiondef('private.netcontact1_rfq_reachability_impl(uuid,uuid[])'::regprocedure))=0,'reachability never returns the address');
+
+select pg_temp.nc1_ok(not exists(select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+  where n.nspname='public' and p.proname like 'netcontact1\_%' and p.prosecdef
+    and has_function_privilege('authenticated',p.oid,'EXECUTE')),'browser-callable surface is security invoker (HP13)');
 
 -- Generic-mailbox and domain rules.
 select pg_temp.nc1_ok(private.netcontact1_generic_local_part('info'),'info is generic');

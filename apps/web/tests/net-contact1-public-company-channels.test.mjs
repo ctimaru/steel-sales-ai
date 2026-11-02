@@ -40,10 +40,14 @@ test("NET-CONTACT1 SQL stages only company channels, never publishes",()=>{
   assert.match(sql,/revoke all on function public\.netcontact1_stage_company_channel\(uuid,text,text,text\) from public,anon,authenticated;/);
   assert.match(sql,/grant execute on function public\.netcontact1_stage_company_channel\(uuid,text,text,text\) to service_role;/);
   assert.doesNotMatch(sql,/update public\.network_data_assertions/,"assertions stay immutable");
+  // HP13: browser-callable functions are SECURITY INVOKER wrappers over private implementations.
+  for(const name of ["pending_company_channels","approve_company_channels","reject_company_channels","rfq_reachability"]){
+    assert.match(sql,new RegExp("create or replace function public\\.netcontact1_"+name+"\\([^)]*\\)\\s*returns jsonb language sql (stable|volatile) security invoker"));
+  }
 });
 
 test("NET-CONTACT1 reachability: paid guard, same rule as rfqh2_add_supplier, address never returned",()=>{
-  const fn=sql.split("create or replace function public.netcontact1_rfq_reachability")[1];
+  const fn=sql.split("create or replace function private.netcontact1_rfq_reachability_impl")[1].split("create or replace function")[0];
   assert.match(fn,/private\.pa1_3_require_network_access\(p_organization_id\)/);
   assert.match(fn,/private\.rfqh2_best_network_contact/);
   assert.match(fn,/'company_id',r->>'company_id','channel'/);

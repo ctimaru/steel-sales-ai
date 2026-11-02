@@ -156,7 +156,7 @@ as $function$
 $function$;
 
 -- Platform review queue (company channels pending review).
-create or replace function public.netcontact1_pending_company_channels(p_limit integer default 100)
+create or replace function private.netcontact1_pending_company_channels_impl(p_limit integer default 100)
 returns jsonb
 language plpgsql
 stable
@@ -187,7 +187,7 @@ $function$;
 
 -- Bulk approval: each contact goes through the existing LR4 review (permission
 -- check, company_channel classification, 12-month review expiry, audit).
-create or replace function public.netcontact1_approve_company_channels(p_contact_ids uuid[])
+create or replace function private.netcontact1_approve_company_channels_impl(p_contact_ids uuid[])
 returns jsonb
 language plpgsql
 security definer
@@ -223,7 +223,7 @@ $function$;
 
 -- Bulk rejection: wrong or non-company channels are archived (never published),
 -- with the decision recorded in the LR4 governance ledger.
-create or replace function public.netcontact1_reject_company_channels(p_contact_ids uuid[],p_note text default null)
+create or replace function private.netcontact1_reject_company_channels_impl(p_contact_ids uuid[],p_note text default null)
 returns jsonb
 language plpgsql
 security definer
@@ -264,7 +264,7 @@ $function$;
 -- RFQ reachability for the Network list and the RFQ Hub receiver:
 -- 'platform' (active, connectable), 'email' (published privacy-ready company
 -- email, as used by rfqh2_add_supplier), or 'none'. Never returns the email.
-create or replace function public.netcontact1_rfq_reachability(p_organization_id uuid,p_company_ids uuid[])
+create or replace function private.netcontact1_rfq_reachability_impl(p_organization_id uuid,p_company_ids uuid[])
 returns jsonb
 language plpgsql
 stable
@@ -288,6 +288,25 @@ begin
 end;
 $function$;
 
+-- Public surface: SECURITY INVOKER wrappers over private SECURITY DEFINER
+-- implementations (HP13 pattern). Guards live in the implementations.
+create or replace function public.netcontact1_pending_company_channels(p_limit integer default 100)
+returns jsonb language sql stable security invoker set search_path='' as $$
+  select private.netcontact1_pending_company_channels_impl(p_limit);
+$$;
+create or replace function public.netcontact1_approve_company_channels(p_contact_ids uuid[])
+returns jsonb language sql volatile security invoker set search_path='' as $$
+  select private.netcontact1_approve_company_channels_impl(p_contact_ids);
+$$;
+create or replace function public.netcontact1_reject_company_channels(p_contact_ids uuid[],p_note text default null)
+returns jsonb language sql volatile security invoker set search_path='' as $$
+  select private.netcontact1_reject_company_channels_impl(p_contact_ids,p_note);
+$$;
+create or replace function public.netcontact1_rfq_reachability(p_organization_id uuid,p_company_ids uuid[])
+returns jsonb language sql stable security invoker set search_path='' as $$
+  select private.netcontact1_rfq_reachability_impl(p_organization_id,p_company_ids);
+$$;
+
 revoke all on function private.netcontact1_generic_local_part(text) from public,anon;
 revoke all on function private.netcontact1_domain_matches(text,text) from public,anon;
 revoke all on function public.netcontact1_stage_company_channel(uuid,text,text,text) from public,anon,authenticated;
@@ -304,3 +323,11 @@ grant execute on function public.netcontact1_pending_company_channels(integer) t
 grant execute on function public.netcontact1_approve_company_channels(uuid[]) to authenticated,service_role;
 grant execute on function public.netcontact1_reject_company_channels(uuid[],text) to authenticated,service_role;
 grant execute on function public.netcontact1_rfq_reachability(uuid,uuid[]) to authenticated,service_role;
+revoke all on function private.netcontact1_pending_company_channels_impl(integer) from public,anon;
+revoke all on function private.netcontact1_approve_company_channels_impl(uuid[]) from public,anon;
+revoke all on function private.netcontact1_reject_company_channels_impl(uuid[],text) from public,anon;
+revoke all on function private.netcontact1_rfq_reachability_impl(uuid,uuid[]) from public,anon;
+grant execute on function private.netcontact1_pending_company_channels_impl(integer) to authenticated,service_role;
+grant execute on function private.netcontact1_approve_company_channels_impl(uuid[]) to authenticated,service_role;
+grant execute on function private.netcontact1_reject_company_channels_impl(uuid[],text) to authenticated,service_role;
+grant execute on function private.netcontact1_rfq_reachability_impl(uuid,uuid[]) to authenticated,service_role;
