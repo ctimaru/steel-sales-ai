@@ -9,7 +9,7 @@ import { absoluteUrl } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Articoli su tubi, acciaio e industria",
   description:
-    "Articoli originali della Scuola Smart Steel Sales su storia del tubo, processi produttivi, produttori europei e cultura tecnica del settore steel e tube.",
+    "Articoli e guide della Scuola Smart Steel Sales su tubi d’acciaio, norme, documenti EN 10204, processi produttivi e cultura tecnica.",
   alternates: {
     canonical: absoluteUrl("/knowledge/articoli"),
   },
@@ -77,6 +77,23 @@ export default function SchoolArticlesPage() {
         action={{ href: "#school-articles-list", label: "Esplora gli articoli" }}
         secondaryAction={{ href: "/knowledge/norme", label: "Consulta le norme" }}
       />
+
+      <section aria-labelledby="school-comparisons-heading" className="rounded-[20px] border border-[#cfe1d5] bg-white p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="school-kicker">Guide operative · Nuovo</p>
+            <h2 id="school-comparisons-heading" className="mt-1 text-lg font-semibold text-[#173f35]">
+              Confronti e glossario dei tubi d’acciaio
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm leading-6 text-[#52615b]">
+              EN 10210 vs EN 10219, documenti EN 10204, saldato vs seamless, peso e tolleranze: tutto in una guida con fonti e termini spiegati.
+            </p>
+          </div>
+          <Link href="/knowledge/articoli/confronti-glossario" className="school-primary-action min-h-11 shrink-0">
+            Apri la guida →
+          </Link>
+        </div>
+      </section>
 
       <section aria-labelledby="school-articles-list">
         <div className="max-w-3xl">
