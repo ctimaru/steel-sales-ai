@@ -1,5 +1,6 @@
 import { createHash, createHmac } from "node:crypto";
 
+import { legalIdentity, legalIdentityConfigured } from "@/lib/legal";
 import { absoluteUrl } from "@/lib/site";
 
 export type Rfqh3EmailLine = {
@@ -87,6 +88,58 @@ export function buildRfqh3InviteUrl(token: string) {
   return absoluteUrl("/rfq/respond/" + encodeURIComponent(token));
 }
 
+/** RFQ-MAIL1: personal opt-out (confirmation page) and RFC 8058 one-click
+ * endpoint for the List-Unsubscribe headers. Same token as the invite. */
+export function buildRfqh3RecipientLinks(token: string) {
+  const encoded = encodeURIComponent(token);
+  const optOutUrl = absoluteUrl("/rfq/unsubscribe/" + encoded);
+  const oneClickUrl = absoluteUrl("/api/rfq/unsubscribe/" + encoded);
+  return {
+    inviteUrl: buildRfqh3InviteUrl(token),
+    optOutUrl,
+    headers: {
+      "List-Unsubscribe": "<" + oneClickUrl + ">",
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    } as Record<string, string>,
+  };
+}
+
+function legalLine() {
+  const identity = legalIdentity();
+  if (!legalIdentityConfigured(identity)) return null;
+  return [identity.controllerName, identity.address, identity.vatId ? "P.IVA " + identity.vatId : null]
+    .filter(Boolean)
+    .join(" · ");
+}
+
+/** Footer shared by invitations and reminders (RFQ-MAIL1). */
+function recipientFooter(buyerOrganizationName: string, optOutUrl: string) {
+  const privacyUrl = absoluteUrl("/privacy");
+  const legal = legalLine();
+  const why =
+    "Ricevi questa richiesta perché il tuo indirizzo è pubblicato come contatto aziendale o è stato indicato da " +
+    buyerOrganizationName +
+    ", che gestisce le proprie richieste di offerta tramite Smart Steel Sales. Puoi rispondere senza registrarti.";
+  const html = `
+        <div style="margin:22px 0 0;padding:16px 0 0;border-top:1px solid #e5e7eb;font-size:12px;line-height:1.6;color:#6b7280;">
+          <p style="margin:0 0 8px;">${escapeHtml(why)}</p>
+          <p style="margin:0;">
+            Non vuoi ricevere altre richieste tramite Smart Steel Sales?
+            <a href="${escapeHtml(optOutUrl)}" style="color:#173f35;font-weight:700;">Annulla l'iscrizione</a>
+            · <a href="${escapeHtml(privacyUrl)}" style="color:#173f35;">Informativa privacy</a>
+          </p>
+          ${legal ? `<p style="margin:8px 0 0;">${escapeHtml(legal)}</p>` : ""}
+        </div>`;
+  const text = [
+    "—",
+    why,
+    "Non vuoi ricevere altre richieste tramite Smart Steel Sales? Annulla l'iscrizione: " + optOutUrl,
+    "Informativa privacy: " + privacyUrl,
+    legal ?? "",
+  ];
+  return { html, text };
+}
+
 export function createRfqh3ReminderIdempotencyKey(
   dispatchId: string,
   reminderSequence: number,
@@ -106,8 +159,10 @@ export function buildRfqh3Email(input: {
   buyerMessage: string | null;
   dueAt: string | null;
   inviteUrl: string;
+  optOutUrl: string;
   lines: Rfqh3EmailLine[];
 }) {
+  const footer = recipientFooter(input.buyerOrganizationName, input.optOutUrl);
   const deadline = dueLabel(input.dueAt);
   const greeting = input.supplierName
     ? "Buongiorno " + input.supplierName + ","
@@ -196,7 +251,7 @@ export function buildRfqh3Email(input: {
         </a>
         <p style="margin:22px 0 0;font-size:12px;line-height:1.6;color:#6b7280;">
           Il link è personale per questo destinatario. Non inoltrarlo a terzi.
-        </p>
+        </p>${footer.html}
       </div>
     </div>
   </body>
@@ -216,6 +271,8 @@ export function buildRfqh3Email(input: {
     "Apri richiesta RFQ: " + input.inviteUrl,
     "",
     "Il link è personale per questo destinatario. Non inoltrarlo a terzi.",
+    "",
+    ...footer.text,
   ]
     .filter((line, index, values) => line !== "" || values[index - 1] !== "")
     .join("\n");
@@ -230,8 +287,10 @@ export function buildRfqh3ReminderEmail(input: {
   title: string;
   dueAt: string | null;
   inviteUrl: string;
+  optOutUrl: string;
   reminderSequence: number;
 }) {
+  const footer = recipientFooter(input.buyerOrganizationName, input.optOutUrl);
   const deadline = dueLabel(input.dueAt);
   const greeting = input.supplierName
     ? "Buongiorno " + input.supplierName + ","
@@ -264,7 +323,7 @@ export function buildRfqh3ReminderEmail(input: {
         </a>
         <p style="margin:20px 0 0;font-size:12px;line-height:1.6;color:#6b7280;">
           Promemoria ${input.reminderSequence} di 2. Il link è personale e non deve essere inoltrato.
-        </p>
+        </p>${footer.html}
       </div>
     </div>
   </body>
@@ -279,6 +338,8 @@ export function buildRfqh3ReminderEmail(input: {
     "Apri richiesta RFQ: " + input.inviteUrl,
     "",
     "Promemoria " + String(input.reminderSequence) + " di 2.",
+    "",
+    ...footer.text,
   ]
     .filter((line, index, values) => line !== "" || values[index - 1] !== "")
     .join("\n");
