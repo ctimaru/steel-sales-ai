@@ -9,7 +9,7 @@ const calculator = read("../components/commercial-calculator-quick-access.tsx");
 const css = read("../components/commercial-cinematic.module.css");
 
 test("COMM-UX6.A keeps one compact industrial hero and no duplicate jump navigation", () => {
-  assert.match(page, /lg:min-h-\[172px\]/);
+  assert.match(page, /lg:min-h-\[112px\]/);
   assert.doesNotMatch(page, /sm:min-h-\[290px\]|lg:min-h-\[328px\]/);
   assert.match(css, /home-cine2a2b-factory-desktop\.webp/);
   assert.match(css, /home-cine2a2b-factory-mobile\.webp/);
