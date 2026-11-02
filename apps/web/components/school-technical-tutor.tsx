@@ -202,7 +202,7 @@ export function SchoolTechnicalTutor({ initialTopic }: { initialTopic?: string }
     <section id="school-professor-answer" aria-live="polite" aria-atomic="false" className="min-h-0 scroll-mt-24">
       {state !== "idle" ? <div className="rounded-[22px] border border-[#d4e1d8] bg-white p-4 sm:p-6">
         <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#2b7150]">Il Professore risponde con le fonti</p>
-        <h2 className="mt-2 text-lg font-semibold text-[#173c2d]">{question}</h2>
+        <h2 className="mt-2 text-lg font-semibold text-[#173c2d]">{state === "comparison" && question === comparison?.title ? "Confronto tecnico" : question}</h2>
         {state === "loading" ? <p className="mt-3 text-sm text-[#536b5e]">Verifico i riferimenti pubblicati…</p> : null}
 
         {state === "comparison" && comparison ? <article data-testid="school-content1d-comparison"
@@ -213,7 +213,7 @@ export function SchoolTechnicalTutor({ initialTopic }: { initialTopic?: string }
           <p className="mt-3 rounded-xl border border-[#d4e4d8] bg-white px-4 py-3 text-sm leading-6 text-[#244c39]"><strong>Da ricordare: </strong>{comparison.takeaway}</p>
           <div className="mt-4 flex flex-wrap gap-2">
             <Link href={SCHOOL_CONTENT1C_PATH + "#" + comparison.id}
-              className="inline-flex min-h-11 items-center rounded-xl bg-[#176747] px-4 text-sm font-bold text-white hover:bg-[#23583f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
+              className="school-primary-action min-h-11 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#174b3c]">
               Leggi il confronto completo →
             </Link>
             {comparison.links.slice(0, 2).map(link => <Link key={link.href} href={link.href}
