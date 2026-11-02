@@ -43,7 +43,7 @@ test("HP16 starts independent workspace shell dependencies together", () => {
 test("HP16 keeps Dashboard critical reads in one parallel batch", () => {
   assert.match(
     dashboard,
-    /\[setup, commercial, received, activity, sector, procurement, pulse, marketplace, networkCatalog\] = await Promise\.all/,
+    /\[setup, commercial, activity, sector, procurement, pulse, marketplace, networkCatalog\] = await Promise\.all/,
   );
   assert.match(dashboard, /loadDashboardPulse\(\)/);
   assert.match(dashboard, /networkEnabled && networkEntitled[\s\S]*searchNetwork\(\{ product: "tubes_pipes", page: 1 \}\)/);

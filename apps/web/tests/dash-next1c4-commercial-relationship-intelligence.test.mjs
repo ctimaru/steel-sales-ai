@@ -84,7 +84,7 @@ test("NEXT1C.4 Commerciale clearly differentiates saved prospect from verified C
   assert.match(commercial, /data-testid="commercial-private-prospect"/);
   assert.match(commercial, /confirmCommercialNetworkProspect/);
   assert.match(commercial, /name="confirm_prospect" type="checkbox" value="yes" required/);
-  assert.match(commercial, /Salva azienda da seguire/);
+  assert.match(commercial, /Salva nella mia lista/); // NET-UX LOT1B: same private list as Network «Salvate»
   assert.match(commercial, /prospect\.status === "saved"/);
   assert.match(commercial, /prospect\.savedAt/);
   assert.match(commercial, /Azienda già presente nella tua lista: nessun duplicato creato/);

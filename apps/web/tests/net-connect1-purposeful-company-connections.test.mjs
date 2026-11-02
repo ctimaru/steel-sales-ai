@@ -17,7 +17,9 @@ test("NET-CONNECT1: navigation is professional and has no social follow/save fee
  assert.match(shell,/label: "Cerca aziende"/);
  assert.match(shell,/label: "Connessioni"/);
  const networkMenu=shell.slice(shell.indexOf("const networkNav:"),shell.indexOf("const marketplaceNav:"));
- assert.doesNotMatch(networkMenu,/label: "Salvate"|label: "Seguite"|label: "Attività"/);
+ // NET-UX LOT1B: the private "Salvate" list is a founder-approved tab; follow/activity stay out.
+ assert.match(networkMenu,/label: "Salvate"/);
+ assert.doesNotMatch(networkMenu,/label: "Seguite"|label: "Attività"|label: "Richieste"/);
  assert.match(shell,/networkEnabled && networkEntitled/);
  assert.match(shell,/networkFreeEnabled/);
  assert.match(routes,/connections: "\/network\/connections"/);

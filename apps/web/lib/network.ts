@@ -527,14 +527,16 @@ export type SavedNetworkCompany = {
   };
 };
 
-export async function getSavedNetworkCompanies() {
+export async function getSavedNetworkCompanies(organizationId?: string) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("network_saved_companies")
     .select(
       "network_company_id,created_at,network_companies!inner(id,legal_name,trading_name,country_code,website_url,verification_status,claimed_status,publication_status)",
-    )
-    .order("created_at", { ascending: false });
+    );
+  // NET-UX LOT1B: the private list belongs to the active organization.
+  if (organizationId) query = query.eq("organization_id", organizationId);
+  const { data, error } = await query.order("created_at", { ascending: false });
 
   if (error) throw new Error(error.message);
 

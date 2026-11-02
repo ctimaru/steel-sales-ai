@@ -43,10 +43,14 @@ test("P4.1 Network profile exposes save/remove controls while preserving governe
   assert.match(claimPage, /requestNetworkClaim/);
 });
 
-// NET-UX LOT1 (founder decision 2 Nov 2026): saved companies are retired from the
-// interface; the page redirects to the search and stored rows are untouched.
-test("NET-UX LOT1 retires the saved companies page without deleting data", () => {
-  assert.match(savedPage, /redirect\("\/network"\)/);
-  assert.doesNotMatch(savedPage, /removeSavedNetworkCompany|Aziende salvate/);
+// NET-UX LOT1B (founder decision 2 Nov 2026): a private list each user keeps to work
+// on later; from it the user can open profiles, connect or prepare an RFQ.
+test("NET-UX LOT1B saved companies page is a private working list", () => {
+  assert.match(savedPage, /Aziende salvate/);
+  assert.match(savedPage, /la vedi solo tu/);
+  assert.match(savedPage, /getSavedNetworkCompanies\(context\.organizationId\)/);
+  assert.match(savedPage, /<NetworkRfqSelectionBar /);
+  assert.match(savedPage, /form="network-rfq-selection" name="supplier"/);
+  assert.match(savedPage, /<NetworkSaveToggle /);
   assert.match(networkLib, /getSavedNetworkCompanies/);
 });

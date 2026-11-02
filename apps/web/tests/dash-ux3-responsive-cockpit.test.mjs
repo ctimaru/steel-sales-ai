@@ -28,7 +28,6 @@ test("DASH-FEED2 retains viewer isolation and approved Network entitlement", () 
   for (const pattern of [
     /getWorkspaceContext/, /getNetworkAccessState/, /canWriteWorkspace\(context\.role\)/,
     /networkEntitled\s*\?\s*getNetworkActivityFeed/,
-    /networkEntitled\s*\?\s*getNetworkInquiries/,
     /canWrite \? createClient\(\)\.then/,
     /getDashboardCompanySector\(context\.organizationId\)/,
   ]) assert.match(home, pattern);

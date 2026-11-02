@@ -14,6 +14,7 @@ import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters"
 import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
 import {NetworkRfqSelectionBar} from "@/components/network-rfq-selection-bar";
 import {NetworkFilterDrawer} from "@/components/network-filter-drawer";
+import {NetworkSaveToggle} from "@/components/network-save-toggle";
 import {isRfqReachable,networkRfqSelectionEnabled} from "@/lib/network-rfq-supplier-handoff";
 import type {RecipientReadinessStatus} from "@/lib/network-recipient-readiness";
 import {localizeTaxonomyOptions,networkLabelIt,networkNameIt} from "@/lib/network-taxonomy-it";
@@ -86,9 +87,10 @@ function ContactCell({company,name,status,emailReachable}:{
     title="Riceve la RFQ via email al contatto aziendale pubblico">{EMAIL_REACHABLE_LABEL}</span>;
   return <span className="hidden text-xs text-[#647269] lg:inline" title="L'azienda non è ancora attiva sulla piattaforma">Non ancora attiva</span>;
 }
-function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,emailReachable}:{
+function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,emailReachable,saved,returnTo}:{
   company:FreeCompany;capabilities?:string[];specMatch?:SpecMatch;
   status?:RecipientReadinessStatus;selectable?:boolean;emailReachable?:boolean;
+  saved?:boolean;returnTo?:string;
 }){
   const name=company.trading_name||company.legal_name;
   const role=company.roles[0];
@@ -162,8 +164,10 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,
           className="relative z-10 font-semibold text-[#175640] underline underline-offset-2">Fonte ↗</a>:null}
       </p>:!location?<p className="text-[10px] text-[#52615b]">Località da integrare</p>:null}
     </div>
-    <div className="min-w-0 text-right lg:text-left">
+    <div className="flex min-w-0 items-center justify-end gap-2 lg:justify-between">
       <ContactCell company={company} name={name} status={status} emailReachable={emailReachable}/>
+      {/* NET-UX LOT1B: private list. Discovered (unconfirmed) records have no canonical profile to save. */}
+      {returnTo&&!company.discovery_status?<NetworkSaveToggle companyId={company.id} name={name} saved={Boolean(saved)} returnTo={returnTo} compact/>:null}
     </div>
   </article>;
 }
@@ -182,6 +186,8 @@ export function NetworkCompactExperience({
   const technicalOnly=Boolean(directory.technicalOnly);
   const companyCount=directory.total;
   const listedLocationCount=directory.items.filter(company=>Boolean(company.location?.city||company.location?.region)).length;
+  const savedIds=new Set(directory.savedIds??[]);
+  const returnTo=filterUrl(filters,{np:directory.page>1?String(directory.page):null},"#network-results");
   const activeFilterCount=[filters.role,filters.region,filters.product,filters.capability,filters.market,
     filters.country&&filters.country!=="IT"?filters.country:null,specActive?"spec":null].filter(Boolean).length;
   const fullMapHref=accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map";
@@ -340,6 +346,7 @@ export function NetworkCompactExperience({
           <CompactCompanyRow company={company} capabilities={capabilityLabels[company.id]||[]} specMatch={directory.specMatches?.[company.id]}
             status={directory.recipientStatus?.[company.id]}
             emailReachable={directory.rfqChannel?.[company.id]==="email"&&!["available","connected"].includes(directory.recipientStatus?.[company.id]??"")}
+            saved={savedIds.has(company.id)} returnTo={accessMode==="pro"&&canCompose?returnTo:undefined}
             selectable={rfqSelection&&accessMode==="pro"&&isRfqReachable(directory.recipientStatus?.[company.id],directory.rfqChannel?.[company.id])}/>
         </Fragment>):
         <div className="px-4 py-9 text-center text-sm text-[#52615b]">{specMode?"Nessuna azienda con scope tecnico compatibile o non dichiarato per "+specSummary+". Prova a togliere un criterio, ad esempio il grado o una misura.":

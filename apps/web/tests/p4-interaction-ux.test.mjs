@@ -31,22 +31,22 @@ test("P4.5 company profile only exposes inquiry CTA through eligibility", () => 
   assert.match(profile, /getInquiryEligibility/);
   assert.match(profile, /inquiryEligible/);
   assert.match(profile, />\n\s*Connetti\n\s*<\/Link>/); // NET-UX LOT1: CTA renamed
-  assert.match(compose, /p4 · Interaction Layer|Business inquiry/i);
-  assert.match(compose, /eligibility\.eligible/);
+  // NET-UX LOT1B: the per-company inquiry composer is retired; old links open the profile.
+  assert.match(compose, /redirect\("\/network\/" \+ encodeURIComponent\(id\)\)/);
 });
 
 test("P4.5 compose and inbox use controlled inquiry RPC actions", () => {
   assert.match(actions, /p4_submit_inquiry/);
   assert.match(actions, /p4_transition_inquiry/);
   assert.match(actions, /p4_report_inquiry/);
-  assert.match(inbox, /Ricevute/);
-  assert.match(inbox, /Inviate/);
-  assert.match(inbox, /Blocca organizzazione mittente/);
+  // NET-UX LOT1B: the inquiry inbox page is retired (requests go through the RFQ Hub); RPCs stay.
+  assert.match(inbox, /redirect\("\/network"\)/);
   assert.match(networkLib, /p4_list_inquiries/);
 });
 
 test("P4.5 claimed-company admin can control inquiry receiving preference", () => {
-  assert.match(manage, /Ricezione inquiry/);
+  // NET-UX LOT1B: the same preference governs "Connetti" readiness; renamed for users.
+  assert.match(manage, /Richieste di connessione/);
   assert.match(manage, /setInquiryPreferences/);
   assert.match(actions, /p4_set_inquiry_preferences/);
   assert.match(networkLib, /p4_get_inquiry_preferences/);
@@ -54,6 +54,5 @@ test("P4.5 claimed-company admin can control inquiry receiving preference", () =
 
 test("P4.5 remains an inquiry workflow rather than native messaging", () => {
   assert.doesNotMatch(compose, /websocket|realtime|typing indicator/i);
-  assert.match(compose, /non crea (?:una )?connection pubblica/i);
-  assert.match(inbox, /Interazioni B2B private tra organizzazioni/);
+  assert.doesNotMatch(inbox, /websocket|realtime|typing indicator/i);
 });

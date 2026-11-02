@@ -54,8 +54,7 @@ test("UX1.5 Viewer is read-only on Network interaction surfaces", () => {
   assert.match(networkProfile, /canInteractWithNetwork\(membership\.role\)/);
   assert.match(networkProfile, /canInteractWithNetwork\(membership\.role\)/);
   assert.match(networkProfile, /inquiryEligible && canInteract/);
-  assert.match(inquiries, /const canInteract = canInteractWithNetwork\(context\.role\)/);
-  assert.match(inquiries, /canInteract && box === "received"/);
+  assert.match(inquiries, /redirect\("\/network"\)/); // NET-UX LOT1B: requests only from the RFQ Hub
   assert.match(networkActions, /requireWorkspaceWriteRole/);
 });
 
