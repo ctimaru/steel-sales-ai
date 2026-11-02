@@ -146,7 +146,7 @@ select pg_temp.nc1_ok((select email from private.rfqh2_best_network_contact('511
 -- A wrong channel is rejected in bulk: archived, never published, audited.
 set local role service_role;
 select pg_temp.nc1_ok(public.netcontact1_stage_company_channel('51100000-0000-5000-8000-000000000005'::uuid,
-  null,'0372 999999','https://www.morandispa.it/chi-siamo')->>'status'='staged','second channel staged');
+  null,'+39 0372 999999','https://www.morandispa.it/chi-siamo')->>'status'='staged','second channel staged');
 reset role;
 select set_config('nc1.reject_id',(select id::text from public.network_contacts where phone='+390372999999'),true);
 set local role authenticated;
