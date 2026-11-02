@@ -219,6 +219,10 @@ async def run_batch(entries, *, persist=False, max_sites=25, pause=2, db=None) -
 
 
 def next_batch(db, limit):
+    """Bounded queue read. Items whose site is not on their own official domain
+    are skipped (never crawled) instead of aborting the batch. Group companies
+    that share one official domain (e.g. two legal entities of the same group)
+    are each processed on their own; the reviewer decides in Platform."""
     if not 1 <= limit <= MAX_SITES:
         raise ValueError("Invalid bounded size")
     data = db.rpc("netcontact1_next_batch", {"p_limit": limit}).execute().data
@@ -227,19 +231,24 @@ def next_batch(db, limit):
     raw = data.get("items")
     if not isinstance(raw, list) or len(raw) > limit:
         raise ValueError("Unbounded result")
-    if not raw:
-        return [], int(data.get("eligible", 0))
-    entries = validated_seeds(raw)
-    domains = set()
-    for item, source in zip(entries, raw, strict=True):
-        domain = str(source.get("domain") or "").lower().removeprefix("www.")
-        if (source.get("kind") != "canonical" or not domain or canonical_domain(item["site"]) != domain
-                or domain in domains or not source.get("company_name")):
-            raise ValueError("Company identity or official domain mismatch")
+    entries, skipped, seen = [], [], set()
+    for source in raw:
+        try:
+            item = validated_seeds([source])[0]
+            domain = str(source.get("domain") or "").lower().removeprefix("www.")
+            if (source.get("kind") != "canonical" or not domain or canonical_domain(item["site"]) != domain
+                    or not source.get("company_name") or item["company_id"] in seen):
+                raise ValueError("Company identity or official domain mismatch")
+        except (ValueError, KeyError, TypeError, CompanyDiscoveryError):
+            company_id = str(source.get("company_id") or "") if isinstance(source, dict) else ""
+            if re.fullmatch(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", company_id):
+                skipped.append(company_id)
+            continue
         item["domain"] = domain
         item["company_name"] = str(source["company_name"])[:180]
-        domains.add(domain)
-    return entries, int(data.get("eligible", 0))
+        seen.add(item["company_id"])
+        entries.append(item)
+    return entries, int(data.get("eligible", 0)), skipped
 
 
 def main():
@@ -250,9 +259,18 @@ def main():
     if not 1 <= args.max_sites <= MAX_SITES:
         parser.error("Invalid size")
     db = db_from_environment()
-    entries, total = next_batch(db, args.max_sites)
+    entries, total, skipped = next_batch(db, args.max_sites)
     output = asyncio.run(run_batch(entries, persist=args.persist, max_sites=args.max_sites, db=db)) if entries \
         else dict(contract="netcontact1-crawl-v1", mode="nothing_eligible", sites=0, outcomes=[])
+    if args.persist:
+        # Skipped identities leave the queue for 30 days so the batch advances.
+        for company_id in skipped:
+            try:
+                db.rpc("netcontact1_record_attempt",
+                       {"p_company_id": company_id, "p_outcome": "blocked_or_unavailable"}).execute()
+            except Exception:
+                pass
+    output["skipped_identity_mismatch"] = len(skipped)
     output["eligible_before_batch"] = total
     print(json.dumps(output, ensure_ascii=False, indent=2))
 
