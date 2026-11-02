@@ -73,12 +73,19 @@ function confirmationUrl(html, expectedType) {
 }
 async function chooseEssentialCookies(page) {
   const cookie = page.getByTestId("mobile-cookie-consent");
-  if (await cookie.isVisible()) {
+  if (!(await cookie.isVisible())) return;
+  // The banner is server-rendered: a click that lands before hydration is a
+  // no-op, so retry a few times before failing.
+  for (let attempt = 0; attempt < 6; attempt += 1) {
     await cookie.getByRole("button", {
       name: /essential cookies only|cookie necessari/i,
-    }).first().click();
-    await cookie.waitFor({ state: "hidden" });
+    }).first().click({ timeout: 5000 }).catch(() => {});
+    try {
+      await cookie.waitFor({ state: "hidden", timeout: 5000 });
+      return;
+    } catch {}
   }
+  await cookie.waitFor({ state: "hidden" });
 }
 async function newContext(width = 390) {
   return browser.newContext({

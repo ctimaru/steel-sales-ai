@@ -85,7 +85,8 @@ function ContactCell({company,name,status,emailReachable}:{
   if(status==="pending")return <span className="text-xs font-semibold text-[#175640]" data-testid="network-recipient-status">Richiesta inviata</span>;
   if(emailReachable)return <span className="text-xs font-semibold text-[#175640]" data-testid="network-email-reachable"
     title="Riceve la RFQ via email al contatto aziendale pubblico">{EMAIL_REACHABLE_LABEL}</span>;
-  return <span className="hidden text-xs text-[#647269] lg:inline" title="L'azienda non è ancora attiva sulla piattaforma">Non ancora attiva</span>;
+  // NET-UX touch-up: no label when there is nothing to do (most companies are not yet active).
+  return null;
 }
 function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,emailReachable,saved,returnTo}:{
   company:FreeCompany;capabilities?:string[];specMatch?:SpecMatch;
