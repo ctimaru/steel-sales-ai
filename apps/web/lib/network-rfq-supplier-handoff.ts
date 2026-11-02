@@ -3,7 +3,8 @@
  * PROPOSAL shared with lane B (GPT, Commerciale/RFQ Hub). Network writes, RFQ
  * Hub reads. Same safety model as the NETUX6D reviewed distinta handoff:
  *   - same tab only (sessionStorage), scoped to organization + user;
- *   - expires after 15 minutes, read once (the receiver deletes it);
+ *   - expires after 15 minutes; the receiver deletes it once used or dismissed
+ *     (kept meanwhile so the buyer can create a distinta and come back);
  *   - carries only Network company IDs (UUID) and an optional spec summary:
  *     no names, contacts, prices or free text that could be trusted blindly;
  *   - at most 20 suppliers, only companies the readiness RPC reported as
@@ -11,8 +12,9 @@
  *   - the receiver MUST revalidate every ID server-side (RLS, entitlement,
  *     readiness) and show the list for explicit confirmation: nothing is
  *     created or sent automatically.
- * The UI that writes it ships behind NEXT_PUBLIC_NETAUDIT1_RFQ_SELECTION
- * until the receiver exists, so no button can lose a selection.
+ * NET-AUDIT1.3b: the RFQ Hub receiver exists (owned by lane A by founder
+ * decision 2026-11-02), so selection is ON by default.
+ * NEXT_PUBLIC_NETAUDIT1_RFQ_SELECTION="false" remains an emergency switch.
  */
 const PREFIX="smart-steel-sales:netaudit1:rfq-suppliers:";
 export const NETWORK_RFQ_HANDOFF_MAX_AGE_MS=15*60*1000;
@@ -67,7 +69,7 @@ export function isRfqSelectable(status:string|undefined):boolean{
   return status==="available"||status==="connected";
 }
 
-export const NETWORK_RFQ_RECEIVER_PATH="/marketplace/rfq-hub?from=network#network-suppliers";
+export const NETWORK_RFQ_RECEIVER_PATH="/rfq-hub?from=network#network-suppliers";
 export function networkRfqSelectionEnabled():boolean{
-  return process.env.NEXT_PUBLIC_NETAUDIT1_RFQ_SELECTION==="true";
+  return process.env.NEXT_PUBLIC_NETAUDIT1_RFQ_SELECTION!=="false";
 }

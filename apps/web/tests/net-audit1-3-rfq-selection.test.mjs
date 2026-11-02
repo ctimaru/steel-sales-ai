@@ -56,7 +56,8 @@ test("NET-AUDIT1.3 list: readiness badges, claim link, selection behind a flag, 
   assert.match(ui,/const rfqSelection=networkRfqSelectionEnabled\(\);/);
   assert.match(ui,/selectable=\{rfqSelection&&accessMode==="pro"&&isRfqSelectable\(/);
   assert.match(ui,/form="network-rfq-selection" name="supplier"/);
-  assert.match(read("../lib/network-rfq-supplier-handoff.ts"),/NEXT_PUBLIC_NETAUDIT1_RFQ_SELECTION==="true"/);
+  // NET-AUDIT1.3b: on by default now that the receiver exists; "false" is the emergency switch.
+  assert.match(read("../lib/network-rfq-supplier-handoff.ts"),/NEXT_PUBLIC_NETAUDIT1_RFQ_SELECTION!=="false"/);
 });
 
 test("NET-AUDIT1.3 selection bar writes the handoff and never sends anything",()=>{
