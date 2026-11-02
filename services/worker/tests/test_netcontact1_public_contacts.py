@@ -123,3 +123,15 @@ def test_secret_key_client_is_bounded_and_project_pinned(monkeypatch):
     monkeypatch.setenv("CRAWL_IT65B_SUPABASE_SECRET_KEY", "sb_secret_" + "x" * 30)
     with pytest.raises(ValueError):
         db_from_environment()
+
+
+def test_persist_records_every_attempt_even_without_channels():
+    db = FakeDb()
+
+    async def fake(client, url, base):
+        return page(text="Nessun contatto qui")
+
+    with patch("app.netcontact1_public_contacts._fetch_page", fake):
+        out = asyncio.run(run_batch([item()], persist=True, db=db, pause=0))
+    assert out["outcomes"][0]["status"] == "no_company_channel"
+    assert db.calls == [("netcontact1_record_attempt", {"p_company_id": ID, "p_outcome": "no_company_channel"})]

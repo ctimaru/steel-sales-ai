@@ -39,7 +39,7 @@ PHONE_TEXT_RE = re.compile(
     r"(?:\btel(?:efono)?\b\.?|\bphone\b|\bcentralino\b|\bt\.)\s*[:.]?\s*(\+?\(?\d[\d\s()./-]{5,20}\d)", re.I)
 
 
-ALLOWED_RPCS = ("netcontact1_next_batch", "netcontact1_stage_company_channel")
+ALLOWED_RPCS = ("netcontact1_next_batch", "netcontact1_stage_company_channel", "netcontact1_record_attempt")
 
 
 class SecretKeyRpc:
@@ -197,6 +197,13 @@ async def run_batch(entries, *, persist=False, max_sites=25, pause=2, db=None) -
             row = dict(company_id=item["company_id"], name=item["company_name"], status=r["status"],
                        pages=r["pages"], email=r["email"][0] if r["email"] else None,
                        phone=r["phone"][0] if r["phone"] else None, staged=False)
+            if persist:
+                # NET-CONTACT1B: every visited company leaves the queue for 30 days.
+                try:
+                    db.rpc("netcontact1_record_attempt",
+                           {"p_company_id": item["company_id"], "p_outcome": r["status"]}).execute()
+                except Exception:
+                    row["attempt_recorded"] = False
             if persist and (r["email"] or r["phone"]):
                 try:
                     statuses = stage(db, item["company_id"], r["email"], r["phone"])
