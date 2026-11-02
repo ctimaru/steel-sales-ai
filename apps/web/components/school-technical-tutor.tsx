@@ -199,7 +199,7 @@ export function SchoolTechnicalTutor({ initialTopic }: { initialTopic?: string }
       </div>
     </section>
 
-    <section aria-live="polite" aria-atomic="false" className="min-h-0">
+    <section id="school-professor-answer" aria-live="polite" aria-atomic="false" className="min-h-0 scroll-mt-24">
       {state !== "idle" ? <div className="rounded-[22px] border border-[#d4e1d8] bg-white p-4 sm:p-6">
         <p className="text-[11px] font-bold uppercase tracking-[.12em] text-[#2b7150]">Il Professore risponde con le fonti</p>
         <h2 className="mt-2 text-lg font-semibold text-[#173c2d]">{question}</h2>
