@@ -5,6 +5,8 @@ import { cache } from "react";
 
 import { SchoolHero } from "@/components/school-ui";
 import { SchoolReadingIndex } from "@/components/school-reading-index";
+import { SchoolContent1Panel } from "@/components/school-content1-panel";
+import { getSchoolContent1Guide } from "@/lib/school-content1-guides.mjs";
 
 import {
   applicabilityLabel,
@@ -80,6 +82,7 @@ export default async function GradeDetailPage({
   const { slug } = await params;
   const grade = await loadGrade(slug);
   if (!grade) notFound();
+  const practicalGuide = getSchoolContent1Guide("grade", grade.slug);
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -179,6 +182,7 @@ export default async function GradeDetailPage({
         <SchoolReadingIndex locale="it" entries={[
           { id: "grade-reading-main", label: "Come leggere la designazione" },
           ...grade.editorial_sections.map((section, index) => ({ id: `grade-reading-section-${index + 1}`, label: section.heading })),
+          ...(practicalGuide ? [{ id: "school-practical-guide", label: "Dalla scheda alla pratica" }] : []),
         ]} />
 
         <section className="grid gap-4 sm:grid-cols-3">
@@ -222,6 +226,8 @@ export default async function GradeDetailPage({
             <p className="mt-3 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">{section.body}</p>
           </section>
         ))}
+
+        {practicalGuide ? <SchoolContent1Panel guide={practicalGuide} /> : null}
 
         {grade.related_grade_pages.length ? (
           <section className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
