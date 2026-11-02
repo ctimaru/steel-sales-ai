@@ -8,6 +8,7 @@ import {
   listPublicTubeSizeHubs,
 } from "@/lib/public-knowledge";
 import { schoolArticles } from "@/lib/school-articles";
+import { SCHOOL_CONTENT1C_PATH, SCHOOL_CONTENT1C_REVIEW_DATE } from "@/lib/school-content1c-guides.mjs";
 import { englishGradeForSlug, englishStandardForSlug } from "@/lib/international-steel-knowledge";
 import {localizedKnowledgeGuide,localizedKnowledgePath,MARKET_TECHNICAL_RECORDS} from "@/lib/localized-steel-knowledge";
 import {SCHOOL_EDITORIAL_DRAFT_DATE} from "@/lib/school-technical-editorial-trust";
@@ -35,7 +36,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...sizeHubs.map((item) => item.published_at),
   ]);
   const articlesLastModified = newestDate(
-    schoolArticles.map((article) => article.lastReviewedAt),
+    [...schoolArticles.map((article) => article.lastReviewedAt), SCHOOL_CONTENT1C_REVIEW_DATE],
   );
   const priceListsLastModified = newestDate(
     priceLists.map((item) => item.published_at || item.source_date),
@@ -141,6 +142,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: articlesLastModified,
       changeFrequency: "weekly",
       priority: 0.84,
+    },
+    {
+      url: absoluteUrl(SCHOOL_CONTENT1C_PATH),
+      lastModified: new Date(SCHOOL_CONTENT1C_REVIEW_DATE + "T00:00:00Z"),
+      changeFrequency: "monthly",
+      priority: 0.77,
     },
     {
       url: absoluteUrl("/knowledge/norme"),
