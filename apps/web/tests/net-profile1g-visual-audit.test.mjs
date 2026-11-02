@@ -11,9 +11,9 @@ test("NET-PROFILE1G: the first screen centers company identity and real connecti
     assert.match(profile,/Profilo aziendale/);
     assert.match(profile,/break-words text-2xl/);
     assert.match(profile,/app-primary/);
-    assert.match(profile,/Richiedi connessione/);
+    assert.match(profile,/>\s*Connetti( →)?\s*<\/Link>/); // NET-UX LOT1: CTA renamed
     assert.match(profile,/max-w-6xl/);
-    assert.ok(profile.indexOf("Richiedi connessione") < profile.indexOf("Rappresenti questa azienda?"),
+    assert.ok(profile.search(/>\s*Connetti( →)?\s*<\/Link>/) < profile.indexOf("Rappresenti questa azienda?"),
       "connection should precede claim");
   }
   assert.ok(free.indexOf('aria-label="Connessione aziendale"') < free.indexOf('aria-label="Informazioni aziendali con fonte"'),
@@ -37,5 +37,6 @@ test("NET-PROFILE1G: clean trustworthy cards, not empty claims or obsolete hardc
   assert.match(pro,/\["unclaimed", "revoked"\]\.includes\(profile.company.claimed_status\) &&/);
   assert.match(free,/profile.products.length>0 \|\| profile.facilities.length>0/);
   assert.match(free,/sm:grid-cols-2/);
-  assert.match(pro,/sm:grid-cols-2/);
+  // NET-UX LOT1: the zero-heavy stats strip was removed; summary cards stay in a grid.
+  assert.match(pro,/md:grid-cols-2 xl:grid-cols-4/);
 });

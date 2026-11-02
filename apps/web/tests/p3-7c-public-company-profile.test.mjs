@@ -32,7 +32,7 @@ test("P3.7C composes trust, provenance and industrial sections on the public pro
   assert.match(page, /Azienda verificata/);
   assert.match(page, /Ruolo nella filiera/);
   assert.match(page, /Prodotti e disponibilità industriale/);
-  assert.match(page, /Sedi e capability/);
+  assert.match(page, /Sedi, lavorazioni e servizi/); // NET-UX LOT1
   assert.match(page, /Mercati e applicazioni/);
   assert.match(page, /Certificazioni/);
   assert.match(page, /Dichiarato dall'azienda/);

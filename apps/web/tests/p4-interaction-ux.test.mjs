@@ -30,7 +30,7 @@ const networkLib = fs.readFileSync(
 test("P4.5 company profile only exposes inquiry CTA through eligibility", () => {
   assert.match(profile, /getInquiryEligibility/);
   assert.match(profile, /inquiryEligible/);
-  assert.match(profile, /Richiedi connessione/);
+  assert.match(profile, />\n\s*Connetti\n\s*<\/Link>/); // NET-UX LOT1: CTA renamed
   assert.match(compose, /p4 · Interaction Layer|Business inquiry/i);
   assert.match(compose, /eligibility\.eligible/);
 });

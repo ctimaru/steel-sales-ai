@@ -35,7 +35,7 @@ test("P4.1 save company is a private user action backed by network_saved_compani
 
 test("P4.1 Network profile exposes save/remove controls while preserving governed claim semantics", () => {
   assert.doesNotMatch(profile, /Salva azienda|Rimuovi dai salvati/);
-  assert.match(profile, /Richiedi connessione/);
+  assert.match(profile, />\n\s*Connetti\n\s*<\/Link>/); // NET-UX LOT1: CTA renamed
   assert.match(profile, /NetworkActivationCta mode="published"/);
   assert.match(activationCta, /Rivendica il profilo/);
   assert.match(activationCta, /\/claim"/);
@@ -43,9 +43,10 @@ test("P4.1 Network profile exposes save/remove controls while preserving governe
   assert.match(claimPage, /requestNetworkClaim/);
 });
 
-test("P4.1 saved companies page explicitly preserves private bookmark semantics", () => {
-  assert.match(savedPage, /Aziende salvate/);
-  assert.match(savedPage, /lista è privata/);
-  assert.match(savedPage, /non equivale a follow, connection, inquiry o segnale pubblico/);
+// NET-UX LOT1 (founder decision 2 Nov 2026): saved companies are retired from the
+// interface; the page redirects to the search and stored rows are untouched.
+test("NET-UX LOT1 retires the saved companies page without deleting data", () => {
+  assert.match(savedPage, /redirect\("\/network"\)/);
+  assert.doesNotMatch(savedPage, /removeSavedNetworkCompany|Aziende salvate/);
   assert.match(networkLib, /getSavedNetworkCompanies/);
 });

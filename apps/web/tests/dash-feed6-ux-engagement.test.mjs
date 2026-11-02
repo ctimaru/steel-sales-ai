@@ -49,9 +49,9 @@ test("DASH-FEED6 builds keyboard-accessible native disclosure without content lo
 test("DASH-FEED6 tracks governed link intent without changing privacy/entitlement", () => {
   assert.match(discovery, /engagementKind="network_profile"/);
   assert.match(discovery, /engagementKind="marketplace_teaser"/);
-  assert.match(discovery, /appRoutes\.network\.company\(item\.companyId\)/);
+  assert.match(discovery, /appRoutes\.network\.company\(company\.id\)/);
   assert.match(discovery, /appRoutes\.marketplace\.opportunity\(item\.id\)/);
-  assert.match(discovery, /networkEnabled && networkEntitled\s*\?\s*selectDashboardFollowedUpdates\(activity, 2\)\s*:\s*\[\]/);
+  assert.doesNotMatch(discovery, /selectDashboardFollowedUpdates/); // NET-UX LOT1: followed-company updates removed (Connetti only)
   assert.match(dashboard, /getMarketplaceFeed\(context\.organizationId, \{ limit: 10, offset: 0 \}\)/);
   assert.doesNotMatch(discovery + tracked, /buyer\.display_name|inquiry\.body|service_role/);
 });

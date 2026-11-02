@@ -205,6 +205,13 @@ export default async function NetworkCompanyProfilePage({
     profile.company.logo_updated_at,
   );
   const primaryRole = profile.roles.find((role) => role.is_primary);
+  // NET-UX LOT1: first published company channel shown in the header.
+  const headerContact = profile.contacts.find((contact) => contact.email || contact.phone) ?? null;
+  const missingSections = [
+    profile.facilities.length ? null : "sedi",
+    profile.markets.length ? null : "mercati",
+    profile.certifications.length ? null : "certificazioni",
+  ].filter((item): item is string => Boolean(item));
   const verifiedAssetCount =
     profile.trust.verified_facilities +
     profile.trust.verified_capabilities +
@@ -295,7 +302,7 @@ export default async function NetworkCompanyProfilePage({
       />
 
       <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1a5144]">
-        ← Torna a Esplora aziende
+        ← Torna alla ricerca
       </Link>
 
       {error ? (
@@ -363,7 +370,7 @@ export default async function NetworkCompanyProfilePage({
                   href={"/network/" + profile.company.id + "/connect"}
                   className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold"
                 >
-                  Richiedi connessione
+                  Connetti
                 </Link>
               ) : null}
               {website ? (
@@ -377,8 +384,20 @@ export default async function NetworkCompanyProfilePage({
                 </a>
               ) : null}
 
-              {inquiryEligible && !canInteract ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Per richiedere una connessione serve un ruolo commerciale abilitato.</p> :
-                !inquiryEligible ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Connessione disponibile quando l'azienda è attiva e abilitata a ricevere richieste.</p> : null}
+              {inquiryEligible && !canInteract ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Per connetterti serve un ruolo commerciale abilitato.</p> :
+                !inquiryEligible ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Potrai connetterti quando l'azienda sarà attiva sulla piattaforma.</p> : null}
+              {/* NET-UX LOT1: public company channels at the top, next to the actions. */}
+              {headerContact ? (
+                <div className="w-full rounded-xl border border-[#dce2df] bg-white px-3 py-2 text-xs" data-testid="network-profile-header-contact">
+                  <p className="font-semibold text-[#52615b]">Contatti aziendali</p>
+                  {headerContact.email ? (
+                    <a href={"mailto:" + headerContact.email} className="mt-1 block break-all font-semibold text-[#1a5144] underline underline-offset-2">{headerContact.email}</a>
+                  ) : null}
+                  {headerContact.phone ? (
+                    <a href={"tel:" + headerContact.phone.replace(/[^\d+]/g, "")} className="mt-0.5 block font-semibold text-[#1a5144] underline underline-offset-2">{headerContact.phone.replace(/^\+39(?=0)/, "+39 ")}</a>
+                  ) : null}
+                </div>
+              ) : null}
               {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
                 adminOrganizationId && (!claimState || ["rejected","revoked"].includes(claimState.status)) ? (
                 <details className="w-full text-xs text-[#52615b]">
@@ -407,36 +426,6 @@ export default async function NetworkCompanyProfilePage({
           </div>
         </div>
 
-        {(productGroups.length>0 || technicalStandards.length>0 || technicalGrades.length>0 || capabilities.length>0 || profile.facilities.length>0 || profile.markets.length>0 || profile.certifications.length>0) ? <div className="grid gap-px bg-[#dce2df] sm:grid-cols-2 lg:grid-cols-4">
-          <div className="bg-white p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#52615b]">Prodotti</p>
-            <p className="mt-2 text-2xl font-semibold text-[#1d2824]">{productGroups.length}</p>
-            <p className="mt-1 text-xs text-[#52615b]">
-              famiglie · {profile.products.length} relazioni commerciali
-            </p>
-          </div>
-          <div className="bg-white p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#52615b]">Ambito tecnico</p>
-            <p className="mt-2 text-base font-semibold text-[#1d2824]">
-              {technicalStandards.length} norme · {technicalGrades.length} gradi
-            </p>
-            <p className="mt-1 text-xs text-[#52615b]">Collegati alla Steel Knowledge canonica.</p>
-          </div>
-          <div className="bg-white p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#52615b]">Servizi industriali</p>
-            <p className="mt-2 text-2xl font-semibold text-[#1d2824]">{capabilities.length}</p>
-            <p className="mt-1 text-xs text-[#52615b]">capability pubblicate sulle sedi.</p>
-          </div>
-          <div className="bg-white p-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#52615b]">Presenza</p>
-            <p className="mt-2 text-base font-semibold text-[#1d2824]">
-              {profile.facilities.length} sedi · {profile.markets.length} mercati
-            </p>
-            <p className="mt-1 text-xs text-[#52615b]">
-              {profile.certifications.length} certificazioni pubblicate
-            </p>
-          </div>
-        </div> : null}
       </section>
 
       {claimState && ["requested", "under_review"].includes(claimState.status) ? (
@@ -456,7 +445,7 @@ export default async function NetworkCompanyProfilePage({
         <section className="flex flex-col gap-3 rounded-2xl border border-[#d9e8e2] bg-[#f3f6f4] p-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-semibold text-[#1d2824]">Questo profilo è gestito dalla tua organizzazione</p>
-            <p className="mt-1 text-sm text-[#66736e]">Aggiorna prodotti, sedi, capability, mercati e certificazioni dal Company Profile Manager.</p>
+            <p className="mt-1 text-sm text-[#66736e]">Aggiorna prodotti, sedi, capability, mercati e certificazioni dalla sezione «Il mio profilo».</p>
           </div>
           <Link href="/network/manage" className="inline-flex h-10 items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">
             Gestisci profilo
@@ -466,9 +455,8 @@ export default async function NetworkCompanyProfilePage({
 
       <section className="rounded-3xl border border-[#d9e1dd] bg-[#f6f8f7] p-6 sm:p-7">
         <SectionHeader
-          eyebrow="Sintesi commerciale"
-          title="Quello che serve sapere a colpo d'occhio"
-          description="Sintesi commerciale costruita dai dati pubblici, dichiarati o verificati presenti nel Network. Le fonti e il livello di trust restano visibili nelle sezioni di dettaglio."
+          eyebrow="In sintesi"
+          title="Chi è e cosa offre"
         />
         <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
@@ -479,7 +467,7 @@ export default async function NetworkCompanyProfilePage({
             <div className="mt-3 flex flex-wrap gap-1.5">
               {profile.subtypes.slice(0, 4).map((subtype) => (
                 <span key={subtype.key} className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[11px] font-semibold text-[#65758a]">
-                  {subtype.name}
+                  {networkNameIt(subtype.name)}
                 </span>
               ))}
             </div>
@@ -684,7 +672,7 @@ export default async function NetworkCompanyProfilePage({
 
           <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
             <SectionHeader
-              eyebrow="Industrial positioning"
+              eyebrow="Filiera"
               title="Ruolo nella filiera"
               description="Ruoli e specializzazioni descrivono come l'azienda opera all'interno del mercato siderurgico."
             />
@@ -716,7 +704,7 @@ export default async function NetworkCompanyProfilePage({
                   {profile.subtypes.length ? (
                     profile.subtypes.map((subtype) => (
                       <div key={subtype.key} className="rounded-xl border border-[#e4eaf2] bg-white px-3 py-2">
-                        <p className="text-sm font-semibold text-[#4a5b72]">{subtype.name}</p>
+                        <p className="text-sm font-semibold text-[#4a5b72]">{networkNameIt(subtype.name)}</p>
                         <div className="mt-1.5"><ProvenanceBadge kind={subtype.provenance_kind} /></div>
                       </div>
                     ))
@@ -727,11 +715,17 @@ export default async function NetworkCompanyProfilePage({
               </div>
             </div>
           </section>
+          {missingSections.length ? (
+            <p className="rounded-2xl border border-dashed border-[#cfdcd5] bg-[#f9fbfa] px-5 py-4 text-sm leading-6 text-[#52615b]" data-testid="network-profile-missing-sections">
+              Non ancora pubblicati: {missingSections.join(", ")}. I dati si completano quando l'azienda gestisce il proprio profilo.
+            </p>
+          ) : null}
 
+          {profile.facilities.length > 0 ? (
           <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
             <SectionHeader
-              eyebrow="Industrial footprint"
-              title="Sedi e capability"
+              eyebrow="Sedi"
+              title="Sedi, lavorazioni e servizi"
               description="Stabilimenti, magazzini e service center mostrano dove opera l'azienda e quali capacità industriali dichiara o ha verificato."
             />
             <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -783,10 +777,12 @@ export default async function NetworkCompanyProfilePage({
               )}
             </div>
           </section>
+          ) : null}
 
+          {profile.markets.length > 0 ? (
           <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
             <SectionHeader
-              eyebrow="Markets"
+              eyebrow="Mercati"
               title="Mercati e applicazioni"
               description="Settori applicativi supportati dalle evidenze pubbliche, aziendali o verificate disponibili nel Network."
             />
@@ -803,10 +799,12 @@ export default async function NetworkCompanyProfilePage({
               )}
             </div>
           </section>
+          ) : null}
 
+          {profile.certifications.length > 0 ? (
           <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
             <SectionHeader
-              eyebrow="Trust"
+              eyebrow="Certificazioni"
               title="Certificazioni pubblicate"
               description="Le certificazioni presenti nel profilo mantengono fonte e stato di verifica separati: pubblicato non significa automaticamente verificato dalla Platform."
             />
@@ -848,25 +846,10 @@ export default async function NetworkCompanyProfilePage({
               )}
             </div>
           </section>
+          ) : null}
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-4 lg:self-start">
-          <section className="rounded-3xl border border-[#dce2df] bg-white p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#52615b]">Stato del profilo</p>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e6edf6]">
-              <div
-                className="h-full rounded-full bg-[#1a5144]"
-                style={{ width: Math.max(4, profile.completeness.percentage) + "%" }}
-              />
-            </div>
-            <p className="mt-3 text-sm font-semibold text-[#34445c]">
-              {profile.completeness.percentage}% dei dati industriali principali presenti
-            </p>
-            <p className="mt-1 text-xs leading-5 text-[#7a899d]">
-              La completezza indica solo la presenza delle sezioni del profilo; non è un rating dell'azienda.
-            </p>
-          </section>
-
           <section className="rounded-3xl border border-[#dce2df] bg-white p-5">
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#52615b]">Contatti pubblici</p>
             <div className="mt-4 space-y-4">
@@ -878,9 +861,11 @@ export default async function NetworkCompanyProfilePage({
                         <p className="text-sm font-semibold text-[#34445c]">
                           {contact.display_name ?? contact.contact_type}
                         </p>
-                        <p className="mt-0.5 text-[11px] uppercase tracking-wide text-[#52615b]">
-                          {CONTACT_TYPE_IT[contact.contact_type] ?? contact.contact_type}
-                        </p>
+                        {(CONTACT_TYPE_IT[contact.contact_type] ?? contact.contact_type) !== contact.display_name ? (
+                          <p className="mt-0.5 text-[11px] uppercase tracking-wide text-[#52615b]">
+                            {CONTACT_TYPE_IT[contact.contact_type] ?? contact.contact_type}
+                          </p>
+                        ) : null}
                       </div>
                       <VerificationBadge status={contact.verification_status} />
                     </div>
@@ -906,16 +891,32 @@ export default async function NetworkCompanyProfilePage({
                 ))
               ) : (
                 <p className="text-sm leading-6 text-[#8b99aa]">
-                  Nessun contatto pubblico. Usa l'inquiry governata quando disponibile.
+                  Nessun contatto pubblico.
                 </p>
               )}
             </div>
           </section>
+          <section className="rounded-3xl border border-[#dce2df] bg-white p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#52615b]">Stato del profilo</p>
+            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e6edf6]">
+              <div
+                className="h-full rounded-full bg-[#1a5144]"
+                style={{ width: Math.max(4, profile.completeness.percentage) + "%" }}
+              />
+            </div>
+            <p className="mt-3 text-sm font-semibold text-[#34445c]">
+              {profile.completeness.percentage}% dei dati industriali principali presenti
+            </p>
+            <p className="mt-1 text-xs leading-5 text-[#7a899d]">
+              La completezza indica solo la presenza delle sezioni del profilo; non è un rating dell'azienda.
+            </p>
+          </section>
+
 
           <section className="rounded-3xl border border-[#d9e8e2] bg-[#f3f6f4] p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Network trust</p>
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">Affidabilità dei dati</p>
             <p className="mt-2 text-sm font-semibold text-[#34445c]">
-              Claim e verifica sono segnali distinti
+              Rivendicazione e verifica sono segnali distinti
             </p>
             <p className="mt-2 text-xs leading-5 text-[#52615b]">
               Un profilo rivendicato indica chi lo gestisce. La verifica indica invece controlli eseguiti dalla piattaforma su azienda o singoli elementi.

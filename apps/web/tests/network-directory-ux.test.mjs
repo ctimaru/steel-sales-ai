@@ -25,7 +25,7 @@ test("Network home does not duplicate contextual navigation with a CTA wall", ()
   assert.doesNotMatch(directory, />Inquiry</);
   assert.doesNotMatch(directory, />Aziende salvate</);
   assert.doesNotMatch(directory, />Gestisci profilo azienda</);
-  for (const label of ["Esplora aziende", "Connessioni"]) {
+  for (const label of ["Cerca aziende", "Connessioni", "Il mio profilo"]) { // NET-UX LOT1
     assert.match(shell, new RegExp(`label: "${label}"`));
   }
 });

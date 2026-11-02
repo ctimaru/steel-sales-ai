@@ -51,9 +51,11 @@ test("NET-AUDIT1.3 list: readiness badges, claim link, selection behind a flag, 
   assert.match(listing,/getNetworkRecipientReadiness\(organizationId,ids\)/);
   // NET-CONTACT1: selection also accepts email-reachable companies (isRfqReachable).
   assert.match(listing,/\.catch\(\(\)=>undefined\)/);
-  assert.match(ui,/available:"Attiva · contattabile",connected:"Connessa",pending:"Richiesta in corso",unavailable:"Censita"/);
-  assert.match(ui,/Rappresenti questa azienda\?/);
-  assert.match(ui,/company\.claimed_status==="unclaimed"&&!company\.discovery_status/);
+  // NET-UX LOT1: one Contatto column; "Connetti" is the only row action, the claim lives on the profile.
+  assert.match(ui,/if\(status==="available"\)return <Link href=\{"\/network\/"\+company\.id\+"\/connect"\}/);
+  assert.match(ui,/✓ Connessa/);
+  assert.match(ui,/Richiesta inviata/);
+  assert.doesNotMatch(ui,/Rappresenti questa azienda\?|>Censita</);
   assert.match(ui,/const rfqSelection=networkRfqSelectionEnabled\(\);/);
   assert.match(ui,/selectable=\{rfqSelection&&accessMode==="pro"&&isRfqReachable\(/);
   assert.match(ui,/form="network-rfq-selection" name="supplier"/);

@@ -14,7 +14,7 @@ const db=read("../../../supabase/migrations/20261017160000_netconnect1_purposefu
 const routes=read("../lib/routes.ts");
 
 test("NET-CONNECT1: navigation is professional and has no social follow/save feeds",()=>{
- assert.match(shell,/label: "Esplora aziende"/);
+ assert.match(shell,/label: "Cerca aziende"/);
  assert.match(shell,/label: "Connessioni"/);
  const networkMenu=shell.slice(shell.indexOf("const networkNav:"),shell.indexOf("const marketplaceNav:"));
  assert.doesNotMatch(networkMenu,/label: "Salvate"|label: "Seguite"|label: "Attività"/);
@@ -44,7 +44,7 @@ test("NET-CONNECT1: recipient must be real and reachable, no fake delivery for p
  assert.match(compose,/profile\.company\.discovery_status==="unconfirmed"/);
  assert.match(compose,/status!=="available"/);
  assert.match(profile,/inquiryEligible && canInteract/);
- assert.match(profile,/Richiedi connessione/);
+ assert.match(profile,/>\n\s*Connetti\n\s*<\/Link>/); // NET-UX LOT1: CTA renamed
  assert.match(free,/status==="available"&&canConnect/);
  assert.match(free,/Questa azienda non è ancora attiva sulla piattaforma: non è possibile inviare richieste/);
  assert.match(db,/private\.netux11_require_active_company/);

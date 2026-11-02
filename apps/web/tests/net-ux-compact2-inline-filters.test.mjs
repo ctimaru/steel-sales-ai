@@ -21,7 +21,7 @@ test("COMPACT2 keeps technical filters inside the same compact page",()=>{
  assert.match(geo,/Paese/);
  assert.match(geo,/Regione/);
  assert.match(ui,/Azzera/);
- assert.match(ui,/Modalità \{accessMode===/);
+ assert.match(ui,/\{accessMode==="pro"\?"Pro":"Free"\}/); // NET-UX LOT1
  assert.doesNotMatch(ui,/Filtri tecnici: prodotto, capability, mercato e paese/);
  assert.match(pro,/const needsTechnicalFinder=Boolean\(params.advanced==="1"\|\|params.province\|\|params.city\)/);
 });

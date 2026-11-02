@@ -56,9 +56,9 @@ test("COMPACT3.4 desktop header and rows use one column contract; mobile remains
   assert.match(page,/const COMPANY_COLUMNS=/);
   const n=(page.match(/\+COMPANY_COLUMNS/g)||[]).length;
   assert.equal(n,2,"header and rows must share the same columns");
-  assert.match(page,/lg:grid-cols-\[minmax\(210px/);
+  assert.match(page,/lg:grid-cols-\[minmax\(240px/); // NET-UX LOT1: Azienda · Ruolo · Località · Contatto
   assert.match(page,/grid-cols-\[minmax\(0,1fr\)_auto\]/);
-  assert.match(page,/xl:grid-cols-5/);
+  assert.match(page,/lg:grid-cols-\[280px_minmax\(0,1fr\)\]/); // NET-UX LOT1: filters in a left column
   assert.match(page,/w-full min-w-0 rounded-lg border/);
   assert.match(page,/aria-label="Pagina successiva"/);
   assert.match(page,/min-h-10 w-full/);

@@ -90,9 +90,10 @@ test("NET-AUDIT1.2 labels come from published facilities of the exact page compa
 });
 
 test("NET-AUDIT1.2 capability cell shows two labels, a +N overflow and a neutral empty state",()=>{
-  assert.match(ui,/data-testid="network-compact-capabilities"/);
+  // NET-UX LOT1: products and capabilities share one line under the name, with a +N overflow.
+  assert.match(ui,/data-testid="network-row-offer"/);
   assert.match(ui,/capabilities\.slice\(0,2\)/);
-  assert.match(ui,/\+\{capabilities\.length-2\}/);
-  assert.match(ui,/Nessuna capability pubblicata/);
+  assert.match(ui,/\+\{moreOffer\}/);
+  assert.match(ui,/Offerta non indicata/);
   assert.doesNotMatch(ui,/>Non indicate</);
 });

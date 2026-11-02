@@ -8,11 +8,10 @@ const geo=readFileSync(new URL("../components/network-country-region-filters.tsx
 
 test("COMPACT5 keeps the dashboard summary compact and free of filler metrics",()=>{
   assert.match(page,/aria-label="Statistiche Network"/);
-  assert.match(page,/flex flex-wrap items-center gap-x-5 gap-y-1/);
+  // NET-UX LOT1: one inline line next to the title instead of a stats box.
   assert.doesNotMatch(page,/label:"Ruoli nella filiera"/);
-  assert.match(page,/Aziende nel Network/);
-  assert.match(page,/Profili pubblicati/);
-  assert.match(page,/Aziende censite/);
+  assert.match(page,/profili pubblicati/);
+  assert.match(page,/censite da fonti pubbliche/);
 });
 
 test("COMPACT5 places the region within the single filter form instead of a separate disclosure",()=>{
@@ -20,7 +19,7 @@ test("COMPACT5 places the region within the single filter form instead of a sepa
   assert.equal((geo.match(/name="region"/g)||[]).length,1);
   assert.match(geo,/name="region" aria-label="Regione"/);
   assert.match(geo,/Tutte le regioni/);
-  assert.match(page,/xl:grid-cols-5/);
+  assert.match(page,/className="grid grid-cols-1 gap-3"/); // NET-UX LOT1: one column in the filter pane
   assert.match(page,/Applica filtri/);
   assert.doesNotMatch(page,/open=\{Boolean\(filters.region\)\}/);
   // Preserve search query, role and persona when submitting all five facets.
@@ -32,9 +31,9 @@ test("COMPACT5 places the region within the single filter form instead of a sepa
 test("EUROPE1B preserves COMPACT5 optional map and desktop location",()=>{
   assert.match(page,/data-testid="network-compact-mobile-map"/);
   assert.match(page,/<details className="rounded-xl border/);
-  assert.match(page,/Mappa interattiva dell'Unione europea/);
-  assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,2);
-  assert.match(page,/lg:hidden/);
+  // NET-UX LOT1: one map, collapsed inside the filter pane on every screen size.
+  assert.match(page,/Mappa dei Paesi UE/);
+  assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,1);
   assert.match(page,/hidden min-w-0 lg:block/);
   assert.match(page,/aria-label="Ricerca e filtri delle aziende"/);
 });
@@ -43,9 +42,9 @@ test("COMPACT5 leaves the core conversion and trust boundaries unchanged",()=>{
   assert.match(page,/ui-action-primary/);
   assert.match(page,/ui-action-secondary/);
   assert.match(page,/Località indicativa/);
-  assert.match(page,/Fonte località ↗/);
-  assert.match(page,/Esplora azienda/);
-  assert.match(page,/Modalità \{accessMode===/);
+  assert.match(page,/Fonte ↗/);
+  assert.match(page,/>\s*Connetti\s*</);
+  assert.match(page,/\{accessMode==="pro"\?"Pro":"Free"\}/);
   assert.match(live,/window\.setTimeout\(\(\)=>navigate\(draft\),350\)/);
   assert.match(live,/router\.replace\(href,\{scroll:false\}\)/);
 });

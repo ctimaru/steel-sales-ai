@@ -22,7 +22,7 @@ export async function FreeNetworkProfileView({
       <FocusPage className="max-w-6xl">
         <h1 className="text-xl font-semibold text-[#173f35]">Profilo non disponibile</h1>
         <p className="mt-2 text-sm text-[#52615b]">Verifica l'attivazione della tua azienda oppure riprova.</p>
-        <Link href="/network" className="mt-4 inline-block text-sm font-semibold text-[#173f35] underline">Torna a Esplora aziende</Link>
+        <Link href="/network" className="mt-4 inline-block text-sm font-semibold text-[#173f35] underline">Torna alla ricerca</Link>
       </FocusPage>
     );
   }
@@ -36,7 +36,7 @@ export async function FreeNetworkProfileView({
   const canConnect=canInteractWithNetwork((await getWorkspaceContext()).role);
   return (
     <FocusPage className="max-w-[960px]">
-      <Link href="/network" className="text-sm font-semibold text-[#173f35] underline">← Torna a Esplora aziende</Link>
+      <Link href="/network" className="text-sm font-semibold text-[#173f35] underline">← Torna alla ricerca</Link>
       <section className="mt-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <div className="flex min-w-0 items-start gap-4 sm:gap-5">
           <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#dce2df] bg-[#edf5f2] text-xl font-bold text-[#173f35] sm:h-20 sm:w-20">
@@ -51,7 +51,7 @@ export async function FreeNetworkProfileView({
         <section aria-label="Connessione aziendale" className="mt-5 rounded-2xl border border-[#bcd7c8] bg-[#f1f8f3] p-4 sm:p-5">
           <h2 className="text-base font-semibold text-[#173f35]">Entra in contatto con questa azienda</h2>
           {status==="available"&&canConnect ? <Link href={"/network/"+companyId+"/connect"}
-            className="app-primary mt-3 inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold">Richiedi connessione →</Link>
+            className="app-primary mt-3 inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold">Connetti →</Link>
           : <p className="mt-2 text-sm leading-6 text-[#52615b]">
             {status==="pending" ? <Link className="font-semibold text-[#176647] underline" href="/network/connections?box=sent">Richiesta inviata · In attesa di risposta →</Link> :
              status==="connected" ? <Link className="font-semibold text-[#176647] underline" href="/network/connections?box=sent">Connessione attiva · Apri richieste →</Link> :

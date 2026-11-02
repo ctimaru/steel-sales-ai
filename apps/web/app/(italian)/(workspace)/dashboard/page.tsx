@@ -424,17 +424,12 @@ export default async function DashboardPage({
             </section>
           ) : null}
 
-          {networkEntitled && (received.total > 0 || activity.unread > 0) ? (
+          {networkEntitled && received.total > 0 ? (
             <section aria-label="Dalla tua rete" className="rounded-2xl border border-[#dce5df] bg-white p-4">
               <h2 className="text-sm font-semibold text-[#173f35]">Dalla tua rete</h2>
               {received.total > 0 ? (
                 <Link href={appRoutes.network.inquiries + "?box=received"} className="mt-3 flex min-h-10 items-center justify-between gap-2 text-xs font-medium text-[#175640] underline underline-offset-4">
-                  Inquiry ricevute <span className="tabular-nums">{received.total} →</span>
-                </Link>
-              ) : null}
-              {activity.unread > 0 ? (
-                <Link href={appRoutes.network.activity + "?unread=1"} className="mt-2 flex min-h-10 items-center justify-between gap-2 text-xs font-medium text-[#175640] underline underline-offset-4">
-                  Aggiornamenti dalle aziende seguite <span className="tabular-nums">{activity.unread} →</span>
+                  Richieste ricevute <span className="tabular-nums">{received.total} →</span>
                 </Link>
               ) : null}
             </section>

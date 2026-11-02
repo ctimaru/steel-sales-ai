@@ -43,7 +43,8 @@ test("P4.8 telemetry contract includes Network interaction events only through t
 test("P4.8 instruments the interaction funnel without inquiry content", () => {
   assert.match(directory, /network_directory_viewed/);
   assert.match(profile, /network_profile_viewed/);
-  assert.match(activity, /network_activity_feed_opened/);
+  // NET-UX LOT1: the activity feed page is retired; the event type stays declared.
+  assert.match(activity, /redirect\("\/network"\)/);
   assert.match(actions, /network_saved_created/);
   assert.match(actions, /network_follow_created/);
   assert.match(actions, /network_inquiry_submitted/);

@@ -46,14 +46,14 @@ test("P3.7F gives the profiles commercially useful industrial depth", () => {
 });
 
 test("P3.7F moves buyer-relevant information above governance metrics", () => {
-  assert.match(profile, /Sintesi commerciale/);
-  assert.match(profile, /Quello che serve sapere a colpo d'occhio/);
+  assert.match(profile, /In sintesi/); // NET-UX LOT1
+  assert.match(profile, /Chi è e cosa offre/);
   assert.match(profile, /Norme e materiali/);
   assert.match(profile, /Servizi e mercati/);
   assert.match(profile, /Ambito tecnico/);
 
   const products = profile.indexOf('eyebrow="Prodotti"');
-  const positioning = profile.indexOf('eyebrow="Industrial positioning"');
+  const positioning = profile.indexOf('eyebrow="Filiera"');
   assert.ok(products >= 0 && positioning >= 0 && products < positioning);
 });
 
@@ -61,7 +61,8 @@ test("P3.7F groups repeated product relations into one commercial product card",
   assert.match(profile, /productGroupMap/);
   assert.match(profile, /Array\.from\(productGroupMap\.values\(\)\)/);
   assert.match(profile, /product\.relationships\.map/);
-  assert.match(profile, /famiglie · \{profile\.products\.length\} relazioni commerciali/);
+  // NET-UX LOT1: the zero-heavy stats strip is gone; empty sections are summarised once.
+  assert.match(profile, /data-testid="network-profile-missing-sections"/);
 });
 
 test("P3.7F keeps public-source, company-declared and verified evidence distinct", () => {

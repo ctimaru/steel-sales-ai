@@ -80,7 +80,7 @@ test("DASH-FEED5 keeps org and entitlements at the data boundary", () => {
   assert.match(dashboard, /networkEntitled\s*\?\s*getNetworkActivityFeed/);
   assert.match(dashboard, /getMarketplaceFeed\(context\.organizationId, \{ limit: 10, offset: 0 \}\)/);
   assert.match(marketplaceModule, /p5_2_marketplace_feed/);
-  assert.match(panel, /networkEnabled && networkEntitled\s*\?\s*selectDashboardFollowedUpdates\(activity, 2\)\s*:\s*\[\]/);
+  assert.doesNotMatch(panel, /selectDashboardFollowedUpdates/); // NET-UX LOT1: followed-company updates removed (Connetti only)
   assert.match(panel, /marketplace\?\.contract === "P5\.2-feed-v1"/);
   assert.match(dashboard, /activity=\{activity\.items\}/);
 });
@@ -90,7 +90,7 @@ test("DASH-FEED5 prioritizes the compact discovery above Steel Pulse while retai
   const discovery = dashboard.indexOf("<DashboardDiscoveryFeed");
   assert.ok(pulse > 0 && discovery > 0 && discovery < pulse);
   assert.match(panel, /appRoutes\.marketplace\.opportunity\(item\.id\)/);
-  assert.match(panel, /appRoutes\.network\.company\(item\.companyId\)/);
+  assert.match(panel, /appRoutes\.network\.company\(company\.id\)/);
   assert.match(panel, /Le RFQ private e i dettagli riservati non compaiono/);
   assert.match(panel, /Il Marketplace non è disponibile/);
   assert.doesNotMatch(model + panel, /rfqh10_|getMyMarketplaceRequests|getMarketplaceUnlockedDetail|p5_1_my_request\b|service_role|inquiry\.body/);
@@ -106,5 +106,5 @@ test("DASH-FEED5 requires verified role for Network and caps cards", () => {
   }));
   assert.equal(selectDashboardFollowedUpdates(updates).length,3);
   assert.equal(selectDashboardFollowedUpdates(updates, 50).length,6);
-  assert.match(panel, /networkEnabled && networkEntitled/);
+  assert.match(panel, /networkEnabled \? \(/); // NET-UX LOT1: followed-company updates removed (Connetti only)
 });

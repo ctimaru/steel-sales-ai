@@ -109,8 +109,8 @@ test("DASH-FEED3 save/read actions return to allowlisted /dashboard only", () =>
 
 test("DASH-FEED2 hides informational Network updates from urgency while retaining access", () => {
   assert.match(dashboard, /attentionCount > 0/);
-  assert.match(dashboard, /networkEntitled && \(received\.total > 0 \|\| activity\.unread > 0\)/);
-  assert.match(dashboard, /appRoutes\.network\.activity/);
+  assert.match(dashboard, /networkEntitled && received\.total > 0/); // NET-UX LOT1: followed-company updates removed (Connetti only)
+  assert.doesNotMatch(dashboard, /appRoutes\.network\.activity/);
   assert.match(dashboard, /appRoutes\.network\.inquiries/);
   const attention = dashboard.slice(
     dashboard.indexOf("const attentionItems = ["),

@@ -38,7 +38,7 @@ test("UXF2 turns Network Profile Manager into a progressive editor without remov
     assert.match(profile, new RegExp(label));
   }
   assert.ok((profile.match(/<DenseDisclosure/g) || []).length >= 7);
-  assert.match(profile, /Company Profile Manager · P3\.7B/);
+  assert.match(profile, /Il mio profilo Network/); // NET-UX LOT1
 });
 
 test("UXF2 keeps registration decision primary and makes audit/secondary correction progressive", () => {

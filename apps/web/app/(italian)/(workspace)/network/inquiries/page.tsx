@@ -47,8 +47,8 @@ export default async function NetworkInquiriesPage({
           <Link href="/network" className="text-sm font-semibold text-slate-500 hover:text-slate-950">
             ← Torna al Network
           </Link>
-          <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">P4 · Interaction Layer</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Inquiry</h1>
+          <p className="mt-5 text-xs font-bold uppercase tracking-[0.16em] text-indigo-600">Network</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">Richieste</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
             Interazioni B2B private tra organizzazioni. Non sono messaggi pubblici né segnali di reputazione.
           </p>
