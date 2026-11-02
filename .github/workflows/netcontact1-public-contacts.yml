@@ -41,22 +41,21 @@ jobs:
       - name: Install bounded worker dependencies
         working-directory: services/worker
         run: python -m pip install -e .
-      - name: Check secure runtime configuration
+      - name: Verify dedicated crawler connection
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
         run: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
-            echo "::error::Missing worker-only Supabase secrets; no writes performed"
-            exit 1
-          fi
+          test "$CRAWL_IT65B_SUPABASE_URL" = "https://ecrafjdummcdfycznitx.supabase.co" || { echo "::error::Crawler project not configured; no writes performed"; exit 1; }
+          case "$CRAWL_IT65B_SUPABASE_SECRET_KEY" in sb_secret_*) ;; *) echo "::error::Dedicated crawler key missing; no writes performed"; exit 1;; esac
+          echo "::add-mask::$CRAWL_IT65B_SUPABASE_SECRET_KEY"
       - name: Collect company channels from exact-domain pages
         working-directory: services/worker
         env:
           PERSIST: ${{ inputs.persist_pending_review }}
           MAX_SITES: ${{ inputs.max_sites }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
         run: |
           set -euo pipefail
           if [ "$PERSIST" = "true" ]; then
