@@ -5,6 +5,8 @@ import { cache } from "react";
 
 import { SchoolHero } from "@/components/school-ui";
 import { SchoolReadingIndex } from "@/components/school-reading-index";
+import { SchoolContent1Panel } from "@/components/school-content1-panel";
+import { getSchoolContent1Guide } from "@/lib/school-content1-guides.mjs";
 
 import {
   applicationCategoryLabel,
@@ -81,6 +83,7 @@ export default async function StandardDetailPage({
   const { slug } = await params;
   const standard = await loadStandard(slug);
   if (!standard) notFound();
+  const practicalGuide = getSchoolContent1Guide("standard", standard.slug);
 
   const articleJsonLd = {
     "@context": "https://schema.org",
@@ -194,6 +197,7 @@ export default async function StandardDetailPage({
         <SchoolReadingIndex locale="it" entries={[
           { id: "standard-reading-main", label: "Ambito della norma" },
           ...standard.editorial_sections.map((section, index) => ({ id: `standard-reading-section-${index + 1}`, label: section.heading })),
+          ...(practicalGuide ? [{ id: "school-practical-guide", label: "Dalla scheda alla pratica" }] : []),
         ]} />
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -255,6 +259,8 @@ export default async function StandardDetailPage({
             <p className="mt-3 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">{section.body}</p>
           </section>
         ))}
+
+        {practicalGuide ? <SchoolContent1Panel guide={practicalGuide} /> : null}
 
         {standard.related_standard_pages.length ? (
           <section className="rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
