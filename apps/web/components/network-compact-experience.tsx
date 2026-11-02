@@ -80,7 +80,7 @@ function DisabledConnect({name,emailReachable}:{name:string;emailReachable?:bool
   return <span className="relative z-10 flex flex-col items-end gap-0.5">
     <span role="button" aria-disabled="true" tabIndex={0} data-testid="network-row-connect-disabled"
       aria-label={"Connetti con "+name+": non ancora disponibile"} title={CONNECT_UNAVAILABLE_HINT}
-      className="inline-flex min-h-10 cursor-not-allowed select-none items-center justify-center rounded-lg border border-[#d7e3dc] bg-[#f3f6f4] px-3 text-xs font-semibold text-[#7d8c85]">
+      className="inline-flex min-h-10 cursor-not-allowed select-none items-center justify-center rounded-lg border border-[#d7e3dc] bg-[#f3f6f4] px-3 text-xs font-semibold text-[#52615b]">
       Connetti
     </span>
     <span className="text-[10px] leading-3 text-[#52615b]">

@@ -389,7 +389,7 @@ export default async function NetworkCompanyProfilePage({
               {!inquiryEligible && canInteract && inquiryReason !== "self_inquiry" ? (
                 <span role="button" aria-disabled="true" tabIndex={0} data-testid="network-profile-connect-disabled"
                   aria-describedby="network-connect-unavailable" title="Connetti sarà disponibile quando l’azienda sarà attiva sulla piattaforma"
-                  className="inline-flex min-h-11 w-full cursor-not-allowed select-none items-center justify-center rounded-xl border border-[#d7e3dc] bg-[#f3f6f4] px-4 text-sm font-semibold text-[#7d8c85]">
+                  className="inline-flex min-h-11 w-full cursor-not-allowed select-none items-center justify-center rounded-xl border border-[#d7e3dc] bg-[#f3f6f4] px-4 text-sm font-semibold text-[#52615b]">
                   Connetti
                 </span>
               ) : null}
