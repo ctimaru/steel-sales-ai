@@ -26,7 +26,9 @@ test("SCHOOL-CONTENT1.C — four authored comparisons with official reference co
     assert.ok(guide.links.length >= 1);
     for (const row of guide.rows) {
       assert.ok(row.label.length > 2);
-      assert.ok(row.left.length > 25);
+      // EN 10204 document names such as "Rapporto di prova." are
+      // deliberately concise. Assert meaningful labels, not paragraph length.
+      assert.ok(row.left.length > 10);
       assert.ok(row.right.length > 25);
     }
     for (const source of guide.sources) {
