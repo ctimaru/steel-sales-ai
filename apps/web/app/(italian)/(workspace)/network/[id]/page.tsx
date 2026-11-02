@@ -523,6 +523,7 @@ export default async function NetworkCompanyProfilePage({
             )}
           </div>
 
+          {capabilities.length || profile.markets.length || locationLabels.length ? (
           <div className="rounded-2xl border border-[#dfe7f1] bg-white p-4">
             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#52615b]">Servizi e mercati</p>
             <div className="mt-2 flex flex-wrap gap-1.5">
@@ -541,6 +542,7 @@ export default async function NetworkCompanyProfilePage({
               <p className="mt-3 text-xs leading-5 text-[#52615b]">{locationLabels.join(" · ")}</p>
             ) : null}
           </div>
+          ) : null}
         </div>
       </section>
 
