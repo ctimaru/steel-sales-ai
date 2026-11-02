@@ -49,12 +49,13 @@ test("NET-AUDIT1.3 only available or connected companies are selectable",()=>{
 
 test("NET-AUDIT1.3 list: readiness badges, claim link, selection behind a flag, Pro only",()=>{
   assert.match(listing,/getNetworkRecipientReadiness\(organizationId,ids\)/);
+  // NET-CONTACT1: selection also accepts email-reachable companies (isRfqReachable).
   assert.match(listing,/\.catch\(\(\)=>undefined\)/);
   assert.match(ui,/available:"Attiva · contattabile",connected:"Connessa",pending:"Richiesta in corso",unavailable:"Censita"/);
   assert.match(ui,/Rappresenti questa azienda\?/);
   assert.match(ui,/company\.claimed_status==="unclaimed"&&!company\.discovery_status/);
   assert.match(ui,/const rfqSelection=networkRfqSelectionEnabled\(\);/);
-  assert.match(ui,/selectable=\{rfqSelection&&accessMode==="pro"&&isRfqSelectable\(/);
+  assert.match(ui,/selectable=\{rfqSelection&&accessMode==="pro"&&isRfqReachable\(/);
   assert.match(ui,/form="network-rfq-selection" name="supplier"/);
   // NET-AUDIT1.3b: on by default now that the receiver exists; "false" is the emergency switch.
   assert.match(read("../lib/network-rfq-supplier-handoff.ts"),/NEXT_PUBLIC_NETAUDIT1_RFQ_SELECTION!=="false"/);

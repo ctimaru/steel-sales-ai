@@ -8,7 +8,8 @@
  *   - carries only Network company IDs (UUID) and an optional spec summary:
  *     no names, contacts, prices or free text that could be trusted blindly;
  *   - at most 20 suppliers, only companies the readiness RPC reported as
- *     "available" or "connected" when selected;
+ *     "available" or "connected", or (NET-CONTACT1) reachable by a published
+ *     company email, when selected;
  *   - the receiver MUST revalidate every ID server-side (RLS, entitlement,
  *     readiness) and show the list for explicit confirmation: nothing is
  *     created or sent automatically.
@@ -67,6 +68,13 @@ export function parseNetworkRfqHandoff(raw:string|null,now=Date.now()):NetworkRf
 /** Only these readiness states can be selected for an RFQ. */
 export function isRfqSelectable(status:string|undefined):boolean{
   return status==="available"||status==="connected";
+}
+
+/** NET-CONTACT1 (founder decision 2026-11-02): a company is also selectable
+ * when it can receive the RFQ by email through a published, LR4-reviewed
+ * company channel ("email" from netcontact1_rfq_reachability). */
+export function isRfqReachable(status:string|undefined,channel:string|undefined):boolean{
+  return isRfqSelectable(status)||channel==="platform"||channel==="email";
 }
 
 export const NETWORK_RFQ_RECEIVER_PATH="/rfq-hub?from=network#network-suppliers";

@@ -322,6 +322,7 @@ jobs:
             hp8_team_invitations_role_onboarding.sql \
             netgrowth2c1_identity_evidence_queue.sql \
             netaudit1_1_spec_search.sql \
+            netcontact1_public_company_channels.sql \
             hp13_permissions_tenant_isolation.sql \
             trader1d3b2_live_source_intelligence.sql \
             hp18_production_journey_acceptance.sql \

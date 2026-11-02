@@ -4,7 +4,8 @@ import { revalidatePath } from "next/cache";
 
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { getNetworkRecipientReadiness, type RecipientReadinessStatus } from "@/lib/network-recipient-readiness";
-import { isRfqSelectable, NETWORK_RFQ_HANDOFF_MAX_SUPPLIERS } from "@/lib/network-rfq-supplier-handoff";
+import { isRfqReachable, NETWORK_RFQ_HANDOFF_MAX_SUPPLIERS } from "@/lib/network-rfq-supplier-handoff";
+import { getNetworkRfqReachability, type RfqChannel } from "@/lib/network-rfq-reachability";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
@@ -19,6 +20,8 @@ import { addSupplierToBuyerRfq } from "./actions";
  * Suppliers are added only on an explicit click, one by one through the
  * existing rfqh2_add_supplier path (identity, contact and dedupe resolved in
  * SQL). Nothing is launched or sent.
+ * NET-CONTACT1: companies reachable through a published, LR4-reviewed company
+ * email are accepted too ("email"); the address is resolved only in SQL.
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const OPEN_STATUSES = ["draft", "ready"] as const;
@@ -27,6 +30,7 @@ export type HandoffSupplier = {
   id: string;
   name: string | null;
   status: RecipientReadinessStatus | "not_found";
+  channel: RfqChannel;
   selectable: boolean;
 };
 export type HandoffTarget = { id: string; title: string; status: string };
@@ -52,13 +56,16 @@ async function resolveSuppliers(organizationId: string, ids: string[]): Promise<
       .in("id", ids).eq("publication_status", "published").is("archived_at", null),
     getNetworkRecipientReadiness(organizationId, ids).catch(() => new Map<string, RecipientReadinessStatus>()),
   ]);
+  const channels = await getNetworkRfqReachability(organizationId, ids, readiness)
+    .catch(() => new Map<string, RfqChannel>());
   type CompanyRow = { id: string; legal_name: string | null; trading_name: string | null };
   const byId = new Map<string, string>(((companies ?? []) as CompanyRow[])
     .map((row) => [row.id, row.trading_name || row.legal_name || ""]));
   return ids.map((id) => {
     const name = byId.get(id) || null;
     const status: HandoffSupplier["status"] = name ? (readiness.get(id) ?? "unavailable") : "not_found";
-    return { id, name, status, selectable: Boolean(name) && isRfqSelectable(status) };
+    const channel: RfqChannel = name ? (channels.get(id) ?? "none") : "none";
+    return { id, name, status, channel, selectable: Boolean(name) && isRfqReachable(status, channel) };
   });
 }
 

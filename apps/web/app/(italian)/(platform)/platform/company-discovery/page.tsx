@@ -126,6 +126,14 @@ export default async function CompanyDiscoveryPage({
             </Link>
             {access?.is_platform_owner ? (
               <Link
+                href="/platform/company-discovery/contacts"
+                className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
+              >
+                Contatti aziendali pubblici
+              </Link>
+            ) : null}
+            {access?.is_platform_owner ? (
+              <Link
                 href="/network"
                 className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
               >
