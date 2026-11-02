@@ -27,6 +27,8 @@ select pg_temp.nc1_ok(not has_function_privilege('anon','public.netcontact1_stag
 select pg_temp.nc1_ok(not has_function_privilege('authenticated','public.netcontact1_stage_company_channel(uuid,text,text,text)','EXECUTE'),'browsers cannot stage');
 select pg_temp.nc1_ok(has_function_privilege('service_role','public.netcontact1_stage_company_channel(uuid,text,text,text)','EXECUTE'),'worker may stage');
 select pg_temp.nc1_ok(not has_function_privilege('authenticated','public.netcontact1_next_batch(integer)','EXECUTE'),'browsers cannot read the crawl queue');
+select pg_temp.nc1_ok(not has_function_privilege('authenticated','public.netcontact1_record_attempt(uuid,text)','EXECUTE'),'browsers cannot record attempts');
+select pg_temp.nc1_ok(not has_table_privilege('authenticated','private.netcontact1_crawl_attempts','SELECT'),'attempt ledger closed to browsers');
 select pg_temp.nc1_ok(not has_function_privilege('anon','public.netcontact1_approve_company_channels(uuid[])','EXECUTE'),'anon cannot approve');
 select pg_temp.nc1_ok(not has_function_privilege('anon','public.netcontact1_rfq_reachability(uuid,uuid[])','EXECUTE'),'anon cannot read reachability');
 select pg_temp.nc1_ok(position('network.privacy_governance_review' in
@@ -99,12 +101,23 @@ begin
   q:=public.netcontact1_next_batch(25);
   perform pg_temp.nc1_ok(not exists(select 1 from jsonb_array_elements(q->'items') i where (i->>'company_id')::uuid=morandi),
     'company with a pending channel leaves the queue');
+
+  -- NET-CONTACT1B: a company visited without result leaves the queue for 30 days.
+  q:=public.netcontact1_next_batch(1);
+  if jsonb_array_length(q->'items')=1 then
+    r:=public.netcontact1_record_attempt((q->'items'->0->>'company_id')::uuid,'no_company_channel');
+    perform pg_temp.nc1_ok(r->>'status'='recorded','attempt recorded');
+    perform pg_temp.nc1_ok(not exists(select 1 from jsonb_array_elements(public.netcontact1_next_batch(25)->'items') i
+      where i->>'company_id'=q->'items'->0->>'company_id'),'attempted company skipped');
+  end if;
 end
 $t$;
 select pg_temp.nc1_raises($s$select public.netcontact1_stage_company_channel('51100000-0000-5000-8000-000000000005'::uuid,'info@morandispa.it',null,'https://example.com/contatti')$s$,
   '22023','source outside the company site refused');
 select pg_temp.nc1_raises($s$select public.netcontact1_stage_company_channel('51100000-0000-5000-8000-000000000005'::uuid,'info@morandispa.it',null,'http://www.morandispa.it/')$s$,
   '22023','non-https source refused');
+select pg_temp.nc1_raises($s$select public.netcontact1_record_attempt('51100000-0000-5000-8000-000000000005'::uuid,'whatever')$s$,
+  '22023','invalid outcome refused');
 reset role;
 
 -- Nothing staged is visible or RFQ-usable before review.
