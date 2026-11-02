@@ -6,7 +6,7 @@ import { cache } from "react";
 import { SchoolHero } from "@/components/school-ui";
 import { SchoolReadingIndex } from "@/components/school-reading-index";
 import { SchoolContent1Panel } from "@/components/school-content1-panel";
-import { getSchoolContent1Guide } from "@/lib/school-content1-guides.mjs";
+import { getSchoolContent1Guide, SCHOOL_CONTENT1_REVIEW_DATE } from "@/lib/school-content1-guides.mjs";
 
 import {
   applicationCategoryLabel,
@@ -45,6 +45,7 @@ export async function generateMetadata({
     };
   }
 
+  const contentGuide = getSchoolContent1Guide("standard", standard.slug);
   const seoTitle = standard.slug === "en-10219"
     ? "EN 10219: profili cavi a freddo"
     : standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, "");
@@ -70,7 +71,7 @@ export async function generateMetadata({
       url: absoluteUrl(`/knowledge/norme/${standard.slug}`),
       type: "article",
       publishedTime: standard.published_at,
-      modifiedTime: `${standard.last_reviewed_at}T00:00:00Z`,
+      modifiedTime: `${contentGuide ? SCHOOL_CONTENT1_REVIEW_DATE : standard.last_reviewed_at}T00:00:00Z`,
     },
   };
 }
@@ -91,13 +92,16 @@ export default async function StandardDetailPage({
     headline: standard.seo_title.replace(/ · (?:Steel Knowledge|Scuola).*$/i, ""),
     description: standard.seo_description,
     datePublished: standard.published_at,
-    dateModified: standard.last_reviewed_at,
+    dateModified: practicalGuide ? SCHOOL_CONTENT1_REVIEW_DATE : standard.last_reviewed_at,
     mainEntityOfPage: absoluteUrl(`/knowledge/norme/${standard.slug}`),
     author: {
       "@type": "Organization",
       name: "Smart Steel Sales",
     },
-    citation: standard.source_references.map((source) => source.url),
+    citation: Array.from(new Set([
+      ...standard.source_references.map((source) => source.url),
+      ...(practicalGuide?.sources.map((source) => source.url) ?? []),
+    ])),
   };
 
   const breadcrumbJsonLd = {
