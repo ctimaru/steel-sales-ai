@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { PilotEvent } from "@/components/pilot-event";
+import { RfqNetworkSupplierReceiver } from "@/components/rfq-network-supplier-receiver";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
 import {
@@ -125,6 +126,9 @@ export default async function BuyerRfqHubPage() {
           </Link>
         ) : <span className="rounded-lg bg-[var(--surface-subtle)] px-3 py-2 text-xs font-semibold text-[var(--text-secondary)]">Consultazione</span>}
       </header>
+
+      {/* NET-AUDIT1.3b: suppliers chosen in the Network (renders only when a valid handoff exists). */}
+      <RfqNetworkSupplierReceiver userId={context.userId} organizationId={organizationId} />
 
       {problems ? (
         <p role="status" className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">

@@ -63,6 +63,11 @@ export function extractNetworkSpecIntent(raw:string):NetworkSpecIntent{
     rfqDetails.push(`lunghezza ${match[1]} mm`);
   });
 
+  // NET-AUDIT1.1b: "a stock" narrows to declared stock (never a quantity).
+  take(/\b(?:a|in|da|en)\s+stock\b|\ba\s+magazzino\b|\bpronta\s+consegna\b|\bab\s+lager\b|\blagerware\b/i,()=>{
+    spec.stock=true;
+  });
+
   // Shape words.
   let shape:NetworkSpecShape|undefined;
   if(/\b(quadr\w*|square|quadrat\w*|carr[ée]s?)\b/i.test(text))shape="square";
@@ -86,9 +91,12 @@ export function extractNetworkSpecIntent(raw:string):NetworkSpecIntent{
       spec.side=spec.side??valid(a,5000);
       spec.wt=spec.wt??valid(c,500);
       shape=shape??(a===b?"square":"rectangular");
+      // NET-AUDIT1.1b: a rectangle keeps both sides ("120x80x5").
+      if(shape==="rectangular"&&a!==b)spec.side2=spec.side2??valid(b,5000);
     }else if(shape==="square"||shape==="rectangular"){
       spec.side=spec.side??valid(a,5000);
       if(shape==="square")spec.wt=spec.wt??valid(b,500);
+      else spec.side2=spec.side2??valid(b,5000);
     }else{
       spec.od=spec.od??valid(a,5000);
       spec.wt=spec.wt??valid(b,500);
@@ -97,12 +105,14 @@ export function extractNetworkSpecIntent(raw:string):NetworkSpecIntent{
   });
 
   if(shape)spec.shape=shape;
-  if(spec.shape==="round")delete spec.side;
+  if(spec.shape==="round"){delete spec.side;delete spec.side2;}
   if(spec.shape==="square"||spec.shape==="rectangular")delete spec.od;
+  if(spec.shape!=="rectangular"||spec.side===undefined)delete spec.side2;
   for(const key of Object.keys(spec) as (keyof NetworkSpecFilters)[]){
     if(spec[key]===undefined)delete spec[key];
   }
-  const notApplied=NOT_APPLIED.filter(([pattern])=>pattern.test(raw)).map(([,label])=>label);
+  // Checked on the residual text, so a consumed phrase ("pronta consegna" = stock) is not reported twice.
+  const notApplied=NOT_APPLIED.filter(([pattern])=>pattern.test(text)).map(([,label])=>label);
   return {spec,rfqDetails,notApplied,remainder:text.replace(/\s+/g," ").trim()};
 }
 

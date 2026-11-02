@@ -3,7 +3,7 @@
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import {getNetworkAccessState} from "@/lib/network-access";
 import {isNetworkFreeReadEnabled,isNetworkFrontendEnabled} from "@/lib/network-flags";
-import {getNetworkTaxonomy,getNetworkGeoFacets} from "@/lib/network";
+import {getNetworkTaxonomy} from "@/lib/network";
 import {EU_MEMBER_COUNTRIES,OTHER_NETWORK_COUNTRIES} from "@/lib/network-eu-countries";
 import {EUROPE_NUTS2024_REGIONS,europeRegionForCountry} from "@/lib/network-eu-regions";
 import {createClient} from "@/lib/supabase/server";
@@ -19,6 +19,7 @@ import {
 import {extractNetworkSpecIntent,describeRfqDetails} from "@/lib/network-spec-intent";
 import {describeSpecFilters,hasSpecCriteria,specFiltersToParams} from "@/lib/network-spec-filters";
 import {getNetworkSpecPage} from "@/lib/network-spec-search";
+import {getCompactNetworkPage} from "@/lib/network-compact-directory";
 import {ITALY_REGIONS} from "@/lib/network-italy-regions";
 
 /** Trusted geographic terms for routing, never company or facility evidence.
@@ -76,10 +77,15 @@ export type NetworkConversationAnswer={
 const errorAnswer=(answer:string):NetworkConversationAnswer=>({
   status:"error",answer,mode:"safe_fallback",
 });
-function responseFor(result:NetworkAiValidated,mode:"rules"|"ai"):NetworkConversationAnswer{
+function responseFor(result:NetworkAiValidated,mode:"rules"|"ai",count?:number|null):NetworkConversationAnswer{
+  const counted=result.intent==="count"&&typeof count==="number";
   return {
     status:"ready",
-    answer:(result.intent==="count"
+    // NET-AUDIT1.4: a count question gets the number, from the same governed list.
+    answer:(counted
+      ?(count===1?"Nel Network c'è 1 azienda":"Nel Network ci sono "+count.toLocaleString("it-IT")+" aziende")+
+        (result.chips.length?" per "+result.chips.join(" · "):"")+"."
+      :result.intent==="count"
       ?"Posso mostrarti il conteggio aggiornato nel Network."
       :"Ho preparato la ricerca delle aziende.")+
       " Controlla i criteri e apri i risultati. "+
@@ -196,11 +202,11 @@ export async function askNetworkConversation(
         "altrimenti riformula usando ruolo, regione e attributi pubblicati.",
     };
   }
-  const [rawTaxonomy,geo]=await Promise.all([
-    getNetworkTaxonomy().catch(()=>({products:[],capabilities:[],markets:[],roles:[]})),
-    getNetworkGeoFacets().catch(()=>({regions:[],cities:[],provinces:[]})),
-  ]);
-  const taxonomy=safeTaxonomy({...rawTaxonomy,regions:geo.regions,...europeanIntentTaxonomy()});
+  const rawTaxonomy=await getNetworkTaxonomy().catch(()=>({products:[],capabilities:[],markets:[],roles:[]}));
+  // NET-AUDIT1.1b: the generic chat uses the same 20-region contract as the
+  // Region filter. Published-facility facets miss regions such as Piemonte,
+  // although the regional filter returns real companies there.
+  const taxonomy=safeTaxonomy({...rawTaxonomy,regions:[...ITALY_REGIONS],...europeanIntentTaxonomy()});
   const previous=normalizePrevious(previousFilters,taxonomy);
   // DATA1B.4: direct industrial evidence discovery from natural language.
   // A tube-use request is NOT the legacy published-only technical product filter:
@@ -231,7 +237,10 @@ export async function askNetworkConversation(
     }
   }
   const rule=fromRules(query,taxonomy);
-  if(rule)return responseFor(mergeNetworkFollowup(rule,previous,query,taxonomy),"rules");
+  if(rule){
+    const merged=mergeNetworkFollowup(rule,previous,query,taxonomy);
+    return responseFor(merged,"rules",await countFor(merged,context.organizationId,access.can_access_network));
+  }
 
   // Provider is deployment opt-in; every call claims a durable per-user and
   // global UTC-day quota. Neither prompts nor voice data are persisted.
@@ -284,7 +293,10 @@ export async function askNetworkConversation(
       };
     }
     const resolved=validateNetworkAIOutput(candidate,query,taxonomy);
-    if(resolved)return responseFor(mergeNetworkFollowup(resolved,previous,query,taxonomy),"ai");
+    if(resolved){
+      const merged=mergeNetworkFollowup(resolved,previous,query,taxonomy);
+      return responseFor(merged,"ai",await countFor(merged,context.organizationId,access.can_access_network));
+    }
     return {status:"clarify",mode:"safe_fallback",
       answer:"La richiesta contiene criteri non verificabili o ambigui. "+
         "Specifica il tipo di azienda, il territorio e gli attributi pubblicati. Non ho applicato filtri parziali."};
@@ -340,5 +352,17 @@ async function answerSpecRequest(
     console.warn("[NETAUDIT1] spec_count_unavailable",{length:query.length});
     return {status:"ready",mode:"safe_fallback",href,chips,filters,technicalOnly:true,rfqHref,
       answer:"Ho preparato la ricerca per "+summary+", ma il conteggio non è disponibile adesso. Apri i risultati per vederli."+notes};
+  }
+}
+
+/** NET-AUDIT1.4: the count shown in the chat is the total of the same list the
+ * "Mostra risultati" link opens (same RLS/entitlement-gated reads). */
+async function countFor(result:NetworkAiValidated,organizationId:string,isPro:boolean):Promise<number|null>{
+  if(result.intent!=="count")return null;
+  try{
+    const page=await getCompactNetworkPage(organizationId,isPro?"pro":"free",{...result.filters});
+    return page.discoveryUnavailable?null:page.total;
+  }catch{
+    return null;
   }
 }

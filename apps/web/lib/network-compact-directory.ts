@@ -8,19 +8,24 @@ import {isSupportedNetworkCountry} from "@/lib/network-eu-countries";
 import {europeRegionForCountry} from "@/lib/network-eu-regions";
 import {getEuropeRegionalSearch} from "@/lib/network-europe-regional";
 import {getPublishedCapabilityLabels} from "@/lib/network-compact-capabilities";
+import {getNetworkRecipientReadiness,type RecipientReadinessStatus} from "@/lib/network-recipient-readiness";
 import {getNetworkSpecPage,type SpecMatch} from "@/lib/network-spec-search";
 import {NETWORK_SPEC_PARAMS,hasSpecCriteria,normalizeSpecFilters,specFiltersToParams,type NetworkSpecFilters} from "@/lib/network-spec-filters";
 
 /** NET-UX COMPACT1: one honest, stable server-side pagination across BOTH feeds.
  * Keep each existing RLS/entitlement-gated source and its original provenance.
- * 6 real companies per page makes first results visible on standard laptop screens.
+ * NET-AUDIT1.4: 18 companies per page (was 6: 85 pages for 510 companies).
+ * 18 is the largest window every source accepts (M6 pages, steel ranking and
+ * Europe search cap at 18; browse/geo/capability/spec reads cap at 24), so
+ * pages align with M6 windows and no new SQL is needed.
  */
-export const COMPACT_NETWORK_PAGE_SIZE=6;
+export const COMPACT_NETWORK_PAGE_SIZE=18;
 export type CompactNetworkFilters={
   q?:string;role?:string;region?:string;persona?:string;np?:string;
   product?:string;capability?:string;market?:string;country?:string;steel?:string;
   // NET-AUDIT1.1 technical spec (URL strings; see lib/network-spec-filters.ts).
   std?:string;grade?:string;shape?:string;od?:string;wt?:string;side?:string;
+  side2?:string;stock?:string;
 };
 export type CompactNetworkPage={
   items:FreeCompany[];total:number;published:number;discovered:number;
@@ -32,6 +37,8 @@ export type CompactNetworkPage={
   specExactTotal?:number;specUndeclaredTotal?:number;specMatches?:Record<string,SpecMatch>;
   /** Filters that cannot be combined with a spec search and were not applied. */
   specIgnored?:("product"|"capability"|"market"|"country")[];
+  /** NET-AUDIT1.3: contactability of each listed company (absent if unavailable). */
+  recipientStatus?:Record<string,RecipientReadinessStatus>;
 };
 /** Normalize URL-originated geographic facets before any Free/Pro data query.
  * Region names here belong to Italy; never combine them with a foreign country.
@@ -85,9 +92,14 @@ export async function getCompactNetworkPage(
   organizationId:string,access:"free"|"pro",filters:CompactNetworkFilters,
 ):Promise<CompactNetworkPage>{
   const page=await buildCompactNetworkPage(organizationId,access,filters);
-  if(page.capabilityLabels)return page;
-  const capabilityLabels=await getPublishedCapabilityLabels(page.items.map(company=>company.id));
-  return {...page,capabilityLabels};
+  const ids=page.items.map(company=>company.id);
+  // NET-AUDIT1.3: same SQL-bound readiness used by connections; never optimistic.
+  const [capabilityLabels,recipientStatus]=await Promise.all([
+    page.capabilityLabels?Promise.resolve(page.capabilityLabels):getPublishedCapabilityLabels(ids),
+    getNetworkRecipientReadiness(organizationId,ids)
+      .then(map=>Object.fromEntries(map) as Record<string,RecipientReadinessStatus>).catch(()=>undefined),
+  ]);
+  return {...page,capabilityLabels,recipientStatus};
 }
 
 async function buildCompactNetworkPage(

@@ -24,7 +24,7 @@ function withoutSpec(filters:CompactNetworkFilters){
 export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFilters;accessMode:"free"|"pro"}){
   const active=NETWORK_SPEC_PARAMS.some(key=>Boolean(filters[key]));
   const locked=accessMode!=="pro";
-  const field=(name:"od"|"wt"|"side",label:string,hint:string)=>
+  const field=(name:"od"|"wt"|"side"|"side2",label:string,hint:string)=>
     <label className="flex min-w-0 flex-col gap-1">
       <span className="text-[11px] font-semibold text-[#315d4a]">{label}</span>
       <input name={name} inputMode="decimal" defaultValue={filters[name]||""} placeholder={hint}
@@ -37,7 +37,7 @@ export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFil
     </summary>
     <form method="get" action="/network" aria-label="Ricerca per specifica tecnica" className="border-t border-[#d9e8e2] px-3 pb-3 pt-2">
       {PRESERVED.map(key=>filters[key]?<input key={key} type="hidden" name={key} value={filters[key]}/>:null)}
-      <div className="grid grid-cols-2 items-end gap-2 md:grid-cols-3 xl:grid-cols-[1.2fr_1fr_1fr_.8fr_.8fr_.8fr]">
+      <div className="grid grid-cols-2 items-end gap-2 md:grid-cols-4 xl:grid-cols-[1.2fr_1fr_1fr_.8fr_.8fr_.8fr_.8fr]">
         <label className="flex min-w-0 flex-col gap-1">
           <span className="text-[11px] font-semibold text-[#315d4a]">Norma</span>
           <input name="std" list="network-spec-standards" defaultValue={filters.std||""} placeholder="es. EN 10219"
@@ -61,7 +61,13 @@ export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFil
         {field("od","Ø esterno (mm)","es. 60,3")}
         {field("wt","Spessore (mm)","es. 3")}
         {field("side","Lato (mm)","es. 100")}
+        {field("side2","2° lato (mm)","solo rettang.")}
       </div>
+      <label className="mt-2 inline-flex min-h-9 items-center gap-2 text-xs font-semibold text-[#315d4a]">
+        <input type="checkbox" name="stock" value="1" defaultChecked={filters.stock==="1"} disabled={locked}
+          className="h-4 w-4 accent-[#175640]"/>
+        Solo chi dichiara di averlo a stock
+      </label>
       <div className="mt-2 flex flex-wrap items-center gap-2">
         <button type="submit" disabled={locked}
           className="ui-action ui-action-primary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60">
@@ -90,6 +96,7 @@ export function SpecMatchLine({match,name}:{match:SpecMatch;name:string}){
     </p>;
   }
   const parts=[
+    ...(match.stock?["a stock"]:[]),
     ...[...new Set(match.standards.map(item=>item.code))],
     ...[...new Set(match.grades.map(item=>item.designation))],
     ...[...new Set(match.dimensions.map(item=>(DIMENSION_LABELS[item.dimension_type]||item.dimension_type)+" "+mm(item.min_mm)+"–"+mm(item.max_mm)+" mm"))],

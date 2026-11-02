@@ -165,7 +165,7 @@ export function NetworkRfqBridge({sourceText,userId,organizationId,canCompose}:{
         {pending?"Analisi tecnica in corso…":"Prepara articoli da rivedere"}
       </button>
       <p className="text-[11px] leading-4 text-[#52615b]">
-        Il testo è inviato al servizio AI soltanto quando premi Analizza.
+        Il testo è inviato al servizio AI soltanto quando premi “Prepara articoli da rivedere”.
         Il microfono richiede il tuo clic e può utilizzare il servizio vocale del browser.
         Nessun audio viene archiviato da Smart Steel Sales.
       </p>

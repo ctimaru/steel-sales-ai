@@ -13,7 +13,8 @@ test("EUROPE1D puts map next to shared filter pane, not next to a giant empty he
   const results=page.indexOf('id="network-results"');
   assert.ok(header>=0&&shell>header&&search>shell&&desktopMap>search&&results>desktopMap);
   assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,2);
-  assert.match(page,/lg:grid-cols-\[minmax\(0,1fr\)_260px\]/);
+  // NET-AUDIT1.4: side column widened to 320px to host the chat above the map.
+  assert.match(page,/lg:grid-cols-\[minmax\(0,1fr\)_320px\]/);
 });
 test("EUROPE1D respects mobile disclosure and visible aligned facet labels",()=>{
   assert.match(page,/data-testid="network-compact-mobile-map"/);

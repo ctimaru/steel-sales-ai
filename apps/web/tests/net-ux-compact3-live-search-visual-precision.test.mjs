@@ -14,8 +14,8 @@ test("COMPACT3.1 auto-search: debounce, keep focus, preserve filters, reset pagi
   assert.match(live,/window\.clearTimeout\(handle\)/);
   assert.match(live,/router\.replace\(href,\{scroll:false\}\)/);
   assert.match(live,/document\.activeElement!==field\.current/);
-  // NET-AUDIT1.1: technical spec parameters are preserved too.
-  assert.match(live,/\["role","region","persona","product","capability","market","country","std","grade","shape","od","wt","side"\]/);
+  // NET-AUDIT1.1/1.1b: technical spec parameters (incl. second side and stock) are preserved too.
+  assert.match(live,/\["role","region","persona","product","capability","market","country","std","grade","shape","od","wt","side","side2","stock"\]/);
   assert.match(live,/\/\/ Reset np to page 1/);
   assert.match(live,/onSubmit=\{submit\}/);
   assert.match(live,/const clear=\(\)=>/);
@@ -58,7 +58,7 @@ test("COMPACT3.4 desktop header and rows use one column contract; mobile remains
   assert.equal(n,2,"header and rows must share the same columns");
   assert.match(page,/lg:grid-cols-\[minmax\(210px/);
   assert.match(page,/grid-cols-\[minmax\(0,1fr\)_auto\]/);
-  assert.match(page,/xl:grid-cols-\[repeat\(5,minmax\(0,1fr\)\)_auto\]/);
+  assert.match(page,/xl:grid-cols-5/);
   assert.match(page,/w-full min-w-0 rounded-lg border/);
   assert.match(page,/aria-label="Pagina successiva"/);
   assert.match(page,/min-h-10 w-full/);

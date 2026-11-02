@@ -80,8 +80,9 @@ test("NET-AUDIT1.2 labels come from published facilities of the exact page compa
   assert.match(capabilitySource,/\.eq\("status","active"\)/);
   assert.doesNotMatch(capabilitySource,/service_role|SERVICE_ROLE|createAdminClient/);
   assert.match(capabilitySource,/catch\{\s*return \{\};/);
-  assert.match(listing,/const capabilityLabels=await getPublishedCapabilityLabels\(page\.items\.map\(company=>company\.id\)\)/);
-  assert.match(listing,/if\(page\.capabilityLabels\)return page;/);
+  // NET-AUDIT1.3 reshaped the wrapper (labels + readiness in parallel); same rule.
+  assert.match(listing,/const ids=page\.items\.map\(company=>company\.id\);/);
+  assert.match(listing,/page\.capabilityLabels\?Promise\.resolve\(page\.capabilityLabels\):getPublishedCapabilityLabels\(ids\)/);
   // The Pro page no longer reads an unrelated 18-row legacy window for labels.
   assert.doesNotMatch(pro,/compactLegacyResults/);
   assert.match(pro,/capabilityLabels=\{compact\.capabilityLabels\}/);

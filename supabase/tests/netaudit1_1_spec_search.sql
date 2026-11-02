@@ -41,8 +41,9 @@ select pg_temp.na11_ok(has_function_privilege('authenticated',
   'authenticated may invoke (guard decides)');
 select pg_temp.na11_ok(not has_function_privilege('authenticated','private.netaudit1_scope_usable(uuid,text)','EXECUTE'),
   'scope usability helper not exposed');
+-- NET-AUDIT1.1b: v1 and v2 share the v2 implementation, which carries the guard.
 select pg_temp.na11_ok(position('pa1_3_require_network_access' in
-  pg_get_functiondef('private.netaudit1_spec_search_impl(uuid,text,text,text,numeric,numeric,numeric,text,text,text,integer,integer)'::regprocedure))>0,
+  pg_get_functiondef('private.netaudit1_spec_search_v2_impl(uuid,text,text,text,numeric,numeric,numeric,text,text,text,integer,integer,numeric,boolean)'::regprocedure))>0,
   'paid Network guard present');
 select pg_temp.na11_ok(not has_table_privilege('authenticated','public.network_company_product_dimension_scopes','SELECT'),
   'scope tables stay closed to browsers');
@@ -137,5 +138,41 @@ select pg_temp.na11_ok(not pg_temp.na11_has(
   public.netaudit1_spec_search('00000000-0000-0000-0000-000000110010'::uuid,null,null,'round',60.3),
   '51100000-0000-5000-8000-000000000005'::uuid,'exact'),
   'rejected scope no longer counts as exact');
+
+-- NET-AUDIT1.1b — v2: rectangular second side and declared "a stock".
+select pg_temp.na11_ok(
+  to_regprocedure('public.netaudit1_spec_search_v2(uuid,text,text,text,numeric,numeric,numeric,text,text,text,integer,integer,numeric,boolean)') is not null,
+  'v2 RPC installed');
+select pg_temp.na11_ok(to_regprocedure('private.netaudit1_spec_search_impl(uuid,text,text,text,numeric,numeric,numeric,text,text,text,integer,integer)') is null,
+  'v1 implementation retired');
+select pg_temp.na11_raises(
+  $s$select public.netaudit1_spec_search_v2('00000000-0000-0000-0000-000000110010'::uuid,null,null,'square',null,null,100,null,null,null,0,6,80)$s$,
+  '22023','second side only for rectangular');
+select pg_temp.na11_raises(
+  $s$select public.netaudit1_spec_search_v2('00000000-0000-0000-0000-000000110010'::uuid,null,null,null,null,null,null,null,null,null,0,6,null,true)$s$,
+  '22023','in stock alone is not a specification');
+do $t$
+declare
+  morandi constant uuid:='51100000-0000-5000-8000-000000000005';
+  r jsonb;
+begin
+  perform pg_temp.na11_ok(public.netaudit1_spec_search('00000000-0000-0000-0000-000000110010'::uuid,'EN 10219')->>'contract'='netaudit1-spec-v1',
+    'v1 contract preserved for the deployed frontend');
+  -- Morandi declares width and height 30–500 mm.
+  r:=public.netaudit1_spec_search_v2('00000000-0000-0000-0000-000000110010'::uuid,null,null,'rectangular',null,null,120,null,null,null,0,24,80);
+  perform pg_temp.na11_ok(r->>'contract'='netaudit1-spec-v2','v2 contract');
+  perform pg_temp.na11_ok(pg_temp.na11_has(r,morandi,'exact'),'rectangular 120×80 → Morandi exact');
+  r:=public.netaudit1_spec_search_v2('00000000-0000-0000-0000-000000110010'::uuid,null,null,'rectangular',null,null,600,null,null,null,0,24,80);
+  -- Morandi may list other hollow-section lines without dimensions (then
+  -- "undeclared"); what must never happen is presenting it as compatible.
+  perform pg_temp.na11_ok(not pg_temp.na11_has(r,morandi,'exact'),
+    'rectangular 600×80 beyond declared 500 is never compatible');
+  -- Morandi hollow sections are declared as stocked.
+  r:=public.netaudit1_spec_search_v2('00000000-0000-0000-0000-000000110010'::uuid,'EN 10219','S355',null,null,null,null,null,null,null,0,24,null,true);
+  perform pg_temp.na11_ok(exists(select 1 from jsonb_array_elements(r->'items') i
+    where (i->>'id')::uuid=morandi and i->'spec_match'->>'status'='exact' and i->'spec_match'->>'stock' in ('product','facility_capability')),
+    'EN 10219 S355 a stock → Morandi exact with stock evidence');
+end
+$t$;
 
 rollback;

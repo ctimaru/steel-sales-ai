@@ -21,7 +21,7 @@ export function NetworkLiveSearch({filters}: {filters:CompactNetworkFilters}) {
     if(next===serverQuery)return;
     const query=new URLSearchParams();
     // NET-AUDIT1.1: a name search inside a spec search keeps the spec.
-    for(const key of ["role","region","persona","product","capability","market","country","std","grade","shape","od","wt","side"] as const){
+    for(const key of ["role","region","persona","product","capability","market","country","std","grade","shape","od","wt","side","side2","stock"] as const){
       if(filters[key])query.set(key,filters[key]);
     }
     if(filters.steel)query.set("steel",filters.steel);
@@ -43,7 +43,7 @@ export function NetworkLiveSearch({filters}: {filters:CompactNetworkFilters}) {
     // Depend on the current server query to cancel a stale timer after navigation.
   },[draft,serverQuery,filters.role,filters.region,filters.persona,
      filters.product,filters.capability,filters.market,filters.country,filters.steel,
-     filters.std,filters.grade,filters.shape,filters.od,filters.wt,filters.side]);
+     filters.std,filters.grade,filters.shape,filters.od,filters.wt,filters.side,filters.side2,filters.stock]);
 
   const submit=(event:FormEvent<HTMLFormElement>)=>{
     event.preventDefault();

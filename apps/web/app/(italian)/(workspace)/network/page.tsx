@@ -107,6 +107,7 @@ export default async function NetworkDirectoryPage({
     error?: string;
     message?: string;
     std?: string; grade?: string; shape?: string; od?: string; wt?: string; side?: string;
+    side2?: string; stock?: string;
   }>;
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
@@ -126,7 +127,8 @@ export default async function NetworkDirectoryPage({
           isWorkspaceAdmin={context.role==="admin"}
           canConnect={canInteractWithNetwork(context.role)}
           filters={{ q: params.q, role: params.role, region: params.region, persona: params.persona, p:params.p,dpage:params.dpage,view:params.view, np:params.np, map:params.map, product:params.product, capability:params.capability, market:params.market, country:params.country, steel:params.steel,
-            std:params.std, grade:params.grade, shape:params.shape, od:params.od, wt:params.wt, side:params.side }}
+            std:params.std, grade:params.grade, shape:params.shape, od:params.od, wt:params.wt, side:params.side,
+            side2:params.side2, stock:params.stock }}
         />
       );
     }
@@ -143,7 +145,8 @@ export default async function NetworkDirectoryPage({
   // technical finder as an explicit advanced route and as a resilient fallback.
   const compactFilters=normalizeCompactGeoFilters({q:params.q,role:params.role,region:params.region,persona:params.persona,np:params.np,
     product:params.product,capability:params.capability,market:params.market,country:params.country,steel:params.steel,
-    std:params.std,grade:params.grade,shape:params.shape,od:params.od,wt:params.wt,side:params.side});
+    std:params.std,grade:params.grade,shape:params.shape,od:params.od,wt:params.wt,side:params.side,
+    side2:params.side2,stock:params.stock});
   const needsTechnicalFinder=Boolean(params.advanced==="1"||params.province||params.city);
   if(!needsTechnicalFinder){
     const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch(()=>null);
