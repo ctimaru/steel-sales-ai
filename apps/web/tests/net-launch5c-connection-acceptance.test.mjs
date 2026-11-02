@@ -8,8 +8,11 @@ const readiness=read("../components/network-ready-connections.tsx");
 
 test("NET-LAUNCH5C: connection requires a reason and a meaningful private message",()=>{
  assert.match(connect,/name="purpose"/);
- for(const purpose of ["offer_products_services","request_products_services","collaboration"])
+ for(const purpose of ["offer_products_services","collaboration"])
   assert.ok(connect.includes(purpose));
+ // NET-CONN2: purchase requests go through the RFQ Hub.
+ assert.ok(!connect.includes("request_products_services"));
+ assert.match(connect,/href="\/rfq-hub"/);
  assert.match(connect,/name="message" required minLength=\{30\} maxLength=\{2000\}/);
  assert.match(connect,/action=\{submitNetworkConnection\}/);
 });

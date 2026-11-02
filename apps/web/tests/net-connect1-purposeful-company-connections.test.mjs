@@ -28,10 +28,14 @@ test("NET-CONNECT1: navigation is professional and has no social follow/save fee
 });
 
 test("NET-CONNECT1: explicit purpose, 30+ character message and no empty invitations",()=>{
- for(const value of ["offer_products_services","request_products_services","collaboration"]){
+ for(const value of ["offer_products_services","collaboration"]){
   assert.ok(compose.includes('value:"'+value+'"'));
   assert.ok(db.includes("'"+value+"'"));
  }
+ // NET-CONN2: purchase requests are sent only from the RFQ Hub.
+ assert.ok(!compose.includes('value:"request_products_services"'));
+ assert.match(compose,/network-connect-rfq-hint/);
+ assert.ok(db.includes("'request_products_services'"));
  assert.match(compose,/type="radio" name="purpose" value=\{r.value\} required/);
  assert.match(compose,/name="message" required minLength=\{30\} maxLength=\{2000\}/);
  assert.match(actions,/export async function submitNetworkConnection/);

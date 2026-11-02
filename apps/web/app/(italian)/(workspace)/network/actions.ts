@@ -913,7 +913,8 @@ export async function submitNetworkConnection(formData: FormData) {
   const companyId=textValue(formData,"network_company_id");
   const purpose=textValue(formData,"purpose");
   const message=textValue(formData,"message");
-  const allowed=["offer_products_services","request_products_services","collaboration"];
+  // NET-CONN2: purchase requests go through the RFQ Hub only.
+  const allowed=["offer_products_services","collaboration"];
   if(!/^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i.test(companyId))
     redirect("/network?error="+encodeURIComponent("Azienda non valida."));
   if(!allowed.includes(purpose)||message.length<30||message.length>2000)
@@ -937,7 +938,7 @@ export async function decideNetworkConnection(formData: FormData) {
   const context=await requireWorkspaceWriteRole();
   const requestId=textValue(formData,"request_id");
   const decision=textValue(formData,"decision");
-  const box=decision==="withdrawn"?"sent":"received";
+  const box=decision==="withdrawn"?"sent":decision==="accepted"?"connected":"received";
   if(!/^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i.test(requestId)||
     !["accepted","declined","withdrawn"].includes(decision))
     redirect("/network/connections?error="+encodeURIComponent("Azione non valida."));
