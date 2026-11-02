@@ -39,6 +39,36 @@ try {
       "both responsive teacher instances share one original SVG asset");
     assert.equal(await page.locator("h1").first().textContent(), "Come posso aiutarti?");
     await page.screenshot({ path: out + "/professor-" + width + "-initial.png", animations: "disabled" });
+    // SOURCE-BOUND CONTENT1.D: direct entry from a published comparison
+    // populates only a whitelisted editorial guide, without contacting K2.
+    const comparisonPage = await context.newPage();
+    const comparisonCalls = [];
+    await comparisonPage.route("**/api/public/school-evidence?*", async route => {
+      comparisonCalls.push(route.request().url());
+      await route.abort();
+    });
+    const editorial = await comparisonPage.goto(base + "/knowledge/professore?topic=en-10210-vs-en-10219", {
+      waitUntil: "domcontentloaded", timeout: 60000,
+    });
+    assert.equal(editorial?.status(), 200, "public Professor source-bound entry");
+    const comparison = comparisonPage.locator('[data-testid="school-content1d-comparison"]');
+    await comparison.waitFor({ state: "visible" });
+    assert.match(await comparison.textContent() ?? "", /EN 10210 ed EN 10219/);
+    assert.match(await comparison.textContent() ?? "", /non garantisce uguali raggi/i);
+    assert.ok(await comparison.locator('a[href*="store.uni.com"]').count() >= 2,
+      "published official sources are visible");
+    assert.equal(comparisonCalls.length, 0, "comparison direct entry needs no K2 request");
+    await comparisonPage.screenshot({ path: out + "/professor-content1d-" + width + ".png",
+      fullPage: true, animations: "disabled" });
+    await comparisonPage.locator("#tutor-question").fill("Che documento EN 10204 devo richiedere?");
+    await comparisonPage.getByRole("button", { name: /Chiedi al professore/ }).click();
+    await comparisonPage.getByRole("heading", { name: /EN 10204: quali documenti/ }).waitFor();
+    assert.equal(comparisonCalls.length, 0, "document guidance needs no private/public API calls");
+    const dimension = await comparisonPage.evaluate(() => ({
+      width: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth,
+    }));
+    assert.ok(dimension.scroll <= dimension.width + 12, "no source answer mobile overflow");
+    await comparisonPage.close();
     const samples = page.locator('[data-testid="school-qa3-prompt-suggestions"]');
     assert.equal(await samples.getByRole("button").count(), 2, "two initial visible sample prompts at "+width);
     const moreQuestions = page.locator('[data-testid="school-qa3-more-questions"]');
@@ -58,6 +88,12 @@ try {
     await page.getByRole("button", { name: /Chiedi al professore/ }).click();
     await page.getByText("Fixture — published standard").waitFor();
     await page.getByText("In breve · Riferimento pubblicato").waitFor();
+    const curatedPanel=page.locator('[data-testid="school-content1d-curated-k2"]');
+    await curatedPanel.waitFor({state:"visible"});
+    assert.match(await curatedPanel.textContent() ?? "", /EN 10219/i,
+      "published K2 includes curated A/B original guidance");
+    assert.ok(await curatedPanel.locator('a[href*="store.uni.com"]').count()>0,
+      "curated published K2 guidance has its original UNI citations");
     assert.equal(await page.getByRole("link", {name: /Apri l'assistente aziendale/}).count(),0,"no competing tutor journey");
     const detail=page.getByText("Fixture technical context; not a normative statement.");
     assert.equal(await detail.isVisible(),false,"longer technical context starts collapsed");
