@@ -54,6 +54,12 @@ try {
     const comparison = comparisonPage.locator('[data-testid="school-content1d-comparison"]');
     await comparison.waitFor({ state: "visible" });
     assert.match(await comparison.textContent() ?? "", /EN 10210 ed EN 10219/);
+    assert.equal(await comparisonPage.getByRole("heading", { name: "Confronto tecnico" }).count(), 1,
+      "contextual deep-link keeps one distinct section label");
+    const primaryLink = comparison.locator("a.school-primary-action");
+    assert.equal(await primaryLink.count(), 1, "use approved accessible School CTA");
+    assert.equal(await primaryLink.evaluate(node => getComputedStyle(node).color), "rgb(255, 255, 255)",
+      "primary action must maintain white text on dark green");
     assert.match(await comparison.textContent() ?? "", /non garantisce uguali raggi/i);
     assert.ok(await comparison.locator('a[href*="store.uni.com"]').count() >= 2,
       "published official sources are visible");
