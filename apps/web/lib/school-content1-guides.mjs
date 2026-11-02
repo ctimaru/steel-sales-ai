@@ -104,7 +104,8 @@ const guides = {
 
 export function getSchoolContent1Guide(kind, slug) {
   if ((kind !== "standard" && kind !== "grade") || typeof slug !== "string") return null;
-  return guides[kind][slug] ?? null;
+  const catalogue = guides[kind];
+  return Object.hasOwn(catalogue, slug) ? catalogue[slug] : null;
 }
 
 export const SCHOOL_CONTENT1_REVIEW_DATE = reviewDate;
