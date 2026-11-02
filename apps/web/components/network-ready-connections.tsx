@@ -49,6 +49,6 @@ export function NetworkReadinessAction({companyId,status,canAct=true}:{
  if(status==="available"&&canAct)return <Link href={"/network/"+companyId+"/connect"}
   className="inline-flex min-h-10 items-center rounded-xl border border-[#a8cdb6] bg-[#e8f5eb] px-3 text-xs font-semibold text-[#16583d] hover:bg-[#d8ecdd]">Connettiti →</Link>;
  if(status==="pending")return <Link href="/network/connections?box=sent" className="inline-flex min-h-10 items-center rounded-xl border border-[#e1d3aa] bg-[#fff7e6] px-3 text-xs font-semibold text-[#795521]">In attesa →</Link>;
- if(status==="connected")return <Link href="/network/connections?box=sent" className="inline-flex min-h-10 items-center rounded-xl border border-[#c0dccc] bg-[#f0f8f2] px-3 text-xs font-semibold text-[#16583d]">Connessa ✓</Link>;
+ if(status==="connected")return <Link href="/network/connections?box=connected" className="inline-flex min-h-10 items-center rounded-xl border border-[#c0dccc] bg-[#f0f8f2] px-3 text-xs font-semibold text-[#16583d]">Connessa ✓</Link>;
  return null;
 }

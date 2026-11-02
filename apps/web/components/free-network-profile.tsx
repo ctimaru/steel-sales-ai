@@ -54,7 +54,7 @@ export async function FreeNetworkProfileView({
             className="app-primary mt-3 inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold">Connetti →</Link>
           : <p className="mt-2 text-sm leading-6 text-[#52615b]">
             {status==="pending" ? <Link className="font-semibold text-[#176647] underline" href="/network/connections?box=sent">Richiesta inviata · In attesa di risposta →</Link> :
-             status==="connected" ? <Link className="font-semibold text-[#176647] underline" href="/network/connections?box=sent">Connessione attiva · Apri richieste →</Link> :
+             status==="connected" ? <Link className="font-semibold text-[#176647] underline" href="/network/connections?box=connected">Connessione attiva · Apri connessioni →</Link> :
              status===undefined ? "Disponibilità delle connessioni temporaneamente non verificabile." :
              provisional ? "Questa azienda non è ancora attiva sulla piattaforma: non è possibile inviare richieste." :
              !canConnect ? "Per richiedere una connessione serve il ruolo di amministratore o collaboratore commerciale." :
