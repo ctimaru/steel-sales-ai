@@ -33,9 +33,15 @@ export function SchoolContent1Panel({ guide }: { guide: SchoolContent1Guide }) {
             <h3 className="text-sm font-bold text-[#173f35]">Edizioni e limiti di utilizzo</h3>
             <p className="mt-2 text-xs leading-6 text-[#52615b]">{guide.editionNote}</p>
           </div>
-          <Link href={guide.compare.href} className="school-inline-link inline-flex min-h-10 items-center text-sm">
-            {guide.compare.label} →
-          </Link>
+          <div className="flex flex-col gap-1">
+            <Link href={guide.compare.href} className="school-inline-link inline-flex min-h-10 items-center text-sm">
+              {guide.compare.label} →
+            </Link>
+            <Link href="/knowledge/articoli/confronti-glossario"
+              className="school-inline-link inline-flex min-h-10 items-center text-sm">
+              Confronti e glossario tecnico →
+            </Link>
+          </div>
         </div>
       </div>
       <div className="mt-4 border-t border-[#e4ebe6] pt-4">
