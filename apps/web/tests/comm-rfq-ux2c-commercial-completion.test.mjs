@@ -7,6 +7,7 @@ const read = path => fs.readFileSync(new URL(path, import.meta.url), "utf8");
 const builder = read("../components/buyer-distinta-builder.tsx");
 const preview = read("../components/commercial-rfq-live-preview.tsx");
 const workspace = read("../components/commercial-rfq-workspace.tsx");
+const entry = read("../components/commercial-ai-companion.tsx");
 
 test("COMM-RFQ-UX2.C preview edits a particular approved line using the canonical cart", () => {
   assert.match(preview, /onEditLine: \(lineId: string\) => void/);
@@ -45,11 +46,19 @@ test("COMM-RFQ-UX2.C saves ONLY verified rows and never dispatches suppliers", (
   assert.doesNotMatch(preview, /sendBuyerDistinta|sendDistinta|sendEmail\(/);
 });
 
+test("COMM-RFQ-UX2.C keeps home entry disabled until React hydration to avoid dropped mobile text", () => {
+  assert.match(entry, /const \[ready, setReady\] = useState\(false\)/);
+  assert.match(entry, /useEffect\(\(\) => setReady\(true\), \[\]\)/);
+  assert.match(entry, /value=\{request\} disabled=\{!ready\}/);
+  assert.match(entry, /disabled=\{!ready \|\| !request\.trim\(\)\}/);
+  assert.match(entry, /if \(!canWrite \|\| !ready \|\| !value\) return/);
+});
+
 test("COMM-RFQ-UX2.C changed components parse as TSX", () => {
   for (const [name, source] of [
     ["commercial-rfq-workspace.tsx", workspace],
     ["commercial-rfq-live-preview.tsx", preview],
-    ["buyer-distinta-builder.tsx", builder]
+    ["buyer-distinta-builder.tsx", builder], ["commercial-ai-companion.tsx", entry]
   ]) {
     const parsed = ts.createSourceFile(name, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
     assert.deepEqual(parsed.parseDiagnostics.map(d => ts.flattenDiagnosticMessageText(d.messageText, "\n")), [], name);
