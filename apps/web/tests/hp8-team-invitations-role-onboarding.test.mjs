@@ -132,7 +132,9 @@ test("HP8 keeps team administration reachable on a canonical Company route", () 
   assert.match(teamPage, /hp8_team_state/);
   assert.match(teamPage, /Invita una persona/);
   assert.match(onboarding, /id="team-access"/);
-  assert.match(onboarding, /HP8 · Team onboarding/);
+  assert.match(onboarding, /Invita il team/);
+  // Internal ticket codes are not customer-facing copy.
+  assert.doesNotMatch(onboarding, /HP8 ·/);
 });
 
 test("HP8 versions the branded invite email template", () => {
