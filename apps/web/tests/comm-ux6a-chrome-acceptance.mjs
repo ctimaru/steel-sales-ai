@@ -159,6 +159,18 @@ try {
           await page.screenshot({ path: path.join(screenshotsDir, `commercial-ai-to-private-distinta-${width}px.png`), fullPage: false, animations: "disabled" });
           console.log("COMM-TRUST1.D CHAT → PRIVATE DISTINTA PASS", width, "one-shot text, preview, no automatic analysis or dispatch");
 
+          if (width === 1440) {
+            // Explicitly exercise the manual alternative, not merely its href.
+            await page.goto(base + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
+            await page.getByTestId("commercial-manual-entry").click();
+            await page.waitForURL(u => u.pathname === "/commercial" &&
+              u.searchParams.get("compose") === "1" && u.searchParams.get("method") !== "ai", { timeout: 90000 });
+            await page.locator("#commercial-compose").waitFor({ state: "visible", timeout: 60000 });
+            assert.equal(await page.getByTestId("commercial-rfq-chat-workspace").count(), 0,
+              "Manual entry must not silently start the AI conversation");
+            console.log("COMM-TRUST1.D MANUAL ENTRY PASS");
+          }
+
           // COMM-TRUST1.C: a no-match filter is not an empty archive or failed RPC.
           await page.goto(base + "/commercial?view=drafts&q=commtrust1cnomatch", { waitUntil: "domcontentloaded", timeout: 90000 });
           const empty = page.locator('[data-commercial-empty-state="filtered"]');
@@ -170,6 +182,13 @@ try {
           await page.screenshot({ path: path.join(screenshotsDir, "commercial-filtered-empty-1440px.png"), fullPage: false, animations: "disabled" });
           console.log("COMM-TRUST1.C FILTERED EMPTY PASS");
 
+        }
+        if (p.id === "buyerViewer" && width === 390) {
+          // Search is an existing-record retrieval route and remains read-only.
+          await page.getByTestId("commercial-history-entry").click();
+          await page.waitForURL(u => u.pathname === "/commercial/search", { timeout: 90000 });
+          assert.equal(new URL(page.url()).searchParams.get("compose"), null);
+          console.log("COMM-TRUST1.D HISTORY RETRIEVAL PASS");
         }
       } finally {
         await context.close();
