@@ -24,7 +24,7 @@ const length = new RegExp(String.raw`^lunghezza(?:\s+(?:barra|barre))?\s+` + NUM
 function validNumber(raw: string, limit: number): number | null {
   // An Italian thousands separator such as 1.000 is ambiguous with 1.000 as a decimal.
   // Reject instead of silently converting 1,000 bars into 1 bar or one tonne.
-  if (/^\\d{1,3}\\.\\d{3}$/.test(raw)) return null;
+  if (/^\d{1,3}\.\d{3}$/.test(raw)) return null;
   const value = Number(raw.replace(",", "."));
   return Number.isFinite(value) && value > 0 && value <= limit ? value : null;
 }
