@@ -62,7 +62,7 @@ export function CommercialRfqConversation({
           disabled={pending}
           onClick={() => onModeChange(mode === "manual" ? "text" : "manual")}
           className="min-h-10 rounded-lg px-2 text-xs font-semibold text-[#175640] underline underline-offset-4 disabled:opacity-50">
-          {mode === "manual" ? "Torna alla conversazione" : "Preferisci configurare manualmente?"}
+          {mode === "manual" ? "Torna alla conversazione" : "Compila manualmente"}
         </button>
       </div>
 
@@ -86,8 +86,7 @@ export function CommercialRfqConversation({
                 <div className="max-w-[94%] min-w-0">
                   <p className="text-[15px] font-bold text-[#173f35]">Come posso aiutarti con la richiesta?</p>
                   <p className="mt-1 text-sm leading-6 text-[#53695d]">
-                    Scrivi le misure come le diresti a un collega. Ti aiuterò a preparare
-                    gli articoli da verificare nella Distinta a fianco.
+                    Scrivi misure, quantità e lunghezza. La distinta a fianco si aggiorna dopo la verifica.
                   </p>
                   {!value.trim() ? (
                     <button type="button" onClick={onSample} data-testid="commercial-rfq-sample"
@@ -154,8 +153,9 @@ export function CommercialRfqConversation({
                   Cancella
                 </button>
                 <button type="button" onClick={onAnalyze} disabled={!canSubmit}
+                  aria-label={pending ? "Analisi in corso" : value.trim().length > 0 && value.trim().length < 12 ? "Completa richiesta" : "Analizza la richiesta con AI"}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
-                  {pending ? "Analisi…" : value.trim().length > 0 && value.trim().length < 12 ? "Completa richiesta" : "Analizza la richiesta con AI"}
+                  {pending ? "Analisi…" : value.trim().length > 0 && value.trim().length < 12 ? "Completa" : "Analizza"}
                   <span aria-hidden="true">↑</span>
                 </button>
               </div>
