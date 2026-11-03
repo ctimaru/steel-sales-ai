@@ -4,11 +4,11 @@ import { commercialRowAmount } from "@/lib/commercial-row-facts";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealQuickActions } from "@/components/commercial-deal-quick-actions";
 import { CommercialDealDecisionReadiness, CommercialDealIntelligence, loadCommercialDealFacts } from "@/components/commercial-deal-intelligence";
-import { commercialDealNextStep } from "@/lib/commercial-deal-next-step";
+import { commercialDealNextStep, commercialDealOperationTab } from "@/lib/commercial-deal-next-step";
 
 import { getOperationalEntityData } from "@/lib/commercial-data";
 import { isStreamView, mergedCommercialHref } from "@/lib/commercial-unified-streams";
-import { CommercialCampaignOperations, type CommercialOperationsTab } from "@/components/commercial-campaign-operations";
+import { CommercialCampaignOperations, operationsHref, type CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import {
   commercialHref,
   commercialPageHref,
@@ -63,7 +63,15 @@ async function SelectedDetail({
     item.kind === "inbound-order" ? "order" : null;
   const detail = inboundKind ? await getOperationalEntityData(inboundKind, item.id) : null;
   const facts = await loadCommercialDealFacts(item, detail);
-  const nextStep = commercialDealNextStep(item.kind, facts?.rawStatus ?? item.status, canWrite);
+  const rawStatus = facts?.rawStatus ?? item.status;
+  const nextStep = commercialDealNextStep(item.kind, rawStatus, canWrite, Boolean(facts));
+  const operationTab = commercialDealOperationTab(item.kind, rawStatus, canWrite, Boolean(facts));
+  // Keep all filters, the selected item and the active page/cursor when drilling
+  // into the already governed RFQ operations. Never build an action for a
+  // missing/unreadable parent campaign.
+  const actionHref = operationTab && item.campaignId
+    ? operationsHref(view, query, item.key, operationTab, page, cursor)
+    : item.href;
   return (
     <div className="space-y-4">
       <div className="min-w-0">
@@ -71,9 +79,10 @@ async function SelectedDetail({
         <h3 className="mt-1 break-words text-lg font-bold text-[var(--brand-deep)]">{item.title}</h3>
         <p className="mt-1 text-sm text-[var(--text-secondary)]">{item.subtitle}</p>
       </div>
-      <CommercialDealDecisionReadiness facts={facts} kind={item.kind} canWrite={canWrite} />
+      <div data-testid="commercial-decision-dock" className="overflow-hidden rounded-xl border border-[#b5d7c3] bg-white">
+        <CommercialDealDecisionReadiness facts={facts} kind={item.kind} canWrite={canWrite} />
       <section aria-labelledby="commercial-deal-next-step" data-testid="commercial-deal-next-step"
-        className="rounded-xl border border-[#b5d7c3] bg-[#f3f9f5] p-3 sm:p-4">
+        className="border-t border-[#d9e9df] bg-[#f3f9f5] p-3 sm:p-4">
         <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#246c53]">Prossimo passo</p>
         <h4 id="commercial-deal-next-step" className="mt-1 text-sm font-semibold text-[#173f35]">
           {nextStep.title}
@@ -81,11 +90,12 @@ async function SelectedDetail({
         <p className="mt-1 text-xs leading-5 text-[#52685b]">
           {nextStep.description}
         </p>
-        <Link href={item.href}
+        <Link href={actionHref} data-testid="commercial-deal-primary-action"
           className="app-primary mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
           {nextStep.actionLabel}
         </Link>
       </section>
+      </div>
       <dl className="grid grid-cols-2 gap-2 text-xs">
         <div className="rounded-lg bg-[var(--surface-subtle)] p-2.5">
           <dt className="text-[var(--text-secondary)]">Stato</dt>

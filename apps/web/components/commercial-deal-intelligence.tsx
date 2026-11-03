@@ -173,7 +173,7 @@ export function CommercialDealDecisionReadiness({
   const readiness = commercialDecisionReadiness(kind, facts, canWrite);
   return (
 <section aria-labelledby="commercial-decision-readiness-title" data-testid="commercial-decision-readiness"
-            className="rounded-lg border border-[#dce9df] bg-white p-2.5 sm:p-3">
+            className="bg-white p-3">
             <div className="flex flex-wrap items-baseline justify-between gap-1.5">
               <h5 id="commercial-decision-readiness-title" className="text-xs font-semibold text-[#173f35]">
                 Prima di decidere

@@ -171,6 +171,14 @@ try {
 
         const continueAction = detail.getByTestId("commercial-deal-next-step").getByRole("link");
         await continueAction.waitFor({ state: "visible" });
+        // COMM-UX7.C: reuse a single decision surface and never jump from a
+        // synthetic draft campaign directly into comparison/PO execution.
+        const decisionDock = detail.getByTestId("commercial-decision-dock");
+        assert.equal(await decisionDock.count(), 1);
+        assert.ok(await decisionDock.getByTestId("commercial-decision-readiness").isVisible());
+        const draftTarget = await detail.getByTestId("commercial-deal-primary-action").getAttribute("href");
+        assert.ok(draftTarget && !draftTarget.includes("#commercial-operations") && !draftTarget.includes("tab="),
+          "Draft RFQ CTA must remain on the governed original document");
         const actualColors = await continueAction.evaluate(el => ({
           foreground: getComputedStyle(el).color,
           fill: getComputedStyle(el).webkitTextFillColor
