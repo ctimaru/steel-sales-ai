@@ -241,6 +241,24 @@ export async function signup(formData: FormData) {
     redirect(appendQuery(nextPath, "error", signupErrorMessage(error)));
   }
 
+  // Supabase hides existing accounts: signing up again with a confirmed email returns a user
+  // with no identities and sends no email. Send the person to sign in instead of telling them
+  // to wait for a verification email that will never arrive.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    const english = nextPath.startsWith("/en/register");
+    redirect(
+      (english ? "/en/login" : "/login") +
+        "?message=" +
+        encodeURIComponent(
+          english
+            ? "An account with this email already exists. Sign in below, or use “Reset password” to set a new one."
+            : "Esiste già un account con questa email. Accedi qui sotto oppure usa «Password dimenticata» per impostarne una nuova.",
+        ) +
+        "&next=" +
+        encodeURIComponent(nextPath),
+    );
+  }
+
   await trackServerProductEvent("registration_account_created", {
     source: nextPath.includes("claim_ref=") ? "claim" : "direct",
   });
