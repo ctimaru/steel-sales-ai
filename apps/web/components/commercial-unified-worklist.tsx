@@ -314,7 +314,7 @@ export async function CommercialUnifiedWorklist({
                       (item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle) ||
                       (item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title) ||
                       commercialRowAmount(item.rowFacts?.totalEur) ||
-                      (item.rowFacts?.dueAt && Number.isFinite(Date.parse(item.rowFacts.dueAt)))) ? (
+                      (item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt)))) ? (
                       <div data-testid="commercial-deal-row-facts" className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] leading-4 text-[#48685a]">
                         {item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle
                           ? <span className="max-w-full truncate" title={item.rowFacts.counterparty}>Azienda · {item.rowFacts.counterparty}</span> : null}
@@ -323,7 +323,7 @@ export async function CommercialUnifiedWorklist({
                         {item.rowFacts?.quantity ? <span className="font-medium">Quantità · {item.rowFacts.quantity}</span> : null}
                         {commercialRowAmount(item.rowFacts?.totalEur)
                           ? <span className="font-semibold text-[#205a44]">Totale ordine · {commercialRowAmount(item.rowFacts?.totalEur)}</span> : null}
-                        {item.rowFacts?.dueAt && Number.isFinite(Date.parse(item.rowFacts.dueAt))
+                        {item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt))
                           ? <span>Scadenza · {formatHubDate(item.rowFacts.dueAt)}</span> : null}
                       </div>
                     ) : null}
