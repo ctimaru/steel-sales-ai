@@ -40,6 +40,12 @@ begin
  if strpos(body,'private.netux11_require_active_company')=0
    or strpos(body,'public.organization_memberships')=0
  then raise exception 'Connection inbox lacks tenant scoping';end if;
+ -- NET-CONN4: received requests link to the sender's governed public profile.
+ if strpos(body,'sender_network_company_id')=0
+   or strpos(body,'public.organization_network_company_links')=0
+   or strpos(body,'cl.status=''approved''')=0
+   or strpos(body,'c.publication_status=''published''')=0
+ then raise exception 'Sender company profile must come from an approved, published claim';end if;
  if not exists(select 1 from pg_indexes where schemaname='public' and tablename='network_connection_requests'
    and indexname='netconnect1_one_pending_pair')
  then raise exception 'Duplicate pending request guard missing';end if;
