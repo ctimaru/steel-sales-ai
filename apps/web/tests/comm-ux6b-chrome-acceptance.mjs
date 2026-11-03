@@ -247,9 +247,20 @@ try {
               path: path.join(dir, "rfq-ai-preview-" + width + "px.png"),
               fullPage: false, animations: "disabled"
             });
-            await page.getByRole("tab", { name: "Conversazione" }).click();
+            const previewTab = page.getByRole("tab", { name: /Distinta/ });
+            await previewTab.focus();
+            await previewTab.press("ArrowLeft");
+            assert.equal(await page.getByRole("tab", { name: "Conversazione" }).getAttribute("aria-selected"), "true",
+              "Keyboard ArrowLeft must restore the conversation");
+            assert.ok(await page.getByTestId("commercial-rfq-conversation-pane").isVisible());
             assert.equal(await textField.inputValue(), "40 tubi quadri 100x100x6 S355J2H EN 10219 da 12 m",
-              "Switching mobile views must not unmount the draft input");
+              "Keyboard tab switching must not unmount the draft input");
+            await page.getByRole("tab", { name: "Conversazione" }).press("End");
+            assert.equal(await previewTab.getAttribute("aria-selected"), "true",
+              "Keyboard End must select the Distinta preview");
+            await previewTab.press("Home");
+            assert.equal(await page.getByRole("tab", { name: "Conversazione" }).getAttribute("aria-selected"), "true",
+              "Keyboard Home must select the conversation");
           }
           const manualShell = page.locator("#commercial-rfq-manual-tools");
           assert.equal(await manualShell.isVisible(), false,
