@@ -22,6 +22,9 @@ const thickness = new RegExp(String.raw`^spessore\s+` + NUMBER + String.raw`\s*(
 const length = new RegExp(String.raw`^lunghezza(?:\s+(?:barra|barre))?\s+` + NUMBER + String.raw`\s*(?:m|metri|metro)$`, "i");
 
 function validNumber(raw: string, limit: number): number | null {
+  // An Italian thousands separator such as 1.000 is ambiguous with 1.000 as a decimal.
+  // Reject instead of silently converting 1,000 bars into 1 bar or one tonne.
+  if (/^\\d{1,3}\\.\\d{3}$/.test(raw)) return null;
   const value = Number(raw.replace(",", "."));
   return Number.isFinite(value) && value > 0 && value <= limit ? value : null;
 }
@@ -43,7 +46,7 @@ export function parseCommercialRfqLineCorrection(
     const number = validNumber(quantity[1], 1_000_000);
     const unit = quantity[2].toLowerCase();
     const bars = /^(?:barre?|pz|pezzi|pezzo)$/.test(unit);
-    if (number === null || (bars && !Number.isInteger(number)))
+    if (number === null || (bars && (/[.,]/.test(quantity[1]) || !Number.isInteger(number))))
       return { ok: false, reason: "La quantità deve essere positiva; il numero di barre deve essere intero." };
     const quantityUnit = bars ? "PZ" : /^(?:m|metri|metro)$/.test(unit) ? "M" : "T";
     return { ok: true, index,
