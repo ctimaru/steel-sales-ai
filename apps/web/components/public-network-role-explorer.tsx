@@ -59,6 +59,14 @@ const personas: Record<PersonaKey, Persona> = {
 
 const order: PersonaKey[] = ["merchant", "user", "processor", "producer"];
 
+// ONBOARDING-AUDIT2 · F10: the role a visitor picked preselects the main activity in the registration form.
+const registerCompanyType: Record<PersonaKey, string> = {
+  merchant: "trader_distributor",
+  user: "end_user",
+  processor: "processor_service_provider",
+  producer: "producer",
+};
+
 
 // Native radios keep the role selector usable without hydration on mobile.
 // All four persona descriptions remain in server-rendered HTML for SEO.
@@ -160,7 +168,7 @@ export function PublicNetworkRoleExplorer() {
                   Accedi al Network
                 </Link>
                 <Link
-                  href="/register"
+                  href={"/register?company_type=" + registerCompanyType[key]}
                   className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold"
                 >
                   Registra azienda

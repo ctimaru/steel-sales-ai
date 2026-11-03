@@ -5,7 +5,13 @@ import { useRef, useState, type FormEvent } from "react";
 
 import { saveAndSubmitCompanyRegistration } from "@/app/register/actions";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
+import {
+  useVatDuplicateCheck,
+  validateRegistrationVat,
+  VatDuplicateNotice,
+} from "@/components/registration-vat-check";
 import { Input } from "@/components/ui/input";
+import { italianVatMessage, italianVatRequired, normalizeItalianVat } from "@/lib/italian-vat";
 
 type CompanyApplication = {
   legal_name?: string | null; trading_name?: string | null; country_code?: string | null;
@@ -29,6 +35,7 @@ export function EnglishCompanyRegistrationForm({ initial, claim, returnTo }: {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [mainType, setMainType] = useState(initial?.primary_company_type ?? "");
   const [error, setError] = useState<string | null>(null);
+  const vatCheck = useVatDuplicateCheck();
   const control = "mt-2 h-11 w-full rounded-xl border border-[#cfd9d5] bg-white px-3 text-sm text-[#1d2824] focus:border-[#438d7a] focus:outline-none focus:ring-2 focus:ring-[#e1ece8]";
   const label = "block text-sm font-semibold text-[#43524c]";
 
@@ -45,13 +52,25 @@ export function EnglishCompanyRegistrationForm({ initial, claim, returnTo }: {
     setError(null);
     return true;
   }
-  function forward() {
-    if (validateStep(step)) setStep(step === 1 ? 2 : 3);
+  async function forward() {
+    if (!validateStep(step)) return;
+    if (step === 1 && formRef.current) {
+      // ONBOARDING-AUDIT2 · F3: valid Partita IVA for new Italian companies, then a one-time duplicate warning.
+      if (!validateRegistrationVat(formRef.current, "en", Boolean(claim))) {
+        setError(italianVatMessage("en"));
+        return;
+      }
+      if (await vatCheck.shouldPause(formRef.current, Boolean(claim))) return;
+    }
+    setStep(step === 1 ? 2 : 3);
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     const data = new FormData(event.currentTarget);
     if (!String(data.get("legal_name") ?? "").trim() || !/^[A-Z]{2}$/.test(String(data.get("country_code") ?? "").trim().toUpperCase())) {
       event.preventDefault(); setStep(1); setError("Provide a legal company name and ISO two-letter country code."); return;
+    }
+    if (italianVatRequired(String(data.get("country_code") ?? ""), Boolean(claim)) && !normalizeItalianVat(data.get("vat_id"))) {
+      event.preventDefault(); setStep(1); setError(italianVatMessage("en")); return;
     }
     if (!types.some(t => t.value === data.get("primary_company_type")) || !String(data.get("contact_name") ?? "").trim()) {
       event.preventDefault(); setStep(2); setError("Select a company type and provide a contact name."); return;
@@ -102,14 +121,17 @@ export function EnglishCompanyRegistrationForm({ initial, claim, returnTo }: {
             <Input name="website_url" defaultValue={initial?.website_url ?? ""} type="url" autoComplete="url" placeholder="https://example.com" className={control} />
           </label>
         </div>
+        <label className={label}>VAT / tax ID <span className="font-normal text-[#66736e]">(required for Italian companies)</span>
+          <Input name="vat_id" defaultValue={initial?.vat_id ?? ""} autoComplete="off" aria-describedby="vat-help-en"
+            onInput={(event) => event.currentTarget.setCustomValidity("")} className={control} />
+          <span id="vat-help-en" className="mt-1.5 block text-xs font-normal text-[#52615b]">Italian companies: Partita IVA, 11 digits, with or without “IT”. It helps us recognise the company and avoid duplicate profiles.</span>
+        </label>
+        <VatDuplicateNotice matches={vatCheck.matches} locale="en" />
         <details className="rounded-xl border border-[#dce2df] bg-[#f8faf9] p-4">
           <summary className="cursor-pointer text-sm font-bold text-[#43524c]">Additional company details (optional)</summary>
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <label className={label}>Trading name
               <Input name="trading_name" defaultValue={initial?.trading_name ?? claim?.trading_name ?? ""} className={control} />
-            </label>
-            <label className={label}>VAT / tax ID
-              <Input name="vat_id" defaultValue={initial?.vat_id ?? ""} className={control} />
             </label>
             <label className={label}>Business registration number
               <Input name="registration_id" defaultValue={initial?.registration_id ?? ""} className={control} />
@@ -184,7 +206,7 @@ export function EnglishCompanyRegistrationForm({ initial, claim, returnTo }: {
       <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#e7ece9] pt-5 sm:flex-row sm:justify-between">
         {step > 1 ? <button type="button" onClick={() => { setError(null); setStep(step === 3 ? 2 : 1); }}
           className="app-secondary h-11 rounded-xl px-5 text-sm font-bold">Back</button> : <span />}
-        {step < 3 ? <button type="button" onClick={forward} className="app-primary h-11 rounded-xl px-6 text-sm font-bold">Continue</button>
+        {step < 3 ? <button type="button" onClick={() => void forward()} className="app-primary h-11 rounded-xl px-6 text-sm font-bold">Continue</button>
           : <PendingSubmitButton pendingLabel="Submitting…" className="app-primary h-11 rounded-xl px-6 text-sm font-bold disabled:opacity-50">Submit for review</PendingSubmitButton>}
       </div>
     </form>

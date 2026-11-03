@@ -47,5 +47,6 @@ test("UXF5 keeps the real Network private and premium", () => {
   assert.match(network, /aziende registrate e abilitate/);
   assert.doesNotMatch(network, /href="\/network"/);
   assert.match(network, /href="\/login"/);
-  assert.match(network, /href="\/register"/);
+  // ONBOARDING-AUDIT2 · F10: the register link carries the selected role.
+  assert.match(network, /href=\{"\/register\?company_type=" \+ registerCompanyType\[key\]\}/);
 });

@@ -12,6 +12,7 @@ import { RegistrationPilotNotice } from "@/components/registration-pilot-notice"
 import { Input } from "@/components/ui/input";
 import { pilotEmailAllowed, registrationPilotGateActive } from "@/lib/registration-access";
 import { privateNoIndexRobots } from "@/lib/seo";
+import { safeUrlFeedback } from "@/lib/url-feedback";
 import { createClient } from "@/lib/supabase/server";
 
 import { logoutRegistration } from "./actions";
@@ -21,6 +22,13 @@ export const metadata: Metadata = {
   title: "Registra la tua azienda",
   robots: privateNoIndexRobots,
 };
+
+const PREFERRED_COMPANY_TYPES = new Set([
+  "producer",
+  "trader_distributor",
+  "processor_service_provider",
+  "end_user",
+]);
 
 type ClaimRegistrationContext = {
   ok?: boolean;
@@ -38,9 +46,16 @@ type ClaimRegistrationContext = {
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string; company?: string; return_to?: string }>; 
+  searchParams: Promise<{ error?: string; message?: string; claim_ref?: string; company?: string; return_to?: string; company_type?: string }>; 
 }) {
-  const { error, message, claim_ref: rawClaimRef, company: companyHint, return_to: requestedReturn } = await searchParams;
+  const { error: rawError, message: rawMessage, claim_ref: rawClaimRef, company: companyHint, return_to: requestedReturn, company_type: rawCompanyType } = await searchParams;
+  // ONBOARDING-AUDIT2 · F8: URL feedback is shown only when it looks like our own copy.
+  const error = safeUrlFeedback(rawError, "it");
+  const message = safeUrlFeedback(rawMessage, "it");
+  // ONBOARDING-AUDIT2 · F10: role chosen on the home page, kept through signup and email verification.
+  const preferredCompanyType = PREFERRED_COMPANY_TYPES.has(String(rawCompanyType ?? ""))
+    ? String(rawCompanyType)
+    : null;
   const returnTo = safeCommercialReturnTo(requestedReturn);
   const initialCompanySearch = String(companyHint ?? "").trim().slice(0, 120);
   const normalizedClaimRef = String(rawClaimRef ?? "").trim().toLowerCase();
@@ -53,7 +68,9 @@ export default async function RegisterPage({
   }
 
   const registrationPath = withCommercialReturnTo(
-    claimRef ? "/register?claim_ref=" + encodeURIComponent(claimRef) : "/register",
+    claimRef ? "/register?claim_ref=" + encodeURIComponent(claimRef)
+      : preferredCompanyType ? "/register?company_type=" + preferredCompanyType
+      : "/register",
     returnTo,
   );
   const pilotGate = registrationPilotGateActive();
@@ -320,7 +337,7 @@ export default async function RegisterPage({
     !pilotEmailAllowed(user.email) &&
     application?.application_status !== "needs_information";
 
-  const formInitial = activeClaim
+  const baseInitial = activeClaim
     ? {
         ...application,
         legal_name: activeClaim.legal_name,
@@ -328,6 +345,10 @@ export default async function RegisterPage({
         country_code: activeClaim.country_code,
       }
     : application;
+  const formInitial =
+    preferredCompanyType && !baseInitial?.primary_company_type
+      ? { ...baseInitial, primary_company_type: preferredCompanyType }
+      : baseInitial;
 
   return (
     <main className="min-h-screen bg-[#f2f4f3] px-4 py-6 sm:px-6 sm:py-9">
@@ -365,6 +386,12 @@ export default async function RegisterPage({
             <div className="rounded-xl border border-[#dce2df] bg-[#f8faf9] px-4 py-3 text-xs text-[#66736e]">
               Account verificato
               <span className="mt-1 block font-semibold text-[#1d2824]">{user.email}</span>
+              <span className="mt-2 block" data-testid="registration-support-contact">
+                Domande?{" "}
+                <a href="mailto:hello@smartsteelsales.com" className="font-semibold text-[#173f35] underline underline-offset-4">
+                  hello@smartsteelsales.com
+                </a>
+              </span>
             </div>
           </div>
 

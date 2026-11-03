@@ -14,6 +14,7 @@ import { RegistrationPilotNotice } from "@/components/registration-pilot-notice"
 import { Input } from "@/components/ui/input";
 import { pilotEmailAllowed, registrationPilotGateActive } from "@/lib/registration-access";
 import { privateNoIndexRobots } from "@/lib/seo";
+import { safeUrlFeedback } from "@/lib/url-feedback";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -30,7 +31,10 @@ type ClaimContext = {
 export default async function EnglishRegistrationPage({ searchParams }: {
   searchParams: Promise<{ error?: string; message?: string; claim_ref?: string; return_to?: string }>; 
 }) {
-  const { error, message, claim_ref: rawRef, return_to: requestedReturn } = await searchParams;
+  const { error: rawError, message: rawMessage, claim_ref: rawRef, return_to: requestedReturn } = await searchParams;
+  // ONBOARDING-AUDIT2 · F8: URL feedback is shown only when it looks like our own copy.
+  const error = safeUrlFeedback(rawError, "en");
+  const message = safeUrlFeedback(rawMessage, "en");
   const returnTo = safeCommercialReturnTo(requestedReturn);
   const normalized = String(rawRef ?? "").trim().toLowerCase();
   const claimRef = /^[0-9a-f]{64}$/.test(normalized) ? normalized : null;
@@ -170,7 +174,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#52615b]">
               Your email is verified. We'll ask for essential company identity and business details, then send your application for human review.
             </p>
-            <p className="mt-2 text-xs text-[#66736e]">Signed in as {user.email}</p>
+            <p className="mt-2 text-xs text-[#66736e]">Signed in as {user.email} · Questions? <a href="mailto:hello@smartsteelsales.com" className="font-bold text-[#173f35] underline" data-testid="registration-support-contact">hello@smartsteelsales.com</a></p>
           </div>
           {error ? <p role="alert" className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] p-4 text-sm text-[#9f2f24]">Your application could not be submitted. Please review the details and retry. {error}</p> : null}
           {message ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-4 text-sm">{message}</p> : null}

@@ -9,7 +9,9 @@ import {
   PENDING_SIGNUP_NEXT_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
+import { italianVatMessage, italianVatRequired, normalizeItalianVat } from "@/lib/italian-vat";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
+import { deliverRegistrationOutcomeEmail } from "@/lib/registration-outcome-email.server";
 import { pilotGateMessage, registrationAllowedFor } from "@/lib/registration-access";
 import { createClient } from "@/lib/supabase/server";
 import { feedbackPath } from "@/lib/user-facing-error";
@@ -93,7 +95,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
   let legalName = field(formData, "legal_name");
   let tradingName = field(formData, "trading_name");
   let countryCode = field(formData, "country_code").toUpperCase();
-  const vatId = field(formData, "vat_id");
+  let vatId = field(formData, "vat_id");
   const registrationId = field(formData, "registration_id");
   const websiteUrl = field(formData, "website_url");
   const primaryCompanyType = field(formData, "primary_company_type");
@@ -142,6 +144,20 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     legalName = claimContext.legal_name;
     tradingName = tradingName || claimContext.trading_name || "";
     countryCode = claimContext.country_code.toUpperCase();
+  }
+
+  // ONBOARDING-AUDIT2 · F3: a new Italian company needs a valid Partita IVA, stored as its 11 digits.
+  if (italianVatRequired(countryCode, validClaimRef)) {
+    const normalizedVat = normalizeItalianVat(vatId);
+    if (!normalizedVat) {
+      redirect(
+        registerPath +
+          (registerPath.includes("?") ? "&" : "?") +
+          "error=" +
+          encodeURIComponent(italianVatMessage(root === "/en/register" ? "en" : "it")),
+      );
+    }
+    vatId = normalizedVat;
   }
 
   if (
@@ -273,12 +289,44 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     );
   }
 
+  // ONBOARDING-SELF1: activate at once when every self-service rule passes (checked in the
+  // database); otherwise the application stays in staff review exactly as before. If the
+  // function is not deployed yet, the error is ignored and the staff-review flow continues.
+  const { data: selfData, error: selfError } = await supabase.rpc(
+    "selfact1_self_activate_registration",
+    { p_application_id: applicationId },
+  );
+  const selfActivation = (selfData ?? {}) as {
+    activated?: boolean;
+    organization_id?: string | null;
+    idempotent_replay?: boolean;
+  };
+  const selfActivated = !selfError && selfActivation.activated === true;
+
+  if (selfActivated && !selfActivation.idempotent_replay && user.email && applicationId) {
+    await deliverRegistrationOutcomeEmail({
+      applicationId,
+      kind: "activated",
+      recipient: user.email,
+      legalName,
+      countryCode,
+      decidedAt: selfActivation.organization_id ?? new Date().toISOString(),
+    });
+  }
+
   await trackServerProductEvent("registration_submit", {
     claim: validClaimRef,
     company_type: primaryCompanyType,
+    self_service: selfActivated,
   });
 
-  redirect(withCommercialReturnTo((root === "/en/register" ? "/en/registration/status" : "/registration/status") + "?submitted=1", returnTo));
+  redirect(
+    withCommercialReturnTo(
+      (root === "/en/register" ? "/en/registration/status" : "/registration/status") +
+        (selfActivated ? "?submitted=1&activated=1" : "?submitted=1"),
+      returnTo,
+    ),
+  );
 }
 
 export async function logoutRegistration(formData?: FormData) {
@@ -314,7 +362,7 @@ export async function restartRejectedRegistration(formData: FormData) {
       feedbackPath(
         statusPath,
         error,
-        "Non è possibile riaprire automaticamente questa registrazione. Aggiorna la pagina o contatta il referente Smart Steel Sales.",
+        "Non è possibile riaprire automaticamente questa registrazione. Aggiorna la pagina o scrivi a hello@smartsteelsales.com.",
       ),
     );
   }
