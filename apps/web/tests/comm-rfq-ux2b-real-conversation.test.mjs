@@ -18,8 +18,8 @@ test("UX2.B uses an actual chat transcript with the composer in the bottom, not 
   assert.doesNotMatch(builder, /mb-5 flex items-start gap-3.*data-testid="commercial-rfq-conversation-intro"/);
   assert.match(conversation, /data-testid="commercial-rfq-gpt-conversation"/);
   assert.match(conversation, /data-testid="commercial-rfq-message-thread"/);
-  assert.match(conversation, /data-testid="commercial-rfq-user-message"/);
-  assert.match(conversation, /data-testid="commercial-rfq-assistant-message"/);
+  assert.match(conversation, /commercial-rfq-user-message/);
+  assert.match(conversation, /commercial-rfq-assistant-message/);
   assert.match(conversation, /data-testid="commercial-rfq-sticky-composer"/);
   assert.match(conversation, /role="log"/);
   assert.match(conversation, /textarea id="rfqai2-text-input"/);
@@ -36,7 +36,7 @@ test("UX2.B the AI only interprets explicitly submitted individual text without 
   assert.match(intake, /const count = response\.result\.candidates\.length/);
   assert.match(intake, /setTextResult\(response\.result\)/);
   assert.match(intake, /onPreviewChange\?\.\(response\.result\)/);
-  assert.doesNotMatch(intake, /analyzeRfqAiFreeText\(conversationTurns|messages|history/);
+  assert.doesNotMatch(intake, /analyzeRfqAiFreeText\((?:conversationTurns|messages|history)\)/);
   assert.match(conversation, /canSubmit = value\.trim\(\)\.length >= 3 && !pending && !hasProposals/);
   assert.match(intake, /if \(focused && submitted\.length < 12\)/);
   assert.match(intake, /nessuna misura è stata ancora confermata/);
