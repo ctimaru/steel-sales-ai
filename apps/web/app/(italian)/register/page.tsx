@@ -109,7 +109,7 @@ export default async function RegisterPage({
                 <div className="hidden sm:block"><RegistrationJourney current={1} compact /></div>
 
                 <div className="mt-1 sm:mt-5">
-                  <p className="app-kicker">Passo 1 di 4 · Account</p>
+                  <p className="app-kicker">Passo 1 di 3 · Account</p>
                   <h1 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-[#1d2824]">
                     {claimRef ? "Crea l’account per la tua azienda" : "Crea account"}
                   </h1>
@@ -194,7 +194,7 @@ export default async function RegisterPage({
                 </form>
 
                 <div className="mt-3 rounded-xl border border-[#e2e7e4] bg-[#f7f9f8] px-3 py-2 text-xs leading-5 text-[#5d6a65]">
-                  Creare l’account non attiva automaticamente l&apos;azienda: la domanda resta soggetta a revisione.
+                  Dopo la verifica email inserisci i dati dell’azienda: se sono completi il workspace si attiva subito, altrimenti lo verifichiamo noi.
                 </div>
               </section>
               <section
@@ -365,54 +365,45 @@ export default async function RegisterPage({
           </form>
         </div>
 
-        <div className="mt-6 rounded-[28px] border border-[#dce2df] bg-white p-5 shadow-[0_14px_44px_rgba(18,61,52,0.06)] sm:p-8 lg:p-10">
-          <RegistrationJourney current={2} />
+        <div className="mt-4 rounded-[24px] border border-[#dce2df] bg-white p-4 shadow-[0_14px_44px_rgba(18,61,52,0.06)] sm:p-6">
+          <RegistrationJourney current={2} compact />
 
-          <div className="mt-8 flex flex-col gap-4 border-b border-[#e7ece9] pb-7 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="app-kicker">Passo 2 di 4 · Azienda</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#1d2824] sm:text-4xl">
-                {application?.application_status === "needs_information"
-                  ? "Aggiorna la richiesta aziendale"
-                  : "Raccontaci chi siete"}
-              </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[#5d6a65]">
-                Chiediamo solo i dati necessari per identificare l’azienda e capire come opera nel
-                mercato. Se non hai ancora verificato se esiste già nei nostri dati, puoi farlo
-                subito prima di compilare una nuova scheda.
-              </p>
-            </div>
-
-            <div className="rounded-xl border border-[#dce2df] bg-[#f8faf9] px-4 py-3 text-xs text-[#66736e]">
-              Account verificato
-              <span className="mt-1 block font-semibold text-[#1d2824]">{user.email}</span>
-              <span className="mt-2 block" data-testid="registration-support-contact">
-                Domande?{" "}
-                <a href="mailto:hello@smartsteelsales.com" className="font-semibold text-[#173f35] underline underline-offset-4">
-                  hello@smartsteelsales.com
-                </a>
-              </span>
-            </div>
+          <div className="mt-4 border-b border-[#e7ece9] pb-4">
+            <p className="app-kicker">Passo 2 di 3 · Azienda</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-[-0.02em] text-[#1d2824]">
+              {application?.application_status === "needs_information"
+                ? "Aggiorna la richiesta aziendale"
+                : "Raccontaci chi siete"}
+            </h1>
+            <p className="mt-1 text-sm leading-6 text-[#5d6a65]">
+              Pochi dati per identificare l’azienda. Se sono completi, il workspace si attiva appena invii.
+            </p>
+            <p className="mt-1 text-xs text-[#66736e]" data-testid="registration-support-contact">
+              Accesso come <span className="font-semibold text-[#1d2824]">{user.email}</span> · Domande?{" "}
+              <a href="mailto:hello@smartsteelsales.com" className="font-semibold text-[#173f35] underline underline-offset-4">
+                hello@smartsteelsales.com
+              </a>
+            </p>
           </div>
 
           {error ? (
             <div
               role="alert"
-              className="mt-6 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
+              className="mt-4 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
             >
               {error}
             </div>
           ) : null}
 
           {application?.application_status === "needs_information" ? (
-            <div className="mt-6 rounded-xl border border-[#ead7aa] bg-[#fff9e8] px-4 py-3 text-sm leading-6 text-[#77551c]">
+            <div className="mt-4 rounded-xl border border-[#ead7aa] bg-[#fff9e8] px-4 py-3 text-sm leading-6 text-[#77551c]">
               La revisione richiede un aggiornamento. Modifica i dati necessari e invia nuovamente
               la richiesta.
             </div>
           ) : null}
 
           {claimContextError ? (
-            <div className="mt-6 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]">
+            <div className="mt-4 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]">
               {claimContextError}
             </div>
           ) : null}
@@ -420,23 +411,32 @@ export default async function RegisterPage({
           {pilotBlocked ? <RegistrationPilotNotice blocking /> : null}
 
           {!pilotBlocked && !application && !claimRef && !activeClaim ? (
-            <div className="mt-6">
-              {initialCompanySearch ? (
-                <p className="mb-3 rounded-xl border border-[#cde1d5] bg-[#f0f7f3] px-4 py-3 text-xs leading-5 text-[#285b45]">
-                  Hai aperto una scheda aziendale dal Network. Verifica ragione sociale e Partita IVA:
-                  le aziende ancora da confermare non vengono rivendicate automaticamente.
-                  Se non compare un profilo pubblicato, puoi proseguire con la registrazione.
-                </p>
-                  ) : null}
-              <PublicCompanyLookup
-                context="registration"
-                    returnTo={returnTo}
-                initialQuery={initialCompanySearch}
-                notFoundHref="#company-form"
-                notFoundLabel="Non è presente: compila una nuova azienda ↓"
-                showNetworkNote={false}
-              />
-            </div>
+            <details
+              className="mt-4 rounded-xl border border-[#dce2df] bg-[#f8faf9]"
+              open={Boolean(initialCompanySearch)}
+            >
+              <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-[#43524c]">
+                La tua azienda è già nel Network? Cercala e rivendicala
+              </summary>
+              <div className="border-t border-[#e7ece9] px-4 py-3">
+                {initialCompanySearch ? (
+                  <p className="mb-3 rounded-xl border border-[#cde1d5] bg-[#f0f7f3] px-4 py-3 text-xs leading-5 text-[#285b45]">
+                    Hai aperto una scheda aziendale dal Network. Verifica ragione sociale e Partita IVA:
+                    le aziende ancora da confermare non vengono rivendicate automaticamente.
+                    Se non compare un profilo pubblicato, puoi proseguire con la registrazione.
+                  </p>
+                ) : null}
+                <PublicCompanyLookup
+                  context="registration"
+                  returnTo={returnTo}
+                  initialQuery={initialCompanySearch}
+                  notFoundHref="#company-form"
+                  notFoundLabel="Non è presente: compila una nuova azienda ↓"
+                  showNetworkNote={false}
+                  bare
+                />
+              </div>
+            </details>
           ) : null}
 
           <div id="company-form" className="scroll-mt-6">

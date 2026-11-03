@@ -70,6 +70,8 @@ type PublicCompanyLookupProps = {
   locale?: "it" | "en";
   initialQuery?: string;
   returnTo?: string | null;
+  /** Compact mode inside a collapsible panel that already carries the heading. */
+  bare?: boolean;
 };
 
 export function PublicCompanyLookup({
@@ -80,6 +82,7 @@ export function PublicCompanyLookup({
   locale = "it",
   initialQuery = "",
   returnTo = null,
+  bare = false,
 }: PublicCompanyLookupProps = {}) {
   const registrationContext = context === "registration";
   const [state, setState] = useState<PublicCompanyLookupState>(
@@ -132,12 +135,14 @@ export function PublicCompanyLookup({
   return (
     <div
       className={
-        registrationContext
-          ? "min-w-0 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-3 sm:p-5"
-          : "min-w-0 rounded-[28px] border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
+        bare
+          ? "min-w-0"
+          : registrationContext
+            ? "min-w-0 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-3 sm:p-5"
+            : "min-w-0 rounded-[28px] border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
       }
     >
-      <div>
+      <div hidden={bare}>
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
           {locale === "en" ? (registrationContext ? "Company check" : "Find your company") : (registrationContext ? "Controllo azienda" : "Trova la tua azienda")}
         </p>
@@ -149,7 +154,7 @@ export function PublicCompanyLookup({
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className={registrationContext ? "mt-3" : "mt-5"}>
+      <form onSubmit={handleSubmit} className={bare ? "" : registrationContext ? "mt-3" : "mt-5"}>
         <div className="sr-only" aria-hidden="true">
           <label>
             Sito aziendale

@@ -11,12 +11,12 @@ const enForm = read("../components/english-company-registration-form.tsx");
 const onboarding = read("../app/(italian)/onboarding/page.tsx");
 const footer = read("../components/public-legal-footer.tsx");
 
-test("registration step labels use one 4-step model, in the page language", () => {
-  assert.match(itRegister, /Passo 1 di 4 · Account/);
-  assert.match(itRegister, /Passo 2 di 4 · Azienda/);
+test("registration step labels use one 3-step model, in the page language", () => {
+  assert.match(itRegister, /Passo 1 di 3 · Account/);
+  assert.match(itRegister, /Passo 2 di 3 · Azienda/);
   assert.doesNotMatch(itRegister, /Step 2 · Azienda/);
-  assert.match(enRegister, /Step 1 of 4 · Your account/);
-  assert.match(enRegister, /Step 2 of 4 · Company/);
+  assert.match(enRegister, /Step 1 of 3 · Your account/);
+  assert.match(enRegister, /Step 2 of 3 · Company/);
   assert.doesNotMatch(enRegister, /Step 3 — Company application/);
 });
 

@@ -85,7 +85,7 @@ const STATUS_COPY: Record<
     body: "La revisione è completata. Stiamo finalizzando l’attivazione del workspace e il collegamento al profilo aziendale.",
     tone: "border-[#b8d2c8] bg-[#edf5f2] text-[#173f35]",
     label: "Approvata",
-    journeyStep: 4,
+    journeyStep: 3,
   },
   rejected: {
     title: "Richiesta non approvata",

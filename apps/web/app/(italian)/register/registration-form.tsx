@@ -199,7 +199,7 @@ export function CompanyRegistrationForm({
       ref={formRef}
       action={saveAndSubmitCompanyRegistration}
       onSubmit={handleSubmit}
-      className="mt-8"
+      className="mt-4"
     >
       {returnTo ? <input type="hidden" name="return_to" value={returnTo} /> : null}
       {claim ? <input type="hidden" name="claim_ref" value={claim.claim_ref} /> : null}
@@ -228,53 +228,43 @@ export function CompanyRegistrationForm({
         </div>
       ) : null}
 
-      <div className="rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-4 sm:p-5">
-        <div role="list" aria-label="Avanzamento registrazione" className="grid gap-3 sm:grid-cols-3">
-          {STEPS.map((item) => {
-            const active = item.id === step;
-            const completed = item.id < step;
+      <div role="list" aria-label="Avanzamento registrazione" className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+        {STEPS.map((item, index) => {
+          const active = item.id === step;
+          const completed = item.id < step;
 
-            return (
-              <div
-                key={item.id}
-                role="listitem"
-                aria-current={active ? "step" : undefined}
+          return (
+            <div
+              key={item.id}
+              role="listitem"
+              aria-current={active ? "step" : undefined}
+              title={item.description}
+              className="flex items-center gap-2"
+            >
+              <span
                 className={[
-                  "rounded-xl border px-4 py-3",
-                  active
-                    ? "border-[#b8d2c8] bg-white shadow-sm"
-                    : completed
-                      ? "border-[#d9e8e2] bg-[#edf5f2]"
-                      : "border-transparent bg-transparent",
+                  "flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1.5 text-[11px] font-bold",
+                  active || completed
+                    ? "bg-[#1a5144] text-white"
+                    : "bg-[#e7ece9] text-[#52615b]",
                 ].join(" ")}
               >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={[
-                      "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold",
-                      active || completed
-                        ? "bg-[#1a5144] text-white"
-                        : "bg-[#e7ece9] text-[#52615b]",
-                    ].join(" ")}
-                  >
-                    {completed ? "✓" : item.badge}
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-[#1d2824]">{item.label}</p>
-                    <p className="mt-0.5 text-[11px] text-[#5d6a65]">{item.description}</p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                {completed ? "✓" : item.badge}
+              </span>
+              <span className={active ? "font-semibold text-[#1d2824]" : "text-[#5d6a65]"}>{item.label}</span>
+              {index < STEPS.length - 1 ? (
+                <span aria-hidden="true" className="h-px w-5 bg-[#cbd8d2]" />
+              ) : null}
+            </div>
+          );
+        })}
       </div>
 
       {clientError ? (
         <div
           role="alert"
           aria-live="polite"
-          className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
+          className="mt-4 rounded-xl border border-[#efc5bd] bg-[#fff5f3] px-4 py-3 text-sm text-[#9f2f24]"
         >
           {clientError}
         </div>
@@ -283,7 +273,7 @@ export function CompanyRegistrationForm({
       <section
         data-registration-step="1"
         hidden={step !== 1}
-        className="mt-7 space-y-5"
+        className="mt-5 space-y-4"
       >
         <div>
           <p className="app-kicker">Dati essenziali</p>
@@ -389,7 +379,7 @@ export function CompanyRegistrationForm({
       <section
         data-registration-step="2"
         hidden={step !== 2}
-        className="mt-7 space-y-6"
+        className="mt-5 space-y-4"
       >
         <div>
           <p className="app-kicker">Profilo operativo</p>
@@ -501,20 +491,16 @@ export function CompanyRegistrationForm({
       <section
         data-registration-step="3"
         hidden={step !== 3}
-        className="mt-7 space-y-5"
+        className="mt-5 space-y-4"
       >
         <div>
           <p className="app-kicker">Ultimo controllo</p>
-          <h2 tabIndex={-1} className="mt-2 text-xl font-semibold text-[#1d2824]">
-            Tutto pronto per la revisione
+          <h2 tabIndex={-1} className="mt-1 text-xl font-semibold text-[#1d2824]">
+            Controlla e invia
           </h2>
-          <p className="mt-2 text-sm leading-6 text-[#66736e]">
-            Controlla i dati principali. Dopo l’invio potrai seguire lo stato della richiesta
-            direttamente dalla piattaforma.
-          </p>
         </div>
 
-        <dl className="overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
+        <dl className="grid gap-x-6 gap-y-2 rounded-xl border border-[#dce2df] bg-white px-4 py-3 sm:grid-cols-2">
           {[
             ["Azienda", review?.legalName || "—"],
             ["Paese", review?.countryCode || "—"],
@@ -523,26 +509,17 @@ export function CompanyRegistrationForm({
             ["Referente", review?.contactName || "—"],
             ["Sito web", review?.website || "Non indicato"],
           ].map(([label, value]) => (
-            <div
-              key={label}
-              className="grid gap-1 border-b border-[#eef1ef] px-4 py-3 last:border-b-0 sm:grid-cols-[170px_1fr] sm:gap-4"
-            >
-              <dt className="text-xs font-semibold uppercase tracking-[0.08em] text-[#5d6a65]">
+            <div key={label} className="flex min-w-0 items-baseline justify-between gap-3 sm:block">
+              <dt className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#5d6a65]">
                 {label}
               </dt>
-              <dd className="text-sm font-medium text-[#1d2824]">{value}</dd>
+              <dd className="min-w-0 truncate text-sm font-medium text-[#1d2824]">{value}</dd>
             </div>
           ))}
         </dl>
 
-        <div className="space-y-3 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-5">
-          <p className="text-sm font-semibold text-[#1d2824]">Privacy e condizioni di accesso</p>
-          <p className="text-xs leading-5 text-[#66736e]">
-            Le due conferme sono registrate separatamente e con la versione dei documenti.
-            Prendere visione dell’informativa privacy non equivale a prestare consenso.
-          </p>
-
-          <label className="flex gap-3 rounded-xl border border-[#e2e7e4] bg-white p-3 text-sm leading-5 text-[#43524c]">
+        <div className="space-y-2 rounded-xl border border-[#dce2df] bg-[#f8faf9] p-3">
+          <label className="flex gap-3 text-sm leading-5 text-[#43524c]">
             <input
               type="checkbox"
               name="privacy_acknowledged"
@@ -561,7 +538,7 @@ export function CompanyRegistrationForm({
             </span>
           </label>
 
-          <label className="flex gap-3 rounded-xl border border-[#e2e7e4] bg-white p-3 text-sm leading-5 text-[#43524c]">
+          <label className="flex gap-3 text-sm leading-5 text-[#43524c]">
             <input
               type="checkbox"
               name="terms_accepted"
@@ -579,24 +556,27 @@ export function CompanyRegistrationForm({
               </Link>.
             </span>
           </label>
-        </div>
-
-        <div className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-5">
-          <p className="text-sm font-semibold text-[#123d34]">Cosa succede dopo</p>
-          <p className="mt-2 text-sm leading-6 text-[#43524c]">
-            {claim
-              ? "La richiesta viene revisionata insieme al claim dell’identità selezionata. Se approvata, l’attivazione collega il workspace a quel profilo gestito senza creare un duplicato."
-              : "La richiesta viene revisionata prima dell’attivazione. L’approvazione della registrazione non equivale a una certificazione, una verifica commerciale o una raccomandazione dell’azienda."}
+          <p className="text-[11px] leading-4 text-[#66736e]">
+            Le due conferme sono registrate separatamente, con la versione dei documenti. Prendere
+            visione dell’informativa non equivale a prestare consenso.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-[#e4d8cf] bg-[#fbf6f2] p-5 text-sm leading-6 text-[#674c3b]">
-          Email, offerte, prezzi, ordini e documenti commerciali restano nel workspace privato
-          dell’azienda e non diventano dati pubblici del Network.
+        <div className="rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm leading-6 text-[#43524c]">
+          <p className="font-semibold text-[#123d34]">Cosa succede dopo</p>
+          <p className="mt-1">
+            {claim
+              ? "Il profilo che hai scelto è già nel Network: lo colleghiamo al tuo workspace dopo un controllo sulla proprietà, senza creare un duplicato."
+              : "Se la Partita IVA è valida e nel Network non c’è un profilo simile, il workspace si attiva appena invii. Altrimenti facciamo un breve controllo e ti scriviamo."}
+          </p>
+          <p className="mt-1 text-xs text-[#5d6a65]">
+            La spunta di azienda verificata arriva in seguito e non equivale a una raccomandazione
+            commerciale. Email, offerte, prezzi e ordini restano nel workspace privato.
+          </p>
         </div>
       </section>
 
-      <div className="mt-8 flex flex-col-reverse gap-3 border-t border-[#e7ece9] pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-6 flex flex-col-reverse gap-3 border-t border-[#e7ece9] pt-4 sm:flex-row sm:items-center sm:justify-between">
         {step > 1 ? (
           <button
             type="button"

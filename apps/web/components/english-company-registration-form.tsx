@@ -177,8 +177,8 @@ export function EnglishCompanyRegistrationForm({ initial, claim, returnTo }: {
       </section>
 
       <section data-step="3" hidden={step !== 3} className="mt-7 space-y-5">
-        <h2 className="text-xl font-bold text-[#123b34]">Review your company application</h2>
-        <p className="text-sm leading-6 text-[#66736e]">Once submitted, your application remains pending until reviewed by the platform team. Registration is not a business endorsement.</p>
+        <h2 className="text-xl font-bold text-[#123b34]">Check and submit</h2>
+        <p className="text-sm leading-6 text-[#66736e]">With a valid VAT number and no similar profile in the Network, your workspace opens as soon as you submit; otherwise we run a short check and email you. Registration is not a business endorsement.</p>
         <dl className="grid gap-3 rounded-xl border border-[#dce2df] bg-white p-4 text-sm sm:grid-cols-2">
           <div><dt className="text-[#66736e]">Legal company name</dt><dd className="font-bold">{summary("legal_name")}</dd></div>
           <div><dt className="text-[#66736e]">Country</dt><dd className="font-bold">{summary("country_code")}</dd></div>
@@ -199,7 +199,7 @@ export function EnglishCompanyRegistrationForm({ initial, claim, returnTo }: {
           </label>
         </fieldset>
         <p className="rounded-xl border border-[#b8d2c8] bg-[#edf5f2] p-4 text-sm leading-6 text-[#173f35]">
-          Your company profile will be reviewed before activation. Commercial emails, RFQs, prices, offers and orders remain private to your authorized workspace.
+          The verified-company badge comes later. Commercial emails, RFQs, prices, offers and orders remain private to your authorized workspace.
         </p>
       </section>
 
@@ -207,7 +207,7 @@ export function EnglishCompanyRegistrationForm({ initial, claim, returnTo }: {
         {step > 1 ? <button type="button" onClick={() => { setError(null); setStep(step === 3 ? 2 : 1); }}
           className="app-secondary h-11 rounded-xl px-5 text-sm font-bold">Back</button> : <span />}
         {step < 3 ? <button type="button" onClick={() => void forward()} className="app-primary h-11 rounded-xl px-6 text-sm font-bold">Continue</button>
-          : <PendingSubmitButton pendingLabel="Submitting…" className="app-primary h-11 rounded-xl px-6 text-sm font-bold disabled:opacity-50">Submit for review</PendingSubmitButton>}
+          : <PendingSubmitButton pendingLabel="Submitting…" className="app-primary h-11 rounded-xl px-6 text-sm font-bold disabled:opacity-50">Submit</PendingSubmitButton>}
       </div>
     </form>
   );
