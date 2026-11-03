@@ -6,6 +6,7 @@ import type { MarketplaceFeedResponse } from "@/lib/marketplace";
 import type { NetworkActivityItem } from "@/lib/network";
 import type { PulseAdvancedInterests } from "@/lib/steel-pulse-advanced";
 import type { DashboardNetworkMatch } from "@/lib/dashboard-network-discovery";
+import type { FreeNetworkPreview } from "@/lib/dashboard-free-network-preview";
 import { appRoutes } from "@/lib/routes";
 
 /**
@@ -15,6 +16,7 @@ import { appRoutes } from "@/lib/routes";
  */
 export function DashboardDiscoveryFeed({
   networkEnabled, networkEntitled, marketplace, interests, networkCompanies, networkDiscoveryAvailable, canWriteCommercial,
+  freeNetworkReadEnabled = false, freeNetworkPreview = null,
 }: {
   networkEnabled: boolean;
   networkEntitled: boolean;
@@ -25,6 +27,10 @@ export function DashboardDiscoveryFeed({
   networkCompanies: readonly DashboardNetworkMatch[];
   networkDiscoveryAvailable: boolean;
   canWriteCommercial: boolean;
+  /** HOME-NETPREVIEW1: free read of the published Network is on for this non-Pro organization. */
+  freeNetworkReadEnabled?: boolean;
+  /** HOME-NETPREVIEW1: first published page from the free browse RPC, or null if unavailable. */
+  freeNetworkPreview?: FreeNetworkPreview | null;
 }) {
   const opportunities = marketplace?.contract === "P5.2-feed-v1"
     ? selectDashboardOpportunities(marketplace.items, interests, 2)
@@ -126,7 +132,55 @@ export function DashboardDiscoveryFeed({
             ) : null}
             {/* NET-UX LOT1: Segui/Salva removed by founder decision (2 Nov 2026); the
                 Network relationship is Connetti only. */}
-            {!networkEntitled ? (
+            {!networkEntitled && freeNetworkReadEnabled ? (
+              <div aria-label="Aziende pubblicate nel Network" data-testid="dashboard-free-network-preview" className="mt-2 rounded-lg border border-[#dbe9df] bg-white px-3 py-2">
+                {freeNetworkPreview && freeNetworkPreview.companies.length > 0 ? (
+                  <>
+                    <ul className="divide-y divide-[#e5eee8]">
+                      {freeNetworkPreview.companies.map((company) => (
+                        <li key={company.id} className="min-w-0 py-1">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                            <DashboardTrackedLink
+                              engagementKind="network_profile"
+                              href={appRoutes.network.company(company.id)}
+                              className="inline-flex min-h-10 min-w-0 flex-1 items-center break-words text-xs font-semibold text-[#173f35] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2"
+                            >
+                              {company.name}
+                            </DashboardTrackedLink>
+                            {company.verified ? (
+                              <span className="shrink-0 text-[10px] font-medium text-[#53665b]">Identità verificata</span>
+                            ) : null}
+                          </div>
+                          {company.role || company.place ? (
+                            <p className="mt-0.5 break-words text-[11px] leading-4 text-[#52615b]">
+                              {[company.role, company.place].filter(Boolean).join(" · ")}
+                            </p>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                    <Link
+                      href={appRoutes.network.directory}
+                      className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
+                    >
+                      {freeNetworkPreview.total > freeNetworkPreview.companies.length
+                        ? "Vedi tutte le " + freeNetworkPreview.total.toLocaleString("it-IT") + " aziende →"
+                        : "Apri il Network →"}
+                    </Link>
+                    <p className="text-[10px] leading-4 text-[#65746c]">
+                      Prime aziende pubblicate nel Network; l’elenco non è una selezione di fornitori per una RFQ.
+                    </p>
+                  </>
+                ) : (
+                  <p role="status" className="text-xs leading-5 text-[#52615b]">
+                    {freeNetworkPreview
+                      ? "Nessuna azienda pubblicata al momento. Il Network completo rimane consultabile."
+                      : "L’anteprima delle aziende non è disponibile adesso. Il Network completo rimane consultabile."}
+                  </p>
+                )}
+              </div>
+            ) : null}
+            {!networkEntitled && !freeNetworkReadEnabled ? (
               <p role="status" className="mt-2 rounded-lg bg-white px-3 py-2 text-xs leading-5 text-[#52615b]">
                 Il Network diventa disponibile quando è abilitato per la tua organizzazione.
               </p>
