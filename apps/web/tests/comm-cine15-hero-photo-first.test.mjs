@@ -23,11 +23,12 @@ test("COMM-CINE15 retains grounded KPIs with semantic labels and distinct demo/l
     ["Offerte", "offers"],
     ["Ordini", "orders"],
   ]) {
-    assert.match(page, new RegExp('<dt[^>]+>' + label + '<\\/dt><dd[^>]+>\\{operational\\.' + value + '\\}<\\/dd>'));
+    assert.match(page, new RegExp('<dt[^>]+>' + label + '<\\/dt><dd[^>]+>\\{historicalCount\\(operational\\.' + value + '\\)\\}<\\/dd>'));
   }
   assert.match(page, /mode === "live" \? "Dati live"/);
   assert.match(page, /mode === "demo" \? "Modalità demo"/);
-  assert.match(page, /Dati in attesa di associazione/);
+  assert.match(page, /Stato dello storico da verificare/);
+  assert.match(page, /mode === "awaiting_assignment" \? "—" : count/);
   assert.match(page, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.match(ai, /onSubmit=\{startRequest\}/);
   assert.equal((page.match(/<CommercialUnifiedWorklist/g) || []).length, 1);
