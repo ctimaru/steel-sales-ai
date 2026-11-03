@@ -122,6 +122,71 @@ async function viewportCheck(page, { width, height, role }) {
   console.log("COMM-UX6.A VISUAL PASS", role, width, { heroHeight: h.height, worklistY: w.y, quickActionsY: t.y });
 }
 
+
+/** COMM-TRUST1.A/B: real browser checks, not a source-only assertion. */
+async function calculatorTrustCheck(page, width) {
+  const launch = page.getByRole("button", { name: "Calcolatrice pesi" });
+  await launch.click();
+  const panel = page.locator("[data-commercial-calculator-panel]");
+  await panel.waitFor({ state: "visible" });
+  const bars = panel.locator('[aria-label="Numero barre"]');
+  const length = panel.locator('[aria-label="Lunghezza barra personalizzata"]');
+  const price = panel.locator('[aria-label="Prezzo €/t"]');
+  await bars.fill("4");
+  await length.fill("8");
+  await price.fill("1115");
+  await panel.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
+
+  const trigger = page.getByTestId("calculator-cart-trigger");
+  await trigger.waitFor({ state: "visible" });
+  await trigger.click();
+  const cart = page.locator("#distinta-inline-dialog");
+  await cart.waitFor({ state: "visible" });
+  const title = cart.locator('[aria-label="Nome distinta"]');
+  await title.fill("COMM-TRUST1 verifica");
+  assert.equal(await cart.locator("[data-distinta-compact-row]").count(), 1,
+    "One added measure should generate only one bill row");
+
+  // First Escape closes the nested portal, not its parent.
+  await page.keyboard.press("Escape");
+  await cart.waitFor({ state: "hidden" });
+  assert.ok(await panel.isVisible(), "Nested Escape must leave the calculator open");
+  assert.ok(await trigger.isVisible(), "Bill trigger must regain keyboard access");
+
+  // The portal trigger is deliberately in the parent Tab loop.
+  const close = panel.getByRole("button", { name: "Chiudi", exact: true });
+  await close.focus();
+  await page.keyboard.press("Shift+Tab");
+  assert.equal(await trigger.evaluate(el => document.activeElement === el), true,
+    "Shift+Tab from the first parent control must reach the floating bill trigger");
+  await page.keyboard.press("Tab");
+  assert.equal(await close.evaluate(el => document.activeElement === el), true,
+    "Tab from the floating bill trigger must wrap to the calculator close control");
+
+  await close.click();
+  await panel.waitFor({ state: "hidden" });
+  assert.equal(await trigger.isVisible(), false, "Parked calculator must hide its floating cart");
+  assert.equal(await launch.evaluate(el => document.activeElement === el), true,
+    "Closing the parent must return focus to the launcher");
+  await launch.click();
+  await panel.waitFor({ state: "visible" });
+  assert.equal(await bars.inputValue(), "4");
+  assert.equal(await length.inputValue(), "8");
+  assert.equal(await price.inputValue(), "1115",
+    "Unsaved commercial price stays in memory, never a new shared-storage draft");
+
+  await trigger.click();
+  await cart.waitFor({ state: "visible" });
+  assert.equal(await title.inputValue(), "COMM-TRUST1 verifica");
+  assert.equal(await cart.locator("[data-distinta-compact-row]").count(), 1,
+    "Reopening must not duplicate a previously added line");
+  await page.keyboard.press("Escape");
+  await cart.waitFor({ state: "hidden" });
+  await page.keyboard.press("Escape");
+  await panel.waitFor({ state: "hidden" });
+  console.log("COMM-TRUST1.A/B PASS", width);
+}
+
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 try {
   for (const width of [1440, 390, 320]) {
@@ -135,6 +200,7 @@ try {
         const page = await context.newPage();
         await login(page, p);
         await viewportCheck(page, { width, height: width === 1440 ? 900 : 844, role: p.id });
+        if (p.id === "buyer") await calculatorTrustCheck(page, width);
         if (width === 1440 && p.id === "buyer") {
           const sample = "40 tubi quadri 100×100×5 S355J2H EN 10219, 6 m";
           const input = page.locator("#commercial-ai-companion-input");
