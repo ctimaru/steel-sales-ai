@@ -32,11 +32,16 @@ export function CommercialRfqConversation({
   manualTools: ReactNode;
 }) {
   const chatEnd = useRef<HTMLDivElement>(null);
+  const hasMounted = useRef(false);
   const canSubmit = value.trim().length >= 3 && !pending && !hasProposals && mode === "text";
 
   useEffect(() => {
-    // Scroll only the transcript container; do not push the entire Commerciale
-    // page past the mobile navigation when a new message arrives.
+    // Never scroll the page on initial mount, especially after a one-shot
+    // home-to-composer handoff. On later turns only reveal the transcript end.
+    if (!hasMounted.current) {
+      hasMounted.current = true;
+      return;
+    }
     chatEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" });
   }, [turns.length, pending, hasProposals]);
 
