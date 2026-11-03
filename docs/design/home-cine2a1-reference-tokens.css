@@ -1,0 +1,30 @@
+/* HOME-CINE2A.1: REFERENCE TOKENS ONLY, NOT IMPORTED INTO APP.
+ * Use in a future PR after Chrome WCAG and LCP measurements. */
+:root {
+  --sss-cine-steel-black: #04120F;
+  --sss-cine-steel-stage: #061713;
+  --sss-cine-steel-panel: #09251F;
+  --sss-cine-steel-panel-raised: #102E27;
+  --sss-cine-steel-stroke: #2C6650;
+  --sss-cine-emerald-light: #55E6B0;
+  --sss-cine-emerald-laser: #1BE99C;
+  --sss-cine-emerald-muted: #89DABA;
+  --sss-cine-primary-action: #0B7852;
+  --sss-cine-primary-hover: #075E40;
+  --sss-cine-text-primary: #F2FFF8;
+  --sss-cine-text-secondary: #C4DDD0;
+  --sss-cine-text-tertiary: #9AC2AE;
+  --sss-cine-metal-sheen: #B6CFC4;
+  --sss-cine-metal-middle: #69867C;
+  --sss-cine-metal-shadow: #1C3330;
+  --sss-cine-focus-ring: #A9FFD1;
+  --sss-cine-error: #F7A8A8;
+  --sss-cine-glass: rgba(5,28,22,.88);
+  --sss-cine-glow-stroke: rgba(76,228,157,.32);
+  --sss-cine-focus: #A9FFD1;
+  --sss-cine-card-radius: 12px;
+  --sss-cine-input-radius: 8px;
+  --sss-cine-row-min: 44px;
+  --sss-cine-title-desktop: clamp(3.2rem,4.65vw,5.1rem);
+  --sss-cine-title-mobile: clamp(2.3rem,7vw,3.15rem);
+}

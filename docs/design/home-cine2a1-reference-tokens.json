@@ -1,0 +1,97 @@
+{
+  "version": "HOME-CINE2A.1-2026-10-25",
+  "status": "proposed-reference-tokens-not-imported-into-app",
+  "purpose": "shared visual baseline for HOME-CINE2A.2/2A.3, HOME-CINE2B, HOME-CINE2C",
+  "color": {
+    "steel-black": "#04120F",
+    "steel-stage": "#061713",
+    "steel-panel": "#09251F",
+    "steel-panel-raised": "#102E27",
+    "steel-stroke": "#2C6650",
+    "emerald-light": "#55E6B0",
+    "emerald-laser": "#1BE99C",
+    "emerald-muted": "#89DABA",
+    "primary-action": "#0B7852",
+    "primary-hover": "#075E40",
+    "text-primary": "#F2FFF8",
+    "text-secondary": "#C4DDD0",
+    "text-tertiary": "#9AC2AE",
+    "metal-sheen": "#B6CFC4",
+    "metal-middle": "#69867C",
+    "metal-shadow": "#1C3330",
+    "focus-ring": "#A9FFD1",
+    "error": "#F7A8A8"
+  },
+  "surface": {
+    "photo-veil-left": "linear-gradient(90deg,#04120F 0%,rgba(4,18,15,.93) 23%,rgba(4,18,15,.63) 45%,rgba(4,18,15,.06) 82%)",
+    "glass": "rgba(5,28,22,.88)",
+    "grid": "rgba(105,225,162,.07)",
+    "border-glow": "rgba(76,228,157,.32)"
+  },
+  "typography": {
+    "family": "inherit (existing product sans; avoid additional font download)",
+    "hero-desktop": "clamp(3.2rem,4.65vw,5.1rem)",
+    "hero-mobile": "clamp(2.3rem,7vw,3.15rem)",
+    "section-heading": "clamp(1.65rem,3vw,2.7rem)",
+    "body-desktop": "15px",
+    "body-compact": "13px",
+    "data-label": "11px",
+    "micro-label": "10px",
+    "line-height-hero": 1.04,
+    "tracking-hero": "-0.055em"
+  },
+  "shape": {
+    "radius-card": "12px",
+    "radius-input": "8px",
+    "radius-pill": "999px",
+    "border-premium": "1px solid rgba(76,228,157,.32)"
+  },
+  "spacing": {
+    "base": 4,
+    "hero-inner-max": 1280,
+    "wide-panel-max": 1480,
+    "compact-row-height": 44,
+    "touch-target-min": 44,
+    "desktop-tube-visual-area-percent": "55–65% (target, not measured)",
+    "hero-left-copy-area-percent": "35–43% (target, not measured)"
+  },
+  "motion": {
+    "ambient-translation-max": "6px",
+    "photo-scale-max": 1.018,
+    "duration-soft": "12s",
+    "disabled": "prefers-reduced-motion: reduce / prefers-reduced-data: reduce",
+    "forbidden": [
+      "video autoplay",
+      "heavy WebGL",
+      "unbounded particle canvas",
+      "layout-changing animations"
+    ]
+  },
+  "quality": {
+    "lighthouse-baseline-mobile": [
+      94,
+      94,
+      95
+    ],
+    "lcp-baseline-ms": [
+      2731,
+      2720,
+      2714
+    ],
+    "cls-baseline": 0,
+    "warning-lcp-delta-ms": 150,
+    "warning-score-drop-points": 3,
+    "axe-serious-critical-max": 0,
+    "viewport-widths": [
+      320,
+      390,
+      768,
+      1280,
+      1440
+    ]
+  },
+  "scope": {
+    "safe-to-apply": "prototype CSS classes only after contrast and screenshot QA",
+    "forbidden": "change canonical calculator math or auth/network role boundaries without functional tests"
+  }
+}
