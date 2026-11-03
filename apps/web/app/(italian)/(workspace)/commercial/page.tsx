@@ -169,10 +169,13 @@ export default async function CommercialHomePage({
     item.requires_action === true && typeof item.rfq_id === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.rfq_id)
   ).slice(0, 3);
+  // The dashboard metrics RPC can fail as well as return no rows. An unknown
+  // read must never be represented as a verified zero or an assignment diagnosis.
+  const historicalCount = (count: number) => mode === "awaiting_assignment" ? "—" : count;
   const metricCards = [
-    { label: "Richieste nello storico", value: operational.rfqs },
-    { label: "Offerte nello storico", value: operational.offers },
-    { label: "Ordini nello storico", value: operational.orders },
+    { label: "Richieste nello storico", value: historicalCount(operational.rfqs) },
+    { label: "Offerte nello storico", value: historicalCount(operational.offers) },
+    { label: "Ordini nello storico", value: historicalCount(operational.orders) },
     ...(typeof procurementPayload?.summary?.active_rfqs === "number"
       ? [{ label: "RFQ acquisti attive", value: procurementPayload.summary.active_rfqs }]
       : []),
@@ -213,12 +216,12 @@ export default async function CommercialHomePage({
           <div aria-label="Il tuo centro operativo" className={"relative z-10 hidden lg:block " + cinematic.heroMetrics}>
             <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo · Storico commerciale</p>
             <dl className="grid grid-cols-3 gap-2">
-              <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.rfqs}</dd></div>
-              <div><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.offers}</dd></div>
-              <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-lg font-semibold tabular-nums text-white">{operational.orders}</dd></div>
+              <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-lg font-semibold tabular-nums text-white">{historicalCount(operational.rfqs)}</dd></div>
+              <div><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-lg font-semibold tabular-nums text-white">{historicalCount(operational.offers)}</dd></div>
+              <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-lg font-semibold tabular-nums text-white">{historicalCount(operational.orders)}</dd></div>
             </dl>
             <p className="mt-1 text-[10px] font-medium text-[#b8d8c6]">
-              {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Dati in attesa di associazione"} · Workspace privato
+              {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Stato dello storico da verificare"} · Workspace privato
             </p>
           </div>
         </div>
@@ -596,12 +599,14 @@ export default async function CommercialHomePage({
 
         {recent.length === 0 ? (
           <FirstUseEmptyState
-            eyebrow="Memoria ancora vuota"
-            title="Qui compariranno le ultime RFQ, offerte e ordini"
-            description="Quando il workspace contiene dati commerciali, questa sezione mostra solo gli ultimi movimenti utili."
+            eyebrow={mode === "awaiting_assignment" ? "Storico non verificato" : "Memoria ancora vuota"}
+            title={mode === "awaiting_assignment" ? "Non possiamo confermare lo stato dello storico" : "Qui compariranno le ultime RFQ, offerte e ordini"}
+            description={mode === "awaiting_assignment"
+              ? "Il caricamento dei dati non è verificato: lo storico può essere da associare, non disponibile oppure vuoto. Nessun conteggio è considerato confermato."
+              : "Quando il workspace contiene dati commerciali, questa sezione mostra solo gli ultimi movimenti utili."}
             primaryAction={{
               href: appRoutes.commercial.search,
-              label: "Apri la ricerca",
+              label: mode === "awaiting_assignment" ? "Controlla lo storico" : "Apri la ricerca",
             }}
             compact
           />
