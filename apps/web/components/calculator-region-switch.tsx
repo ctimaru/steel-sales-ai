@@ -73,7 +73,7 @@ export function CalculatorRegionSwitch({
   }
 
   return (
-    <CalculatorInlineDistintaExperience active={active} references={references??[]}
+    <CalculatorInlineDistintaExperience references={references??[]} active={active}
       initialValues={isNewCalculatorLocale(locale)
         ? internationalEuInitialValues(internationalSeed) : initialValues}
       locale={locale}
