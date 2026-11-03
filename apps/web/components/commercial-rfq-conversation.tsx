@@ -33,7 +33,7 @@ export function CommercialRfqConversation({
 }) {
   const chatEnd = useRef<HTMLDivElement>(null);
   const hasMounted = useRef(false);
-  const canSubmit = value.trim().length >= 3 && !pending && !hasProposals && mode === "text";
+  const canSubmit = value.trim().length >= 3 && !pending && mode === "text";
 
   useEffect(() => {
     // Never scroll the page on initial mount, especially after a one-shot
@@ -141,26 +141,26 @@ export function CommercialRfqConversation({
               <textarea id="rfqai2-text-input" rows={2} maxLength={12000}
                 value={value} onChange={(event) => onChange(event.target.value)}
                 onKeyDown={onComposerKeyDown}
-                disabled={pending || hasProposals}
-                placeholder={hasProposals ? "Verifica prima gli articoli proposti…" : "Scrivi misure, quantità, norma, lunghezza…"}
+                disabled={pending}
+                placeholder={hasProposals ? "Correggi una proposta: riga 2: 20 barre" : "Scrivi misure, quantità, norma, lunghezza…"}
                 className="min-h-[54px] max-h-44 w-full resize-y rounded-lg border-0 bg-transparent px-2 py-1 text-sm leading-6 text-[#173f35] outline-none placeholder:text-[#788d80] disabled:cursor-not-allowed disabled:opacity-60"
                 spellCheck={false} />
               <div className="flex items-center justify-between gap-2">
-                <button type="button" onClick={onClear} disabled={!value.trim() || pending || hasProposals}
+                <button type="button" onClick={onClear} disabled={!value.trim() || pending}
                   className="min-h-10 rounded-lg px-2 text-xs font-semibold text-[#52695b] underline underline-offset-4 disabled:opacity-40">
                   Cancella
                 </button>
                 <button type="button" onClick={onAnalyze} disabled={!canSubmit}
-                  aria-label={pending ? "Analisi in corso" : value.trim().length > 0 && value.trim().length < 12 ? "Completa richiesta" : "Analizza la richiesta con AI"}
+                  aria-label={pending ? "Analisi in corso" : hasProposals ? "Correggi proposta AI" : value.trim().length > 0 && value.trim().length < 12 ? "Completa richiesta" : "Analizza la richiesta con AI"}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
-                  {pending ? "Analisi…" : value.trim().length > 0 && value.trim().length < 12 ? "Completa" : "Analizza"}
+                  {pending ? "Analisi…" : hasProposals ? "Correggi riga" : value.trim().length > 0 && value.trim().length < 12 ? "Completa" : "Analizza"}
                   <span aria-hidden="true">↑</span>
                 </button>
               </div>
             </div>
             <p className="mt-1 px-1 text-[11px] leading-4 text-[#67796f]">
               {hasProposals
-                ? "Prima conferma o scarta le proposte. Poi puoi aggiungere altre righe."
+                ? "Puoi correggere una riga alla volta (es. riga 2: 20 barre). Nessuna correzione è approvata automaticamente."
                 : value.trim().length > 0 && value.trim().length < 12
                   ? "Puoi completare questa misura: ti chiederò forma, quantità o lunghezza senza inventarle."
                   : "Invio esplicito all’AI · nessuna RFQ viene salvata o inviata automaticamente."}
