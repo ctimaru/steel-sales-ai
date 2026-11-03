@@ -58,7 +58,7 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
           </div>
         </div>
         {canWrite ? (
-          <form onSubmit={startRequest} data-testid="comm-cine11-prompt" role="search" aria-label="Prepara una nuova distinta nella chat"
+          <form onSubmit={startRequest} data-testid="comm-cine11-prompt" aria-label="Prepara una nuova distinta nella chat"
             className={"min-w-0 space-y-1.5 " + cinematic.companionForm}>
             <label htmlFor="commercial-ai-companion-input" className="sr-only">Descrivi i materiali da inserire nella distinta</label>
             <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-stretch">
