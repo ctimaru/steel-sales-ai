@@ -56,10 +56,10 @@ test("COMM-RFQ-UX1 makes approved articles actionable while keeping private save
   assert.match(builder, /onClick=\{saveDistinta\}/);
   assert.match(builder, /onClick=\{createRfqHub\}/);
   assert.match(builder, /onOpenEditor=\{\(\) => \{ setShowManualTools\(true\); openPrivateCart\(\); \}\}/);
-  assert.match(builder, /disabled=\{!allComplete \|\| !draftReady \|\| savePending \|\| rfqPending/);
+  assert.match(preview, /disabled=\{!canSave \|\| Boolean\(savedId\)\}/);
   assert.match(builder, /Explicit human-approved candidates from the review UI/);
   assert.match(builder, /crea la RFQ con un clic/);
-  assert.match(builder, /non invia messaggi ai fornitori/);
+  assert.match(preview, /non invia messaggi ai fornitori/);
 });
 
 test("COMM-RFQ-UX1 TSX changed modules parse without JSX syntax errors", () => {
