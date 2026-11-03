@@ -86,16 +86,14 @@ export function CommercialRfqConversation({
                 <div className="max-w-[94%] min-w-0">
                   <p className="text-[15px] font-bold text-[#173f35]">Come posso aiutarti con la richiesta?</p>
                   <p className="mt-1 text-sm leading-6 text-[#53695d]">
-                    Scrivi misure, quantità e lunghezza. La distinta a fianco si aggiorna dopo la verifica.
+                    Scrivi le misure. Preparo gli articoli da verificare.
                   </p>
                   {!value.trim() ? (
                     <button type="button" onClick={onSample} data-testid="commercial-rfq-sample"
                       className="mt-3 min-h-11 rounded-xl border border-[#c4d8ca] bg-white px-3 py-2 text-left text-xs font-medium leading-5 text-[#175640] hover:bg-[#eef7f1]">
                       Prova: 40 tubi quadri 100×100×5, S355J2H, EN 10219, 12 m
                     </button>
-                  ) : (
-                    <p className="mt-3 text-xs font-medium text-[#315e49]">La tua richiesta è già nel campo di scrittura. Premi Analizza quando sei pronto.</p>
-                  )}
+                  ) : null}
                 </div>
               </div>
             ) : null}
