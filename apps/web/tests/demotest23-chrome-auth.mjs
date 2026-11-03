@@ -268,8 +268,14 @@ try {
             await worklist.getByRole("link", { name: tabLabel, exact: true }).click();
             await page.waitForURL((url) => url.pathname === "/commercial" &&
               url.searchParams.get("view") === expected, { timeout: 60000 });
-            await worklist.getByRole("navigation", { name: "Pagine attività commerciali" })
-              .getByText("Pagina 1", { exact: true }).waitFor({ state: "visible", timeout: 60000 });
+            // COMM-TRUST1.C: the truthful loading state replaces the list during
+            // navigation, and a single first page no longer renders a useless pager.
+            await page.locator("[data-commercial-loading]").waitFor({ state: "detached", timeout: 60000 });
+            await worklist.waitFor({ state: "visible", timeout: 60000 });
+            const tabPager = worklist.getByRole("navigation", { name: "Pagine attività commerciali" });
+            if (await tabPager.count()) {
+              assert.ok((await tabPager.innerText()).includes("Pagina 1"), tabLabel + " pager must start at page 1");
+            }
             assert.ok(!(await worklist.innerText()).includes("Alcuni dati commerciali e di acquisto non sono disponibili."),
               tabLabel + " must not show an incomplete multi-source list");
             assert.ok(!(await worklist.innerText()).includes("Il caricamento di alcune attività acquisti non è riuscito."),

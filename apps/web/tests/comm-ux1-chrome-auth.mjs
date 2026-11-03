@@ -170,7 +170,7 @@ async function verifyCinematic(page, label) {
     throw new Error("Commerciale hero heading accessibility not ready: "+JSON.stringify(state),{cause:err});
   }
   assert.equal(await heroHeading.count(),1);
-  assert.equal(await companion.getByRole("heading", { name: "Ciao, cosa stai cercando oggi?" }).count(), 1);
+  assert.equal(await companion.getByRole("heading", { name: "Descrivi i tubi che ti servono" }).count(), 1); // COMM-TRUST1.D copy
   assert.equal(await hero.locator("dt").count(), 3, label + ": three accessible real-data counters");
   const background = await hero.evaluate(el => getComputedStyle(el, "::before").backgroundImage);
   assert.match(background, /home-cine2a2b-factory-(desktop|mobile)\.webp/, label + ": factory poster is rendered");
@@ -221,7 +221,8 @@ try {
         assert.equal(await aiPrompt.count(), 0, "Viewer must not gain RFQ compose access");
       } else {
         assert.equal(await aiPrompt.count(), 1, "Writer gets exactly one AI intake form");
-        const create = companion.getByRole("button", { name: /Prepara la distinta/ });
+        // COMM-TRUST1.D renamed the CTA ("Apri chat e anteprima"); use its stable test id like COMM-UX6A.
+        const create = companion.getByTestId("commercial-ai-first-cta");
         assert.equal(await create.count(), 1, "One primary create action must be offered to writers");
         const colors = await create.evaluate(el => ({
           color: getComputedStyle(el).color, fill: getComputedStyle(el).webkitTextFillColor,
