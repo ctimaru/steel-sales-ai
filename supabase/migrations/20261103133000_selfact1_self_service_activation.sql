@@ -911,30 +911,30 @@ begin
   end if;
 
   if v_app.application_status <> 'pending_review' then
-    v_reasons := v_reasons || 'status_not_pending_review';
+    v_reasons := array_append(v_reasons, 'status_not_pending_review'::text);
   end if;
 
   if v_app.email_verified_at is null then
-    v_reasons := v_reasons || 'email_not_verified';
+    v_reasons := array_append(v_reasons, 'email_not_verified'::text);
   end if;
 
   if v_app.claim_target_network_company_id is not null then
-    v_reasons := v_reasons || 'claim_requires_review';
+    v_reasons := array_append(v_reasons, 'claim_requires_review'::text);
   end if;
 
   v_vat_key := private.hp4_normalize_identifier(v_app.vat_id);
   if v_app.country_code = 'IT' then
     if not private.selfact1_italian_vat_valid(v_app.vat_id) then
-      v_reasons := v_reasons || 'vat_invalid';
+      v_reasons := array_append(v_reasons, 'vat_invalid'::text);
     end if;
   elsif v_vat_key is null or char_length(v_vat_key) not between 8 and 18 then
-    v_reasons := v_reasons || 'vat_missing';
+    v_reasons := array_append(v_reasons, 'vat_missing'::text);
   end if;
 
   v_identity := private.selfact1_candidates_core(v_app.id);
   if coalesce((v_identity->>'candidate_count')::integer,0) > 0
      or coalesce((v_identity->>'possible_match_count')::integer,0) > 0 then
-    v_reasons := v_reasons || 'identity_candidates';
+    v_reasons := array_append(v_reasons, 'identity_candidates'::text);
   end if;
 
   if v_vat_key is not null and exists (
@@ -949,7 +949,7 @@ begin
       )
       and other.application_status in ('pending_review','needs_information','approved','activated')
   ) then
-    v_reasons := v_reasons || 'duplicate_application';
+    v_reasons := array_append(v_reasons, 'duplicate_application'::text);
   end if;
 
   if exists (
@@ -958,7 +958,7 @@ begin
     where m.user_id = v_app.applicant_user_id
       and m.status = 'active'
   ) then
-    v_reasons := v_reasons || 'already_member';
+    v_reasons := array_append(v_reasons, 'already_member'::text);
   end if;
 
   return jsonb_build_object(
