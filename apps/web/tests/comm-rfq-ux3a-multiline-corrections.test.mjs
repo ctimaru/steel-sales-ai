@@ -64,6 +64,7 @@ test("UX3.A routes each chat correction to review, not model memory or dispatch"
   assert.ok(reviewer.includes("if (!selected.length || transferStarted.current) return;"));
   assert.ok(preview.includes("const candidates = proposals?.candidates ?? []"));
   assert.ok(preview.includes("const calculated = approvedLines.map(calculateBuyerDistintaLine)"));
+  assert.ok(preview.includes('correctedByBuyer ? "Corretto in chat · conferma nuovamente"'));
   assert.ok(preview.includes("Le proposte non vengono salvate né conteggiate finché non le confermi."));
   assert.ok(builder.includes("function insertRfqAiTextLines(proposals: BuyerDistintaDraftLine[])"));
   assert.ok(intake.includes("if (!onInsertTextLines(items)) return false"));
