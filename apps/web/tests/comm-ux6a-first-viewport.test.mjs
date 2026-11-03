@@ -48,7 +48,7 @@ test("COMM-UX6.A retains human-approved AI handoff and readonly access rules", (
   assert.match(ai, /\?compose=1&method=ai#commercial-ai-intake/);
   assert.match(ai, /disabled=\{!ready \|\| !request\.trim\(\)\}/);
   assert.match(ai, /\{canWrite \? \(/);
-  assert.match(ai, /nessuna richiesta viene inviata automaticamente/);
+  assert.match(ai, /nessuna richiesta viene inviata automaticamente/i);
   assert.match(page, /canWriteWorkspace\(context\.role\)/);
   assert.match(page, /<BuyerDistintaBuilder/);
   assert.match(page, /non condividono automaticamente prezzi, contatti o documenti/);
