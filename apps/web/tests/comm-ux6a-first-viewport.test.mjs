@@ -35,7 +35,9 @@ test("COMM-UX6.A exposes calculator, private Distinte, new request before the ac
   assert.equal((page.match(/<CommercialCalculatorQuickAccess/g) ?? []).length, 1);
   assert.equal((page.match(/<CommercialAiCompanion/g) ?? []).length, 1);
   assert.equal((page.match(/<CommercialUnifiedWorklist/g) ?? []).length, 1);
-  assert.match(page, /\{canWrite \? \([\s\S]*?\+ Nuova richiesta/);
+  assert.match(page, /data-testid="commercial-manual-entry"/);
+  assert.match(page, /data-testid="commercial-history-entry"/);
+  assert.doesNotMatch(page, /\+ Nuova richiesta/);
   assert.match(calculator, /appRoutes\.rfqHub\.savedDistinte/);
   assert.match(calculator, /<CalculatorRegionSwitch locale="it" initialRegion="eu"/);
 });
