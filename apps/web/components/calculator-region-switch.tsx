@@ -39,6 +39,7 @@ export function CalculatorRegionSwitch({
   euAfter,
   internationalSeed,
   usInitialValues,
+  active = true,
 }: {
   locale: CalculatorSiteLocale;
   initialRegion?: Region;
@@ -48,6 +49,7 @@ export function CalculatorRegionSwitch({
   euAfter?: ReactNode;
   internationalSeed?:InternationalCalculatorSeed;
   usInitialValues?:UsPipeInitialValues;
+  active?: boolean;
 }) {
   const entryRegion=requestedRegion??initialRegion;
   const [region, setRegion] = useState<Region>(entryRegion);
@@ -71,7 +73,7 @@ export function CalculatorRegionSwitch({
   }
 
   return (
-    <CalculatorInlineDistintaExperience references={references??[]}
+    <CalculatorInlineDistintaExperience active={active} references={references??[]}
       initialValues={isNewCalculatorLocale(locale)
         ? internationalEuInitialValues(internationalSeed) : initialValues}
       locale={locale}
