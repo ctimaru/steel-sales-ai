@@ -100,6 +100,9 @@ try {
         fullPage: false, animations: "disabled" });
       await bridge.click();
       await page.waitForURL(u => u.pathname === "/commercial" && u.searchParams.get("q") === "P265GH", { timeout: 60000 });
+      // COMM-TRUST1.C added commercial/loading.tsx: the URL changes before the streamed
+      // worklist replaces the truthful loading state, so wait for it instead of counting at once.
+      await page.locator("#commercial-worklist").waitFor({ state: "visible", timeout: 60000 });
       assert.equal(await page.locator("#commercial-worklist").count(), 1);
       assert.equal(await page.locator("#commercial-worklist input[name=q]").inputValue(), "P265GH");
       if (id === "buyerViewer") {
