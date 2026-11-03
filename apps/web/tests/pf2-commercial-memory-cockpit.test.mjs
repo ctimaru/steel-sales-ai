@@ -13,7 +13,7 @@ const ia = fs.readFileSync(
 );
 
 test("PF2 keeps Commercial Memory search available below actionable work", () => {
-  assert.match(commercial, /Cerca nella Commercial Memory/);
+  assert.match(commercial, /Ricerca su dati già presenti/);
   assert.match(commercial, /Prodotto, cliente, RFQ, offerta, ordine o prezzo/);
   assert.match(commercial, /action=\{appRoutes\.commercial\.search\}/);
   assert.match(commercial, /name="q"/);
