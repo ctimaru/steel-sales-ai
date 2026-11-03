@@ -24,7 +24,11 @@ test("UX2.B uses an actual chat transcript with the composer in the bottom, not 
   assert.match(conversation, /role="log"/);
   assert.match(conversation, /textarea id="rfqai2-text-input"/);
   assert.match(conversation, /event\.key !== "Enter" \|\| event\.shiftKey \|\| event\.nativeEvent\.isComposing/);
-  assert.match(conversation, /disabled=\{pending \|\| hasProposals\}/);
+  // UX3.A keeps the composer available for explicitly numbered corrections
+  // while a batch is being reviewed; it remains disabled during pending AI.
+  assert.match(conversation, /disabled=\\{pending\\}/);
+  assert.match(conversation, /hasProposals \\? "Correggi riga"/);
+  assert.match(intake, /parseCommercialRfqLineCorrection\\(submitted, textResult\\.candidates\\.length\\)/);
   assert.match(conversation, /min-h-11/);
 });
 
@@ -37,7 +41,9 @@ test("UX2.B the AI only interprets explicitly submitted individual text without 
   assert.match(intake, /setTextResult\(response\.result\)/);
   assert.match(intake, /onPreviewChange\?\.\(response\.result\)/);
   assert.doesNotMatch(intake, /analyzeRfqAiFreeText\((?:conversationTurns|messages|history)\)/);
-  assert.match(conversation, /canSubmit = value\.trim\(\)\.length >= 3 && !pending && !hasProposals/);
+  assert.match(conversation, /canSubmit = value\\.trim\\(\\)\\.length >= 3 && !pending && mode === "text"/);
+  assert.match(intake, /if \\(textResult && focused\\) \\{/);
+  assert.match(intake, /setPendingCorrection\\(\\{/);
   assert.match(intake, /if \(focused && submitted\.length < 12\)/);
   assert.match(intake, /nessuna misura è stata ancora confermata/);
   assert.match(conversation, /value\.trim\(\)\.length > 0 && value\.trim\(\)\.length < 12 \? "Completa richiesta"/);
