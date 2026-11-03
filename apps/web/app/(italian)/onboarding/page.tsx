@@ -61,7 +61,7 @@ function StepState({ complete }: { complete: boolean }) {
   return (
     <span
       className={[
-        "rounded-full px-2.5 py-1 text-[11px] font-bold",
+        "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-bold",
         complete
           ? "bg-emerald-50 text-emerald-700"
           : "bg-amber-50 text-amber-800",
@@ -77,7 +77,7 @@ function Feedback({ message, error }: { message?: string; error?: string }) {
   return (
     <div
       className={[
-        "rounded-2xl border px-4 py-3 text-sm",
+        "mt-3 rounded-xl border px-3 py-2 text-sm",
         error
           ? "border-rose-200 bg-rose-50 text-rose-800"
           : "border-emerald-200 bg-emerald-50 text-emerald-800",
@@ -98,7 +98,7 @@ function Field({
   return (
     <label className="block text-sm font-medium text-[#43524c]">
       {label}
-      <div className="mt-2">{children}</div>
+      <div className="mt-1">{children}</div>
     </label>
   );
 }
@@ -191,15 +191,15 @@ export default async function OnboardingPage({
 
   if (!isAdmin) {
     return (
-      <main className="min-h-screen bg-[#f2f4f3] px-4 py-8 sm:px-6 sm:py-12">
-        <div className="mx-auto max-w-3xl">
-          <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 shadow-[0_14px_44px_rgba(18,61,52,0.06)] sm:p-8">
+      <main className="min-h-screen bg-[#f2f4f3] px-4 py-5 sm:px-6 sm:py-8">
+        <div className="mx-auto max-w-2xl">
+          <section className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
             <ProductBrand href="/" />
-            <p className="app-kicker mt-8">Workspace aziendale</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
+            <p className="app-kicker mt-4">Workspace aziendale</p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[#1d2824]">
               Benvenuto in {organization.name}
             </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
+            <p className="mt-1 text-sm leading-6 text-[#66736e]">
               Il tuo account è già collegato all&apos;azienda. Il setup iniziale è gestito dagli
               amministratori, ma puoi entrare subito nel workspace con i permessi assegnati.
             </p>
@@ -213,19 +213,14 @@ export default async function OnboardingPage({
               error={params.error}
             />
 
-            <div className="mt-6 rounded-2xl border border-[#dce2df] bg-[#f7f9f8] p-4 text-sm text-[#52615b]">
-              <p>
-                Permesso: <strong>{membership.role}</strong>
-              </p>
-              <p className="mt-1">
-                Ruolo commerciale:{" "}
-                <strong>{membership.business_role ?? "Non assegnato"}</strong>
-              </p>
-            </div>
+            <p className="mt-3 rounded-xl border border-[#dce2df] bg-[#f7f9f8] px-3 py-2 text-sm text-[#52615b]">
+              Permesso: <strong>{permissionLabel(membership.role)}</strong> · Ruolo commerciale:{" "}
+              <strong>{businessRoleLabel(membership.business_role)}</strong>
+            </p>
 
             <Link
               href="/dashboard"
-              className="app-primary mt-6 inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
+              className="app-primary mt-4 inline-flex h-10 items-center justify-center rounded-xl px-5 text-sm font-semibold"
             >
               Entra nel workspace
             </Link>
@@ -245,123 +240,136 @@ export default async function OnboardingPage({
     Math.min(100, setup.essential_completion_percentage),
   );
 
+  const card = "rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5";
+  const kicker = "text-[10px] font-bold uppercase tracking-[0.14em] text-[#1a5144]";
+  const secondaryButton =
+    "inline-flex h-9 items-center justify-center rounded-lg border border-[#c7d5cf] bg-white px-3 text-sm font-semibold text-[#173f35] hover:bg-[#f7f9f8]";
+  const select =
+    "mt-1 h-9 w-full rounded-lg border border-[#d7dfdb] bg-white px-2 text-sm text-[#1d2824]";
+
   return (
-    <main className="min-h-screen bg-[#f2f4f3] px-4 py-8 sm:px-6 sm:py-12">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <section className="rounded-[28px] border border-[#dce2df] bg-white p-6 shadow-[0_14px_44px_rgba(18,61,52,0.06)] sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-3xl">
-              <ProductBrand href="/" />
-              <p className="app-kicker mt-8">Configurazione guidata dell’azienda</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
+    <main className="min-h-screen bg-[#f2f4f3] px-4 py-5 sm:px-6 sm:py-8">
+      <div className="mx-auto max-w-5xl space-y-4">
+        <section className={card}>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <ProductBrand href="/" />
+            <Link
+              href="/dashboard"
+              className="app-primary inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-semibold"
+            >
+              Entra nel workspace
+            </Link>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div className="min-w-0">
+              <p className="app-kicker">Configurazione guidata dell’azienda</p>
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[#1d2824]">
                 Prepara {organization.name} senza bloccare il lavoro
               </h1>
-              <p className="mt-3 text-sm leading-6 text-[#66736e] sm:text-base">
-                Completa i due elementi essenziali per rendere il profilo utile e autorizzare la
-                Commercial Memory. Puoi entrare nel workspace in qualsiasi momento e tornare qui
-                quando vuoi.
+              <p className="mt-1 text-sm leading-6 text-[#66736e]">
+                Due passi essenziali, poi il primo documento. Puoi entrare nel workspace quando vuoi.
               </p>
             </div>
 
-            <div className="w-full rounded-2xl border border-[#d9e1dd] bg-[#f7f9f8] p-5 lg:w-[280px]">
-              <div className="flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
-                    Setup essenziale
-                  </p>
-                  <p className="mt-1 text-3xl font-semibold text-[#1d2824]">
-                    {setup.essential_completed_count}/{setup.essential_total_count}
-                  </p>
-                </div>
-                <span className="text-sm font-semibold text-[#1a5144]">
-                  {progress}%
+            <div className="w-full shrink-0 md:w-56">
+              <div className="flex items-baseline justify-between text-xs">
+                <span className="font-bold uppercase tracking-[0.12em] text-[#87938e]">
+                  Setup essenziale
+                </span>
+                <span className="font-semibold text-[#1a5144]">
+                  {setup.essential_completed_count}/{setup.essential_total_count} · {progress}%
                 </span>
               </div>
-              <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e1e7e4]">
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#e1e7e4]">
                 <div
                   className="h-full rounded-full bg-[#1a5144]"
                   style={{ width: Math.max(4, progress) + "%" }}
                 />
               </div>
-              <p className="mt-3 text-xs leading-5 text-[#66736e]">
-                Il primo valore commerciale viene misurato separatamente dal setup.
-              </p>
             </div>
           </div>
 
-          <div className="mt-6">
-            <Feedback
-              message={
-                params.message ??
-                (params.invited ? "Invito accettato e membership attivata." : undefined)
-              }
-              error={params.error}
-            />
-          </div>
-
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/dashboard"
-              className="app-primary inline-flex h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
-            >
-              Entra nel workspace
-            </Link>
-            {setup.data_ready ? (
-              <Link
-                href="/operations/uploads"
-                className="inline-flex h-11 items-center justify-center rounded-xl border border-[#c7d5cf] bg-white px-5 text-sm font-semibold text-[#173f35] hover:bg-[#f7f9f8]"
-              >
-                Importa il primo documento
-              </Link>
-            ) : null}
-          </div>
+          <Feedback
+            message={
+              params.message ??
+              (params.invited ? "Invito accettato e membership attivata." : undefined)
+            }
+            error={params.error}
+          />
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-2">
-          <article className="rounded-3xl border border-[#dce2df] bg-white p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-                  Essenziale · 01
-                </p>
-                <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
-                  Rendi utile il profilo azienda
-                </h2>
+        <section className="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+          <div className="space-y-4">
+            <article className={card}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className={kicker}>Passo 1</p>
+                  <h2 className="mt-1 text-base font-semibold text-[#1d2824]">
+                    Rendi utile il profilo azienda
+                  </h2>
+                </div>
+                <StepState complete={setup.profile_ready} />
               </div>
-              <StepState complete={setup.profile_ready} />
-            </div>
-            <p className="mt-3 text-sm leading-6 text-[#66736e]">
-              Aggiungi almeno un elemento distintivo al profilo Network: sito, nome commerciale,
-              descrizione o logo. I dati legali rimangono governati dalla piattaforma.
-            </p>
-            <Link
-              href="/company/profile"
-              className="mt-5 inline-flex h-10 items-center justify-center rounded-xl border border-[#c7d5cf] bg-white px-4 text-sm font-semibold text-[#173f35] hover:bg-[#f7f9f8]"
-            >
-              {setup.profile_ready ? "Rivedi profilo azienda" : "Completa profilo azienda"}
-            </Link>
-          </article>
+              <p className="mt-2 text-sm leading-5 text-[#66736e]">
+                Aggiungi sito, nome commerciale, descrizione o logo. I dati legali li gestisce la piattaforma.
+              </p>
+              <Link href="/company/profile" className={secondaryButton + " mt-3"}>
+                {setup.profile_ready ? "Rivedi profilo azienda" : "Completa profilo azienda"}
+              </Link>
+            </article>
 
-          <article id="commercial-memory" className="scroll-mt-8 rounded-3xl border border-[#dce2df] bg-white p-6">
-            <div className="flex items-start justify-between gap-4">
+            <article className={card}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className={kicker}>Primo valore</p>
+                  <h2 className="mt-1 text-base font-semibold text-[#1d2824]">
+                    Porta dentro il primo dato reale
+                  </h2>
+                </div>
+                <StepState complete={setup.first_value_ready} />
+              </div>
+              <p className="mt-2 text-sm leading-5 text-[#66736e]">
+                Un documento, messaggio, RFQ, offerta o ordine nella tua memoria privata.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {setup.data_ready ? (
+                  <Link
+                    href="/operations/uploads"
+                    className="inline-flex h-9 items-center justify-center rounded-lg bg-[#1a5144] px-3 text-sm font-semibold text-white hover:bg-[#226657]"
+                  >
+                    {setup.first_value_ready
+                      ? "Apri import documenti"
+                      : "Importa il primo documento"}
+                  </Link>
+                ) : (
+                  <a href="#commercial-memory" className={secondaryButton}>
+                    Configura prima le fonti
+                  </a>
+                )}
+                <Link href="/commercial/search" className={secondaryButton}>
+                  Apri Commercial Memory
+                </Link>
+              </div>
+            </article>
+          </div>
+
+          <article id="commercial-memory" className={card + " scroll-mt-6"}>
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-                  Essenziale · 02
-                </p>
-                <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
+                <p className={kicker}>Passo 2</p>
+                <h2 className="mt-1 text-base font-semibold text-[#1d2824]">
                   Prepara la Commercial Memory
                 </h2>
               </div>
               <StepState complete={setup.data_ready} />
             </div>
-            <p className="mt-3 text-sm leading-6 text-[#66736e]">
-              Scegli le fonti che prevedi di importare e conferma l&apos;autorizzazione al
-              trattamento. Fino ad allora il workspace resta navigabile, ma gli import sono
-              bloccati.
+            <p className="mt-2 text-sm leading-5 text-[#66736e]">
+              Scegli le fonti e autorizza il trattamento. Fino ad allora il workspace è navigabile ma gli import sono bloccati.
             </p>
 
-            <form action={completeOnboarding} className="mt-5 space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
+            <form action={completeOnboarding} className="mt-3 space-y-3">
+              <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_5rem_minmax(0,0.8fr)]">
                 <Field label="Nome azienda">
                   <Input
                     name="name"
@@ -378,20 +386,19 @@ export default async function OnboardingPage({
                     className="uppercase"
                   />
                 </Field>
+                <Field label="Settore">
+                  <Input
+                    name="industry"
+                    defaultValue={organization.industry ?? "steel"}
+                  />
+                </Field>
               </div>
-
-              <Field label="Settore">
-                <Input
-                  name="industry"
-                  defaultValue={organization.industry ?? "steel"}
-                />
-              </Field>
 
               <fieldset>
                 <legend className="text-sm font-medium text-[#43524c]">
                   Fonti da utilizzare
                 </legend>
-                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <div className="mt-1.5 flex flex-wrap gap-2">
                   {[
                     ["email", "Email"],
                     ["pdf", "PDF / offerte"],
@@ -399,7 +406,7 @@ export default async function OnboardingPage({
                   ].map(([value, label]) => (
                     <label
                       key={value}
-                      className="flex items-center gap-2 rounded-xl border border-[#dce2df] bg-[#f7f9f8] px-3 py-3 text-sm text-[#52615b]"
+                      className="flex items-center gap-2 rounded-lg border border-[#dce2df] bg-[#f7f9f8] px-3 py-2 text-sm text-[#52615b]"
                     >
                       <input
                         type="checkbox"
@@ -413,9 +420,9 @@ export default async function OnboardingPage({
                 </div>
               </fieldset>
 
-              <label className="flex items-start gap-3 rounded-xl border border-[#dce2df] bg-[#f7f9f8] p-4 text-sm leading-6 text-[#52615b]">
+              <label className="flex items-start gap-2.5 rounded-lg border border-[#dce2df] bg-[#f7f9f8] px-3 py-2.5 text-xs leading-5 text-[#52615b]">
                 <input
-                  className="mt-1"
+                  className="mt-0.5"
                   type="checkbox"
                   name="consent"
                   defaultChecked={Boolean(organization.consent_version)}
@@ -430,7 +437,7 @@ export default async function OnboardingPage({
 
               <PendingSubmitButton
                 pendingLabel="Salvataggio…"
-                className="h-11 w-full rounded-xl bg-[#1a5144] text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-10 w-full rounded-lg bg-[#1a5144] text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {setup.data_ready
                   ? "Salva configurazione"
@@ -440,150 +447,203 @@ export default async function OnboardingPage({
           </article>
         </section>
 
-        <section className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <section id="team-access" className={card + " scroll-mt-6"}>
+          <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-                Primo valore
-              </p>
-              <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
-                Porta dentro il primo dato commerciale reale
+              <p className={kicker}>Team</p>
+              <h2 className="mt-1 text-base font-semibold text-[#1d2824]">
+                Invita il team e gestisci gli accessi
               </h2>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[#66736e]">
-                Il time-to-first-value parte dall&apos;attivazione dell&apos;azienda e si chiude
-                quando compare il primo documento, messaggio, RFQ, offerta o ordine nella memoria
-                privata.
+              <p className="mt-1 text-sm leading-5 text-[#66736e]">
+                Il permesso decide cosa può fare l&apos;utente; il ruolo commerciale descrive la sua funzione.
               </p>
             </div>
-            <StepState complete={setup.first_value_ready} />
+            <StepState complete={setup.team_ready} />
           </div>
 
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            {setup.data_ready ? (
-              <Link
-                href="/operations/uploads"
-                className="inline-flex h-10 items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]"
-              >
-                {setup.first_value_ready
-                  ? "Apri import documenti"
-                  : "Importa il primo documento"}
-              </Link>
-            ) : (
-              <a
-                href="#commercial-memory"
-                className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b]"
-              >
-                Configura prima le fonti
-              </a>
-            )}
-            <Link
-              href="/commercial/search"
-              className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#52615b]"
+          <form
+            action={inviteMember}
+            className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.7fr)_minmax(0,0.9fr)_auto] lg:items-end"
+          >
+            <Field label="Email">
+              <Input
+                type="email"
+                name="email"
+                placeholder="collega@azienda.it"
+                required
+              />
+            </Field>
+            <label className="block text-sm font-medium text-[#43524c]">
+              Permesso
+              <select name="role" defaultValue="member" className={select}>
+                <option value="admin">Admin</option>
+                <option value="member">Member</option>
+                <option value="viewer">Viewer</option>
+              </select>
+            </label>
+            <label className="block text-sm font-medium text-[#43524c]">
+              Ruolo commerciale
+              <select name="business_role" defaultValue="salesperson" className={select}>
+                <option value="">Non assegnato</option>
+                <option value="sales_director">Sales Director</option>
+                <option value="salesperson">Commerciale</option>
+                <option value="operations">Operations</option>
+              </select>
+            </label>
+            <PendingSubmitButton
+              pendingLabel="Invio…"
+              className="h-10 rounded-lg border border-[#c7d5cf] bg-white px-4 text-sm font-semibold text-[#173f35] hover:bg-[#f7f9f8] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Apri Commercial Memory
-            </Link>
-          </div>
-        </section>
+              Invia invito
+            </PendingSubmitButton>
+          </form>
 
-        <section
-          id="team-access"
-          className="scroll-mt-8 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]"
-        >
-          <article className="rounded-3xl border border-[#dce2df] bg-white p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-                  HP8 · Team onboarding
-                </p>
-                <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
-                  Invita il team
-                </h2>
-              </div>
-              <StepState complete={setup.team_ready} />
-            </div>
-            <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Ogni invito definisce separatamente permesso di accesso e ruolo commerciale.
-              Il link accetta una sola invitation e gli inviti scaduti o revocati non possono
-              creare membership.
-            </p>
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#87938e]">
+                Persone ({team.length})
+              </p>
+              <ul className="mt-2 divide-y divide-[#e2e7e4] rounded-xl border border-[#e2e7e4]">
+                {team.map((member) => {
+                  const isCurrentUser = member.user_id === auth.user.id;
+                  const isActive = member.status === "active";
 
-            <form action={inviteMember} className="mt-5 space-y-4">
-              <Field label="Email">
-                <Input
-                  type="email"
-                  name="email"
-                  placeholder="collega@azienda.it"
-                  required
-                />
-              </Field>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block text-sm font-medium text-[#43524c]">
-                  Permesso
-                  <select
-                    name="role"
-                    defaultValue="member"
-                    className="mt-2 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824]"
-                  >
-                    <option value="admin">Admin</option>
-                    <option value="member">Member</option>
-                    <option value="viewer">Viewer</option>
-                  </select>
-                </label>
-
-                <label className="block text-sm font-medium text-[#43524c]">
-                  Ruolo commerciale
-                  <select
-                    name="business_role"
-                    defaultValue="salesperson"
-                    className="mt-2 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824]"
-                  >
-                    <option value="">Non assegnato</option>
-                    <option value="sales_director">Sales Director</option>
-                    <option value="salesperson">Commerciale</option>
-                    <option value="operations">Operations</option>
-                  </select>
-                </label>
-              </div>
-
-              <PendingSubmitButton
-                pendingLabel="Invio…"
-                className="h-10 w-full rounded-xl border border-[#c7d5cf] bg-white text-sm font-semibold text-[#173f35] hover:bg-[#f7f9f8] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Invia invito
-              </PendingSubmitButton>
-            </form>
-
-            {actionableInvitations.length ? (
-              <div className="mt-6 border-t border-[#e2e7e4] pt-5">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#87938e]">
-                    Lifecycle inviti
-                  </p>
-                  <span className="text-[11px] text-[#87938e]">
-                    Ultimi {actionableInvitations.length}
-                  </span>
-                </div>
-
-                <div className="mt-3 space-y-3">
-                  {actionableInvitations.map((invitation) => (
-                    <div
-                      key={invitation.id}
-                      className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4"
-                    >
-                      <div className="flex items-start justify-between gap-3">
+                  return (
+                    <li key={member.user_id} className="px-3 py-2.5">
+                      <div className="flex items-center justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold text-[#1d2824]">
-                            {invitation.email}
+                            {member.email ?? member.user_id}
                           </p>
-                          <p className="mt-1 text-xs text-[#66736e]">
-                            {permissionLabel(invitation.role)} ·{" "}
-                            {businessRoleLabel(invitation.business_role)}
+                          <p className="text-xs text-[#66736e]">
+                            {permissionLabel(member.role)} ·{" "}
+                            {businessRoleLabel(member.business_role)}
+                            {isCurrentUser ? " · Tu" : ""}
                           </p>
                         </div>
                         <span
                           className={[
-                            "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold",
+                            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold",
+                            isActive
+                              ? "bg-emerald-50 text-emerald-700"
+                              : "bg-[#ecefed] text-[#52615b]",
+                          ].join(" ")}
+                        >
+                          {isActive ? "Attivo" : "Sospeso"}
+                        </span>
+                      </div>
+
+                      <details className="mt-1">
+                        <summary className="cursor-pointer text-xs font-semibold text-[#1a5144]">
+                          Modifica accesso
+                        </summary>
+                          {isActive ? (
+                            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                              <form action={changeMemberRole} className="flex items-end gap-2">
+                                <input type="hidden" name="user_id" value={member.user_id} />
+                                <label className="min-w-0 flex-1 text-xs text-[#66736e]">
+                                  Permesso
+                                  <select name="role" defaultValue={member.role} className={select}>
+                                    <option value="admin">Admin</option>
+                                    <option value="member">Member</option>
+                                    <option value="viewer">Viewer</option>
+                                  </select>
+                                </label>
+                                <PendingSubmitButton
+                                  pendingLabel="…"
+                                  className="h-9 rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold text-[#43524c] disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  Salva
+                                </PendingSubmitButton>
+                              </form>
+                              <form action={changeMemberBusinessRole} className="flex items-end gap-2">
+                                <input type="hidden" name="user_id" value={member.user_id} />
+                                <label className="min-w-0 flex-1 text-xs text-[#66736e]">
+                                  Ruolo commerciale
+                                  <select
+                                    name="business_role"
+                                    defaultValue={member.business_role ?? ""}
+                                    className={select}
+                                  >
+                                    <option value="">Non assegnato</option>
+                                    <option value="sales_director">Sales Director</option>
+                                    <option value="salesperson">Commerciale</option>
+                                    <option value="operations">Operations</option>
+                                  </select>
+                                </label>
+                                <PendingSubmitButton
+                                  pendingLabel="…"
+                                  className="h-9 rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold text-[#43524c] disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  Salva
+                                </PendingSubmitButton>
+                              </form>
+                            </div>
+                          ) : null}
+                          {isCurrentUser ? (
+                            <p className="mt-2 text-[11px] text-[#87938e]">
+                              Il tuo accesso non può essere sospeso da questa sessione.
+                            </p>
+                          ) : (
+                          <form action={changeMemberStatus} className="mt-2">
+                            <input type="hidden" name="user_id" value={member.user_id} />
+                            <input
+                              type="hidden"
+                              name="status"
+                              value={isActive ? "suspended" : "active"}
+                            />
+                            <PendingSubmitButton
+                              pendingLabel={isActive ? "Sospensione…" : "Riattivazione…"}
+                              className={[
+                                "text-xs font-semibold hover:underline disabled:cursor-not-allowed disabled:opacity-60",
+                                isActive ? "text-[#8a3a30]" : "text-[#173f35]",
+                              ].join(" ")}
+                            >
+                              {isActive ? "Sospendi accesso" : "Riattiva accesso"}
+                            </PendingSubmitButton>
+                          </form>
+                          )}
+                        </details>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="mt-1.5 text-[11px] text-[#87938e]">
+                Sospendere un accesso non elimina l&apos;account né la cronologia.
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#87938e]">
+                Inviti{actionableInvitations.length ? ` (ultimi ${actionableInvitations.length})` : ""}
+              </p>
+              {actionableInvitations.length ? (
+                <ul className="mt-2 divide-y divide-[#e2e7e4] rounded-xl border border-[#e2e7e4]">
+                  {actionableInvitations.map((invitation) => (
+                    <li key={invitation.id} className="px-3 py-2.5">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold text-[#1d2824]">
+                            {invitation.email}
+                          </p>
+                          <p className="text-xs text-[#66736e]">
+                            {permissionLabel(invitation.role)} ·{" "}
+                            {businessRoleLabel(invitation.business_role)} · Invii: {invitation.send_count}
+                            {invitation.status === "pending"
+                              ? " · Scade " +
+                                new Date(invitation.expires_at).toLocaleDateString("it-IT")
+                              : ""}
+                            {invitation.delivery_mode
+                              ? " · " +
+                                (invitation.delivery_mode === "magic_link"
+                                  ? "account esistente"
+                                  : "nuovo account")
+                              : ""}
+                          </p>
+                        </div>
+                        <span
+                          className={[
+                            "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold",
                             invitation.status === "accepted"
                               ? "bg-emerald-50 text-emerald-700"
                               : invitation.status === "pending" &&
@@ -599,28 +659,8 @@ export default async function OnboardingPage({
                         </span>
                       </div>
 
-                      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[#7b8782]">
-                        <span>Invii: {invitation.send_count}</span>
-                        {invitation.status === "pending" ? (
-                          <span>
-                            Scade:{" "}
-                            {new Date(invitation.expires_at).toLocaleDateString(
-                              "it-IT",
-                            )}
-                          </span>
-                        ) : null}
-                        {invitation.delivery_mode ? (
-                          <span>
-                            Canale:{" "}
-                            {invitation.delivery_mode === "magic_link"
-                              ? "accesso account esistente"
-                              : "nuovo account"}
-                          </span>
-                        ) : null}
-                      </div>
-
                       {["pending", "expired"].includes(invitation.status) ? (
-                        <div className="mt-3 flex flex-wrap gap-2">
+                        <div className="mt-1.5 flex flex-wrap gap-2">
                           <form action={resendInvitation}>
                             <input type="hidden" name="email" value={invitation.email} />
                             <input type="hidden" name="role" value={invitation.role} />
@@ -631,7 +671,7 @@ export default async function OnboardingPage({
                             />
                             <PendingSubmitButton
                               pendingLabel="Invio…"
-                              className="h-9 rounded-lg border border-[#c7d5cf] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2] disabled:cursor-not-allowed disabled:opacity-60"
+                              className="h-8 rounded-lg border border-[#c7d5cf] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2] disabled:cursor-not-allowed disabled:opacity-60"
                             >
                               Reinvia
                             </PendingSubmitButton>
@@ -646,7 +686,7 @@ export default async function OnboardingPage({
                               />
                               <PendingSubmitButton
                                 pendingLabel="Revoca…"
-                                className="h-9 rounded-lg border border-[#e1c7c2] bg-white px-3 text-xs font-semibold text-[#8a3a30] hover:bg-[#fff5f3] disabled:cursor-not-allowed disabled:opacity-60"
+                                className="h-8 rounded-lg border border-[#e1c7c2] bg-white px-3 text-xs font-semibold text-[#8a3a30] hover:bg-[#fff5f3] disabled:cursor-not-allowed disabled:opacity-60"
                               >
                                 Revoca
                               </PendingSubmitButton>
@@ -654,166 +694,16 @@ export default async function OnboardingPage({
                           ) : null}
                         </div>
                       ) : null}
-                    </div>
+                    </li>
                   ))}
-                </div>
-              </div>
-            ) : (
-              <p className="mt-5 rounded-xl border border-dashed border-[#d7dfdb] px-4 py-3 text-xs text-[#7b8782]">
-                Nessun invito ancora inviato.
-              </p>
-            )}
-          </article>
-
-          <article className="rounded-3xl border border-[#dce2df] bg-white p-6">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#87938e]">
-              Persone e ruoli
-            </p>
-            <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
-              Accessi del workspace
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Il permesso controlla cosa può fare l&apos;utente; il ruolo commerciale descrive
-              la sua funzione nel processo vendite. Sospendere un accesso non elimina
-              l&apos;account Supabase né la cronologia.
-            </p>
-
-            <div className="mt-5 space-y-3">
-              {team.map((member) => {
-                const isCurrentUser = member.user_id === auth.user.id;
-                const isActive = member.status === "active";
-
-                return (
-                  <div
-                    key={member.user_id}
-                    className="rounded-2xl border border-[#e2e7e4] bg-[#f7f9f8] p-4"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold text-[#1d2824]">
-                          {member.email ?? member.user_id}
-                        </p>
-                        <p className="mt-1 text-xs text-[#66736e]">
-                          {permissionLabel(member.role)} ·{" "}
-                          {businessRoleLabel(member.business_role)}
-                          {isCurrentUser ? " · Tu" : ""}
-                        </p>
-                      </div>
-                      <span
-                        className={[
-                          "rounded-full px-2.5 py-1 text-[10px] font-bold",
-                          isActive
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-[#ecefed] text-[#52615b]",
-                        ].join(" ")}
-                      >
-                        {isActive ? "Attivo" : "Sospeso"}
-                      </span>
-                    </div>
-
-                    {isActive ? (
-                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-                        <form action={changeMemberRole}>
-                          <input
-                            type="hidden"
-                            name="user_id"
-                            value={member.user_id}
-                          />
-                          <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
-                            Permesso
-                            <div className="mt-1 flex gap-2">
-                              <select
-                                name="role"
-                                defaultValue={member.role}
-                                className="h-9 min-w-0 flex-1 rounded-lg border border-[#d7dfdb] bg-white px-2 text-xs normal-case tracking-normal text-[#43524c]"
-                              >
-                                <option value="admin">Admin</option>
-                                <option value="member">Member</option>
-                                <option value="viewer">Viewer</option>
-                              </select>
-                              <PendingSubmitButton
-                                pendingLabel="…"
-                                className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c] disabled:cursor-not-allowed disabled:opacity-60"
-                              >
-                                Salva
-                              </PendingSubmitButton>
-                            </div>
-                          </label>
-                        </form>
-
-                        <form action={changeMemberBusinessRole}>
-                          <input
-                            type="hidden"
-                            name="user_id"
-                            value={member.user_id}
-                          />
-                          <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
-                            Ruolo commerciale
-                            <div className="mt-1 flex gap-2">
-                              <select
-                                name="business_role"
-                                defaultValue={member.business_role ?? ""}
-                                className="h-9 min-w-0 flex-1 rounded-lg border border-[#d7dfdb] bg-white px-2 text-xs normal-case tracking-normal text-[#43524c]"
-                              >
-                                <option value="">Non assegnato</option>
-                                <option value="sales_director">Sales Director</option>
-                                <option value="salesperson">Commerciale</option>
-                                <option value="operations">Operations</option>
-                              </select>
-                              <PendingSubmitButton
-                                pendingLabel="…"
-                                className="rounded-lg border border-[#d7dfdb] bg-white px-3 text-xs font-semibold normal-case tracking-normal text-[#43524c] disabled:cursor-not-allowed disabled:opacity-60"
-                              >
-                                Salva
-                              </PendingSubmitButton>
-                            </div>
-                          </label>
-                        </form>
-                      </div>
-                    ) : null}
-
-                    <div className="mt-3 border-t border-[#e2e7e4] pt-3">
-                      {isActive && !isCurrentUser ? (
-                        <form action={changeMemberStatus}>
-                          <input
-                            type="hidden"
-                            name="user_id"
-                            value={member.user_id}
-                          />
-                          <input type="hidden" name="status" value="suspended" />
-                          <PendingSubmitButton
-                            pendingLabel="Sospensione…"
-                            className="text-xs font-semibold text-[#8a3a30] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            Sospendi accesso
-                          </PendingSubmitButton>
-                        </form>
-                      ) : !isActive ? (
-                        <form action={changeMemberStatus}>
-                          <input
-                            type="hidden"
-                            name="user_id"
-                            value={member.user_id}
-                          />
-                          <input type="hidden" name="status" value="active" />
-                          <PendingSubmitButton
-                            pendingLabel="Riattivazione…"
-                            className="text-xs font-semibold text-[#173f35] hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            Riattiva accesso
-                          </PendingSubmitButton>
-                        </form>
-                      ) : (
-                        <p className="text-[11px] text-[#87938e]">
-                          Il tuo accesso non può essere sospeso da questa sessione.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
+                </ul>
+              ) : (
+                <p className="mt-2 rounded-xl border border-dashed border-[#d7dfdb] px-3 py-2.5 text-xs text-[#7b8782]">
+                  Nessun invito ancora inviato.
+                </p>
+              )}
             </div>
-          </article>
+          </div>
         </section>
       </div>
     </main>
