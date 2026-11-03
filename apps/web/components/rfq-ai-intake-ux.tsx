@@ -28,7 +28,7 @@ const options: { mode: RfqAiIntakeMode; name: string; meta: string }[] = [
 ];
 
 export function RfqAiIntakeUx({
-  mode, focused = false, onModeChange, workspace, authenticated, children, onInsertTextLines,
+  mode, focused = false, onModeChange, workspace, authenticated, children, onInsertTextLines, onPreviewChange,
 }: {
   mode: RfqAiIntakeMode;
   focused?: boolean;
@@ -37,6 +37,8 @@ export function RfqAiIntakeUx({
   workspace: boolean;
   authenticated: boolean;
   onInsertTextLines: (lines: BuyerDistintaDraftLine[]) => boolean;
+  /** UI-only suggestions; never persisted before explicit human approval. */
+  onPreviewChange?: (result: RfqAiTextDraftResult | null) => void;
   children: ReactNode;
 }) {
   const panelId = useId();
@@ -52,6 +54,7 @@ export function RfqAiIntakeUx({
     extractionVersion.current += 1;
     setTextDraft(draft);
     setTextResult(null);
+    onPreviewChange?.(null);
     setTextError("");
   }, [workspace, mode]);
   async function analyzeText() {
@@ -60,11 +63,16 @@ export function RfqAiIntakeUx({
     setTextPending(true);
     setTextError("");
     setTextResult(null);
+    onPreviewChange?.(null);
     try {
       const response = await analyzeRfqAiFreeText(textDraft);
       if (extractionVersion.current === version) {
-        if (response.ok) setTextResult(response.result);
-        else setTextError(response.error);
+        if (response.ok) {
+          setTextResult(response.result);
+          onPreviewChange?.(response.result);
+        } else {
+          setTextError(response.error);
+        }
       }
     } catch {
       if (extractionVersion.current === version) setTextError("Non è stato possibile analizzare la richiesta. Nessun dato è stato importato.");
@@ -194,7 +202,7 @@ export function RfqAiIntakeUx({
               rows={focused ? 3 : 7}
               style={focused ? { minHeight: "6rem" } : undefined}
               value={textDraft}
-              onChange={(event) => { extractionVersion.current += 1; setTextDraft(event.target.value); setTextResult(null); setTextError(""); }}
+              onChange={(event) => { extractionVersion.current += 1; setTextDraft(event.target.value); setTextResult(null); onPreviewChange?.(null); setTextError(""); }}
               placeholder={"Es. Mi servono 30 barre da 12 m di tubo quadro 100×100×5 S355J2H EN 10219 e 120 m di tubo tondo 60,3×3 EN 10210."}
               spellCheck={false}
               className="rfqai2-textarea"
@@ -204,7 +212,7 @@ export function RfqAiIntakeUx({
               <span className="text-xs text-[#56675f]">Non sai come iniziare? Prova una richiesta tipo.</span>
               <button type="button" className="rfqai2-secondary-action"
                 disabled={textPending}
-                onClick={() => { extractionVersion.current += 1; setTextDraft(SAMPLE_RFQ_TEXT); setTextResult(null); setTextError(""); }}>
+                onClick={() => { extractionVersion.current += 1; setTextDraft(SAMPLE_RFQ_TEXT); setTextResult(null); onPreviewChange?.(null); setTextError(""); }}>
                 Inserisci esempio
               </button>
             </div>
@@ -219,7 +227,7 @@ export function RfqAiIntakeUx({
                 {textPending ? "Analisi in corso…" : "Analizza la richiesta con AI"}
               </button>
               <button type="button" disabled={!textDraft || textPending}
-                onClick={() => { extractionVersion.current += 1; setTextDraft(""); setTextResult(null); setTextError(""); }}
+                onClick={() => { extractionVersion.current += 1; setTextDraft(""); setTextResult(null); onPreviewChange?.(null); setTextError(""); }}
                 className={focused ? "min-h-9 px-2 text-xs font-semibold text-[#175640] underline underline-offset-4" : "rfqai2-secondary-action"}>
                 Cancella testo
               </button>
@@ -230,10 +238,11 @@ export function RfqAiIntakeUx({
             {textResult ? (
               <RfqAiTextReview
                 result={textResult}
-                onDismiss={() => setTextResult(null)}
+                onDismiss={() => { setTextResult(null); onPreviewChange?.(null); }}
                 onInsert={(items) => {
                   if (!onInsertTextLines(items)) return false;
                   setTextResult(null);
+                  onPreviewChange?.(null);
                   setTextDraft("");
                   return true;
                 }}
