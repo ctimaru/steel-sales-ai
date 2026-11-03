@@ -10,9 +10,9 @@ const legacy = readFileSync(new URL("./demotest23-chrome-auth.mjs", import.meta.
 
 test("COMM-UX6.A reduces the industrial hero and keeps AI accessible on small screens", () => {
   assert.match(css, /@media \(max-width: 640px\)/);
-  assert.match(css, /\.heroTitle \{ font-size: clamp\(1\.625rem, 7vw, 1\.95rem\)/);
+  assert.match(css, /\.heroTitle \{ font-size: clamp\(1\.45rem, 6vw, 1\.75rem\)/);
   assert.match(page, /Richieste, offerte e ordini in un unico spazio\./);
-  assert.match(page, /lg:min-h-\[172px\]/);
+  assert.match(page, /lg:min-h-\[112px\]/);
   assert.doesNotMatch(page, /lg:min-h-\[328px\]/);
   assert.match(page, /lg:grid-cols-\[minmax\(0,1fr\)_340px\]/);
   assert.match(ai, /lg:grid-cols-\[minmax\(0,0\.9fr\)_minmax\(0,1\.1fr\)\]/);

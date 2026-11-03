@@ -68,7 +68,7 @@
 }
 .companionForm textarea {
   background: #fff;
-  min-height: 64px;
+  min-height: 52px;
   line-height: 1.4;
 }
 .companionForm textarea:focus-visible {
@@ -145,7 +145,7 @@
 }
 @media (max-width: 640px) {
   .hero { border-radius: 18px; }
-  .heroTitle { font-size: clamp(1.625rem, 7vw, 1.95rem); line-height: 1.07; max-width: 12.8em; }
+  .heroTitle { font-size: clamp(1.45rem, 6vw, 1.75rem); line-height: 1.07; max-width: 12.8em; }
   .heroGrid { min-height: 0; }
   .hero::before {
     background-image:

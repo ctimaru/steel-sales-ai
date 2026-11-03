@@ -19,7 +19,7 @@ test("COMMERCIAL-UNIFY2C pages sent RFQs and saved draft lists inside SQL under 
   assert.match(query, /\.eq\("organization_id", organizationId\)/);
   assert.match(query, /\.range\(start, start \+ COMMERCIAL_PAGE_SIZE - 1\)/);
   assert.match(query, /\.select\("id,title,status,due_at,created_at", \{ count: "exact" \}\)/);
-  assert.match(query, /\.select\("id,title,line_count,created_at", \{ count: "exact" \}\)/);
+  assert.match(query, /\.select\("id,title,line_count,total_meters,total_tonnes,created_at", \{ count: "exact" \}\)/);
   assert.match(query, /\.ilike\("title", "%" \+ rawQuery \+ "%"\)/);
   assert.match(query, /safeTitleSearch/);
   assert.match(query, /\.order\("id", \{ ascending: false \}\)/);
