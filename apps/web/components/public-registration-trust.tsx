@@ -1,4 +1,7 @@
 import Link from "next/link";
+
+import { registrationPilotGateActive } from "@/lib/registration-access";
+
 import cineStyles from "./public-cinematic-continuity.module.css";
 
 /**
@@ -15,6 +18,7 @@ const steps = [
 ] as const;
 
 export function PublicRegistrationTrust() {
+  const pilotGate = registrationPilotGateActive();
   return (
     <section id="registrazione" aria-labelledby="home-registration-title" className={`${cineStyles.trustSection} border-t border-[#dce5e0]`}>
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
@@ -30,6 +34,11 @@ export function PublicRegistrationTrust() {
               Non devi creare un secondo profilo se la tua azienda è già presente.
               La richiesta è verificata prima dell&apos;attivazione del workspace.
             </p>
+            {pilotGate ? (
+              <p data-testid="home-registration-pilot-gate" className="mt-2 text-sm font-semibold leading-6 text-[#77551c]">
+                Durante la fase pilota la registrazione è solo su invito.
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-wrap gap-2 lg:justify-end">
             <Link href="/register" className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold">
