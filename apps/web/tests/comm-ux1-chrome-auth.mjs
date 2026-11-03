@@ -170,7 +170,7 @@ async function verifyCinematic(page, label) {
     throw new Error("Commerciale hero heading accessibility not ready: "+JSON.stringify(state),{cause:err});
   }
   assert.equal(await heroHeading.count(),1);
-  assert.equal(await companion.getByRole("heading", { name: "Ciao, cosa stai cercando oggi?" }).count(), 1);
+  assert.equal(await companion.getByRole("heading", { name: "Descrivi i tubi che ti servono" }).count(), 1); // COMM-TRUST1.D copy
   assert.equal(await hero.locator("dt").count(), 3, label + ": three accessible real-data counters");
   const background = await hero.evaluate(el => getComputedStyle(el, "::before").backgroundImage);
   assert.match(background, /home-cine2a2b-factory-(desktop|mobile)\.webp/, label + ": factory poster is rendered");
