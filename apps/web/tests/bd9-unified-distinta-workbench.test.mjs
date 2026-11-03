@@ -13,7 +13,9 @@ test("BD9/10 assisted creation and editable article list form one two-column wor
   assert.ok(editorStart > 0 && previewStart > editorStart);
   const editor = builder.slice(editorStart, previewStart);
   const preview = builder.slice(previewStart, builder.indexOf('className="rounded-3xl', previewStart));
-  assert.match(editor, /<BuyerTubeGuidedCreator/);
+  // The sole guided creator is now shared by a hoisted intake panel, so AI-first can render ahead of the calculator.
+  assert.match(builder, /const aiIntakePanel = \([\s\S]*?<BuyerTubeGuidedCreator/);
+  assert.match(editor, /\{!focusAiIntake \? aiIntakePanel : null\}/);
   assert.doesNotMatch(editor, /className="bd5-row-card/);
   assert.match(preview, /className="bd10-preview-lines"/);
   assert.match(preview, /className="bd5-row-card bd10-preview-row"/);
