@@ -6,6 +6,7 @@ const read = path => readFileSync(new URL(path, import.meta.url), "utf8");
 const page = read("../app/(italian)/(workspace)/commercial/page.tsx");
 const worklist = read("../components/commercial-unified-worklist.tsx");
 const data = read("../lib/commercial-data.ts");
+const loading = read("../app/(italian)/(workspace)/commercial/loading.tsx");
 
 test("COMM-TRUST1.C dashboard must never display failed history metrics as real zero", () => {
   assert.match(data, /if \(metricError \|\| !metricRows\?\.length\)/,
@@ -35,4 +36,10 @@ test("COMM-TRUST1.C does not show pointless page 1 or force draft creation on re
   assert.match(worklist, /Mostra tutte le trattative/);
   assert.match(worklist, /Controlla lo storico/);
   assert.match(worklist, /non possiamo confermare|non è confermato|non verificabile/i);
+});
+
+test("COMM-TRUST1.C loading feedback does not masquerade as an empty archive", () => {
+  assert.match(loading, /aria-busy="true"/);
+  assert.match(loading, /Caricamento delle attività commerciali/);
+  assert.doesNotMatch(loading, /\>0\</);
 });
