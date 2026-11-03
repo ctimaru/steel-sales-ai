@@ -80,7 +80,7 @@ export default async function EnglishRegistrationStatusPage({ searchParams }: {
           <h1 className="mt-2 text-3xl font-bold text-[#123b34]">{application.legal_name}</h1>
           <p className="mt-3 text-sm text-[#52615b]">Application status and any required next steps.</p>
           <p className="mt-2 text-sm text-[#52615b]" data-testid="registration-support-contact">Questions about your application? Write to <a href="mailto:hello@smartsteelsales.com" className="font-bold text-[#173f35] underline">hello@smartsteelsales.com</a>.</p>
-          {submitted === "1" ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-4 text-sm text-[#173f35]">Your company application has been submitted for review. You may sign out and return later.</p> : null}
+          {submitted === "1" ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-4 text-sm text-[#173f35]">{application.status === "activated" ? "Application submitted and workspace activated right away: you can start working now. Company verification follows later." : "Your company application has been submitted for review. You may sign out and return later."}</p> : null}
           {error ? <p role="alert" className="mt-5 rounded-xl bg-[#fff5f3] p-4 text-sm text-[#9f2f24]">We could not complete that action. Please try again or contact support.</p> : null}
           <div className={`mt-6 rounded-xl border border-[#dce2df] p-5 ${state.tone}`}>
             <p className="text-xs font-bold uppercase tracking-wider text-[#52615b]">Current status</p>

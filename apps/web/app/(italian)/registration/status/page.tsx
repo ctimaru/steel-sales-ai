@@ -200,8 +200,9 @@ export default async function RegistrationStatusPage({
 
           {submitted === "1" ? (
             <div className="mt-6 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-4 py-3 text-sm font-medium text-[#173f35]">
-              Richiesta inviata correttamente. Puoi uscire: lo stato resterà disponibile al
-              prossimo accesso.
+              {application.application_status === "activated"
+                ? "Richiesta inviata e workspace attivato subito: puoi iniziare a lavorare. La verifica dell’azienda arriverà in seguito."
+                : "Richiesta inviata correttamente. Puoi uscire: lo stato resterà disponibile al prossimo accesso."}
             </div>
           ) : null}
 
