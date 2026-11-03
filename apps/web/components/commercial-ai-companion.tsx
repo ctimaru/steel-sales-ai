@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { appRoutes } from "@/lib/routes";
 import cinematic from "@/components/commercial-cinematic.module.css";
 
@@ -11,10 +11,15 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
   const router = useRouter();
   const [request, setRequest] = useState("");
   const [error, setError] = useState("");
+  // Prevent typing into server-rendered controls before the client handler
+  // exists. A very fast first interaction on narrow/mobile can otherwise be
+  // lost when React hydrates and the submit CTA remains disabled.
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   function startRequest(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = request.trim();
-    if (!canWrite || !value) return;
+    if (!canWrite || !ready || !value) return;
     try {
       sessionStorage.setItem("sss:commercial-ai-intake-handoff", value);
       setError("");
@@ -44,11 +49,11 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
           <form onSubmit={startRequest} data-testid="comm-cine11-prompt" className={"min-w-0 space-y-1.5 " + cinematic.companionForm}>
             <label htmlFor="commercial-ai-companion-input" className="sr-only">Descrivi il materiale</label>
             <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-stretch">
-              <textarea id="commercial-ai-companion-input" value={request} maxLength={12000} rows={2}
+              <textarea id="commercial-ai-companion-input" value={request} disabled={!ready} maxLength={12000} rows={2}
                 onChange={(event) => setRequest(event.target.value)}
                 placeholder="Es. 40 tubi quadri 100×100×5, S355, 6 m"
                 className="min-h-[52px] min-w-0 flex-1 resize-y rounded-xl border border-[#b8d6c3] bg-white px-3 py-2 text-sm leading-5 text-[#143f30] placeholder:text-[#72877a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
-              <button type="submit" disabled={!request.trim()} data-testid="commercial-ai-first-cta"
+              <button type="submit" disabled={!ready || !request.trim()} data-testid="commercial-ai-first-cta"
                 className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50 sm:max-w-[164px]">
                 Prepara la distinta →
               </button>
