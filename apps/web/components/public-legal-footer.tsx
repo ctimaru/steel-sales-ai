@@ -29,7 +29,7 @@ export function PublicLegalFooter() {
           <Link href="/terms" className="hover:text-[#173f35]">Termini d’uso</Link>
           <Link href="/legal" className="hover:text-[#173f35]">Informazioni legali</Link>
         </div>
-        <span>Smart Steel Sales · Legal & Privacy Readiness WIP</span>
+        <span>Smart Steel Sales · Documenti legali in versione provvisoria</span>
       </div>
     </footer>
   );

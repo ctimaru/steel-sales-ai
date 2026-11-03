@@ -37,9 +37,12 @@ test("HOME-SI4 describes the implemented registration journey without fake autom
   assert.match(home, /<PublicRegistrationTrust \/>/);
   assert.match(trust, /id="registrazione"/);
   assert.match(trust, /aria-labelledby="home-registration-title"/);
-  for (const label of ["Cerca la tua azienda", "Verifica l’account", "Completa i dati", "Attendi la revisione"]) {
+  for (const label of ["Crea l’account", "Dati dell’azienda", "Revisione", "Attivazione"]) {
     assert.ok(trust.includes(label));
   }
+  // Home steps follow the same order as the in-app journey (account first, since ONBOARDING-UX2).
+  assert.ok(trust.indexOf("Crea l’account") < trust.indexOf("Dati dell’azienda"));
+  assert.doesNotMatch(trust, /Cerca la tua azienda/);
   assert.match(registration, /<RegistrationJourney current=\{1\} compact \/>/);
   assert.match(journey, /Crea e verifica l’accesso/);
   assert.match(journey, /Controlliamo la richiesta/);

@@ -119,7 +119,9 @@ test("HP7 keeps Commercial Memory writes fail-closed until sources and consent a
 });
 
 test("HP7 onboarding is a guided hub rather than a mandatory wizard", () => {
-  assert.match(onboardingPage, /Guided company setup/);
+  assert.match(onboardingPage, /Configurazione guidata dell’azienda/);
+  // Internal ticket codes are not customer-facing copy.
+  assert.doesNotMatch(onboardingPage, /HP7 ·|Guided company setup/);
   assert.match(onboardingPage, /senza bloccare il lavoro/);
   assert.match(onboardingPage, /Entra nel workspace/);
   assert.match(onboardingPage, /Setup essenziale/);

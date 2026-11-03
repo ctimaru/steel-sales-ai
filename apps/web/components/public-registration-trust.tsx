@@ -6,11 +6,12 @@ import cineStyles from "./public-cinematic-continuity.module.css";
  * Registration requires email verification, a company application and a human
  * review. No promise of immediate, automatic or included Network access.
  */
+// Same four steps, same order, as RegistrationJourney: Account → Azienda → Revisione → Attivazione.
 const steps = [
-  { number: "01", title: "Cerca la tua azienda", detail: "Verifica se esiste un profilo rivendicabile oppure avvia una nuova richiesta." },
-  { number: "02", title: "Verifica l’account", detail: "Crea l’accesso e conferma l’indirizzo email." },
-  { number: "03", title: "Completa i dati", detail: "Invia la richiesta aziendale con le informazioni necessarie." },
-  { number: "04", title: "Attendi la revisione", detail: "Il workspace viene attivato dopo l’approvazione." },
+  { number: "01", title: "Crea l’account", detail: "Email e password, poi conferma l’indirizzo dal link che ricevi." },
+  { number: "02", title: "Dati dell’azienda", detail: "Rivendica il profilo se esiste già, altrimenti compila una nuova richiesta." },
+  { number: "03", title: "Revisione", detail: "Controlliamo identità e dati prima dell’attivazione." },
+  { number: "04", title: "Attivazione", detail: "Il workspace viene aperto solo dopo l’approvazione." },
 ] as const;
 
 export function PublicRegistrationTrust() {

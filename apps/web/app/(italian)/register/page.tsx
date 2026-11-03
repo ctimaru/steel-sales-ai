@@ -338,7 +338,7 @@ export default async function RegisterPage({
 
           <div className="mt-8 flex flex-col gap-4 border-b border-[#e7ece9] pb-7 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="app-kicker">Step 2 · Azienda</p>
+              <p className="app-kicker">Passo 2 di 4 · Azienda</p>
               <h1 className="mt-2 text-3xl font-semibold tracking-[-0.02em] text-[#1d2824] sm:text-4xl">
                 {application?.application_status === "needs_information"
                   ? "Aggiorna la richiesta aziendale"

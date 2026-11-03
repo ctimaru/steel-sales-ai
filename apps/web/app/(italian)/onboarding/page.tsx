@@ -252,7 +252,7 @@ export default async function OnboardingPage({
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-3xl">
               <ProductBrand href="/" />
-              <p className="app-kicker mt-8">HP7 · Guided company setup</p>
+              <p className="app-kicker mt-8">Configurazione guidata dell’azienda</p>
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
                 Prepara {organization.name} senza bloccare il lavoro
               </h1>
