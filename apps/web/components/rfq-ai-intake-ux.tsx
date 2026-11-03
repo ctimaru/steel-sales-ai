@@ -68,7 +68,18 @@ export function RfqAiIntakeUx({
   }, [workspace, mode]);
   async function analyzeText() {
     const submitted = textDraft.trim();
-    if (textPending || !workspace || submitted.length < 12 || textResult) return;
+    if (textPending || !workspace || submitted.length < 3 || textResult) return;
+    if (focused && submitted.length < 12) {
+      // A bare short measure such as "100x100x5" should not be a dead-end:
+      // ask for missing context locally rather than guessing a section or
+      // sending text that the validated AI server action cannot accept.
+      appendConversationTurn("user", submitted);
+      appendConversationTurn("assistant",
+        "Aggiungi qualche dettaglio per preparare la distinta: tipo di tubo, quantità e lunghezza delle barre. " +
+        "Puoi completare il testo qui sotto; nessuna misura è stata ancora confermata.");
+      return;
+    }
+    if (submitted.length < 12) return;
     const version = ++extractionVersion.current;
     if (focused) appendConversationTurn("user", submitted);
     setTextPending(true);
