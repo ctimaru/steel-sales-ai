@@ -80,7 +80,7 @@ export function EnglishCompanyRegistrationForm({ initial, claim, returnTo }: {
           const number = (index + 1) as 1 | 2 | 3;
           return <li key={name} aria-current={step === number ? "step" : undefined}
             className={`rounded-xl border px-3 py-3 text-xs font-semibold ${step === number ? "border-[#8abca9] bg-white text-[#123b34]" : "border-transparent text-[#66736e]"}`}>
-            <span className="mr-2 text-[#1f6b5a]">{step > number ? "✓" : number}.</span>{name}
+            <span className="mr-2 text-[#1f6b5a]">{step > number ? "✓" : "2" + "abc".charAt(index)}.</span>{name}
           </li>;
         })}
       </ol>

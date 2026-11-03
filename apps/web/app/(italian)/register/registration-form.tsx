@@ -45,10 +45,11 @@ const COMPANY_TYPES = [
   { value: "end_user", label: "Utilizzatore" },
 ] as const;
 
+// Sub-steps of journey step 2 (Azienda): numbered 2a/2b/2c so they never read as a second 1-2-3 journey.
 const STEPS = [
-  { id: 1, label: "Azienda", description: "Identità essenziale" },
-  { id: 2, label: "Attività e referente", description: "Come operate e chi seguire" },
-  { id: 3, label: "Controlla e invia", description: "Ultima verifica" },
+  { id: 1, badge: "2a", label: "Azienda", description: "Identità essenziale" },
+  { id: 2, badge: "2b", label: "Attività e referente", description: "Come operate e chi seguire" },
+  { id: 3, badge: "2c", label: "Controlla e invia", description: "Ultima verifica" },
 ] as const;
 
 function companyTypeLabel(value: string) {
@@ -234,7 +235,7 @@ export function CompanyRegistrationForm({
                         : "bg-[#e7ece9] text-[#52615b]",
                     ].join(" ")}
                   >
-                    {completed ? "✓" : item.id}
+                    {completed ? "✓" : item.badge}
                   </span>
                   <div>
                     <p className="text-sm font-semibold text-[#1d2824]">{item.label}</p>

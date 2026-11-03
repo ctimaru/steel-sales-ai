@@ -158,7 +158,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
         <div className="mt-7 rounded-[24px] border border-[#dce2df] bg-white p-5 sm:p-8">
           <RegistrationJourney current={2} locale="en" />
           <div className="mt-8 border-b border-[#e7ece9] pb-6">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 3 — Company application</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 2 of 4 · Company</p>
             <h1 className="mt-2 text-3xl font-bold text-[#123b34]">{application?.application_status === "needs_information" ? "Update your application" : "Tell us about your company"}</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#52615b]">
               Your email is verified. We'll ask for essential company identity and business details, then send your application for human review.
