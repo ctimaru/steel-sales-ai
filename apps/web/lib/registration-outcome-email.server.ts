@@ -49,10 +49,36 @@ export async function sendRegistrationOutcomeEmail(
     return { sent: false, reason: "status_mismatch" };
   }
 
+  return deliverRegistrationOutcomeEmail({
+    applicationId,
+    kind,
+    recipient: application.applicant_email_snapshot,
+    legalName: application.legal_name ?? "",
+    countryCode: application.country_code ?? "",
+    decidedAt: application.updated_at,
+  });
+}
+
+/**
+ * ONBOARDING-SELF1: also used right after a self-service activation, where the
+ * applicant (not staff) is signed in and the data comes from their own submission.
+ */
+export async function deliverRegistrationOutcomeEmail(input: {
+  applicationId: string;
+  kind: RegistrationOutcomeKind;
+  recipient: string;
+  legalName: string;
+  countryCode: string;
+  decidedAt: string;
+}): Promise<RegistrationOutcomeEmailResult> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { sent: false, reason: "not_configured" };
+  const { applicationId, kind } = input;
+
   const email = buildRegistrationOutcomeEmail({
     kind,
-    locale: outcomeLocale(application.country_code),
-    legalName: application.legal_name ?? "",
+    locale: outcomeLocale(input.countryCode),
+    legalName: input.legalName,
   });
   const from =
     process.env.REGISTRATION_EMAIL_FROM ||
@@ -64,11 +90,11 @@ export async function sendRegistrationOutcomeEmail(
       headers: {
         Authorization: "Bearer " + apiKey,
         "Content-Type": "application/json",
-        "Idempotency-Key": outcomeIdempotencyKey(applicationId, kind, application.updated_at),
+        "Idempotency-Key": outcomeIdempotencyKey(applicationId, kind, input.decidedAt),
       },
       body: JSON.stringify({
         from,
-        to: [application.applicant_email_snapshot],
+        to: [input.recipient],
         reply_to: [REGISTRATION_OUTCOME_CONTACT],
         subject: email.subject,
         html: email.html,

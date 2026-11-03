@@ -11,6 +11,7 @@ import {
 } from "@/lib/auth-email-verification";
 import { italianVatMessage, italianVatRequired, normalizeItalianVat } from "@/lib/italian-vat";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
+import { deliverRegistrationOutcomeEmail } from "@/lib/registration-outcome-email.server";
 import { pilotGateMessage, registrationAllowedFor } from "@/lib/registration-access";
 import { createClient } from "@/lib/supabase/server";
 import { feedbackPath } from "@/lib/user-facing-error";
@@ -288,12 +289,44 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     );
   }
 
+  // ONBOARDING-SELF1: activate at once when every self-service rule passes (checked in the
+  // database); otherwise the application stays in staff review exactly as before. If the
+  // function is not deployed yet, the error is ignored and the staff-review flow continues.
+  const { data: selfData, error: selfError } = await supabase.rpc(
+    "selfact1_self_activate_registration",
+    { p_application_id: applicationId },
+  );
+  const selfActivation = (selfData ?? {}) as {
+    activated?: boolean;
+    organization_id?: string | null;
+    idempotent_replay?: boolean;
+  };
+  const selfActivated = !selfError && selfActivation.activated === true;
+
+  if (selfActivated && !selfActivation.idempotent_replay && user.email && applicationId) {
+    await deliverRegistrationOutcomeEmail({
+      applicationId,
+      kind: "activated",
+      recipient: user.email,
+      legalName,
+      countryCode,
+      decidedAt: selfActivation.organization_id ?? new Date().toISOString(),
+    });
+  }
+
   await trackServerProductEvent("registration_submit", {
     claim: validClaimRef,
     company_type: primaryCompanyType,
+    self_service: selfActivated,
   });
 
-  redirect(withCommercialReturnTo((root === "/en/register" ? "/en/registration/status" : "/registration/status") + "?submitted=1", returnTo));
+  redirect(
+    withCommercialReturnTo(
+      (root === "/en/register" ? "/en/registration/status" : "/registration/status") +
+        (selfActivated ? "?submitted=1&activated=1" : "?submitted=1"),
+      returnTo,
+    ),
+  );
 }
 
 export async function logoutRegistration(formData?: FormData) {
