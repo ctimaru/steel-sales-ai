@@ -8,6 +8,7 @@ import { RfqAiTextReview } from "@/components/rfq-ai-text-review";
 import { CommercialRfqConversation, type CommercialRfqTurn } from "@/components/commercial-rfq-conversation";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
 import type { BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
+import { parseCommercialRfqLineCorrection, type CommercialRfqLineCorrection } from "@/lib/commercial-rfq-line-correction";
 
 import { appRoutes } from "@/lib/routes";
 
@@ -50,6 +51,8 @@ export function RfqAiIntakeUx({
   // UX2.B transcript is private in-memory UI state; the server action sees
   // only the currently submitted message, never the conversation history.
   const [conversationTurns, setConversationTurns] = useState<CommercialRfqTurn[]>([]);
+  const [pendingCorrection, setPendingCorrection] = useState<CommercialRfqLineCorrection | null>(null);
+  const correctionSerial = useRef(0);
   const conversationSerial = useRef(0);
   function appendConversationTurn(role: CommercialRfqTurn["role"], content: string, state?: CommercialRfqTurn["state"]) {
     const id = ++conversationSerial.current;
@@ -63,12 +66,34 @@ export function RfqAiIntakeUx({
     extractionVersion.current += 1;
     setTextDraft(draft);
     setTextResult(null);
+    setPendingCorrection(null);
     onPreviewChange?.(null);
     setTextError("");
   }, [workspace, mode]);
   async function analyzeText() {
     const submitted = textDraft.trim();
-    if (textPending || !workspace || submitted.length < 3 || textResult) return;
+    if (textPending || !workspace || submitted.length < 3) return;
+    if (textResult && focused) {
+      // The existing proposals remain mounted; only an explicit numbered
+      // correction may change a pending row. No history is sent to the model.
+      appendConversationTurn("user", submitted);
+      const correction = parseCommercialRfqLineCorrection(submitted, textResult.candidates.length);
+      if (!correction.ok) {
+        appendConversationTurn("assistant", correction.reason);
+        return;
+      }
+      const target = textResult.candidates[correction.index];
+      setPendingCorrection({
+        serial: ++correctionSerial.current,
+        candidateId: target.candidateId,
+        patch: correction.patch,
+      });
+      setTextDraft("");
+      appendConversationTurn("assistant", correction.confirmation +
+        ". Ricontrolla i dati e conferma esplicitamente la riga: non è ancora in Distinta.");
+      return;
+    }
+    if (textResult) return;
     if (focused && submitted.length < 12) {
       // A bare short measure such as "100x100x5" should not be a dead-end:
       // ask for missing context locally rather than guessing a section or
@@ -84,6 +109,7 @@ export function RfqAiIntakeUx({
     if (focused) appendConversationTurn("user", submitted);
     setTextPending(true);
     setTextError("");
+    setPendingCorrection(null);
     setTextResult(null);
     onPreviewChange?.(null);
     try {
@@ -141,6 +167,8 @@ export function RfqAiIntakeUx({
   }
 
   function updateFocusedDraft(next: string) {
+    // Editing a correction must not discard 5–10 pending AI proposals.
+    if (textResult) { setTextDraft(next); setTextError(""); return; }
     extractionVersion.current += 1;
     setTextDraft(next);
     setTextResult(null);
@@ -159,7 +187,7 @@ export function RfqAiIntakeUx({
         value={textDraft}
         onChange={updateFocusedDraft}
         onAnalyze={analyzeText}
-        onClear={() => updateFocusedDraft("")}
+        onClear={() => { if (textResult) setTextDraft(""); else updateFocusedDraft(""); }}
         onSample={() => updateFocusedDraft(SAMPLE_RFQ_TEXT)}
         pending={textPending}
         error={textError}
@@ -168,17 +196,21 @@ export function RfqAiIntakeUx({
         review={textResult ? (
           <RfqAiTextReview
             result={textResult}
+            correction={pendingCorrection}
             onCandidatesChange={(updated) => {
+              setTextResult((current) => current ? { ...current, candidates: updated } : null);
               onPreviewChange?.({ ...textResult, candidates: updated });
             }}
             onDismiss={() => {
               setTextResult(null);
+              setPendingCorrection(null);
               onPreviewChange?.(null);
               appendConversationTurn("assistant", "Proposte scartate. Puoi modificare la richiesta e analizzarla di nuovo.");
             }}
             onInsert={(items) => {
               if (!onInsertTextLines(items)) return false;
               setTextResult(null);
+              setPendingCorrection(null);
               onPreviewChange?.(null);
               setTextDraft("");
               appendConversationTurn("assistant", "Ho aggiunto " + items.length +
