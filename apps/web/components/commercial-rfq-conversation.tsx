@@ -32,12 +32,12 @@ export function CommercialRfqConversation({
   manualTools: ReactNode;
 }) {
   const chatEnd = useRef<HTMLDivElement>(null);
-  const canSubmit = value.trim().length >= 12 && !pending && !hasProposals && mode === "text";
+  const canSubmit = value.trim().length >= 3 && !pending && !hasProposals && mode === "text";
 
   useEffect(() => {
     // Scroll only the transcript container; do not push the entire Commerciale
     // page past the mobile navigation when a new message arrives.
-    chatEnd.current?.scrollIntoView({ block: "nearest", behavior: "instant" });
+    chatEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" });
   }, [turns.length, pending, hasProposals]);
 
   function onComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
@@ -150,7 +150,7 @@ export function CommercialRfqConversation({
                 </button>
                 <button type="button" onClick={onAnalyze} disabled={!canSubmit}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
-                  {pending ? "Analisi…" : "Analizza la richiesta con AI"}
+                  {pending ? "Analisi…" : value.trim().length > 0 && value.trim().length < 12 ? "Completa richiesta" : "Analizza la richiesta con AI"}
                   <span aria-hidden="true">↑</span>
                 </button>
               </div>
@@ -159,7 +159,7 @@ export function CommercialRfqConversation({
               {hasProposals
                 ? "Prima conferma o scarta le proposte. Poi puoi aggiungere altre righe."
                 : value.trim().length > 0 && value.trim().length < 12
-                  ? "Aggiungi qualche dettaglio (es. forma, quantità o lunghezza) per poter analizzare."
+                  ? "Puoi completare questa misura: ti chiederò forma, quantità o lunghezza senza inventarle."
                   : "Invio esplicito all’AI · nessuna RFQ viene salvata o inviata automaticamente."}
             </p>
             <p className="sr-only">Invio per analizzare, Maiusc+Invio per andare a capo.</p>
