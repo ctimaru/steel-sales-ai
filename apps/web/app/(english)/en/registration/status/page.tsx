@@ -24,7 +24,7 @@ const states: Record<string, {
 }> = {
   draft: { title: "Your application is a draft", explanation: "Complete company details and send your application for review.", tone: "bg-[#f8faf9]", step: 2 },
   needs_information: { title: "More information is needed", explanation: "The review team needs you to update and resubmit the company details.", tone: "bg-[#fff9e8]", step: 2 },
-  pending_review: { title: "Your application is under review", explanation: "The platform team is reviewing the company identity and registration. No further action is required unless we request it.", tone: "bg-[#edf5f2]", step: 3 },
+  pending_review: { title: "Your application is under review", explanation: "The platform team is reviewing the company identity and registration. No further action is required unless we request it; we will email your account address when the status changes.", tone: "bg-[#edf5f2]", step: 3 },
   approved: { title: "Your company has been approved", explanation: "Workspace activation and company identity linking are being finalized. Approval does not mean a commercial endorsement.", tone: "bg-[#edf5f2]", step: 4 },
   rejected: { title: "Your application was not approved", explanation: "This application cannot be activated as submitted. Review the reason and any next steps below.", tone: "bg-[#fff5f3]", step: 3 },
   activated: { title: "Your company workspace is active", explanation: "You can complete setup and access your workspace. The private product interface currently uses Italian.", tone: "bg-[#edf5f2]", step: 4 },

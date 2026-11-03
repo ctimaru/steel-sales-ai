@@ -67,7 +67,7 @@ const STATUS_COPY: Record<
   },
   pending_review: {
     title: "La richiesta è in revisione",
-    body: "Stiamo controllando i dati dell’azienda e l’identità corretta nel Network. Non devi fare nulla in questo momento.",
+    body: "Stiamo controllando i dati dell’azienda e l’identità corretta nel Network. Non devi fare nulla in questo momento: ti scriviamo all’indirizzo dell’account quando cambia lo stato.",
     tone: "border-[#b8d2c8] bg-[#edf5f2] text-[#173f35]",
     label: "In revisione",
     journeyStep: 3,

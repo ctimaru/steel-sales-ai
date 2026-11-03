@@ -6,6 +6,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requirePlatformPermission } from "@/lib/platform-admin";
+import {
+  outcomeEmailOperatorNote,
+  sendRegistrationOutcomeEmail,
+} from "@/lib/registration-outcome-email.server";
 import { createClient } from "@/lib/supabase/server";
 
 function applicationId(formData: FormData) {
@@ -33,9 +37,12 @@ export async function requestRegistrationInformation(formData: FormData) {
     redirect(detailPath(id, "error", "Non è stato possibile richiedere altre informazioni."));
   }
 
+  // ONBOARDING-AUDIT2 · F2: tell the applicant; the decision stands even if the email fails.
+  const emailResult = await sendRegistrationOutcomeEmail(id, "needs_information");
+
   revalidatePath("/platform/registrations");
   revalidatePath(`/platform/registrations/${id}`);
-  redirect(detailPath(id, "message", "Richiesta di integrazione inviata."));
+  redirect(detailPath(id, "message", "Richiesta di integrazione inviata." + outcomeEmailOperatorNote(emailResult)));
 }
 
 export async function approveRegistrationApplication(formData: FormData) {
@@ -76,9 +83,11 @@ export async function rejectRegistrationApplication(formData: FormData) {
     redirect(detailPath(id, "error", "Non è stato possibile rifiutare la richiesta."));
   }
 
+  const emailResult = await sendRegistrationOutcomeEmail(id, "rejected");
+
   revalidatePath("/platform/registrations");
   revalidatePath(`/platform/registrations/${id}`);
-  redirect(detailPath(id, "message", "Richiesta rifiutata."));
+  redirect(detailPath(id, "message", "Richiesta rifiutata." + outcomeEmailOperatorNote(emailResult)));
 }
 
 export async function approveAndActivateRegistration(formData: FormData) {
@@ -109,6 +118,8 @@ export async function approveAndActivateRegistration(formData: FormData) {
     redirect(detailPath(id, "error", message));
   }
 
+  const emailResult = await sendRegistrationOutcomeEmail(id, "activated");
+
   revalidatePath("/platform/registrations");
   revalidatePath("/network");
   revalidatePath("/network/manage");
@@ -117,7 +128,8 @@ export async function approveAndActivateRegistration(formData: FormData) {
     detailPath(
       id,
       "message",
-      "Registrazione approvata e workspace attivato in un’unica operazione.",
+      "Registrazione approvata e workspace attivato in un’unica operazione." +
+        outcomeEmailOperatorNote(emailResult),
     ),
   );
 }
@@ -149,11 +161,19 @@ export async function activateRegistrationApplication(formData: FormData) {
     redirect(detailPath(id, "error", message));
   }
 
+  const emailResult = await sendRegistrationOutcomeEmail(id, "activated");
+
   revalidatePath("/platform/registrations");
   revalidatePath("/network");
   revalidatePath("/network/manage");
   revalidatePath(`/platform/registrations/${id}`);
-  redirect(detailPath(id, "message", "Workspace e identità Network attivati correttamente."));
+  redirect(
+    detailPath(
+      id,
+      "message",
+      "Workspace e identità Network attivati correttamente." + outcomeEmailOperatorNote(emailResult),
+    ),
+  );
 }
 
 
