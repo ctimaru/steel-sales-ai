@@ -53,7 +53,7 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
               Descrivi i tubi che ti servono
             </h2>
             <p className="mt-0.5 text-xs leading-4 text-[#5c7063]">
-              Continua nella chat con l’anteprima della Distinta a lato. Nessuna richiesta viene inviata automaticamente.
+              Continua nella chat con l’anteprima della Distinta a lato; nessuna richiesta viene inviata automaticamente.
             </p>
           </div>
         </div>
