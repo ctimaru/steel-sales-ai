@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { calculateBuyerDistintaLine, type BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 import { normalizeRfqAiCandidate, type RfqAiLineCandidate, type RfqAiRawLine } from "@/lib/rfq-ai-intake-contract";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
+import type { CommercialRfqLineCorrection } from "@/lib/commercial-rfq-line-correction";
 
 type TubeShape = "unknown" | "round" | "square" | "rectangular";
 function shapeOf(raw: RfqAiRawLine): TubeShape {
@@ -46,13 +47,14 @@ function shown(value: unknown) {
 /** Explicit per-line human confirmation. No browser-generated candidate is
  * trusted by any backend; existing RFQ save actions revalidate final lines. */
 export function RfqAiTextReview({
-  result, onInsert, onDismiss, onCandidatesChange,
+  result, onInsert, onDismiss, onCandidatesChange, correction,
 }: {
   result: RfqAiTextDraftResult;
   onInsert: (rows: BuyerDistintaDraftLine[]) => boolean;
   onDismiss: () => void;
   /** UI preview only; candidate edits are NOT saved to Distinta. */
   onCandidatesChange?: (updated: RfqAiLineCandidate[]) => void;
+  correction?: CommercialRfqLineCorrection | null;
 }) {
   const [candidates, setCandidates] = useState(result.candidates);
   const [raw, setRaw] = useState(result.rawById);
@@ -61,6 +63,8 @@ export function RfqAiTextReview({
   const [transferError, setTransferError] = useState("");
   const [quickAnswers, setQuickAnswers] = useState<Record<string, string>>({});
   const [quickErrors, setQuickErrors] = useState<Record<string, string>>({});
+  const lastCorrectionSerial = useRef(0);
+  const transferStarted = useRef(false);
 
   useEffect(() => {
     // The preview follows corrected candidate fields; only an explicit human
@@ -77,6 +81,11 @@ export function RfqAiTextReview({
       candidate.source, candidate.candidateId, candidate.locator,
       candidate.sourceIntent, nextRaw,
     );
+    // Do not lose human provenance on earlier corrections to the same row.
+    // Normalizing new raw values must not falsely re-label them as AI extracted.
+    Object.assign(next.evidence, Object.fromEntries(
+      Object.entries(candidate.evidence).filter(([, evidence]) => evidence.origin === "human")
+    ));
     // Corrected information is user-provided evidence, never an original AI
     // extraction: preserve its distinct origin for RFQAI7 audit migration.
     const evidenceKeys: Record<string, keyof typeof next.proposedLine> = {
@@ -95,6 +104,17 @@ export function RfqAiTextReview({
     setCandidates((previous) => previous.map((row) => row.candidateId === candidate.candidateId ? next : row));
     setConfirmed((previous) => ({ ...previous, [candidate.candidateId]: false }));
   }
+
+  useEffect(() => {
+    // A numbered correction enters the same guarded human reviewer as
+    // manual field edits. It resets confirmation and updates the live preview.
+    if (!correction || correction.serial <= lastCorrectionSerial.current) return;
+    lastCorrectionSerial.current = correction.serial;
+    const target = candidates.find((candidate) => candidate.candidateId === correction.candidateId);
+    if (target) change(target, correction.patch);
+    // Only the correction serial can apply another patch (never every render).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [correction?.serial]);
 
   function applyQuickAnswer(candidate: RfqAiLineCandidate, field: "thicknessMm" | "lengthMm" | "standard" | "grade" | "quantity" | "quantityUnit") {
     const response = (quickAnswers[candidate.candidateId] ?? "").trim();
@@ -142,11 +162,14 @@ export function RfqAiTextReview({
     confirmed[candidate.candidateId] && canConfirm(candidate),
   );
   function insertConfirmed() {
-    if (!selected.length) return;
+    if (!selected.length || transferStarted.current) return;
+    // A double click must not append the same verified batch twice.
+    transferStarted.current = true;
     // The existing Distinta builder will create its own unique IDs and
     // clear saved RFQ state. Nothing is submitted or emailed here.
     if (!onInsert(selected.map((row) => row.proposedLine))) {
-      setTransferError("Limite di 500 righe: rimuovi articoli dalla distinta prima di importare.");
+      transferStarted.current = false;
+      setTransferError("Impossibile importare queste righe: verifica la capacità della distinta (massimo 500).");
     } else {
       setTransferError("");
     }
