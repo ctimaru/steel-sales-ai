@@ -1,0 +1,86 @@
+name: "NET-PROFILE1E.2 — Controlled Company Evidence Acceptance"
+
+on:
+  workflow_dispatch:
+    inputs:
+      company_id:
+        description: "Existing canonical/discovered company UUID"
+        required: true
+        type: string
+      company_kind:
+        description: "Company source"
+        required: true
+        type: choice
+        options:
+          - discovered
+          - canonical
+      website_url:
+        description: "Manually reviewed official HTTPS company website"
+        required: true
+        type: string
+      persist_candidates:
+        description: "Persist as candidates using worker service credentials (no auto publication)"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-profile1e2-controlled-company-evidence
+  cancel-in-progress: false
+
+jobs:
+  evidence:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: "Install worker dependencies"
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: "Build validated one-company manifest"
+        working-directory: services/worker
+        env:
+          COMPANY_ID: ${{ inputs.company_id }}
+          COMPANY_KIND: ${{ inputs.company_kind }}
+          WEBSITE_URL: ${{ inputs.website_url }}
+        run: |
+          python - <<'PY'
+          import json,os
+          from app.network_profile_batch import validated_seeds
+          item={"company_id":os.environ["COMPANY_ID"],"kind":os.environ["COMPANY_KIND"],"site":os.environ["WEBSITE_URL"]}
+          entries=validated_seeds([item])
+          with open("/tmp/approved-company-sites.json","w",encoding="utf-8") as f:
+              json.dump(entries,f)
+          print("Manifest validated for one approved site; no credentials exposed.")
+          PY
+      - name: "Validate persistence secrets available"
+        if: inputs.persist_candidates
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Server-only Supabase credentials not configured for candidate persistence"
+            exit 1
+          fi
+      - name: "Run bounded extraction and optional candidate-only ingestion"
+        working-directory: services/worker
+        env:
+          PERSIST: ${{ inputs.persist_candidates }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ "$PERSIST" = "true" ]; then
+            python -m app.network_profile_batch --manifest /tmp/approved-company-sites.json --persist
+          else
+            python -m app.network_profile_batch --manifest /tmp/approved-company-sites.json
+          fi
