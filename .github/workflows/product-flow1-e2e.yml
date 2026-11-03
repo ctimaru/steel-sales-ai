@@ -6,6 +6,7 @@ on:
       - ".github/workflows/product-flow1-e2e.yml"
       - "apps/web/tests/product-flow1-*.mjs"
       - "apps/web/tests/calc-dist3-chrome-authenticated-private-save.mjs"
+      - "apps/web/tests/comm-ux6a-chrome-acceptance.mjs"
       - "apps/web/tests/product-flow1-*.cjs"
       - "apps/web/tests/demotest23-seed-auth.mjs"
       - "apps/web/tests/netgrowth2c1-*.mjs"
