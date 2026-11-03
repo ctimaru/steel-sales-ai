@@ -81,15 +81,16 @@ export function CommercialExplorer({
       </Card>
 
       {mode === "awaiting_assignment" ? (
-        <Card className="border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          Il dataset live è già caricato e protetto da RLS, ma non è ancora assegnato a un utente Auth.
-          Dopo il primo accesso verrà associato al tuo account e questi risultati diventeranno live.
+        <Card role="status" className="border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+          Stato dello storico non verificabile. I dati potrebbero non essere associati, non essere disponibili
+          oppure il caricamento potrebbe essere fallito; non possiamo presentare zero risultati come dato certo.
         </Card>
       ) : null}
 
       <div className="flex flex-col justify-between gap-1 text-xs text-slate-500 sm:flex-row">
-        <span>{total.toLocaleString("it-IT")} risultati {mode === "live" ? "nel modello normalizzato RFQ / Offer / Order" : "in modalità demo"}</span>
-        <span>Pagina {page} di {totalPages} · max {pageSize} righe</span>
+        <span>{mode === "awaiting_assignment" ? "— risultati · stato da verificare"
+          : `${total.toLocaleString("it-IT")} risultati ${mode === "live" ? "nel modello normalizzato RFQ / Offer / Order" : "in modalità demo"}`}</span>
+        {mode === "live" && totalPages > 1 ? <span>Pagina {page} di {totalPages} · max {pageSize} righe</span> : null}
       </div>
 
       <div className="space-y-3">
@@ -141,7 +142,15 @@ export function CommercialExplorer({
         ))}
 
         {rows.length === 0 ? (
-          hasFilters ? (
+          mode === "awaiting_assignment" ? (
+            <FirstUseEmptyState
+              eyebrow="Storico da verificare"
+              title="Le attività non sono ancora consultabili"
+              description="Controlla la ricerca riservata o le fonti autorizzate. Non è possibile stabilire da qui se l'archivio sia vuoto o non disponibile."
+              primaryAction={{ href: appRoutes.commercial.search, label: "Controlla lo storico" }}
+              compact
+            />
+          ) : hasFilters ? (
             <FirstUseEmptyState
               eyebrow="Filtri senza risultati"
               title="Nessuna attività commerciale corrisponde ai filtri"

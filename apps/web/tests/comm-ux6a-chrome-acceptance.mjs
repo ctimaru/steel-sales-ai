@@ -218,6 +218,17 @@ try {
           assert.equal(await page.getByRole("button", { name: "Analizza la richiesta con AI" }).count(), 1);
           await page.screenshot({ path: path.join(screenshotsDir, "commercial-ai-to-private-distinta-1440px.png"), fullPage: false, animations: "disabled" });
           console.log("COMM-UX6.A AI → PRIVATE DISTINTA PASS: text handed off once, no automatic analysis or dispatch");
+
+          // COMM-TRUST1.C: a no-match filter is not an empty archive or failed RPC.
+          await page.goto(base + "/commercial?view=drafts&q=commtrust1cnomatch", { waitUntil: "domcontentloaded", timeout: 90000 });
+          const empty = page.locator('[data-commercial-empty-state="filtered"]');
+          await empty.waitFor({ state: "visible", timeout: 60000 });
+          assert.match(await empty.innerText(), /Nessun risultato per questo filtro/);
+          assert.equal(await empty.getByRole("link", { name: "Rimuovi filtro →" }).count(), 1);
+          assert.equal(await page.locator('[aria-label="Pagine attività commerciali"]').count(), 0,
+            "Do not show Page 1 when a filter has no results and no navigation");
+          await page.screenshot({ path: path.join(screenshotsDir, "commercial-filtered-empty-1440px.png"), fullPage: false, animations: "disabled" });
+          console.log("COMM-TRUST1.C FILTERED EMPTY PASS");
         }
       } finally {
         await context.close();
