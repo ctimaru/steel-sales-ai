@@ -1,0 +1,36 @@
+name: TRUST-AUDIT1B — Git history and contributor scan (read only)
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - scripts/trust_audit1b.py
+      - scripts/trust_audit1b2.py
+      - .github/workflows/trust-audit1b-history.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: trust-audit1b-history
+  cancel-in-progress: true
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch reachable remote branches and tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+      - name: Run synthetic non-secret scanner self-test
+        run: |
+          python3 scripts/trust_audit1b.py --self-test
+          python3 scripts/trust_audit1b2.py --self-test
+      - name: Audit reachable history (aggregates only, no credentials)
+        run: python3 scripts/trust_audit1b.py
+      - name: Controlled candidate triage (no raw values or paths)
+        run: python3 scripts/trust_audit1b2.py
