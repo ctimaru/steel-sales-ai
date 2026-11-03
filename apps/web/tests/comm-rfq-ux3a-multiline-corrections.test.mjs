@@ -36,7 +36,8 @@ test("UX3.A corrects one of ten pending lines without filling unrelated fields",
 test("UX3.A rejects unscoped, invalid, ambiguous or out-of-range commands", () => {
   for (const text of [
     "cambia tutte le righe a 20 barre", "riga 11: 20 barre", "riga 0: 20 barre",
-    "riga 1: 2,5 barre", "riga 2: 0 barre", "riga 1: spessore 0 mm",
+    "riga 1: 2,5 barre", "riga 1: 1.000 barre", "riga 1: 2,0 barre",
+    "riga 2: 1.000 t", "riga 2: 0 barre", "riga 1: spessore 0 mm",
     "riga 1: lunghezza 300 m", "riga 2: norma ASTM A500",
     "riga 1: prezzo 999 euro", "riga 1: spediscila ai fornitori",
     "riga 1: 20 barre e 10 mm", "riga 2: elimina articolo", "riga 1: quantità 1e30 t",
