@@ -43,6 +43,39 @@ async function loadOwnRegistrationContactName(): Promise<string | null> {
   }
 }
 
+/**
+ * HOME-EMPTYSTATE1: shown instead of "Azioni buyer 0 · Urgenti 0 · RFQ attive 0".
+ * Links only to existing creation surfaces; read-only roles get no create action.
+ */
+function RfqEmptyState({ canWrite, firstRun }: { canWrite: boolean; firstRun: boolean }) {
+  return (
+    <div role="status" data-testid="home-rfq-empty-state" className="mt-3 space-y-2">
+      <p className="text-xs font-semibold text-[#173f35]">Nessuna RFQ in corso</p>
+      <p className="text-xs leading-5 text-[#52615b]">
+        {canWrite
+          ? "Prepara una distinta e inviala ai fornitori: qui vedrai risposte e azioni da gestire."
+          : "Quando il tuo team invierà richieste di offerta, qui vedrai quelle da seguire."}
+      </p>
+      {canWrite ? (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <Link
+            href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
+            className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            {firstRun ? "Crea la tua prima RFQ" : "Crea una RFQ"} <span aria-hidden="true">&nbsp;→</span>
+          </Link>
+          <Link
+            href="/distinta"
+            className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            Crea distinta <span aria-hidden="true">&nbsp;→</span>
+          </Link>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function workspaceRoleLabel(role: string) {
   if (role === "admin") return "Amministratore aziendale";
   if (role === "viewer") return "Sola lettura";
@@ -187,6 +220,12 @@ export default async function DashboardPage({
     typeof entry.value === "number" && Number.isFinite(entry.value) && entry.value >= 0
       ? [{ ...entry, value: entry.value }]
       : [],
+  );
+  // HOME-EMPTYSTATE1: three verified zeros say "no RFQ in progress", not three
+  // metrics worth reading. Only when all three are present; partial data keeps
+  // the existing rows so a missing value is never presented as a zero.
+  const procurementAllZero = Boolean(
+    procurementKpis && procurementKpis.length === 3 && procurementKpis.every((kpi) => kpi.value === 0),
   );
   const procurementActions = (procurementPayload?.items ?? [])
     .filter((item) => item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id))
@@ -375,6 +414,8 @@ export default async function DashboardPage({
                 </dl>
                 <p className="mt-2 text-[11px] leading-4 text-[#68766d]">Totali registrati · non rappresentano attività aperte.</p>
               </>
+            ) : procurementAllZero ? (
+              <RfqEmptyState canWrite={canWrite} firstRun={firstRun.active} />
             ) : procurementKpis && procurementKpis.length > 0 ? (
               <>
                 <div className="mt-3 space-y-1">
@@ -472,6 +513,9 @@ export default async function DashboardPage({
           {procurementKpis && procurementKpis.length > 0 ? (
             <section aria-label="RFQ lifecycle" className="rounded-2xl border border-[#dce5df] bg-white p-4">
               <h2 className="text-sm font-semibold text-[#173f35]">Acquisti e RFQ</h2>
+              {procurementAllZero ? (
+                <RfqEmptyState canWrite={canWrite} firstRun={firstRun.active} />
+              ) : (
               <div className="mt-3 space-y-1">
                 {procurementKpis.map((kpi) => (
                   <Link href={kpi.href} key={kpi.label} className="flex min-h-10 items-center justify-between gap-2 rounded-lg px-2 text-xs text-[#52615b] hover:bg-[#f1f7f3] focus-visible:outline-2 focus-visible:outline-offset-2">
@@ -480,6 +524,7 @@ export default async function DashboardPage({
                   </Link>
                 ))}
               </div>
+              )}
             </section>
           ) : null}
 
