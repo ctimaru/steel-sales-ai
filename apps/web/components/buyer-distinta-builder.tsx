@@ -1048,7 +1048,7 @@ export function BuyerDistintaBuilder({
           aria-controls="commercial-rfq-manual-tools" aria-expanded={showManualTools}
           onClick={() => setShowManualTools((open) => !open)}
           className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#175640]">
-          {showManualTools ? "Nascondi strumenti manuali" : "Aggiungi una misura con la calcolatrice"} <span aria-hidden="true">{showManualTools ? "⌃" : "⌄"}</span>
+          {showManualTools ? "Nascondi calcolatrice" : "Calcolatrice"} <span aria-hidden="true">{showManualTools ? "⌃" : "⌄"}</span>
         </button>
       ) : null}
       <section id="commercial-rfq-manual-tools" hidden={focusAiIntake && !showManualTools} data-private-calculator-shell className={`rounded-2xl border border-[#d8e1dd] bg-white p-2.5 shadow-[0_12px_36px_rgba(18,61,52,0.045)] sm:p-3 ${styles.shell}`}>
