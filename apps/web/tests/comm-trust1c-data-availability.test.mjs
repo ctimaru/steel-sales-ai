@@ -7,6 +7,7 @@ const page = read("../app/(italian)/(workspace)/commercial/page.tsx");
 const worklist = read("../components/commercial-unified-worklist.tsx");
 const data = read("../lib/commercial-data.ts");
 const loading = read("../app/(italian)/(workspace)/commercial/loading.tsx");
+const explorer = read("../components/commercial-explorer.tsx");
 
 test("COMM-TRUST1.C dashboard must never display failed history metrics as real zero", () => {
   assert.match(data, /if \(metricError \|\| !metricRows\?\.length\)/,
@@ -42,4 +43,12 @@ test("COMM-TRUST1.C loading feedback does not masquerade as an empty archive", (
   assert.match(loading, /aria-busy="true"/);
   assert.match(loading, /Caricamento delle attività commerciali/);
   assert.doesNotMatch(loading, /\>0\</);
+});
+
+test("COMM-TRUST1.C explorer does not promise automatic assignment or fake paging", () => {
+  assert.match(explorer, /Stato dello storico non verificabile/);
+  assert.match(explorer, /mode === "awaiting_assignment" \? "— risultati/);
+  assert.match(explorer, /mode === "live" && totalPages > 1/);
+  assert.match(explorer, /Le attività non sono ancora consultabili/);
+  assert.doesNotMatch(explorer, /Dopo il primo accesso verrà associato/);
 });
