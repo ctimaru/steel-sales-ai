@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState, type ReactNode } from "react";
+import styles from "./commercial-rfq-workspace.module.css";
 
 /**
  * COMM-RFQ-UX2.A: one conversation and one structural Distinta preview.
@@ -22,7 +23,7 @@ export function CommercialRfqWorkspace({
 
   return (
     <section data-testid="commercial-rfq-chat-workspace" aria-label="Preparazione distinta conversazionale"
-      className="min-w-0 overflow-visible rounded-2xl bg-white">
+      className={`min-w-0 overflow-visible rounded-2xl bg-white ${styles.workspace}`}>
       <div role="tablist" aria-label="Vista richiesta" className="mb-3 grid grid-cols-2 gap-2 rounded-xl bg-[#f2f6f3] p-1 xl:hidden">
         <button type="button" role="tab" id={chatId + "-tab"} aria-controls={chatId}
           aria-selected={mobileView === "chat"} onClick={() => setMobileView("chat")}
