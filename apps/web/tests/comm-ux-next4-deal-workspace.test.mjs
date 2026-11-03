@@ -8,8 +8,8 @@ const guidance = read("../lib/commercial-deal-next-step.ts");
 
 test("Commerciale selected deal uses contextual guidance without sending any outbound action", () => {
   assert.match(worklist, /data-testid="commercial-deal-next-step"/);
-  assert.match(worklist, /href=\{item\.href\}/);
-  assert.match(worklist, /commercialDealNextStep\(item\.kind, facts\?\.rawStatus \?\? item\.status, canWrite\)/);
+  assert.match(worklist, /href=\{actionHref\}/);
+  assert.match(worklist, /commercialDealNextStep\(item\.kind, rawStatus, canWrite, Boolean\(facts\)\)/);
   assert.match(worklist, /\{nextStep\.title\}/);
   assert.match(worklist, /\{nextStep\.description\}/);
   assert.match(worklist, /\{nextStep\.actionLabel\}/);

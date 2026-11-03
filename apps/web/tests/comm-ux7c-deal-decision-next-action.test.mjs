@@ -50,7 +50,7 @@ test("COMM-UX7.C single decision dock keeps missing-information checklist and go
   assert.match(worklist, /data-testid="commercial-deal-next-step"/);
   assert.match(worklist, /data-testid="commercial-deal-primary-action"/);
   assert.match(worklist, /href=\{actionHref\}/);
-  assert.ok(worklist.indexOf("commercial-decision-dock") < worklist.indexOf("commercial-deal-next-step"));
+  assert.ok(worklist.indexOf("commercial-decision-dock") < worklist.indexOf('data-testid="commercial-deal-next-step"'));
   assert.match(intelligence, /commercialDecisionReadiness\(kind, facts, canWrite\)/);
   assert.equal((worklist.match(/<CommercialDealIntelligence/g) ?? []).length, 1);
 });
