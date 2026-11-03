@@ -372,6 +372,7 @@ export default async function OnboardingPage({
               <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_5rem_minmax(0,0.8fr)]">
                 <Field label="Nome azienda">
                   <Input
+                    id="company-name"
                     name="name"
                     defaultValue={organization.name}
                     minLength={2}

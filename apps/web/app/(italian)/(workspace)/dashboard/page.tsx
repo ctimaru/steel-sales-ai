@@ -22,7 +22,24 @@ import { createClient } from "@/lib/supabase/server";
 import { getDashboardCompanySector } from "@/lib/dashboard-company-sector";
 import { dashboardPresentation } from "@/lib/dashboard-role-contract";
 import { deriveWorkspaceFirstRun } from "@/lib/workspace-first-run";
+import { organizationNameMatchesPerson, workspaceGreeting } from "@/lib/workspace-identity";
 import { WorkspaceFirstRunChecklist } from "@/components/workspace-first-run-checklist";
+
+async function loadOwnRegistrationContactName(): Promise<string | null> {
+  try {
+    const db = await createClient();
+    // RLS: "Applicants can read their own registration applications".
+    const { data } = await db
+      .from("company_registration_applications")
+      .select("contact_name")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return typeof data?.contact_name === "string" ? data.contact_name : null;
+  } catch {
+    return null;
+  }
+}
 
 function workspaceRoleLabel(role: string) {
   if (role === "admin") return "Amministratore aziendale";
@@ -50,6 +67,10 @@ export default async function DashboardPage({
     : false;
   const isAdmin = context.role === "admin";
   const canWrite = canWriteWorkspace(context.role);
+  // HOME-FIRSTRUN1B: admin-only, RLS-scoped read of the viewer's own latest
+  // registration contact name. Started before the main batch to run in parallel;
+  // any failure simply means no name hint.
+  const registrantNamePromise = isAdmin ? loadOwnRegistrationContactName() : Promise.resolve(null);
 
   const [setup, commercial, activity, sector, procurement, pulse, marketplace, networkCatalog] = await Promise.all([
     isAdmin
@@ -142,6 +163,11 @@ export default async function DashboardPage({
       team: appRoutes.company.team,
     },
   );
+  const registrantName = await registrantNamePromise;
+  // Soft hint only (a ditta individuale may legitimately carry the owner's name).
+  const companyNameHint = firstRun.active && organizationNameMatchesPerson(context.organizationName, registrantName)
+    ? { href: appRoutes.company.setup + "#company-name" }
+    : null;
   const procurementKpis = procurementSummary && [
     { label: "Azioni buyer", value: procurementSummary.attention_total, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
     { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
@@ -231,7 +257,7 @@ export default async function DashboardPage({
       <FocusHeader
         compact
         eyebrow="Steel Intelligence · La tua Home"
-        title={<>Oggi in {context.organizationName}</>}
+        title={<>{workspaceGreeting()}, {context.organizationName}</>}
         description={
           <>
             Il tuo spazio di lavoro commerciale.
@@ -257,7 +283,7 @@ export default async function DashboardPage({
         attentionCount={attentionCount}
         overview={
           <div className="space-y-3">
-            <WorkspaceFirstRunChecklist state={firstRun} />
+            <WorkspaceFirstRunChecklist state={firstRun} companyNameHint={companyNameHint} />
             <div className="grid min-w-0 items-start gap-3 lg:grid-cols-[minmax(0,1.85fr)_minmax(275px,0.85fr)]">
               <div className="min-w-0 space-y-3">
       <section aria-labelledby="quick-actions" className="overflow-hidden rounded-2xl border border-[#c5d8cd] bg-[linear-gradient(120deg,#edf6f0_0%,#ffffff_72%)] px-4 py-3.5 sm:px-5 sm:py-4">

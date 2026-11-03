@@ -7,7 +7,14 @@ import type { WorkspaceFirstRun } from "@/lib/workspace-first-run";
  * Server-rendered, presentation-only: every link points to an existing,
  * already-authorized setup surface. No client fetch, no new permissions.
  */
-export function WorkspaceFirstRunChecklist({ state }: { state: WorkspaceFirstRun }) {
+export function WorkspaceFirstRunChecklist({
+  state,
+  companyNameHint = null,
+}: {
+  state: WorkspaceFirstRun;
+  /** HOME-FIRSTRUN1B: soft hint when the workspace name equals the registrant's name. */
+  companyNameHint?: { href: string } | null;
+}) {
   if (!state.active || !state.nextStep) return null;
   const { steps, nextStep, essentialCompleted, essentialTotal } = state;
   const percentage = essentialTotal > 0 ? Math.round((essentialCompleted / essentialTotal) * 100) : 0;
@@ -47,6 +54,22 @@ export function WorkspaceFirstRunChecklist({ state }: { state: WorkspaceFirstRun
           </div>
         </div>
       </div>
+
+      {companyNameHint ? (
+        <p
+          role="note"
+          data-testid="workspace-company-name-hint"
+          className="mt-3 rounded-xl border border-[#e7d4b4] bg-[#fffbf5] px-3 py-2.5 text-xs leading-5 text-[#5c4a2e]"
+        >
+          Il nome dell’azienda coincide con il tuo nome. Se sei una ditta individuale va bene così; altrimenti inserisci la ragione sociale.{" "}
+          <Link
+            href={companyNameHint.href}
+            className="font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
+          >
+            Modifica il nome<span aria-hidden="true">&nbsp;→</span>
+          </Link>
+        </p>
+      ) : null}
 
       <ol className="mt-4 grid gap-2 sm:grid-cols-2">
         {steps.map((step, index) => {

@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 const base = (process.env.DEMOTEST23_WEB_URL ?? "").replace(/\/$/, "");
 const temp = process.env.RUNNER_TEMP;
@@ -50,7 +51,7 @@ async function login(page, p) {
   await page.locator('input[name="password"]').fill(p.password);
   await page.getByRole("button", { name: "Accedi", exact: true }).click();
   await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
-  const title = page.getByRole("heading", { name: "Oggi in " + p.name });
+  const title = page.getByRole("heading", { name: homeHeading(p.name) });
   try {
     await title.waitFor({ state: "visible", timeout: 22000 });
   } catch (error) {
@@ -69,7 +70,7 @@ try {
   await step("anonymous cannot access private workspace", async () => {
     await anonymousPage.goto(base + "/dashboard", { waitUntil: "domcontentloaded", timeout: 90000 });
     await anonymousPage.waitForURL(url => url.pathname === "/login", { timeout: 30000 });
-    assert.ok(!(await anonymousPage.locator("body").innerText()).includes("Oggi in DEMO"));
+    assert.ok(!/(Buongiorno|Buonasera), DEMO/.test(await anonymousPage.locator("body").innerText()));
   });
   await step("anonymous cannot inspect buyer RFQ", async () => {
     const res = await anonymousPage.goto(base + "/rfq-hub/" + personas[0].rfq, {
@@ -122,11 +123,11 @@ try {
     await step(p.id + " own company workspace", async () => {
       await navigate(page, "/dashboard");
       // Wait for the streamed Dashboard component after the temporary shell.
-      await page.getByRole("heading", { name: "Oggi in " + p.name, exact: true })
+      await page.getByRole("heading", { name: homeHeading(p.name) })
         .waitFor({ state: "visible", timeout: 60000 });
       const body = await page.locator("body").innerText();
       assert.ok(body.includes(p.name));
-      assert.ok(!body.includes("Oggi in " + personas.find(other => other.org !== p.org)?.name));
+      assert.ok(!["Buongiorno, ", "Buonasera, "].some((greeting) => body.includes(greeting + personas.find(other => other.org !== p.org)?.name)));
       if (p.id === "buyerViewer") {
         assert.ok(body.includes("Sola lettura"), "Viewer workspace role not disclosed");
       }
@@ -134,7 +135,7 @@ try {
 
     await step(p.id + " dashboard cockpit visual layout and authorization", async () => {
       await navigate(page, "/dashboard");
-      await page.getByRole("heading", { name: "Oggi in " + p.name, exact: true })
+      await page.getByRole("heading", { name: homeHeading(p.name) })
         .waitFor({ state: "visible", timeout: 60000 });
       const actions = page.locator('section[aria-labelledby="quick-actions"]');
       const priorities = page.locator('section[aria-labelledby="daily-priorities"]');
@@ -202,7 +203,7 @@ try {
 
     await step(p.id + " DASH-FEED6 discovery and role-safe navigation", async () => {
       await navigate(page, "/dashboard");
-      await page.getByRole("heading", { name: "Oggi in " + p.name, exact: true })
+      await page.getByRole("heading", { name: homeHeading(p.name) })
         .waitFor({ state: "visible", timeout: 60000 });
       await page.locator('nav[aria-label="Sezioni della Home"]:visible').getByRole("button", { name: /Opportunità/ }).click();
       const discovery = page.locator("#dashboard-discovery");
@@ -465,7 +466,7 @@ try {
     await step("mobile responsive " + route, async () => {
       await navigate(mobilePage, route);
       const heading = route === "/dashboard"
-        ? "Oggi in " + personas[0].name
+        ? homeHeading(personas[0].name)
         : route === "/rfq-hub" ? "RFQ Hub" : "Compra o vendi, in un unico spazio";
       await mobilePage.getByRole("heading", { name: heading, exact: true })
         .waitFor({ state: "visible", timeout: 60000 });
@@ -491,7 +492,7 @@ try {
   }
   await step("mobile dashboard visual tiles and focus behavior", async () => {
     await navigate(mobilePage, "/dashboard");
-    await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
+    await mobilePage.getByRole("heading", { name: homeHeading(personas[0].name) })
       .waitFor({ state: "visible", timeout: 60000 });
     await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
     assert.equal(await mobilePage.getByTestId("dashboard-pulse-preview").count(), 1);
@@ -516,7 +517,7 @@ try {
   await step("DASH-FEED6 Chrome 320px mobile disclosure and discovery jump", async () => {
     await mobilePage.setViewportSize({ width: 320, height: 740 });
     await navigate(mobilePage, "/dashboard");
-    await mobilePage.getByRole("heading", { name: "Oggi in " + personas[0].name, exact: true })
+    await mobilePage.getByRole("heading", { name: homeHeading(personas[0].name) })
       .waitFor({ state: "visible", timeout: 60000 });
     await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
     assert.equal(await mobilePage.getByTestId("dashboard-pulse-preview").count(), 1);

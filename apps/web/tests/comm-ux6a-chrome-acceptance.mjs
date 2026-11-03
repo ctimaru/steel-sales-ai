@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 const base = process.env.DEMOTEST23_WEB_URL;
 assert.equal(base, "http://127.0.0.1:3000");
@@ -26,7 +27,7 @@ async function login(page, p) {
   await page.locator('input[name="password"]').fill(p.password);
   await page.getByRole("button", { name: "Accedi", exact: true }).click();
   await page.waitForURL(u => u.pathname === "/dashboard", { timeout: 90000 });
-  await page.getByRole("heading", { name: "Oggi in " + p.name, exact: true })
+  await page.getByRole("heading", { name: homeHeading(p.name) })
     .waitFor({ state: "visible", timeout: 60000 });
 }
 async function noOverflow(page, tag) {

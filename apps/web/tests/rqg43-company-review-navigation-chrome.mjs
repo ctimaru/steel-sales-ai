@@ -62,7 +62,7 @@ try{
     try{
       await check("Company A Dashboard → profile → Company Review is discoverable and canonical",async()=>{
         await visit(page,"/dashboard");
-        await page.getByRole("heading",{name:/Oggi in DEMO Industrial Engineering/}).waitFor();
+        await page.getByRole("heading",{name:/(Buongiorno|Buonasera), DEMO Industrial Engineering/}).waitFor();
         await page.getByRole("button",{name:"Apri menu profilo"}).click();
         const menu=page.getByRole("dialog",{name:"Menu profilo"});
         const link=menu.getByRole("link",{name:"Qualità dati aziendali"});
