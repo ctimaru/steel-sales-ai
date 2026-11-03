@@ -12,8 +12,10 @@ import { getDashboardData } from "@/lib/commercial-data";
 import { getNetworkAccessState } from "@/lib/network-access";
 import { getMarketplaceFeed } from "@/lib/marketplace";
 import { getNetworkActivityFeed } from "@/lib/network";
-import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { isNetworkFreeReadEnabled, isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { searchNetwork } from "@/lib/network";
+import { getNetworkBrowsePage } from "@/lib/network-free";
+import { selectFreeNetworkPreview } from "@/lib/dashboard-free-network-preview";
 import { selectDashboardNetworkCompanies } from "@/lib/dashboard-network-discovery";
 import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
@@ -71,6 +73,14 @@ export default async function DashboardPage({
   // registration contact name. Started before the main batch to run in parallel;
   // any failure simply means no name hint.
   const registrantNamePromise = isAdmin ? loadOwnRegistrationContactName() : Promise.resolve(null);
+  // HOME-NETPREVIEW1: organizations without the Pro entitlement already browse the
+  // published Network on /network (free read). Show its first server-ranked page
+  // here instead of claiming the Network is unavailable. Same RPC and permission
+  // check as /network; any failure falls back to the "not available now" copy.
+  const freeNetworkReadEnabled = networkEnabled && !networkEntitled && isNetworkFreeReadEnabled();
+  const freeNetworkPagePromise = freeNetworkReadEnabled
+    ? getNetworkBrowsePage(context.organizationId, "free", "published", { page: 1 }).catch(() => null)
+    : Promise.resolve(null);
 
   const [setup, commercial, activity, sector, procurement, pulse, marketplace, networkCatalog] = await Promise.all([
     isAdmin
@@ -164,6 +174,7 @@ export default async function DashboardPage({
     },
   );
   const registrantName = await registrantNamePromise;
+  const freeNetworkPreview = selectFreeNetworkPreview(await freeNetworkPagePromise, context.organizationName);
   // Soft hint only (a ditta individuale may legitimately carry the owner's name).
   const companyNameHint = firstRun.active && organizationNameMatchesPerson(context.organizationName, registrantName)
     ? { href: appRoutes.company.setup + "#company-name" }
@@ -486,6 +497,8 @@ export default async function DashboardPage({
             interests={pulse.interests}
             networkCompanies={networkCompanies}
             networkDiscoveryAvailable={networkCatalog !== null}
+            freeNetworkReadEnabled={freeNetworkReadEnabled}
+            freeNetworkPreview={freeNetworkPreview}
             canWriteCommercial={canWrite}
           />
           <section aria-label="Aree di lavoro" className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-[#dce6df] pt-3 text-xs">
