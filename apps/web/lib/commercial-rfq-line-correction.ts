@@ -70,7 +70,7 @@ export function parseCommercialRfqLineCorrection(
     return { ok: true, index, patch: { standard: label },
       confirmation: "Norma della riga " + (index + 1) + " aggiornata a " + label };
   }
-  const grade = /^(?:grado|qualit[aà])\s+(S(?:235|275|355|420|460)(?:JR|J0|J2|K2|NH|NL|MH|ML|H)?)$/i.exec(command);
+  const grade = /^(?:grado|qualit[aà])\s+(S(?:235|275|355|420|460)(?:(?:JR|J0|J2|K2)H?|NH|NL|MH|ML|H)?)$/i.exec(command);
   if (grade) {
     const label = grade[1].toUpperCase();
     return { ok: true, index, patch: { grade: label },
