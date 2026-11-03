@@ -126,14 +126,11 @@ export function RfqAiIntakeUx({
       </div>
 
       </>) : (
-        <div role="group" aria-label="Metodo di preparazione della distinta" className="flex flex-wrap gap-2" data-testid="commercial-ai-focused-modes">
-          <button type="button" aria-pressed={mode === "text"} onClick={() => onModeChange("text")}
-            className={mode === "text" ? "min-h-10 rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white" : "min-h-10 rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#175640]"}>
-            Analisi del testo
-          </button>
-          <button type="button" aria-pressed={mode === "manual"} onClick={() => onModeChange("manual")}
-            className={mode === "manual" ? "min-h-10 rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white" : "min-h-10 rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#175640]"}>
-            Configurazione assistita
+        <div role="group" aria-label="Metodo di preparazione della distinta" className="flex justify-end px-2 pt-1" data-testid="commercial-ai-focused-modes">
+          <button type="button" aria-pressed={mode === "manual"}
+            onClick={() => onModeChange(mode === "manual" ? "text" : "manual")}
+            className="inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
+            {mode === "manual" ? "Torna all’analisi del testo" : "Preferisci configurare manualmente?"}
           </button>
         </div>
       )}
@@ -174,31 +171,35 @@ export function RfqAiIntakeUx({
 
         {mode === "text" && workspace ? (
           <div className="rfqai2-capture-panel" aria-label="Preparazione testo per estrazione AI">
-            <div className="rfqai2-panel-heading">
-              <div>
-                <p className="rfqai2-panel-kicker">Smart Steel Sales · Assistente commerciale</p>
-                <h4>{textResult ? "Completiamo insieme la tua richiesta" : "Ciao, dimmi quale materiale stai cercando"}</h4>
+            {!focused ? (
+              <div className="rfqai2-panel-heading">
+                <div>
+                  <p className="rfqai2-panel-kicker">Smart Steel Sales · Assistente commerciale</p>
+                  <h4>{textResult ? "Completiamo insieme la tua richiesta" : "Ciao, dimmi quale materiale stai cercando"}</h4>
+                </div>
+                <span className="rfqai2-panel-status">Revisione obbligatoria</span>
               </div>
-              <span className="rfqai2-panel-status">Revisione obbligatoria</span>
-            </div>
+            ) : null}
             <details open={!textResult} className="rounded-xl border border-[#cbded3] bg-white p-3" data-rfqai-original-request>
               <summary className="cursor-pointer text-sm font-semibold text-[#164b35]">
                 {textResult ? "Visualizza o modifica la richiesta originale" : "Scrivi o incolla la richiesta"}
               </summary>
-              <div className="mt-3">
-            <label htmlFor="rfqai2-text-input" className="rfqai2-field-label">
+              <div className={focused ? "mt-1" : "mt-3"}>
+            <label htmlFor="rfqai2-text-input" className={focused ? "sr-only" : "rfqai2-field-label"}>
               Testo della richiesta
             </label>
             <textarea
               id="rfqai2-text-input"
               maxLength={MAX_TEXT_CHARS}
-              rows={7}
+              rows={focused ? 3 : 7}
+              style={focused ? { minHeight: "6rem" } : undefined}
               value={textDraft}
               onChange={(event) => { extractionVersion.current += 1; setTextDraft(event.target.value); setTextResult(null); setTextError(""); }}
               placeholder={"Es. Mi servono 30 barre da 12 m di tubo quadro 100×100×5 S355J2H EN 10219 e 120 m di tubo tondo 60,3×3 EN 10210."}
               spellCheck={false}
               className="rfqai2-textarea"
             />
+            {(!focused || !textDraft.trim()) ? (
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs text-[#56675f]">Non sai come iniziare? Prova una richiesta tipo.</span>
               <button type="button" className="rfqai2-secondary-action"
@@ -207,19 +208,20 @@ export function RfqAiIntakeUx({
                 Inserisci esempio
               </button>
             </div>
-            <div className="rfqai2-field-footer">
+            ) : null}
+            <div className={focused ? "sr-only" : "rfqai2-field-footer"}>
               <span>Puoi incollare più articoli e condizioni commerciali.</span>
               <span>{textDraft.length.toLocaleString("it-IT")} / {MAX_TEXT_CHARS.toLocaleString("it-IT")} caratteri</span>
             </div>
-            <div className="rfqai2-input-actions">
+            <div className={focused ? "flex flex-wrap items-center gap-2 pt-2" : "rfqai2-input-actions"}>
+              <button type="button" disabled={textPending || textDraft.trim().length < 12}
+                onClick={analyzeText} className={focused ? "rfqai2-primary-link min-h-11 flex-1" : "rfqai2-primary-link"}>
+                {textPending ? "Analisi in corso…" : "Analizza la richiesta con AI"}
+              </button>
               <button type="button" disabled={!textDraft || textPending}
                 onClick={() => { extractionVersion.current += 1; setTextDraft(""); setTextResult(null); setTextError(""); }}
-                className="rfqai2-secondary-action">
+                className={focused ? "min-h-9 px-2 text-xs font-semibold text-[#175640] underline underline-offset-4" : "rfqai2-secondary-action"}>
                 Cancella testo
-              </button>
-              <button type="button" disabled={textPending || textDraft.trim().length < 12}
-                onClick={analyzeText} className="rfqai2-primary-link">
-                {textPending ? "Analisi in corso…" : "Analizza la richiesta con AI"}
               </button>
             </div>
             {textError ? <p role="alert" className="rfqai3-warning">{textError}</p> : null}
