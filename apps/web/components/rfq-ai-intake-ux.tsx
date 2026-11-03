@@ -119,6 +119,9 @@ export function RfqAiIntakeUx({
       if (extractionVersion.current === version) {
         if (response.ok) {
           setTextResult(response.result);
+          // The submitted source stays visible in the user turn and cited review;
+          // free the composer for a new, explicitly numbered correction.
+          if (focused) setTextDraft("");
           onPreviewChange?.(response.result);
           if (focused) {
             const count = response.result.candidates.length;
