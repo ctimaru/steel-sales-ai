@@ -218,7 +218,7 @@ test("RFQAI3 authenticated server action, bounded Gateway call, no auto-persist 
 });
 test("RFQAI3 editable review explicitly confirms each row, stays in same BD10 preview",()=>{
   assert.match(privatePage, /requireWorkspaceWriteRole\(appRoutes.rfqHub.home\)/);
-  assert.match(chooser, /analyzeRfqAiFreeText\(textDraft\)/);
+  assert.match(chooser, /analyzeRfqAiFreeText\(submitted\)/);
   assert.match(chooser, /mode === "text" && workspace/);
   assert.match(chooser, /<RfqAiTextReview/);
   assert.match(reviewer, /const \[confirmed, setConfirmed\] = useState<Record<string, boolean>>\(\{\}\)/);
