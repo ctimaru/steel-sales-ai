@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 const read = path => readFileSync(new URL(path, import.meta.url), "utf8");
@@ -57,4 +59,10 @@ test("COMM-TRUST1.D keyboard and access policies remain explicit", () => {
   assert.match(companion, /nessuna richiesta viene inviata automaticamente/i);
   assert.match(page, /canWriteWorkspace\(context\.role\)/);
   assert.match(companion, /\{canWrite \? \(/);
+});
+
+// Every production CI run must catch Chrome test parse errors before the expensive FLOW1 workflow.
+test("COMM-TRUST1 Chrome acceptance file parses as executable JavaScript", () => {
+  const chromePath = fileURLToPath(new URL("./comm-ux6a-chrome-acceptance.mjs", import.meta.url));
+  assert.doesNotThrow(() => execFileSync(process.execPath, ["--check", chromePath], { stdio: "pipe" }));
 });
