@@ -8,7 +8,9 @@ import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { PublicCompanyLookup } from "@/components/public-company-lookup";
 import { RegistrationJourney } from "@/components/registration-journey";
+import { RegistrationPilotNotice } from "@/components/registration-pilot-notice";
 import { Input } from "@/components/ui/input";
+import { pilotEmailAllowed, registrationPilotGateActive } from "@/lib/registration-access";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
@@ -54,6 +56,7 @@ export default async function RegisterPage({
     claimRef ? "/register?claim_ref=" + encodeURIComponent(claimRef) : "/register",
     returnTo,
   );
+  const pilotGate = registrationPilotGateActive();
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
@@ -97,6 +100,8 @@ export default async function RegisterPage({
                     Completa la richiesta aziendale dopo aver verificato l’email.
                   </p>
                 </div>
+
+                {pilotGate ? <RegistrationPilotNotice /> : null}
 
                 {error ? (
                   <div
@@ -309,6 +314,12 @@ export default async function RegisterPage({
       claimContext?.claim_state !== "claimable" ||
       claimContext?.can_start_registration !== true);
 
+  // ONBOARDING-AUDIT2 · F1: same rule as saveAndSubmitCompanyRegistration.
+  const pilotBlocked =
+    pilotGate &&
+    !pilotEmailAllowed(user.email) &&
+    application?.application_status !== "needs_information";
+
   const formInitial = activeClaim
     ? {
         ...application,
@@ -379,7 +390,9 @@ export default async function RegisterPage({
             </div>
           ) : null}
 
-          {!application && !claimRef && !activeClaim ? (
+          {pilotBlocked ? <RegistrationPilotNotice blocking /> : null}
+
+          {!pilotBlocked && !application && !claimRef && !activeClaim ? (
             <div className="mt-6">
               {initialCompanySearch ? (
                 <p className="mb-3 rounded-xl border border-[#cde1d5] bg-[#f0f7f3] px-4 py-3 text-xs leading-5 text-[#285b45]">
@@ -400,7 +413,7 @@ export default async function RegisterPage({
           ) : null}
 
           <div id="company-form" className="scroll-mt-6">
-          {claimBlocked ? (
+          {pilotBlocked ? null : claimBlocked ? (
             <div className="mt-8 rounded-2xl border border-[#ead7aa] bg-[#fff9e8] p-5">
               <p className="text-sm font-semibold text-[#77551c]">
                 Il profilo selezionato non è più disponibile per questo claim.

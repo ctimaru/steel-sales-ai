@@ -10,6 +10,7 @@ import {
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
+import { pilotGateMessage, registrationAllowedFor } from "@/lib/registration-access";
 import { createClient } from "@/lib/supabase/server";
 import { feedbackPath } from "@/lib/user-facing-error";
 
@@ -67,6 +68,26 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
       (root === "/en/register" ? "/en/verify-email?source=registration&next=" : "/verify-email?source=registration&next=") +
         encodeURIComponent(registerPath),
     );
+  }
+
+  // ONBOARDING-AUDIT2 · F1: a new application needs a pilot-allowlisted email while the gate is
+  // active; an application already returned by review (needs_information) can still be updated.
+  if (!registrationAllowedFor(user.email)) {
+    const { data: returnedApplication } = await supabase
+      .from("company_registration_applications")
+      .select("id")
+      .eq("application_status", "needs_information")
+      .limit(1)
+      .maybeSingle();
+
+    if (!returnedApplication) {
+      redirect(
+        registerPath +
+          (registerPath.includes("?") ? "&" : "?") +
+          "error=" +
+          encodeURIComponent(pilotGateMessage(root === "/en/register" ? "en" : "it")),
+      );
+    }
   }
 
   let legalName = field(formData, "legal_name");
