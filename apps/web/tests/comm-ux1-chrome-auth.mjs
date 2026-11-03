@@ -221,7 +221,8 @@ try {
         assert.equal(await aiPrompt.count(), 0, "Viewer must not gain RFQ compose access");
       } else {
         assert.equal(await aiPrompt.count(), 1, "Writer gets exactly one AI intake form");
-        const create = companion.getByRole("button", { name: /Prepara la distinta/ });
+        // COMM-TRUST1.D renamed the CTA ("Apri chat e anteprima"); use its stable test id like COMM-UX6A.
+        const create = companion.getByTestId("commercial-ai-first-cta");
         assert.equal(await create.count(), 1, "One primary create action must be offered to writers");
         const colors = await create.evaluate(el => ({
           color: getComputedStyle(el).color, fill: getComputedStyle(el).webkitTextFillColor,
