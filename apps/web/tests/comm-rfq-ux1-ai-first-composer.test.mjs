@@ -17,16 +17,15 @@ test("COMM-RFQ-UX1 retains the private one-shot text transfer with explicit AI c
   assert.match(handoff, /sessionStorage\.removeItem\(HANDOFF_KEY\)/);
   assert.match(intake, /consumeCommercialAiTextHandoff\(MAX_TEXT_CHARS\)/);
   assert.match(intake, /onClick=\{analyzeText\}/);
-  assert.match(intake, /analyzeRfqAiFreeText\(textDraft\)/);
+  assert.match(intake, /analyzeRfqAiFreeText\(submitted\)/);
   assert.match(intake, /Il testo viene inviato al servizio AI solo quando premi Analizza/);
 });
 
 test("COMM-RFQ-UX1 shows a focused commercial workflow instead of a second dashboard", () => {
   assert.match(page, /data-testid="commercial-rfq-ai-focused-header"/);
-  assert.match(page, /Dalla richiesta alla distinta/);
-  assert.match(page, /1 · Analizza il materiale/);
-  assert.match(page, /2 · Verifica gli articoli/);
-  assert.match(page, /3 · Salva la distinta/);
+  assert.match(page, /Nuova distinta/);
+  assert.doesNotMatch(page, /1 · Analizza il materiale/);
+  assert.match(page, /data-testid="commercial-rfq-ai-focused-header"/);
   assert.match(page, /\{aiFocused \? \(/);
   assert.match(page, /\{!aiFocused \? \(<>\s*<CommercialUnifiedWorklist/);
   assert.equal((page.match(/<BuyerDistintaBuilder/g) ?? []).length, 1);
@@ -37,10 +36,9 @@ test("COMM-RFQ-UX1 shows a focused commercial workflow instead of a second dashb
 test("COMM-RFQ-UX1 puts the text review before manual tools and hides the empty cart statistics", () => {
   assert.match(builder, /focusAiIntake = false/);
   assert.match(builder, /useState<RfqAiIntakeMode>\(focusAiIntake && workspace \? "text" : "manual"\)/);
-  assert.match(builder, /\{focusAiIntake && !restoreCandidate \? aiIntakePanel : null\}/);
-  assert.ok(builder.indexOf("{focusAiIntake && !restoreCandidate ? aiIntakePanel : null}") <
-    builder.indexOf("data-private-calculator-shell"));
-  assert.match(builder, /\{\(!focusAiIntake \|\| activeLineCount > 0\) \? \(/);
+  assert.match(builder, /\{focusAiIntake && !restoreCandidate \? \(/);
+  assert.ok(builder.indexOf("<CommercialRfqWorkspace") < builder.indexOf("data-private-calculator-shell"));
+  assert.match(builder, /\{!focusAiIntake \? \(/);
   assert.match(builder, /hidden=\{focusAiIntake && !showManualTools\}/);
   assert.match(builder, /data-testid="commercial-ai-manual-tools-toggle"/);
   assert.match(intake, /data-testid="commercial-ai-focused-modes"/);
@@ -51,15 +49,17 @@ test("COMM-RFQ-UX1 puts the text review before manual tools and hides the empty 
 });
 
 test("COMM-RFQ-UX1 makes approved articles actionable while keeping private save and RFQ separate", () => {
-  assert.match(builder, /data-testid="commercial-ai-reviewed-distinta"/);
-  assert.match(builder, /data-testid="commercial-ai-reviewed-lines"/);
+  const preview = read("../components/commercial-rfq-live-preview.tsx");
+  assert.match(builder, /<CommercialRfqLivePreview/);
+  assert.match(preview, /data-testid="commercial-rfq-live-preview"/);
+  assert.match(preview, /data-testid="commercial-rfq-approved-lines"/);
   assert.match(builder, /onClick=\{saveDistinta\}/);
   assert.match(builder, /onClick=\{createRfqHub\}/);
-  assert.match(builder, /Correggi o aggiungi articoli/);
-  assert.match(builder, /disabled=\{!allComplete \|\| !draftReady \|\| savePending \|\| rfqPending/);
+  assert.match(builder, /onOpenEditor=\{\(\) => \{ setShowManualTools\(true\); openPrivateCart\(\); \}\}/);
+  assert.match(preview, /disabled=\{!canSave \|\| Boolean\(savedId\)\}/);
   assert.match(builder, /Explicit human-approved candidates from the review UI/);
   assert.match(builder, /crea la RFQ con un clic/);
-  assert.match(builder, /non invia messaggi ai fornitori/);
+  assert.match(preview, /non invia messaggi ai fornitori/);
 });
 
 test("COMM-RFQ-UX1 TSX changed modules parse without JSX syntax errors", () => {

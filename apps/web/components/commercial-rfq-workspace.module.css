@@ -1,0 +1,29 @@
+/* COMM-RFQ-UX2.A — styled only within the conversation pane.
+   No visual changes to legacy/public Distinta or unrelated onboarding. */
+.workspace :global(.rfqai2-intake) {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+}
+.workspace :global(.rfqai2-capture-panel) {
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+.workspace :global([data-rfqai-original-request]) {
+  border: 1px solid #cbded3;
+  border-radius: 1rem;
+  background: #fff;
+  padding: 0.75rem;
+}
+.workspace :global(.rfqai2-textarea) {
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  box-shadow: none;
+  min-height: 6rem;
+}
+.workspace :global(.rfqai2-textarea:focus-visible) {
+  outline-offset: 1px;
+}

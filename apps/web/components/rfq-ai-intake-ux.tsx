@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState, type ChangeEvent, type ReactNode } 
 import { consumeCommercialAiTextHandoff } from "@/lib/commercial-ai-intake-handoff";
 import { analyzeRfqAiFreeText } from "@/app/(workspace)/rfq-hub/distinta/ai-actions";
 import { RfqAiTextReview } from "@/components/rfq-ai-text-review";
+import { CommercialRfqConversation, type CommercialRfqTurn } from "@/components/commercial-rfq-conversation";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
 import type { BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 
@@ -28,7 +29,7 @@ const options: { mode: RfqAiIntakeMode; name: string; meta: string }[] = [
 ];
 
 export function RfqAiIntakeUx({
-  mode, focused = false, onModeChange, workspace, authenticated, children, onInsertTextLines,
+  mode, focused = false, onModeChange, workspace, authenticated, children, onInsertTextLines, onPreviewChange,
 }: {
   mode: RfqAiIntakeMode;
   focused?: boolean;
@@ -37,6 +38,8 @@ export function RfqAiIntakeUx({
   workspace: boolean;
   authenticated: boolean;
   onInsertTextLines: (lines: BuyerDistintaDraftLine[]) => boolean;
+  /** UI-only suggestions; never persisted before explicit human approval. */
+  onPreviewChange?: (result: RfqAiTextDraftResult | null) => void;
   children: ReactNode;
 }) {
   const panelId = useId();
@@ -44,6 +47,14 @@ export function RfqAiIntakeUx({
   const [textPending, setTextPending] = useState(false);
   const [textError, setTextError] = useState("");
   const [textResult, setTextResult] = useState<RfqAiTextDraftResult | null>(null);
+  // UX2.B transcript is private in-memory UI state; the server action sees
+  // only the currently submitted message, never the conversation history.
+  const [conversationTurns, setConversationTurns] = useState<CommercialRfqTurn[]>([]);
+  const conversationSerial = useRef(0);
+  function appendConversationTurn(role: CommercialRfqTurn["role"], content: string, state?: CommercialRfqTurn["state"]) {
+    const id = ++conversationSerial.current;
+    setConversationTurns((previous) => [...previous.slice(-48), { id, role, content, state }]);
+  }
   const extractionVersion = useRef(0);
   useEffect(() => {
     if (!workspace || mode !== "text") return;
@@ -52,22 +63,53 @@ export function RfqAiIntakeUx({
     extractionVersion.current += 1;
     setTextDraft(draft);
     setTextResult(null);
+    onPreviewChange?.(null);
     setTextError("");
   }, [workspace, mode]);
   async function analyzeText() {
-    if (textPending || !workspace || !textDraft.trim()) return;
+    const submitted = textDraft.trim();
+    if (textPending || !workspace || submitted.length < 3 || textResult) return;
+    if (focused && submitted.length < 12) {
+      // A bare short measure such as "100x100x5" should not be a dead-end:
+      // ask for missing context locally rather than guessing a section or
+      // sending text that the validated AI server action cannot accept.
+      appendConversationTurn("user", submitted);
+      appendConversationTurn("assistant",
+        "Aggiungi qualche dettaglio per preparare la distinta: tipo di tubo, quantità e lunghezza delle barre. " +
+        "Puoi completare il testo qui sotto; nessuna misura è stata ancora confermata.");
+      return;
+    }
+    if (submitted.length < 12) return;
     const version = ++extractionVersion.current;
+    if (focused) appendConversationTurn("user", submitted);
     setTextPending(true);
     setTextError("");
     setTextResult(null);
+    onPreviewChange?.(null);
     try {
-      const response = await analyzeRfqAiFreeText(textDraft);
+      // IMPORTANT: no chat history or candidate is sent as context; each
+      // message is a separate explicit request to the existing AI parser.
+      const response = await analyzeRfqAiFreeText(submitted);
       if (extractionVersion.current === version) {
-        if (response.ok) setTextResult(response.result);
-        else setTextError(response.error);
+        if (response.ok) {
+          setTextResult(response.result);
+          onPreviewChange?.(response.result);
+          if (focused) {
+            const count = response.result.candidates.length;
+            appendConversationTurn("assistant", count
+              ? "Ho individuato " + count + (count === 1 ? " articolo. Verifica i dettagli qui sotto prima di aggiungerlo alla Distinta." : " articoli. Verifica i dettagli qui sotto prima di aggiungerli alla Distinta.")
+              : "Non ho trovato articoli sufficientemente identificati. Puoi integrare la richiesta e riprovare.", "result");
+          }
+        } else {
+          setTextError(response.error);
+          if (focused) appendConversationTurn("assistant", "Non sono riuscito a interpretare la richiesta. Controlla i dati e riprova.", "error");
+        }
       }
     } catch {
-      if (extractionVersion.current === version) setTextError("Non è stato possibile analizzare la richiesta. Nessun dato è stato importato.");
+      if (extractionVersion.current === version) {
+        setTextError("Non è stato possibile analizzare la richiesta. Nessun dato è stato importato.");
+        if (focused) appendConversationTurn("assistant", "L'analisi non è disponibile. Puoi riprovare senza perdere il testo.", "error");
+      }
     } finally {
       setTextPending(false);
     }
@@ -96,6 +138,58 @@ export function RfqAiIntakeUx({
     setSelectedFile(null);
     setFileError("");
     setFileInputKey((key) => key + 1);
+  }
+
+  function updateFocusedDraft(next: string) {
+    extractionVersion.current += 1;
+    setTextDraft(next);
+    setTextResult(null);
+    onPreviewChange?.(null);
+    setTextError("");
+  }
+
+  // The focused Commerciale route renders a real conversational surface.
+  // Keep the four-mode legacy JSX below for manual/public RFQ Hub consumers.
+  if (focused && workspace) {
+    return (
+      <CommercialRfqConversation
+        mode={mode}
+        onModeChange={onModeChange}
+        turns={conversationTurns}
+        value={textDraft}
+        onChange={updateFocusedDraft}
+        onAnalyze={analyzeText}
+        onClear={() => updateFocusedDraft("")}
+        onSample={() => updateFocusedDraft(SAMPLE_RFQ_TEXT)}
+        pending={textPending}
+        error={textError}
+        hasProposals={Boolean(textResult)}
+        manualTools={children}
+        review={textResult ? (
+          <RfqAiTextReview
+            result={textResult}
+            onCandidatesChange={(updated) => {
+              onPreviewChange?.({ ...textResult, candidates: updated });
+            }}
+            onDismiss={() => {
+              setTextResult(null);
+              onPreviewChange?.(null);
+              appendConversationTurn("assistant", "Proposte scartate. Puoi modificare la richiesta e analizzarla di nuovo.");
+            }}
+            onInsert={(items) => {
+              if (!onInsertTextLines(items)) return false;
+              setTextResult(null);
+              onPreviewChange?.(null);
+              setTextDraft("");
+              appendConversationTurn("assistant", "Ho aggiunto " + items.length +
+                (items.length === 1 ? " articolo verificato alla Distinta a destra." : " articoli verificati alla Distinta a destra.") +
+                " Puoi continuare aggiungendo altre misure, oppure salvare la Distinta privata.", "accepted");
+              return true;
+            }}
+          />
+        ) : null}
+      />
+    );
   }
 
   return (
@@ -194,7 +288,7 @@ export function RfqAiIntakeUx({
               rows={focused ? 3 : 7}
               style={focused ? { minHeight: "6rem" } : undefined}
               value={textDraft}
-              onChange={(event) => { extractionVersion.current += 1; setTextDraft(event.target.value); setTextResult(null); setTextError(""); }}
+              onChange={(event) => { extractionVersion.current += 1; setTextDraft(event.target.value); setTextResult(null); onPreviewChange?.(null); setTextError(""); }}
               placeholder={"Es. Mi servono 30 barre da 12 m di tubo quadro 100×100×5 S355J2H EN 10219 e 120 m di tubo tondo 60,3×3 EN 10210."}
               spellCheck={false}
               className="rfqai2-textarea"
@@ -204,7 +298,7 @@ export function RfqAiIntakeUx({
               <span className="text-xs text-[#56675f]">Non sai come iniziare? Prova una richiesta tipo.</span>
               <button type="button" className="rfqai2-secondary-action"
                 disabled={textPending}
-                onClick={() => { extractionVersion.current += 1; setTextDraft(SAMPLE_RFQ_TEXT); setTextResult(null); setTextError(""); }}>
+                onClick={() => { extractionVersion.current += 1; setTextDraft(SAMPLE_RFQ_TEXT); setTextResult(null); onPreviewChange?.(null); setTextError(""); }}>
                 Inserisci esempio
               </button>
             </div>
@@ -219,7 +313,7 @@ export function RfqAiIntakeUx({
                 {textPending ? "Analisi in corso…" : "Analizza la richiesta con AI"}
               </button>
               <button type="button" disabled={!textDraft || textPending}
-                onClick={() => { extractionVersion.current += 1; setTextDraft(""); setTextResult(null); setTextError(""); }}
+                onClick={() => { extractionVersion.current += 1; setTextDraft(""); setTextResult(null); onPreviewChange?.(null); setTextError(""); }}
                 className={focused ? "min-h-9 px-2 text-xs font-semibold text-[#175640] underline underline-offset-4" : "rfqai2-secondary-action"}>
                 Cancella testo
               </button>
@@ -230,10 +324,11 @@ export function RfqAiIntakeUx({
             {textResult ? (
               <RfqAiTextReview
                 result={textResult}
-                onDismiss={() => setTextResult(null)}
+                onDismiss={() => { setTextResult(null); onPreviewChange?.(null); }}
                 onInsert={(items) => {
                   if (!onInsertTextLines(items)) return false;
                   setTextResult(null);
+                  onPreviewChange?.(null);
                   setTextDraft("");
                   return true;
                 }}

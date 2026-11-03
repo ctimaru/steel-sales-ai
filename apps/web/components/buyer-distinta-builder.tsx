@@ -13,6 +13,9 @@ import { createPrivateRfqOneStep } from "@/lib/buyer-distinta-rfq-one-step";
 import Link from "next/link";
 import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
 import { RfqAiIntakeUx, type RfqAiIntakeMode } from "@/components/rfq-ai-intake-ux";
+import { CommercialRfqWorkspace } from "@/components/commercial-rfq-workspace";
+import { CommercialRfqLivePreview } from "@/components/commercial-rfq-live-preview";
+import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
 import { guidedTubeMassKgM, guidedTubeMeasurement,  type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
 import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { useRouter } from "next/navigation";
@@ -115,6 +118,7 @@ export function BuyerDistintaBuilder({
   const [wizardRestoreSerial, setWizardRestoreSerial] = useState(0);
   const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>(focusAiIntake && workspace ? "text" : "manual");
   const [showManualTools, setShowManualTools] = useState(!focusAiIntake);
+  const [aiPreview, setAiPreview] = useState<RfqAiTextDraftResult | null>(null);
   const [quickQuery, setQuickQuery] = useState("");
   const [quickGrade, setQuickGrade] = useState("");
   const [searchCalculatorPrefill, setSearchCalculatorPrefill] = useState<import("@/components/public-tube-weight-calculator").PublicTubeCalculatorInitialValues | null>(null);
@@ -155,6 +159,22 @@ export function BuyerDistintaBuilder({
   function openPrivateCart() {
     cartReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setCartOpen(true);
+  }
+  function editApprovedLine(lineId: string) {
+    // Keep the canonical cart as the only editable row source. Its existing
+    // pending-row focus contract also works when opening from mobile preview.
+    setShowManualTools(true);
+    setEditingRows((previous) => ({ ...previous, [lineId]: true }));
+    pendingCartRowRef.current = lineId;
+    if (!cartOpen) {
+      openPrivateCart();
+    } else {
+      window.requestAnimationFrame(() => {
+        const row = document.getElementById("buyer-row-" + lineId);
+        row?.focus({ preventScroll: true });
+        row?.scrollIntoView({ block: "nearest", behavior: "auto" });
+      });
+    }
   }
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
@@ -803,9 +823,9 @@ export function BuyerDistintaBuilder({
   }, [focusAiIntake, draftReady, restoreCandidate]);
 
   const aiIntakePanel = (
-            <details id="commercial-ai-intake" open={focusAiIntake} className={focusAiIntake ? "scroll-mt-20 rounded-xl border border-[#d5e1db] bg-white" : "mt-4 scroll-mt-28 rounded-xl border border-[#d5e1db] bg-white"}>
-              <summary className="flex min-h-10 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">{focusAiIntake ? "1 · Analizza la richiesta" : t("Altri metodi · testo AI, configuratore assistito e ricerca catalogo")}</summary>
-              <div className="border-t border-[#d5e1db] p-2 sm:p-3">
+            <details id="commercial-ai-intake" open={focusAiIntake} className={focusAiIntake ? "scroll-mt-20 bg-transparent" : "mt-4 scroll-mt-28 rounded-xl border border-[#d5e1db] bg-white"}>
+              <summary className={focusAiIntake ? "sr-only" : "flex min-h-10 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]"}>{focusAiIntake ? "1 · Analizza la richiesta" : t("Altri metodi · testo AI, configuratore assistito e ricerca catalogo")}</summary>
+              <div className={focusAiIntake ? "min-w-0" : "border-t border-[#d5e1db] p-2 sm:p-3"}>
             <RfqAiIntakeUx
               mode={intakeMode}
               focused={focusAiIntake}
@@ -813,6 +833,7 @@ export function BuyerDistintaBuilder({
               workspace={workspace}
               authenticated={authenticated}
               onInsertTextLines={insertRfqAiTextLines}
+              onPreviewChange={setAiPreview}
             >
             <BuyerTubeGuidedCreator
               key={wizardRestoreSerial}
@@ -967,57 +988,37 @@ export function BuyerDistintaBuilder({
           Bozza locale: le modifiche restano in questa scheda finché non salvi la distinta aziendale.
         </p>
       ) : null}
-      {focusAiIntake && !restoreCandidate ? aiIntakePanel : null}
-      {focusAiIntake && activeLineCount > 0 && !restoreCandidate ? (
-        <section data-testid="commercial-ai-reviewed-distinta" aria-label="Riepilogo della distinta da verificare"
-          className="space-y-3 rounded-2xl border border-[#b8d9c4] bg-[#f3faf5] p-3 sm:p-4">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#246c53]">La tua distinta</p>
-              <h3 className="text-base font-bold text-[#173f35]">Verifica e salva gli articoli</h3>
-            </div>
-            <p className="text-xs font-semibold text-[#175640]">{totals.completeLines}/{activeLineCount} righe complete · {formatNumber(totals.totalTonnes, 3)} t</p>
-          </div>
-          <label className="block max-w-xl text-xs font-semibold text-[#34594c]">
-            Nome della distinta
-            <input value={title} disabled={!draftReady} onChange={(event) => {
-              setTitle(event.target.value);
-              setSavedId(null);
-              setEmailSubject(event.target.value || "Richiesta di offerta");
-            }} className="mt-1 min-h-11 w-full rounded-lg border border-[#b8d2c8] bg-white px-3 text-sm text-[#173f35]" />
-          </label>
-          <ul className="divide-y divide-[#e1ece5] rounded-lg border border-[#d9e6dc] bg-white" data-testid="commercial-ai-reviewed-lines">
-            {lines.slice(0, 10).map((line, index) => (
-              <li key={line.id} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-3 py-2 text-xs">
-                <strong className="min-w-0 break-words text-[#173f35]">{index + 1}. {line.description || "Articolo da completare"}</strong>
-                <span className="text-[#52685b]">{line.standard} · {line.grade} · {line.quantity} {line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t"}</span>
-              </li>
-            ))}
-          </ul>
-          {activeLineCount > 10 ? <p className="text-xs text-[#52685b]">Altri {activeLineCount - 10} articoli disponibili nel carrello.</p> : null}
-          <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={saveDistinta}
-              disabled={!allComplete || !draftReady || savePending || rfqPending || Boolean(savedId)}
-              className="inline-flex min-h-11 items-center rounded-lg bg-[#175640] px-4 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
-              {savePending ? "Salvataggio…" : savedId ? "Distinta salvata ✓" : "Salva distinta privata"}
-            </button>
-            <button type="button" onClick={createRfqHub}
-              disabled={!allComplete || !draftReady || savePending || rfqPending}
-              className="inline-flex min-h-11 items-center rounded-lg border border-[#175640] bg-white px-4 text-xs font-bold text-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
-              {rfqPending ? "Creazione…" : "Crea RFQ privata →"}
-            </button>
-            <button type="button" onClick={() => { setShowManualTools(true); openPrivateCart(); }}
-              className="inline-flex min-h-11 items-center rounded-lg border border-[#a9cbb9] bg-white px-3 text-xs font-semibold text-[#175640]">
-              Correggi o aggiungi articoli
-            </button>
-          </div>
-          {!allComplete ? <p className="text-xs text-[#8a5118]">Alcune righe richiedono una correzione: apri il carrello per completarle.</p> : null}
-          {saveMessage ? <p role="status" className="text-xs text-[#175640]">{saveMessage}</p> : null}
-          {rfqMessage ? <p role="alert" className="text-xs text-[#93440e]">{rfqMessage}</p> : null}
-          <p className="text-[11px] leading-4 text-[#52685b]">Salvare una distinta o creare una RFQ privata non invia messaggi ai fornitori. L'invio richiede una scelta successiva.</p>
-        </section>
+      {focusAiIntake && !restoreCandidate ? (
+        <CommercialRfqWorkspace
+          approvedCount={activeLineCount}
+          proposalCount={aiPreview?.candidates.length ?? 0}
+          conversation={aiIntakePanel}
+          preview={
+            <CommercialRfqLivePreview
+              title={title}
+              onTitleChange={(value) => {
+                setTitle(value);
+                setSavedId(null);
+                setEmailSubject(value || "Richiesta di offerta");
+              }}
+              proposals={aiPreview}
+              approvedLines={activeLineCount ? lines : []}
+              savedId={savedId}
+              ready={draftReady}
+              savePending={savePending}
+              rfqPending={rfqPending}
+              saveMessage={saveMessage}
+              rfqMessage={rfqMessage}
+              onSave={saveDistinta}
+              onCreateRfq={createRfqHub}
+              onOpenEditor={() => { setShowManualTools(true); openPrivateCart(); }}
+              onEditLine={editApprovedLine}
+            />
+          }
+        />
       ) : null}
-      {(!focusAiIntake || activeLineCount > 0) ? (
+      {/* COMM-RFQ-UX2.A uses one preview; the former duplicate card is gone. */}
+      {!focusAiIntake ? (
       <aside data-public-bill-summary className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
         <div className="bd53-hud-progress">
           <span className="bd53-hud-caption">{t("Righe pronte")}</span>
@@ -1064,7 +1065,7 @@ export function BuyerDistintaBuilder({
           aria-controls="commercial-rfq-manual-tools" aria-expanded={showManualTools}
           onClick={() => setShowManualTools((open) => !open)}
           className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#175640]">
-          {showManualTools ? "Nascondi strumenti manuali" : "Aggiungi una misura con la calcolatrice"} <span aria-hidden="true">{showManualTools ? "⌃" : "⌄"}</span>
+          {showManualTools ? "Nascondi calcolatrice" : "Calcolatrice"} <span aria-hidden="true">{showManualTools ? "⌃" : "⌄"}</span>
         </button>
       ) : null}
       <section id="commercial-rfq-manual-tools" hidden={focusAiIntake && !showManualTools} data-private-calculator-shell className={`rounded-2xl border border-[#d8e1dd] bg-white p-2.5 shadow-[0_12px_36px_rgba(18,61,52,0.045)] sm:p-3 ${styles.shell}`}>
@@ -1586,7 +1587,7 @@ export function BuyerDistintaBuilder({
 
       </section>
 
-      <details className="rounded-2xl border border-[#d8e1dd] bg-white shadow-sm">
+      <details hidden={focusAiIntake} className="rounded-2xl border border-[#d8e1dd] bg-white shadow-sm">
         <summary className="flex min-h-12 cursor-pointer items-center px-4 py-3 text-sm font-bold text-[#174e40]">
           {t("Altre opzioni · salva solo la distinta o invia direttamente via email")}
         </summary>

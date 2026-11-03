@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { calculateBuyerDistintaLine, type BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 import { normalizeRfqAiCandidate, type RfqAiLineCandidate, type RfqAiRawLine } from "@/lib/rfq-ai-intake-contract";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
@@ -46,11 +46,13 @@ function shown(value: unknown) {
 /** Explicit per-line human confirmation. No browser-generated candidate is
  * trusted by any backend; existing RFQ save actions revalidate final lines. */
 export function RfqAiTextReview({
-  result, onInsert, onDismiss,
+  result, onInsert, onDismiss, onCandidatesChange,
 }: {
   result: RfqAiTextDraftResult;
   onInsert: (rows: BuyerDistintaDraftLine[]) => boolean;
   onDismiss: () => void;
+  /** UI preview only; candidate edits are NOT saved to Distinta. */
+  onCandidatesChange?: (updated: RfqAiLineCandidate[]) => void;
 }) {
   const [candidates, setCandidates] = useState(result.candidates);
   const [raw, setRaw] = useState(result.rawById);
@@ -59,6 +61,14 @@ export function RfqAiTextReview({
   const [transferError, setTransferError] = useState("");
   const [quickAnswers, setQuickAnswers] = useState<Record<string, string>>({});
   const [quickErrors, setQuickErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    // The preview follows corrected candidate fields; only an explicit human
+    // confirmation/import transfers approved rows to the canonical Distinta.
+    onCandidatesChange?.(candidates);
+    // Trigger only when the reviewer candidates change (not on parent render).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candidates]);
 
   function change(candidate: RfqAiLineCandidate, patch: Partial<RfqAiRawLine>) {
     const nextRaw = { ...raw[candidate.candidateId], ...patch };
