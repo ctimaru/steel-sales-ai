@@ -35,7 +35,7 @@ test("UXA2 Company Workspace exposes role-aware LinkedIn-style macro navigation"
 });
 
 test("PF1 Company Home is a private daily cockpit with task-oriented exits", () => {
-  assert.match(companyHome, /Oggi in/);
+  assert.match(companyHome, /\{workspaceGreeting\(\)\}, \{context\.organizationName\}/);
   assert.match(companyHome, /Workspace privato/);
   assert.match(companyHome, /Cosa richiede attenzione/);
   assert.match(companyHome, /Ultimi movimenti commerciali/);

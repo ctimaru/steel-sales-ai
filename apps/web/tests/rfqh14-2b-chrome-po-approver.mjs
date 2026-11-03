@@ -9,6 +9,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 const origin = process.env.DEMOTEST23_WEB_URL;
 assert.equal(origin, "http://127.0.0.1:3000", "RFQH14.2b external frontend prohibited");
@@ -48,7 +49,7 @@ async function login(page,person){
   await page.locator('input[name="password"]').fill(person.password);
   await page.getByRole("button",{name:"Accedi",exact:true}).click();
   await page.waitForURL(url=>url.pathname==="/dashboard",{timeout:90000});
-  await page.getByRole("heading",{name:"Oggi in "+person.name,exact:true})
+  await page.getByRole("heading",{name: homeHeading(person.name) })
     .waitFor({state:"visible",timeout:60000});
 }
 async function onCampaign(page){
