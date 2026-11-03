@@ -1,0 +1,39 @@
+# RELEASE-OPS1: manual *read-only* Vercel production preflight.
+# This workflow never deploys; it cannot stop Vercel auto-deploys from main.
+# Activate gated releases only after explicitly disabling Git auto-deploy.
+name: RELEASE-OPS1 — Production Day Preflight (read-only)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-ops1-preflight
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Verify deterministic production-day rules
+        run: node --test tests/release-ops1-preflight.test.mjs
+      - name: Vercel read-only production day gate
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          node scripts/release-ops1-preflight.mjs
