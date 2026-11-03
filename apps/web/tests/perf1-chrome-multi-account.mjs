@@ -7,6 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 const base = process.env.PERF1_WEB_URL ?? "";
 assert.equal(base, "http://127.0.0.1:3000", "External URLs forbidden");
@@ -68,7 +69,7 @@ try {
   await check("anonymous is denied dashboard and Platform console", async () => {
     await visit(anonPage, "/dashboard");
     await anonPage.waitForURL(u => u.pathname === "/login", { timeout: 35000 });
-    assert.ok(!(await pageText(anonPage)).includes("Oggi in DEMO"));
+    assert.ok(!/(Buongiorno|Buonasera), DEMO/.test(await pageText(anonPage)));
     await visit(anonPage, "/platform");
     await anonPage.waitForURL(u => u.pathname === "/login", { timeout: 35000 });
     assert.ok(!(await pageText(anonPage)).includes("Governance della piattaforma"));
@@ -94,7 +95,7 @@ try {
     const page = await context.newPage();
     await check(p.id + " authentic GoTrue login", async () => {
       await signIn(page, p);
-      await page.getByRole("heading", { name: "Oggi in " + p.name })
+      await page.getByRole("heading", { name: homeHeading(p.name) })
         .waitFor({ state: "visible", timeout: 60000 });
       const text = await pageText(page);
       assert.ok(text.includes(p.name));
@@ -103,14 +104,14 @@ try {
     await check(p.id + " authenticated homepage preserves dashboard redirect", async () => {
       const target = await openHome(page);
       assert.equal(target, "/dashboard", "Authenticated / did not redirect to /dashboard");
-      await page.getByRole("heading", { name: "Oggi in " + p.name })
+      await page.getByRole("heading", { name: homeHeading(p.name) })
         .waitFor({ state: "visible", timeout: 60000 });
     });
     await check(p.id + " company identity stays tenant-scoped", async () => {
       const text = await pageText(page);
       for (const other of personas) {
         if (other.org && other.org !== p.org) {
-          assert.ok(!text.includes("Oggi in " + other.name), "Cross-tenant workspace identity leaked");
+          assert.ok(!text.includes("Buongiorno, " + other.name) && !text.includes("Buonasera, " + other.name), "Cross-tenant workspace identity leaked");
         }
       }
     });
@@ -248,12 +249,12 @@ try {
   const mobilePage = await mobile.newPage();
   await check("mobile Chrome login with buyer account", async () => {
     await signIn(mobilePage, tenants[0]);
-    await mobilePage.getByRole("heading", { name: "Oggi in " + tenants[0].name })
+    await mobilePage.getByRole("heading", { name: homeHeading(tenants[0].name) })
       .waitFor({ state: "visible", timeout: 60000 });
   });
   await check("mobile Chrome authenticated homepage returns own workspace", async () => {
     assert.equal(await openHome(mobilePage), "/dashboard");
-    await mobilePage.getByRole("heading", { name: "Oggi in " + tenants[0].name })
+    await mobilePage.getByRole("heading", { name: homeHeading(tenants[0].name) })
       .waitFor({ state: "visible", timeout: 60000 });
     const text = await pageText(mobilePage);
     assert.ok(text.includes(tenants[0].name));

@@ -55,7 +55,7 @@ test("UI1 keeps the public landing fast and asset-light", () => {
 });
 
 test("PF1 keeps Company Home task-dense without duplicating macro navigation", () => {
-  assert.match(dashboard, /Oggi in/);
+  assert.match(dashboard, /\{workspaceGreeting\(\)\}, \{context\.organizationName\}/);
   assert.match(dashboard, /Cosa richiede attenzione/);
   assert.match(dashboard, /Ultimi movimenti commerciali/);
   assert.match(dashboard, /Azioni rapide/);
