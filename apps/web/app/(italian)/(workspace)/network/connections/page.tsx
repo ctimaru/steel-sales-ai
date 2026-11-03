@@ -11,6 +11,8 @@ type Connection={
  id:string;purpose:string;status:string;inquiry_status:string;subject:string;message:string;
  sender_organization_id:string;recipient_organization_id:string;
  sender_name:string;recipient_name:string;company_id:string;created_at:string;decided_at:string|null;
+ /** NET-CONN4: sender's approved, published company profile (null if none). */
+ sender_network_company_id?:string|null;
 };
 type Box="connected"|"received"|"sent";
 type Listed=Connection&{direction:"received"|"sent"};
@@ -29,6 +31,11 @@ const dateFormat=new Intl.DateTimeFormat("it-IT",{day:"numeric",month:"short",ye
 function formatDate(value:string|null){
  const time=value?Date.parse(value):NaN;
  return Number.isFinite(time)?dateFormat.format(new Date(time)):null;
+}
+
+/** Profile of the OTHER company: recipient for sent requests, sender for received ones. */
+function otherCompanyId(item:{direction:"received"|"sent";company_id:string;sender_network_company_id?:string|null}){
+ return item.direction==="sent"?item.company_id:item.sender_network_company_id||null;
 }
 
 /** NET-CONN2 — Connessioni: Connesse (default) · Ricevute · Inviate. */
@@ -118,7 +125,7 @@ export default async function NetworkConnectionsPage({
          <h2 className="truncate text-sm font-semibold text-[#173f35]">{name}</h2>
          <p className="text-xs text-[#52615b]">{purposeLabels[item.purpose]||"Richiesta commerciale"}{since?" · connessa dal "+since:""} · {item.direction==="sent"?"richiesta da te":"richiesta da loro"}</p>
         </div>
-        {item.direction==="sent"?<Link href={"/network/"+item.company_id} className="text-xs font-semibold text-[#176647] underline">Apri profilo</Link>:null}
+        {otherCompanyId(item)?<Link href={"/network/"+otherCompanyId(item)} className="text-xs font-semibold text-[#176647] underline">Apri profilo</Link>:null}
        </article>;
       })}
     </section>:<section aria-label={box==="received"?"Richieste ricevute":"Richieste inviate"} className="space-y-3">
@@ -141,7 +148,7 @@ export default async function NetworkConnectionsPage({
          <CopyConnectionReminder recipient={item.recipient_name} purpose={purposeLabels[item.purpose]||"Richiesta commerciale"} createdAt={item.created_at}/>
        </div>:null}
       <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-       {box==="sent"?<Link href={"/network/"+item.company_id} className="text-xs font-semibold text-[#176647] underline">Apri profilo</Link>:<span/>}
+       {otherCompanyId(item)?<Link href={"/network/"+otherCompanyId(item)} data-testid="network-connection-profile" className="text-xs font-semibold text-[#176647] underline">Apri profilo</Link>:<span/>}
        {canAct&&item.status==="pending" && (box==="received" || item.inquiry_status==="submitted")?<div className="flex flex-wrap gap-2">
          {(box==="received"?[{decision:"accepted",label:"Accetta connessione"},{decision:"declined",label:"Rifiuta"}]:[{decision:"withdrawn",label:"Ritira richiesta"}]).map(a=>
           <form action={decideNetworkConnection} key={a.decision}>
