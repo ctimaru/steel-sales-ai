@@ -243,12 +243,27 @@ export default async function CommercialHomePage({
         <CommercialAiCompanion canWrite={canWrite} />
       </div>
 
-      <section id="commercial-tool-access" aria-label="Azioni rapide Commerciale"
+      <section id="commercial-tool-access" aria-label="Alternative alla chat e ricerca nello storico"
         data-testid="commercial-primary-quick-actions"
-        className="scroll-mt-28 rounded-2xl border border-[#d6e5db] bg-white px-3 py-2.5 sm:px-4">
+        className="scroll-mt-28 rounded-2xl border border-[#d6e5db] bg-white px-3 py-2 sm:px-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <CommercialCalculatorQuickAccess references={calculatorReferences} />
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5" data-testid="commercial-alternative-methods">
+            <span className="text-[11px] font-semibold text-[#5a6f60]">In alternativa</span>
+            <CommercialCalculatorQuickAccess references={calculatorReferences} />
+            {canWrite ? (
+              <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
+                data-testid="commercial-manual-entry"
+                className="inline-flex min-h-10 items-center rounded-lg border border-[#a8cbb5] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2">
+                Compila manualmente →
+              </Link>
+            ) : null}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <Link href={appRoutes.commercial.search} data-testid="commercial-history-entry"
+              aria-label="Cerca RFQ, offerte, ordini e aziende già presenti nello storico commerciale"
+              className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] bg-[#f3f7f4] px-3 text-xs font-semibold text-[#254f3d] hover:bg-[#e4f0e8] focus-visible:outline-2 focus-visible:outline-offset-2">
+              Cerca nello storico ↗
+            </Link>
             {networkAvailable ? (
               <nav aria-label="Relazioni commerciali" className="flex flex-wrap items-center gap-3">
                 <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
@@ -261,12 +276,6 @@ export default async function CommercialHomePage({
                 </Link>
               </nav>
             ) : null}
-          {canWrite ? (
-            <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
-              className="app-primary inline-flex min-h-10 items-center rounded-lg border border-[#175640] bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2">
-              + Nuova richiesta
-            </Link>
-          ) : null}
           </div>
         </div>
       </section>
@@ -529,16 +538,16 @@ export default async function CommercialHomePage({
 
       <details id="commercial-memory-panel" className="group scroll-mt-28 overflow-hidden rounded-[22px] border border-[#dce8df] bg-white p-4 sm:p-5">
         <summary className="flex min-h-11 cursor-pointer select-none items-center text-base font-semibold text-[#175640] marker:text-[#175640]">
-          Memoria commerciale e storico · Approfondisci
+          Storico e memoria privata · Apri ricerca avanzata
         </summary>
         <div className="space-y-4 pt-4">
       <section className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-4 sm:p-5">
-        <p className="app-kicker">Cerca nella Commercial Memory</p>
+        <p className="app-kicker">Ricerca su dati già presenti · Nessuna distinta viene creata</p>
         <h2 className="mt-2 text-lg font-semibold text-[#173f35] sm:text-xl">
           Prodotto, cliente, RFQ, offerta, ordine o prezzo
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-[#52615b]">
-          Parti da una parola, una misura, una norma, un grado o il nome di un&apos;azienda.
+          Trova informazioni già archiviate usando una misura, una norma, un grado o il nome di un&apos;azienda. Per preparare una nuova distinta usa la chat in alto.
         </p>
 
         <form
@@ -547,7 +556,7 @@ export default async function CommercialHomePage({
           className="mt-5 flex flex-col gap-2 sm:flex-row"
         >
           <label htmlFor="commercial-memory-search" className="sr-only">
-            Cerca nella memoria commerciale
+            Cerca nello storico commerciale già esistente
           </label>
           <input
             id="commercial-memory-search"
@@ -560,7 +569,7 @@ export default async function CommercialHomePage({
             type="submit"
             className="app-primary min-h-12 rounded-xl px-6 text-sm font-semibold"
           >
-            Cerca
+            Cerca nello storico
           </button>
         </form>
       </section>
