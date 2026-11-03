@@ -10,6 +10,7 @@ import {
   type RegistrationApplicationStatus,
 } from "@/lib/registration-state";
 import { privateNoIndexRobots } from "@/lib/seo";
+import { safeUrlFeedback } from "@/lib/url-feedback";
 import { safeCommercialReturnTo, withCommercialReturnTo } from "@/lib/auth-next";
 import { createClient } from "@/lib/supabase/server";
 
@@ -67,7 +68,7 @@ const STATUS_COPY: Record<
   },
   pending_review: {
     title: "La richiesta è in revisione",
-    body: "Stiamo controllando i dati dell’azienda e l’identità corretta nel Network. Non devi fare nulla in questo momento.",
+    body: "Stiamo controllando i dati dell’azienda e l’identità corretta nel Network. Non devi fare nulla in questo momento: ti scriviamo all’indirizzo dell’account quando cambia lo stato.",
     tone: "border-[#b8d2c8] bg-[#edf5f2] text-[#173f35]",
     label: "In revisione",
     journeyStep: 3,
@@ -112,7 +113,9 @@ export default async function RegistrationStatusPage({
     return_to?: string;
   }>; 
 }) {
-  const { submitted, error: pageError, return_to: requestedReturn } = await searchParams;
+  const { submitted, error: rawPageError, return_to: requestedReturn } = await searchParams;
+  // ONBOARDING-AUDIT2 · F8: URL feedback is shown only when it looks like our own copy.
+  const pageError = safeUrlFeedback(rawPageError, "it");
   const returnTo = safeCommercialReturnTo(requestedReturn);
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
@@ -185,6 +188,13 @@ export default async function RegistrationStatusPage({
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
               Qui trovi lo stato aggiornato della richiesta. Quando sarà necessario un tuo
               intervento, troverai una CTA chiara in questa pagina.
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[#66736e]" data-testid="registration-support-contact">
+              Domande sulla richiesta? Scrivi a{" "}
+              <a href="mailto:hello@smartsteelsales.com" className="font-semibold text-[#173f35] underline underline-offset-4">
+                hello@smartsteelsales.com
+              </a>
+              .
             </p>
           </div>
 

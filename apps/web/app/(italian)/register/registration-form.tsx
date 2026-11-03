@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import { PendingSubmitButton } from "@/components/pending-submit-button";
+import {
+  useVatDuplicateCheck,
+  validateRegistrationVat,
+  VatDuplicateNotice,
+} from "@/components/registration-vat-check";
 import { Input } from "@/components/ui/input";
+import { italianVatMessage, italianVatRequired, normalizeItalianVat } from "@/lib/italian-vat";
 
 import { saveAndSubmitCompanyRegistration } from "./actions";
 
@@ -33,6 +39,7 @@ type ClaimRegistrationContext = {
 type ReviewSummary = {
   legalName: string;
   countryCode: string;
+  vatId: string;
   website: string;
   primaryType: string;
   contactName: string;
@@ -71,6 +78,7 @@ export function CompanyRegistrationForm({
   const [primaryType, setPrimaryType] = useState(initial?.primary_company_type ?? "");
   const [clientError, setClientError] = useState<string | null>(null);
   const [review, setReview] = useState<ReviewSummary | null>(null);
+  const vatCheck = useVatDuplicateCheck();
 
   useEffect(() => {
     if (!mountedRef.current) {
@@ -115,16 +123,23 @@ export function CompanyRegistrationForm({
     return {
       legalName: String(data.get("legal_name") ?? "").trim(),
       countryCode: String(data.get("country_code") ?? "").trim().toUpperCase(),
+      vatId: String(data.get("vat_id") ?? "").trim(),
       website: String(data.get("website_url") ?? "").trim(),
       primaryType: String(data.get("primary_company_type") ?? "").trim(),
       contactName: String(data.get("contact_name") ?? "").trim(),
     } satisfies ReviewSummary;
   }
 
-  function goForward() {
+  async function goForward() {
     if (!validateCurrentStep()) return;
 
     if (step === 1) {
+      // ONBOARDING-AUDIT2 · F3: valid Partita IVA for new Italian companies, then a one-time duplicate warning.
+      if (formRef.current && !validateRegistrationVat(formRef.current, "it", Boolean(claim))) {
+        setClientError(italianVatMessage("it"));
+        return;
+      }
+      if (formRef.current && (await vatCheck.shouldPause(formRef.current, Boolean(claim)))) return;
       setStep(2);
       setClientError(null);
       return;
@@ -155,6 +170,13 @@ export function CompanyRegistrationForm({
       event.preventDefault();
       setStep(1);
       setClientError("Completa ragione sociale e paese prima di inviare.");
+      return;
+    }
+
+    if (italianVatRequired(countryCode, Boolean(claim)) && !normalizeItalianVat(data.get("vat_id"))) {
+      event.preventDefault();
+      setStep(1);
+      setClientError(italianVatMessage("it"));
       return;
     }
 
@@ -318,6 +340,26 @@ export function CompanyRegistrationForm({
           </label>
         </div>
 
+        <label className="block text-sm font-medium text-[#43524c]">
+            Partita IVA{claim ? <span className="font-normal text-[#8b9792]"> (facoltativa)</span> : null}
+            <Input
+              name="vat_id"
+              defaultValue={initial?.vat_id ?? ""}
+              className="mt-2 h-11"
+              inputMode="numeric"
+              autoComplete="off"
+              aria-describedby="vat-help"
+              onInput={(event) => event.currentTarget.setCustomValidity("")}
+            />
+            <span id="vat-help" className="mt-1.5 block text-xs text-[#5d6a65]">
+              {claim
+                ? "L’identità arriva dal profilo rivendicato; la Partita IVA aiuta la verifica."
+                : "Obbligatoria per le aziende italiane: 11 cifre, con o senza «IT». Ci serve per riconoscere l’azienda ed evitare profili doppi."}
+            </span>
+        </label>
+
+        <VatDuplicateNotice matches={vatCheck.matches} locale="it" />
+
         <details className="rounded-2xl border border-[#dce2df] bg-[#f8faf9]">
           <summary className="cursor-pointer px-4 py-3 text-sm font-semibold text-[#43524c]">
             Aggiungi dati societari facoltativi
@@ -331,10 +373,6 @@ export function CompanyRegistrationForm({
                 className="mt-2 h-11"
                 autoComplete="organization"
               />
-            </label>
-            <label className="block text-sm font-medium text-[#43524c]">
-              Partita IVA
-              <Input name="vat_id" defaultValue={initial?.vat_id ?? ""} className="mt-2 h-11" />
             </label>
             <label className="block text-sm font-medium text-[#43524c] sm:col-span-2">
               Numero registro impresa
@@ -480,6 +518,7 @@ export function CompanyRegistrationForm({
           {[
             ["Azienda", review?.legalName || "—"],
             ["Paese", review?.countryCode || "—"],
+            ["Partita IVA", review?.vatId || (claim?.vat_hint ? claim.vat_hint : "Non indicata")],
             ["Attività principale", companyTypeLabel(review?.primaryType || "") || "—"],
             ["Referente", review?.contactName || "—"],
             ["Sito web", review?.website || "Non indicato"],
@@ -573,7 +612,7 @@ export function CompanyRegistrationForm({
         {step < 3 ? (
           <button
             type="button"
-            onClick={goForward}
+            onClick={() => void goForward()}
             className="app-primary h-11 rounded-xl px-6 text-sm font-semibold"
           >
             Continua
