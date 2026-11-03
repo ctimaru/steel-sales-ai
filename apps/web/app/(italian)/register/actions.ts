@@ -9,6 +9,7 @@ import {
   PENDING_SIGNUP_NEXT_COOKIE,
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
+import { italianVatMessage, italianVatRequired, normalizeItalianVat } from "@/lib/italian-vat";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { pilotGateMessage, registrationAllowedFor } from "@/lib/registration-access";
 import { createClient } from "@/lib/supabase/server";
@@ -93,7 +94,7 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
   let legalName = field(formData, "legal_name");
   let tradingName = field(formData, "trading_name");
   let countryCode = field(formData, "country_code").toUpperCase();
-  const vatId = field(formData, "vat_id");
+  let vatId = field(formData, "vat_id");
   const registrationId = field(formData, "registration_id");
   const websiteUrl = field(formData, "website_url");
   const primaryCompanyType = field(formData, "primary_company_type");
@@ -142,6 +143,20 @@ export async function saveAndSubmitCompanyRegistration(formData: FormData) {
     legalName = claimContext.legal_name;
     tradingName = tradingName || claimContext.trading_name || "";
     countryCode = claimContext.country_code.toUpperCase();
+  }
+
+  // ONBOARDING-AUDIT2 · F3: a new Italian company needs a valid Partita IVA, stored as its 11 digits.
+  if (italianVatRequired(countryCode, validClaimRef)) {
+    const normalizedVat = normalizeItalianVat(vatId);
+    if (!normalizedVat) {
+      redirect(
+        registerPath +
+          (registerPath.includes("?") ? "&" : "?") +
+          "error=" +
+          encodeURIComponent(italianVatMessage(root === "/en/register" ? "en" : "it")),
+      );
+    }
+    vatId = normalizedVat;
   }
 
   if (
