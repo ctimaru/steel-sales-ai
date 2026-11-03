@@ -6,15 +6,15 @@ import cineStyles from "./public-cinematic-continuity.module.css";
 
 /**
  * HOME-SI4 — Public onboarding and trust explainer.
- * Registration requires email verification, a company application and a human
- * review. No promise of immediate, automatic or included Network access.
+ * Registration requires email verification and a company application; activation is
+ * automatic only when the data checks pass (SELF1), otherwise after a staff check.
+ * Premium Network access is never included automatically.
  */
-// Same four steps, same order, as RegistrationJourney: Account → Azienda → Revisione → Attivazione.
+// Same three steps, same order, as RegistrationJourney: Account → Azienda → Attivazione (SELF1).
 const steps = [
   { number: "01", title: "Crea l’account", detail: "Email e password, poi conferma l’indirizzo dal link che ricevi." },
   { number: "02", title: "Dati dell’azienda", detail: "Rivendica il profilo se esiste già, altrimenti compila una nuova richiesta." },
-  { number: "03", title: "Revisione", detail: "Controlliamo identità e dati prima dell’attivazione." },
-  { number: "04", title: "Attivazione", detail: "Il workspace viene aperto solo dopo l’approvazione." },
+  { number: "03", title: "Attivazione", detail: "Se i dati sono completi il workspace si attiva subito; altrimenti lo verifichiamo noi." },
 ] as const;
 
 export function PublicRegistrationTrust() {
@@ -32,7 +32,7 @@ export function PublicRegistrationTrust() {
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#52615b]">
               Non devi creare un secondo profilo se la tua azienda è già presente.
-              La richiesta è verificata prima dell&apos;attivazione del workspace.
+              I controlli sui dati sono automatici: la spunta di azienda verificata arriva dopo.
             </p>
             {pilotGate ? (
               <p data-testid="home-registration-pilot-gate" className="mt-2 text-sm font-semibold leading-6 text-[#77551c]">
@@ -50,7 +50,7 @@ export function PublicRegistrationTrust() {
           </div>
         </div>
 
-        <ol aria-label="Come avviene la registrazione aziendale" className={`${cineStyles.trustSteps} mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-4`}>
+        <ol aria-label="Come avviene la registrazione aziendale" className={`${cineStyles.trustSteps} mt-6 grid gap-2 sm:grid-cols-3`}>
           {steps.map((step) => (
             <li key={step.number} className={`${cineStyles.trustStep} flex min-w-0 gap-3 rounded-xl border px-3.5 py-3`}>
               <span aria-hidden="true" className={`${cineStyles.trustStepNumber} flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-extrabold text-[#123b34]`}>{step.number}</span>

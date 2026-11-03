@@ -4,11 +4,11 @@ import test from "node:test";
 const root = new URL("../", import.meta.url);
 const read = p => readFileSync(new URL(p,root),"utf8");
 
-test("NETG1 account creation explicitly preserves manual company activation", () => {
+test("NETG1/SELF1 account creation explains checked automatic activation", () => {
   const page=read("app/register/page.tsx");
-  assert.match(page,/non attiva automaticamente l&apos;azienda/);
   assert.match(page,/verifica email/);
-  assert.match(page,/soggetta a revisione/);
+  assert.match(page,/se sono completi il workspace si attiva subito, altrimenti lo verifichiamo noi/);
+  assert.doesNotMatch(page,/soggetta a revisione/);
 });
 test("NETG1 pending company has a status route instead of silent automatic activation", () => {
   const status=read("app/registration/status/page.tsx");

@@ -69,7 +69,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
           <div className="mt-4 grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-6">
             <section id="create-account" className="min-w-0 scroll-mt-4 rounded-[24px] border border-[#cbded5] bg-white p-4 sm:p-6" data-testid="onboarding-ux2-account" aria-label="Create your account">
               <div className="hidden sm:block"><RegistrationJourney current={1} compact locale="en" /></div>
-              <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 1 of 4 · Your account</p>
+              <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 1 of 3 · Your account</p>
               <h1 className="mt-1 text-2xl font-bold text-[#123b34]">Create account</h1>
               <p className="mt-2 text-sm leading-5 text-[#52615b]">Verify your email, then complete your company application.</p>
               {pilotGate ? <RegistrationPilotNotice locale="en" /> : null}
@@ -105,8 +105,8 @@ export default async function EnglishRegistrationPage({ searchParams }: {
                   notFoundLabel="Not listed? Continue with your account ↑" showNetworkNote={false} /></div>}
               </div>
               <div className="rounded-xl border border-[#dce2df] bg-[#f8faf9] p-3 text-xs leading-5 text-[#52615b]">
-                <strong className="text-[#123b34]">Your company remains private until approved.</strong>
-                <p className="mt-2">Private company tools become available only after your application is approved.</p>
+                <strong className="text-[#123b34]">Activation is automatic when details are complete.</strong>
+                <p className="mt-2">With a valid VAT number and no similar profile in the Network, the workspace opens as soon as you submit; otherwise we run a short check first.</p>
               </div>
             </div>
           </div>
@@ -167,12 +167,12 @@ export default async function EnglishRegistrationPage({ searchParams }: {
           <form action={logoutRegistration}><input type="hidden" name="registration_locale" value="en" /><button type="submit" className="text-sm font-bold text-[#52615b] underline">Sign out</button></form>
         </header>
         <div className="mt-7 rounded-[24px] border border-[#dce2df] bg-white p-5 sm:p-8">
-          <RegistrationJourney current={2} locale="en" />
+          <RegistrationJourney current={2} compact locale="en" />
           <div className="mt-8 border-b border-[#e7ece9] pb-6">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 2 of 4 · Company</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 2 of 3 · Company</p>
             <h1 className="mt-2 text-3xl font-bold text-[#123b34]">{application?.application_status === "needs_information" ? "Update your application" : "Tell us about your company"}</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[#52615b]">
-              Your email is verified. We'll ask for essential company identity and business details, then send your application for human review.
+              Your email is verified. A few company details: if they are complete, the workspace opens as soon as you submit.
             </p>
             <p className="mt-2 text-xs text-[#66736e]">Signed in as {user.email} · Questions? <a href="mailto:hello@smartsteelsales.com" className="font-bold text-[#173f35] underline" data-testid="registration-support-contact">hello@smartsteelsales.com</a></p>
           </div>

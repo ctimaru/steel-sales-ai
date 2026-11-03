@@ -33,11 +33,11 @@ test("HOME-SI4 keeps public company identity and premium Network distinct", () =
   assert.doesNotMatch(home + network + trust, /href="\/network"|href="\/rfq-hub"|href="\/platform"/);
 });
 
-test("HOME-SI4 describes the implemented registration journey without fake automatic activation", () => {
+test("HOME-SI4 describes the implemented registration journey (SELF1: checked automatic activation)", () => {
   assert.match(home, /<PublicRegistrationTrust \/>/);
   assert.match(trust, /id="registrazione"/);
   assert.match(trust, /aria-labelledby="home-registration-title"/);
-  for (const label of ["Crea l’account", "Dati dell’azienda", "Revisione", "Attivazione"]) {
+  for (const label of ["Crea l’account", "Dati dell’azienda", "Attivazione"]) {
     assert.ok(trust.includes(label));
   }
   // Home steps follow the same order as the in-app journey (account first, since ONBOARDING-UX2).
@@ -45,8 +45,9 @@ test("HOME-SI4 describes the implemented registration journey without fake autom
   assert.doesNotMatch(trust, /Cerca la tua azienda/);
   assert.match(registration, /<RegistrationJourney current=\{1\} compact \/>/);
   assert.match(journey, /Crea e verifica l’accesso/);
-  assert.match(journey, /Controlliamo la richiesta/);
-  assert.match(journey, /Apriamo il workspace/);
+  assert.match(journey, /Automatica se i dati sono completi/);
+  assert.match(trust, /altrimenti lo verifichiamo noi/);
+  assert.doesNotMatch(trust, /Revisione/);
   assert.match(registration, /<PublicCompanyLookup/);
   assert.match(lookup, /\/register\?claim_ref=/);
   assert.match(trust, /non abilita automaticamente/);
@@ -64,6 +65,6 @@ test("HOME-SI4 makes trust and policy links actionable with lightweight, static 
   for (const part of [home, network, trust]) {
     assert.doesNotMatch(part, /"use client"|useEffect|useState|createClient|fetch\s*\(|cookies\s*\(|<video|<iframe/);
   }
-  assert.match(trust, /sm:grid-cols-2 lg:grid-cols-4/);
+  assert.match(trust, /sm:grid-cols-3/);
   assert.match(trust, /min-h-11/);
 });

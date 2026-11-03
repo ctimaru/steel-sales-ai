@@ -36,9 +36,10 @@ const journey = fs.readFileSync(
 );
 
 test("HP2 uses one macro registration journey across the applicant flow", () => {
-  for (const label of ["Account", "Azienda", "Revisione", "Attivazione"]) {
+  for (const label of ["Account", "Azienda", "Attivazione"]) {
     assert.match(journey, new RegExp(label));
   }
+  assert.doesNotMatch(journey, /Revisione/);
 
   assert.match(registerPage, /RegistrationJourney current=\{1\}/);
   assert.match(registerPage, /RegistrationJourney current=\{2\}/);
