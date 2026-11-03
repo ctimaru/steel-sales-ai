@@ -99,17 +99,20 @@ async function viewportCheck(page, { width, height, role }) {
       "COMM-NAV9: first deal row should begin inside 900px desktop viewport; y=" + dealBox?.y);
   }
   assert.equal(await companion.getByTestId("comm-cine11-prompt").count(), canWrite ? 1 : 0);
-  const createRequest = page.getByRole("link", { name: "+ Nuova richiesta" });
-  assert.equal(await createRequest.count(), canWrite ? 1 : 0);
+  // COMM-TRUST1.D — one conversational composer, no second primary "new request".
+  const manual = page.getByTestId("commercial-manual-entry");
+  const history = page.getByTestId("commercial-history-entry");
+  assert.equal(await manual.count(), canWrite ? 1 : 0);
+  assert.equal(await history.count(), 1);
+  assert.equal(await page.getByRole("link", { name: "+ Nuova richiesta" }).count(), 0);
+  assert.ok((await history.getAttribute("href"))?.startsWith("/commercial/search"),
+    "History is retrieval, never an AI or Distinta handoff");
   if (canWrite) {
-    const fg = await createRequest.evaluate(el => ({
-      color: getComputedStyle(el).color,
-      textFill: getComputedStyle(el).webkitTextFillColor,
-      background: getComputedStyle(el).backgroundColor,
-    }));
-    assert.equal(fg.color, "rgb(255, 255, 255)", "New request link must use readable white text");
-    assert.equal(fg.textFill, "rgb(255, 255, 255)", "New request Safari/WebKit fill must be white");
-    assert.notEqual(fg.background, "rgba(0, 0, 0, 0)", "New request CTA must have a solid background");
+    assert.equal(await manual.getAttribute("href"), "/commercial?compose=1#commercial-compose");
+    const cta = companion.getByTestId("commercial-ai-first-cta");
+    assert.equal(await cta.count(), 1);
+    assert.equal(await cta.isDisabled(), true);
+    assert.match(await cta.innerText(), /Apri chat e anteprima/);
   }
   if (width === 1440 && canWrite) {
     const launch = page.getByRole("button", { name: "Calcolatrice pesi" });
