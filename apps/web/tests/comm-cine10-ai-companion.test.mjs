@@ -8,7 +8,8 @@ const component = readFileSync(new URL("../components/commercial-ai-companion.ts
 test("COMM-CINE10 provides a single integrated AI companion", () => {
   assert.match(page, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.equal((page.match(/commercial-ai-first-heading/g) ?? []).length, 0);
-  assert.match(component, /Ciao, cosa stai cercando oggi\?/);
+  assert.match(component, /Descrivi i tubi che ti servono/);
+  assert.match(component, /Apri chat e anteprima/);
   assert.match(component, /data-testid="commercial-ai-first"/);
   assert.match(component, /data-testid="commercial-ai-first-cta"/);
 });
