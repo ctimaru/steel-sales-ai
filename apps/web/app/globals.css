@@ -3112,33 +3112,3 @@ nav[aria-label="Categorie ricerca commerciale"] a:focus-visible {
   outline: 2px solid var(--steel-blue);
   outline-offset: 2px;
 }
-
-/* COMM-RFQ-UX2.A — collapse the old multi-border form inside the new chat workspace only.
-   The public/manual RFQAI entry remains unchanged. */
-[data-testid="commercial-rfq-chat-workspace"] .rfqai2-intake {
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  padding: 0;
-}
-[data-testid="commercial-rfq-chat-workspace"] .rfqai2-capture-panel {
-  border: 0;
-  background: transparent;
-  padding: 0;
-}
-[data-testid="commercial-rfq-chat-workspace"] [data-rfqai-original-request] {
-  border: 1px solid #cbded3;
-  border-radius: 1rem;
-  background: #fff;
-  padding: 0.75rem;
-}
-[data-testid="commercial-rfq-chat-workspace"] .rfqai2-textarea {
-  border: 0;
-  border-radius: 0.5rem;
-  background: transparent;
-  box-shadow: none;
-  min-height: 6rem;
-}
-[data-testid="commercial-rfq-chat-workspace"] .rfqai2-textarea:focus-visible {
-  outline-offset: 1px;
-}
