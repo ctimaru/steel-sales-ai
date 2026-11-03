@@ -287,7 +287,7 @@ export async function CommercialUnifiedWorklist({
             data.procurementUnavailable ? "Alcune attività acquisti non sono disponibili." :
             data.inboundUnavailable ? "Lo storico delle richieste clienti non è verificabile." :
             "La disponibilità dello storico non è confermata."}
-          {" "}Le fonti potrebbero non essere associate oppure il caricamento potrebbe essere fallito. Non interpretare l'assenza di risultati come uno zero certo.
+          {" "}Le fonti potrebbero non essere associate oppure il caricamento potrebbe essere fallito. Non interpretare l'assenza di risultati come uno zero certo: nessun dato dimostrativo è presentato come reale.
         </p>
       ) : null}
       {data.paging?.pageSize === 50 ? (
