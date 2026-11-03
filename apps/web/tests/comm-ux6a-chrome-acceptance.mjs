@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
-const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\import { chromium } from "playwright";") + "$"); // HOME-FIRSTRUN1B title
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 const base = process.env.DEMOTEST23_WEB_URL;
 assert.equal(base, "http://127.0.0.1:3000");
