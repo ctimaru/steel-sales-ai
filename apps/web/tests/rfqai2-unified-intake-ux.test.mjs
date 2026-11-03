@@ -26,16 +26,18 @@ test("RFQAI2 offers four distinct selectable creation modes around one editor", 
 });
 
 test("RFQAI2 reuses BD10 wizard and keeps preview in exactly one place", () => {
-  assert.match(builder, /const \[intakeMode, setIntakeMode\] = useState<RfqAiIntakeMode>\(returnToCommercial && workspace \? "text" : "manual"\)/);
+  assert.match(builder, /const \[intakeMode, setIntakeMode\] = useState<RfqAiIntakeMode>\(focusAiIntake && workspace \? "text" : "manual"\)/);
   assert.match(builder, /<RfqAiIntakeUx[\s\S]*?mode=\{intakeMode\}[\s\S]*?onModeChange=\{setIntakeMode\}/);
   assert.match(builder, /workspace=\{workspace\}/);
   assert.match(builder, /authenticated=\{authenticated\}/);
   const workbench = builder.indexOf('className="bd7-workbench-editor"');
-  const chooserStart = builder.indexOf("<RfqAiIntakeUx", workbench);
-  const wizardStart = builder.indexOf("<BuyerTubeGuidedCreator", workbench);
+  const chooserStart = builder.indexOf("<RfqAiIntakeUx");
+  const wizardStart = builder.indexOf("<BuyerTubeGuidedCreator", chooserStart);
   const chooserEnd = builder.indexOf("</RfqAiIntakeUx>", chooserStart);
   const previewStart = builder.indexOf('className="bd7-preview"', chooserEnd);
-  assert.ok(workbench < chooserStart && chooserStart < wizardStart && wizardStart < chooserEnd && chooserEnd < previewStart);
+  assert.ok(chooserStart < wizardStart && wizardStart < chooserEnd && chooserEnd < workbench && workbench < previewStart);
+  assert.match(builder, /\{focusAiIntake && !restoreCandidate \? aiIntakePanel : null\}/);
+  assert.match(builder, /\{!focusAiIntake \? aiIntakePanel : null\}/);
   assert.match(chooser, /<div className="rfqai2-manual" hidden=\{mode !== "manual"\}>/);
   assert.match(builder, /className="bd10-preview-lines"/);
   assert.equal((builder.match(/className="bd5-row-card bd10-preview-row"/g) ?? []).length, 1);

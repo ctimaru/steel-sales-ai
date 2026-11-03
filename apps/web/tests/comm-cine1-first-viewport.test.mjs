@@ -15,7 +15,7 @@ test("COMM-CINE1 unifies commercial visual hierarchy without losing essential wo
   assert.match(source, /operational\.orders/);
   assert.match(source, /bg-\[#082f28\]/);
   assert.match(source, /max-w-\[1480px\]/);
-  assert.match(source, /\?compose=1#commercial-ai-intake/);
+  assert.match(source, /\?compose=1&method=ai#commercial-ai-intake/);
   assert.match(source, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.match(companion, /data-testid="commercial-ai-first"/);
   assert.match(source, /<CommercialCalculatorQuickAccess/);

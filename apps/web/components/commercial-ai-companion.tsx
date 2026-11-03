@@ -18,7 +18,7 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
     try {
       sessionStorage.setItem("sss:commercial-ai-intake-handoff", value);
       setError("");
-      router.push(appRoutes.commercial.home + "?compose=1#commercial-ai-intake");
+      router.push(appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake");
     } catch {
       setError("Non è stato possibile trasferire il testo. Apri la distinta e inseriscilo direttamente.");
     }
