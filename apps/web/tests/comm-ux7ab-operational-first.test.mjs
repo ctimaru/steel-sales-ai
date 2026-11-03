@@ -13,6 +13,7 @@ const { commercialRowAmount, commercialRowQuantity } =
 const home = read("../app/(italian)/(workspace)/commercial/page.tsx");
 const list = read("../components/commercial-unified-worklist.tsx");
 const stream = read("../lib/commercial-unified-streams.ts");
+const paged = read("../lib/commercial-unified-paged.ts");
 const data = read("../lib/commercial-unified-data.ts");
 
 test("COMM-UX7.A preserves priority-first order while compacting the workspace", () => {
@@ -25,6 +26,10 @@ test("COMM-UX7.B renders only optional, workspace-authorized commercial facts", 
   assert.match(data, /rowFacts\?: CommercialRowFacts/);
   assert.match(data, /total_meters,total_tonnes/);
   assert.match(stream, /total_eur,created_at,campaign/);
+  assert.match(paged, /commercialRowQuantity\(record\.total_tonnes, record\.total_meters\)/);
+  assert.match(paged, /rowFacts: \{ dueAt: record\.due_at \?\? undefined \}/);
+  assert.match(paged, /counterparty: row\.company \|\| undefined/);
+  assert.match(paged, /rowFacts: \{ dueAt: campaign\.due_at \?\? undefined \}/);
   assert.match(list, /data-testid="commercial-deal-row-facts"/);
   assert.match(list, /item\.rowFacts\?\.quantity/);
   assert.match(list, /item\.rowFacts\?\.counterparty/);
