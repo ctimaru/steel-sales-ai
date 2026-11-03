@@ -28,9 +28,10 @@ const options: { mode: RfqAiIntakeMode; name: string; meta: string }[] = [
 ];
 
 export function RfqAiIntakeUx({
-  mode, onModeChange, workspace, authenticated, children, onInsertTextLines,
+  mode, focused = false, onModeChange, workspace, authenticated, children, onInsertTextLines,
 }: {
   mode: RfqAiIntakeMode;
+  focused?: boolean;
   onModeChange: (mode: RfqAiIntakeMode) => void;
   /** Can only be true on the route guarded by requireWorkspaceWriteRole. */
   workspace: boolean;
@@ -99,6 +100,7 @@ export function RfqAiIntakeUx({
 
   return (
     <section className="rfqai2-intake" aria-label="Modalità di creazione distinta">
+      {!focused ? (<>
       <div className="rfqai2-intake-heading">
         <div>
           <p className="rfqai2-eyebrow">Un solo strumento · quattro ingressi</p>
@@ -123,6 +125,18 @@ export function RfqAiIntakeUx({
         ))}
       </div>
 
+      </>) : (
+        <div role="group" aria-label="Metodo di preparazione della distinta" className="flex flex-wrap gap-2" data-testid="commercial-ai-focused-modes">
+          <button type="button" aria-pressed={mode === "text"} onClick={() => onModeChange("text")}
+            className={mode === "text" ? "min-h-10 rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white" : "min-h-10 rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#175640]"}>
+            Analisi del testo
+          </button>
+          <button type="button" aria-pressed={mode === "manual"} onClick={() => onModeChange("manual")}
+            className={mode === "manual" ? "min-h-10 rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white" : "min-h-10 rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#175640]"}>
+            Configurazione assistita
+          </button>
+        </div>
+      )}
       <div id={panelId} className="rfqai2-mode-panel">
         <div className="rfqai2-manual" hidden={mode !== "manual"}>
           {children}
