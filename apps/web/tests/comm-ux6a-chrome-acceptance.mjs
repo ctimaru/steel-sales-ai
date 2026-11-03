@@ -100,17 +100,20 @@ async function viewportCheck(page, { width, height, role }) {
       "COMM-NAV9: first deal row should begin inside 900px desktop viewport; y=" + dealBox?.y);
   }
   assert.equal(await companion.getByTestId("comm-cine11-prompt").count(), canWrite ? 1 : 0);
-  const createRequest = page.getByRole("link", { name: "+ Nuova richiesta" });
-  assert.equal(await createRequest.count(), canWrite ? 1 : 0);
+  // COMM-TRUST1.D — one conversational composer, no second primary "new request".
+  const manual = page.getByTestId("commercial-manual-entry");
+  const history = page.getByTestId("commercial-history-entry");
+  assert.equal(await manual.count(), canWrite ? 1 : 0);
+  assert.equal(await history.count(), 1);
+  assert.equal(await page.getByRole("link", { name: "+ Nuova richiesta" }).count(), 0);
+  assert.ok((await history.getAttribute("href"))?.startsWith("/commercial/search"),
+    "History is retrieval, never an AI or Distinta handoff");
   if (canWrite) {
-    const fg = await createRequest.evaluate(el => ({
-      color: getComputedStyle(el).color,
-      textFill: getComputedStyle(el).webkitTextFillColor,
-      background: getComputedStyle(el).backgroundColor,
-    }));
-    assert.equal(fg.color, "rgb(255, 255, 255)", "New request link must use readable white text");
-    assert.equal(fg.textFill, "rgb(255, 255, 255)", "New request Safari/WebKit fill must be white");
-    assert.notEqual(fg.background, "rgba(0, 0, 0, 0)", "New request CTA must have a solid background");
+    assert.equal(await manual.getAttribute("href"), "/commercial?compose=1#commercial-compose");
+    const cta = companion.getByTestId("commercial-ai-first-cta");
+    assert.equal(await cta.count(), 1);
+    assert.equal(await cta.isDisabled(), true);
+    assert.match(await cta.innerText(), /Apri chat e anteprima/);
   }
   if (width === 1440 && canWrite) {
     const launch = page.getByRole("button", { name: "Calcolatrice pesi" });
@@ -122,7 +125,6 @@ async function viewportCheck(page, { width, height, role }) {
   await page.screenshot({ path: path.join(screenshotsDir, filename), fullPage: false, animations: "disabled" });
   console.log("COMM-UX6.A VISUAL PASS", role, width, { heroHeight: h.height, worklistY: w.y, quickActionsY: t.y });
 }
-
 
 /** COMM-TRUST1.A/B: real browser checks, not a source-only assertion. */
 async function calculatorTrustCheck(page, width) {
@@ -204,11 +206,17 @@ try {
         await login(page, p);
         await viewportCheck(page, { width, height: width === 1440 ? 900 : 844, role: p.id });
         if (p.id === "buyer") await calculatorTrustCheck(page, width);
-        if (width === 1440 && p.id === "buyer") {
+        if (p.id === "buyer") {
           const sample = "40 tubi quadri 100×100×5 S355J2H EN 10219, 6 m";
           const input = page.locator("#commercial-ai-companion-input");
           await input.fill(sample);
-          await page.getByTestId("commercial-ai-first-cta").click();
+          await input.press("Shift+Enter");
+          assert.ok((await input.inputValue()).includes("\n"),
+            "Shift+Enter must add a line without leaving the home composer");
+          assert.equal(new URL(page.url()).searchParams.get("compose"), null);
+          await input.fill(sample);
+          if (width === 390) await page.getByTestId("commercial-ai-first-cta").click();
+          else await input.press("Enter");
           await page.waitForURL(u => u.pathname === "/commercial" && u.searchParams.get("compose") === "1", { timeout: 90000 });
           const draft = page.locator("#rfqai2-text-input");
           await draft.waitFor({ state: "visible", timeout: 60000 });
@@ -216,8 +224,20 @@ try {
           assert.equal(await draft.inputValue(), sample);
           assert.equal(await page.evaluate(() => sessionStorage.getItem("sss:commercial-ai-intake-handoff")), null);
           assert.equal(await page.getByRole("button", { name: "Analizza la richiesta con AI" }).count(), 1);
-          await page.screenshot({ path: path.join(screenshotsDir, "commercial-ai-to-private-distinta-1440px.png"), fullPage: false, animations: "disabled" });
-          console.log("COMM-UX6.A AI → PRIVATE DISTINTA PASS: text handed off once, no automatic analysis or dispatch");
+          await page.screenshot({ path: path.join(screenshotsDir, `commercial-ai-to-private-distinta-${width}px.png`), fullPage: false, animations: "disabled" });
+          console.log("COMM-TRUST1.D CHAT → PRIVATE DISTINTA PASS", width, "one-shot text, preview, no automatic analysis or dispatch");
+
+          if (width === 1440) {
+            // Explicitly exercise the manual alternative, not merely its href.
+            await page.goto(base + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
+            await page.getByTestId("commercial-manual-entry").click();
+            await page.waitForURL(u => u.pathname === "/commercial" &&
+              u.searchParams.get("compose") === "1" && u.searchParams.get("method") !== "ai", { timeout: 90000 });
+            await page.locator("#commercial-compose").waitFor({ state: "visible", timeout: 60000 });
+            assert.equal(await page.getByTestId("commercial-rfq-chat-workspace").count(), 0,
+              "Manual entry must not silently start the AI conversation");
+            console.log("COMM-TRUST1.D MANUAL ENTRY PASS");
+          }
 
           // COMM-TRUST1.C: a no-match filter is not an empty archive or failed RPC.
           await page.goto(base + "/commercial?view=drafts&q=commtrust1cnomatch", { waitUntil: "domcontentloaded", timeout: 90000 });
@@ -229,6 +249,14 @@ try {
             "Do not show Page 1 when a filter has no results and no navigation");
           await page.screenshot({ path: path.join(screenshotsDir, "commercial-filtered-empty-1440px.png"), fullPage: false, animations: "disabled" });
           console.log("COMM-TRUST1.C FILTERED EMPTY PASS");
+
+        }
+        if (p.id === "buyerViewer" && width === 390) {
+          // Search is an existing-record retrieval route and remains read-only.
+          await page.getByTestId("commercial-history-entry").click();
+          await page.waitForURL(u => u.pathname === "/commercial/search", { timeout: 90000 });
+          assert.equal(new URL(page.url()).searchParams.get("compose"), null);
+          console.log("COMM-TRUST1.D HISTORY RETRIEVAL PASS");
         }
       } finally {
         await context.close();

@@ -53,7 +53,7 @@ test("UXF1 focuses the main workspace entry points", () => {
   for (const source of [dashboard, commercial, network, marketplace, school]) {
     assert.match(source, /FocusPage/);
   }
-  assert.match(commercial, /Cerca nella Commercial Memory/);
+  assert.match(commercial, /Ricerca su dati già presenti/);
   assert.match(network, /Trova aziende steel/);
   assert.match(marketplace, /title="Compra o vendi, in un unico spazio"/);
   assert.match(school, /SchoolWorkspaceFirstViewport/);

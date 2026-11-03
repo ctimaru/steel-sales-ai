@@ -112,6 +112,16 @@
 .page :global([data-testid="commercial-primary-quick-actions"]) {
   border-color: #d6e5db;
 }
+/* COMM-TRUST1.D: tools are secondary to the conversation, not rival primary CTAs. */
+.page :global([data-testid="commercial-alternative-methods"] [data-commercial-calculator-access] > button) {
+  background: #edf7f0;
+  border: 1px solid #b4d2c0;
+  color: #175640;
+}
+.page :global([data-testid="commercial-alternative-methods"] [data-commercial-calculator-access] > button:hover) {
+  background: #dfefe5;
+  color: #104632;
+}
 .page :global(#commercial-today),
 .page :global(#commercial-tool-access),
 .page :global(#commercial-memory-panel),

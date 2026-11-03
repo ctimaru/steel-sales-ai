@@ -263,7 +263,7 @@ export async function CommercialUnifiedWorklist({
     : emptyCause === "filtered"
       ? { href: commercialHref(view), label: "Rimuovi filtro" }
       : (view === "drafts" || view === "all") && canWrite
-        ? { href: appRoutes.commercial.home + "?compose=1#commercial-compose", label: "Prepara una distinta" }
+        ? { href: appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake", label: "Prepara con la chat" }
         : { href: commercialHref("all"), label: "Mostra tutte le trattative" };
 
   return (

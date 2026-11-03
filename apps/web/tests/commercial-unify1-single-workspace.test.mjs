@@ -40,7 +40,7 @@ test("COMMERCIAL-UNIFY1 puts workflow, live buyer actions and Network entry befo
   assert.match(commercial, /data-testid="comm-cine13-first-workspace"/);
   assert.match(commercial, /<CommercialDirectorPriorityDesk/);
   assert.match(priorities, /Cosa richiede attenzione/);
-  assert.ok(commercial.indexOf("<CommercialDirectorPriorityDesk") < commercial.indexOf("Cerca nella Commercial Memory"));
+  assert.ok(commercial.indexOf("<CommercialDirectorPriorityDesk") < commercial.indexOf("Ricerca su dati già presenti"));
   assert.match(commercial, /rfqh10_procurement_inbox/);
   assert.match(commercial, /item\.requires_action === true/);
   assert.match(priorities, /Segnalazioni RFQ non disponibili/);
