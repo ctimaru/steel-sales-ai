@@ -17,7 +17,7 @@ test("COMM-CINE11 transfers only explicitly submitted free text into the existin
   assert.match(handoff, /window\.sessionStorage\.removeItem\(HANDOFF_KEY\)/);
   assert.match(intake, /setTextDraft\(draft\)/);
   assert.match(handoff, /value\.slice\(0, maxChars\)/);
-  assert.match(intake, /analyzeRfqAiFreeText\(textDraft\)/);
+  assert.match(intake, /analyzeRfqAiFreeText\(submitted\)/);
 });
 
 test("COMM-CINE12 keeps attention but removes the duplicate activity action bar", () => {
