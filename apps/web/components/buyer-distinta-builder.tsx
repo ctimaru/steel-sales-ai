@@ -976,20 +976,7 @@ export function BuyerDistintaBuilder({
         <CommercialRfqWorkspace
           approvedCount={activeLineCount}
           proposalCount={aiPreview?.candidates.length ?? 0}
-          conversation={
-            <div className="min-w-0">
-              <div className="mb-5 flex items-start gap-3" data-testid="commercial-rfq-conversation-intro">
-                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-xs font-bold text-white">S</span>
-                <div className="min-w-0">
-                  <p className="text-sm font-bold text-[#173f35]">Come posso aiutarti con la richiesta?</p>
-                  <p className="mt-1 text-xs leading-5 text-[#52685b]">
-                    Scrivi misure, quantità, norma o grado. L’analisi inizierà soltanto quando scegli Analizza.
-                  </p>
-                </div>
-              </div>
-              {aiIntakePanel}
-            </div>
-          }
+          conversation={aiIntakePanel}
           preview={
             <CommercialRfqLivePreview
               title={title}
