@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 // Hosted QA is confined to our two previously verified Vercel previews.
 const hosts = [
@@ -54,7 +55,7 @@ try{
           await page.locator('input[name="password"]').fill(actor.password);
           await page.getByRole("button",{name:"Accedi",exact:true}).click();
           await page.waitForURL(url=>url.pathname==="/dashboard",{timeout:90000});
-          await page.getByRole("heading",{name:"Oggi in "+names[actor.id]}).waitFor({timeout:45000});
+          await page.getByRole("heading",{name: homeHeading(names[actor.id]) }).waitFor({timeout:45000});
           if(actor.id==="viewerA") assert.ok((await page.locator("body").innerText()).includes("Sola lettura"));
           for(const route of ["/dashboard","/commercial","/network"]){
             const result=await page.goto(origin+route,{waitUntil:"domcontentloaded",timeout:60000});
