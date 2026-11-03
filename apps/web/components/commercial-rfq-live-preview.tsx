@@ -14,7 +14,7 @@ const fmt = (value: number, digits: number) =>
 export function CommercialRfqLivePreview({
   title, onTitleChange, proposals, approvedLines, savedId,
   ready, savePending, rfqPending, saveMessage, rfqMessage,
-  onSave, onCreateRfq, onOpenEditor,
+  onSave, onCreateRfq, onOpenEditor, onEditLine,
 }: {
   title: string;
   onTitleChange: (value: string) => void;
@@ -29,6 +29,7 @@ export function CommercialRfqLivePreview({
   onSave: () => void;
   onCreateRfq: () => void;
   onOpenEditor: () => void;
+  onEditLine: (lineId: string) => void;
 }) {
   const calculated = approvedLines.map(calculateBuyerDistintaLine);
   const totals = calculateBuyerDistintaTotals(calculated);
@@ -108,9 +109,17 @@ export function CommercialRfqLivePreview({
                       {[line.standard, line.grade, line.quantity ? line.quantity + " " +
                         (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t") : ""].filter(Boolean).join(" · ")}
                     </p>
-                    <p className="mt-1 text-[11px] font-semibold text-[#315e49]">
-                      {calculatedLine.complete ? "Confermato · " + fmt(calculatedLine.tonnes ?? 0, 3) + " t" : "Da completare"}
-                    </p>
+                    <div className="mt-1 flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                      <p className="text-[11px] font-semibold text-[#315e49]">
+                        {calculatedLine.complete ? "Confermato · " + fmt(calculatedLine.tonnes ?? 0, 3) + " t" : "Da completare"}
+                      </p>
+                      <button type="button"
+                        onClick={() => onEditLine(line.id)}
+                        aria-label={"Modifica articolo " + (i + 1)}
+                        className="inline-flex min-h-9 items-center rounded-md px-2 text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                        Modifica
+                      </button>
+                    </div>
                   </li>
                 );
               })}
