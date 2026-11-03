@@ -215,6 +215,14 @@ try {
           await focused.waitFor({ state: "visible", timeout: 60000 });
           const textField = page.locator("#rfqai2-text-input");
           await textField.waitFor({ state: "visible", timeout: 60000 });
+          const conversation = page.getByTestId("commercial-rfq-gpt-conversation");
+          const composer = page.getByTestId("commercial-rfq-sticky-composer");
+          await conversation.waitFor({ state: "visible", timeout: 60000 });
+          assert.ok(await composer.isVisible(), "The AI-focused route must render a sticky chat composer");
+          assert.equal(await page.locator("[data-rfqai-original-request]").count(), 0,
+            "The legacy form accordion must not appear in focused conversational mode");
+          assert.equal(await page.getByTestId("commercial-rfq-user-message").count(), 0,
+            "Opening the compose route must not implicitly submit text or call AI");
           await assertNoOverflow(page, "AI-first Distinta " + width);
           assert.equal(await textField.inputValue(), "40 tubi quadri 100x100x6 S355J2H EN 10219 da 12 m");
           assert.equal(await page.getByTestId("commercial-ai-first").count(), 0,
@@ -263,6 +271,18 @@ try {
             path: path.join(dir, "rfq-ai-first-" + width + "px.png"),
             fullPage: false, animations: "disabled"
           });
+          // A bare shorthand must produce a safe clarification instead of
+          // silently guessing a grade, norm, form or quantity from "100x100x5".
+          await textField.fill("100x100x5");
+          await page.getByRole("button", { name: "Completa richiesta" }).click();
+          assert.equal(await page.getByTestId("commercial-rfq-user-message").count(), 1);
+          assert.equal(await page.getByTestId("commercial-rfq-assistant-message").count(), 1);
+          assert.match(await page.getByTestId("commercial-rfq-assistant-message").last().innerText(),
+            /tipo di tubo, quantità e lunghezza/);
+          assert.equal(await page.getByTestId("commercial-rfq-ai-proposals").count(), 0,
+            "Local clarification must not invent AI candidates or send a request");
+          assert.equal(await textField.inputValue(), "100x100x5",
+            "Keep shorthand text available for the buyer to complete it");
           await page.getByTestId("commercial-ai-manual-tools-toggle").click();
           await manualShell.waitFor({ state: "visible" });
           assert.ok(await manualShell.getByText("Articoli in distinta", { exact: true }).isVisible(),
