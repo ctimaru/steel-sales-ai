@@ -314,7 +314,7 @@ export async function restartRejectedRegistration(formData: FormData) {
       feedbackPath(
         statusPath,
         error,
-        "Non è possibile riaprire automaticamente questa registrazione. Aggiorna la pagina o contatta il referente Smart Steel Sales.",
+        "Non è possibile riaprire automaticamente questa registrazione. Aggiorna la pagina o scrivi a hello@smartsteelsales.com.",
       ),
     );
   }
