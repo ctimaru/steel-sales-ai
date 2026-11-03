@@ -54,7 +54,7 @@ export function CommercialRfqConversation({
   return (
     <section data-testid="commercial-rfq-gpt-conversation"
       aria-label="Conversazione per la creazione della distinta"
-      className="flex min-h-[min(70dvh,670px)] min-w-0 flex-col">
+      className="flex min-h-[min(48dvh,400px)] min-w-0 flex-col xl:min-h-[min(70dvh,670px)]">
       <div role="group" aria-label="Metodo di preparazione della distinta"
         data-testid="commercial-ai-focused-modes"
         className="mb-2 flex justify-end">
@@ -78,7 +78,7 @@ export function CommercialRfqConversation({
           <div role="log" aria-label="Messaggi della richiesta" aria-live="polite"
             aria-relevant="additions"
             data-testid="commercial-rfq-message-thread"
-            className="max-h-[min(65dvh,650px)] min-h-[min(43dvh,350px)] min-w-0 flex-1 space-y-4 overflow-y-auto px-1 pb-5 pt-2">
+            className="max-h-[min(53dvh,520px)] min-h-[min(22dvh,200px)] min-w-0 flex-1 space-y-4 overflow-y-auto px-1 pb-5 pt-2 xl:max-h-[min(65dvh,650px)] xl:min-h-[min(42dvh,370px)]">
             {turns.length === 0 ? (
               <div data-testid="commercial-rfq-conversation-intro"
                 className="flex items-start gap-3 pt-3">
