@@ -118,7 +118,7 @@ for (const path of [
     /name="password"/i.test(p.content);
   assert.ok(isLoginRedirect || isLoginForm,
     path + " did not explicitly deny anonymous access (HTTP " + p.status + ")");
-  assert.ok(!p.content.includes("Oggi in ") && !p.content.includes("Piattaforma · governance"),
+  assert.ok(!/(Buongiorno|Buonasera), /.test(p.content) && !p.content.includes("Piattaforma · governance"),
     path + " leaked a private shell");
   for (const sentinel of syntheticSecrets) assert.ok(!p.content.includes(sentinel));
   pass("private " + path + " denies anonymous", "HTTP " + p.status);

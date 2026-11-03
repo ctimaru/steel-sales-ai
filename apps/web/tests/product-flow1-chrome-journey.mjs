@@ -11,6 +11,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { chromium } from "playwright";
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 const origin = process.env.DEMOTEST23_WEB_URL;
 assert.equal(origin, "http://127.0.0.1:3000", "External Next URL prohibited");
@@ -66,7 +67,7 @@ async function login(page, person) {
   await page.locator('input[name="password"]').fill(person.password);
   await page.getByRole("button", { name: "Accedi", exact: true }).click();
   await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
-  await page.getByRole("heading", { name: "Oggi in " + person.name, exact: true }).waitFor({ timeout: 60000 });
+  await page.getByRole("heading", { name: homeHeading(person.name) }).waitFor({ timeout: 60000 });
   const consent = page.getByTestId("mobile-cookie-consent");
   if (await consent.isVisible()) await consent.getByRole("button", { name: "Accetta necessari" }).click();
 }

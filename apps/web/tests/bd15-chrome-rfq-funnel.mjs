@@ -8,6 +8,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
 import { checkDeferredClientReadiness, waitForBuilderReady } from "./bd15-chrome-hydration-readiness.mjs";
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 const origin = process.env.DEMOTEST23_WEB_URL;
 assert.equal(origin, "http://127.0.0.1:3000", "BD15 prohibits nonlocal Next.js");
@@ -80,7 +81,7 @@ async function login(page) {
   await page.locator('input[name="password"]').fill(buyer.password);
   await page.getByRole("button", { name: "Accedi", exact: true }).click();
   await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
-  await page.getByRole("heading", { name: "Oggi in " + buyer.name, exact: true })
+  await page.getByRole("heading", { name: homeHeading(buyer.name) })
     .waitFor({ state: "visible", timeout: 60000 });
 }
 try {

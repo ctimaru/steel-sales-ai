@@ -8,6 +8,7 @@ import assert from "node:assert/strict";
 import { readFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 const base = (process.env.DEMOTEST23_WEB_URL ?? "").replace(/\/$/, "");
 assert.equal(base, "http://127.0.0.1:3000", "Only local throwaway server allowed");
@@ -23,7 +24,7 @@ async function login(page, user) {
   await page.locator('input[name="password"]').fill(user.password);
   await page.getByRole("button", { name: "Accedi", exact: true }).click();
   await page.waitForURL(u => u.pathname === "/dashboard", { timeout: 90000 });
-  await page.getByRole("heading", { name: "Oggi in " + user.name, exact: true }).waitFor({ state: "visible", timeout: 60000 });
+  await page.getByRole("heading", { name: homeHeading(user.name) }).waitFor({ state: "visible", timeout: 60000 });
 }
 async function searchHeader(page, term) {
   const form = page.locator('form[action="/commercial/search"]');
