@@ -138,11 +138,17 @@ try {
         const page = await context.newPage();
         await login(page, p);
         await viewportCheck(page, { width, height: width === 1440 ? 900 : 844, role: p.id });
-        if (width === 1440 && p.id === "buyer") {
+        if (p.id === "buyer") {
           const sample = "40 tubi quadri 100×100×5 S355J2H EN 10219, 6 m";
           const input = page.locator("#commercial-ai-companion-input");
           await input.fill(sample);
-          await page.getByTestId("commercial-ai-first-cta").click();
+          await input.press("Shift+Enter");
+          assert.ok((await input.inputValue()).includes("\n"),
+            "Shift+Enter must add a line without leaving the home composer");
+          assert.equal(new URL(page.url()).searchParams.get("compose"), null);
+          await input.fill(sample);
+          if (width === 390) await page.getByTestId("commercial-ai-first-cta").click();
+          else await input.press("Enter");
           await page.waitForURL(u => u.pathname === "/commercial" && u.searchParams.get("compose") === "1", { timeout: 90000 });
           const draft = page.locator("#rfqai2-text-input");
           await draft.waitFor({ state: "visible", timeout: 60000 });
@@ -150,8 +156,8 @@ try {
           assert.equal(await draft.inputValue(), sample);
           assert.equal(await page.evaluate(() => sessionStorage.getItem("sss:commercial-ai-intake-handoff")), null);
           assert.equal(await page.getByRole("button", { name: "Analizza la richiesta con AI" }).count(), 1);
-          await page.screenshot({ path: path.join(screenshotsDir, "commercial-ai-to-private-distinta-1440px.png"), fullPage: false, animations: "disabled" });
-          console.log("COMM-UX6.A AI → PRIVATE DISTINTA PASS: text handed off once, no automatic analysis or dispatch");
+          await page.screenshot({ path: path.join(screenshotsDir, `commercial-ai-to-private-distinta-${width}px.png`), fullPage: false, animations: "disabled" });
+          console.log("COMM-TRUST1.D CHAT → PRIVATE DISTINTA PASS", width, "one-shot text, preview, no automatic analysis or dispatch");
 
           // COMM-TRUST1.C: a no-match filter is not an empty archive or failed RPC.
           await page.goto(base + "/commercial?view=drafts&q=commtrust1cnomatch", { waitUntil: "domcontentloaded", timeout: 90000 });
