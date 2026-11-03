@@ -21,7 +21,7 @@ const operationsTabs: ReadonlyArray<{ id: CommercialOperationsTab; title: string
   { id: "po", title: "Ordini PO" },
 ];
 
-function operationsHref(view: CommercialView, query: string, selected: string, tab: CommercialOperationsTab, page: number, cursor?: string | null) {
+export function operationsHref(view: CommercialView, query: string, selected: string, tab: CommercialOperationsTab, page: number, cursor?: string | null) {
   const link = cursor && isStreamView(view) ? mergedCommercialHref(view, query, cursor, selected) :
     page > 1 ? commercialPageHref(view, query, page, selected) : commercialHref(view, query, selected);
   const path = link.replace(/#.*$/, "");

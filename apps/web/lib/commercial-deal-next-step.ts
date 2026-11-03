@@ -14,6 +14,7 @@ export function commercialDealNextStep(
   kind: UnifiedCommercialKind,
   status: string,
   canWrite: boolean,
+  factsAvailable = true,
 ): CommercialDealNextStep {
   if (!canWrite) {
     return {
@@ -22,6 +23,11 @@ export function commercialDealNextStep(
       actionLabel: "Apri dettaglio →",
     };
   }
+  if (!factsAvailable) return {
+    title: "Verifica i dati nel record originale",
+    description: "Il contesto autorizzato non è disponibile in questa scheda. Non si possono dedurre informazioni mancanti o azioni da eseguire.",
+    actionLabel: "Apri documento originale →",
+  };
   if (kind === "distinta") return {
     title: "Riapri la Distinta e scegli i fornitori",
     description: "Controlla articoli e quantità prima di predisporre un'eventuale RFQ. Non viene inviato nulla automaticamente.",
@@ -69,4 +75,25 @@ export function commercialDealNextStep(
     description: "Apri il record originale per controllare articoli, quantità e documenti disponibili.",
     actionLabel: "Apri dettaglio →",
   };
+}
+
+/**
+ * Only shortcuts to existing, tenant-governed RFQ panels. This is navigation,
+ * not evidence of readiness, permission to award or approval to issue orders.
+ * An unavailable source must never produce an apparently actionable shortcut.
+ */
+export function commercialDealOperationTab(
+  kind: UnifiedCommercialKind,
+  rawStatus: string,
+  canWrite: boolean,
+  factsAvailable: boolean,
+): "compare" | "po" | null {
+  if (!canWrite || !factsAvailable) return null;
+  if (kind === "quote") return "compare";
+  if (kind === "purchase-order") return "po";
+  if (kind === "campaign") {
+    if (rawStatus === "launched" || rawStatus === "collecting") return "compare";
+    if (rawStatus === "awarded") return "po";
+  }
+  return null;
 }
