@@ -17,7 +17,7 @@ test("CALC-DIST1 technical drawer preserves tabular quantity controls in readabl
    "calculateBuyerDistintaLine(line)","editInlineDistintaLine(liveState.current, id, { quantity: value, barLengthM })",
    "hasPendingQuantities()","data-create-inline-private-rfq","pruneBuyerTargets(result.state, current)"])
    assert.ok(row.includes(token),token);
- assert.match(row,/compact visible=\{ready/);
+ assert.match(row,/compact visible=\{active && ready/);
  assert.match(shell,/compact\?: boolean/);
  assert.match(shell,/styles.dialogCompact/);
  assert.match(shellCss,/width:min\(510px,95vw\)/);
