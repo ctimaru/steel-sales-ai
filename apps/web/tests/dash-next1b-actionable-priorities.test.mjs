@@ -28,6 +28,8 @@ function mockPaged(response = { data: null, error: null }) {
     require(name) {
       if (name === "server-only") return {};
       if (name === "@/lib/commercial-data") return { getExplorerData: () => null };
+      // The paged view now imports the shared read-only numeric presenter.
+      if (name === "@/lib/commercial-row-facts") return { commercialRowQuantity: () => null };
       if (name === "@/lib/commercial-unified-data") return {};
       if (name === "@/lib/rfq-hub-overview") return { rfqCampaignStatusLabel: (v) => v };
       if (name === "@/lib/routes") return { appRoutes: { rfqHub: { campaign: (id) => "/rfq-hub/" + id } } };

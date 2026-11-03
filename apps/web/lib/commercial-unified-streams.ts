@@ -1,4 +1,5 @@
 import "server-only";
+import { commercialRowQuantity, type CommercialRowFacts } from "@/lib/commercial-row-facts";
 
 import { Buffer } from "node:buffer";
 
@@ -142,6 +143,15 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
       source === "campaigns" ? "Campagna privata ai fornitori" :
       source === "rfqs" ? "Richiesta commerciale ricevuta" :
       source === "offers" ? "Offerta commerciale inviata" : "Ordine cliente";
+    const rowFacts: CommercialRowFacts | undefined = source === "rfqs" || source === "offers" || source === "orders"
+      ? { counterparty: customer || undefined }
+      : source === "purchaseOrders"
+        ? { counterparty: str(r.supplier_name_snapshot, "") || undefined, totalEur: r.total_eur }
+        : source === "drafts"
+          ? { quantity: commercialRowQuantity(r.total_tonnes, r.total_meters) ?? undefined }
+          : source === "campaigns"
+            ? { dueAt: timestamp(r.due_at) ?? undefined }
+            : undefined;
     const href = source === "rfqs" ? appRoutes.commercial.rfq(id) :
       source === "offers" ? appRoutes.commercial.offer(id) :
       source === "orders" ? appRoutes.commercial.order(id) :
@@ -150,7 +160,7 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
     const at = timestamp(r.created_at);
     return {
       id, key: kind + ":" + id, kind, view, title: headline, subtitle, status, at,
-      href, campaignId, origin: source === "rfqs" || source === "offers" || source === "orders" ?
+      href, campaignId, rowFacts, origin: source === "rfqs" || source === "offers" || source === "orders" ?
         "memoria privata" as const : "acquisti privati" as const,
     };
   });
@@ -188,7 +198,7 @@ async function fetchSource(
     if (q) request = request.ilike("status", "%" + q + "%");
   } else if (source === "campaigns") {
     request = db.from("buyer_rfq_campaigns")
-      .select("id,title,status,created_at", { count: "exact" })
+      .select("id,title,status,due_at,created_at", { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (q) request = request.or("title.ilike.%" + q + "%,status.ilike.%" + q + "%");
@@ -201,13 +211,13 @@ async function fetchSource(
     if (q) request = request.ilike("campaign.title", "%" + q + "%");
   } else if (source === "purchaseOrders") {
     request = db.from("buyer_purchase_order_drafts")
-      .select("id,rfq_id,po_draft_ref,status,supplier_name_snapshot,created_at,campaign:buyer_rfq_campaigns!buyer_purchase_order_drafts_rfq_id_fkey!inner(title)", { count: "exact" })
+      .select("id,rfq_id,po_draft_ref,status,supplier_name_snapshot,total_eur,created_at,campaign:buyer_rfq_campaigns!buyer_purchase_order_drafts_rfq_id_fkey!inner(title)", { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (q) request = request.or("po_draft_ref.ilike.%" + q + "%,supplier_name_snapshot.ilike.%" + q + "%");
   } else {
     request = db.from("buyer_distintas")
-      .select("id,title,line_count,created_at", { count: "exact" })
+      .select("id,title,line_count,total_meters,total_tonnes,created_at", { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (q) request = request.ilike("title", "%" + q + "%");

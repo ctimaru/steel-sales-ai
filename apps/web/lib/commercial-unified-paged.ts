@@ -1,5 +1,7 @@
 import "server-only";
 
+import { commercialRowQuantity } from "@/lib/commercial-row-facts";
+
 import { getExplorerData } from "@/lib/commercial-data";
 import {
   type CommercialView,
@@ -83,6 +85,10 @@ export async function loadCommercialPagedData({
         id, key: "inbound-rfq:" + id, kind: "inbound-rfq", view: "received",
         title: row.company || "Cliente non attribuito",
         subtitle: [row.product, row.standard, row.grade].filter(Boolean).join(" · "),
+        rowFacts: {
+          counterparty: row.company || undefined,
+          material: [row.product, row.standard, row.grade].filter(Boolean).join(" · ") || undefined,
+        },
         status: "Richiesta nello storico",
         at: null, href, campaignId: null, origin: "memoria privata",
       });
@@ -122,6 +128,7 @@ export async function loadCommercialPagedData({
         title: record.title?.trim() || "Richiesta ai fornitori",
         subtitle: record.due_at ? "Campagna · scadenza " + new Date(record.due_at).toLocaleDateString("it-IT") : "Campagna privata multi-fornitore",
         status: rfqCampaignStatusLabel(record.status),
+        rowFacts: { dueAt: record.due_at ?? undefined },
         at: record.created_at,
         href: appRoutes.rfqHub.campaign(record.id),
         campaignId: record.id, origin: "acquisti privati" as const,
@@ -137,7 +144,7 @@ export async function loadCommercialPagedData({
   }
 
   let request = db.from("buyer_distintas")
-    .select("id,title,line_count,created_at", { count: "exact" })
+    .select("id,title,line_count,total_meters,total_tonnes,created_at", { count: "exact" })
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
@@ -150,6 +157,7 @@ export async function loadCommercialPagedData({
       id: record.id, key: "distinta:" + record.id, kind: "distinta" as const, view: "drafts" as const,
       title: record.title?.trim() || "Distinta privata",
       subtitle: String(record.line_count ?? "—") + " righe · distinta salvata",
+      rowFacts: { quantity: commercialRowQuantity(record.total_tonnes, record.total_meters) ?? undefined },
       status: "Salvata", at: record.created_at,
       href: appRoutes.rfqHub.savedDistinta(record.id),
       campaignId: null, origin: "acquisti privati" as const,
@@ -199,6 +207,7 @@ export async function includeSelectedCommercialCampaign(
         ? "Campagna · scadenza " + new Date(campaign.due_at).toLocaleDateString("it-IT")
         : "Campagna privata multi-fornitore",
       status: rfqCampaignStatusLabel(campaign.status),
+      rowFacts: { dueAt: campaign.due_at ?? undefined },
       at: campaign.created_at,
       href: appRoutes.rfqHub.campaign(campaign.id),
       campaignId: campaign.id,

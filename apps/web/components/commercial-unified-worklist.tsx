@@ -1,5 +1,6 @@
 import Link from "next/link";
 import cinematic from "@/components/commercial-cinematic.module.css";
+import { commercialRowAmount } from "@/lib/commercial-row-facts";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealQuickActions } from "@/components/commercial-deal-quick-actions";
 import { CommercialDealDecisionReadiness, CommercialDealIntelligence, loadCommercialDealFacts } from "@/components/commercial-deal-intelligence";
@@ -233,7 +234,7 @@ export async function CommercialUnifiedWorklist({
   return (
     <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-3 " + cinematic.worklist}>
       <div data-testid="comm-cine9-workspace-heading"
-        className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-[#dce8df] bg-white px-3 py-2 sm:gap-x-4 sm:gap-y-2 sm:px-5 sm:py-3">
+        className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-[#dce8df] bg-white px-3 py-1.5 sm:gap-x-4 sm:gap-y-1 sm:px-4 sm:py-2">
         <div className="min-w-0">
           <p className="hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-[#386b50] sm:block">Workspace commerciale / Deal cockpit</p>
           <h2 id="commercial-worklist-title" className="mt-0.5 text-xl font-semibold leading-tight tracking-[-0.025em] text-[#123c2f]">
@@ -262,7 +263,7 @@ export async function CommercialUnifiedWorklist({
         </p>
       ) : null}
 
-      <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-[#e1eae4] bg-white p-3 shadow-[0_12px_36px_-32px_rgba(4,46,32,0.4)] lg:flex-row lg:items-center" data-testid="commercial-compact-filters">
+      <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-[#e1eae4] bg-white p-2 shadow-[0_12px_36px_-32px_rgba(4,46,32,0.4)] lg:flex-row lg:items-center" data-testid="commercial-compact-filters">
         <nav aria-label="Filtra attività commerciali" className="flex min-w-0 shrink-0 gap-0.5 overflow-x-auto rounded-xl bg-[#eef5f0] p-1">
           {views.map(({ key, title }) => (
             <Link key={key} href={commercialHref(key, query)} aria-current={key === view ? "page" : undefined}
@@ -309,6 +310,23 @@ export async function CommercialUnifiedWorklist({
                     </div>
                     <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)] sm:line-clamp-1" title={item.title}>{item.title}</p>
                     {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)]">{item.subtitle}</p> : null}
+                    {(item.rowFacts?.quantity ||
+                      (item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle) ||
+                      (item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title) ||
+                      commercialRowAmount(item.rowFacts?.totalEur) ||
+                      (item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt)))) ? (
+                      <div data-testid="commercial-deal-row-facts" className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] leading-4 text-[#48685a]">
+                        {item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle
+                          ? <span className="max-w-full truncate" title={item.rowFacts.counterparty}>Azienda · {item.rowFacts.counterparty}</span> : null}
+                        {item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title
+                          ? <span className="max-w-full truncate" title={item.rowFacts.material}>Materiale · {item.rowFacts.material}</span> : null}
+                        {item.rowFacts?.quantity ? <span className="font-medium">Quantità · {item.rowFacts.quantity}</span> : null}
+                        {commercialRowAmount(item.rowFacts?.totalEur)
+                          ? <span className="font-semibold text-[#205a44]">Totale ordine · {commercialRowAmount(item.rowFacts?.totalEur)}</span> : null}
+                        {item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt))
+                          ? <span>Scadenza · {formatHubDate(item.rowFacts.dueAt)}</span> : null}
+                      </div>
+                    ) : null}
                   </div>
                   <div className="col-span-2 flex min-w-0 items-center justify-between gap-2 border-t border-[#edf3ee] pt-1 text-right sm:col-span-1 sm:min-w-[104px] sm:max-w-[180px] sm:flex-col sm:items-end sm:gap-1 sm:border-0 sm:pt-0">
                     <span className="max-w-full truncate rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold leading-4 text-[var(--brand-deep)]" title={item.status}>{item.status}</span>

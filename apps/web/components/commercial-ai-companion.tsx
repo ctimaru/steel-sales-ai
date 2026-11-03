@@ -25,17 +25,17 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
   }
   return (
     <section aria-labelledby="commercial-ai-first-heading" data-testid="commercial-ai-first"
-      className={"relative overflow-hidden rounded-[20px] border border-[#d7e8dd] bg-white p-3 sm:px-5 sm:py-4 " + cinematic.companion}>
-      <div className="grid min-w-0 gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-6">
+      className={"relative overflow-hidden rounded-[20px] border border-[#d7e8dd] bg-white p-2.5 sm:px-4 sm:py-2.5 " + cinematic.companion}>
+      <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-3">
         <div className="flex min-w-0 items-start gap-3">
-          <div aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#174f3a] text-lg text-white">✦</div>
+          <div aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#174f3a] text-lg text-white">✦</div>
           <div className="min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#3e7957]">Il tuo assistente commerciale</p>
             <h2 id="commercial-ai-first-heading"
-              className={"mt-1 text-[clamp(1.3rem,1.85vw,1.75rem)] font-semibold leading-[1.16] tracking-[-0.035em] text-[#143f30] " + cinematic.companionTitle}>
+              className={"mt-0.5 text-[clamp(1.1rem,1.5vw,1.35rem)] font-semibold leading-[1.16] tracking-[-0.035em] text-[#143f30] " + cinematic.companionTitle}>
               Ciao, cosa stai cercando oggi?
             </h2>
-            <p className="mt-1 text-xs leading-5 text-[#5c7063]">
+            <p className="mt-0.5 text-xs leading-4 text-[#5c7063]">
               Descrivi il materiale. Scegli tu cosa preparare: nessuna richiesta viene inviata automaticamente.
             </p>
           </div>
@@ -47,7 +47,7 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
               <textarea id="commercial-ai-companion-input" value={request} maxLength={12000} rows={2}
                 onChange={(event) => setRequest(event.target.value)}
                 placeholder="Es. 40 tubi quadri 100×100×5, S355, 6 m"
-                className="min-h-[64px] min-w-0 flex-1 resize-y rounded-xl border border-[#b8d6c3] bg-white px-3 py-2 text-sm leading-5 text-[#143f30] placeholder:text-[#72877a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
+                className="min-h-[52px] min-w-0 flex-1 resize-y rounded-xl border border-[#b8d6c3] bg-white px-3 py-2 text-sm leading-5 text-[#143f30] placeholder:text-[#72877a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
               <button type="submit" disabled={!request.trim()} data-testid="commercial-ai-first-cta"
                 className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50 sm:max-w-[164px]">
                 Prepara la distinta →
