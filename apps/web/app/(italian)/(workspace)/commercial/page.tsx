@@ -95,7 +95,7 @@ const intelligenceGroups = [
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; tab?: string; page?: string; cursor?: string; network?: string; prospect?: string; prospects?: string }>;
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; network?: string; prospect?: string; prospects?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -116,6 +116,7 @@ export default async function CommercialHomePage({
   const allowedTabs: CommercialOperationsTab[] = ["compare", "negotiate", "award", "po"];
   const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
   const composing = canWrite && params.compose === "1";
+  const aiFocused = composing && params.method === "ai";
   const [commercial, procurement, unified, catalogOptions, networkContext, calculatorReferences] = await Promise.all([
     getDashboardData(),
     canWrite
@@ -180,6 +181,26 @@ export default async function CommercialHomePage({
   return (
     <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
+      {aiFocused ? (
+        <section data-testid="commercial-rfq-ai-focused-header" aria-labelledby="commercial-rfq-ai-focused-heading"
+          className="rounded-2xl border border-[#c3dfcd] bg-white p-3 sm:p-5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#246c53]">Commerciale / Nuova richiesta</p>
+            <Link href={appRoutes.commercial.home} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
+              ← Torna alla scrivania
+            </Link>
+          </div>
+          <h1 id="commercial-rfq-ai-focused-heading" className="mt-1 text-xl font-bold tracking-tight text-[#173f35] sm:text-2xl">
+            Dalla richiesta alla distinta
+          </h1>
+          <p className="mt-1 text-sm leading-5 text-[#53675b]">Il testo che hai scritto è pronto per essere analizzato. Controlla le proposte prima di aggiungerle alla tua distinta privata.</p>
+          <ol aria-label="Passaggi di creazione" className="mt-3 grid gap-2 text-xs font-semibold text-[#175640] sm:grid-cols-3">
+            <li className="rounded-lg bg-[#eef7f1] px-3 py-2">1 · Analizza il materiale</li>
+            <li className="rounded-lg bg-[#eef7f1] px-3 py-2">2 · Verifica gli articoli</li>
+            <li className="rounded-lg bg-[#eef7f1] px-3 py-2">3 · Salva la distinta</li>
+          </ol>
+        </section>
+      ) : (<>
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
         className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white " + cinematic.hero}>
         <div className={"grid items-center gap-3 px-4 py-3 sm:px-6 lg:min-h-[112px] lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-4 lg:px-6 lg:py-2.5 " + cinematic.heroGrid}>
@@ -253,12 +274,14 @@ export default async function CommercialHomePage({
         </div>
       </section>
 
+      </>)}
+
       {composing && catalogOptions ? (
         <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className="scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">La tua nuova richiesta</p>
-              <h2 id="commercial-compose-heading" className="text-lg font-semibold text-[var(--brand-deep)]">Crea distinta e RFQ senza lasciare Commerciale</h2>
+              <h2 id="commercial-compose-heading" className="text-lg font-semibold text-[var(--brand-deep)]">{aiFocused ? "Verifica gli articoli e prepara la distinta" : "Crea distinta e RFQ senza lasciare Commerciale"}</h2>
               <p className="mt-1 text-xs text-[var(--text-secondary)]">La creazione genera una bozza privata. Nessun invio ai fornitori avviene automaticamente.</p>
               {networkContext ? (
                 <p className="mt-1 text-xs font-medium leading-5 text-[#175640]" data-testid="commercial-network-draft-disclaimer">
@@ -266,8 +289,8 @@ export default async function CommercialHomePage({
                 </p>
               ) : null}
             </div>
-            {canWrite ? (
-             <Link href={appRoutes.commercial.home + "?compose=1#commercial-ai-intake"}
+            {canWrite && !aiFocused ? (
+             <Link href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}
                className="inline-flex min-h-10 items-center rounded-lg border border-[#a9cbb9] bg-[#edf7f1] px-3 text-xs font-semibold text-[#175640] hover:bg-[#dcefe4]"
                data-testid="commercial-ai-intake-link">
                Assistente AI · prepara distinta
@@ -279,6 +302,7 @@ export default async function CommercialHomePage({
             workspace
             authenticated
             returnToCommercial
+            focusAiIntake={aiFocused}
             userId={context.userId}
             organizationId={context.organizationId}
             emailConfigured={Boolean(process.env.RESEND_API_KEY)}
@@ -287,6 +311,7 @@ export default async function CommercialHomePage({
         </section>
       ) : null}
 
+      {!aiFocused ? (<>
       <CommercialUnifiedWorklist
         data={displayedUnified}
         page={page}
@@ -690,6 +715,7 @@ export default async function CommercialHomePage({
       <p className="px-2 pb-2 text-[11px] leading-5 text-[#647568]">
         Commerciale riunisce i tuoi flussi di lavoro, ma i confini dei dati restano distinti: la memoria privata, le RFQ buyer, il Network e il Marketplace non condividono automaticamente prezzi, contatti o documenti.
       </p>
+      </>) : null}
     </FocusPage>
   );
 }
