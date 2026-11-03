@@ -71,7 +71,7 @@ test("COMM-UX1A retains specialist engines without creating a second RFQ impleme
   assert.match(routes, /savedDistinte: "\/rfq-hub\/distinte"/);
   assert.match(commercial, /CommercialUnifiedWorklist/);
   assert.match(commercial, /BuyerDistintaBuilder/);
-  assert.match(commercial, /Memoria commerciale e storico/);
+  assert.match(commercial, /Storico e memoria privata/);
   assert.match(commercial, /Strumenti e intelligence avanzata/);
   for (const name of [
     "priceIntelligence", "products", "marketIntelligence", "explorer",
