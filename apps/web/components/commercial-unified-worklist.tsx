@@ -241,6 +241,31 @@ export async function CommercialUnifiedWorklist({
     ? data.items.filter((item) => item.campaignId === active.campaignId && item.key !== active.key)
     : [];
 
+  // COMM-TRUST1.C: an unavailable source is not an empty archive, and a
+  // filtered empty page is not a first-use state. Derive the next action from
+  // the visible query/view without guessing whether a backend was assigned.
+  const emptyCause = data.partial ? "unavailable" : query ? "filtered" : view === "all" ? "workspace" : "view";
+  const emptyTitle = emptyCause === "unavailable" ? "Impossibile verificare tutte le attività"
+    : emptyCause === "filtered" ? "Nessun risultato per questo filtro"
+    : emptyCause === "workspace" ? "Non ci sono ancora trattative da visualizzare"
+    : view === "drafts" ? "Nessuna distinta salvata in questa vista"
+    : view === "received" ? "Nessuna richiesta cliente in questa vista"
+    : view === "sent" ? "Nessuna RFQ inviata in questa vista"
+    : view === "offers" ? "Nessuna offerta in questa vista"
+    : "Nessun ordine in questa vista";
+  const emptyDescription = emptyCause === "unavailable"
+    ? "Lo storico potrebbe essere incompleto o non associato: non possiamo confermare che sia vuoto. Consulta la ricerca per verificare i dati accessibili."
+    : emptyCause === "filtered" ? "La ricerca non trova attività nella vista selezionata. Rimuovi il filtro senza perdere la vista."
+    : emptyCause === "workspace" ? "Le attività autorizzate appariranno qui quando saranno disponibili."
+    : "La vista è vuota; altre richieste, offerte o ordini potrebbero essere presenti nelle altre viste.";
+  const emptyAction = emptyCause === "unavailable"
+    ? { href: commercialSearchHref(query), label: "Controlla lo storico" }
+    : emptyCause === "filtered"
+      ? { href: commercialHref(view), label: "Rimuovi filtro" }
+      : (view === "drafts" || view === "all") && canWrite
+        ? { href: appRoutes.commercial.home + "?compose=1#commercial-compose", label: "Prepara una distinta" }
+        : { href: commercialHref("all"), label: "Mostra tutte le trattative" };
+
   return (
     <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-3 " + cinematic.worklist}>
       <div data-testid="comm-cine9-workspace-heading"
@@ -252,16 +277,17 @@ export async function CommercialUnifiedWorklist({
           </h2>
         </div>
         <div className="shrink-0 rounded-full border border-[#c7dece] bg-[#f6faf7] px-3 py-1.5 text-xs font-semibold tabular-nums text-[#276147]">
-          {data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} <span className="sm:hidden">attività</span><span className="hidden sm:inline">attività in questa vista</span>
+          {data.partial && filtered.length === 0 ? "—" : data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} <span className="sm:hidden">attività</span><span className="hidden sm:inline">{data.partial ? "attività disponibili" : "attività in questa vista"}</span>
         </div>
       </div>
 
       {data.partial ? (
         <p role="status" className="rounded-lg border border-[#dfc9a5] bg-[#fff9ed] px-3 py-2 text-xs text-[#795321]">
-          {data.procurementUnavailable && data.inboundUnavailable ? "Alcuni dati commerciali e di acquisto non sono disponibili." :
-            data.procurementUnavailable ? "Il caricamento di alcune attività acquisti non è riuscito." :
-            "Lo storico commerciale non è disponibile o non ancora associato a questa azienda."}
-          {" "}La lista potrebbe essere incompleta: nessun dato dimostrativo è presentato come reale.
+          {data.procurementUnavailable && data.inboundUnavailable ? "Storico commerciale e attività acquisti non verificabili." :
+            data.procurementUnavailable ? "Alcune attività acquisti non sono disponibili." :
+            data.inboundUnavailable ? "Lo storico delle richieste clienti non è verificabile." :
+            "La disponibilità dello storico non è confermata."}
+          {" "}Le fonti potrebbero non essere associate oppure il caricamento potrebbe essere fallito. Non interpretare l'assenza di risultati come uno zero certo.
         </p>
       ) : null}
       {data.paging?.pageSize === 50 ? (
@@ -349,20 +375,16 @@ export async function CommercialUnifiedWorklist({
               ))}
             </div>
           ) : (
-            <div className="p-5">
-              <p className="text-sm font-semibold text-[var(--brand-deep)]">Nessuna attività in questa vista</p>
-              <p className="mt-1 text-xs text-[var(--text-secondary)]">
-                {data.partial ? "Il risultato potrebbe essere incompleto: controlla lo stato dei dati." :
-                  query ? "Prova con un altro termine oppure scegli Tutte." :
-                    "Quando sarà registrata un'attività pertinente, la vedrai qui."}
-              </p>
-              {canWrite ? <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
-                className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-[var(--border-strong)] px-3 text-xs font-semibold text-[var(--brand-deep)]">
-                Prepara una nuova richiesta →
-              </Link> : null}
+            <div className="px-4 py-3 sm:px-5 sm:py-4" data-commercial-empty-state={emptyCause}>
+              <p className="text-sm font-semibold text-[var(--brand-deep)]">{emptyTitle}</p>
+              <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">{emptyDescription}</p>
+              <Link href={emptyAction.href}
+                className="mt-2 inline-flex min-h-10 items-center rounded-lg border border-[var(--border-strong)] px-3 text-xs font-semibold text-[var(--brand-deep)]">
+                {emptyAction.label} →
+              </Link>
             </div>
           )}
-          {data.paging ? (
+          {data.paging && (data.paging.page > 1 || data.paging.hasNext) ? (
             <nav aria-label="Pagine attività commerciali" className="flex items-center justify-between gap-2 border-t border-[var(--border)] p-3">
               {data.paging.page > 1 ? (
                 <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.previousCursor ?? undefined) : commercialPageHref(view, query, data.paging.page - 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">← Precedente</Link>
