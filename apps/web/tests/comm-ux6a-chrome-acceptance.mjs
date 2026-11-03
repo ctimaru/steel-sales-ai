@@ -144,6 +144,7 @@ async function calculatorTrustCheck(page, width) {
   await cart.waitFor({ state: "visible" });
   const title = cart.locator('[aria-label="Nome distinta"]');
   await title.fill("COMM-TRUST1 verifica");
+  await page.screenshot({ path: path.join(screenshotsDir, `commercial-calculator-cart-${width}px.png`), fullPage: false, animations: "disabled" });
   assert.equal(await cart.locator("[data-distinta-compact-row]").count(), 1,
     "One added measure should generate only one bill row");
 
@@ -151,6 +152,7 @@ async function calculatorTrustCheck(page, width) {
   await page.keyboard.press("Escape");
   await cart.waitFor({ state: "hidden" });
   assert.ok(await panel.isVisible(), "Nested Escape must leave the calculator open");
+  await page.screenshot({ path: path.join(screenshotsDir, `commercial-calculator-open-${width}px.png`), fullPage: false, animations: "disabled" });
   assert.ok(await trigger.isVisible(), "Bill trigger must regain keyboard access");
 
   // The portal trigger is deliberately in the parent Tab loop.
