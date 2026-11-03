@@ -9,6 +9,7 @@ import { RegistrationJourney } from "@/components/registration-journey";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { safeCommercialReturnTo, withCommercialReturnTo } from "@/lib/auth-next";
 import { createClient } from "@/lib/supabase/server";
+import { safeUrlFeedback } from "@/lib/url-feedback";
 
 export const metadata: Metadata = { title: "Company Registration Status — English", robots: privateNoIndexRobots };
 type Recovery = {
@@ -41,7 +42,9 @@ const rejectionReasons: Record<string, string> = {
 export default async function EnglishRegistrationStatusPage({ searchParams }: {
   searchParams: Promise<{ submitted?: string; error?: string; return_to?: string }>; 
 }) {
-  const { submitted, error, return_to: requestedReturn } = await searchParams;
+  const { submitted, error: rawError, return_to: requestedReturn } = await searchParams;
+  // ONBOARDING-AUDIT2 · F8: URL feedback is shown only when it looks like our own copy.
+  const error = safeUrlFeedback(rawError, "en");
   const returnTo = safeCommercialReturnTo(requestedReturn);
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
@@ -76,6 +79,7 @@ export default async function EnglishRegistrationStatusPage({ searchParams }: {
           <p className="mt-7 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Company registration</p>
           <h1 className="mt-2 text-3xl font-bold text-[#123b34]">{application.legal_name}</h1>
           <p className="mt-3 text-sm text-[#52615b]">Application status and any required next steps.</p>
+          <p className="mt-2 text-sm text-[#52615b]" data-testid="registration-support-contact">Questions about your application? Write to <a href="mailto:hello@smartsteelsales.com" className="font-bold text-[#173f35] underline">hello@smartsteelsales.com</a>.</p>
           {submitted === "1" ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-4 text-sm text-[#173f35]">Your company application has been submitted for review. You may sign out and return later.</p> : null}
           {error ? <p role="alert" className="mt-5 rounded-xl bg-[#fff5f3] p-4 text-sm text-[#9f2f24]">We could not complete that action. Please try again or contact support.</p> : null}
           <div className={`mt-6 rounded-xl border border-[#dce2df] p-5 ${state.tone}`}>

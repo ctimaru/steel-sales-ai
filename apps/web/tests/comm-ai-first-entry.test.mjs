@@ -10,7 +10,7 @@ test("Commerciale keeps one role-gated AI entry after director priorities, with 
   assert.match(companion, /data-testid="commercial-ai-first"/);
   assert.match(companion, /data-testid="commercial-ai-first-cta"/);
   assert.match(companion, /onSubmit=\{startRequest\}/);
-  assert.match(companion, /\?compose=1#commercial-ai-intake/);
+  assert.match(companion, /\?compose=1&method=ai#commercial-ai-intake/);
   assert.ok(page.indexOf("<CommercialDirectorPriorityDesk") < page.indexOf("<CommercialAiCompanion"));
   assert.match(companion, /\{canWrite \? \(/);
   assert.equal((page.match(/<BuyerDistintaBuilder/g) || []).length, 1);

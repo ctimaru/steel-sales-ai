@@ -202,6 +202,59 @@ try {
           await page.getByRole("status").filter({ hasText: "Attività non trovata" })
             .waitFor({ state: "visible", timeout: 60000 });
           assert.equal(await page.locator("#commercial-detail").count(), 0);
+
+          // COMM-RFQ-UX1: actual authenticated browser handoff. The text
+          // must appear before the calculator without any implicit AI call.
+          await page.goto(base + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
+          const input = page.getByLabel("Descrivi il materiale", { exact: true });
+          await input.fill("40 tubi quadri 100x100x6 S355J2H EN 10219 da 12 m");
+          await page.getByTestId("commercial-ai-first-cta").click();
+          await page.waitForURL(url => url.searchParams.get("compose") === "1" &&
+            url.searchParams.get("method") === "ai", { timeout: 60000 });
+          const focused = page.getByTestId("commercial-rfq-ai-focused-header");
+          await focused.waitFor({ state: "visible", timeout: 60000 });
+          const textField = page.locator("#rfqai2-text-input");
+          await textField.waitFor({ state: "visible", timeout: 60000 });
+          await assertNoOverflow(page, "AI-first Distinta " + width);
+          assert.equal(await textField.inputValue(), "40 tubi quadri 100x100x6 S355J2H EN 10219 da 12 m");
+          assert.equal(await page.getByTestId("commercial-ai-first").count(), 0,
+            "Full dashboard assistant must be hidden in AI-focused compose");
+          assert.equal(await page.getByTestId("commercial-list-pane").count(), 0,
+            "Historical worklist must not crowd the AI review");
+          assert.equal(await page.getByTestId("commercial-ai-focused-modes").count(), 1);
+          assert.equal(await page.getByTestId("commercial-ai-reviewed-distinta").count(), 0,
+            "No articles are imported before explicit AI analysis and human review");
+          const manualShell = page.locator("#commercial-rfq-manual-tools");
+          assert.equal(await manualShell.isVisible(), false,
+            "Calculator must initially be a secondary action");
+          const analyzeAction = page.getByRole("button", { name: "Analizza la richiesta con AI" });
+          assert.ok(await analyzeAction.isVisible());
+          await page.locator("#commercial-ai-intake").scrollIntoViewIfNeeded();
+          // A Playwright "visible" element can still sit below the viewport.
+          // Fail the visual gate unless the primary action is actually tappable
+          // above the fixed mobile navigation without further scrolling.
+          const ctaViewport = await analyzeAction.evaluate(el => {
+            const rect = el.getBoundingClientRect();
+            return { top: rect.top, bottom: rect.bottom, height: window.innerHeight };
+          });
+          assert.ok(ctaViewport.top >= 0 &&
+            ctaViewport.bottom <= ctaViewport.height - (width < 1000 ? 68 : 0),
+            "AI Analyze CTA must appear in the first visible viewport at " + width + "px: " + JSON.stringify(ctaViewport));
+          await page.screenshot({
+            path: path.join(dir, "rfq-ai-first-" + width + "px.png"),
+            fullPage: false, animations: "disabled"
+          });
+          await page.getByTestId("commercial-ai-manual-tools-toggle").click();
+          await manualShell.waitFor({ state: "visible" });
+          assert.ok(await manualShell.getByText("Articoli in distinta", { exact: true }).isVisible(),
+            "Manual calculator remains accessible without leaving the workflow");
+          if (width !== 320) {
+            await page.goto(base + "/commercial?compose=1", { waitUntil: "domcontentloaded", timeout: 90000 });
+            await page.locator("#commercial-rfq-manual-tools").waitFor({ state: "visible", timeout: 60000 });
+            assert.equal(await page.getByTestId("commercial-rfq-ai-focused-header").count(), 0,
+              "Manual New Request does not force an AI-focused screen");
+          }
+          console.log("COMM-RFQ-UX1 AI FIRST PASS", width);
         }
       } finally {
         await context.close();
