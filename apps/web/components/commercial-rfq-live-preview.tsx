@@ -73,7 +73,7 @@ export function CommercialRfqLivePreview({
                         (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t") : ""].filter(Boolean).join(" · ")}
                     </p>
                     <p className="mt-1 text-[11px] font-semibold text-[#8b5c1b]">
-                      {correctedByBuyer ? "Corretto in chat · conferma nuovamente" :
+                      {correctedByBuyer ? "Modificato da te · da confermare" :
                         candidate.status === "invalid" ? "Informazioni da correggere" :
                         candidate.status === "needs_review" ? "Richiede chiarimenti" : "In attesa di conferma"}
                     </p>
