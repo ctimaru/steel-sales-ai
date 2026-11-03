@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { readFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { chromium } from "playwright";
-const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\import { chromium } from "playwright";") + "$"); // HOME-FIRSTRUN1B title
+const homeHeading = (name) => new RegExp("^(Buongiorno|Buonasera), " + name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "$"); // HOME-FIRSTRUN1B title
 
 const base = process.env.DEMOTEST23_WEB_URL;
 assert.equal(base, "http://127.0.0.1:3000");
@@ -195,7 +195,7 @@ async function calculatorTrustCheck(page, width) {
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 try {
   for (const width of [1440, 390, 320]) {
-    for (const p of width === 320 ? [buyer] : [buyer, viewer]) {
+    for (const p of [buyer, viewer]) {
       const context = await browser.newContext({
         viewport: { width, height: width === 1440 ? 900 : width === 390 ? 844 : 720 },
         isMobile: width < 1000, deviceScaleFactor: width < 1000 ? 2 : 1,
@@ -204,7 +204,7 @@ try {
       try {
         const page = await context.newPage();
         await login(page, p);
-        await viewportCheck(page, { width, height: width === 1440 ? 900 : 844, role: p.id });
+        await viewportCheck(page, { width, height: width === 1440 ? 900 : width === 390 ? 844 : 720, role: p.id });
         if (p.id === "buyer") await calculatorTrustCheck(page, width);
         if (p.id === "buyer") {
           const sample = "40 tubi quadri 100×100×5 S355J2H EN 10219, 6 m";
@@ -247,17 +247,16 @@ try {
           assert.equal(await empty.getByRole("link", { name: "Rimuovi filtro →" }).count(), 1);
           assert.equal(await page.locator('[aria-label="Pagine attività commerciali"]').count(), 0,
             "Do not show Page 1 when a filter has no results and no navigation");
-          await page.screenshot({ path: path.join(screenshotsDir, "commercial-filtered-empty-1440px.png"), fullPage: false, animations: "disabled" });
+          await page.screenshot({ path: path.join(screenshotsDir, `commercial-filtered-empty-${width}px.png`), fullPage: false, animations: "disabled" });
           console.log("COMM-TRUST1.C FILTERED EMPTY PASS");
 
         }
-        if (p.id === "buyerViewer" && width === 390) {
-          // Search is an existing-record retrieval route and remains read-only.
-          await page.getByTestId("commercial-history-entry").click();
-          await page.waitForURL(u => u.pathname === "/commercial/search", { timeout: 90000 });
-          assert.equal(new URL(page.url()).searchParams.get("compose"), null);
-          console.log("COMM-TRUST1.D HISTORY RETRIEVAL PASS");
-        }
+        // Explicitly verify historical retrieval for both roles at all widths.
+        // Retrieval must never silently start an RFQ or the AI composer.
+        await page.getByTestId("commercial-history-entry").click();
+        await page.waitForURL(u => u.pathname === "/commercial/search", { timeout: 90000 });
+        assert.equal(new URL(page.url()).searchParams.get("compose"), null);
+        console.log("COMM-TRUST1.D HISTORY RETRIEVAL PASS", p.id, width);
       } finally {
         await context.close();
       }
