@@ -17,7 +17,7 @@ test("COMM-RFQ-UX1 retains the private one-shot text transfer with explicit AI c
   assert.match(handoff, /sessionStorage\.removeItem\(HANDOFF_KEY\)/);
   assert.match(intake, /consumeCommercialAiTextHandoff\(MAX_TEXT_CHARS\)/);
   assert.match(intake, /onClick=\{analyzeText\}/);
-  assert.match(intake, /analyzeRfqAiFreeText\(textDraft\)/);
+  assert.match(intake, /analyzeRfqAiFreeText\(submitted\)/);
   assert.match(intake, /Il testo viene inviato al servizio AI solo quando premi Analizza/);
 });
 
