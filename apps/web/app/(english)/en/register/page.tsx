@@ -10,7 +10,9 @@ import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { PublicCompanyLookup } from "@/components/public-company-lookup";
 import { RegistrationJourney } from "@/components/registration-journey";
+import { RegistrationPilotNotice } from "@/components/registration-pilot-notice";
 import { Input } from "@/components/ui/input";
+import { pilotEmailAllowed, registrationPilotGateActive } from "@/lib/registration-access";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
@@ -35,6 +37,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
   if (normalized && !claimRef) redirect("/en/register");
   const registrationPath = withCommercialReturnTo(claimRef ? `/en/register?claim_ref=${encodeURIComponent(claimRef)}` : "/en/register", returnTo);
 
+  const pilotGate = registrationPilotGateActive();
   const supabase = await createClient();
   const { data: auth } = await supabase.auth.getUser();
   const user = auth.user;
@@ -65,6 +68,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
               <p className="mt-1 text-xs font-bold uppercase tracking-wider text-[#1f6b5a]">Step 1 of 4 · Your account</p>
               <h1 className="mt-1 text-2xl font-bold text-[#123b34]">Create account</h1>
               <p className="mt-2 text-sm leading-5 text-[#52615b]">Verify your email, then complete your company application.</p>
+              {pilotGate ? <RegistrationPilotNotice locale="en" /> : null}
               {error ? <p role="alert" className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] p-3 text-sm text-[#9f2f24]">We could not create the account. Please review your email and password, then try again. {error}</p> : null}
               {message ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-3 text-sm">{message}</p> : null}
               {returnTo ? <p role="status" className="mt-3 rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-3 py-2 text-xs leading-5 text-[#173f35]">Your commercial destination is retained. Your draft stays in this tab.</p> : null}
@@ -143,6 +147,9 @@ export default async function EnglishRegistrationPage({ searchParams }: {
     : null;
   const blocked = Boolean(claimRef || application?.claim_target_network_company_id) &&
     (claimError || !activeClaim || claim?.claim_state !== "claimable" || claim?.can_start_registration !== true);
+  // ONBOARDING-AUDIT2 · F1: same rule as saveAndSubmitCompanyRegistration.
+  const pilotBlocked = pilotGate && !pilotEmailAllowed(user.email) &&
+    application?.application_status !== "needs_information";
   const initial = activeClaim
     ? { ...application, legal_name: activeClaim.legal_name, country_code: activeClaim.country_code,
       trading_name: application?.trading_name || activeClaim.trading_name }
@@ -168,9 +175,10 @@ export default async function EnglishRegistrationPage({ searchParams }: {
           {error ? <p role="alert" className="mt-5 rounded-xl border border-[#efc5bd] bg-[#fff5f3] p-4 text-sm text-[#9f2f24]">Your application could not be submitted. Please review the details and retry. {error}</p> : null}
           {message ? <p role="status" className="mt-5 rounded-xl bg-[#edf5f2] p-4 text-sm">{message}</p> : null}
           {application?.application_status === "needs_information" ? <p className="mt-5 rounded-xl bg-[#fff9e8] p-4 text-sm text-[#77551c]">The review team has requested more information. Update and resubmit your application.</p> : null}
-          {!application && !claimRef ? <div className="mt-6"><PublicCompanyLookup locale="en" context="registration" returnTo={returnTo} notFoundHref="#company-form" notFoundLabel="No match? Continue with a new company ↓" showNetworkNote={false} /></div> : null}
+          {pilotBlocked ? <RegistrationPilotNotice locale="en" blocking /> : null}
+          {!pilotBlocked && !application && !claimRef ? <div className="mt-6"><PublicCompanyLookup locale="en" context="registration" returnTo={returnTo} notFoundHref="#company-form" notFoundLabel="No match? Continue with a new company ↓" showNetworkNote={false} /></div> : null}
           <div id="company-form" className="scroll-mt-5">
-            {blocked ? <div className="mt-6 rounded-xl border border-[#ead7aa] bg-[#fff9e8] p-5 text-sm text-[#77551c]">
+            {pilotBlocked ? null : blocked ? <div className="mt-6 rounded-xl border border-[#ead7aa] bg-[#fff9e8] p-5 text-sm text-[#77551c]">
               <strong>This company profile can no longer be claimed.</strong>
               <p className="mt-2">Its status has changed or the claim reference is invalid. Please search again rather than submit a duplicate profile.</p>
               <Link href="/en/register" className="mt-3 inline-flex font-bold underline">Search for a company</Link>

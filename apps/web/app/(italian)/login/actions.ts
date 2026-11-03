@@ -11,6 +11,7 @@ import {
 import { isRegistrationNext, registrationEntryForNext, safeCommercialReturnTo, safeInternalNext } from "@/lib/auth-next";
 import { siteUrl } from "@/lib/site";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
+import { pilotGateMessage, registrationAllowedFor } from "@/lib/registration-access";
 import { createClient } from "@/lib/supabase/server";
 import { safeErrorMessage } from "@/lib/user-facing-error";
 
@@ -200,6 +201,17 @@ export async function signup(formData: FormData) {
         nextPath,
         "error",
         "Usa una password di almeno 8 caratteri",
+      ),
+    );
+  }
+
+  // ONBOARDING-AUDIT2 · F1: no account is created for emails outside the pilot allowlist.
+  if (!registrationAllowedFor(email)) {
+    redirect(
+      appendQuery(
+        nextPath,
+        "error",
+        pilotGateMessage(nextPath.startsWith("/en/register") ? "en" : "it"),
       ),
     );
   }
