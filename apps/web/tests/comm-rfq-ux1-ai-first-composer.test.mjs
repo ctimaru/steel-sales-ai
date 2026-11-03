@@ -44,8 +44,10 @@ test("COMM-RFQ-UX1 puts the text review before manual tools and hides the empty 
   assert.match(builder, /hidden=\{focusAiIntake && !showManualTools\}/);
   assert.match(builder, /data-testid="commercial-ai-manual-tools-toggle"/);
   assert.match(intake, /data-testid="commercial-ai-focused-modes"/);
-  assert.match(intake, /aria-pressed=\{mode === "text"\}/);
   assert.match(intake, /aria-pressed=\{mode === "manual"\}/);
+  assert.match(intake, /Preferisci configurare manualmente/);
+  assert.match(intake, /rows=\{focused \? 3 : 7\}/);
+  assert.match(builder, /scrollIntoView\(\{ block: "start", behavior: "auto" \}\)/);
 });
 
 test("COMM-RFQ-UX1 makes approved articles actionable while keeping private save and RFQ separate", () => {
