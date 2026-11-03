@@ -215,7 +215,7 @@ export function RfqAiIntakeUx({
             </div>
             <div className={focused ? "flex flex-wrap items-center gap-2 pt-2" : "rfqai2-input-actions"}>
               <button type="button" disabled={textPending || textDraft.trim().length < 12}
-                onClick={analyzeText} className={focused ? "rfqai2-primary-link min-h-11 flex-1" : "rfqai2-primary-link"}>
+                onClick={analyzeText} className={focused ? "rfqai2-primary-link min-h-11 w-full sm:w-auto sm:flex-1" : "rfqai2-primary-link"}>
                 {textPending ? "Analisi in corso…" : "Analizza la richiesta con AI"}
               </button>
               <button type="button" disabled={!textDraft || textPending}
