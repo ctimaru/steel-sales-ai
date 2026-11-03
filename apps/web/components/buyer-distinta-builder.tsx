@@ -160,6 +160,22 @@ export function BuyerDistintaBuilder({
     cartReturnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setCartOpen(true);
   }
+  function editApprovedLine(lineId: string) {
+    // Keep the canonical cart as the only editable row source. Its existing
+    // pending-row focus contract also works when opening from mobile preview.
+    setShowManualTools(true);
+    setEditingRows((previous) => ({ ...previous, [lineId]: true }));
+    pendingCartRowRef.current = lineId;
+    if (!cartOpen) {
+      openPrivateCart();
+    } else {
+      window.requestAnimationFrame(() => {
+        const row = document.getElementById("buyer-row-" + lineId);
+        row?.focus({ preventScroll: true });
+        row?.scrollIntoView({ block: "nearest", behavior: "auto" });
+      });
+    }
+  }
   const [expandedRows, setExpandedRows] = useState<Record<string, boolean>>({});
   const [editingRows, setEditingRows] = useState<Record<string, boolean>>({});
   const focusQuantityId = useRef<string | null>(null);
@@ -996,6 +1012,7 @@ export function BuyerDistintaBuilder({
               onSave={saveDistinta}
               onCreateRfq={createRfqHub}
               onOpenEditor={() => { setShowManualTools(true); openPrivateCart(); }}
+              onEditLine={editApprovedLine}
             />
           }
         />
