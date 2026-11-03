@@ -67,9 +67,10 @@ export type InlineCalculatorBridge = {
 };
 
 export function CalculatorInlineDistintaExperience({
-  references, initialValues, locale = "it", renderCalculator,
+  references, initialValues, locale = "it", renderCalculator, active = true,
 }: {
   references: PublicTubeDimensionSummary[];
+  active?: boolean;
   initialValues?: PublicTubeCalculatorInitialValues;
   locale?: TubeCalculatorLocale;
   renderCalculator?: (bridge: InlineCalculatorBridge) => ReactNode;
@@ -424,7 +425,7 @@ export function CalculatorInlineDistintaExperience({
         {message || (!ready ? c.preparing : !storageAvailable ? c.storageUnavailable : "")}
       </p>
       <TechnicalCartShell
-        compact visible={ready && count > 0} open={open}
+        compact visible={active && ready && count > 0} open={active && open}
         onOpen={() => setOpen(true)} onClose={() => setOpen(false)}
         count={count} title={c.title} eyebrow={c.eyebrow} closeLabel={drawerCopy.back}
          countLabel={(count === 1 ? c.row : c.lines).toLowerCase()}
