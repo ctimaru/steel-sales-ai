@@ -11,7 +11,7 @@ const handoff = readFileSync(new URL("../lib/commercial-ai-intake-handoff.ts", i
 test("COMM-CINE11 transfers only explicitly submitted free text into the existing private RFQ review", () => {
   assert.match(assistant, /onSubmit=\{startRequest\}/);
   assert.match(assistant, /sessionStorage\.setItem\("sss:commercial-ai-intake-handoff", value\)/);
-  assert.match(assistant, /\?compose=1#commercial-ai-intake/);
+  assert.match(assistant, /\?compose=1&method=ai#commercial-ai-intake/);
   assert.match(intake, /if \(!workspace \|\| mode !== "text"\) return/);
   assert.match(intake, /consumeCommercialAiTextHandoff\(MAX_TEXT_CHARS\)/);
   assert.match(handoff, /window\.sessionStorage\.removeItem\(HANDOFF_KEY\)/);
