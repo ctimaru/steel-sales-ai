@@ -792,9 +792,19 @@ export function BuyerDistintaBuilder({
     });
   }
 
+  // The composer is server-rendered after a router.push with a hash. When the
+  // target mounts after navigation, replay only the intended hash scroll.
+  useEffect(() => {
+    if (!focusAiIntake || !draftReady || restoreCandidate || window.location.hash !== "#commercial-ai-intake") return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("commercial-ai-intake")?.scrollIntoView({ block: "start", behavior: "auto" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [focusAiIntake, draftReady, restoreCandidate]);
+
   const aiIntakePanel = (
-            <details id="commercial-ai-intake" open={focusAiIntake} className="mt-4 scroll-mt-28 rounded-xl border border-[#d5e1db] bg-white">
-              <summary className="flex min-h-11 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">{focusAiIntake ? "1 · Analizza la richiesta" : t("Altri metodi · testo AI, configuratore assistito e ricerca catalogo")}</summary>
+            <details id="commercial-ai-intake" open={focusAiIntake} className={focusAiIntake ? "scroll-mt-20 rounded-xl border border-[#d5e1db] bg-white" : "mt-4 scroll-mt-28 rounded-xl border border-[#d5e1db] bg-white"}>
+              <summary className="flex min-h-10 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">{focusAiIntake ? "1 · Analizza la richiesta" : t("Altri metodi · testo AI, configuratore assistito e ricerca catalogo")}</summary>
               <div className="border-t border-[#d5e1db] p-2 sm:p-3">
             <RfqAiIntakeUx
               mode={intakeMode}
@@ -891,9 +901,9 @@ export function BuyerDistintaBuilder({
       inert={!draftReady && !restoreCandidate}
       aria-busy={!draftReady && !restoreCandidate}
       data-public-bill-mobile-compact={compactLanding ? "true" : undefined} className={`bd54-page ${styles.page} ${compactLanding ? styles.publicMobileLanding : ""} space-y-3 sm:space-y-4`} lang={uiLocale}>
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2" data-testid="buyer-private-language-switch">
-        <p className="text-xs font-semibold text-[var(--brand-deep)]">{t("RFQ privata · nessun invio automatico")}</p>
-        <label className="flex items-center gap-2 text-xs font-bold text-[var(--brand-deep)]">{t("Scegli la lingua")}
+      <div className={focusAiIntake ? "flex items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-1" : "flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2"} data-testid="buyer-private-language-switch">
+        <p className="min-w-0 text-xs font-semibold text-[var(--brand-deep)]">{focusAiIntake ? "Bozza RFQ · nessun invio" : t("RFQ privata · nessun invio automatico")}</p>
+        <label className="flex shrink-0 items-center gap-2 text-xs font-bold text-[var(--brand-deep)]"><span className={focusAiIntake ? "sr-only" : ""}>{t("Scegli la lingua")}</span>
           <select aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}
             className="min-h-11 rounded-lg border border-[var(--border-strong)] bg-white px-2 text-sm text-[var(--brand-deep)]">
             {(["it","en","de","fr","es"] as const).map(lang=><option key={lang} value={lang}>{lang.toUpperCase()}</option>)}
@@ -952,7 +962,7 @@ export function BuyerDistintaBuilder({
           </div>
         </aside>
       ) : null}
-      {workspace && !restoreCandidate ? (
+      {workspace && !restoreCandidate && !focusAiIntake ? (
         <p className="text-[11px] leading-4 text-[var(--text-secondary)]" role="note">
           Bozza locale: le modifiche restano in questa scheda finché non salvi la distinta aziendale.
         </p>
