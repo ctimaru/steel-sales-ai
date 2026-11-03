@@ -222,8 +222,27 @@ try {
           assert.equal(await page.getByTestId("commercial-list-pane").count(), 0,
             "Historical worklist must not crowd the AI review");
           assert.equal(await page.getByTestId("commercial-ai-focused-modes").count(), 1);
-          assert.equal(await page.getByTestId("commercial-ai-reviewed-distinta").count(), 0,
+          const workspace = page.getByTestId("commercial-rfq-chat-workspace");
+          await workspace.waitFor({ state: "visible" });
+          assert.equal(await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem").count(), 0,
             "No articles are imported before explicit AI analysis and human review");
+          assert.equal(await page.getByTestId("commercial-rfq-ai-proposals").count(), 0,
+            "AI proposals must remain empty until the explicit Analyze click");
+          if (width === 1440) {
+            assert.ok(await page.getByTestId("commercial-rfq-conversation-pane").isVisible());
+            assert.ok(await page.getByTestId("commercial-rfq-preview-pane").isVisible());
+          } else {
+            await page.getByRole("tab", { name: /Distinta/ }).click();
+            await page.getByTestId("commercial-rfq-preview-pane").waitFor({ state: "visible" });
+            assert.match(await page.getByTestId("commercial-rfq-live-preview").innerText(), /Nessun articolo confermato/);
+            await page.screenshot({
+              path: path.join(dir, "rfq-ai-preview-" + width + "px.png"),
+              fullPage: false, animations: "disabled"
+            });
+            await page.getByRole("tab", { name: "Conversazione" }).click();
+            assert.equal(await textField.inputValue(), "40 tubi quadri 100x100x6 S355J2H EN 10219 da 12 m",
+              "Switching mobile views must not unmount the draft input");
+          }
           const manualShell = page.locator("#commercial-rfq-manual-tools");
           assert.equal(await manualShell.isVisible(), false,
             "Calculator must initially be a secondary action");
