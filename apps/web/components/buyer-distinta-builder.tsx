@@ -89,6 +89,7 @@ export function BuyerDistintaBuilder({
   userId = null,
   organizationId = null,
   returnToCommercial = false,
+  focusAiIntake = false,
   locale = "it",
   compactLanding = false,
 }: {
@@ -99,6 +100,8 @@ export function BuyerDistintaBuilder({
   userId?: string | null;
   organizationId?: string | null;
   returnToCommercial?: boolean;
+  /** Explicit AI entry from the Commerciale companion, never inferred from compose=1. */
+  focusAiIntake?: boolean;
   locale?: BuyerUiLocale;
   /** Compact only the public /distinta landing, not authenticated RFQ Hub. */
   compactLanding?: boolean;
@@ -110,7 +113,8 @@ export function BuyerDistintaBuilder({
   const [documents, setDocuments] = useState<BuyerDistintaDocumentRequirements>(emptyBuyerDocumentRequirements);
   const [previewDraft, setPreviewDraft] = useState<GuidedTubeDraft | null>(null);
   const [wizardRestoreSerial, setWizardRestoreSerial] = useState(0);
-  const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>(returnToCommercial && workspace ? "text" : "manual");
+  const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>(focusAiIntake && workspace ? "text" : "manual");
+  const [showManualTools, setShowManualTools] = useState(!focusAiIntake);
   const [quickQuery, setQuickQuery] = useState("");
   const [quickGrade, setQuickGrade] = useState("");
   const [searchCalculatorPrefill, setSearchCalculatorPrefill] = useState<import("@/components/public-tube-weight-calculator").PublicTubeCalculatorInitialValues | null>(null);
@@ -470,6 +474,7 @@ export function BuyerDistintaBuilder({
   }
 
   function insertRfqAiTextLines(proposals: BuyerDistintaDraftLine[]) {
+    // AI suggestions only enter the private draft after explicit approval.
     // Explicit human-approved candidates from the review UI. Recheck even
     // client-provided rows, then let existing server actions validate on save.
     const valid = proposals.filter((line) =>
@@ -787,191 +792,13 @@ export function BuyerDistintaBuilder({
     });
   }
 
-  return (
-    <div data-private-calculator-page
-      data-buyer-draft-ready={draftReady && !restoreCandidate ? "true" : "false"}
-      inert={!draftReady && !restoreCandidate}
-      aria-busy={!draftReady && !restoreCandidate}
-      data-public-bill-mobile-compact={compactLanding ? "true" : undefined} className={`bd54-page ${styles.page} ${compactLanding ? styles.publicMobileLanding : ""} space-y-3 sm:space-y-4`} lang={uiLocale}>
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2" data-testid="buyer-private-language-switch">
-        <p className="text-xs font-semibold text-[var(--brand-deep)]">{t("RFQ privata · nessun invio automatico")}</p>
-        <label className="flex items-center gap-2 text-xs font-bold text-[var(--brand-deep)]">{t("Scegli la lingua")}
-          <select aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}
-            className="min-h-11 rounded-lg border border-[var(--border-strong)] bg-white px-2 text-sm text-[var(--brand-deep)]">
-            {(["it","en","de","fr","es"] as const).map(lang=><option key={lang} value={lang}>{lang.toUpperCase()}</option>)}
-          </select>
-        </label>
-      </div>
-      {networkHandoff&&workspace&&!restoreCandidate?<aside aria-label="Articoli approvati dal Network"
-        data-testid="network-reviewed-rfq-import"
-        className="rounded-xl border border-[#b7d1c4] bg-[#f1faf4] p-3 sm:p-4">
-        <p className="text-sm font-bold text-[#173f35]">Dal Network · {networkHandoff.lines.length} articoli verificati</p>
-        <p className="mt-1 text-xs leading-5 text-[#52615b]">
-          Hai confermato queste righe nella chat Network. Puoi aggiungerle alla distinta qui sotto,
-          mantenendo gli articoli già presenti. Non viene creata o inviata alcuna RFQ.
-        </p>
-        <ul className="mt-2 max-h-36 space-y-1 overflow-y-auto text-xs text-[#173f35]">
-          {networkHandoff.lines.map(line=><li key={line.id}>
-            {line.description} · {line.standard} · {line.grade} · {line.quantity} {line.quantityMode==="bars"?"barre":line.quantityMode==="meters"?"m":"t"} · {line.barLengthM} m/barra
-          </li>)}
-        </ul>
-        {networkHandoffError?<p role="alert" className="mt-2 text-xs text-[#875117]">{networkHandoffError}</p>:null}
-        <div className="mt-3 flex flex-wrap gap-2">
-          <button type="button" onClick={importNetworkHandoff}
-            className="ui-action ui-action-primary min-h-10 rounded-lg px-3 text-xs font-semibold">
-            Aggiungi {networkHandoff.lines.length} articoli alla distinta
-          </button>
-          <button type="button" onClick={discardNetworkHandoff}
-            className="ui-action ui-action-secondary min-h-10 rounded-lg px-3 text-xs font-semibold">
-            {t("Scarta passaggio")}
-          </button>
-        </div>
-      </aside>:null}
-      {networkHandoffError&&!networkHandoff?<p role="alert" className="text-xs text-[#875117]">{networkHandoffError}</p>:null}
-      {calculatorHandoffCount > 0 ? (
-        <aside role="status" aria-live="polite" className="rounded-xl border border-[#b5d9c7] bg-[#edf8f1] px-4 py-3 text-sm text-[#123b34]">
-          <strong>{calculatorHandoffCount === 1 ? "Misura importata dal calcolatore" : calculatorHandoffCount + " misure importate dal calcolatore"} ✓</strong>
-          <p className="mt-1 text-xs leading-5">Norma, geometria, lunghezza, numero barre e kg/m teorico sono già nella distinta. Verifica il grado acciaio e i requisiti di fornitura prima di inviare la richiesta. Nessuna RFQ è stata inviata.</p>
-        </aside>
-      ) : null}
-      {calculatorHandoffOverflow ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Distinta piena: alcune misure rimangono in attesa nella scheda. Rimuovi righe prima di importarle.</p> : null}
-      {restoreCandidate ? (
-        <aside className="rounded-xl border border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] p-3 sm:p-4" aria-label="Bozza da recuperare">
-          <p className="text-sm font-bold text-[var(--brand-deep)]">{t("Bozza trovata in questa scheda")}</p>
-          <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-            {restoreCandidate.draft.lines.length} righe, ultima modifica in questa sessione.
-            Riprendila soltanto se è la tua richiesta: niente è stato inviato o salvato online.
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={restoreBrowserDraft}
-              className="platform-primary min-h-11 rounded-lg px-4 text-sm font-bold">
-              {t("Riprendi la distinta")}
-            </button>
-            <button type="button" onClick={discardBrowserDraft}
-              className="app-secondary min-h-11 rounded-lg px-4 text-sm font-semibold">
-              {t("Scarta e crea nuova")}
-            </button>
-          </div>
-        </aside>
-      ) : null}
-      {workspace && !restoreCandidate ? (
-        <p className="text-[11px] leading-4 text-[var(--text-secondary)]" role="note">
-          Bozza locale: le modifiche restano in questa scheda finché non salvi la distinta aziendale.
-        </p>
-      ) : null}
-      <aside data-public-bill-summary className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
-        <div className="bd53-hud-progress">
-          <span className="bd53-hud-caption">{t("Righe pronte")}</span>
-          <span className="bd53-hud-complete">{totals.completeLines}/{activeLineCount}</span>
-          <div
-            className="bd53-hud-track"
-            role="progressbar"
-            aria-label="Righe complete nella distinta"
-            aria-valuemin={0}
-            aria-valuemax={activeLineCount}
-            aria-valuenow={totals.completeLines}
-          >
-            <span
-              className="bd53-hud-progress-fill"
-              style={{ width: (activeLineCount ? totals.completeLines / activeLineCount : 0) * 100 + "%" }}
-            />
-          </div>
-        </div>
-        <div className="bd53-hud-metrics">
-          <div className="bd53-hud-metric">
-            <span>{t("Metri")}</span>
-            <strong>{formatNumber(totals.totalMeters, 2)}</strong>
-          </div>
-          <div className="bd53-hud-metric">
-            <span>{t("Tonnellate")}</span>
-            <strong>{formatNumber(totals.totalTonnes, 3)}</strong>
-          </div>
-          {!allComplete ? <span className="bd53-hud-partial">{t("Totali parziali")}</span> : null}
-        </div>
-        <button
-          type="button"
-          onClick={allComplete ? (authenticated ? createRfqHub : copyDistinta) : goToIncompleteRow}
-          disabled={(allComplete && !authenticated && copyState === "copied") || rfqPending || savePending || !draftReady || Boolean(restoreCandidate)}
-          className="bd53-hud-action"
-        >
-          {!allComplete ? t("Completa le righe")
-            : authenticated ? (rfqPending ? t("Creazione RFQ…") : t("Crea RFQ privata →"))
-              : copyState === "copied" ? t("Copiata ✓") : copyState === "error" ? t("Riprova copia") : t("Copia distinta")}
-        </button>
-      </aside>
-      <section data-private-calculator-shell className={`rounded-2xl border border-[#d8e1dd] bg-white p-2.5 shadow-[0_12px_36px_rgba(18,61,52,0.045)] sm:p-3 ${styles.shell}`}>
-        <div data-private-calculator-toolbar className={`mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#c6dccc] bg-[#f4faf7] px-2.5 py-1.5 ${styles.cartBar}`}>
-          <div className="min-w-0">
-            <p className="text-xs font-extrabold text-[#173f35]">{t("Calcola qui, gestisci nel carrello")}</p>
-            {!workspace ? <p className="text-[11px] text-[#50695a]">{activeLineCount} {t("righe")} · {formatNumber(totals.totalMeters,2)} m · {formatNumber(totals.totalTonnes,3)} t</p> : null}
-          </div>
-          <button type="button" data-testid="private-cart-inline-open"
-            onClick={openPrivateCart} aria-haspopup="dialog" aria-expanded={cartOpen}
-            aria-controls="buyer-live-preview-dialog"
-            className="ui-action ui-action-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-xs font-bold">
-            <span aria-hidden="true">▤</span> {t("Apri carrello")} · {activeLineCount}
-          </button>
-        </div>
-        <div data-private-calculator-heading className={`flex flex-col gap-2 border-b border-[var(--border)] pb-2 lg:flex-row lg:items-center lg:justify-between ${styles.heading}`}>
-          <div className="min-w-0">
-            {workspace ? (
-              <h2 className="text-sm font-bold tracking-tight text-[var(--brand-deep)]">
-                {t("Articoli in distinta")}
-              </h2>
-            ) : (
-              <>
-                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">{t("Creazione articoli")}</p>
-                <h2 className="mt-1 text-lg font-bold tracking-tight text-[var(--brand-deep)]">{t("Articoli in distinta")}</h2>
-                <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
-                  Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrello aggiorna righe e peso senza aprirsi automaticamente.
-                </p>
-              </>
-            )}
-          </div>
-          <label className="w-full max-w-sm text-xs font-semibold text-[var(--text-secondary)]">
-            {t("Titolo distinta")}
-            <input
-              value={title}
-              disabled={!draftReady || Boolean(restoreCandidate)}
-              onChange={(event) => {
-                setTitle(event.target.value);
-                setSavedId(null);
-                setEmailSubject(event.target.value || "Richiesta di offerta");
-              }}
-              className="mt-1 h-10 w-full rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm font-semibold text-[var(--text-primary)]"
-            />
-          </label>
-        </div>
-
-
-        <div className="bd7-workbench" style={{gridTemplateColumns:"minmax(0,1fr)"}}>
-          <div className="bd7-workbench-editor">
-            <div data-private-calculator-grade className="mb-1.5">
-              <details className="group rounded-lg border border-[#d5e1db] bg-[#f7faf8]">
-                <summary className="flex min-h-10 cursor-pointer flex-wrap items-center justify-between gap-2 px-3 py-1.5 text-xs font-semibold text-[#234d3f]">
-                  <span>{t("Grado acciaio · facoltativo ora")}{quickGrade.trim() ? ` · ${quickGrade.trim()}` : ""}</span>
-                  <span aria-hidden="true" className="text-[#557467] group-open:rotate-180">⌄</span>
-                </summary>
-                <div className="border-t border-[#d5e1db] px-3 py-2">
-                  <label className="block max-w-xs text-xs font-semibold text-[#344e43]">
-                    {t("Grado acciaio · facoltativo ora")}
-                    <input list="buyer-quick-grades" value={quickGrade} onChange={(event) => setQuickGrade(event.target.value)}
-                      placeholder="Es. S355J2H" className="mt-1 h-10 w-full rounded-lg border border-[#b9d0c5] bg-white px-2.5 text-xs text-[#123d34]" />
-                    <datalist id="buyer-quick-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /><option value="S355K2H" /></datalist>
-                  </label>
-                </div>
-              </details>
-            </div>
-            <PublicTubeWeightCalculator key={searchCalculatorPrefill ? "search-prefill" : "default"} initialValues={searchCalculatorPrefill ?? undefined} references={[]} discoveryOptions={discoveredBuyerDimensions} locale={uiLocale} onAddToDistinta={addCalculatorLine}
-              canAddToDistinta={draftReady && !restoreCandidate && (lines.length < 500 || initialEmptyRow)} />
-            <p role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#1d5748]">
-              {quickAddedCount > 0 ? `${quickAddedCount} ${quickAddedCount === 1 ? "articolo nel carrello" : "articoli nel carrello"} · aprilo quando vuoi.` : "Il peso teorico si aggiorna mentre scrivi; nessuna RFQ viene inviata automaticamente."}
-            </p>
-            <details id="commercial-ai-intake" open={returnToCommercial && workspace} className="mt-4 scroll-mt-28 rounded-xl border border-[#d5e1db] bg-white">
-              <summary className="flex min-h-11 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">{returnToCommercial && workspace ? "Assistente AI · descrivi il materiale, prepara la distinta" : t("Altri metodi · testo AI, configuratore assistito e ricerca catalogo")}</summary>
+  const aiIntakePanel = (
+            <details id="commercial-ai-intake" open={focusAiIntake} className="mt-4 scroll-mt-28 rounded-xl border border-[#d5e1db] bg-white">
+              <summary className="flex min-h-11 cursor-pointer items-center px-3 text-xs font-bold text-[#1d5748]">{focusAiIntake ? "1 · Analizza la richiesta" : t("Altri metodi · testo AI, configuratore assistito e ricerca catalogo")}</summary>
               <div className="border-t border-[#d5e1db] p-2 sm:p-3">
             <RfqAiIntakeUx
               mode={intakeMode}
+              focused={focusAiIntake}
               onModeChange={setIntakeMode}
               workspace={workspace}
               authenticated={authenticated}
@@ -1056,6 +883,249 @@ export function BuyerDistintaBuilder({
             </RfqAiIntakeUx>
               </div>
             </details>
+  );
+
+  return (
+    <div data-private-calculator-page
+      data-buyer-draft-ready={draftReady && !restoreCandidate ? "true" : "false"}
+      inert={!draftReady && !restoreCandidate}
+      aria-busy={!draftReady && !restoreCandidate}
+      data-public-bill-mobile-compact={compactLanding ? "true" : undefined} className={`bd54-page ${styles.page} ${compactLanding ? styles.publicMobileLanding : ""} space-y-3 sm:space-y-4`} lang={uiLocale}>
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2" data-testid="buyer-private-language-switch">
+        <p className="text-xs font-semibold text-[var(--brand-deep)]">{t("RFQ privata · nessun invio automatico")}</p>
+        <label className="flex items-center gap-2 text-xs font-bold text-[var(--brand-deep)]">{t("Scegli la lingua")}
+          <select aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}
+            className="min-h-11 rounded-lg border border-[var(--border-strong)] bg-white px-2 text-sm text-[var(--brand-deep)]">
+            {(["it","en","de","fr","es"] as const).map(lang=><option key={lang} value={lang}>{lang.toUpperCase()}</option>)}
+          </select>
+        </label>
+      </div>
+      {networkHandoff&&workspace&&!restoreCandidate?<aside aria-label="Articoli approvati dal Network"
+        data-testid="network-reviewed-rfq-import"
+        className="rounded-xl border border-[#b7d1c4] bg-[#f1faf4] p-3 sm:p-4">
+        <p className="text-sm font-bold text-[#173f35]">Dal Network · {networkHandoff.lines.length} articoli verificati</p>
+        <p className="mt-1 text-xs leading-5 text-[#52615b]">
+          Hai confermato queste righe nella chat Network. Puoi aggiungerle alla distinta qui sotto,
+          mantenendo gli articoli già presenti. Non viene creata o inviata alcuna RFQ.
+        </p>
+        <ul className="mt-2 max-h-36 space-y-1 overflow-y-auto text-xs text-[#173f35]">
+          {networkHandoff.lines.map(line=><li key={line.id}>
+            {line.description} · {line.standard} · {line.grade} · {line.quantity} {line.quantityMode==="bars"?"barre":line.quantityMode==="meters"?"m":"t"} · {line.barLengthM} m/barra
+          </li>)}
+        </ul>
+        {networkHandoffError?<p role="alert" className="mt-2 text-xs text-[#875117]">{networkHandoffError}</p>:null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={importNetworkHandoff}
+            className="ui-action ui-action-primary min-h-10 rounded-lg px-3 text-xs font-semibold">
+            Aggiungi {networkHandoff.lines.length} articoli alla distinta
+          </button>
+          <button type="button" onClick={discardNetworkHandoff}
+            className="ui-action ui-action-secondary min-h-10 rounded-lg px-3 text-xs font-semibold">
+            {t("Scarta passaggio")}
+          </button>
+        </div>
+      </aside>:null}
+      {networkHandoffError&&!networkHandoff?<p role="alert" className="text-xs text-[#875117]">{networkHandoffError}</p>:null}
+      {calculatorHandoffCount > 0 ? (
+        <aside role="status" aria-live="polite" className="rounded-xl border border-[#b5d9c7] bg-[#edf8f1] px-4 py-3 text-sm text-[#123b34]">
+          <strong>{calculatorHandoffCount === 1 ? "Misura importata dal calcolatore" : calculatorHandoffCount + " misure importate dal calcolatore"} ✓</strong>
+          <p className="mt-1 text-xs leading-5">Norma, geometria, lunghezza, numero barre e kg/m teorico sono già nella distinta. Verifica il grado acciaio e i requisiti di fornitura prima di inviare la richiesta. Nessuna RFQ è stata inviata.</p>
+        </aside>
+      ) : null}
+      {calculatorHandoffOverflow ? <p role="alert" className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">Distinta piena: alcune misure rimangono in attesa nella scheda. Rimuovi righe prima di importarle.</p> : null}
+      {restoreCandidate ? (
+        <aside className="rounded-xl border border-[var(--brand-primary)] bg-[var(--brand-primary-soft)] p-3 sm:p-4" aria-label="Bozza da recuperare">
+          <p className="text-sm font-bold text-[var(--brand-deep)]">{t("Bozza trovata in questa scheda")}</p>
+          <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+            {restoreCandidate.draft.lines.length} righe, ultima modifica in questa sessione.
+            Riprendila soltanto se è la tua richiesta: niente è stato inviato o salvato online.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button type="button" onClick={restoreBrowserDraft}
+              className="platform-primary min-h-11 rounded-lg px-4 text-sm font-bold">
+              {t("Riprendi la distinta")}
+            </button>
+            <button type="button" onClick={discardBrowserDraft}
+              className="app-secondary min-h-11 rounded-lg px-4 text-sm font-semibold">
+              {t("Scarta e crea nuova")}
+            </button>
+          </div>
+        </aside>
+      ) : null}
+      {workspace && !restoreCandidate ? (
+        <p className="text-[11px] leading-4 text-[var(--text-secondary)]" role="note">
+          Bozza locale: le modifiche restano in questa scheda finché non salvi la distinta aziendale.
+        </p>
+      ) : null}
+      {focusAiIntake && !restoreCandidate ? aiIntakePanel : null}
+      {focusAiIntake && activeLineCount > 0 && !restoreCandidate ? (
+        <section data-testid="commercial-ai-reviewed-distinta" aria-label="Riepilogo della distinta da verificare"
+          className="space-y-3 rounded-2xl border border-[#b8d9c4] bg-[#f3faf5] p-3 sm:p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#246c53]">La tua distinta</p>
+              <h3 className="text-base font-bold text-[#173f35]">Verifica e salva gli articoli</h3>
+            </div>
+            <p className="text-xs font-semibold text-[#175640]">{totals.completeLines}/{activeLineCount} righe complete · {formatNumber(totals.totalTonnes, 3)} t</p>
+          </div>
+          <label className="block max-w-xl text-xs font-semibold text-[#34594c]">
+            Nome della distinta
+            <input value={title} disabled={!draftReady} onChange={(event) => {
+              setTitle(event.target.value);
+              setSavedId(null);
+              setEmailSubject(event.target.value || "Richiesta di offerta");
+            }} className="mt-1 min-h-11 w-full rounded-lg border border-[#b8d2c8] bg-white px-3 text-sm text-[#173f35]" />
+          </label>
+          <ul className="divide-y divide-[#e1ece5] rounded-lg border border-[#d9e6dc] bg-white" data-testid="commercial-ai-reviewed-lines">
+            {lines.slice(0, 10).map((line, index) => (
+              <li key={line.id} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 px-3 py-2 text-xs">
+                <strong className="min-w-0 break-words text-[#173f35]">{index + 1}. {line.description || "Articolo da completare"}</strong>
+                <span className="text-[#52685b]">{line.standard} · {line.grade} · {line.quantity} {line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t"}</span>
+              </li>
+            ))}
+          </ul>
+          {activeLineCount > 10 ? <p className="text-xs text-[#52685b]">Altri {activeLineCount - 10} articoli disponibili nel carrello.</p> : null}
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={saveDistinta}
+              disabled={!allComplete || !draftReady || savePending || rfqPending || Boolean(savedId)}
+              className="inline-flex min-h-11 items-center rounded-lg bg-[#175640] px-4 text-xs font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+              {savePending ? "Salvataggio…" : savedId ? "Distinta salvata ✓" : "Salva distinta privata"}
+            </button>
+            <button type="button" onClick={createRfqHub}
+              disabled={!allComplete || !draftReady || savePending || rfqPending}
+              className="inline-flex min-h-11 items-center rounded-lg border border-[#175640] bg-white px-4 text-xs font-bold text-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
+              {rfqPending ? "Creazione…" : "Crea RFQ privata →"}
+            </button>
+            <button type="button" onClick={() => { setShowManualTools(true); openPrivateCart(); }}
+              className="inline-flex min-h-11 items-center rounded-lg border border-[#a9cbb9] bg-white px-3 text-xs font-semibold text-[#175640]">
+              Correggi o aggiungi articoli
+            </button>
+          </div>
+          {!allComplete ? <p className="text-xs text-[#8a5118]">Alcune righe richiedono una correzione: apri il carrello per completarle.</p> : null}
+          {saveMessage ? <p role="status" className="text-xs text-[#175640]">{saveMessage}</p> : null}
+          {rfqMessage ? <p role="alert" className="text-xs text-[#93440e]">{rfqMessage}</p> : null}
+          <p className="text-[11px] leading-4 text-[#52685b]">Salvare una distinta o creare una RFQ privata non invia messaggi ai fornitori. L'invio richiede una scelta successiva.</p>
+        </section>
+      ) : null}
+      {(!focusAiIntake || activeLineCount > 0) ? (
+      <aside data-public-bill-summary className="bd53-hud" aria-label="Riepilogo in tempo reale della distinta">
+        <div className="bd53-hud-progress">
+          <span className="bd53-hud-caption">{t("Righe pronte")}</span>
+          <span className="bd53-hud-complete">{totals.completeLines}/{activeLineCount}</span>
+          <div
+            className="bd53-hud-track"
+            role="progressbar"
+            aria-label="Righe complete nella distinta"
+            aria-valuemin={0}
+            aria-valuemax={activeLineCount}
+            aria-valuenow={totals.completeLines}
+          >
+            <span
+              className="bd53-hud-progress-fill"
+              style={{ width: (activeLineCount ? totals.completeLines / activeLineCount : 0) * 100 + "%" }}
+            />
+          </div>
+        </div>
+        <div className="bd53-hud-metrics">
+          <div className="bd53-hud-metric">
+            <span>{t("Metri")}</span>
+            <strong>{formatNumber(totals.totalMeters, 2)}</strong>
+          </div>
+          <div className="bd53-hud-metric">
+            <span>{t("Tonnellate")}</span>
+            <strong>{formatNumber(totals.totalTonnes, 3)}</strong>
+          </div>
+          {!allComplete ? <span className="bd53-hud-partial">{t("Totali parziali")}</span> : null}
+        </div>
+        <button
+          type="button"
+          onClick={allComplete ? (authenticated ? createRfqHub : copyDistinta) : goToIncompleteRow}
+          disabled={(allComplete && !authenticated && copyState === "copied") || rfqPending || savePending || !draftReady || Boolean(restoreCandidate)}
+          className="bd53-hud-action"
+        >
+          {!allComplete ? t("Completa le righe")
+            : authenticated ? (rfqPending ? t("Creazione RFQ…") : t("Crea RFQ privata →"))
+              : copyState === "copied" ? t("Copiata ✓") : copyState === "error" ? t("Riprova copia") : t("Copia distinta")}
+        </button>
+      </aside>
+      ) : null}
+      {focusAiIntake && !restoreCandidate ? (
+        <button type="button" data-testid="commercial-ai-manual-tools-toggle"
+          aria-controls="commercial-rfq-manual-tools" aria-expanded={showManualTools}
+          onClick={() => setShowManualTools((open) => !open)}
+          className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#175640]">
+          {showManualTools ? "Nascondi strumenti manuali" : "Aggiungi una misura con la calcolatrice"} <span aria-hidden="true">{showManualTools ? "⌃" : "⌄"}</span>
+        </button>
+      ) : null}
+      <section id="commercial-rfq-manual-tools" hidden={focusAiIntake && !showManualTools} data-private-calculator-shell className={`rounded-2xl border border-[#d8e1dd] bg-white p-2.5 shadow-[0_12px_36px_rgba(18,61,52,0.045)] sm:p-3 ${styles.shell}`}>
+        <div data-private-calculator-toolbar className={`mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#c6dccc] bg-[#f4faf7] px-2.5 py-1.5 ${styles.cartBar}`}>
+          <div className="min-w-0">
+            <p className="text-xs font-extrabold text-[#173f35]">{t("Calcola qui, gestisci nel carrello")}</p>
+            {!workspace ? <p className="text-[11px] text-[#50695a]">{activeLineCount} {t("righe")} · {formatNumber(totals.totalMeters,2)} m · {formatNumber(totals.totalTonnes,3)} t</p> : null}
+          </div>
+          <button type="button" data-testid="private-cart-inline-open"
+            onClick={openPrivateCart} aria-haspopup="dialog" aria-expanded={cartOpen}
+            aria-controls="buyer-live-preview-dialog"
+            className="ui-action ui-action-secondary inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-xs font-bold">
+            <span aria-hidden="true">▤</span> {t("Apri carrello")} · {activeLineCount}
+          </button>
+        </div>
+        <div data-private-calculator-heading className={`flex flex-col gap-2 border-b border-[var(--border)] pb-2 lg:flex-row lg:items-center lg:justify-between ${styles.heading}`}>
+          <div className="min-w-0">
+            {workspace ? (
+              <h2 className="text-sm font-bold tracking-tight text-[var(--brand-deep)]">
+                {t("Articoli in distinta")}
+              </h2>
+            ) : (
+              <>
+                <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">{t("Creazione articoli")}</p>
+                <h2 className="mt-1 text-lg font-bold tracking-tight text-[var(--brand-deep)]">{t("Articoli in distinta")}</h2>
+                <p className="mt-1 text-xs leading-5 text-[var(--text-secondary)]">
+                  Scegli forma e dimensioni, inserisci le barre e aggiungi con un clic. Il carrello aggiorna righe e peso senza aprirsi automaticamente.
+                </p>
+              </>
+            )}
+          </div>
+          <label className="w-full max-w-sm text-xs font-semibold text-[var(--text-secondary)]">
+            {t("Titolo distinta")}
+            <input
+              value={title}
+              disabled={!draftReady || Boolean(restoreCandidate)}
+              onChange={(event) => {
+                setTitle(event.target.value);
+                setSavedId(null);
+                setEmailSubject(event.target.value || "Richiesta di offerta");
+              }}
+              className="mt-1 h-10 w-full rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm font-semibold text-[var(--text-primary)]"
+            />
+          </label>
+        </div>
+
+
+        <div className="bd7-workbench" style={{gridTemplateColumns:"minmax(0,1fr)"}}>
+          <div className="bd7-workbench-editor">
+            <div data-private-calculator-grade className="mb-1.5">
+              <details className="group rounded-lg border border-[#d5e1db] bg-[#f7faf8]">
+                <summary className="flex min-h-10 cursor-pointer flex-wrap items-center justify-between gap-2 px-3 py-1.5 text-xs font-semibold text-[#234d3f]">
+                  <span>{t("Grado acciaio · facoltativo ora")}{quickGrade.trim() ? ` · ${quickGrade.trim()}` : ""}</span>
+                  <span aria-hidden="true" className="text-[#557467] group-open:rotate-180">⌄</span>
+                </summary>
+                <div className="border-t border-[#d5e1db] px-3 py-2">
+                  <label className="block max-w-xs text-xs font-semibold text-[#344e43]">
+                    {t("Grado acciaio · facoltativo ora")}
+                    <input list="buyer-quick-grades" value={quickGrade} onChange={(event) => setQuickGrade(event.target.value)}
+                      placeholder="Es. S355J2H" className="mt-1 h-10 w-full rounded-lg border border-[#b9d0c5] bg-white px-2.5 text-xs text-[#123d34]" />
+                    <datalist id="buyer-quick-grades"><option value="S235JRH" /><option value="S275J0H" /><option value="S355J2H" /><option value="S355K2H" /></datalist>
+                  </label>
+                </div>
+              </details>
+            </div>
+            <PublicTubeWeightCalculator key={searchCalculatorPrefill ? "search-prefill" : "default"} initialValues={searchCalculatorPrefill ?? undefined} references={[]} discoveryOptions={discoveredBuyerDimensions} locale={uiLocale} onAddToDistinta={addCalculatorLine}
+              canAddToDistinta={draftReady && !restoreCandidate && (lines.length < 500 || initialEmptyRow)} />
+            <p role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#1d5748]">
+              {quickAddedCount > 0 ? `${quickAddedCount} ${quickAddedCount === 1 ? "articolo nel carrello" : "articoli nel carrello"} · aprilo quando vuoi.` : "Il peso teorico si aggiorna mentre scrivi; nessuna RFQ viene inviata automaticamente."}
+            </p>
+            {!focusAiIntake ? aiIntakePanel : null}
           </div>
           <TechnicalCartShell visible={activeLineCount > 0} open={cartOpen}
             onOpen={openPrivateCart} onClose={() => setCartOpen(false)}
