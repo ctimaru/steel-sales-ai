@@ -21,6 +21,9 @@ test("COMM-TRUST1.D has exactly one primary chat entry into the canonical Distin
   assert.match(page, /focusAiIntake=\{aiFocused\}/);
   assert.match(builder, /<CommercialRfqWorkspace/);
   assert.match(workspace, /data-testid="commercial-rfq-chat-workspace"/);
+  assert.doesNotMatch(companion, /analyzeRfqAiFreeText|saveBuyerDistinta\(|sendBuyerDistinta\(|sendEmail\(/);
+  assert.ok(page.indexOf("<CommercialDirectorPriorityDesk") < page.indexOf("<CommercialAiCompanion"));
+  assert.ok(page.indexOf("<CommercialAiCompanion") < page.indexOf('data-testid="commercial-primary-quick-actions"'));
 });
 
 test("COMM-TRUST1.D exposes manual and calculator only as alternatives", () => {
