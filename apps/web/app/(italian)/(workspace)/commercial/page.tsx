@@ -182,24 +182,18 @@ export default async function CommercialHomePage({
     <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       {aiFocused ? (
-        <section data-testid="commercial-rfq-ai-focused-header" aria-labelledby="commercial-rfq-ai-focused-heading"
-          className="rounded-2xl border border-[#c3dfcd] bg-white p-3 sm:p-5">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#246c53]">Commerciale / Nuova richiesta</p>
-            <Link href={appRoutes.commercial.home} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
-              ← Torna alla scrivania
-            </Link>
+        <header data-testid="commercial-rfq-ai-focused-header" aria-labelledby="commercial-rfq-ai-focused-heading"
+          className="flex flex-wrap items-center justify-between gap-2 px-1 py-1 sm:px-2">
+          <div className="min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#316451]">Commerciale / Nuova richiesta</p>
+            <h1 id="commercial-rfq-ai-focused-heading" className="mt-0.5 text-lg font-bold tracking-tight text-[#173f35] sm:text-xl">
+              Nuova distinta
+            </h1>
           </div>
-          <h1 id="commercial-rfq-ai-focused-heading" className="mt-1 text-xl font-bold tracking-tight text-[#173f35] sm:text-2xl">
-            Dalla richiesta alla distinta
-          </h1>
-          <p className="mt-1 text-sm leading-5 text-[#53675b]">Il testo che hai scritto è pronto per essere analizzato. Controlla le proposte prima di aggiungerle alla tua distinta privata.</p>
-          <ol aria-label="Passaggi di creazione" className="mt-3 grid gap-2 text-xs font-semibold text-[#175640] sm:grid-cols-3">
-            <li className="rounded-lg bg-[#eef7f1] px-3 py-2">1 · Analizza il materiale</li>
-            <li className="rounded-lg bg-[#eef7f1] px-3 py-2">2 · Verifica gli articoli</li>
-            <li className="rounded-lg bg-[#eef7f1] px-3 py-2">3 · Salva la distinta</li>
-          </ol>
-        </section>
+          <Link href={appRoutes.commercial.home} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
+            ← Torna alla scrivania
+          </Link>
+        </header>
       ) : (<>
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
         className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white " + cinematic.hero}>
@@ -277,7 +271,8 @@ export default async function CommercialHomePage({
       </>)}
 
       {composing && catalogOptions ? (
-        <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className="scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5">
+        <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className={aiFocused ? "min-w-0" : "scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5"}>
+          {!aiFocused ? (
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">La tua nuova richiesta</p>
@@ -298,6 +293,7 @@ export default async function CommercialHomePage({
            ) : null}
            <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
           </div>
+          ) : <h2 id="commercial-compose-heading" className="sr-only">Nuova distinta conversazionale</h2>}
           <BuyerDistintaBuilder
             workspace
             authenticated
