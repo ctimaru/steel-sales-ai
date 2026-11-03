@@ -230,6 +230,16 @@ try {
           const analyzeAction = page.getByRole("button", { name: "Analizza la richiesta con AI" });
           assert.ok(await analyzeAction.isVisible());
           await page.locator("#commercial-ai-intake").scrollIntoViewIfNeeded();
+          // A Playwright "visible" element can still sit below the viewport.
+          // Fail the visual gate unless the primary action is actually tappable
+          // above the fixed mobile navigation without further scrolling.
+          const ctaViewport = await analyzeAction.evaluate(el => {
+            const rect = el.getBoundingClientRect();
+            return { top: rect.top, bottom: rect.bottom, height: window.innerHeight };
+          });
+          assert.ok(ctaViewport.top >= 0 &&
+            ctaViewport.bottom <= ctaViewport.height - (width < 1000 ? 68 : 0),
+            "AI Analyze CTA must appear in the first visible viewport at " + width + "px: " + JSON.stringify(ctaViewport));
           await page.screenshot({
             path: path.join(dir, "rfq-ai-first-" + width + "px.png"),
             fullPage: false, animations: "disabled"
