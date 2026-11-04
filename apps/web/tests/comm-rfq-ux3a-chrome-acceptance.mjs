@@ -89,7 +89,7 @@ try {
           document.querySelector('[data-testid="commercial-rfq-ai-proposals"]')?.textContent?.includes("Modificato da te · da confermare"),
           {timeout:60000}
         );
-        const line2=page.getByRole("article",{name:"Articolo AI 2"});
+        const line2=page.getByRole("article",{name:"Articolo AI 2",exact:true});
         assert.match(await line2.innerText(),/20 PZ/);
         const check2=line2.locator('input[type="checkbox"]');
         await check2.check();
@@ -109,7 +109,7 @@ try {
         if(width<1000) await page.getByRole("tab",{name:"Conversazione"}).click();
         // Only five explicitly checked rows join the canonical private Distinta.
         for(let i=1;i<=5;i++){
-          await page.getByRole("article",{name:"Articolo AI "+i}).locator('input[type="checkbox"]').check();
+          await page.getByRole("article",{name:"Articolo AI "+i,exact:true}).locator('input[type="checkbox"]').check();
         }
         await page.getByRole("button",{name:"Inserisci 5 articoli nella distinta"}).click();
         await page.waitForFunction(() =>
