@@ -8,6 +8,8 @@ on:
       - "apps/web/tests/calc-dist3-chrome-authenticated-private-save.mjs"
       - "apps/web/tests/comm-rfq-ux3a-*.mjs"
       - "apps/web/tests/comm-rfq-ux3a-*.cjs"
+      - "apps/web/tests/comm-rfq-ux3b-*.mjs"
+      - "apps/web/tests/comm-rfq-ux3b-*.cjs"
       - "apps/web/tests/comm-ux6a-chrome-acceptance.mjs"
       - "apps/web/tests/product-flow1-*.cjs"
       - "apps/web/tests/demotest23-seed-auth.mjs"
@@ -288,6 +290,23 @@ jobs:
         with:
           name: comm-rfq-ux3a-multiline-visual-qa
           path: ${{ runner.temp }}/comm-rfq-ux3a-visual-evidence/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      # The real server action enforces 3 AI analyses / user / 60s; UX3.A
+      # deliberately uses all three slots for the same local buyer.
+      # Respect the production abuse brake in CI rather than bypassing it.
+      - name: COMM-RFQ-UX3.B — Respect the per-user AI burst window after UX3.A
+        run: sleep 65
+      - name: COMM-RFQ-UX3.B — Ten real synthetic AI candidates, missing data, private save and reopen (1440/390/320)
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/comm-rfq-ux3b-chrome-acceptance.mjs
+      - name: COMM-RFQ-UX3.B — Retain synthetic private save/recovery screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comm-rfq-ux3b-private-save-visual-qa
+          path: ${{ runner.temp }}/comm-rfq-ux3b-visual-evidence/*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: Chrome desktop 1440 and mobile 390 complete Search to Supplier Response
