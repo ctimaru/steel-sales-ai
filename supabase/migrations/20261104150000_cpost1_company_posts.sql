@@ -38,6 +38,9 @@ create table private.cpost1_settings (
 );
 insert into private.cpost1_settings(singleton) values (true);
 revoke all on private.cpost1_settings from public, anon, authenticated;
+alter table private.cpost1_settings enable row level security;
+create policy cpost1_settings_explicit_deny on private.cpost1_settings
+  as restrictive for all to anon, authenticated using (false) with check (false);
 
 -- ---------------------------------------------------------------------
 -- 2. Post

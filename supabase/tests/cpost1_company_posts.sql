@@ -117,15 +117,12 @@ insert into public.organization_network_company_links(organization_id, network_c
 -- 0. Privileges: no direct table access, nothing for anon, wrappers invoker
 -- ---------------------------------------------------------------------
 select pg_temp.cp_assert(
-  (select bool_and(c.relrowsecurity) from pg_class c
-    where c.oid in ('public.company_posts'::regclass, 'public.company_post_reports'::regclass,
-                    'public.company_post_events'::regclass, 'private.cpost1_settings'::regclass))
-  and not has_table_privilege('authenticated', 'public.company_posts', 'SELECT,INSERT,UPDATE,DELETE')
-  and not has_table_privilege('authenticated', 'public.company_post_reports', 'SELECT,INSERT,UPDATE,DELETE')
-  and not has_table_privilege('authenticated', 'public.company_post_events', 'SELECT,INSERT,UPDATE,DELETE')
-  and not has_table_privilege('anon', 'public.company_posts', 'SELECT,INSERT,UPDATE,DELETE'),
-  'CPOST1 tables have RLS and no client privileges'
-);
+  (select c.relrowsecurity from pg_class c where c.oid = t.rel)
+  and not has_table_privilege('authenticated', t.rel, 'SELECT,INSERT,UPDATE,DELETE')
+  and not has_table_privilege('anon', t.rel, 'SELECT,INSERT,UPDATE,DELETE'),
+  'CPOST1 table has RLS and no client privileges: ' || t.rel::text)
+from (values ('public.company_posts'::regclass), ('public.company_post_reports'::regclass),
+             ('public.company_post_events'::regclass), ('private.cpost1_settings'::regclass)) t(rel);
 select pg_temp.cp_assert(
   not exists (
     select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
