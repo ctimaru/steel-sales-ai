@@ -57,6 +57,7 @@ jobs:
       HF_TOKEN: ""
       FLOW1_LOCAL_PROVIDER: "true"
       RESEND_API_KEY: flow1-local-synthetic
+      FLOW1_EMAIL_LOCAL_URL: http://127.0.0.1:38081/emails
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -172,14 +173,33 @@ jobs:
       - name: Verify local provider capture guards
         working-directory: apps/web
         run: node --test tests/product-flow1-local-provider.test.mjs
-      - name: Start dedicated Next.js with local-only provider preload
+      - name: Start CI-only loopback email transport (strict synthetic Resend guard)
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          nohup setsid node tests/product-flow1-local-email-server.cjs \\
+            > "$RUNNER_TEMP/flow1-email-server.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/flow1-email-server.pid"
+          for attempt in $(seq 1 30); do
+            if curl --silent --show-error --fail --max-time 2 http://127.0.0.1:38081/health > /dev/null 2>&1; then
+              echo "Strict loopback mail transport ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Synthetic email transport failed to start; external provider is forbidden in FLOW1"
+          exit 1
+      - name: Start dedicated Next.js with local-only AI fixture and loopback mail
+
         working-directory: apps/web
         shell: bash
         run: |
           set -euo pipefail
           umask 077
           AI_GATEWAY_API_KEY=flow1-rfq-ux3a-synthetic \
-          NODE_OPTIONS="--require=$GITHUB_WORKSPACE/apps/web/tests/product-flow1-local-provider.cjs --require=$GITHUB_WORKSPACE/apps/web/tests/comm-rfq-ux3a-local-gateway.cjs" \
+          NODE_OPTIONS="--require=$GITHUB_WORKSPACE/apps/web/tests/comm-rfq-ux3a-local-gateway.cjs" \
             nohup setsid npm run dev -- --hostname 127.0.0.1 --port 3000 \
               > "$RUNNER_TEMP/flow1-next.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/flow1-next.pid"
@@ -336,7 +356,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          for process_file in "$RUNNER_TEMP/flow1-next.pid" "$RUNNER_TEMP/flow1-worker.pid"; do
+          for process_file in "$RUNNER_TEMP/flow1-next.pid" "$RUNNER_TEMP/flow1-worker.pid" "$RUNNER_TEMP/flow1-email-server.pid"; do
             if [ -f "$process_file" ]; then
               process_id="$(cat "$process_file")"
               if [[ "$process_id" =~ ^[0-9]+$ ]]; then
@@ -349,7 +369,7 @@ jobs:
             "$RUNNER_TEMP/demotest23-local.env" "$RUNNER_TEMP/rfqh14-2-tokens.json" \
             "$RUNNER_TEMP/rfqh14-2-psql-vars.sql" "$RUNNER_TEMP/product-flow1-provider.jsonl" \
             "$RUNNER_TEMP/product-flow1-provider-guard-codes.txt" \
-            "$RUNNER_TEMP/flow1-next.log" "$RUNNER_TEMP/flow1-worker.log" \
+            "$RUNNER_TEMP/flow1-next.log" "$RUNNER_TEMP/flow1-worker.log" "$RUNNER_TEMP/flow1-email-server.log" \
             "$RUNNER_TEMP/flow1-supabase-start.log" "$RUNNER_TEMP/flow1-supabase-reset.log" \
-            "$RUNNER_TEMP/flow1-next.pid" "$RUNNER_TEMP/flow1-worker.pid" \
+            "$RUNNER_TEMP/flow1-next.pid" "$RUNNER_TEMP/flow1-worker.pid" "$RUNNER_TEMP/flow1-email-server.pid" \
             "$RUNNER_TEMP/netgrowth2c1-auditor.json" "$RUNNER_TEMP/netgrowth2c1-auditor-vars.sql"
