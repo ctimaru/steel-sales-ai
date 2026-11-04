@@ -71,8 +71,9 @@ select pg_temp.sa8_assert(
     from public.platform_role_permissions
     where role_key='network_trust_admin'
       and permission_key like 'network_trust.%'
-  )=7,
-  'Network Trust Admin must receive the seven Network Trust capabilities'
+  )=9,
+  -- CPOST1 adds network_trust.posts_read and network_trust.posts_moderate.
+  'Network Trust Admin must receive the nine Network Trust capabilities'
 );
 
 select pg_temp.sa8_assert(
