@@ -78,22 +78,30 @@ async def preflight(client: httpx.AsyncClient, url: str, key: str,
     """Fail closed if any source has already claimed or suppressed this domain."""
     candidates = {r["domain"] for r in records}
     for table, column in SOURCE_TABLES.items():
-        resp = await client.get(
-            f"{url}/rest/v1/{table}",
-            params={"select": column, "limit": "10000"},
-            headers={"apikey": key, "Accept": "application/json",
-                     "User-Agent": "SmartSteelSales-NETGROWTH3B/1.0"},
-        )
-        if resp.status_code != 200:
-            raise RuntimeError(f"Cross-source preflight unavailable: {table}, HTTP {resp.status_code}")
-        rows = resp.json()
-        if not isinstance(rows, list) or len(rows) >= 10000:
-            raise RuntimeError(f"Cross-source preflight incomplete: {table}")
-        known = {normalized(row[column]) for row in rows
-                 if isinstance(row, dict) and isinstance(row.get(column), str)}
-        conflicts = candidates & known
-        if conflicts:
-            raise RuntimeError(f"Cross-source duplicate/opt-out hold ({table}): {len(conflicts)}")
+        offset = 0
+        while True:
+            resp = await client.get(
+                f"{url}/rest/v1/{table}",
+                params={"select": column, "limit": "500", "offset": str(offset),
+                        "order": f"{column}.asc"},
+                headers={"apikey": key, "Accept": "application/json",
+                         "User-Agent": "SmartSteelSales-NETGROWTH3B/1.0"},
+            )
+            if resp.status_code != 200:
+                raise RuntimeError(f"Cross-source preflight unavailable: {table}, HTTP {resp.status_code}")
+            rows = resp.json()
+            if not isinstance(rows, list) or len(rows) > 500:
+                raise RuntimeError(f"Cross-source preflight incomplete: {table}")
+            known = {normalized(row[column]) for row in rows
+                     if isinstance(row, dict) and isinstance(row.get(column), str)}
+            conflicts = candidates & known
+            if conflicts:
+                raise RuntimeError(f"Cross-source duplicate/opt-out hold ({table}): {len(conflicts)}")
+            if len(rows) < 500:
+                break
+            offset += 500
+            if offset > 50000:
+                raise RuntimeError(f"Cross-source preflight exceeds verified page limit: {table}")
 
 
 async def run(*, apply: bool, manifest: Path = MANIFEST) -> dict:
