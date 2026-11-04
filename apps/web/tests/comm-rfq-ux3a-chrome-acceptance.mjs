@@ -123,6 +123,15 @@ try {
         await noOverflow(page,"approved-five-"+width);
         if(width<1000) await page.getByRole("tab",{name:/Distinta/}).click();
         await page.screenshot({path:path.join(screens,`ux3a-buyer-${width}-five-approved.png`),animations:"disabled"});
+        assert.equal(await page.getByTestId("private-cart-trigger").count(),0,
+          "Focused chat already has a live Distinta preview; fixed cart must never cover mobile navigation");
+        // Removing the redundant floating CTA must not remove the authorized
+        // line editor: the preview still opens the canonical private cart.
+        await live.getByRole("button",{name:"Modifica articolo 1"}).click();
+        const editor=page.getByRole("dialog",{name:"Carrello della distinta privata"});
+        await editor.waitFor({state:"visible",timeout:60000});
+        await editor.getByRole("button",{name:"Chiudi"}).click();
+        await editor.waitFor({state:"hidden"});
         console.log("COMM-RFQ-UX3.A TEN → CORRECT → FIVE VERIFIED PRIVATE LINES PASS",width);
       } finally {
         await context.close();
