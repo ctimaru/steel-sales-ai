@@ -54,7 +54,7 @@ permissions:
 jobs:
   perf1-chrome:
     name: PERF1 / Google Chrome / 6 GoTrue identities / 4 tenants
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 50
     env:
       PERF1_WEB_URL: http://127.0.0.1:3000

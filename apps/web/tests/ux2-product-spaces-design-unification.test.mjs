@@ -33,7 +33,6 @@ test("PF1 keeps Commercial Memory private while Home becomes a daily cockpit", (
 
   assert.match(dashboard, /Workspace privato/);
   assert.match(dashboard, /Ultimi movimenti commerciali/);
-  assert.match(dashboard, /Cerca nello storico/);
   assert.doesNotMatch(dashboard, /Operations e configurazione/);
   assert.doesNotMatch(dashboard, /<form action=\{appRoutes\.commercial\.search\}/);
 });

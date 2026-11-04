@@ -42,7 +42,7 @@ permissions:
 jobs:
   search-to-response:
     name: Real Worker and Chrome / desktop and mobile / local mail transport
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
       CI: "true"

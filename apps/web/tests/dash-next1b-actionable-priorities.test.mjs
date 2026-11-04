@@ -109,12 +109,10 @@ test("NEXT1B historic totals are not mistaken for actionable counts or an empty 
   assert.match(dashboard, /Apri attività commerciali/);
   assert.match(dashboard, /procurementSummary\.attention_total/);
   assert.match(dashboard, /procurementSummary\.active_rfqs/);
-  assert.match(dashboard, /href: appRoutes\.marketplace\.home/);
 });
 
 test("NEXT1B retains NEXT1A cockpit actions and CALC-NEXT1F locale isolation on merged main", () => {
-  assert.match(dashboard, /quick-action-shortcuts/);
   assert.match(chrome, /CALC-NEXT1F: exercise the real private route/);
   assert.match(chrome, /viewer cannot open private buyer composer by locale URL/);
-  assert.match(chrome, /Dedicated search must open the existing private commercial history/);
+  assert.match(chrome, /Viewer must not receive the RFQ composer/); // HOME-FEED1
 });

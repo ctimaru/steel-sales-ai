@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+const homeFeedViewerSource = readFileSync(new URL("../lib/home-feed-viewer.ts", import.meta.url), "utf8");
+const homeFeedSource = readFileSync(new URL("../lib/home-feed.ts", import.meta.url), "utf8"); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const pulse = read("../components/dashboard-steel-pulse.tsx");
@@ -52,7 +54,7 @@ test("DASH-FEED6 tracks governed link intent without changing privacy/entitlemen
   assert.match(discovery, /appRoutes\.network\.company\(company\.id\)/);
   assert.match(discovery, /appRoutes\.marketplace\.opportunity\(item\.id\)/);
   assert.doesNotMatch(discovery, /selectDashboardFollowedUpdates/); // NET-UX LOT1: followed-company updates removed (Connetti only)
-  assert.match(dashboard, /getMarketplaceFeed\(context\.organizationId, \{ limit: 10, offset: 0 \}\)/);
+  assert.match(homeFeedSource, /getMarketplaceFeed\(viewer\.organizationId/);
   assert.doesNotMatch(discovery + tracked, /buyer\.display_name|inquiry\.body|service_role/);
 });
 
@@ -79,5 +81,5 @@ test("DASH-FEED6 Chrome acceptance covers each tenant, 320px mobile and navigati
   assert.match(chrome, /DASH-FEED6 Chrome 320px mobile disclosure and discovery jump/);
   assert.match(chrome, /size\.scroll <= size\.client \+ 12/);
   assert.match(chrome, /other\.rfqTitle/);
-  assert.match(chrome, /Vai alle opportunità/);
+  assert.match(chrome, /Cross-company private RFQ leaked into the feed/); // HOME-FEED1: one feed, no jump link
 });

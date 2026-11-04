@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
+const homeFeedViewerSource = readFileSync(new URL("../lib/home-feed-viewer.ts", import.meta.url), "utf8");
+const homeFeedSource = readFileSync(new URL("../lib/home-feed.ts", import.meta.url), "utf8"); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const model = read("../lib/dashboard-network-discovery.ts");
@@ -94,12 +96,12 @@ test("NEXT1C.2 limits output to two, caps text, and projects no private fields",
 });
 
 test("NEXT1C.2 fetch is entitlement-gated and bounded to published M6 Network with safe fallback", () => {
-  assert.match(dashboard, /networkEnabled && networkEntitled\s*\? searchNetwork\(\{ product: "tubes_pipes", page: 1 \}\)\.catch\(\(\) => null\)/);
+  // HOME-FEED1: Home reads the same server-ranked browse page as /network, Pro only with entitlement.
+  assert.match(homeFeedSource, /getNetworkBrowsePage\(viewer\.organizationId, viewer\.networkAccess, "published"/);
+  assert.match(homeFeedViewerSource, /networkEntitled \? "pro" : networkEnabled && isNetworkFreeReadEnabled\(\) \? "free" : null/);
   assert.match(network, /m6_search_network/);
   assert.match(network, /p_limit: 18/);
-  assert.match(dashboard, /networkEnabled && networkEntitled && networkCatalog/);
-  assert.match(dashboard, /selectDashboardNetworkCompanies\(networkCatalog\.items, displaySector, pulse\.interests, context\.organizationName\)/);
-  assert.doesNotMatch(dashboard + model + radar, /service_role|supabaseAdmin|buyer_rfq_suppliers|contact_email|buyer_email/);
+  assert.doesNotMatch(dashboard + homeFeedSource + model + radar, /service_role|supabaseAdmin|buyer_rfq_suppliers|contact_email|buyer_email/);
   assert.match(radar, /networkEntitled \? \(/);
   assert.match(radar, /networkDiscoveryAvailable/);
   assert.match(radar, /appRoutes\.network\.company\(company\.id\)/);

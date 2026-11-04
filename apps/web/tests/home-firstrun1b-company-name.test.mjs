@@ -44,13 +44,13 @@ test("HOME-FIRSTRUN1B greeting follows Europe/Rome time of day", () => {
 });
 
 test("HOME-FIRSTRUN1B Home title names the company and the hint is admin-only, first-access-only", () => {
-  assert.match(home, /title=\{<>\{workspaceGreeting\(\)\}, \{context\.organizationName\}<\/>\}/);
+  assert.match(home, /<h1[^>]*>\s*\{workspaceGreeting\(\)\}, \{context\.organizationName\}\s*<\/h1>/);
   assert.match(home, /const registrantNamePromise = isAdmin \? loadOwnRegistrationContactName\(\) : Promise\.resolve\(null\)/);
   assert.match(home, /\.from\("company_registration_applications"\)\s*\.select\("contact_name"\)/);
   assert.match(home, /firstRun\.active && organizationNameMatchesPerson\(context\.organizationName, registrantName\)/);
   assert.match(home, /appRoutes\.company\.setup \+ "#company-name"/);
-  // The main parallel batch stays unchanged (HP16 perceived-speed contract).
-  assert.match(home, /\[setup, commercial, activity, sector, procurement, pulse, marketplace, networkCatalog\] = await Promise\.all/);
+  // The main parallel batch stays one Promise.all (HP16 perceived-speed contract).
+  assert.match(home, /\[setup, commercial, procurement, pulse, feedPage, suggestions\] = await Promise\.all/);
 });
 
 test("HOME-FIRSTRUN1B hint copy respects ditte individuali and links to the existing name field", () => {

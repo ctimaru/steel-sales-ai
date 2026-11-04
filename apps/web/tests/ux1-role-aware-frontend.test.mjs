@@ -39,9 +39,7 @@ test("PF1 Company Home is a private daily cockpit with task-oriented exits", () 
   assert.match(companyHome, /Workspace privato/);
   assert.match(companyHome, /Cosa richiede attenzione/);
   assert.match(companyHome, /Ultimi movimenti commerciali/);
-  assert.match(companyHome, /Azioni rapide/);
   assert.match(companyHome, /appRoutes\.commercial\.home/);
-  assert.match(companyHome, /appRoutes\.network\.directory/);
   assert.match(companyHome, /getWorkspaceContext/);
   assert.doesNotMatch(companyHome, /Spazi condivisi/);
   assert.doesNotMatch(companyHome, /<form action=\{appRoutes\.commercial\.search\}/);

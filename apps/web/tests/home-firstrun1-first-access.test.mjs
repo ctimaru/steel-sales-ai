@@ -74,14 +74,12 @@ test("HOME-FIRSTRUN1 ignores malformed counters and never makes the optional tea
 });
 
 test("HOME-FIRSTRUN1 Home wires the checklist at the top of the overview and demotes, not removes, the assistant", () => {
+  // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
   assert.match(home, /deriveWorkspaceFirstRun\(/);
   assert.match(home, /mode === "live" \? operational\.rfqs \+ operational\.offers \+ operational\.orders : 0/);
   const checklistAt = home.indexOf("<WorkspaceFirstRunChecklist state={firstRun}");
-  const heroAt = home.indexOf('<section aria-labelledby="quick-actions"');
-  assert.ok(checklistAt !== -1 && heroAt > checklistAt, "checklist precedes the quick actions");
-  // The Chrome acceptance requires exactly one real assistant link in the hero.
-  assert.equal(home.match(/href=\{appRoutes\.commercial\.assistant\}/g).length, 1);
-  assert.match(home, /firstRun\.active\s*\?\s*"inline-flex[^"]*border border-\[#b9d2c5\] bg-white/);
+  const composerAt = home.indexOf("<HomeAiComposer");
+  assert.ok(checklistAt !== -1 && composerAt > checklistAt, "setup in the left rail precedes the centre column");
   assert.match(home, /source: firstRun\.active \? "first_run" : null/);
 });
 

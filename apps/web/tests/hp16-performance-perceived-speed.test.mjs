@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const homeFeedViewerSource = fs.readFileSync(new URL("../lib/home-feed-viewer.ts", import.meta.url), "utf8");
+const homeFeedSource = fs.readFileSync(new URL("../lib/home-feed.ts", import.meta.url), "utf8"); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
 
 function read(path) {
   return fs.readFileSync(new URL(path, import.meta.url), "utf8");
@@ -41,12 +43,10 @@ test("HP16 starts independent workspace shell dependencies together", () => {
 });
 
 test("HP16 keeps Dashboard critical reads in one parallel batch", () => {
-  assert.match(
-    dashboard,
-    /\[setup, commercial, activity, sector, procurement, pulse, marketplace, networkCatalog\] = await Promise\.all/,
-  );
+  assert.match(dashboard, /\[setup, commercial, procurement, pulse, feedPage, suggestions\] = await Promise\.all/);
   assert.match(dashboard, /loadDashboardPulse\(\)/);
-  assert.match(dashboard, /networkEnabled && networkEntitled[\s\S]*searchNetwork\(\{ product: "tubes_pipes", page: 1 \}\)/);
+  assert.match(dashboard, /loadHomeFeedPage\(feedViewer, initialHomeFeedCursor\)/);
+  assert.match(homeFeedSource, /await Promise\.all\(\[\s*loadCompanies\(viewer, cursor\),\s*loadSchool\(cursor\),\s*loadOpportunities\(viewer, cursor\)/);
   assert.doesNotMatch(dashboard, /const networkCatalog = await searchNetwork/);
   assert.doesNotMatch(dashboard, /const setup = isAdmin\s*\? await getCompanySetupState/);
 });

@@ -91,7 +91,7 @@ test("SP5 is authenticated and does not accept a user ID from input", () => {
 
 test("SP5 page is mobile-first, editable and reachable without bloating main navigation", () => {
   assert.match(route, /steelPulse: "\/pulse"/);
-  assert.match(dash, /<DashboardSteelPulse state=\{pulse\} \/>/);
+  assert.match(dash, /pulseNewsItems\(/); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
   assert.match(dashboardPulse, /href=\{appRoutes\.steelPulse\}/);
   assert.match(dashboardPulse, /Personalizza il feed/);
   assert.match(page, /<form action=\{savePulseInterests\}/);

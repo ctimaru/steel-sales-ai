@@ -56,7 +56,7 @@ test("HP9 separates first-use zero data from filtered zero results in Commercial
 test("HP9 removes first-use dead ends from workspace home and search", () => {
   assert.match(dashboard, /recent\.length === 0/);
   assert.match(dashboard, /Importa i primi documenti/);
-  assert.match(dashboard, /mode === "live" \|\| !canWrite \? appRoutes\.commercial\.home \+ "#commercial-worklist" : appRoutes\.operations\.uploads/);
+  assert.match(dashboard, /canWrite && firstRun\.active \? appRoutes\.operations\.uploads : appRoutes\.commercial\.home \+ "#commercial-worklist"/);
   assert.match(dashboard, /Lo storico contiene dati commerciali, ma non ci sono movimenti recenti in questa vista/);
   assert.match(dashboard, /Nessun movimento recente nello storico commerciale/);
   assert.match(globalSearch, /Ricerca senza risultati/);
