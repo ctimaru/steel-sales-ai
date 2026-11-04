@@ -81,7 +81,14 @@ try {
       await composer.fill(fixture.text);
       await page.getByRole("button",{name:"Analizza la richiesta con AI"}).click();
       const articles=page.locator(".rfqai3-candidate");
-      await articles.first().waitFor({state:"visible",timeout:60000});
+      // Fail fast with the existing user-visible error instead of waiting
+      // 60 seconds for a candidate if the protected AI action refused input.
+      const firstOutcome = await Promise.race([
+        articles.first().waitFor({state:"visible",timeout:60000}).then(()=> "proposals"),
+        page.getByText("Limite temporaneo raggiunto: riprova più tardi.",{exact:true})
+          .waitFor({state:"visible",timeout:60000}).then(()=> "rate-limited"),
+      ]);
+      assert.equal(firstOutcome,"proposals","Local UX3.B AI analysis must respect the per-user burst window");
       assert.equal(await articles.count(),10,"Ten sourced lines actually entered the reviewer");
       const live=page.getByTestId("commercial-rfq-live-preview");
       const proposed=page.getByTestId("commercial-rfq-ai-proposals");
