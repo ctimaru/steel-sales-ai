@@ -11,7 +11,8 @@ import {
   type HomeFeedItem,
 } from "@/lib/home-feed-model";
 import { getMarketplaceFeed, type MarketplaceFeedItem } from "@/lib/marketplace";
-import { getFreeNetworkViewerRole, getNetworkBrowsePage, type FreeCompany } from "@/lib/network-free";
+import { getPublishedCapabilityLabels } from "@/lib/network-compact-capabilities";
+import { getFreeNetworkViewerRole, getNetworkBrowsePage, safeNetworkWebsiteUrl, type FreeCompany } from "@/lib/network-free";
 import { getNetworkRecipientReadiness } from "@/lib/network-recipient-readiness";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import { networkCountryName } from "@/lib/network-eu-countries";
@@ -41,7 +42,12 @@ function clean(value: unknown, max = 240): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
-function companyItem(company: FreeCompany, saved: Set<string>, readiness: Map<string, HomeFeedConnect>): HomeFeedItem | null {
+function companyItem(
+  company: FreeCompany,
+  saved: Set<string>,
+  readiness: Map<string, HomeFeedConnect>,
+  capabilityLabels: Record<string, string[]>,
+): HomeFeedItem | null {
   if (!UUID.test(company.id)) return null;
   const name = clean(company.trading_name) || clean(company.legal_name);
   if (!name) return null;
@@ -62,7 +68,21 @@ function companyItem(company: FreeCompany, saved: Set<string>, readiness: Map<st
     verified: company.verification_status === "verified",
     saved: saved.has(company.id),
     connect: readiness.get(company.id) ?? null,
+    capabilities: (capabilityLabels[company.id] ?? []).slice(0, 3).map((c) => networkNameIt(c)).filter(Boolean),
+    website: websiteOf(company.website_url),
+    locationIndicative: company.geography_status === "sourced_unverified",
+    market: clean(company.market_name, 80) || null,
   };
+}
+
+function websiteOf(value: string | null | undefined): { href: string; domain: string } | null {
+  const href = safeNetworkWebsiteUrl(value);
+  if (!href) return null;
+  try {
+    return { href, domain: new URL(href).hostname.replace(/^www\./, "") };
+  } catch {
+    return null;
+  }
 }
 
 async function loadCompanies(viewer: HomeFeedViewer, cursor: HomeFeedCursor) {
@@ -81,14 +101,18 @@ async function loadCompanies(viewer: HomeFeedViewer, cursor: HomeFeedCursor) {
       .slice(cursor.ni, cursor.ni + HOME_FEED_PAGE.companies)
       .filter((c) => clean(c.legal_name).toLowerCase() !== own && clean(c.trading_name).toLowerCase() !== own);
     const ids = slice.map((c) => c.id).filter((id) => UUID.test(id));
-    const [savedIds, readiness] = await Promise.all([
+    const [savedIds, readiness, capabilityLabels] = await Promise.all([
       viewer.canInteract ? getSavedNetworkCompanyIds(viewer.organizationId, ids).catch(() => []) : Promise.resolve([]),
       viewer.canInteract
         ? getNetworkRecipientReadiness(viewer.organizationId, ids).catch(() => new Map())
         : Promise.resolve(new Map()),
+      // Public, published facility capabilities: the same read /network uses for every tier.
+      getPublishedCapabilityLabels(ids).catch(() => ({} as Record<string, string[]>)),
     ]);
     const saved = new Set(savedIds);
-    const items = slice.map((c) => companyItem(c, saved, readiness as Map<string, HomeFeedConnect>)).filter(Boolean) as HomeFeedItem[];
+    const items = slice
+      .map((c) => companyItem(c, saved, readiness as Map<string, HomeFeedConnect>, capabilityLabels))
+      .filter(Boolean) as HomeFeedItem[];
     const taken = Math.min(HOME_FEED_PAGE.companies, Math.max(0, page.items.length - cursor.ni));
     return { items, next: advanceNetworkCursor(cursor, page.items.length, taken, page.has_more), failed: false };
   } catch {

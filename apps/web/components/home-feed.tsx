@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { loadMoreHomeFeed, toggleHomeFeedSavedCompany } from "@/app/(workspace)/dashboard/feed-actions";
-import type { HomeFeedItem } from "@/lib/home-feed-model";
+import { companyInitials, type HomeFeedItem } from "@/lib/home-feed-model";
 
 /**
  * HOME-FEED1: LinkedIn-style infinite feed. Posts re-present content the viewer
@@ -14,15 +14,6 @@ import type { HomeFeedItem } from "@/lib/home-feed-model";
  * No polling: the next page loads only when the end of the list is near.
  */
 const MAX_EMPTY_PAGES = 3;
-
-function initials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase() ?? "")
-    .join("") || "•";
-}
 
 function formatDate(value: string | null) {
   if (!value) return null;
@@ -74,16 +65,39 @@ function CompanyPost({ item, canInteract }: { item: Extract<HomeFeedItem, { kind
   return (
     <>
       <div className="px-4 pt-4">
-        <PostHeader badge={initials(item.name)} title={item.name} subtitle={[item.role, item.place].filter(Boolean).join(" · ")} tone="network" />
+        <PostHeader badge={companyInitials(item.name)} title={item.name} subtitle={[item.role, item.place, item.locationIndicative && item.place ? "località indicativa" : null].filter(Boolean).join(" · ")} tone="network" />
         <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#28634f]">
           Nel Network{item.verified ? " · Identità verificata" : ""}
         </p>
-        {item.products.length ? (
-          <ul aria-label="Prodotti a catalogo" className="mt-2 flex flex-wrap gap-1.5">
-            {item.products.map((product) => (
-              <li key={product} className="rounded-full border border-[#d5e4da] bg-[#f7fbf8] px-2.5 py-1 text-[11px] text-[#2f4a3e]">{product}</li>
-            ))}
-          </ul>
+        {item.products.length || item.capabilities.length ? (
+          <dl className="mt-2 space-y-1.5 text-[11px] text-[#2f4a3e]">
+            {item.products.length ? (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <dt className="font-semibold text-[#4d6156]">Prodotti</dt>
+                {item.products.map((product) => (
+                  <dd key={product} className="rounded-full border border-[#d5e4da] bg-[#f7fbf8] px-2.5 py-1">{product}</dd>
+                ))}
+              </div>
+            ) : null}
+            {item.capabilities.length ? (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <dt className="font-semibold text-[#4d6156]">Lavorazioni</dt>
+                {item.capabilities.map((capability) => (
+                  <dd key={capability} className="rounded-full border border-[#dfe3f2] bg-[#f7f8fd] px-2.5 py-1">{capability}</dd>
+                ))}
+              </div>
+            ) : null}
+          </dl>
+        ) : null}
+        {item.market || item.website ? (
+          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#5b6b62]">
+            {item.market ? <span>Settore: {item.market}</span> : null}
+            {item.website ? (
+              <a href={item.website.href} target="_blank" rel="noopener noreferrer nofollow" className="font-medium text-[#175640] underline-offset-4 hover:underline">
+                {item.website.domain} <span aria-hidden="true">↗</span>
+              </a>
+            ) : null}
+          </p>
         ) : null}
         {error ? <p role="alert" className="mt-2 text-xs text-[#9d4e28]">Non è stato possibile aggiornare i salvati. Riprova.</p> : null}
       </div>
@@ -358,7 +372,7 @@ function SuggestedCompany({ company, canInteract }: { company: Extract<HomeFeedI
   return (
     <div className="flex min-w-0 items-start gap-2.5">
       <span aria-hidden="true" className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e4f0e9] text-[10px] font-bold text-[#175640]">
-        {initials(company.name)}
+        {companyInitials(company.name)}
       </span>
       <div className="min-w-0 flex-1">
         <Link href={"/network/" + company.id} className="block truncate text-xs font-semibold text-[#173f35] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2">

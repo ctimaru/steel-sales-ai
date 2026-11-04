@@ -24,6 +24,13 @@ export type HomeFeedItem =
       verified: boolean;
       saved: boolean;
       connect: HomeFeedConnect;
+      /** HOME-FEED1B: published facility capabilities (same read as /network). */
+      capabilities: string[];
+      /** Validated http(s) website and its display domain. */
+      website: { href: string; domain: string } | null;
+      /** Location comes from a source, not confirmed by the company. */
+      locationIndicative: boolean;
+      market: string | null;
     }
   | {
       kind: "article";
@@ -195,4 +202,27 @@ export function pulseNewsItems(
 /** First page: up to two news posts on top, any further news after the page. */
 export function withPulseNews(page: readonly HomeFeedItem[], news: readonly HomeFeedItem[]): HomeFeedItem[] {
   return dedupeHomeFeed([], [...news.slice(0, 2), ...page, ...news.slice(2)]);
+}
+
+const LEGAL_FORMS = new Set([
+  "srl", "srls", "spa", "sapa", "snc", "sas", "scarl", "scrl", "coop", "societa", "soc",
+  "ltd", "limited", "plc", "llc", "inc", "corp", "gmbh", "kg", "ohg", "ug", "ag", "sarl",
+  "eurl", "sl", "sll", "bv", "nv", "oy", "oyj", "ab", "sro", "spzoo", "kft", "co",
+]);
+
+/**
+ * HOME-FEED1B: avatar initials that tell companies apart. Legal forms
+ * ("S.r.l.", "S.p.A.") and punctuation are ignored; a single word gives its
+ * first two letters ("Tecnocurve S.r.l." → "TE", "Tubi S.p.A." → "TU").
+ */
+export function companyInitials(name: string): string {
+  const words = name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\./g, "")
+    .split(/[^A-Za-z0-9]+/)
+    .filter((word) => word && !LEGAL_FORMS.has(word.toLowerCase()));
+  if (words.length === 0) return "•";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
 }
