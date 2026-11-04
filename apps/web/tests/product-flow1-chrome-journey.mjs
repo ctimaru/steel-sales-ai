@@ -262,7 +262,33 @@ try {
       recipientCheckpoint = "double activate confirm";
       await confirm.evaluate(button => { button.click(); button.click(); });
       recipientCheckpoint = "wait local dispatch outcome";
-      await page.getByText(/RFQ avviata: 2 invii effettuati/).waitFor({ timeout: 60000 });
+      try {
+        await page.getByText(/RFQ avviata: 2 invii effettuati/).waitFor({ timeout: 60000 });
+      } catch (error) {
+        // Report only synthetic-local counts and fixed status categories. Never
+        // print messages, recipient identities, supplier links, or credentials.
+        const ledger = await rows(buyerApi.from("buyer_rfq_dispatches").select("status,attempt_count").eq("rfq_id", campaign.id));
+        const campaignsAfter = await rows(buyerApi.from("buyer_rfq_campaigns").select("status").eq("id", campaign.id));
+        const body = await page.locator("body").textContent() ?? "";
+        const feedback = body.includes("destinatari sono cambiati") ? "recipient-drift"
+          : body.includes("Non è stato possibile avviare") ? "launch-db"
+          : body.includes("invii effettuati") ? "sent-banner"
+          : body.includes("verificare l'esito dell'invio") ? "uncertain"
+          : body.includes("già stata avviata") ? "already-launched"
+          : body.includes("Il canale email RFQ") ? "unconfigured-email"
+          : body.includes("L'invio ad aziende non registrate") ? "legal-email-block"
+          : body.includes("Controlla i destinatari e riprova") ? "dispatch-failed"
+          : "none-matched";
+        console.error("FLOW1 RECIPIENT OUTCOME", JSON.stringify({
+          ledgerCount:ledger.length,
+          ledgerStatuses:ledger.map(row=>row.status).sort(),
+          attempts:ledger.map(row=>row.attempt_count).sort(),
+          campaignStatuses:campaignsAfter.map(row=>row.status),
+          providerCount:captured(title).length,
+          feedback,
+        }));
+        throw error;
+      }
       recipientCheckpoint = "verify two local invites";
       assert.equal(captured(title).length, 2, "Double activation must deliver one local invite per supplier");
       const dispatches = await rows(buyerApi.from("buyer_rfq_dispatches").select("id,status,provider_message_id,attempt_count")
