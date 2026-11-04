@@ -320,6 +320,7 @@ jobs:
             hp3_registration_state_machine_hardening.sql \
             selfact1_self_service_activation.sql \
             selfver1_company_verification_badge.sql \
+            cpost1_company_posts.sql \
             hp7_first_login_guided_company_setup.sql \
             hp8_team_invitations_role_onboarding.sql \
             netgrowth2c1_identity_evidence_queue.sql \
