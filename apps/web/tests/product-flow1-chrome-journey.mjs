@@ -267,7 +267,7 @@ try {
       } catch (error) {
         // Report only synthetic-local counts and fixed status categories. Never
         // print messages, recipient identities, supplier links, or credentials.
-        const ledger = await rows(buyerApi.from("buyer_rfq_dispatches").select("status,attempt_count").eq("rfq_id", campaign.id));
+        const ledger = await rows(buyerApi.from("buyer_rfq_dispatches").select("status,attempt_count,last_error").eq("rfq_id", campaign.id));
         const campaignsAfter = await rows(buyerApi.from("buyer_rfq_campaigns").select("status").eq("id", campaign.id));
         const body = await page.locator("body").textContent() ?? "";
         const feedback = body.includes("destinatari sono cambiati") ? "recipient-drift"
@@ -282,9 +282,20 @@ try {
         console.error("FLOW1 RECIPIENT OUTCOME", JSON.stringify({
           ledgerCount:ledger.length,
           ledgerStatuses:ledger.map(row=>row.status).sort(),
+          failureClasses:ledger.map(row => {
+            const cause = row.last_error ?? "";
+            if (cause.includes("FLOW1 local provider refused unsafe configuration")) return "local-provider-guard";
+            if (/fetch failed|ECONNREFUSED|ETIMEDOUT|CONNECT_TIMEOUT/i.test(cause)) return "network-transport";
+            if (/Provider email error|Resend provider error/i.test(cause)) return "provider-response";
+            if (/invalid|unauthorized|forbidden/i.test(cause)) return "authorization";
+            return "other-redacted";
+          }).sort(),
           attempts:ledger.map(row=>row.attempt_count).sort(),
           campaignStatuses:campaignsAfter.map(row=>row.status),
           providerCount:captured(title).length,
+          localProviderGuardCodes:existsSync(path.join(process.env.RUNNER_TEMP, "product-flow1-provider-guard-codes.txt"))
+            ? [...new Set(readFileSync(path.join(process.env.RUNNER_TEMP, "product-flow1-provider-guard-codes.txt"), "utf8").trim().split("\\n"))]
+            : [],
           feedback,
         }));
         throw error;
