@@ -19,6 +19,7 @@ const trustPage = read("../app/(italian)/(platform)/platform/network-trust/page.
 const contract = read("../lib/platform-access-contract.ts");
 const ia = read("../lib/platform-ia-contract.ts");
 const migration = read("../../../supabase/migrations/20261104150000_cpost1_company_posts.sql");
+const migrationB = read("../../../supabase/migrations/20261104160000_cpost1b_staff_settings_read.sql");
 
 function load(source) {
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
@@ -151,4 +152,33 @@ test("CPOST1 console queue rechecks exact capabilities on page and action", () =
   }
   assert.match(contract, /moderateCompanyPost: "network_trust\.posts_moderate"/);
   assert.match(ia, /\{ path: "\/platform\/network-trust\/posts", module: "networkTrust" \}/);
+});
+
+test("CPOST1B console shows the switch state and only the superadmin can change it", () => {
+  const settings = m.parseCompanyPostSettings({
+    contract: "cpost1-settings-v1", enabled: true, max_body_chars: 3000, max_posts_per_org_per_day: 3,
+    auto_hide_report_threshold: 3, updated_at: "2026-11-04T14:44:09.56528+00:00", can_update: false,
+    published_posts: 1, hidden_posts: 0, open_reports: 0,
+  });
+  assert.equal(settings.enabled, true);
+  assert.equal(settings.canUpdate, false);
+  assert.equal(settings.maxPostsPerDay, 3);
+  assert.equal(m.parseCompanyPostSettings({ contract: "other", enabled: true }), null);
+  assert.equal(m.parseCompanyPostSettings({ contract: "cpost1-settings-v1" }), null);
+  assert.equal(m.parseCompanyPostSettings({ contract: "cpost1-settings-v1", enabled: false, published_posts: -4 }).publishedPosts, 0);
+
+  assert.match(posts, /rpc\("cpost1_staff_settings"\)/);
+  assert.match(consolePage, /loadCompanyPostSettings\(\)/);
+  assert.match(consolePage, /settings\?\.canUpdate \?/);
+  assert.match(consolePage, /data-testid="company-posts-switch"/);
+  assert.match(consoleActions, /setCompanyPostsEnabled[\s\S]*?await requirePlatformSuperadmin\(BASE\)/);
+  assert.match(consoleActions, /rpc\("cpost1_staff_update_settings", \{ p_enabled: enabled \}\)/);
+  assert.match(consoleActions, /value !== "true" && value !== "false"/);
+
+  assert.match(migrationB, /require_platform_permission\('network_trust\.posts_read'\)/);
+  assert.match(migrationB, /'can_update',\s+private\.is_platform_superadmin\(\)/);
+  assert.match(migrationB, /revoke all on function public\.cpost1_staff_settings\(\) from public, anon;/);
+  assert.doesNotMatch(migrationB, /security definer[^;]*\n\$\$ select private/, "public wrapper stays invoker");
+  assert.doesNotMatch(migrationB, /updated_by/, "the switch state never exposes who changed it");
+  assert.match(migration, /if \(select auth\.uid\(\)\) is null or not private\.is_platform_superadmin\(\)/);
 });

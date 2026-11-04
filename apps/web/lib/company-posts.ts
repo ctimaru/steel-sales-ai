@@ -3,8 +3,10 @@ import "server-only";
 import {
   parseCompanyPostPublishState,
   parseCompanyPostQueue,
+  parseCompanyPostSettings,
   type CompanyPostPublishState,
   type CompanyPostQueueItem,
+  type CompanyPostSettings,
 } from "@/lib/company-posts-model";
 import { createClient } from "@/lib/supabase/server";
 
@@ -28,6 +30,17 @@ export async function loadCompanyPostModerationQueue(limit = 100): Promise<Compa
     const db = await createClient();
     const { data, error } = await db.rpc("cpost1_staff_queue", { p_limit: limit });
     return error ? null : parseCompanyPostQueue(data);
+  } catch {
+    return null;
+  }
+}
+
+/** CPOST1B: switch state for the console. Requires network_trust.posts_read; null = not readable now. */
+export async function loadCompanyPostSettings(): Promise<CompanyPostSettings | null> {
+  try {
+    const db = await createClient();
+    const { data, error } = await db.rpc("cpost1_staff_settings");
+    return error ? null : parseCompanyPostSettings(data);
   } catch {
     return null;
   }

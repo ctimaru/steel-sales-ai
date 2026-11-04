@@ -281,4 +281,34 @@ select pg_temp.cp_assert(
   = 'auto_hidden=1,deleted=1,edited=1,published=3,reported=3,staff_removed=1,staff_restored=1',
   'ledger records every step');
 
+-- ---------------------------------------------------------------------
+-- 10. CPOST1B: console reads the switch state; only superadmin may change it
+-- ---------------------------------------------------------------------
+select pg_temp.cp_assert(
+  not has_function_privilege('anon', 'public.cpost1_staff_settings()', 'EXECUTE')
+  and not (select p.prosecdef from pg_proc p where p.oid = 'public.cpost1_staff_settings()'::regprocedure),
+  'CPOST1B settings read: no anon, public wrapper is security invoker');
+set local role authenticated;
+select pg_temp.cp_as('00000000-0000-0000-0000-00000000c305');
+select pg_temp.cp_assert_raises('select public.cpost1_staff_settings()', 'network_trust.posts_read');
+select pg_temp.cp_as('00000000-0000-0000-0000-00000000c308');
+select public.cpost1_staff_settings() as staff_settings \gset
+select pg_temp.cp_assert(
+  :'staff_settings'::jsonb->>'contract' = 'cpost1-settings-v1'
+  and (:'staff_settings'::jsonb->>'enabled')::boolean
+  and (:'staff_settings'::jsonb->>'max_posts_per_org_per_day')::int = 3
+  and (:'staff_settings'::jsonb->>'max_body_chars')::int = 3000
+  and not (:'staff_settings'::jsonb->>'can_update')::boolean
+  and (:'staff_settings'::jsonb->>'published_posts')::int >= 0
+  and (:'staff_settings'::jsonb->>'open_reports')::int >= 0,
+  'CPOST1B trust staff reads the state but cannot switch: ' || :'staff_settings');
+select pg_temp.cp_assert_raises('select public.cpost1_staff_update_settings(false)', 'platform superadmin required');
+reset role;
+select pg_temp.cp_as(:'owner_id'::uuid);
+set local role authenticated;
+select pg_temp.cp_assert((public.cpost1_staff_settings()->>'can_update')::boolean, 'CPOST1B superadmin may switch');
+select pg_temp.cp_assert(not (public.cpost1_staff_update_settings(false)->>'enabled')::boolean, 'CPOST1B superadmin switches off');
+select pg_temp.cp_assert(not (public.cpost1_staff_settings()->>'enabled')::boolean, 'CPOST1B state reflects the switch');
+reset role;
+
 rollback;

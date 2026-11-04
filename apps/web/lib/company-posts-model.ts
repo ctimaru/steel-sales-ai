@@ -228,3 +228,37 @@ export function parseCompanyPostQueue(value: unknown): CompanyPostQueueItem[] | 
   }
   return out;
 }
+
+export type CompanyPostSettings = {
+  enabled: boolean;
+  maxBodyChars: number;
+  maxPostsPerDay: number;
+  autoHideThreshold: number;
+  updatedAt: string | null;
+  canUpdate: boolean;
+  publishedPosts: number;
+  hiddenPosts: number;
+  openReports: number;
+};
+
+function count(value: unknown): number {
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : 0;
+}
+
+/** CPOST1B: the console switch state (cpost1-settings-v1). Unknown payload → null. */
+export function parseCompanyPostSettings(value: unknown): CompanyPostSettings | null {
+  if (!value || typeof value !== "object") return null;
+  const v = value as Record<string, unknown>;
+  if (v.contract !== "cpost1-settings-v1" || typeof v.enabled !== "boolean") return null;
+  return {
+    enabled: v.enabled,
+    maxBodyChars: count(v.max_body_chars) || COMPANY_POST_MAX_CHARS,
+    maxPostsPerDay: count(v.max_posts_per_org_per_day) || COMPANY_POST_DAILY_LIMIT,
+    autoHideThreshold: count(v.auto_hide_report_threshold) || 3,
+    updatedAt: typeof v.updated_at === "string" ? v.updated_at : null,
+    canUpdate: v.can_update === true,
+    publishedPosts: count(v.published_posts),
+    hiddenPosts: count(v.hidden_posts),
+    openReports: count(v.open_reports),
+  };
+}

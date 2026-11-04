@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requirePlatformPermission } from "@/lib/platform-admin";
+import { requirePlatformPermission, requirePlatformSuperadmin } from "@/lib/platform-admin";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -41,4 +41,25 @@ export async function moderateCompanyPost(formData: FormData) {
   revalidatePath("/dashboard");
   const label = decision === "hide" ? "Post nascosto" : decision === "restore" ? "Post ripristinato" : "Post rimosso";
   back("message", count > 0 ? `${label} · ${count} segnalazioni chiuse.` : `${label}.`);
+}
+
+/**
+ * CPOST1B: switch company posts on or off. Superadmin only, here and in SQL
+ * (cpost1_staff_update_settings). Switching off hides every post from the
+ * feed and the composer at once; nothing is deleted.
+ */
+export async function setCompanyPostsEnabled(formData: FormData) {
+  await requirePlatformSuperadmin(BASE);
+  const value = String(formData.get("enabled") ?? "");
+  if (value !== "true" && value !== "false") back("error", "Valore dell’interruttore non valido.");
+  const enabled = value === "true";
+
+  const db = await createClient();
+  const { data, error } = await db.rpc("cpost1_staff_update_settings", { p_enabled: enabled });
+  if (error || (data as { enabled?: unknown } | null)?.enabled !== enabled) {
+    back("error", "Non è stato possibile aggiornare l’interruttore dei post.");
+  }
+  revalidatePath(BASE);
+  revalidatePath("/dashboard");
+  back("message", enabled ? "Post delle aziende attivati." : "Post delle aziende disattivati: feed e compositore li nascondono subito.");
 }
