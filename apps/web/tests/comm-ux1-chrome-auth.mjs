@@ -300,6 +300,8 @@ try {
       }
       assert.equal(await page.locator('[data-testid="commercial-compact-filters"]').count(), 1);
       const f = page.locator("#commercial-worklist");
+      // COMM-TRUST1.C streams the worklist after a loading state: wait, then count.
+      await f.getByRole("searchbox").waitFor({ state: "visible", timeout: 60000 });
       assert.equal(await f.getByRole("searchbox").count(), 1);
       const mobileMenu = await open(page, "/commercial");
       await mobileMenu.locator("summary").filter({ hasText: "Analisi e opportunità" }).click();
