@@ -104,9 +104,11 @@ async def preflight(client: httpx.AsyncClient, url: str, key: str,
                 raise RuntimeError(f"Cross-source preflight exceeds verified page limit: {table}")
 
 
-async def run(*, apply: bool, manifest: Path = MANIFEST) -> dict:
+async def run(*, apply: bool, preflight_only: bool = False, manifest: Path = MANIFEST) -> dict:
     batch, records = validate_manifest(json.loads(manifest.read_text(encoding="utf-8")))
-    if not apply:
+    if preflight_only and apply:
+        raise ValueError('Choose read-only preflight or explicit apply')
+    if not apply and not preflight_only:
         report = {"mode": "dry_run", "status": "validated_offline",
                   "requested": len(records), "unique_domains": len(records),
                   "new_unconfirmed": 0, "published": 0}
@@ -117,6 +119,11 @@ async def run(*, apply: bool, manifest: Path = MANIFEST) -> dict:
         raise RuntimeError("Dedicated service-role secret and HTTPS Supabase URL required")
     async with httpx.AsyncClient(timeout=httpx.Timeout(30), follow_redirects=False) as client:
         await preflight(client, url, key, records)
+        if preflight_only:
+            report = {'mode': 'preflight', 'status': 'verified_no_write',
+                      'requested': len(records), 'new_unconfirmed': 0, 'published': 0}
+            print(json.dumps(report, sort_keys=True))
+            return report
         response = await client.post(
             f"{url}/rest/v1/rpc/netdensity3_seed_first_party",
             headers={"apikey": key, "Content-Type": "application/json",
@@ -143,6 +150,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="NET-GROWTH3B first-party cohort")
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--dry-run", action="store_true")
+    mode.add_argument("--preflight", action="store_true", help="Live read-only cross-source audit")
     mode.add_argument("--apply", action="store_true")
     args = parser.parse_args()
-    asyncio.run(run(apply=args.apply))
+    asyncio.run(run(apply=args.apply, preflight_only=args.preflight))
