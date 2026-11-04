@@ -292,6 +292,11 @@ jobs:
           path: ${{ runner.temp }}/comm-rfq-ux3a-visual-evidence/*.png
           if-no-files-found: ignore
           retention-days: 7
+      # The real server action enforces 3 AI analyses / user / 60s; UX3.A
+      # deliberately uses all three slots for the same local buyer.
+      # Respect the production abuse brake in CI rather than bypassing it.
+      - name: COMM-RFQ-UX3.B — Respect the per-user AI burst window after UX3.A
+        run: sleep 65
       - name: COMM-RFQ-UX3.B — Ten real synthetic AI candidates, missing data, private save and reopen (1440/390/320)
         working-directory: apps/web
         timeout-minutes: 12
