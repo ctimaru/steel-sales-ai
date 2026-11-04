@@ -16,11 +16,12 @@ test("HOME-AUTH-UX1 local navigation focuses the Home without replacing the glob
 });
 
 test("HOME-AUTH-UX1 routes to actual assistant and existing commercial tools", () => {
-  const composer = readFileSync(new URL("../components/home-ai-composer.tsx", import.meta.url), "utf8");
-  assert.match(composer, /sss:commercial-ai-intake-handoff/);
-  assert.match(composer, /appRoutes\.commercial\.home \+ "\?compose=1&method=ai#commercial-ai-intake"/);
-  assert.match(composer, /!text-white/);
-  assert.doesNotMatch(composer, /fetch\(|supabase|service_role|sendEmail/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the RFQ box left the Home; the assistant
+  // handoff lives in the Commerciale companion and the Home keeps its Distinta link.
+  const companion = readFileSync(new URL("../components/commercial-ai-companion.tsx", import.meta.url), "utf8");
+  assert.match(companion, /sss:commercial-ai-intake-handoff/);
+  assert.doesNotMatch(companion, /service_role|sendEmail/);
+  assert.doesNotMatch(home, /HomeAiComposer/);
   assert.match(home, /href="\/distinta"/);
 });
 

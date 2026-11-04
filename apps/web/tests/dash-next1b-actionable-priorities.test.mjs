@@ -81,14 +81,11 @@ test("NEXT1B selected campaign rejects foreign/missing records, malformed keys, 
 });
 
 test("NEXT1B Home priorities are actionable, bounded, and open unified Commerciale", () => {
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  // Actionable RFQ priorities now live only in Commerciale; the Home keeps the governed totals.
   assert.match(dashboard, /rfqh10_procurement_inbox/);
-  assert.match(dashboard, /\.filter\(\(item\) => item\.requires_action === true/);
-  assert.match(dashboard, /\.slice\(0, 3\)/);
-  assert.match(dashboard, /\.sort\(\(a, b\) => Number\(b\.priority === "urgent"\)/);
-  assert.match(dashboard, /"\?view=sent&item=campaign:" \+ item\.rfq_id!/);
-  assert.match(dashboard, /Da fare adesso/);
-  assert.match(dashboard, /item\.detail\.trim\(\)\.slice\(0, 170\)/);
-  assert.match(dashboard, /Cosa richiede attenzione/);
+  assert.match(dashboard, /"\?view=sent#commercial-worklist"/);
+  assert.doesNotMatch(dashboard, /Da fare adesso|Cosa richiede attenzione|requires_action === true/);
   assert.doesNotMatch(dashboard, /href: appRoutes\.rfqHub\.inbox/);
   assert.match(dashboard, /Nessun dato dimostrativo viene mostrato come reale/);
 });
@@ -114,5 +111,5 @@ test("NEXT1B historic totals are not mistaken for actionable counts or an empty 
 test("NEXT1B retains NEXT1A cockpit actions and CALC-NEXT1F locale isolation on merged main", () => {
   assert.match(chrome, /CALC-NEXT1F: exercise the real private route/);
   assert.match(chrome, /viewer cannot open private buyer composer by locale URL/);
-  assert.match(chrome, /Viewer must not receive the RFQ composer/); // HOME-FEED1
+  assert.match(chrome, /Viewer never gets the post composer/); // HOME-FOCUS1: no RFQ box on the Home at all
 });

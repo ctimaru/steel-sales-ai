@@ -78,8 +78,8 @@ test("HOME-FIRSTRUN1 Home wires the checklist at the top of the overview and dem
   assert.match(home, /deriveWorkspaceFirstRun\(/);
   assert.match(home, /mode === "live" \? operational\.rfqs \+ operational\.offers \+ operational\.orders : 0/);
   const checklistAt = home.indexOf("<WorkspaceFirstRunChecklist state={firstRun}");
-  const composerAt = home.indexOf("<HomeAiComposer");
-  assert.ok(checklistAt !== -1 && composerAt > checklistAt, "setup in the left rail precedes the centre column");
+  const feedAt = home.indexOf("<HomeFeed "); // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.ok(checklistAt !== -1 && feedAt > checklistAt, "setup in the left rail precedes the centre column");
   assert.match(home, /source: firstRun\.active \? "first_run" : null/);
 });
 

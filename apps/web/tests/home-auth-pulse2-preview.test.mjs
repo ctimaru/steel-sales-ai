@@ -9,9 +9,9 @@ const preview = read("../components/dashboard-pulse-preview.tsx");
 test("HOME-AUTH-PULSE2 removes Overview attention without losing real tasks", () => {
   // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
   assert.doesNotMatch(home, /<DashboardPulsePreview/, "no demo cards on the Home");
-  assert.match(home, /id="daily-priorities"/);
-  assert.match(home, /attentionItems\.map/);
-  assert.ok(home.indexOf('id="daily-priorities"') < home.indexOf("<HomeFeed "));
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.doesNotMatch(home, /id="daily-priorities"|attentionItems/);
+  assert.ok(home.indexOf("<HomeFeed ") > 0);
 });
 
 test("HOME-AUTH-PULSE2 demos never pose as real publication or live RFQ", () => {

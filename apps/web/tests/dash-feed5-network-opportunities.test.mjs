@@ -87,10 +87,9 @@ test("DASH-FEED5 keeps org and entitlements at the data boundary", () => {
 });
 
 test("DASH-FEED5 prioritizes the compact discovery above Steel Pulse while retaining RFQ privacy", () => {
-  // HOME-FEED1: one feed; the composer and real tasks come before it.
-  const composer = dashboard.indexOf("<HomeAiComposer");
-  const feed = dashboard.indexOf("<HomeFeed ");
-  assert.ok(composer > 0 && feed > composer);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.equal(dashboard.indexOf("<HomeAiComposer"), -1);
+  assert.ok(dashboard.indexOf("<HomeFeed ") > 0, "the feed leads the centre column");
   assert.doesNotMatch(homeFeedSource, /rfqh10_|getMyMarketplaceRequests|getMarketplaceUnlockedDetail|service_role|inquiry\.body/);
   assert.match(panel, /appRoutes\.marketplace\.opportunity\(item\.id\)/);
   assert.match(panel, /appRoutes\.network\.company\(company\.id\)/);

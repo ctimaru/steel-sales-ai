@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { PilotEvent } from "@/components/pilot-event";
 import { FocusPage } from "@/components/focus-ui";
-import { HomeAiComposer } from "@/components/home-ai-composer";
 import { HomeFeed, HomeSuggestedCompanies } from "@/components/home-feed";
 import { WorkspaceFirstRunChecklist } from "@/components/workspace-first-run-checklist";
 import { CompanyVerificationCard } from "@/components/company-verification-card";
@@ -82,7 +81,7 @@ function workspaceRoleLabel(role: string) {
 /**
  * HOME-FEED1 (founder decision, 4 Nov 2026): the Home is a LinkedIn-style
  * workspace, not a page of links. Left: the company and what to do next.
- * Centre: an inline RFQ composer and an infinite feed. Right: companies to meet.
+ * Centre: company posts and the infinite feed. Right: companies to meet.
  * Every read keeps its own server-side permission check; nothing here grants access.
  */
 export default async function DashboardPage({
@@ -123,12 +122,11 @@ export default async function DashboardPage({
   ]);
 
   const { recent, mode, operational } = commercial;
-  // The existing procurement inbox RPC provides both actionable rows and aggregate
-  // lifecycle totals. Keep missing/invalid data distinct from a genuine zero.
+  // The procurement inbox RPC provides aggregate lifecycle totals for the left rail.
+  // Keep missing/invalid data distinct from a genuine zero.
   const procurementPayload = !procurement.error && procurement.data && typeof procurement.data === "object" && !Array.isArray(procurement.data)
     ? procurement.data as {
         summary?: { attention_total?: number; urgent?: number; due_24h?: number; active_rfqs?: number };
-        items?: Array<{ rfq_id?: string; headline?: string; detail?: string; requires_action?: boolean; priority?: string; stage?: string }>;
       }
     : null;
   const procurementSummary = procurementPayload?.summary;
@@ -170,25 +168,6 @@ export default async function DashboardPage({
   const procurementAllZero = Boolean(
     procurementKpis && procurementKpis.length === 3 && procurementKpis.every((kpi) => kpi.value === 0),
   );
-  // Only user-owned buyer actions belong in the Workspace attention strip.
-  // The tenant-scoped commercial_review_queue contains parser/extraction QA;
-  // even though its rows are RLS-protected, it is NOT a buyer task.
-  // Urgency is explicitly supplied by the procurement inbox, never inferred.
-  const procurementActions = (procurementPayload?.items ?? [])
-    .filter((item) => item.requires_action === true && typeof item.rfq_id === "string" && /^[0-9a-f-]{36}$/i.test(item.rfq_id))
-    .sort((a, b) => Number(b.priority === "urgent") - Number(a.priority === "urgent"))
-    .slice(0, 3);
-  const attentionItems = [
-    ...procurementActions.map((item) => ({
-      href: appRoutes.commercial.home + "?view=sent&item=campaign:" + item.rfq_id! + "#commercial-detail",
-      title: typeof item.headline === "string" && item.headline.trim()
-        ? item.headline.trim().slice(0, 120) : "RFQ da gestire",
-      description: typeof item.detail === "string" && item.detail.trim()
-        ? item.detail.trim().slice(0, 170) : "Apri la richiesta e completa la prossima azione.",
-      urgent: item.priority === "urgent",
-    })),
-  ];
-  const attentionCount = attentionItems.length;
   // Real recorded totals from the existing snapshot (never open pipelines).
   const operationalKpis = mode === "live" ? [
     { label: "RFQ", value: operational.rfqs },
@@ -312,34 +291,10 @@ export default async function DashboardPage({
           </section>
         </aside>
 
-        {/* Centre: inline composer, real tasks, then the infinite feed. */}
+        {/* Centre: company posts composer and the infinite feed. HOME-FOCUS1 (founder decision,
+            4 Nov 2026): no RFQ box and no attention strip here; RFQ status stays in the left
+            rail and the Distinta starts from Commerciale. */}
         <section aria-label="Feed" data-testid="home-center" className="min-w-0 space-y-3">
-          <HomeAiComposer canWrite={canWrite} organizationName={context.organizationName} />
-
-          {attentionCount > 0 ? (
-            <section aria-labelledby="daily-priorities" className="rounded-2xl border border-[#e7d4b4] bg-[#fffbf5] p-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#805c31]">Cosa richiede attenzione</p>
-              <h2 id="daily-priorities" className="mt-0.5 text-sm font-semibold text-[#173f35]">
-                Da fare adesso
-                <span className="sr-only"> · Solo segnali con un’azione concreta.</span>
-              </h2>
-              <div className="mt-2 grid gap-2">
-                {attentionItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={"flex min-h-10 flex-col gap-1 rounded-xl border px-3 py-2.5 text-xs hover:shadow-[0_3px_12px_rgba(18,61,52,0.06)] focus-visible:outline-2 focus-visible:outline-offset-2 " +
-                      (item.urgent ? "border-[#ddb977] bg-[#fff6e7]" : "border-[#a9ccbb] bg-[#f2f8f4]")}
-                  >
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.06em] text-[#815017]">{item.urgent ? "Urgente" : "Da gestire"}</span>
-                    <span className="text-sm font-semibold text-[#173f35]">{item.title}</span>
-                    <span className="line-clamp-2 leading-5 text-[#52615b]">{item.description}</span>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
           <HomeFeed initialItems={feedItems}
             initialCursor={feedPage.nextCursor}
             canInteract={feedViewer.canInteract}

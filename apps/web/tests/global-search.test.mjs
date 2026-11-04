@@ -87,7 +87,8 @@ test("sales navigation uses stable macros with contextual tools and avatar drawe
 
 test("Home is a daily operational cockpit while Search owns the dedicated search workspace", () => {
   assert.match(dashboard, /\{workspaceGreeting\(\)\}, \{context\.organizationName\}/);
-  assert.match(dashboard, /Cosa richiede attenzione/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the attention strip left the Home.
+  assert.match(dashboard, /Le tue RFQ/);
   assert.doesNotMatch(dashboard, /action=\{appRoutes\.commercial\.search\}/);
   assert.doesNotMatch(dashboard, /name="q"/);
   assert.doesNotMatch(dashboard, /<GlobalSearch/);
@@ -102,14 +103,9 @@ test("Home is a daily operational cockpit while Search owns the dedicated search
 
 
 test("Home shows buyer RFQ actions, not technical extraction corrections", () => {
-  const attention = dashboard.slice(
-    dashboard.indexOf("const attentionItems = ["),
-    dashboard.indexOf("const attentionCount =")
-  );
-  assert.match(attention, /procurementActions\.map/);
-  assert.match(attention, /appRoutes\.commercial\.home \+ "\?view=sent&item=campaign:" \+ item\.rfq_id!/);
-  assert.doesNotMatch(attention, /appRoutes\.rfqHub\.campaign/);
-  assert.doesNotMatch(attention, /metrics\.reviewFlags|appRoutes\.operations\.review|Elementi da verificare/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.doesNotMatch(dashboard, /attentionItems|appRoutes\.rfqHub\.campaign/);
+  assert.doesNotMatch(dashboard, /metrics\.reviewFlags|appRoutes\.operations\.review|Elementi da verificare/);
 });
 
 
@@ -131,7 +127,7 @@ test("sales surfaces avoid infrastructure terminology", () => {
   assert.match(component, /Anteprima dei risultati/);
   assert.doesNotMatch(component, /Rilevanza \\{Number/);
   assert.match(dashboard, /movimenti commerciali/i);
-  assert.match(dashboard, /Cosa richiede attenzione/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the attention strip left the Home.
 });
 
 

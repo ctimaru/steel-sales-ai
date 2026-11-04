@@ -108,13 +108,9 @@ test("DASH-FEED3 save/read actions return to allowlisted /dashboard only", () =>
 });
 
 test("DASH-FEED2 hides informational Network updates from urgency while retaining access", () => {
-  assert.match(dashboard, /attentionCount > 0/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.doesNotMatch(dashboard, /attentionItems|daily-priorities/);
   assert.doesNotMatch(dashboard, /received\.total|appRoutes\.network\.inquiries/); // NET-UX LOT1B: Network inquiries retired; requests go through the RFQ Hub
   assert.doesNotMatch(dashboard, /appRoutes\.network\.activity/);
-  const attention = dashboard.slice(
-    dashboard.indexOf("const attentionItems = ["),
-    dashboard.indexOf("const attentionCount =")
-  );
-  assert.match(attention, /procurementActions\.map/);
-  assert.doesNotMatch(attention, /reviewFlags|appRoutes\.operations\.review|Elementi da verificare/);
+  assert.doesNotMatch(dashboard, /reviewFlags|appRoutes\.operations\.review|Elementi da verificare/);
 });

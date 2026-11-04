@@ -56,7 +56,8 @@ test("UI1 keeps the public landing fast and asset-light", () => {
 
 test("PF1 keeps Company Home task-dense without duplicating macro navigation", () => {
   assert.match(dashboard, /\{workspaceGreeting\(\)\}, \{context\.organizationName\}/);
-  assert.match(dashboard, /Cosa richiede attenzione/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the attention strip left the Home.
+  assert.match(dashboard, /Le tue RFQ/);
   assert.match(dashboard, /Ultimi movimenti commerciali/);
   assert.doesNotMatch(dashboard, /Spazi condivisi/);
   assert.doesNotMatch(dashboard, /Ecosistema Smart Steel Sales/);
