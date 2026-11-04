@@ -6,6 +6,8 @@ on:
       - ".github/workflows/product-flow1-e2e.yml"
       - "apps/web/tests/product-flow1-*.mjs"
       - "apps/web/tests/calc-dist3-chrome-authenticated-private-save.mjs"
+      - "apps/web/tests/comm-rfq-ux3a-*.mjs"
+      - "apps/web/tests/comm-rfq-ux3a-*.cjs"
       - "apps/web/tests/comm-ux6a-chrome-acceptance.mjs"
       - "apps/web/tests/product-flow1-*.cjs"
       - "apps/web/tests/demotest23-seed-auth.mjs"
@@ -176,7 +178,8 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
-          NODE_OPTIONS="--require=$GITHUB_WORKSPACE/apps/web/tests/product-flow1-local-provider.cjs" \
+          AI_GATEWAY_API_KEY=flow1-rfq-ux3a-synthetic \
+          NODE_OPTIONS="--require=$GITHUB_WORKSPACE/apps/web/tests/product-flow1-local-provider.cjs --require=$GITHUB_WORKSPACE/apps/web/tests/comm-rfq-ux3a-local-gateway.cjs" \
             nohup setsid npm run dev -- --hostname 127.0.0.1 --port 3000 \
               > "$RUNNER_TEMP/flow1-next.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/flow1-next.pid"
@@ -270,6 +273,18 @@ jobs:
         with:
           name: comm-ux6a-synthetic-visual-evidence
           path: ${{ runner.temp }}/comm-ux6a-visual-evidence/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: COMM-RFQ-UX3.A — Authenticated ten-line review, correction and five-line private Distinta (1440/390/320)
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/comm-rfq-ux3a-chrome-acceptance.mjs
+      - name: COMM-RFQ-UX3.A — Retain local synthetic proposal/review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comm-rfq-ux3a-multiline-visual-qa
+          path: ${{ runner.temp }}/comm-rfq-ux3a-visual-evidence/*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: CALC-DIST3 real buyer named save, Commerciale archive, company RLS, no RFQ dispatch
