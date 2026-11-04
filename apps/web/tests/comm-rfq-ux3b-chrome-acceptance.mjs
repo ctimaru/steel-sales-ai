@@ -153,7 +153,11 @@ try {
       await save.click();
       const savedLink=live.getByTestId("comm-rfq-saved-distinta-link");
       await savedLink.waitFor({state:"visible",timeout:60000});
-      assert.equal(await save.isDisabled(),true,"Second save cannot create a duplicate snapshot");
+      // The save CTA deliberately changes label after success; the old
+      // role/name locator no longer exists. Assert the actual post-save state.
+      const savedButton=live.getByRole("button",{name:"Distinta salvata ✓",exact:true});
+      assert.equal(await savedButton.isDisabled(),true,
+        "Second save cannot create a duplicate snapshot");
       const href=await savedLink.getAttribute("href");
       assert.match(href,/^\/rfq-hub\/distinte\/[0-9a-f-]{36}$/i);
       const savedId=href.split("/").at(-1);
