@@ -16,7 +16,6 @@ assert.equal(process.env.CI, "true");
 assert.equal(process.env.FLOW1_LOCAL_PROVIDER, "true");
 assert.equal(base, "http://127.0.0.1:3000");
 assert.equal(process.env.NEXT_PUBLIC_SUPABASE_URL, "http://127.0.0.1:54321");
-assert.equal(process.env.AI_GATEWAY_API_KEY, "flow1-rfq-ux3a-synthetic");
 assert.ok(process.env.RUNNER_TEMP);
 assert.equal(fixture.lines.length, 10);
 assert.equal(fixture.lines[7].grade, "");
@@ -101,9 +100,17 @@ try {
       await page.screenshot({path:path.join(screenshotDir,"ux3b-"+width+"-ten-mixed-proposals.png"),animations:"disabled"});
 
       // Every correction is local, numbered and unapproved until human review.
-      for(const command of ["riga 2: 20 barre","riga 8: qualità S235JRH","riga 9: norma EN 10210"]) {
-        await composer.fill(command);
+      const fixes=[
+        {command:"riga 2: 20 barre",index:1,match:"20 PZ"},
+        {command:"riga 8: qualità S235JRH",index:7,match:"S235JRH"},
+        {command:"riga 9: norma EN 10210",index:8,match:"EN 10210"},
+      ];
+      for(const fix of fixes) {
+        await composer.fill(fix.command);
         await page.getByRole("button",{name:"Correggi proposta AI"}).click();
+        await page.waitForFunction(({index,match})=>
+          [...document.querySelectorAll(".rfqai3-candidate")][index]?.textContent?.includes(match),
+          {index:fix.index,match:fix.match},{timeout:30000});
       }
       await page.getByRole("article",{name:"Articolo AI 9",exact:true})
         .locator('input[type="checkbox"]').waitFor({state:"attached"});
@@ -154,12 +161,12 @@ try {
       assert.ok(Math.abs(Number(saved[0].total_meters)-1278)<0.01,"Corrected quantities and lengths determine total meters");
       assert.ok(Number(saved[0].total_tonnes)>0);
       const storedLines=await rows(buyerDb.from("buyer_distinta_lines")
-        .select("line_position,standard_code,grade,quantity,bar_length_m,target_eur_t")
+        .select("line_position,standard_code,grade_code,quantity,bar_length_m,target_eur_t")
         .eq("distinta_id",savedId).order("line_position"),"buyer Distinta lines");
       assert.equal(storedLines.length,9);
       assert.deepEqual(storedLines.map(x=>x.line_position),[1,2,3,4,5,6,7,8,9]);
       assert.equal(Number(storedLines[1].quantity),20,"Chat correction persists into the private snapshot");
-      assert.equal(storedLines[7].grade,"S235JRH");
+      assert.equal(storedLines[7].grade_code,"S235JRH");
       assert.equal(storedLines[8].standard_code,"EN 10210");
       assert.ok(storedLines.every(x=>x.target_eur_t===null));
       const campaigns=await rows(buyerDb.from("buyer_rfq_campaigns")
