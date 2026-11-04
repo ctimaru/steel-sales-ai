@@ -24,15 +24,19 @@ const m = sandbox.exports;
 const post = (kind, n) => ({ kind, key: kind + ":" + n });
 
 test("HOME-FEED1 cursor round-trips and tampered cursors restart safely", () => {
-  const c = { v: 1, np: 3, ni: 12, sp: "standards", so: 40, mo: 7 };
+  const c = { v: 1, np: 3, ni: 12, sp: "standards", so: 40, mo: 7, pc: "2026-11-04T14:05:42_23818+00:00~6f1d1f0e-0b7a-4d38-9d3e-3f2a0c1b2d4e" };
   assert.deepEqual({ ...m.decodeHomeFeedCursor(m.encodeHomeFeedCursor(c)) }, c);
-  for (const bad of [null, 42, "", "2.1.0.articles.0.0", "x".repeat(200), "1.-5.0.articles.0.0", "1.1.999.nope.0.0"]) {
+  for (const bad of [null, 42, "", "2.1.0.articles.0.0", "x".repeat(201), "1.-5.0.articles.0.0", "1.1.999.nope.0.0", "1.1.0.articles.0.0.<script>"]) {
     const d = m.decodeHomeFeedCursor(bad);
     assert.ok(d.np >= 0 && d.ni >= 0 && d.ni <= 100 && d.so >= 0 && d.mo >= -1, String(bad));
     assert.ok(["articles", "standards", "grades", "done"].includes(d.sp));
+    assert.ok(d.pc === "" || d.pc === "x" || /~/.test(d.pc), "tampered posts segment restarts the posts");
   }
+  // CPOST1: cursors issued before company posts existed still decode (posts restart from the newest).
+  assert.equal(m.decodeHomeFeedCursor("1.2.6.standards.4.3").pc, "");
   assert.equal(m.decodeHomeFeedCursor("1.-5.0.articles.0.0").np, 1, "negative page falls back to page 1");
-  assert.equal(m.homeFeedExhausted({ v: 1, np: 0, ni: 0, sp: "done", so: 0, mo: -1 }), true);
+  assert.equal(m.homeFeedExhausted({ v: 1, np: 0, ni: 0, sp: "done", so: 0, mo: -1, pc: "x" }), true);
+  assert.equal(m.homeFeedExhausted({ v: 1, np: 0, ni: 0, sp: "done", so: 0, mo: -1, pc: "" }), false, "posts still to read");
   assert.equal(m.homeFeedExhausted(m.initialHomeFeedCursor), false);
 });
 
@@ -115,7 +119,7 @@ test("HOME-FEED1 Home is three columns: company, composer + feed, companies to m
   assert.match(home, /data-testid="home-left-rail"/);
   assert.match(home, /data-testid="home-center"/);
   assert.match(home, /data-testid="home-right-rail" className="hidden min-w-0 space-y-3 xl:sticky xl:top-20 xl:block"/);
-  assert.match(home, /<HomeFeed initialItems=\{feedItems\} initialCursor=\{feedPage\.nextCursor\} canInteract=\{feedViewer\.canInteract\} \/>/);
+  assert.match(home, /<HomeFeed\s+initialItems=\{feedItems\}\s+initialCursor=\{feedPage\.nextCursor\}\s+canInteract=\{feedViewer\.canInteract\}/);
   assert.match(home, /<HomeSuggestedCompanies companies=\{suggestions\} canInteract=\{feedViewer\.canInteract\} \/>/);
   assert.doesNotMatch(home, /<WorkspaceHomePanels|<DashboardPulsePreview|<DashboardDiscoveryFeed|orderedQuickActions/);
   assert.match(home, /mode === "live" && recent\.length > 0|recent\.length === 0/);

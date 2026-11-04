@@ -7,6 +7,8 @@ import { HomeFeed, HomeSuggestedCompanies } from "@/components/home-feed";
 import { WorkspaceFirstRunChecklist } from "@/components/workspace-first-run-checklist";
 import { CompanyVerificationCard } from "@/components/company-verification-card";
 import { loadCompanyVerification } from "@/lib/company-verification";
+import { loadCompanyPostPublishState } from "@/lib/company-posts";
+import { companyPostComposerMode } from "@/lib/company-posts-model";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { getDashboardData } from "@/lib/commercial-data";
 import { getCompanySetupState } from "@/lib/company-setup";
@@ -106,6 +108,8 @@ export default async function DashboardPage({
   const registrantNamePromise = isAdmin ? loadOwnRegistrationContactName() : Promise.resolve(null);
   // SELFVER1: badge state for the caller's own organization; null hides the card.
   const verificationPromise = loadCompanyVerification(context.organizationId);
+  // CPOST1: may this user publish for the session organization? null hides the composer.
+  const postPublishPromise = loadCompanyPostPublishState(context.organizationId);
 
   const [setup, commercial, procurement, pulse, feedPage, suggestions] = await Promise.all([
     isAdmin
@@ -146,6 +150,7 @@ export default async function DashboardPage({
   );
   const registrantName = await registrantNamePromise;
   const verification = await verificationPromise;
+  const postComposer = companyPostComposerMode(await postPublishPromise);
   const verificationFlash = params.verification === "requested" ? "requested" : params.verification === "error" ? "error" : null;
   // Soft hint only (a ditta individuale may legitimately carry the owner's name).
   const companyNameHint = firstRun.active && organizationNameMatchesPerson(context.organizationName, registrantName)
@@ -335,14 +340,20 @@ export default async function DashboardPage({
             </section>
           ) : null}
 
-          <HomeFeed initialItems={feedItems} initialCursor={feedPage.nextCursor} canInteract={feedViewer.canInteract} />
+          <HomeFeed initialItems={feedItems}
+            initialCursor={feedPage.nextCursor}
+            canInteract={feedViewer.canInteract}
+            isAdmin={feedViewer.isAdmin}
+            composer={postComposer}
+            organizationName={context.organizationName}
+          />
         </section>
 
         {/* Right rail: companies to meet (desktop only, like LinkedIn). */}
         <aside aria-label="Suggerimenti" data-testid="home-right-rail" className="hidden min-w-0 space-y-3 xl:sticky xl:top-20 xl:block">
           <HomeSuggestedCompanies companies={suggestions} canInteract={feedViewer.canInteract} />
           <p className="px-1 text-[11px] leading-4 text-[#65746c]">
-            Il feed mostra aziende del Network, guide della Scuola, opportunità del Marketplace e notizie Steel Pulse verificate.{" "}
+            Il feed mostra post delle aziende verificate, aziende del Network, guide della Scuola, opportunità del Marketplace e notizie Steel Pulse verificate.{" "}
             <Link href={appRoutes.steelPulse} className="font-semibold text-[#175640] underline underline-offset-4">Personalizza</Link>
           </p>
         </aside>

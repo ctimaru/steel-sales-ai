@@ -19,6 +19,7 @@ export function buildHomeFeedViewer(
     networkAccess,
     // Saving and Connetti need the Pro entitlement and an interactive, writing role.
     canInteract: networkAccess === "pro" && canWriteWorkspace(context.role) && canInteractWithNetwork(context.role),
+    isAdmin: context.role === "admin",
   };
 }
 
