@@ -130,7 +130,7 @@ try {
         await live.getByRole("button",{name:"Modifica articolo 1"}).click();
         const editor=page.getByRole("dialog",{name:"Carrello della distinta privata"});
         await editor.waitFor({state:"visible",timeout:60000});
-        await editor.getByRole("button",{name:"Chiudi"}).click();
+        await editor.locator('button[aria-label="Chiudi"]').click();
         await editor.waitFor({state:"hidden"});
         console.log("COMM-RFQ-UX3.A TEN → CORRECT → FIVE VERIFIED PRIVATE LINES PASS",width);
       } finally {
