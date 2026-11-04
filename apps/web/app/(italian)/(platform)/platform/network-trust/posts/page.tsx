@@ -2,11 +2,11 @@ import Link from "next/link";
 
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { GovernanceWorkspaceNav } from "@/components/governance-workspace-nav";
-import { loadCompanyPostModerationQueue } from "@/lib/company-posts";
+import { loadCompanyPostModerationQueue, loadCompanyPostSettings } from "@/lib/company-posts";
 import { companyPostReportReasonLabel } from "@/lib/company-posts-model";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
 
-import { moderateCompanyPost } from "./actions";
+import { moderateCompanyPost, setCompanyPostsEnabled } from "./actions";
 
 /**
  * CPOST1: moderation queue for company posts. Lists posts hidden after
@@ -27,8 +27,9 @@ export default async function PlatformCompanyPostsPage({
   searchParams: Promise<{ message?: string; error?: string }>;
 }) {
   await requirePlatformPermission("network_trust.posts_read");
-  const [queue, access, params] = await Promise.all([
+  const [queue, settings, access, params] = await Promise.all([
     loadCompanyPostModerationQueue(),
+    loadCompanyPostSettings(),
     getPlatformAccessContext(),
     searchParams,
   ]);
@@ -59,6 +60,59 @@ export default async function PlatformCompanyPostsPage({
       {params.error ? (
         <div role="alert" className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm font-medium text-rose-800">{params.error}</div>
       ) : null}
+
+      {/* CPOST1B: the master switch. Visible to every reader, changeable only by the superadmin. */}
+      <section aria-labelledby="company-posts-switch" data-testid="company-posts-switch"
+        data-enabled={settings ? String(settings.enabled) : "unknown"}
+        className="rounded-2xl border border-[#dce2df] bg-white p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 id="company-posts-switch" className="text-sm font-semibold text-[#1d2824]">Pubblicazione dei post</h2>
+            {settings ? (
+              <>
+                <p className="mt-1 flex items-center gap-2 text-sm text-[#43524c]">
+                  <span aria-hidden="true" className={"inline-block h-2.5 w-2.5 rounded-full " + (settings.enabled ? "bg-emerald-600" : "bg-[#b9c3bf]")} />
+                  {settings.enabled ? "Attiva: le aziende verificate pubblicano e il feed mostra i post." : "Spenta: il compositore e i post sono nascosti a tutti."}
+                </p>
+                <p className="mt-2 text-xs text-[#66736e]">
+                  {settings.maxPostsPerDay} post al giorno per azienda · {settings.maxBodyChars.toLocaleString("it-IT")} caratteri ·
+                  nascosto dopo {settings.autoHideThreshold} aziende segnalanti
+                </p>
+                <p className="mt-1 text-xs text-[#66736e]">
+                  {settings.publishedPosts} pubblicati · {settings.hiddenPosts} nascosti · {settings.openReports} segnalazioni aperte
+                  {settings.updatedAt ? " · aggiornato " + when(settings.updatedAt) : ""}
+                </p>
+              </>
+            ) : (
+              <p role="alert" className="mt-1 text-sm text-amber-800">Lo stato non è leggibile adesso.</p>
+            )}
+          </div>
+          {settings?.canUpdate ? (
+            <form action={setCompanyPostsEnabled}>
+              <input type="hidden" name="enabled" value={settings.enabled ? "false" : "true"} />
+              {settings.enabled ? (
+                <ConfirmSubmitButton
+                  title="Spegnere i post delle aziende?"
+                  description="Il compositore sparisce e il feed smette subito di mostrare i post. Nessun post viene cancellato: riaccendendo tornano visibili."
+                  confirmLabel="Spegni i post"
+                  pendingLabel="Spegnimento…"
+                  tone="warning"
+                  className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-800 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Spegni
+                </ConfirmSubmitButton>
+              ) : (
+                <button type="submit" data-testid="company-posts-enable"
+                  className="rounded-xl border border-[#1a5144] bg-[#1a5144] px-4 py-2 text-xs font-semibold text-white">
+                  Attiva
+                </button>
+              )}
+            </form>
+          ) : settings ? (
+            <p className="max-w-[220px] text-xs text-[#8fa1a9]">Solo il superadmin può accendere o spegnere i post.</p>
+          ) : null}
+        </div>
+      </section>
 
       <section className="grid gap-3 sm:grid-cols-3">
         {[
