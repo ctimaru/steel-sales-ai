@@ -1,0 +1,231 @@
+{
+  "batch": "NET-GROWTH3B-IT-TRADERS-20261104-A",
+  "observed_date": "2026-11-04",
+  "records": [
+    {
+      "name": "Artigiantubi S.r.l.",
+      "domain": "artigiantubi.it",
+      "evidence_url": "https://artigiantubi.it/azienda/",
+      "summary": "Sito aziendale: stoccaggio e distribuzione di tubi in acciaio saldati e senza saldatura per impieghi meccanici e strutturali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Boccardo Tubi S.r.l.",
+      "domain": "boccardotubi.it",
+      "evidence_url": "https://boccardotubi.it/it/chi-siamo/",
+      "summary": "Il sito ufficiale descrive commercio di tubi trafilati a freddo di precisione e servizio taglio a misura.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Centro Acciai Inox",
+      "domain": "centroacciainox.it",
+      "evidence_url": "https://centroacciainox.it/azienda/",
+      "summary": "Fonte aziendale: distribuzione di tubi in acciaio inox, con e senza saldatura, oltre a flange e raccordi.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "PZ Tubi S.r.l.",
+      "domain": "pztubi.com",
+      "evidence_url": "https://pztubi.com/azienda/",
+      "summary": "La società dichiara distribuzione di tubi in acciaio senza saldatura, trafilati e saldati per applicazioni meccaniche.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Inox Steel",
+      "domain": "acciaioinox.eu",
+      "evidence_url": "https://acciaioinox.eu/chi-siamo/",
+      "summary": "L'azienda dichiara commercio di tubi e tubolari in acciaio inossidabile, oltre a lamiere e barre da magazzino.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Intertubi S.p.A.",
+      "domain": "intertubi.it",
+      "evidence_url": "https://intertubi.it/it/Azienda.html",
+      "summary": "L'azienda dichiara importazione e commercializzazione di tubi inox senza saldatura, oltre a raccordi, flange e valvole.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "TNV Commerciale Siderurgica",
+      "domain": "tnvsrl.it",
+      "evidence_url": "https://tnvsrl.it/tubo-trafilato/",
+      "summary": "Fonte ufficiale: distribuzione commerciale di tubi in acciaio saldati trafilati per applicazioni meccaniche.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Tubimec",
+      "domain": "tubimec.it",
+      "evidence_url": "https://tubimec.it/azienda/",
+      "summary": "Sito aziendale della società di distribuzione di tubi per applicazioni meccaniche e forniture siderurgiche.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "EFC Acciai",
+      "domain": "efc-acciai.com",
+      "evidence_url": "https://efc-acciai.com/",
+      "summary": "Il sito aziendale presenta fornitura commerciale di prodotti siderurgici, compresi tubi in acciaio.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Fratelli Pinato",
+      "domain": "pinato.com",
+      "evidence_url": "https://pinato.com/prodotti/",
+      "summary": "L'azienda espone nel proprio catalogo prodotti siderurgici in acciaio inox, compresi tubi e tubolari.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Firas Italia",
+      "domain": "firasitalia.it",
+      "evidence_url": "https://firasitalia.it/forniture-idrauliche/",
+      "summary": "Fonte ufficiale per forniture industriali: tubazioni in acciaio saldate e senza saldatura, con raccorderia.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "DA.MA.AN",
+      "domain": "damaan.it",
+      "evidence_url": "https://damaan.it/tubi/",
+      "summary": "Catalogo ufficiale relativo alla fornitura di tubi in acciaio per impianti e applicazioni industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Pipex Italia",
+      "domain": "pipex.it",
+      "evidence_url": "https://pipex.it/it/warehouse-it/",
+      "summary": "La pagina magazzino ufficiale descrive stock di tubi inox, tubi meccanici, tubi API e tubi trafilati a freddo.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "IMS Piping",
+      "domain": "imspiping.it",
+      "evidence_url": "https://imspiping.it/tubi/",
+      "summary": "Il catalogo aziendale presenta commercializzazione di tubi per piping in acciaio al carbonio, legato e inossidabile.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Steel Center",
+      "domain": "steelcentersrl.it",
+      "evidence_url": "https://steelcentersrl.it/",
+      "summary": "Sito ufficiale del distributore di tubi e materiali in acciaio per il settore impiantistico e industriale.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Arena Acciai",
+      "domain": "arenaacciai.it",
+      "evidence_url": "https://arenaacciai.it/prodotti-lunghi/tubi-senza-saldatura/",
+      "summary": "Catalogo del commerciante siderurgico: tubi in acciaio senza saldatura fra i prodotti lunghi disponibili.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Acciai Vender S.p.A.",
+      "domain": "acciaivender.it",
+      "evidence_url": "https://acciaivender.it/prodotti-lunghi/tubi-senza-saldatura/",
+      "summary": "Catalogo ufficiale di fornitura tubi senza saldatura, in formati commerciali o su misura.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "ITM Group",
+      "domain": "itmgroup.it",
+      "evidence_url": "https://itmgroup.it/tubi/",
+      "summary": "Sito aziendale con categoria tubi in acciaio al carbonio e inossidabile per forniture industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "T. Consonni",
+      "domain": "tconsonni.it",
+      "evidence_url": "https://tconsonni.it/it/prodotti/73-Tubi_in_acciaio_al_carbonio/",
+      "summary": "Catalogo aziendale con tubi in acciaio al carbonio per distribuzione a imprese.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Steelnet",
+      "domain": "steel-net.it",
+      "evidence_url": "https://steel-net.it/index.html",
+      "summary": "Sito aziendale con fornitura di tubi strutturali e componenti in acciaio per il mercato industriale.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Tirelli Ferro e Inox S.r.l.",
+      "domain": "tirelliferro.it",
+      "evidence_url": "https://tirelliferro.it/chi-siamo/",
+      "summary": "Commercio siderurgico con tubi e tubolari in acciaio al carbonio e inox presenti nel magazzino aziendale.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Commercio Ferro",
+      "domain": "commercioferro.com",
+      "evidence_url": "https://commercioferro.com/",
+      "summary": "Il sito aziendale descrive commercio e fornitura di prodotti siderurgici, inclusi tubi strutturali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Merigo S.p.A.",
+      "domain": "merigo.it",
+      "evidence_url": "https://merigo.it/chi-siamo-divisione-tubi-qualificati/",
+      "summary": "La divisione tubi qualificati descrive la distribuzione di tubi in acciaio saldati e senza saldatura.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Soluzioni Piping",
+      "domain": "soluzionipiping.it",
+      "evidence_url": "https://soluzionipiping.it/",
+      "summary": "Sito aziendale di fornitura commerciale di tubazioni e componenti in acciaio inossidabile per piping industriale.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Alloy Pipe & Metal S.r.l. (APM Italia)",
+      "domain": "apmitalia.it",
+      "evidence_url": "https://apmitalia.it/trading/",
+      "summary": "L'azienda dichiara attività di trading di tubi in acciaio saldati e senza saldatura, lamiere e componenti piping.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    }
+  ]
+}
