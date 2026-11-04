@@ -301,6 +301,20 @@ export const PLATFORM_PERMISSIONS = [
     description:
       "Confirm or dismiss identity-resolution candidates; confirmed matches never merge automatically.",
   },
+  {
+    key: "network_trust.posts_read",
+    area: "network_trust",
+    action: "posts_read",
+    risk: "low",
+    description: "Read the moderation queue of company posts and their reports (CPOST1).",
+  },
+  {
+    key: "network_trust.posts_moderate",
+    area: "network_trust",
+    action: "posts_moderate",
+    risk: "high",
+    description: "Hide, restore or remove company posts and close their reports (CPOST1).",
+  },
 
   {
     key: "tenant_access.break_glass",
@@ -414,6 +428,8 @@ export const PLATFORM_STAFF_ROLE_TEMPLATES = [
       "network_trust.review_changes",
       "network_trust.identity_refresh",
       "network_trust.identity_review",
+      "network_trust.posts_read",
+      "network_trust.posts_moderate",
     ],
   },
   {
@@ -452,6 +468,7 @@ export const PLATFORM_ROUTE_PERMISSION_CONTRACT = [
   { route: "/platform/company-claims", permission: "claims.read" },
   { route: "/platform/knowledge", permission: "knowledge.read_drafts" },
   { route: "/platform/network-trust", permission: "network_trust.read" },
+  { route: "/platform/network-trust/posts", permission: "network_trust.posts_read" },
 ] as const satisfies readonly {
   route: string;
   permission: PlatformPermissionKey;
@@ -486,4 +503,5 @@ export const PLATFORM_ACTION_PERMISSION_CONTRACT = {
   decideNetworkChangeReview: "network_trust.review_changes",
   refreshNetworkIdentityCandidates: "network_trust.identity_refresh",
   reviewNetworkIdentityCandidate: "network_trust.identity_review",
+  moderateCompanyPost: "network_trust.posts_moderate",
 } as const satisfies Record<string, PlatformPermissionKey>;

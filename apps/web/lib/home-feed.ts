@@ -1,6 +1,13 @@
 import "server-only";
 
 import {
+  COMPANY_POSTS_PER_PAGE,
+  decodeCompanyPostsToken,
+  encodeCompanyPostsToken,
+  parseCompanyPostsFeed,
+  withCompanyPosts,
+} from "@/lib/company-posts-model";
+import {
   HOME_FEED_PAGE,
   advanceNetworkCursor,
   encodeHomeFeedCursor,
@@ -19,6 +26,7 @@ import { networkCountryName } from "@/lib/network-eu-countries";
 import { networkNameIt } from "@/lib/network-taxonomy-it";
 import { listPublicGradesPage, listPublicStandardsPage } from "@/lib/public-knowledge";
 import { schoolArticles } from "@/lib/school-articles";
+import { createClient } from "@/lib/supabase/server";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -29,13 +37,15 @@ export type HomeFeedViewer = {
   networkAccess: "pro" | "free" | null;
   /** Interactive roles may Connetti / Salva; viewers only read. */
   canInteract: boolean;
+  /** CPOST1: company admins may delete their colleagues' posts (re-checked in SQL). */
+  isAdmin: boolean;
 };
 
 export type HomeFeedPage = {
   items: HomeFeedItem[];
   nextCursor: string | null;
   /** Sources that failed on this page: shown as a quiet notice, never as "empty". */
-  unavailable: Array<"network" | "school" | "marketplace">;
+  unavailable: Array<"network" | "school" | "marketplace" | "posts">;
 };
 
 function clean(value: unknown, max = 240): string {
@@ -230,12 +240,36 @@ async function loadOpportunities(viewer: HomeFeedViewer, cursor: HomeFeedCursor)
   }
 }
 
+/**
+ * CPOST1: posts by verified companies, newest first, through cpost1_feed.
+ * The RPC re-derives the viewer from the session; it returns no posts while
+ * the feature is switched off, which simply ends this source.
+ */
+async function loadCompanyPosts(cursor: HomeFeedCursor) {
+  const position = decodeCompanyPostsToken(cursor.pc);
+  if (position === "done") return { items: [] as HomeFeedItem[], next: "x", failed: false };
+  try {
+    const db = await createClient();
+    const { data, error } = await db.rpc("cpost1_feed", {
+      p_limit: COMPANY_POSTS_PER_PAGE,
+      p_before_created_at: position === "start" ? null : position.beforeCreatedAt,
+      p_before_id: position === "start" ? null : position.beforeId,
+    });
+    const page = error ? null : parseCompanyPostsFeed(data);
+    if (!page) return { items: [] as HomeFeedItem[], next: "x", failed: Boolean(error) };
+    return { items: page.items as HomeFeedItem[], next: encodeCompanyPostsToken(page.next), failed: false };
+  } catch {
+    return { items: [] as HomeFeedItem[], next: "x", failed: true };
+  }
+}
+
 /** One page of the Home feed. Sources load in parallel and fail independently. */
 export async function loadHomeFeedPage(viewer: HomeFeedViewer, cursor: HomeFeedCursor): Promise<HomeFeedPage> {
-  const [companies, school, opportunities] = await Promise.all([
+  const [companies, school, opportunities, posts] = await Promise.all([
     loadCompanies(viewer, cursor),
     loadSchool(cursor),
     loadOpportunities(viewer, cursor),
+    loadCompanyPosts(cursor),
   ]);
   const next: HomeFeedCursor = {
     v: 1,
@@ -244,13 +278,15 @@ export async function loadHomeFeedPage(viewer: HomeFeedViewer, cursor: HomeFeedC
     sp: school.next.sp,
     so: school.next.so,
     mo: opportunities.next,
+    pc: posts.next,
   };
   const unavailable: HomeFeedPage["unavailable"] = [];
   if (companies.failed) unavailable.push("network");
   if (school.failed) unavailable.push("school");
   if (opportunities.failed) unavailable.push("marketplace");
+  if (posts.failed) unavailable.push("posts");
   return {
-    items: interleaveHomeFeed(companies.items, school.items, opportunities.items),
+    items: withCompanyPosts(interleaveHomeFeed(companies.items, school.items, opportunities.items), posts.items),
     nextCursor: homeFeedExhausted(next) ? null : encodeHomeFeedCursor(next),
     unavailable,
   };
@@ -261,7 +297,7 @@ export async function loadHomeFeedPage(viewer: HomeFeedViewer, cursor: HomeFeedC
  * taken from further down (index 12+), so it does not repeat the opening posts.
  */
 export async function loadHomeSuggestedCompanies(viewer: HomeFeedViewer, limit = 4) {
-  const result = await loadCompanies(viewer, { v: 1, np: 1, ni: 12, sp: "done", so: 0, mo: -1 });
+  const result = await loadCompanies(viewer, { v: 1, np: 1, ni: 12, sp: "done", so: 0, mo: -1, pc: "x" });
   return result.items
     .filter((item): item is Extract<HomeFeedItem, { kind: "company" }> => item.kind === "company")
     .slice(0, Math.max(0, Math.min(6, limit)));
