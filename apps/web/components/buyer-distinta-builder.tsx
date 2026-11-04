@@ -1138,7 +1138,9 @@ export function BuyerDistintaBuilder({
             </p>
             {!focusAiIntake ? aiIntakePanel : null}
           </div>
-          <TechnicalCartShell visible={activeLineCount > 0} open={cartOpen}
+          {/* The focused chat already exposes its editable Distinta preview. Do not
+              overlay a second fixed cart CTA on top of mobile navigation. */}
+          <TechnicalCartShell visible={activeLineCount > 0 && !focusAiIntake} open={cartOpen}
             onOpen={openPrivateCart} onClose={() => setCartOpen(false)}
             count={activeLineCount} title={t("La tua distinta")} eyebrow={t("Commerciale · Carrello privato")}
             summary={`${formatNumber(totals.totalMeters, 2)} m · ${formatNumber(totals.totalTonnes, 3)} t · ${totals.completeLines}/${activeLineCount} ${t("righe pronte")}`}
