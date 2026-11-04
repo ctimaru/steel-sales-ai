@@ -5,6 +5,8 @@ import { FocusPage } from "@/components/focus-ui";
 import { HomeAiComposer } from "@/components/home-ai-composer";
 import { HomeFeed, HomeSuggestedCompanies } from "@/components/home-feed";
 import { WorkspaceFirstRunChecklist } from "@/components/workspace-first-run-checklist";
+import { CompanyVerificationCard } from "@/components/company-verification-card";
+import { loadCompanyVerification } from "@/lib/company-verification";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { getDashboardData } from "@/lib/commercial-data";
 import { getCompanySetupState } from "@/lib/company-setup";
@@ -84,7 +86,7 @@ function workspaceRoleLabel(role: string) {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ engagement_updated?: string; engagement_error?: string }>;
+  searchParams: Promise<{ engagement_updated?: string; engagement_error?: string; verification?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -102,6 +104,8 @@ export default async function DashboardPage({
   // HOME-FIRSTRUN1B: admin-only, RLS-scoped read of the viewer's own latest
   // registration contact name; any failure simply means no name hint.
   const registrantNamePromise = isAdmin ? loadOwnRegistrationContactName() : Promise.resolve(null);
+  // SELFVER1: badge state for the caller's own organization; null hides the card.
+  const verificationPromise = loadCompanyVerification(context.organizationId);
 
   const [setup, commercial, procurement, pulse, feedPage, suggestions] = await Promise.all([
     isAdmin
@@ -141,6 +145,8 @@ export default async function DashboardPage({
     },
   );
   const registrantName = await registrantNamePromise;
+  const verification = await verificationPromise;
+  const verificationFlash = params.verification === "requested" ? "requested" : params.verification === "error" ? "error" : null;
   // Soft hint only (a ditta individuale may legitimately carry the owner's name).
   const companyNameHint = firstRun.active && organizationNameMatchesPerson(context.organizationName, registrantName)
     ? { href: appRoutes.company.setup + "#company-name" }
@@ -219,6 +225,13 @@ export default async function DashboardPage({
               <p className="mt-0.5 text-xs text-[#53645b]">{workspaceRoleLabel(context.role)} · Workspace privato</p>
             </div>
           </section>
+
+          <CompanyVerificationCard
+            state={verification}
+            isAdmin={isAdmin}
+            flash={verificationFlash}
+            profileHref={appRoutes.company.profile}
+          />
 
           <WorkspaceFirstRunChecklist state={firstRun} companyNameHint={companyNameHint} compact />
 
