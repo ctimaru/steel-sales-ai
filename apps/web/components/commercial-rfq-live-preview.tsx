@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { appRoutes } from "@/lib/routes";
 import { calculateBuyerDistintaLine, calculateBuyerDistintaTotals, type BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
 
@@ -162,6 +164,12 @@ export function CommercialRfqLivePreview({
           </button>
         </div>
         {saveMessage ? <p role="status" className="mt-2 text-xs text-[#315e49]">{saveMessage}</p> : null}
+        {savedId ? (
+          <Link href={appRoutes.rfqHub.savedDistinta(savedId)} data-testid="comm-rfq-saved-distinta-link"
+            className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+            Apri distinta salvata
+          </Link>
+        ) : null}
         {rfqMessage ? <p role="alert" className="mt-2 text-xs text-[#8c511c]">{rfqMessage}</p> : null}
         <p className="mt-3 text-[11px] leading-4 text-[#53675b]">
           Salvare o creare una RFQ privata non invia messaggi ai fornitori.
