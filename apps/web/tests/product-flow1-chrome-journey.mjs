@@ -294,7 +294,7 @@ try {
           campaignStatuses:campaignsAfter.map(row=>row.status),
           providerCount:captured(title).length,
           localProviderGuardCodes:existsSync(path.join(process.env.RUNNER_TEMP, "product-flow1-provider-guard-codes.txt"))
-            ? [...new Set(readFileSync(path.join(process.env.RUNNER_TEMP, "product-flow1-provider-guard-codes.txt"), "utf8").trim().split("\\n"))]
+            ? [...new Set(readFileSync(path.join(process.env.RUNNER_TEMP, "product-flow1-provider-guard-codes.txt"), "utf8").trim().split(/\r?\n/))]
             : [],
           feedback,
         }));
