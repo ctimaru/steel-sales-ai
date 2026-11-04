@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import type { RfqAiIntakeMode } from "@/components/rfq-ai-intake-ux";
 
 /** Purely local presentation history: not synchronized, saved or sent to suppliers.
@@ -33,7 +33,11 @@ export function CommercialRfqConversation({
 }) {
   const chatEnd = useRef<HTMLDivElement>(null);
   const hasMounted = useRef(false);
-  const canSubmit = value.trim().length >= 3 && !pending && mode === "text";
+  // Prevent user keystrokes entered before React hydration from being discarded
+  // when the controlled composer binds (especially at 320px on slow devices).
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
+  const canSubmit = hydrated && value.trim().length >= 3 && !pending && mode === "text";
 
   useEffect(() => {
     // Never scroll the page on initial mount, especially after a one-shot
@@ -59,7 +63,7 @@ export function CommercialRfqConversation({
         data-testid="commercial-ai-focused-modes"
         className="mb-2 flex justify-end">
         <button type="button" aria-pressed={mode === "manual"}
-          disabled={pending}
+          disabled={!hydrated || pending}
           onClick={() => onModeChange(mode === "manual" ? "text" : "manual")}
           className="min-h-10 rounded-lg px-2 text-xs font-semibold text-[#175640] underline underline-offset-4 disabled:opacity-50">
           {mode === "manual" ? "Torna alla conversazione" : "Compila manualmente"}
@@ -141,12 +145,12 @@ export function CommercialRfqConversation({
               <textarea id="rfqai2-text-input" rows={2} maxLength={12000}
                 value={value} onChange={(event) => onChange(event.target.value)}
                 onKeyDown={onComposerKeyDown}
-                disabled={pending}
+                disabled={!hydrated || pending}
                 placeholder={hasProposals ? "Correggi una proposta: riga 2: 20 barre" : "Scrivi misure, quantità, norma, lunghezza…"}
                 className="min-h-[54px] max-h-44 w-full resize-y rounded-lg border-0 bg-transparent px-2 py-1 text-sm leading-6 text-[#173f35] outline-none placeholder:text-[#788d80] disabled:cursor-not-allowed disabled:opacity-60"
                 spellCheck={false} />
               <div className="flex items-center justify-between gap-2">
-                <button type="button" onClick={onClear} disabled={!value.trim() || pending}
+                <button type="button" onClick={onClear} disabled={!hydrated || !value.trim() || pending}
                   className="min-h-10 rounded-lg px-2 text-xs font-semibold text-[#52695b] underline underline-offset-4 disabled:opacity-40">
                   Cancella
                 </button>
