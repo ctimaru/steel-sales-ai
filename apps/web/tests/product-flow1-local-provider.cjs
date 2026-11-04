@@ -25,7 +25,7 @@ const guardPath = path.join(temp, "product-flow1-provider-guard-codes.txt");
 // CI-only non-sensitive guard stages; never store email payloads, URLs or tokens.
 function requireRequest(condition, code) {
   if (condition) return;
-  appendFileSync(guardPath, code + "\\n", { mode: 0o600 });
+  appendFileSync(guardPath, code + "\n", { mode: 0o600 });
   chmodSync(guardPath, 0o600);
   requireLocal(false);
 }
@@ -42,7 +42,7 @@ globalThis.fetch = async function flow1LocalFetch(input, init) {
     return originalFetch.call(globalThis, input, { ...init, redirect: "error" });
   }
 
-  appendFileSync(guardPath, "resend-intercepted\\n", { mode: 0o600 });
+  appendFileSync(guardPath, "resend-intercepted\n", { mode: 0o600 });
   chmodSync(guardPath, 0o600);
   const request = new Request(input, init);
   requireRequest(url.pathname === "/emails" && !url.search && request.method === "POST", "path-method");
