@@ -7,8 +7,13 @@
  * posts, never ranks by private data and never grants access: every source is
  * fetched server-side through the same permission-checked reads as its own page.
  *
+ * CPOST1 adds the one exception, by founder decision (4 Nov 2026): text posts
+ * written by verified companies, read through cpost1_feed.
+ *
  * Kept free of runtime imports so it can be unit-tested in isolation.
  */
+
+import type { CompanyPostItem } from "./company-posts-model";
 
 export type HomeFeedConnect = "available" | "connected" | "pending" | "unavailable" | null;
 
@@ -80,7 +85,8 @@ export type HomeFeedItem =
       sourceName: string;
       sourceUrl: string;
       publishedAt: string | null;
-    };
+    }
+  | CompanyPostItem;
 
 /** School stream phases, in order: static articles, then standards, then grades. */
 export type SchoolPhase = "articles" | "standards" | "grades" | "done";
@@ -95,25 +101,27 @@ export type HomeFeedCursor = {
   so: number;
   /** Marketplace offset; -1 = exhausted. */
   mo: number;
+  /** CPOST1 company posts: "" = from the newest, "x" = exhausted, else a keyset token. */
+  pc: string;
 };
 
 export const HOME_FEED_PAGE = { companies: 6, school: 2, opportunities: 1 } as const;
 const MAX_INT = 100_000;
 
-export const initialHomeFeedCursor: HomeFeedCursor = { v: 1, np: 1, ni: 0, sp: "articles", so: 0, mo: 0 };
+export const initialHomeFeedCursor: HomeFeedCursor = { v: 1, np: 1, ni: 0, sp: "articles", so: 0, mo: 0, pc: "" };
 
 function clampInt(value: unknown, min: number, max: number, fallback: number): number {
   return typeof value === "number" && Number.isInteger(value) && value >= min && value <= max ? value : fallback;
 }
 
 export function encodeHomeFeedCursor(cursor: HomeFeedCursor): string {
-  return [cursor.v, cursor.np, cursor.ni, cursor.sp, cursor.so, cursor.mo].join(".");
+  return [cursor.v, cursor.np, cursor.ni, cursor.sp, cursor.so, cursor.mo, cursor.pc].join(".");
 }
 
 /** Tamper-tolerant: anything malformed restarts from the beginning, never throws. */
 export function decodeHomeFeedCursor(value: unknown): HomeFeedCursor {
-  if (typeof value !== "string" || value.length > 80) return initialHomeFeedCursor;
-  const [v, np, ni, sp, so, mo] = value.split(".");
+  if (typeof value !== "string" || value.length > 200) return initialHomeFeedCursor;
+  const [v, np, ni, sp, so, mo, pc] = value.split(".");
   if (v !== "1") return initialHomeFeedCursor;
   const phase: SchoolPhase = sp === "articles" || sp === "standards" || sp === "grades" || sp === "done" ? sp : "articles";
   return {
@@ -123,11 +131,13 @@ export function decodeHomeFeedCursor(value: unknown): HomeFeedCursor {
     sp: phase,
     so: clampInt(Number(so), 0, MAX_INT, 0),
     mo: clampInt(Number(mo), -1, MAX_INT, 0),
+    // Only the escaped keyset alphabet survives; anything else restarts the posts.
+    pc: typeof pc === "string" && pc.length <= 120 && /^(x|[0-9T:_+Z-]+~[0-9a-f-]{36})?$/i.test(pc) ? pc : "",
   };
 }
 
 export function homeFeedExhausted(cursor: HomeFeedCursor): boolean {
-  return cursor.np === 0 && cursor.sp === "done" && cursor.mo === -1;
+  return cursor.np === 0 && cursor.sp === "done" && cursor.mo === -1 && cursor.pc === "x";
 }
 
 /**

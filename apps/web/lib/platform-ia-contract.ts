@@ -166,6 +166,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/company-discovery/sources", module: "discovery" },
   { path: "/platform/company-claims", module: "claims" },
   { path: "/platform/network-trust", module: "networkTrust" },
+  { path: "/platform/network-trust/posts", module: "networkTrust" },
   { path: "/platform/knowledge", module: "knowledge" },
   { path: "/platform/knowledge/[type]/[id]", module: "knowledge" },
   { path: "/platform/steel-pulse", module: "steelPulse" },

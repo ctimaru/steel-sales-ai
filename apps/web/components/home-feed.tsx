@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { loadMoreHomeFeed, toggleHomeFeedSavedCompany } from "@/app/(workspace)/dashboard/feed-actions";
+import { CompanyPostCard, CompanyPostComposer, CompanyPostVerifyFirst } from "@/components/company-post";
+import type { CompanyPostItem } from "@/lib/company-posts-model";
 import { companyInitials, type HomeFeedItem } from "@/lib/home-feed-model";
 
 /**
@@ -211,8 +213,20 @@ function NewsPost({ item }: { item: Extract<HomeFeedItem, { kind: "news" }> }) {
   );
 }
 
-function Post({ item, canInteract }: { item: HomeFeedItem; canInteract: boolean }) {
+function Post({
+  item,
+  canInteract,
+  isAdmin,
+  onRemoved,
+}: {
+  item: HomeFeedItem;
+  canInteract: boolean;
+  isAdmin: boolean;
+  onRemoved: (key: string) => void;
+}) {
   switch (item.kind) {
+    case "post":
+      return <CompanyPostCard item={item} isAdmin={isAdmin} onRemoved={onRemoved} />;
     case "company":
       return <CompanyPost item={item} canInteract={canInteract} />;
     case "article":
@@ -231,10 +245,18 @@ export function HomeFeed({
   initialItems,
   initialCursor,
   canInteract,
+  isAdmin = false,
+  composer = "hidden",
+  organizationName = "",
 }: {
   initialItems: HomeFeedItem[];
   initialCursor: string | null;
   canInteract: boolean;
+  /** CPOST1: company admins may delete colleagues' posts (re-checked in SQL). */
+  isAdmin?: boolean;
+  /** CPOST1: composer, a hint for unverified companies, or nothing. */
+  composer?: "compose" | "verify_first" | "hidden";
+  organizationName?: string;
 }) {
   const [items, setItems] = useState(initialItems);
   const [cursor, setCursor] = useState(initialCursor);
@@ -289,9 +311,24 @@ export function HomeFeed({
     return () => observer.disconnect();
   }, [cursor, failed, loadMore]);
 
+  const removePost = useCallback((key: string) => {
+    setItems((current) => current.filter((item) => item.key !== key));
+  }, []);
+
+  const addPost = useCallback((item: CompanyPostItem | null) => {
+    if (!item || keys.current.has(item.key)) return;
+    keys.current.add(item.key);
+    setItems((current) => [item, ...current]);
+  }, []);
+
   return (
     <section aria-labelledby="home-feed-heading" data-testid="home-feed" className="min-w-0 space-y-3">
       <h2 id="home-feed-heading" className="sr-only">Steel Pulse · il tuo feed</h2>
+      {composer === "compose" ? (
+        <CompanyPostComposer organizationName={organizationName} onPublished={addPost} />
+      ) : composer === "verify_first" ? (
+        <CompanyPostVerifyFirst />
+      ) : null}
       {items.length === 0 && !cursor ? (
         <p role="status" className="rounded-2xl border border-[#dce5df] bg-white p-5 text-sm leading-6 text-[#52615b]">
           Il feed non ha ancora contenuti da mostrarti. Le aziende del Network, le guide della Scuola e le opportunità compariranno qui.
@@ -307,7 +344,7 @@ export function HomeFeed({
             data-kind={item.kind}
             className="overflow-hidden rounded-2xl border border-[#dce5df] bg-white"
           >
-            <Post item={item} canInteract={canInteract} />
+            <Post item={item} canInteract={canInteract} isAdmin={isAdmin} onRemoved={removePost} />
           </article>
         ))}
       </div>
