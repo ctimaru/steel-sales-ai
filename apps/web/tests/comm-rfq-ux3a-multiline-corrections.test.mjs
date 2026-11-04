@@ -57,7 +57,9 @@ test("UX3.A routes each chat correction to review, not model memory or dispatch"
   assert.ok(intake.includes("correction={pendingCorrection}"));
   assert.ok(intake.includes("setTextResult((current) => current ? { ...current, candidates: updated } : null)"));
   assert.ok(conversation.includes('hasProposals ? "Correggi riga"'));
-  assert.ok(conversation.includes('disabled={pending}'));
+  assert.ok(conversation.includes('disabled={!hydrated || pending}'));
+  assert.ok(conversation.includes('const [hydrated, setHydrated] = useState(false)'));
+  assert.ok(conversation.includes('setHydrated(true)'));
   assert.ok(reviewer.includes('lastCorrectionSerial.current = correction.serial'));
   assert.ok(reviewer.includes("change(target, correction.patch)"));
   assert.ok(reviewer.includes('evidence.origin === "human"'));
