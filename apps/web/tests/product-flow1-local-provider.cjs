@@ -21,6 +21,14 @@ requireLocal(process.env.RESEND_API_KEY === "flow1-local-synthetic");
 const temp = process.env.RUNNER_TEMP;
 requireLocal(typeof temp === "string" && path.isAbsolute(temp) && statSync(temp).isDirectory());
 const capturePath = path.join(temp, "product-flow1-provider.jsonl");
+const guardPath = path.join(temp, "product-flow1-provider-guard-codes.txt");
+// CI-only non-sensitive guard stages; never store email payloads, URLs or tokens.
+function requireRequest(condition, code) {
+  if (condition) return;
+  appendFileSync(guardPath, code + "\\n", { mode: 0o600 });
+  chmodSync(guardPath, 0o600);
+  requireLocal(false);
+}
 const allowedRecipients = new Set(["rfqh14-producer@example.test", "rfqh14-trader@example.test"]);
 const originalFetch = globalThis.fetch;
 requireLocal(typeof originalFetch === "function");
@@ -34,20 +42,22 @@ globalThis.fetch = async function flow1LocalFetch(input, init) {
     return originalFetch.call(globalThis, input, { ...init, redirect: "error" });
   }
 
+  appendFileSync(guardPath, "resend-intercepted\\n", { mode: 0o600 });
+  chmodSync(guardPath, 0o600);
   const request = new Request(input, init);
-  requireLocal(url.pathname === "/emails" && !url.search && request.method === "POST");
-  requireLocal(request.headers.get("authorization") === "Bearer flow1-local-synthetic");
+  requireRequest(url.pathname === "/emails" && !url.search && request.method === "POST", "path-method");
+  requireRequest(request.headers.get("authorization") === "Bearer flow1-local-synthetic", "auth-header");
   const idempotencyKey = request.headers.get("idempotency-key");
-  requireLocal(typeof idempotencyKey === "string" && /^rfqh3-[0-9a-f-]{36}-invite-v1$/.test(idempotencyKey));
+  requireRequest(typeof idempotencyKey === "string" && /^rfqh3-[0-9a-f-]{36}-invite-v1$/.test(idempotencyKey), "idempotency-key");
   const body = await request.json();
-  requireLocal(Array.isArray(body.to) && body.to.length === 1 && allowedRecipients.has(body.to[0]));
-  requireLocal(typeof body.subject === "string" && body.subject.includes("FLOW1 E2E LOCAL "));
-  requireLocal(typeof body.text === "string" && typeof body.html === "string");
+  requireRequest(Array.isArray(body.to) && body.to.length === 1 && allowedRecipients.has(body.to[0]), "recipient");
+  requireRequest(typeof body.subject === "string" && body.subject.includes("FLOW1 E2E LOCAL "), "subject");
+  requireRequest(typeof body.text === "string" && typeof body.html === "string", "format");
   const links = body.text.match(/https?:\/\/[^\s<>"']+\/rfq\/respond\/[A-Za-z0-9_-]+/g) ?? [];
-  requireLocal(links.length === 1);
+  requireRequest(links.length === 1, "invite-count");
   const invite = new URL(links[0]);
-  requireLocal(invite.origin === "http://127.0.0.1:3000" && /^\/rfq\/respond\/[A-Za-z0-9_-]{43}$/.test(invite.pathname));
-  requireLocal(!invite.search && !invite.hash);
+  requireRequest(invite.origin === "http://127.0.0.1:3000" && /^\/rfq\/respond\/[A-Za-z0-9_-]{43}$/.test(invite.pathname), "invite-origin-format");
+  requireRequest(!invite.search && !invite.hash, "invite-no-query");
 
   const providerId = "flow1-local-" + createHash("sha256").update(idempotencyKey).digest("hex").slice(0, 32);
   const previous = existsSync(capturePath)
@@ -55,7 +65,7 @@ globalThis.fetch = async function flow1LocalFetch(input, init) {
     : [];
   const existing = previous.find(row => row.idempotencyKey === idempotencyKey);
   if (existing) {
-    requireLocal(existing.recipient === body.to[0] && existing.invitePath === invite.pathname && existing.subject === body.subject);
+    requireRequest(existing.recipient === body.to[0] && existing.invitePath === invite.pathname && existing.subject === body.subject, "idempotent-match");
   } else {
     appendFileSync(capturePath, JSON.stringify({ recipient: body.to[0], subject: body.subject,
       invitePath: invite.pathname, idempotencyKey, providerId }) + "\n", { mode: 0o600 });
