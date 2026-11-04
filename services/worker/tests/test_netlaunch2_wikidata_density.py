@@ -8,7 +8,10 @@ def test_industry_queries_use_wikidata_country_website_and_actual_named_entity()
  for sector in SECTORS:
   s=sparql(sector,0)
   assert "wdt:P17 wd:Q38" in s
-  assert "wdt:P452 wd:"+sector in s
+  assert "wdt:P452 ?actualIndustry" in s
+  assert "?actualIndustry wdt:P279? wd:"+sector in s
+  assert "wdt:P31/wdt:P279" not in s
+  assert "ORDER BY ?item ?website ?label" in s
   assert "wdt:P856 ?website" in s
   assert "rdfs:label" in s and "LIMIT 100" in s
  for bad in ("Q5","Q50000000000000"):
@@ -37,3 +40,4 @@ def test_response_bounds_and_malformed_rows():
  with pytest.raises(ValueError):parse_bindings({"results":{"bindings":"oops"}},"Q190117")
  rows,n=parse_bindings({"results":{"bindings":[{"item":{"value":"http://www.wikidata.org/entity/Q5"}}]}},"Q1957908")
  assert rows==[] and n==1
+\n\ndef test_subsector_query_is_bounded_and_does_not_fetch_company_sites():\n for sector in SECTORS:\n  q=sparql(sector,100)\n  assert q.count("wdt:P279?") == 1\n  assert "wdt:P17 wd:Q38" in q\n  assert "wdt:P856 ?website" in q\n  assert "LIMIT 100" in q and "OFFSET 100" in q\n  assert "SERVICE" not in q and "CONSTRUCT" not in q\n
