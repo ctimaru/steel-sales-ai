@@ -259,6 +259,18 @@ jobs:
           set -euo pipefail
           # All Mailpit/GoTrue traffic remains inside disposable local CI.
           node tests/onboarding-qa3-chrome-mail-delivery.mjs
+      - name: COMM-RFQ-UX3.A — Authenticated ten-line review, correction and five-line private Distinta (1440/390/320)
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/comm-rfq-ux3a-chrome-acceptance.mjs
+      - name: COMM-RFQ-UX3.A — Retain local synthetic proposal/review screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comm-rfq-ux3a-multiline-visual-qa
+          path: ${{ runner.temp }}/comm-rfq-ux3a-visual-evidence/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Chrome desktop 1440 and mobile 390 complete Search to Supplier Response
         working-directory: apps/web
         timeout-minutes: 20
@@ -273,18 +285,6 @@ jobs:
         with:
           name: comm-ux6a-synthetic-visual-evidence
           path: ${{ runner.temp }}/comm-ux6a-visual-evidence/*.png
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: COMM-RFQ-UX3.A — Authenticated ten-line review, correction and five-line private Distinta (1440/390/320)
-        working-directory: apps/web
-        timeout-minutes: 12
-        run: node tests/comm-rfq-ux3a-chrome-acceptance.mjs
-      - name: COMM-RFQ-UX3.A — Retain local synthetic proposal/review screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: comm-rfq-ux3a-multiline-visual-qa
-          path: ${{ runner.temp }}/comm-rfq-ux3a-visual-evidence/*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: CALC-DIST3 real buyer named save, Commerciale archive, company RLS, no RFQ dispatch
