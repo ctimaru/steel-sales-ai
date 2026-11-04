@@ -73,3 +73,33 @@ def test_cross_source_preflight_fails_closed_if_unavailable():
             await preflight(client, "https://example.supabase.co", "nonprod", manifest()["records"])
     with pytest.raises(RuntimeError, match="preflight unavailable"):
         asyncio.run(check())
+
+
+def test_live_preflight_has_no_write_even_with_service_credentials(monkeypatch):
+    import app.netgrowth3b_firstparty_batch as module
+    seen = {"checked": False, "posted": False}
+
+    async def only_reads(client, url, key, records):
+        assert url == "https://example.supabase.co"
+        assert key == "sb_secret_nonproduction"
+        assert len(records) == 25
+        seen["checked"] = True
+
+    class FakeClient:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, exc_type, exc, tb):
+            pass
+
+        async def post(self, *args, **kwargs):
+            seen["posted"] = True
+            raise AssertionError("Read-only preflight must never POST")
+
+    monkeypatch.setattr(module, "credentials_from_environment",
+                        lambda: ("https://example.supabase.co", "sb_secret_nonproduction"))
+    monkeypatch.setattr(module, "preflight", only_reads)
+    monkeypatch.setattr(module.httpx, "AsyncClient", lambda **kwargs: FakeClient())
+    result = asyncio.run(run(apply=False, preflight_only=True))
+    assert result["status"] == "verified_no_write"
+    assert seen == {"checked": True, "posted": False}
