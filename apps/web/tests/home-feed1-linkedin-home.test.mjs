@@ -128,3 +128,23 @@ test("HOME-FEED1 composer is the same one-shot Commerciale handoff, writers only
   assert.match(composer, /if \(!canWrite\) \{/);
   assert.doesNotMatch(composer, /fetch\(|supabase|sendEmail/);
 });
+
+test("HOME-FEED1B avatar initials ignore legal forms so companies stay distinct", () => {
+  assert.equal(m.companyInitials("Tecnocurve S.r.l."), "TE");
+  assert.equal(m.companyInitials("Tubauto S.r.l."), "TU");
+  assert.equal(m.companyInitials("Tubi S.p.A."), "TU");
+  assert.equal(m.companyInitials("996 MECART S.r.l."), "9M");
+  assert.equal(m.companyInitials("Acciaierie Bertoli Safau"), "AB");
+  assert.equal(m.companyInitials("Société Générale SAS"), "SG");
+  assert.equal(m.companyInitials("S.r.l."), "•");
+});
+
+test("HOME-FEED1B company posts add published capabilities, sector and a safe website", () => {
+  assert.match(loader, /getPublishedCapabilityLabels\(ids\)\.catch\(\(\) => \(\{\} as Record<string, string\[\]>\)\)/);
+  assert.match(loader, /const href = safeNetworkWebsiteUrl\(value\);/);
+  assert.match(loader, /locationIndicative: company\.geography_status === "sourced_unverified"/);
+  assert.match(feed, /rel="noopener noreferrer nofollow"/);
+  assert.match(feed, /Lavorazioni/);
+  assert.match(feed, /località indicativa/);
+  assert.doesNotMatch(feed, /function initials\(/);
+});
