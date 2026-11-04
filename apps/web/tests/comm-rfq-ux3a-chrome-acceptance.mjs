@@ -71,7 +71,7 @@ try {
         const proposed=page.getByTestId("commercial-rfq-ai-proposals");
         const approved=page.getByTestId("commercial-rfq-approved-lines");
         assert.equal(await proposed.locator("li").count(),10);
-        assert.match(await approved.innerText(),/0 righe/);
+        assert.match(await approved.textContent(),/0 righe/);
         assert.equal(await live.getByRole("button",{name:"Salva distinta privata"}).isDisabled(),true);
         await noOverflow(page,"ten-candidates-"+width);
         await articles.first().scrollIntoViewIfNeeded();
@@ -101,7 +101,7 @@ try {
           return article?.textContent?.includes("120 × 80 × 5 mm") || article?.textContent?.includes("120 × 80 × 5");
         },{timeout:60000});
         assert.equal(await check2.isChecked(),false,"New correction revokes previous buyer confirmation");
-        assert.match(await approved.innerText(),/0 righe/);
+        assert.match(await approved.textContent(),/0 righe/);
         assert.equal(await live.getByRole("button",{name:"Salva distinta privata"}).isDisabled(),true);
         await noOverflow(page,"corrected-"+width);
         if(width<1000) await page.getByRole("tab",{name:/Distinta/}).click();
@@ -117,7 +117,7 @@ try {
           {timeout:60000}
         );
         assert.equal(await approved.locator("li").count(),5);
-        assert.match(await live.innerText(),/5 righe/);
+        assert.match(await live.textContent(),/5 righe/);
         assert.equal(await live.getByRole("button",{name:"Salva distinta privata"}).isDisabled(),false);
         assert.equal(await proposed.count(),0,"No candidate remains counted as approved automatically");
         await noOverflow(page,"approved-five-"+width);
