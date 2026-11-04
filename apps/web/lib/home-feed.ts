@@ -250,7 +250,7 @@ async function loadCompanyPosts(cursor: HomeFeedCursor) {
   if (position === "done") return { items: [] as HomeFeedItem[], next: "x", failed: false };
   try {
     const db = await createClient();
-    const { data, error } = await db.rpc("cpost1_feed", {
+    const { data, error } = await db.rpc("cpost2_feed", {
       p_limit: COMPANY_POSTS_PER_PAGE,
       p_before_created_at: position === "start" ? null : position.beforeCreatedAt,
       p_before_id: position === "start" ? null : position.beforeId,

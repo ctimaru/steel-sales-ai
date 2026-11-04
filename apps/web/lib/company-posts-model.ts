@@ -15,11 +15,52 @@ export const COMPANY_POSTS_PER_PAGE = 3;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?(Z|[+-]\d{2}:\d{2})$/;
 
+/**
+ * CPOST2 (founder decision, 4 Nov 2026): typed posts useful to the trade.
+ * "Capacità disponibile" comes first; capacity and stock expire after 30 days.
+ */
+export const COMPANY_POST_TYPES = [
+  { value: "capacity", label: "Capacità disponibile", short: "Capacità", hint: "Impianti o lavorazioni liberi in un periodo" },
+  { value: "stock", label: "Materiale disponibile", short: "Materiale", hint: "Tubi e prodotti pronti a magazzino" },
+  { value: "news", label: "Novità aziendale", short: "Novità", hint: "Impianti, gamme, investimenti, collaborazioni" },
+  { value: "event", label: "Evento e fiera", short: "Eventi", hint: "Fiere, open day, presentazioni" },
+] as const;
+
+export type CompanyPostType = (typeof COMPANY_POST_TYPES)[number]["value"];
+
+export function isCompanyPostType(value: unknown): value is CompanyPostType {
+  return COMPANY_POST_TYPES.some((type) => type.value === value);
+}
+
+export function companyPostTypeLabel(value: CompanyPostType): string {
+  return COMPANY_POST_TYPES.find((type) => type.value === value)?.label ?? "Novità aziendale";
+}
+
+export const CAPACITY_PROCESSES = [
+  { value: "taglio", label: "Taglio" },
+  { value: "curvatura", label: "Curvatura" },
+  { value: "saldatura", label: "Saldatura" },
+  { value: "laser", label: "Taglio laser" },
+  { value: "foratura", label: "Foratura" },
+  { value: "filettatura", label: "Filettatura" },
+  { value: "zincatura", label: "Zincatura" },
+  { value: "verniciatura", label: "Verniciatura" },
+  { value: "trattamento_termico", label: "Trattamento termico" },
+  { value: "lavorazione_meccanica", label: "Lavorazione meccanica" },
+  { value: "altro", label: "Altro" },
+] as const;
+
+/** Only flat string/boolean details survive; everything else is dropped. */
+export type CompanyPostDetails = Record<string, string | boolean>;
+
 export type CompanyPostItem = {
   kind: "post";
   key: string;
   id: string;
+  postType: CompanyPostType;
   body: string;
+  details: CompanyPostDetails;
+  expiresAt: string | null;
   companyId: string;
   companyName: string;
   createdAt: string;
@@ -43,13 +84,22 @@ export function parseCompanyPost(value: unknown): CompanyPostItem | null {
   const body = typeof v.body === "string" ? v.body.trim().slice(0, COMPANY_POST_MAX_CHARS) : "";
   const companyName = text(v.company_name, 255);
   const createdAt = typeof v.created_at === "string" && TIMESTAMP.test(v.created_at) ? v.created_at : null;
+  // Posts from before CPOST2 carry no type: they are news.
+  const postType: CompanyPostType = v.post_type === undefined || v.post_type === null ? "news"
+    : isCompanyPostType(v.post_type) ? v.post_type : ("" as CompanyPostType);
+  const details = parseCompanyPostDetails(v.details);
   // Only verified companies publish; anything else is not a post we show.
-  if (!id || !companyId || !body || !companyName || !createdAt || v.company_verified !== true) return null;
+  if (!id || !companyId || !companyName || !createdAt || v.company_verified !== true || !isCompanyPostType(postType)) return null;
+  // News needs text; typed posts need their key detail.
+  if (postType === "news" ? !body : !companyPostHasKeyDetail(postType, details)) return null;
   return {
     kind: "post",
     key: "post:" + id,
     id,
+    postType,
     body,
+    details,
+    expiresAt: typeof v.expires_at === "string" && TIMESTAMP.test(v.expires_at) ? v.expires_at : null,
     companyId,
     companyName,
     createdAt,
@@ -58,6 +108,94 @@ export function parseCompanyPost(value: unknown): CompanyPostItem | null {
     isMine: v.is_mine === true,
     reportedByMe: v.reported_by_me === true,
   };
+}
+
+function parseCompanyPostDetails(value: unknown): CompanyPostDetails {
+  const out: CompanyPostDetails = {};
+  if (!value || typeof value !== "object" || Array.isArray(value)) return out;
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>).slice(0, 12)) {
+    if (!/^[a-z_0-9]{1,32}$/.test(key)) continue;
+    if (typeof raw === "boolean") out[key] = raw;
+    else if (typeof raw === "string" && raw.trim()) out[key] = raw.trim().slice(0, 200);
+  }
+  return out;
+}
+
+function companyPostHasKeyDetail(type: CompanyPostType, details: CompanyPostDetails): boolean {
+  if (type === "capacity") return typeof details.process === "string";
+  if (type === "stock") return typeof details.product === "string";
+  if (type === "event") return typeof details.name === "string" && typeof details.date_from === "string";
+  return true;
+}
+
+const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** "2026-11-14" → "14 nov 2026", without time-zone drift. */
+export function companyPostDate(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const match = DATE_ONLY.exec(value);
+  if (!match) return null;
+  const date = new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3])));
+  return Number.isNaN(date.getTime())
+    ? null
+    : date.toLocaleDateString("it-IT", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+}
+
+function period(from: unknown, to: unknown, prefix: string): string | null {
+  const a = companyPostDate(from);
+  const b = companyPostDate(to);
+  if (a && b) return a === b ? a : a + " – " + b;
+  if (a) return "dal " + a;
+  if (b) return prefix + b;
+  return null;
+}
+
+/** The structured part of a typed post, as label/value rows in Italian. */
+export function companyPostDetailRows(item: Pick<CompanyPostItem, "postType" | "details">): Array<{ label: string; value: string }> {
+  const d = item.details;
+  const str = (key: string) => (typeof d[key] === "string" ? (d[key] as string) : null);
+  const rows: Array<{ label: string; value: string | null }> = [];
+  if (item.postType === "capacity") {
+    const process = CAPACITY_PROCESSES.find((p) => p.value === str("process"))?.label ?? null;
+    rows.push(
+      { label: "Lavorazione", value: str("process") === "altro" ? str("process_detail") ?? process : process },
+      { label: "Periodo", value: period(d.available_from, d.available_to, "fino al ") },
+      { label: "Quantità", value: str("quantity") },
+      { label: "Luogo", value: str("location") },
+    );
+  } else if (item.postType === "stock") {
+    rows.push(
+      { label: "Prodotto", value: str("product") },
+      { label: "Norma", value: str("standard") },
+      { label: "Grado", value: str("grade") },
+      { label: "Dimensioni", value: str("dimensions") },
+      { label: "Quantità", value: str("quantity") },
+      { label: "Luogo", value: str("location") },
+      { label: "Certificato", value: d.certificate_31 === true ? "EN 10204 3.1" : null },
+    );
+  } else if (item.postType === "event") {
+    rows.push(
+      { label: "Evento", value: str("name") },
+      { label: "Date", value: period(d.date_from, d.date_to, "fino al ") },
+      { label: "Luogo", value: str("location") },
+      { label: "Stand", value: str("stand") },
+    );
+  }
+  return rows.filter((row): row is { label: string; value: string } => Boolean(row.value));
+}
+
+/** Capacity and stock are offers: they show until when and lead to the RFQ page. */
+export function companyPostIsOffer(type: CompanyPostType): boolean {
+  return type === "capacity" || type === "stock";
+}
+
+/**
+ * "Chiedi un'offerta": the existing GET-only Commerciale handoff with the
+ * company as Network context. Requests still leave only from the RFQ page.
+ */
+export function companyPostOfferHref(item: Pick<CompanyPostItem, "postType" | "companyId" | "isOwnCompany">): string | null {
+  if (!companyPostIsOffer(item.postType) || item.isOwnCompany || !UUID.test(item.companyId)) return null;
+  return "/commercial?network=" + encodeURIComponent(item.companyId) + "&compose=1#commercial-compose";
 }
 
 export function parseCompanyPostsFeed(value: unknown): { items: CompanyPostItem[]; next: CompanyPostsCursor | null } | null {
@@ -160,8 +298,25 @@ export function companyPostReportReasonLabel(value: string): string {
 }
 
 /** Italian copy for the errors the cpost1_* functions raise; anything else is generic. */
+const DETAIL_COPY: Record<string, string> = {
+  process: "Scegli la lavorazione.",
+  process_detail: "Descrivi la lavorazione.",
+  product: "Indica il prodotto.",
+  name: "Indica il nome dell’evento.",
+  date_from: "Indica la data di inizio.",
+  location: "Indica il luogo.",
+};
+
 export function companyPostErrorCopy(message: unknown): string {
   const m = typeof message === "string" ? message : "";
+  const missing = /missing post detail: ([a-z_]+)/.exec(m);
+  if (missing) return DETAIL_COPY[missing[1]] ?? "Completa i campi obbligatori.";
+  if (m.includes("invalid capacity process")) return DETAIL_COPY.process;
+  if (m.includes("already ended")) return "La data di fine è già passata.";
+  if (m.includes("ends before it starts")) return "La data di fine è precedente a quella di inizio.";
+  if (m.includes("invalid post date")) return "Una delle date non è valida.";
+  if (m.includes("post detail too long")) return "Uno dei campi è troppo lungo.";
+  if (m.includes("invalid post type")) return "Scegli il tipo di post.";
   if (m.includes("daily post limit")) return "Hai raggiunto il limite di " + COMPANY_POST_DAILY_LIMIT + " post al giorno per la tua azienda. Riprova domani.";
   if (m.includes("exceeds") || m.includes("invalid post body length")) return "Il post supera i " + COMPANY_POST_MAX_CHARS.toLocaleString("it-IT") + " caratteri.";
   if (m.includes("empty")) return "Scrivi il testo del post.";
