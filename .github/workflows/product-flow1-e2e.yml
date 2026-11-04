@@ -179,7 +179,7 @@ jobs:
         run: |
           set -euo pipefail
           umask 077
-          nohup setsid node tests/product-flow1-local-email-server.cjs \\
+          nohup setsid node tests/product-flow1-local-email-server.cjs \
             > "$RUNNER_TEMP/flow1-email-server.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/flow1-email-server.pid"
           for attempt in $(seq 1 30); do
@@ -192,7 +192,6 @@ jobs:
           echo "Synthetic email transport failed to start; external provider is forbidden in FLOW1"
           exit 1
       - name: Start dedicated Next.js with local-only AI fixture and loopback mail
-
         working-directory: apps/web
         shell: bash
         run: |
