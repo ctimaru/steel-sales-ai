@@ -72,7 +72,7 @@ try {
         const approved=page.getByTestId("commercial-rfq-approved-lines");
         assert.equal(await proposed.locator("li").count(),10);
         assert.match(await approved.textContent(),/0 righe/);
-        assert.equal(await live.getByRole("button",{name:"Salva distinta privata"}).isDisabled(),true);
+        assert.equal(await live.locator("button").filter({hasText:"Salva distinta privata"}).isDisabled(),true);
         await noOverflow(page,"ten-candidates-"+width);
         await articles.first().scrollIntoViewIfNeeded();
         await page.screenshot({path:path.join(screens,`ux3a-buyer-${width}-ten-proposals-chat.png`),animations:"disabled"});
@@ -102,7 +102,7 @@ try {
         },{timeout:60000});
         assert.equal(await check2.isChecked(),false,"New correction revokes previous buyer confirmation");
         assert.match(await approved.textContent(),/0 righe/);
-        assert.equal(await live.getByRole("button",{name:"Salva distinta privata"}).isDisabled(),true);
+        assert.equal(await live.locator("button").filter({hasText:"Salva distinta privata"}).isDisabled(),true);
         await noOverflow(page,"corrected-"+width);
         if(width<1000) await page.getByRole("tab",{name:/Distinta/}).click();
         await page.screenshot({path:path.join(screens,`ux3a-buyer-${width}-corrected-preview.png`),animations:"disabled"});
@@ -118,7 +118,7 @@ try {
         );
         assert.equal(await approved.locator("li").count(),5);
         assert.match(await live.textContent(),/5 righe/);
-        assert.equal(await live.getByRole("button",{name:"Salva distinta privata"}).isDisabled(),false);
+        assert.equal(await live.locator("button").filter({hasText:"Salva distinta privata"}).isDisabled(),false);
         assert.equal(await proposed.count(),0,"No candidate remains counted as approved automatically");
         await noOverflow(page,"approved-five-"+width);
         if(width<1000) await page.getByRole("tab",{name:/Distinta/}).click();
