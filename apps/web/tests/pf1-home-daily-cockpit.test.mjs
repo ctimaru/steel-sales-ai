@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const { readFileSync } = fs;
 
 const home = fs.readFileSync(
   new URL("../app/(workspace)/dashboard/page.tsx", import.meta.url),
@@ -10,21 +11,21 @@ const home = fs.readFileSync(
 test("PF1 turns Home into a compact daily cockpit", () => {
   assert.match(home, /Cosa richiede attenzione/);
   assert.match(home, /Ultimi movimenti commerciali/);
-  assert.match(home, /Azioni rapide/);
   assert.match(home, /Solo segnali con un’azione concreta/);
 });
 
 test("PF1 keeps setup contextual and only when incomplete", () => {
-  assert.match(home, /setupIncomplete/);
-  assert.match(home, /Continua setup/);
-  assert.match(home, /essential_completed_count/);
+  const checklist = readFileSync(new URL("../components/workspace-first-run-checklist.tsx", import.meta.url), "utf8");
+  assert.match(home, /<WorkspaceFirstRunChecklist state=\{firstRun\}/);
+  assert.match(checklist, /Continua setup/);
+  assert.match(checklist, /essentialCompleted/);
 });
 
 test("PF1 provides four concrete quick actions", () => {
-  assert.match(home, /Cerca nello storico/);
+  // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
+  assert.match(home, /<HomeAiComposer/);
   assert.match(home, /Crea distinta/);
-  assert.match(home, /Gestisci richieste e offerte/);
-  assert.match(home, /Trova azienda/);
+  assert.match(home, /\{firstRun \? "Crea la tua prima RFQ" : "Crea una RFQ"\}/);
 });
 
 test("PF1 removes duplicated macro-section marketing from Home", () => {
@@ -39,5 +40,5 @@ test("PF1 reduces Home data loading to cockpit signals", () => {
   assert.doesNotMatch(home, /getSavedNetworkCompanies/);
   assert.doesNotMatch(home, /getNetworkInquiries\(context\.organizationId, "sent"\)/);
   assert.doesNotMatch(home, /getNetworkInquiries/); // NET-UX LOT1B: Network inquiries retired; requests go through the RFQ Hub
-  assert.match(home, /getNetworkActivityFeed/);
+  assert.doesNotMatch(home, /getNetworkActivityFeed/);
 });

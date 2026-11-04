@@ -10,10 +10,13 @@ import type { WorkspaceFirstRun } from "@/lib/workspace-first-run";
 export function WorkspaceFirstRunChecklist({
   state,
   companyNameHint = null,
+  compact = false,
 }: {
   state: WorkspaceFirstRun;
   /** HOME-FIRSTRUN1B: soft hint when the workspace name equals the registrant's name. */
   companyNameHint?: { href: string } | null;
+  /** HOME-FEED1: narrow left-rail variant (single column, CTA only on the next step). */
+  compact?: boolean;
 }) {
   if (!state.active || !state.nextStep) return null;
   const { steps, nextStep, essentialCompleted, essentialTotal } = state;
@@ -23,19 +26,21 @@ export function WorkspaceFirstRunChecklist({
     <section
       aria-labelledby="workspace-first-run-heading"
       data-testid="workspace-first-run"
-      className="rounded-2xl border border-[#b9d2c5] bg-white px-4 py-4 sm:px-5"
+      className={"rounded-2xl border border-[#b9d2c5] bg-white " + (compact ? "p-4" : "px-4 py-4 sm:px-5")}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+      <div className={compact ? "flex flex-col gap-3" : "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6"}>
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#28634f]">Primi passi</p>
-          <h2 id="workspace-first-run-heading" className="mt-1 text-lg font-semibold tracking-tight text-[#173f35] sm:text-xl">
+          <h2 id="workspace-first-run-heading" className={"mt-1 font-semibold tracking-tight text-[#173f35] " + (compact ? "text-base" : "text-lg sm:text-xl")}>
             Prepara il tuo workspace
           </h2>
-          <p className="mt-1 max-w-2xl text-xs leading-5 text-[#52645a] sm:text-sm">
-            Due passi essenziali per usare la memoria commerciale. Network, Distinta e Scuola sono già disponibili.
-          </p>
+          {compact ? null : (
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-[#52645a] sm:text-sm">
+              Due passi essenziali per usare la memoria commerciale. Network, Distinta e Scuola sono già disponibili.
+            </p>
+          )}
         </div>
-        <div className="w-full shrink-0 sm:w-52">
+        <div className={compact ? "w-full" : "w-full shrink-0 sm:w-52"}>
           <div className="flex items-baseline justify-between text-[11px] font-semibold text-[#173f35]">
             <span>Setup essenziale</span>
             <span className="tabular-nums">
@@ -71,7 +76,7 @@ export function WorkspaceFirstRunChecklist({
         </p>
       ) : null}
 
-      <ol className="mt-4 grid gap-2 sm:grid-cols-2">
+      <ol className={compact ? "mt-3 grid gap-1.5" : "mt-4 grid gap-2 sm:grid-cols-2"}>
         {steps.map((step, index) => {
           const isNext = step.id === nextStep.id;
           return (
@@ -103,7 +108,7 @@ export function WorkspaceFirstRunChecklist({
                   </span>
                   {!step.essential ? <span className="text-[10px] font-medium text-[#607268]">Facoltativo</span> : null}
                 </p>
-                <p className="mt-0.5 text-xs leading-5 text-[#52615b]">{step.detail}</p>
+                {!compact || isNext ? <p className="mt-0.5 text-xs leading-5 text-[#52615b]">{step.detail}</p> : null}
                 {isNext ? (
                   <Link
                     href={step.href}
@@ -111,7 +116,7 @@ export function WorkspaceFirstRunChecklist({
                   >
                     Continua setup <span aria-hidden="true">→</span>
                   </Link>
-                ) : (
+                ) : compact ? null : (
                   <Link
                     href={step.href}
                     className="mt-1 inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"

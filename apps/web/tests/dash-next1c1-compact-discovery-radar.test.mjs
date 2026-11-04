@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+const homeFeedViewerSource = readFileSync(new URL("../lib/home-feed-viewer.ts", import.meta.url), "utf8");
+const homeFeedSource = readFileSync(new URL("../lib/home-feed.ts", import.meta.url), "utf8"); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const home = read("../app/(italian)/(workspace)/dashboard/page.tsx");
@@ -8,20 +10,15 @@ const radar = read("../components/dashboard-discovery-feed.tsx");
 const selectors = read("../lib/dashboard-discovery.ts");
 
 test("NEXT1C.1 discovery is visible before redundant tiles and the news feed", () => {
-  const start = home.indexOf('<DashboardDiscoveryFeed');
-  const workAreas = home.indexOf('<section aria-label="Aree di lavoro"');
-  const news = home.indexOf('<DashboardSteelPulse state={pulse} />');
-  assert.ok(start > 0 && workAreas > start && news > start,
-    "Actionable discovery must precede lower-value navigation and news");
-  assert.equal(home.split('<DashboardDiscoveryFeed').length - 1, 1);
+  // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
+  assert.equal(home.split("<HomeFeed ").length - 1, 1, "exactly one feed");
+  assert.doesNotMatch(home, /<DashboardDiscoveryFeed|aria-label="Aree di lavoro"|<DashboardSteelPulse/);
   assert.match(radar, /data-testid="dashboard-opportunity-radar"/);
-  assert.match(radar, /md:grid-cols-2/);
-  assert.match(radar, /text-xs/);
   assert.doesNotMatch(radar, /min-h-\[146px\]/);
 });
 
 test("NEXT1C.1 keeps Network data entitlement-bound, never reveals private signals", () => {
-  assert.match(home, /networkEntitled\s*\?\s*getNetworkActivityFeed/);
+  assert.doesNotMatch(home, /getNetworkActivityFeed/);
   assert.doesNotMatch(radar, /selectDashboardFollowedUpdates/); // NET-UX LOT1: followed-company updates removed (Connetti only)
   assert.match(radar, /networkEntitled \? appRoutes\.network\.connections : appRoutes\.network\.directory/);
   assert.doesNotMatch(radar, /Nessun nuovo aggiornamento|aziende seguite/);
@@ -31,7 +28,7 @@ test("NEXT1C.1 keeps Network data entitlement-bound, never reveals private signa
 });
 
 test("NEXT1C.1 marketplace shows exactly public P5.2 teasers and verifiable destinations", () => {
-  assert.match(home, /getMarketplaceFeed\(context\.organizationId, \{ limit: 10, offset: 0 \}\)/);
+  assert.match(homeFeedSource, /getMarketplaceFeed\(viewer\.organizationId/);
   assert.match(radar, /marketplace\?\.contract === "P5\.2-feed-v1"/);
   assert.match(radar, /selectDashboardOpportunities\(marketplace\.items, interests, 2\)/);
   assert.match(radar, /engagementKind="marketplace_teaser"/);

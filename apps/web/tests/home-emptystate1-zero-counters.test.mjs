@@ -9,15 +9,13 @@ test("HOME-EMPTYSTATE1 three verified zeros become an empty state, partial data 
 });
 
 test("HOME-EMPTYSTATE1 both counter surfaces use the empty state and keep their structure", () => {
-  assert.equal(home.match(/<RfqEmptyState canWrite=\{canWrite\} firstRun=\{firstRun\.active\} \/>/g).length, 2);
-  // Workspace card: empty state comes before the zero rows branch.
-  const empty = home.indexOf(") : procurementAllZero ? (");
+  // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
+  assert.equal(home.match(/<RfqEmptyState canWrite=\{canWrite\} firstRun=\{firstRun\.active\} \/>/g).length, 1);
+  const empty = home.indexOf("{procurementAllZero ? (");
   const rows = home.indexOf(") : procurementKpis && procurementKpis.length > 0 ? (");
   assert.ok(empty !== -1 && rows > empty);
-  // Tasks tab keeps the RFQ lifecycle section (DASH-FEED2 contract).
   assert.match(home, /aria-label="RFQ lifecycle"[\s\S]*procurementAllZero \?/);
-  // The verified-state footnote is shown only with real, non-zero rows.
-  assert.ok(home.indexOf("Stato acquisti verificato") > rows);
+  assert.doesNotMatch(home, /Stato acquisti verificato/);
 });
 
 test("HOME-EMPTYSTATE1 creation links are existing routes and only for roles that can write", () => {

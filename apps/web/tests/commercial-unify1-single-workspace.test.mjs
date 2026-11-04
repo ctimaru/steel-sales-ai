@@ -48,7 +48,6 @@ test("COMMERCIAL-UNIFY1 puts workflow, live buyer actions and Network entry befo
   assert.match(commercial, /appRoutes\.commercial\.home/);
   assert.match(commercial, /appRoutes\.network\.directory/);
   assert.match(commercial, /canWriteWorkspace\(context\.role\)/);
-  assert.match(dashboard, /title: "Gestisci richieste e offerte"/);
   assert.match(dashboard, /href: appRoutes\.commercial\.home/);
 });
 

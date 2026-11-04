@@ -92,7 +92,7 @@ test("NEXT1C.3 permits only matching published public-profile facts, no contact 
 });
 
 test("NEXT1C.3 Dashboard offers one-click Commerciale handoff and keeps profile link", () => {
-  assert.match(dashboard, /canWriteCommercial=\{canWrite\}/);
+  assert.match(readFileSync(new URL("../components/home-feed.tsx", import.meta.url), "utf8"), /"\/network\/" \+ item\.id \+ "\/connect"/); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
   assert.match(radar, /\?network=" \+ encodeURIComponent\(company\.id\)/);
   assert.match(radar, /canWriteCommercial \? "&compose=1#commercial-compose" : "#network-commercial-context"/);
   assert.match(radar, /Prepara richiesta →/);

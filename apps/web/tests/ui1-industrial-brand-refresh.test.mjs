@@ -58,9 +58,6 @@ test("PF1 keeps Company Home task-dense without duplicating macro navigation", (
   assert.match(dashboard, /\{workspaceGreeting\(\)\}, \{context\.organizationName\}/);
   assert.match(dashboard, /Cosa richiede attenzione/);
   assert.match(dashboard, /Ultimi movimenti commerciali/);
-  assert.match(dashboard, /Azioni rapide/);
-  assert.match(dashboard, /Gestisci richieste e offerte/);
-  assert.match(dashboard, /metric-number/);
   assert.doesNotMatch(dashboard, /Spazi condivisi/);
   assert.doesNotMatch(dashboard, /Ecosistema Smart Steel Sales/);
   assert.doesNotMatch(dashboard, /<form action=\{appRoutes\.commercial\.search\}/);

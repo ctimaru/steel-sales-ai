@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
+const homeFeedViewerSource = readFileSync(new URL("../lib/home-feed-viewer.ts", import.meta.url), "utf8");
+const homeFeedSource = readFileSync(new URL("../lib/home-feed.ts", import.meta.url), "utf8"); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const logic = read("../lib/dashboard-free-network-preview.ts");
@@ -56,12 +58,10 @@ test("HOME-NETPREVIEW1 null or invalid page stays distinguishable from an empty 
 });
 
 test("HOME-NETPREVIEW1 Home uses the same free, published browse RPC as /network and only without Pro", () => {
-  assert.match(home, /const freeNetworkReadEnabled = networkEnabled && !networkEntitled && isNetworkFreeReadEnabled\(\)/);
-  assert.match(home, /getNetworkBrowsePage\(context\.organizationId, "free", "published", \{ page: 1 \}\)\.catch\(\(\) => null\)/);
-  assert.match(home, /selectFreeNetworkPreview\(await freeNetworkPagePromise, context\.organizationName\)/);
-  // Pro path and the main parallel batch are unchanged.
-  assert.match(home, /networkEnabled && networkEntitled\s*\? searchNetwork\(\{ product: "tubes_pipes", page: 1 \}\)\.catch\(\(\) => null\)/);
-  assert.match(home, /\[setup, commercial, activity, sector, procurement, pulse, marketplace, networkCatalog\] = await Promise\.all/);
+  // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
+  assert.match(homeFeedViewerSource, /networkEntitled \? "pro" : networkEnabled && isNetworkFreeReadEnabled\(\) \? "free" : null/);
+  assert.match(homeFeedSource, /getNetworkBrowsePage\(viewer\.organizationId, viewer\.networkAccess, "published"/);
+  assert.match(home, /\[setup, commercial, procurement, pulse, feedPage, suggestions\] = await Promise\.all/);
 });
 
 test("HOME-NETPREVIEW1 radar shows companies instead of claiming the Network is unavailable", () => {

@@ -86,7 +86,7 @@ test("DASH-FEED3 missing engagement never blocks permitted news", async () => {
 
 test("DASH-FEED3 Home uses governed cards; no invented content or dangerous render", () => {
   assert.match(dashboard, /loadDashboardPulse\(\)/);
-  assert.match(dashboard, /<DashboardSteelPulse state=\{pulse\} \/>/);
+  assert.match(dashboard, /pulseNewsItems\(pulse\.feed\?\.items \?\? \[\]\)/); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
   assert.match(panel, /state\.feed\?\.items \?\? \[\]/);
   assert.match(panel, /cards\.slice\(0, 2\)\.map/);
   assert.match(panel, /cards\.slice\(2\)\.map/);

@@ -88,9 +88,6 @@ test("sales navigation uses stable macros with contextual tools and avatar drawe
 test("Home is a daily operational cockpit while Search owns the dedicated search workspace", () => {
   assert.match(dashboard, /\{workspaceGreeting\(\)\}, \{context\.organizationName\}/);
   assert.match(dashboard, /Cosa richiede attenzione/);
-  assert.match(dashboard, /href=\{appRoutes\.commercial\.search\}/);
-  assert.match(dashboard, /Cerca nello storico/);
-  assert.match(dashboard, /Azioni rapide/);
   assert.doesNotMatch(dashboard, /action=\{appRoutes\.commercial\.search\}/);
   assert.doesNotMatch(dashboard, /name="q"/);
   assert.doesNotMatch(dashboard, /<GlobalSearch/);

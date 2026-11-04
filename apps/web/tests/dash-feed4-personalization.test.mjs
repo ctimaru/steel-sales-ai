@@ -78,9 +78,8 @@ test("DASH-FEED4 offers a single accessible save form to free users", () => {
 });
 
 test("DASH-FEED4 provides free account sector preference ONLY as a display hint", () => {
-  assert.match(dashboard, /networkEntitled \? getDashboardCompanySector/);
-  assert.match(dashboard, /sector === "unknown" \? selfDeclaredSector : sector/);
-  assert.match(dashboard, /dashboardPresentation/);
+  // HOME-FEED1: the Home no longer reorders by sector at all; sector never grants capabilities.
+  assert.doesNotMatch(dashboard, /getDashboardCompanySector|dashboardPresentation/);
   assert.match(dashboard, /canWriteWorkspace\(context\.role\)/);
   assert.match(dashboard, /can_access_network/);
 });
