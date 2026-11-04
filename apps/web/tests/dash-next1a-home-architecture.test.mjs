@@ -9,28 +9,21 @@ const discovery = read("../components/dashboard-discovery-feed.tsx");
 const chrome = read("./demotest23-chrome-auth.mjs");
 
 test("DASH-NEXT1A Home places a truthful action-first entry above feed", () => {
-  const hero = home.indexOf('<section aria-labelledby="quick-actions"');
+  // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
+  const composer = home.indexOf("<HomeAiComposer");
   const attention = home.indexOf('<section aria-labelledby="daily-priorities"');
-  const feed = home.indexOf("<DashboardSteelPulse state={pulse} />");
-  const pulsePreview = home.indexOf("<DashboardPulsePreview state={pulse} />");
-  assert.ok(hero >= 0 && pulsePreview > hero && attention > pulsePreview && feed > attention);
-  assert.match(home, /Come posso aiutarti oggi\?/);
-  assert.match(home, /aria-label="Cerca RFQ, offerte, ordini, aziende e documenti nello storico commerciale"/);
-  assert.match(home, /href=\{appRoutes\.commercial\.search\}/);
-  assert.match(home, /href=\{appRoutes\.commercial\.home\}/);
-  assert.match(home, /aria-label="Aree di lavoro"/);
-  assert.match(home, /orderedQuickActions\.map/);
-  assert.match(home, /\.filter\(\(action\) => action\.href !== appRoutes\.commercial\.search\)/);
+  const feed = home.indexOf("<HomeFeed ");
+  assert.ok(composer >= 0 && attention > composer && feed > attention);
+  assert.doesNotMatch(home, /orderedQuickActions|quick-action-shortcuts|<WorkspaceHomePanels/);
+  assert.match(home, /href=\{appRoutes\.commercial\.home \+ "\?compose=1#commercial-compose"\}/);
 });
 
 test("DASH-NEXT1A keeps network discovery and primary action role-aware", () => {
-  assert.match(home, /const presentation = dashboardPresentation/);
-  assert.match(home, /presentation\.primaryIntent/);
-  assert.match(home, /networkEnabled \? appRoutes\.network\.directory : appRoutes\.knowledge\.workspace/);
   assert.match(home, /const canWrite = canWriteWorkspace\(context\.role\)/);
   assert.match(home, /getNetworkAccessState\(context\.organizationId\)/);
-  assert.match(home, /networkEntitled\s*\?\s*getNetworkActivityFeed/);
-  assert.match(home, /activity=\{activity\.items\}/);
+  assert.match(home, /buildHomeFeedViewer\(context, networkEnabled, networkEntitled\)/);
+  assert.match(home, /<HomeAiComposer canWrite=\{canWrite\}/);
+  assert.doesNotMatch(home, /getNetworkActivityFeed/);
 });
 
 test("DASH-NEXT1A compact metrics are real totals, not pseudo open pipelines", () => {
@@ -59,6 +52,7 @@ test("DASH-NEXT1A hides redundant Steel Pulse controls during true empty state",
 test("DASH-NEXT1A reconciled Chrome acceptance preserves CALC-NEXT1F and action links", () => {
   assert.match(chrome, /CALC-NEXT1F: exercise the real private route/);
   assert.match(chrome, /viewer cannot open private buyer composer by locale URL/);
-  assert.match(chrome, /Dedicated search must open the existing private commercial history/);
-  assert.match(chrome, /Mobile actions must retain touch targets/);
+  // HOME-FEED1: the composer replaces the shortcut/search tiles on the Home.
+  assert.match(chrome, /Writers get exactly one inline composer/);
+  assert.match(chrome, /Composer action keeps a touch target/);
 });

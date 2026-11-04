@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
+const homeFeedViewerSource = readFileSync(new URL("../lib/home-feed-viewer.ts", import.meta.url), "utf8");
+const homeFeedSource = readFileSync(new URL("../lib/home-feed.ts", import.meta.url), "utf8"); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
 
 const read = (file) => readFileSync(new URL(file, import.meta.url), "utf8");
 const model = read("../lib/dashboard-discovery.ts");
@@ -77,18 +79,19 @@ test("DASH-FEED5 filters malformed Network records and projects summary only", (
 test("DASH-FEED5 keeps org and entitlements at the data boundary", () => {
   assert.match(dashboard, /getWorkspaceContext/);
   assert.match(dashboard, /getNetworkAccessState\(context\.organizationId\)/);
-  assert.match(dashboard, /networkEntitled\s*\?\s*getNetworkActivityFeed/);
-  assert.match(dashboard, /getMarketplaceFeed\(context\.organizationId, \{ limit: 10, offset: 0 \}\)/);
+  assert.doesNotMatch(dashboard, /getNetworkActivityFeed/);
+  assert.match(homeFeedSource, /getMarketplaceFeed\(viewer\.organizationId, \{ limit: HOME_FEED_PAGE\.opportunities, offset: cursor\.mo \}\)/);
   assert.match(marketplaceModule, /p5_2_marketplace_feed/);
   assert.doesNotMatch(panel, /selectDashboardFollowedUpdates/); // NET-UX LOT1: followed-company updates removed (Connetti only)
   assert.match(panel, /marketplace\?\.contract === "P5\.2-feed-v1"/);
-  assert.match(dashboard, /activity=\{activity\.items\}/);
 });
 
 test("DASH-FEED5 prioritizes the compact discovery above Steel Pulse while retaining RFQ privacy", () => {
-  const pulse = dashboard.indexOf("<DashboardSteelPulse state={pulse} />");
-  const discovery = dashboard.indexOf("<DashboardDiscoveryFeed");
-  assert.ok(pulse > 0 && discovery > 0 && discovery < pulse);
+  // HOME-FEED1: one feed; the composer and real tasks come before it.
+  const composer = dashboard.indexOf("<HomeAiComposer");
+  const feed = dashboard.indexOf("<HomeFeed ");
+  assert.ok(composer > 0 && feed > composer);
+  assert.doesNotMatch(homeFeedSource, /rfqh10_|getMyMarketplaceRequests|getMarketplaceUnlockedDetail|service_role|inquiry\.body/);
   assert.match(panel, /appRoutes\.marketplace\.opportunity\(item\.id\)/);
   assert.match(panel, /appRoutes\.network\.company\(company\.id\)/);
   assert.match(panel, /Le RFQ private e i dettagli riservati non compaiono/);

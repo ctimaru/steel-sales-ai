@@ -7,13 +7,11 @@ const home = read("../app/(italian)/(workspace)/dashboard/page.tsx");
 const preview = read("../components/dashboard-pulse-preview.tsx");
 
 test("HOME-AUTH-PULSE2 removes Overview attention without losing real tasks", () => {
-  const overview = home.slice(home.indexOf("overview={"), home.indexOf("tasks={"));
-  const tasks = home.slice(home.indexOf("tasks={"), home.indexOf("opportunities={"));
-  assert.match(overview, /<DashboardPulsePreview state=\{pulse\}/);
-  assert.doesNotMatch(overview, /Priorità in evidenza|Richiede la tua attenzione/);
-  assert.match(tasks, /id="daily-priorities"/);
-  assert.match(tasks, /attentionItems\.map/);
-  assert.match(home, /attentionCount=\{attentionCount\}/);
+  // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
+  assert.doesNotMatch(home, /<DashboardPulsePreview/, "no demo cards on the Home");
+  assert.match(home, /id="daily-priorities"/);
+  assert.match(home, /attentionItems\.map/);
+  assert.ok(home.indexOf('id="daily-priorities"') < home.indexOf("<HomeFeed "));
 });
 
 test("HOME-AUTH-PULSE2 demos never pose as real publication or live RFQ", () => {

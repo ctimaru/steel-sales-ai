@@ -1,41 +1,35 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+const homeFeedViewerSource = readFileSync(new URL("../lib/home-feed-viewer.ts", import.meta.url), "utf8");
+const homeFeedSource = readFileSync(new URL("../lib/home-feed.ts", import.meta.url), "utf8"); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
 
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const home = read("../app/(italian)/(workspace)/dashboard/page.tsx");
 const navigation = read("../components/workspace-home-panels.tsx");
 
 test("HOME-AUTH-UX1 local navigation focuses the Home without replacing the global shell", () => {
-  for (const label of ["Panoramica", "Da fare", "Attività", "Opportunità", "Steel Pulse"]) {
-    assert.ok(navigation.includes('label: "' + label + '"'));
-  }
-  assert.match(navigation, /lg:grid-cols-\[200px_minmax\(0,1fr\)\]/);
-  assert.match(navigation, /aria-pressed=\{selected\}/);
-  assert.match(navigation, /hidden=\{active !== view\.id\}/);
-  assert.match(navigation, /lg:hidden/);
-  assert.match(navigation, /hashchange/);
-  assert.match(home, /WorkspaceHomePanels/);
+  // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
+  assert.doesNotMatch(home, /WorkspaceHomePanels/);
+  for (const id of ["home-left-rail", "home-center", "home-right-rail"]) assert.match(home, new RegExp('data-testid="' + id + '"'));
+  assert.doesNotMatch(home, /<main/, "the shell already owns <main>");
 });
 
 test("HOME-AUTH-UX1 routes to actual assistant and existing commercial tools", () => {
-  assert.match(home, /href=\{appRoutes\.commercial\.assistant\}/);
-  assert.match(home, /href=\{appRoutes\.commercial\.search\}/);
-  assert.match(home, /orderedQuickActions\.map/);
-  assert.match(home, /\.filter\(\(action\) => action\.href !== appRoutes\.commercial\.search\)/);
-  assert.match(home, /!text-white/);
-  assert.match(home, /<FocusHeader[\s\S]*?compact/);
-  assert.match(home, /href: "\/distinta"/);
-  assert.doesNotMatch(navigation, /fetch\(|supabase|service_role|sendEmail/);
+  const composer = readFileSync(new URL("../components/home-ai-composer.tsx", import.meta.url), "utf8");
+  assert.match(composer, /sss:commercial-ai-intake-handoff/);
+  assert.match(composer, /appRoutes\.commercial\.home \+ "\?compose=1&method=ai#commercial-ai-intake"/);
+  assert.match(composer, /!text-white/);
+  assert.doesNotMatch(composer, /fetch\(|supabase|service_role|sendEmail/);
+  assert.match(home, /href="\/distinta"/);
 });
 
 test("HOME-AUTH-UX1 keeps all permission boundaries at the server and honest KPI/status data", () => {
   assert.match(home, /getWorkspaceContext\(\)/);
   assert.match(home, /getNetworkAccessState\(context\.organizationId\)/);
-  assert.match(home, /networkEntitled\s*\?\s*getNetworkActivityFeed/);
-  assert.match(home, /getMarketplaceFeed\(context\.organizationId/);
+  assert.match(homeFeedSource, /getMarketplaceFeed\(viewer\.organizationId/);
   assert.match(home, /canWriteWorkspace\(context\.role\)/);
   assert.match(home, /mode === "live" && operationalKpis.length > 0/);
   assert.match(home, /Nessun dato dimostrativo viene mostrato come reale/);
-  assert.match(home, /activity=\{activity\.items\}/);
 });
+

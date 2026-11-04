@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+const { readFileSync } = fs;
 
 const migration = fs.readFileSync(
   new URL(
@@ -140,10 +141,12 @@ test("HP7 derives setup mutations from the active admin workspace", () => {
 });
 
 test("HP7 keeps setup visible in the workspace and company menu", () => {
-  assert.match(dashboard, /Setup azienda/);
-  assert.match(dashboard, /setup\.profile_ready/);
-  assert.match(dashboard, /setup\.data_ready/);
-  assert.match(dashboard, /setup\.first_value_ready/);
+  // HOME-FEED1: the Home setup surface is the first-access checklist.
+  const firstRunLib = readFileSync(new URL("../lib/workspace-first-run.ts", import.meta.url), "utf8");
+  assert.match(dashboard, /<WorkspaceFirstRunChecklist/);
+  assert.match(firstRunLib, /setup\.profile_ready/);
+  assert.match(firstRunLib, /setup\.data_ready/);
+  assert.match(firstRunLib, /setup\.first_value_ready/);
   assert.match(routes, /setup: "\/onboarding"/);
   assert.match(navigation, /Completa setup azienda/);
   assert.match(navigation, /!guidedSetupComplete/);

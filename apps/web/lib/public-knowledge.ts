@@ -203,6 +203,23 @@ export async function listPublicStandards(query?: string) {
   });
 }
 
+/** HOME-FEED1: one small page of published standards / grades for the Home feed. */
+export async function listPublicStandardsPage(offset: number, limit: number) {
+  return rpcRows<PublicKnowledgeStandardSummary>("k2_public_knowledge_standards", {
+    p_query: null,
+    p_limit: Math.min(Math.max(limit, 1), 25),
+    p_offset: Math.max(offset, 0),
+  });
+}
+
+export async function listPublicGradesPage(offset: number, limit: number) {
+  return rpcRows<PublicKnowledgeGradeSummary>("k2_public_knowledge_grades", {
+    p_query: null,
+    p_limit: Math.min(Math.max(limit, 1), 25),
+    p_offset: Math.max(offset, 0),
+  });
+}
+
 export async function getPublicStandard(slug: string) {
   const rows = await rpcRows<PublicKnowledgeStandard>("k2_public_knowledge_standard", {
     p_slug: slug,

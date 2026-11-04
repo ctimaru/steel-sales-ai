@@ -134,106 +134,77 @@ try {
     });
 
     await step(p.id + " dashboard cockpit visual layout and authorization", async () => {
+      // HOME-FEED1 (founder decision, 4 Nov 2026): three columns, inline composer, infinite feed.
       await navigate(page, "/dashboard");
       await page.getByRole("heading", { name: homeHeading(p.name) })
         .waitFor({ state: "visible", timeout: 60000 });
-      const actions = page.locator('section[aria-labelledby="quick-actions"]');
+      const left = page.getByTestId("home-left-rail");
+      const center = page.getByTestId("home-center");
+      const right = page.getByTestId("home-right-rail");
+      const feed = page.getByTestId("home-feed");
+      await feed.waitFor({ state: "visible", timeout: 60000 });
+      assert.equal(await left.isVisible(), true, "Left rail with the company must be visible");
+      assert.equal(await center.isVisible(), true, "Centre column must be visible");
+      assert.equal(await right.isVisible(), true, "Right rail is visible on a 1440px desktop");
+      assert.equal(await page.locator('nav[aria-label="Sezioni della Home"]').count(), 0,
+        "The old five-tab Home navigation is gone");
+      assert.equal(await page.locator('[data-testid="quick-action-shortcuts"]').count(), 0,
+        "The Home is not a page of shortcut links");
+      assert.equal(await page.getByTestId("steel-pulse-demo-badge").count(), 0,
+        "No illustrative demo cards on the Home");
       const priorities = page.locator('section[aria-labelledby="daily-priorities"]');
-      const homeNav = page.locator('nav[aria-label="Sezioni della Home"]:visible');
-      await page.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible", timeout: 60000 });
-      assert.equal(await homeNav.count(), 1, "Exactly one local Home navigation must be visible");
-      assert.equal(await actions.count(), 1, "Missing quick action section");
       assert.ok((await priorities.count()) <= 1, "Duplicate daily priorities section");
-      const shortcuts = actions.locator('[data-testid="quick-action-shortcuts"] a');
-      assert.equal(await shortcuts.count(), 3, "Search is already available above; only three distinct shortcuts");
-      assert.equal(await actions.locator('a[aria-label^="Cerca RFQ"]').count(), 1,
-        "Dedicated search must open the existing private commercial history");
-      assert.equal(await actions.getByRole("link", { name: /Apri assistente AI/ }).count(), 1,
-        "AI entry must route to the real Commerciale assistant, not fake a Home chat");
-      assert.equal(await actions.locator('a[href="/commercial/assistant"]').count(), 1);
       assert.equal(await page.locator('section[aria-labelledby="daily-priorities"] a[href="/operations/review"]').count(), 0,
         "Technical parser review must not appear as a buyer dashboard action");
       assert.equal(await page.getByRole("link", { name: /Elementi da verificare/ }).count(), 0,
         "Technical data-quality queue is not a commercial priority");
-      const actionBounds = await actions.boundingBox();
-      assert.ok(actionBounds, "Action-first first viewport must be visible");
-      if (p.id === personas[0].id) {
-        await page.screenshot({
-          path: path.join(homeEvidenceDir, "home-auth-ux1-desktop-1440-overview.png"),
-          animations: "disabled",
-          fullPage: false,
-        });
-      }
-      const pulsePreview = page.getByTestId("dashboard-pulse-preview");
-      assert.equal(await pulsePreview.isVisible(), true, "Steel Pulse previews must appear on the Overview");
-      const previewCount = await pulsePreview.getByTestId("steel-pulse-preview-card").count();
-      assert.ok(previewCount >= 1 && previewCount <= 3,
-        "Overview shows up to three governed or illustrative previews");
-      if (await pulsePreview.getByTestId("steel-pulse-demo-badge").count()) {
-        assert.equal(previewCount, 3, "Empty feed uses exactly three labeled demo examples");
-        assert.equal(await pulsePreview.locator('a[target="_blank"]').count(), 0,
-          "Demonstration previews must not impersonate verified source links");
-      }
-      assert.equal(await page.locator('section[aria-label="Priorità in evidenza"]').count(), 0,
-        "Attention banner must be removed from the Overview");
-      assert.equal(await page.getByTestId("workspace-home-panel-pulse").isVisible(), false,
-        "The full Steel Pulse tab stays separate from compact Overview previews");
-      await homeNav.getByRole("button", { name: /Da fare/ }).click();
-      await page.getByTestId("workspace-home-panel-tasks").waitFor({ state: "visible" });
-      if (p.id === personas[0].id) {
-        await page.screenshot({
-          path: path.join(homeEvidenceDir, "home-auth-ux1-desktop-1440-tasks.png"),
-          animations: "disabled",
-          fullPage: false,
-        });
-      }
-      if (await priorities.count()) {
-        assert.equal(await priorities.isVisible(), true, "Buyer attention must be in Da fare");
-        assert.ok(await priorities.boundingBox(), "Buyer priorities must remain legible");
-      }
-      await homeNav.getByRole("button", { name: /Steel Pulse/ }).click();
-      const feed = page.getByRole("heading", { name: "Il tuo aggiornamento sull’acciaio" });
-      await feed.waitFor({ state: "visible", timeout: 60000 });
+      const composerInput = page.locator("#home-ai-composer-input");
       if (p.id === "buyerViewer") {
-        await homeNav.getByRole("button", { name: /Panoramica/ }).click();
-        assert.equal(await actions.getByRole("link", { name: /Gestisci richieste e offerte/ }).count(), 0,
-          "Viewer must not receive buyer-action shortcut");
+        assert.equal(await composerInput.count(), 0, "Viewer must not receive the RFQ composer");
+        assert.ok((await page.getByTestId("home-ai-composer").innerText()).includes("sola lettura"));
+        assert.equal(await feed.locator("button[aria-pressed]").count(), 0, "Viewer cannot Salva from the feed");
+      } else {
+        assert.equal(await composerInput.count(), 1, "Writers get exactly one inline composer");
+        assert.ok((await composerInput.boundingBox()).y < (await feed.boundingBox()).y, "Composer precedes the feed");
+      }
+      const posts = feed.getByTestId("home-feed-post");
+      assert.ok((await posts.count()) >= 1, "The feed shows posts (School guides are always available)");
+      if (p.id === personas[0].id) {
+        await page.screenshot({
+          path: path.join(homeEvidenceDir, "home-feed1-desktop-1440.png"),
+          animations: "disabled",
+          fullPage: false,
+        });
       }
     });
 
     await step(p.id + " DASH-FEED6 discovery and role-safe navigation", async () => {
+      // HOME-FEED1: the feed pages through permission-checked sources without leaking tenants.
       await navigate(page, "/dashboard");
       await page.getByRole("heading", { name: homeHeading(p.name) })
         .waitFor({ state: "visible", timeout: 60000 });
-      await page.locator('nav[aria-label="Sezioni della Home"]:visible').getByRole("button", { name: /Opportunità/ }).click();
-      const discovery = page.locator("#dashboard-discovery");
-      await discovery.waitFor({ state: "visible", timeout: 60000 });
-      if (p.id === personas[0].id) {
-        await page.screenshot({
-          path: path.join(homeEvidenceDir, "home-auth-ux1-desktop-1440-opportunities.png"),
-          animations: "disabled",
-          fullPage: false,
-        });
+      const feed = page.getByTestId("home-feed");
+      await feed.waitFor({ state: "visible", timeout: 60000 });
+      const posts = feed.getByTestId("home-feed-post");
+      const before = await posts.count();
+      const more = page.getByTestId("home-feed-more");
+      if (await more.count()) {
+        await more.click();
+        await page.waitForFunction((n) => document.querySelectorAll('[data-testid="home-feed-post"]').length > n ||
+          !document.querySelector('[data-testid="home-feed-more"]'), before, { timeout: 60000 });
       }
-      assert.equal(await page.getByRole("heading", { name: "Dalla rete, per te" }).count(), 1);
-      assert.equal(await page.locator('a[href="#dashboard-discovery"]').count(), 1,
-        "Keyboard/touch jump to Marketplace opportunities required");
-      assert.equal(await discovery.locator("article").count() <= 6, true,
-        "Maximum three Network and three Marketplace items");
-      const companyLinks = discovery.locator('a[href^="/network/"]');
-      const opportunityLinks = discovery.locator('a[href^="/marketplace/opportunities/"]');
-      assert.ok((await opportunityLinks.count()) <= 3);
+      const text = await feed.innerText();
+      for (const other of personas) {
+        if (other.org !== p.org) {
+          assert.ok(!text.includes(other.rfqTitle), "Cross-company private RFQ leaked into the feed");
+        }
+      }
+      const opportunityLinks = feed.locator('a[href^="/marketplace/opportunities/"]');
+      const companyLinks = feed.locator('a[href^="/network/"]');
+      assert.ok((await opportunityLinks.count()) >= 0 && (await companyLinks.count()) >= 0);
       if (p.id === "buyerViewer") {
         assert.ok((await page.locator("body").innerText()).includes("Sola lettura"));
       }
-      for (const other of personas) {
-        if (other.org !== p.org) {
-          assert.ok(!(await discovery.innerText()).includes(other.rfqTitle),
-            "Cross-company private RFQ leaked into discovery");
-        }
-      }
-      // Links remain within the existing authenticated and entitlement routes.
-      assert.ok((await companyLinks.count()) >= 0);
     });
 
     if (p.id === "buyerViewer" || p.id === personas[0].id) {
@@ -500,20 +471,17 @@ try {
     await navigate(mobilePage, "/dashboard");
     await mobilePage.getByRole("heading", { name: homeHeading(personas[0].name) })
       .waitFor({ state: "visible", timeout: 60000 });
-    await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
-    assert.equal(await mobilePage.getByTestId("dashboard-pulse-preview").count(), 1);
+    await mobilePage.getByTestId("home-feed").waitFor({ state: "visible", timeout: 60000 });
+    assert.equal(await mobilePage.getByTestId("home-right-rail").isVisible(), false, "Right rail is desktop-only");
     await mobilePage.screenshot({
-      path: path.join(homeEvidenceDir, "home-auth-ux1-mobile-390-overview.png"),
+      path: path.join(homeEvidenceDir, "home-feed1-mobile-390.png"),
       animations: "disabled",
       fullPage: false,
     });
-    const tiles = mobilePage.locator('section[aria-labelledby="quick-actions"] [data-testid="quick-action-shortcuts"] a');
-    assert.equal(await tiles.count(), 3, "The mobile cockpit has three unique action shortcuts");
-    const first = await tiles.nth(0).boundingBox();
-    const second = await tiles.nth(1).boundingBox();
-    assert.ok(first && second, "Mobile actions must be visible");
-    assert.ok(first.height >= 40 && second.height >= 40, "Mobile actions must retain touch targets");
-    assert.ok(second.y >= first.y - 12, "Mobile actions must follow reading order");
+    const submit = mobilePage.getByTestId("home-ai-composer-submit");
+    assert.equal(await submit.count(), 1, "Mobile writers keep the inline composer");
+    const box = await submit.boundingBox();
+    assert.ok(box && box.height >= 40, "Composer action keeps a touch target");
     const measures = await mobilePage.evaluate(() => ({
       client: document.documentElement.clientWidth,
       scroll: document.documentElement.scrollWidth,
@@ -525,27 +493,19 @@ try {
     await navigate(mobilePage, "/dashboard");
     await mobilePage.getByRole("heading", { name: homeHeading(personas[0].name) })
       .waitFor({ state: "visible", timeout: 60000 });
-    await mobilePage.getByTestId("workspace-home-panel-overview").waitFor({ state: "visible" });
-    assert.equal(await mobilePage.getByTestId("dashboard-pulse-preview").count(), 1);
+    const feed = mobilePage.getByTestId("home-feed");
+    await feed.waitFor({ state: "visible", timeout: 60000 });
     await mobilePage.screenshot({
-      path: path.join(homeEvidenceDir, "home-auth-ux1-mobile-320-overview.png"),
+      path: path.join(homeEvidenceDir, "home-feed1-mobile-320.png"),
       animations: "disabled",
       fullPage: false,
     });
-    await mobilePage.locator("#dashboard-discovery").waitFor({ state: "attached", timeout: 60000 });
-    const mobileHomeNav = mobilePage.locator('nav[aria-label="Sezioni della Home"]:visible');
-    await mobileHomeNav.getByRole("button", { name: /Steel Pulse/ }).click();
-    const jump = mobilePage.getByRole("link", { name: /Vai alle opportunità/ });
-    assert.equal(await jump.count(), 1);
+    await feed.getByTestId("home-feed-post").first().scrollIntoViewIfNeeded();
     const size = await mobilePage.evaluate(() => ({
       client: document.documentElement.clientWidth,
       scroll: document.documentElement.scrollWidth,
     }));
     assert.ok(size.scroll <= size.client + 12, "320px dashboard horizontal overflow");
-    await jump.click();
-    assert.equal(new URL(mobilePage.url()).hash, "#dashboard-discovery");
-    await mobilePage.locator("#dashboard-discovery").waitFor({ state: "visible", timeout: 60000 });
-    assert.equal(await mobilePage.getByRole("heading", { name: "Dalla rete, per te" }).count(), 1);
   });
   await mobile.close();
 
