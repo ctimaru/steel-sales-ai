@@ -10,7 +10,6 @@ const loader = read("../lib/home-feed.ts");
 const viewer = read("../lib/home-feed-viewer.ts");
 const actions = read("../app/(italian)/(workspace)/dashboard/feed-actions.ts");
 const feed = read("../components/home-feed.tsx");
-const composer = read("../components/home-ai-composer.tsx");
 const home = read("../app/(italian)/(workspace)/dashboard/page.tsx");
 
 const compiled = ts.transpileModule(model, {
@@ -125,12 +124,12 @@ test("HOME-FEED1 Home is three columns: company, composer + feed, companies to m
   assert.match(home, /mode === "live" && recent\.length > 0|recent\.length === 0/);
 });
 
-test("HOME-FEED1 composer is the same one-shot Commerciale handoff, writers only", () => {
-  assert.match(composer, /const HANDOFF_KEY = "sss:commercial-ai-intake-handoff"/);
-  assert.match(composer, /if \(!canWrite \|\| !ready \|\| !value\) return;/);
-  assert.match(composer, /nessuna richiesta parte senza la tua conferma/);
-  assert.match(composer, /if \(!canWrite\) \{/);
-  assert.doesNotMatch(composer, /fetch\(|supabase|sendEmail/);
+test("HOME-FOCUS1 the Home centre starts with company posts, not an RFQ box", () => {
+  // Founder decision, 4 Nov 2026: the RFQ box and the attention strip were removed from the Home.
+  assert.doesNotMatch(home, /HomeAiComposer|daily-priorities|attentionItems/);
+  const center = home.slice(home.indexOf('data-testid="home-center"'));
+  assert.match(center.slice(0, 400), /<HomeFeed /);
+  assert.match(feed, /composer === "compose" \?/);
 });
 
 test("HOME-FEED1B avatar initials ignore legal forms so companies stay distinct", () => {

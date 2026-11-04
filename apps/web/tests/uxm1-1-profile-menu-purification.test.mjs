@@ -52,7 +52,8 @@ test("UXM1.1 keeps import reachable from data sources and first-use home states"
 });
 
 test("UXM1.1 keeps technical data review separate from buyer Home and avatar menu", () => {
-  assert.match(dashboard, /procurementActions\.map/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.doesNotMatch(dashboard, /procurementActions/);
   assert.doesNotMatch(dashboard, /metrics\.reviewFlags > 0|href: appRoutes\.operations\.review|Elementi da verificare/);
   assert.doesNotMatch(nav.slice(nav.indexOf("export function WorkspaceProfileMenu")), /Revisioni dati/);
 });

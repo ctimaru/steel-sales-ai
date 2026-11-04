@@ -17,7 +17,8 @@ test("DASH-UX2 fails closed when live dashboard metrics are unavailable", () => 
 });
 
 test("DASH-UX2 retains existing quick actions and operational surfaces", () => {
-  for (const name of ["Crea distinta", "Steel Pulse", "Cosa richiede attenzione", "Ultimi movimenti commerciali"]) {
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the attention strip left the Home.
+  for (const name of ["Crea distinta", "Steel Pulse", "Ultimi movimenti commerciali"]) {
     assert.ok((dashboard + dashboardPulse).includes(name), name);
   }
   assert.match(dashboard, /getNetworkAccessState/);

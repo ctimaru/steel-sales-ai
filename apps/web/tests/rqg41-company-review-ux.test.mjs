@@ -37,8 +37,8 @@ test("RQG4.1 keeps tools discoverable but secondary and separated from Workspace
   assert.match(review,/Copertura normalizzazione/);
   assert.match(review,/Identità aziendali/);
   assert.match(review,/Candidate reparse/);
-  assert.match(dashboard,/Only user-owned buyer actions belong in the Workspace attention strip/);
-  assert.match(dashboard,/tenant-scoped commercial_review_queue contains parser/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.doesNotMatch(dashboard,/commercial_review_queue|appRoutes\.operations\.review/);
   assert.doesNotMatch(review,/\/platform\/review/);
 });
 test("RQG4.1 adds tenant Review UX path to real disposable Chrome regression triggers",()=>{

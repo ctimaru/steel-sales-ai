@@ -9,9 +9,9 @@ const home = fs.readFileSync(
 );
 
 test("PF1 turns Home into a compact daily cockpit", () => {
-  assert.match(home, /Cosa richiede attenzione/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.doesNotMatch(home, /Cosa richiede attenzione|Solo segnali con un’azione concreta/);
   assert.match(home, /Ultimi movimenti commerciali/);
-  assert.match(home, /Solo segnali con un’azione concreta/);
 });
 
 test("PF1 keeps setup contextual and only when incomplete", () => {
@@ -23,7 +23,7 @@ test("PF1 keeps setup contextual and only when incomplete", () => {
 
 test("PF1 provides four concrete quick actions", () => {
   // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
-  assert.match(home, /<HomeAiComposer/);
+  assert.doesNotMatch(home, /<HomeAiComposer/); // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
   assert.match(home, /Crea distinta/);
   assert.match(home, /\{firstRun \? "Crea la tua prima RFQ" : "Crea una RFQ"\}/);
 });

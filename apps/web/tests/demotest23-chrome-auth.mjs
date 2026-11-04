@@ -152,20 +152,17 @@ try {
         "The Home is not a page of shortcut links");
       assert.equal(await page.getByTestId("steel-pulse-demo-badge").count(), 0,
         "No illustrative demo cards on the Home");
-      const priorities = page.locator('section[aria-labelledby="daily-priorities"]');
-      assert.ok((await priorities.count()) <= 1, "Duplicate daily priorities section");
-      assert.equal(await page.locator('section[aria-labelledby="daily-priorities"] a[href="/operations/review"]').count(), 0,
-        "Technical parser review must not appear as a buyer dashboard action");
+      // HOME-FOCUS1 (founder decision, 4 Nov 2026): no attention strip and no RFQ box on the Home.
+      assert.equal(await page.locator('section[aria-labelledby="daily-priorities"]').count(), 0,
+        "The attention strip is gone from the Home");
+      assert.equal(await page.locator('a[href="/operations/review"]').count(), 0,
+        "Technical parser review must not appear on the buyer Home");
       assert.equal(await page.getByRole("link", { name: /Elementi da verificare/ }).count(), 0,
         "Technical data-quality queue is not a commercial priority");
-      const composerInput = page.locator("#home-ai-composer-input");
+      assert.equal(await page.getByTestId("home-ai-composer").count(), 0, "The RFQ box is gone from the Home");
       if (p.id === "buyerViewer") {
-        assert.equal(await composerInput.count(), 0, "Viewer must not receive the RFQ composer");
-        assert.ok((await page.getByTestId("home-ai-composer").innerText()).includes("sola lettura"));
         assert.equal(await feed.locator("button[aria-pressed]").count(), 0, "Viewer cannot Salva from the feed");
-      } else {
-        assert.equal(await composerInput.count(), 1, "Writers get exactly one inline composer");
-        assert.ok((await composerInput.boundingBox()).y < (await feed.boundingBox()).y, "Composer precedes the feed");
+        assert.equal(await page.getByTestId("company-post-composer").count(), 0, "Viewer never gets the post composer");
       }
       const posts = feed.getByTestId("home-feed-post");
       assert.ok((await posts.count()) >= 1, "The feed shows posts (School guides are always available)");
@@ -478,10 +475,9 @@ try {
       animations: "disabled",
       fullPage: false,
     });
-    const submit = mobilePage.getByTestId("home-ai-composer-submit");
-    assert.equal(await submit.count(), 1, "Mobile writers keep the inline composer");
-    const box = await submit.boundingBox();
-    assert.ok(box && box.height >= 40, "Composer action keeps a touch target");
+    assert.equal(await mobilePage.getByTestId("home-ai-composer").count(), 0, "HOME-FOCUS1: no RFQ box on the mobile Home");
+    const firstPost = mobilePage.getByTestId("home-feed-post").first();
+    assert.ok((await firstPost.count()) === 1, "The mobile feed shows posts");
     const measures = await mobilePage.evaluate(() => ({
       client: document.documentElement.clientWidth,
       scroll: document.documentElement.scrollWidth,

@@ -10,16 +10,10 @@ const reviewLayout = read("../app/(italian)/(workspace)/operations/review/layout
 const chrome = read("demotest23-chrome-auth.mjs");
 
 test("Customer Home urgency includes only actionable RFQ buyer tasks, not parser QA", () => {
-  const attention = home.slice(
-    home.indexOf("const attentionItems = ["),
-    home.indexOf("const attentionCount =")
-  );
-  assert.match(attention, /procurementActions\.map/);
-  assert.match(attention, /appRoutes\.commercial\.home \+ "\?view=sent&item=campaign:"/);
-  assert.doesNotMatch(attention, /metrics\.reviewFlags|appRoutes\.operations\.review|Elementi da verificare/);
-  assert.match(home, /procurementActions =/);
-  assert.match(home, /\.filter\(\(item\) => item\.requires_action === true/);
-  assert.match(home, /attentionCount > 0/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  // Parser QA must still never reach the buyer Home.
+  assert.doesNotMatch(home, /metrics\.reviewFlags|appRoutes\.operations\.review|Elementi da verificare|commercial_review_queue/);
+  assert.doesNotMatch(home, /attentionItems|procurementActions/);
 });
 
 test("Existing tenant-scoped technical review pipeline remains intact", () => {
@@ -33,7 +27,7 @@ test("Existing tenant-scoped technical review pipeline remains intact", () => {
 });
 
 test("Five-account Chrome regression prevents misleading reviewer alert", () => {
-  assert.match(chrome, /Technical parser review must not appear as a buyer dashboard action/);
+  assert.match(chrome, /Technical parser review must not appear on the buyer Home/); // HOME-FOCUS1
   assert.match(chrome, /Technical data-quality queue is not a commercial priority/);
   assert.match(chrome, /p\.id \+ " dashboard cockpit visual layout and authorization"/);
 });

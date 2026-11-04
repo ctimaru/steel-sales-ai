@@ -10,10 +10,10 @@ const chrome = read("./demotest23-chrome-auth.mjs");
 
 test("DASH-NEXT1A Home places a truthful action-first entry above feed", () => {
   // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
-  const composer = home.indexOf("<HomeAiComposer");
-  const attention = home.indexOf('<section aria-labelledby="daily-priorities"');
-  const feed = home.indexOf("<HomeFeed ");
-  assert.ok(composer >= 0 && attention > composer && feed > attention);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.equal(home.indexOf("<HomeAiComposer"), -1, "no RFQ box on the Home");
+  assert.equal(home.indexOf('aria-labelledby="daily-priorities"'), -1, "no attention strip on the Home");
+  assert.ok(home.indexOf("<HomeFeed ") > home.indexOf('data-testid="home-center"'));
   assert.doesNotMatch(home, /orderedQuickActions|quick-action-shortcuts|<WorkspaceHomePanels/);
   assert.match(home, /href=\{appRoutes\.commercial\.home \+ "\?compose=1#commercial-compose"\}/);
 });
@@ -22,7 +22,7 @@ test("DASH-NEXT1A keeps network discovery and primary action role-aware", () => 
   assert.match(home, /const canWrite = canWriteWorkspace\(context\.role\)/);
   assert.match(home, /getNetworkAccessState\(context\.organizationId\)/);
   assert.match(home, /buildHomeFeedViewer\(context, networkEnabled, networkEntitled\)/);
-  assert.match(home, /<HomeAiComposer canWrite=\{canWrite\}/);
+  assert.doesNotMatch(home, /<HomeAiComposer/); // HOME-FOCUS1: the Distinta starts from Commerciale
   assert.doesNotMatch(home, /getNetworkActivityFeed/);
 });
 
@@ -33,8 +33,8 @@ test("DASH-NEXT1A compact metrics are real totals, not pseudo open pipelines", (
   assert.match(home, /operational\.orders/);
   assert.match(home, /Totali registrati · non rappresentano attività aperte/);
   assert.match(home, /Nessun dato dimostrativo viene mostrato come reale/);
-  assert.match(home, /procurementActions\.map/);
-  assert.match(home, /requires_action === true/);
+  // HOME-FOCUS1: RFQ status stays in the left rail as verified totals only.
+  assert.match(home, /procurementSummary\.active_rfqs/);
   assert.doesNotMatch(home, /AI-powered search|Risultati generati dall.AI/);
 });
 
@@ -52,7 +52,7 @@ test("DASH-NEXT1A hides redundant Steel Pulse controls during true empty state",
 test("DASH-NEXT1A reconciled Chrome acceptance preserves CALC-NEXT1F and action links", () => {
   assert.match(chrome, /CALC-NEXT1F: exercise the real private route/);
   assert.match(chrome, /viewer cannot open private buyer composer by locale URL/);
-  // HOME-FEED1: the composer replaces the shortcut/search tiles on the Home.
-  assert.match(chrome, /Writers get exactly one inline composer/);
-  assert.match(chrome, /Composer action keeps a touch target/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): Chrome proves the RFQ box is gone on desktop and mobile.
+  assert.match(chrome, /The RFQ box is gone from the Home/);
+  assert.match(chrome, /HOME-FOCUS1: no RFQ box on the mobile Home/);
 });

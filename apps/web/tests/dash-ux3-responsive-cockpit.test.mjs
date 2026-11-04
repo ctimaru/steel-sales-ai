@@ -14,9 +14,8 @@ test("DASH-FEED2 keeps compact shortcuts above personalized news", () => {
 });
 
 test("DASH-FEED2 attention contains only actionable work and disappears when empty", () => {
-  assert.match(home, /attentionCount > 0/);
-  assert.match(home, /Cosa richiede attenzione/);
-  assert.match(home, /procurementActions\.map/);
+  // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
+  assert.doesNotMatch(home, /attentionCount|Cosa richiede attenzione/);
   assert.doesNotMatch(home, /metrics\.reviewFlags > 0|href: appRoutes\.operations\.review/);
   assert.doesNotMatch(home, /recentRfq && canWrite/);
   assert.doesNotMatch(home, /title: "Aggiornamenti Network"/);
@@ -45,8 +44,8 @@ test("DASH-FEED2 retains governed procurement and deep links", () => {
     /procurementSummary\.attention_total/,
     /procurementSummary\.active_rfqs/,
     /procurementSummary\.urgent/,
-    /item\.rfq_id!/,
-    /appRoutes\.commercial\.home \+ "\?view=sent&item=campaign:"/,
+    // HOME-FOCUS1: per-RFQ deep links moved to Commerciale with the attention strip.
+    /appRoutes\.commercial\.home \+ "\?view=sent#commercial-worklist"/,
     /procurement\.error/,
   ]) assert.match(home, pattern);
 });
