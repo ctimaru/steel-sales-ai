@@ -20,7 +20,7 @@ const toJs = (source) => ts.transpileModule(
   { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } },
 ).outputText.replace(/^export /gmu, "");
 
-const buyer = new Function(toJs(buyerSource) + "\nreturn { calculateBuyerDistintaLine };")();
+const buyer = new Function(toJs(buyerSource) + "\nreturn { calculateBuyerDistintaLine, calculateBuyerDistintaTotals };")();
 const calculateTubeSection = new Function(toJs(coreSource) + "\nreturn calculateTubeSection;")();
 const guided = new Function("calculateTubeSection", toJs(guidedSource) + "\nreturn { guidedTubeMassKgM };")(calculateTubeSection);
 const contract = new Function("calculateBuyerDistintaLine", "guidedTubeMassKgM",
@@ -229,4 +229,92 @@ test("RFQAI3 editable review explicitly confirms each row, stays in same BD10 pr
   assert.match(builder, /onInsertTextLines=\{insertRfqAiTextLines\}/);
   assert.match(builder, /setSavedId\(null\)/);
   assert.match(builder, /className="bd10-preview-lines"/);
+});
+
+
+test("COMM-RFQ-UX3.A normalizes ten individually cited industrial lines and keeps proposals unapproved", () => {
+  const specs = [
+    { shape: "square", size: [100, 100, 5], bars: 10, length: 6, standard: "EN 10219", grade: "S355J2H" },
+    { shape: "rectangular", size: [120, 80, 4], bars: 12, length: 12, standard: "EN 10219", grade: "S355J2H" },
+    { shape: "square", size: [80, 80, 4], bars: 25, length: 6, standard: "EN 10219", grade: "S235JRH" },
+    { shape: "square", size: [70, 70, 3], bars: 18, length: 6, standard: "EN 10219", grade: "S355J2H" },
+    { shape: "rectangular", size: [140, 60, 4], bars: 14, length: 12, standard: "EN 10219", grade: "S355J2H" },
+    { shape: "square", size: [150, 150, 5], bars: 8, length: 6, standard: "EN 10219", grade: "S355J2H" },
+    { shape: "rectangular", size: [100, 60, 3], bars: 22, length: 6, standard: "EN 10219", grade: "S235JRH" },
+    { shape: "square", size: [60, 60, 3], bars: 16, length: 12, standard: "EN 10219", grade: "S235JRH" },
+    { shape: "round", size: [60.3, 3], bars: 30, length: 6, standard: "EN 10210", grade: "S235JRH" },
+    { shape: "rectangular", size: [160, 80, 5], bars: 18, length: 6, standard: "EN 10219", grade: "S355J2H" },
+  ];
+  const quoted = specs.map((row, index) => {
+    const [a,b,c] = row.size;
+    const form = row.shape === "square" ? "quadro" : row.shape === "rectangular" ? "rettangolare" : "tondo";
+    const dimensions = row.shape === "round" ? [a,b].join("x") : [a,b,c].join("x");
+    const quote = row.bars + " barre da " + row.length + " metri di tubo " + form + " " +
+      dimensions + " " + row.grade + " " + row.standard;
+    return {
+      quote, model: {
+        sourceText: quote, itemRole: "requested",
+        outerDiameterMm: row.shape === "round" ? a : null,
+        widthMm: row.shape === "round" ? null : a,
+        heightMm: row.shape === "round" ? null : b,
+        thicknessMm: row.shape === "round" ? b : c,
+        quantity: row.bars, quantityUnit: "BARRE", lengthMm: row.length * 1000,
+        grade: row.grade, standard: row.standard,
+      },
+      meters: row.bars * row.length,
+      index,
+    };
+  });
+  const sourceText = quoted.map(x => x.quote).join("\n");
+  const parsed = text.parseRfqAiModelResponse(sourceText, sourceRef, {
+    intent: "buyer_request", lines: quoted.map(x => x.model),
+  });
+  assert.equal(parsed.candidates.length, 10);
+  assert.equal(new Set(parsed.candidates.map(x => x.candidateId)).size, 10);
+  assert.deepEqual(parsed.warnings, []);
+  for (const [i,candidate] of parsed.candidates.entries()) {
+    assert.equal(candidate.sourceExcerpt, quoted[i].quote, "verbatim source " + (i+1));
+    assert.equal(candidate.approvalState, "pending_human_review", "no implicit approval " + (i+1));
+    assert.equal(candidate.status, "ready_for_review", "normalized industrial article " + (i+1));
+    const calc = buyer.calculateBuyerDistintaLine(candidate.proposedLine);
+    assert.equal(calc.complete, true, "canonical material calculation " + (i+1));
+    assert.equal(calc.meters, quoted[i].meters, "individual length and bars " + (i+1));
+    assert.ok(Number(candidate.proposedLine.weightKgM.replace(",", ".")) > 0, "mass from canonical engine " + (i+1));
+  }
+  // A numbered correction changes only line 2. It cannot auto-approve a batch.
+  const original = parsed.candidates[1];
+  const patchedRaw = { ...parsed.rawById[original.candidateId], quantity: 20, quantityUnit: "PZ" };
+  const corrected = contract.normalizeRfqAiCandidate(
+    original.source, original.candidateId, original.locator, original.sourceIntent, patchedRaw,
+  );
+  assert.equal(corrected.status, "ready_for_review");
+  assert.equal(corrected.approvalState, "pending_human_review");
+  assert.equal(buyer.calculateBuyerDistintaLine(corrected.proposedLine).meters, 240);
+  assert.equal(buyer.calculateBuyerDistintaLine(parsed.candidates[0].proposedLine).meters, 60,
+    "a correction cannot alter an adjacent line");
+  const approvedSubset = [parsed.candidates[0].proposedLine, corrected.proposedLine];
+  const totals = buyer.calculateBuyerDistintaTotals(approvedSubset.map(buyer.calculateBuyerDistintaLine));
+  assert.equal(totals.totalMeters, 300);
+  assert.ok(totals.totalTonnes > 0);
+  assert.ok(totals.totalMeters < specs.reduce((acc,item)=>acc+item.bars*item.length,0),
+    "unapproved proposals must not be counted in the private Distinta");
+  // A fabricated citation cannot become an approved line.
+  const untrusted = text.parseRfqAiModelResponse(sourceText, sourceRef, {
+    intent: "buyer_request", lines: [{ ...quoted[0].model, sourceText: "This article was never requested" }],
+  });
+  assert.equal(untrusted.candidates[0].sourceExcerpt, "");
+  assert.notEqual(untrusted.candidates[0].status, "ready_for_review");
+});
+
+test("COMM-RFQ-UX3.A never assumes a missing grade is verified, even in a ten-line request", () => {
+  const quote = "20 barre da 6 metri di tubo quadro 100x100x5 EN 10219";
+  const item = text.parseRfqAiModelResponse(quote, sourceRef, {
+    intent: "buyer_request", lines: [{
+      sourceText: quote, itemRole: "requested", widthMm:100,heightMm:100,thicknessMm:5,
+      standard:"EN 10219",grade:"", quantity:20,quantityUnit:"BARRE",lengthMm:6000,
+    }],
+  }).candidates[0];
+  assert.equal(item.proposedLine.grade, "");
+  assert.notEqual(item.status, "ready_for_review");
+  assert.equal(item.approvalState, "pending_human_review");
 });

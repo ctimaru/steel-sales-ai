@@ -24,7 +24,13 @@ test("UX2.B uses an actual chat transcript with the composer in the bottom, not 
   assert.match(conversation, /role="log"/);
   assert.match(conversation, /textarea id="rfqai2-text-input"/);
   assert.match(conversation, /event\.key !== "Enter" \|\| event\.shiftKey \|\| event\.nativeEvent\.isComposing/);
-  assert.match(conversation, /disabled=\{pending \|\| hasProposals\}/);
+  // UX3.A keeps the composer available for explicitly numbered corrections
+  // while a batch is being reviewed; it remains disabled during pending AI.
+  assert.ok(conversation.includes('disabled={!hydrated || pending}'));
+  assert.ok(conversation.includes('const [hydrated, setHydrated] = useState(false)'));
+  assert.ok(conversation.includes('setHydrated(true)'));
+  assert.ok(conversation.includes('hasProposals ? "Correggi riga"'));
+  assert.ok(intake.includes("parseCommercialRfqLineCorrection(submitted, textResult.candidates.length)"));
   assert.match(conversation, /min-h-11/);
 });
 
@@ -37,7 +43,9 @@ test("UX2.B the AI only interprets explicitly submitted individual text without 
   assert.match(intake, /setTextResult\(response\.result\)/);
   assert.match(intake, /onPreviewChange\?\.\(response\.result\)/);
   assert.doesNotMatch(intake, /analyzeRfqAiFreeText\((?:conversationTurns|messages|history)\)/);
-  assert.match(conversation, /canSubmit = value\.trim\(\)\.length >= 3 && !pending && !hasProposals/);
+  assert.ok(conversation.includes('canSubmit = hydrated && value.trim().length >= 3 && !pending && mode === "text"'));
+  assert.ok(intake.includes("if (textResult && focused) {"));
+  assert.ok(intake.includes("setPendingCorrection({"));
   assert.match(intake, /if \(focused && submitted\.length < 12\)/);
   assert.match(intake, /nessuna misura è stata ancora confermata/);
   assert.match(conversation, /value\.trim\(\)\.length > 0 && value\.trim\(\)\.length < 12 \? "Completa richiesta"/);
