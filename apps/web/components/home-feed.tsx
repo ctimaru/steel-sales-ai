@@ -5,8 +5,14 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { loadMoreHomeFeed, toggleHomeFeedSavedCompany } from "@/app/(workspace)/dashboard/feed-actions";
-import { CompanyPostCard, CompanyPostComposer, CompanyPostVerifyFirst } from "@/components/company-post";
-import type { CompanyPostItem } from "@/lib/company-posts-model";
+import {
+  CompanyPostCard,
+  CompanyPostComposer,
+  CompanyPostsOfType,
+  CompanyPostTypeFilter,
+  CompanyPostVerifyFirst,
+} from "@/components/company-post";
+import type { CompanyPostItem, CompanyPostType } from "@/lib/company-posts-model";
 import { companyInitials, type HomeFeedItem } from "@/lib/home-feed-model";
 
 /**
@@ -259,6 +265,8 @@ export function HomeFeed({
   organizationName?: string;
 }) {
   const [items, setItems] = useState(initialItems);
+  // CPOST2: null = the whole feed; a type = only company posts of that type.
+  const [postFilter, setPostFilter] = useState<CompanyPostType | null>(null);
   const [cursor, setCursor] = useState(initialCursor);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -300,7 +308,7 @@ export function HomeFeed({
 
   useEffect(() => {
     const node = sentinel.current;
-    if (!node || !cursor || failed || typeof IntersectionObserver === "undefined") return;
+    if (!node || !cursor || failed || postFilter || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) void loadMore();
@@ -309,7 +317,7 @@ export function HomeFeed({
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [cursor, failed, loadMore]);
+  }, [cursor, failed, loadMore, postFilter]);
 
   const removePost = useCallback((key: string) => {
     setItems((current) => current.filter((item) => item.key !== key));
@@ -329,12 +337,16 @@ export function HomeFeed({
       ) : composer === "verify_first" ? (
         <CompanyPostVerifyFirst />
       ) : null}
-      {items.length === 0 && !cursor ? (
+      {composer !== "hidden" || items.some((item) => item.kind === "post") ? (
+        <CompanyPostTypeFilter value={postFilter} onChange={setPostFilter} />
+      ) : null}
+      {postFilter ? <CompanyPostsOfType type={postFilter} isAdmin={isAdmin} /> : null}
+      {!postFilter && items.length === 0 && !cursor ? (
         <p role="status" className="rounded-2xl border border-[#dce5df] bg-white p-5 text-sm leading-6 text-[#52615b]">
           Il feed non ha ancora contenuti da mostrarti. Le aziende del Network, le guide della Scuola e le opportunità compariranno qui.
         </p>
       ) : null}
-      <div role="feed" aria-busy={loading} className="space-y-3">
+      <div role="feed" aria-busy={loading} hidden={postFilter !== null} className="space-y-3">
         {items.map((item, index) => (
           <article
             key={item.key}
@@ -349,7 +361,7 @@ export function HomeFeed({
         ))}
       </div>
       <div ref={sentinel} aria-hidden="true" className="h-px" />
-      {cursor ? (
+      {postFilter ? null : cursor ? (
         <div className="flex justify-center py-2">
           <button
             type="button"
@@ -364,7 +376,7 @@ export function HomeFeed({
       ) : items.length ? (
         <p role="status" className="py-3 text-center text-xs text-[#5b6b62]">Hai visto tutti i post per ora.</p>
       ) : null}
-      {failed ? (
+      {failed && !postFilter ? (
         <p role="alert" className="text-center text-xs text-[#9d4e28]">Non è stato possibile caricare altri post.</p>
       ) : null}
     </section>

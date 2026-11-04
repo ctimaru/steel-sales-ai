@@ -107,7 +107,8 @@ test("CPOST1 actions take the organization from the session and never from the b
   assert.match(actions, /^"use server";/);
   assert.match(actions, /p_organization_id: context\.organizationId/);
   assert.match(actions, /await getWorkspaceContext\(\)/);
-  for (const rpc of ["cpost1_create_post", "cpost1_edit_post", "cpost1_delete_post", "cpost1_report_post", "cpost1_feed"]) {
+  // CPOST2: publishing and reading go through the typed cpost2_* functions.
+  for (const rpc of ["cpost2_create_post", "cpost1_edit_post", "cpost1_delete_post", "cpost1_report_post", "cpost2_feed"]) {
     assert.match(actions, new RegExp('rpc\\("' + rpc + '"'));
   }
   assert.match(actions, /isCompanyPostReportReason\(reason\)/);
@@ -117,7 +118,7 @@ test("CPOST1 actions take the organization from the session and never from the b
 });
 
 test("CPOST1 feed reads posts through cpost1_feed and fails soft", () => {
-  assert.match(loader, /rpc\("cpost1_feed"/);
+  assert.match(loader, /rpc\("cpost2_feed"/);
   assert.match(loader, /withCompanyPosts\(interleaveHomeFeed\(/);
   assert.match(loader, /if \(posts\.failed\) unavailable\.push\("posts"\)/);
   assert.match(feed, /case "post":\s*return <CompanyPostCard/);
