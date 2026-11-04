@@ -16,7 +16,7 @@ permissions:
 jobs:
   visual:
     name: Chrome authenticated owner / 1440, 390, 320 / local only
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
       CI: "true"

@@ -19,7 +19,7 @@ jobs:
   school-auth-production:
     name: Seven synthetic users / Chrome read-only / no screenshots
     if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: production-qa
     timeout-minutes: 25
     env:

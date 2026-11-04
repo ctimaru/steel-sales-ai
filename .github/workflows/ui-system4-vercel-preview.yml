@@ -21,7 +21,7 @@ jobs:
        github.event.deployment.environment != 'Production' &&
        startsWith(github.event.deployment_status.environment_url, 'https://') &&
        contains(github.event.deployment_status.environment_url, '.vercel.app'))
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
       run:
