@@ -30,6 +30,8 @@ assert.ok(buyer && producer && trader);
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 assert.ok(key, "Local public Supabase key required");
 const checks = [];
+// Privacy-safe static recipient diagnostic: no addresses, links or credentials.
+let recipientCheckpoint = "not-started";
 const executable = process.env.DEMOTEST23_BROWSER_EXECUTABLE;
 assert.ok(!executable || executable.startsWith("/"), "Browser executable must be an absolute local path");
 const browser = await chromium.launch({ headless: true, ...(executable ? { executablePath: executable } : { channel: "chrome" }) });
@@ -45,6 +47,9 @@ async function step(label, run) {
     const message = error instanceof assert.AssertionError && typeof error.message === "string"
       ? error.message.split("\n")[0] : "Browser/API acceptance failed";
     console.error("FLOW1 LOCAL FAIL", label, message);
+    if (label.startsWith("cancel and explicitly confirm exactly two recipients ")) {
+      console.error("FLOW1 RECIPIENT CHECKPOINT", recipientCheckpoint, "kind", error instanceof Error ? error.name : "unknown");
+    }
     throw new Error("FLOW1 local acceptance failed: " + label);
   }
 }
@@ -204,34 +209,61 @@ try {
       await usable(page);
     });
     await step("cancel and explicitly confirm exactly two recipients " + width, async () => {
+      recipientCheckpoint = "select producer";
       await page.getByRole("checkbox", { name: /Seleziona DEMO Steel Manufacturing/ }).check();
+      recipientCheckpoint = "select trader";
       await page.getByRole("checkbox", { name: /Seleziona DEMO Tubes Trading/ }).check();
+      recipientCheckpoint = "add selected";
       await page.getByRole("button", { name: "Aggiungi 2 alla RFQ", exact: true }).click();
+      recipientCheckpoint = "wait added";
       await page.getByText(/2 fornitori aggiunti alla RFQ/).waitFor({ timeout: 60000 });
+      recipientCheckpoint = "fill buyer message";
       await page.getByLabel("Messaggio ai fornitori", { exact: true }).fill(message);
+      recipientCheckpoint = "locate review CTA";
       const reviewButton = page.getByRole("button", { name: /Controlla 2 destinatari/ });
+      recipientCheckpoint = "open review initial";
       await reviewButton.click();
+      recipientCheckpoint = "locate review region";
       let review = page.getByRole("region", { name: "Conferma finale invio RFQ" });
+      recipientCheckpoint = "wait review region";
       await review.waitFor();
+      recipientCheckpoint = "assert producer review";
       assert.match(await review.innerText(), /rfqh14-producer@example.test/);
+      recipientCheckpoint = "assert trader review";
       assert.match(await review.innerText(), /rfqh14-trader@example.test/);
+      recipientCheckpoint = "assert channel";
       assert.match(await review.innerText(), /Canale effettivo: email individuali/);
+      recipientCheckpoint = "assert marketplace private";
       assert.match(await review.innerText(), /Il Marketplace non verrà pubblicato/);
+      recipientCheckpoint = "assert button disabled initially";
       assert.equal(await review.getByRole("button", { name: /Conferma e invia a 2 fornitori/ }).isEnabled(), false,
         "Sending requires a distinct affirmative recipient confirmation");
+      recipientCheckpoint = "check before cancellation";
       await review.getByRole("checkbox", { name: /Ho verificato destinatari e indirizzi/ }).check();
+      recipientCheckpoint = "cancel review";
       await review.getByRole("button", { name: /Annulla, modifica la RFQ/ }).click();
+      recipientCheckpoint = "assert zero sent on cancel";
       assert.equal(captured(title).length, 0, "Cancelling verified review must send nothing");
+      recipientCheckpoint = "assert ledger zero on cancel";
       assert.equal((await rows(buyerApi.from("buyer_rfq_dispatches").select("id").eq("rfq_id", campaign.id))).length, 0,
         "Review must not queue a dispatch");
+      recipientCheckpoint = "open review again";
       await reviewButton.click();
+      recipientCheckpoint = "locate reopened region";
       review = page.getByRole("region", { name: "Conferma finale invio RFQ" });
+      recipientCheckpoint = "locate final confirmation";
       const confirm = review.getByRole("button", { name: /Conferma e invia a 2 fornitori/ });
+      recipientCheckpoint = "assert fresh confirm required";
       assert.equal(await confirm.isEnabled(), false, "Reopened review requires fresh confirmation");
+      recipientCheckpoint = "check final confirmation";
       await review.getByRole("checkbox", { name: /Ho verificato destinatari e indirizzi/ }).check();
+      recipientCheckpoint = "assert final button enabled";
       assert.equal(await confirm.isEnabled(), true, "Explicitly confirmed recipients enable sending");
+      recipientCheckpoint = "double activate confirm";
       await confirm.evaluate(button => { button.click(); button.click(); });
+      recipientCheckpoint = "wait local dispatch outcome";
       await page.getByText(/RFQ avviata: 2 invii effettuati/).waitFor({ timeout: 60000 });
+      recipientCheckpoint = "verify two local invites";
       assert.equal(captured(title).length, 2, "Double activation must deliver one local invite per supplier");
       const dispatches = await rows(buyerApi.from("buyer_rfq_dispatches").select("id,status,provider_message_id,attempt_count")
         .eq("rfq_id", campaign.id));
