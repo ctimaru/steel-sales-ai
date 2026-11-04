@@ -279,7 +279,7 @@ test("COMM-RFQ-UX3.A normalizes ten individually cited industrial lines and keep
     const calc = buyer.calculateBuyerDistintaLine(candidate.proposedLine);
     assert.equal(calc.complete, true, "canonical material calculation " + (i+1));
     assert.equal(calc.meters, quoted[i].meters, "individual length and bars " + (i+1));
-    assert.ok(Number(candidate.proposedLine.weightKgM) > 0, "mass from canonical engine " + (i+1));
+    assert.ok(Number(candidate.proposedLine.weightKgM.replace(",", ".")) > 0, "mass from canonical engine " + (i+1));
   }
   // A numbered correction changes only line 2. It cannot auto-approve a batch.
   const original = parsed.candidates[1];
