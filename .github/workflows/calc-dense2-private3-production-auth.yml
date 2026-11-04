@@ -19,7 +19,7 @@ jobs:
   chrome-auth-readonly:
     name: Real authenticated private calculator / 390+1440 / read-only
     if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: production-qa
     timeout-minutes: 25
     env:

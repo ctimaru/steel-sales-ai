@@ -19,7 +19,7 @@ jobs:
   company-pilot:
     name: Approved Company pilot / hosted read-only Chrome + JWT
     if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: production-qa
     timeout-minutes: 25
     env:
