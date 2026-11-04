@@ -62,6 +62,7 @@ export function CommercialRfqLivePreview({
             <ul className="mt-2 max-h-56 space-y-2 overflow-y-auto">
               {candidates.slice(0, 12).map((candidate, index) => {
                 const line = candidate.proposedLine;
+                const correctedByBuyer = Object.values(candidate.evidence).some((evidence) => evidence.origin === "human");
                 return (
                   <li key={candidate.candidateId} className="rounded-lg border border-[#e9d9b4] bg-[#fffaf0] px-3 py-2">
                     <p className="break-words text-xs font-semibold leading-5 text-[#4a3a21]">
@@ -72,7 +73,8 @@ export function CommercialRfqLivePreview({
                         (line.quantityMode === "bars" ? "barre" : line.quantityMode === "meters" ? "m" : "t") : ""].filter(Boolean).join(" · ")}
                     </p>
                     <p className="mt-1 text-[11px] font-semibold text-[#8b5c1b]">
-                      {candidate.status === "invalid" ? "Informazioni da correggere" :
+                      {correctedByBuyer ? "Modificato da te · da confermare" :
+                        candidate.status === "invalid" ? "Informazioni da correggere" :
                         candidate.status === "needs_review" ? "Richiede chiarimenti" : "In attesa di conferma"}
                     </p>
                   </li>
