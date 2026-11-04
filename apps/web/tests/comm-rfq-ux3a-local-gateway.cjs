@@ -5,6 +5,7 @@
  */
 "use strict";
 const fixture = require("./comm-rfq-ux3a-local-fixture.cjs");
+const fixtureB = require("./comm-rfq-ux3b-local-fixture.cjs");
 const originalFetch = globalThis.fetch;
 const required = condition => {
   if (!condition) throw new Error("COMM-RFQ-UX3A local-only gateway denied");
@@ -26,10 +27,12 @@ globalThis.fetch = async function commUx3aGatewayMock(input, init) {
   required(request.headers.get("authorization") === "Bearer flow1-rfq-ux3a-synthetic");
   const body = await request.json();
   required(body?.messages?.[1]?.role === "user");
-  required(body.messages[1].content === fixture.text);
+  const isUx3a = body.messages[1].content === fixture.text;
+  const isUx3b = body.messages[1].content === fixtureB.text;
+  required(isUx3a || isUx3b);
   required(body?.response_format?.json_schema?.name === "rfqai3_tube_candidates");
   required(body.stream === false && Array.isArray(body.messages) && body.messages.length === 2);
-  const result = { intent: "buyer_request", lines: fixture.lines };
+  const result = { intent: "buyer_request", lines: isUx3b ? fixtureB.lines : fixture.lines };
   return new Response(JSON.stringify({
     id: "flow1-ux3a-synthetic",
     choices: [{ finish_reason: "stop", message: { content: JSON.stringify(result) } }],
