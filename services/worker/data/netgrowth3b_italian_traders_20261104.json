@@ -14,8 +14,8 @@
     {
       "name": "Boccardo Tubi S.r.l.",
       "domain": "boccardotubi.it",
-      "evidence_url": "https://boccardotubi.it/it/chi-siamo/",
-      "summary": "Il sito ufficiale descrive commercio di tubi trafilati a freddo di precisione e servizio taglio a misura.",
+      "evidence_url": "https://www.boccardotubi.it/",
+      "summary": "L'azienda dichiara commercializzazione di tubi trafilati a freddo di precisione, taglio a misura, imballaggio e trasporto.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -23,8 +23,8 @@
     {
       "name": "Centro Acciai Inox",
       "domain": "centroacciainox.it",
-      "evidence_url": "https://centroacciainox.it/azienda/",
-      "summary": "Fonte aziendale: distribuzione di tubi in acciaio inox, con e senza saldatura, oltre a flange e raccordi.",
+      "evidence_url": "https://www.centroacciainox.it/azienda/",
+      "summary": "L'azienda documenta distribuzione di tubi in acciaio inossidabile, prodotti piani e lunghi, raccordi e componenti per impianti industriali.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -32,8 +32,8 @@
     {
       "name": "PZ Tubi S.r.l.",
       "domain": "pztubi.com",
-      "evidence_url": "https://pztubi.com/azienda/",
-      "summary": "La società dichiara distribuzione di tubi in acciaio senza saldatura, trafilati e saldati per applicazioni meccaniche.",
+      "evidence_url": "https://www.pztubi.com/azienda/",
+      "summary": "PZ Tubi dichiara la distribuzione di tubi in acciaio senza saldatura per meccanica, tubi saldati scordonati e barre forate.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -41,8 +41,8 @@
     {
       "name": "Inox Steel",
       "domain": "acciaioinox.eu",
-      "evidence_url": "https://acciaioinox.eu/chi-siamo/",
-      "summary": "L'azienda dichiara commercio di tubi e tubolari in acciaio inossidabile, oltre a lamiere e barre da magazzino.",
+      "evidence_url": "https://www.acciaioinox.eu/",
+      "summary": "Inox Steel dichiara commercio di lamiere, barre, tubi tondi, quadri e rettangolari in acciaio inox.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -50,8 +50,8 @@
     {
       "name": "Intertubi S.p.A.",
       "domain": "intertubi.it",
-      "evidence_url": "https://intertubi.it/it/Azienda.html",
-      "summary": "L'azienda dichiara importazione e commercializzazione di tubi inox senza saldatura, oltre a raccordi, flange e valvole.",
+      "evidence_url": "https://www.intertubi.it/it/Azienda.html",
+      "summary": "Intertubi documenta produzione di raccordi e commercializzazione di flange, valvole e tubi senza saldatura in acciaio inox.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -59,17 +59,17 @@
     {
       "name": "TNV Commerciale Siderurgica",
       "domain": "tnvsrl.it",
-      "evidence_url": "https://tnvsrl.it/tubo-trafilato/",
-      "summary": "Fonte ufficiale: distribuzione commerciale di tubi in acciaio saldati trafilati per applicazioni meccaniche.",
+      "evidence_url": "https://www.tnvsrl.it/tubo-trafilato/",
+      "summary": "T.N.V. dichiara distribuzione di tubi in acciaio saldati trafilati per applicazioni meccaniche e speciali.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
     },
     {
-      "name": "Tubimec",
+      "name": "Tubimec S.r.l.",
       "domain": "tubimec.it",
-      "evidence_url": "https://tubimec.it/azienda/",
-      "summary": "Sito aziendale della società di distribuzione di tubi per applicazioni meccaniche e forniture siderurgiche.",
+      "evidence_url": "https://www.tubimec.it/azienda/",
+      "summary": "Tubimec S.r.l. distribuisce tubi saldati e senza saldatura per varie applicazioni; il sito conferma l'appartenenza al gruppo Interacciai.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -86,8 +86,8 @@
     {
       "name": "Fratelli Pinato",
       "domain": "pinato.com",
-      "evidence_url": "https://pinato.com/prodotti/",
-      "summary": "L'azienda espone nel proprio catalogo prodotti siderurgici in acciaio inox, compresi tubi e tubolari.",
+      "evidence_url": "https://www.pinato.com/prodotti/",
+      "summary": "Fratelli Pinato dichiara lavorazione e distribuzione di tubi in acciaio inox tondi, quadri e rettangolari, saldati e trafilati.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -113,8 +113,8 @@
     {
       "name": "Pipex Italia",
       "domain": "pipex.it",
-      "evidence_url": "https://pipex.it/it/warehouse-it/",
-      "summary": "La pagina magazzino ufficiale descrive stock di tubi inox, tubi meccanici, tubi API e tubi trafilati a freddo.",
+      "evidence_url": "https://www.pipex.it/it/warehouse-it/",
+      "summary": "Pipex Italia dichiara disponibilita' a magazzino di tubi inox, meccanici, line pipe, caldaia, trafilati e tubi commerciali.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -156,10 +156,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "ITM Group",
+      "name": "ITM International Tubing & Materials Group S.r.l.",
       "domain": "itmgroup.it",
-      "evidence_url": "https://itmgroup.it/tubi/",
-      "summary": "Sito aziendale con categoria tubi in acciaio al carbonio e inossidabile per forniture industriali.",
+      "evidence_url": "https://www.itmgroup.it/tubi/",
+      "summary": "Il sito ITM elenca tubi in acciaio al carbonio, legato e inox per applicazioni energetiche e impiantistiche.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -174,10 +174,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "Steelnet",
+      "name": "Steelnet S.r.l.",
       "domain": "steel-net.it",
-      "evidence_url": "https://steel-net.it/index.html",
-      "summary": "Sito aziendale con fornitura di tubi strutturali e componenti in acciaio per il mercato industriale.",
+      "evidence_url": "https://www.steel-net.it/tubi.html",
+      "summary": "Steelnet dichiara commercio di tubi trafilati per oleodinamica e tubi senza saldatura per meccanica e strutture.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -194,8 +194,8 @@
     {
       "name": "Commercio Ferro",
       "domain": "commercioferro.com",
-      "evidence_url": "https://commercioferro.com/",
-      "summary": "Il sito aziendale descrive commercio e fornitura di prodotti siderurgici, inclusi tubi strutturali.",
+      "evidence_url": "https://www.commercioferro.com/",
+      "summary": "Commercio Ferro dichiara distribuzione di prodotti siderurgici, fra cui tubi, laminati mercantili e travi.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -203,26 +203,26 @@
     {
       "name": "Merigo S.p.A.",
       "domain": "merigo.it",
-      "evidence_url": "https://merigo.it/chi-siamo-divisione-tubi-qualificati/",
-      "summary": "La divisione tubi qualificati descrive la distribuzione di tubi in acciaio saldati e senza saldatura.",
+      "evidence_url": "https://www.merigo.it/chi-siamo-divisione-tubi-qualificati/",
+      "summary": "Merigo S.p.A., Divisione Tubi Qualificati, dichiara la commercializzazione di tubi saldati e senza saldatura.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
     },
     {
-      "name": "Soluzioni Piping",
+      "name": "Soluzioni Piping S.r.l.",
       "domain": "soluzionipiping.it",
-      "evidence_url": "https://soluzionipiping.it/",
-      "summary": "Sito aziendale di fornitura commerciale di tubazioni e componenti in acciaio inossidabile per piping industriale.",
+      "evidence_url": "https://www.soluzionipiping.it/",
+      "summary": "Soluzioni Piping S.r.l. dichiara importazione e commercio all'ingrosso di tubi e tubing senza saldatura in acciaio inox.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
     },
     {
-      "name": "Alloy Pipe & Metal S.r.l. (APM Italia)",
+      "name": "Alloy Pipe e Metal S.r.l. (APM Italia)",
       "domain": "apmitalia.it",
-      "evidence_url": "https://apmitalia.it/trading/",
-      "summary": "L'azienda dichiara attività di trading di tubi in acciaio saldati e senza saldatura, lamiere e componenti piping.",
+      "evidence_url": "https://www.apmitalia.it/chi-siamo/",
+      "summary": "Alloy Pipe e Metal, attraverso APM Italia, dichiara rappresentanza commerciale e trading di tubi, lamiere e piping in acciaio.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
