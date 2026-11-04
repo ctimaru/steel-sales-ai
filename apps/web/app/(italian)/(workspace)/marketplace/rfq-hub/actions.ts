@@ -371,7 +371,25 @@ async function sendRfqh3Email(input: {
   text: string;
   headers?: Record<string, string>;
 }) {
-  const response = await fetch("https://api.resend.com/emails", {
+  // The CI fixture must NEVER fall through to the real Resend endpoint.
+  // Only a disposable 127.0.0.1 Next+Supabase environment may use the local
+  // adapter, which itself validates two synthetic recipients and idempotency.
+  const localFlow1 = process.env.FLOW1_LOCAL_PROVIDER === "true";
+  if (input.apiKey === "flow1-local-synthetic" && !localFlow1) {
+    throw new Error("Synthetic Resend credential cannot be used outside FLOW1 CI");
+  }
+  let endpoint = "https://api.resend.com/emails";
+  if (localFlow1) {
+    const safe = process.env.CI === "true" &&
+      process.env.NODE_ENV !== "production" &&
+      process.env.RESEND_API_KEY === "flow1-local-synthetic" &&
+      process.env.NEXT_PUBLIC_SITE_URL === "http://127.0.0.1:3000" &&
+      process.env.NEXT_PUBLIC_SUPABASE_URL === "http://127.0.0.1:54321" &&
+      process.env.FLOW1_EMAIL_LOCAL_URL === "http://127.0.0.1:38081/emails";
+    if (!safe) throw new Error("FLOW1 local email transport refused unsafe configuration");
+    endpoint = "http://127.0.0.1:38081/emails";
+  }
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       Authorization: "Bearer " + input.apiKey,
