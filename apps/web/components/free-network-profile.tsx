@@ -48,6 +48,26 @@ export async function FreeNetworkProfileView({
             <p className="mt-2 text-sm leading-6 text-[#52615b]">{profile.company.country_code} · {profile.roles.map((r) => r.name).join(" · ") || "Ruolo da completare"}{provisional ? " · Ruolo indicativo" : ""}</p>
           </div>
         </div>
+        {(provisional || isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status)) ?
+          <section aria-label="Rivendicazione aziendale" data-testid="network-owner-claim-journey"
+            className="mt-5 rounded-2xl border border-[#cfe0d5] bg-[#f8fbf9] p-4 sm:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[#175640]">
+                  {provisional?"Non rivendicata · Dati da fonti pubbliche":"Profilo da rivendicare"}
+                </p>
+                <h2 className="mt-1 text-base font-semibold text-[#173f35]">Rivendica questa azienda</h2>
+              </div>
+              {provisional ? <NetworkActivationCta mode="discovered" companyId={companyId} companyName={profile.company.legal_name} source="network_profile"/> :
+                <NetworkActivationCta mode="published" companyId={companyId} companyName={profile.company.legal_name} source="network_profile"/>}
+            </div>
+            <ol className="mt-3 flex flex-wrap gap-x-4 gap-y-2 border-t border-[#ddebe2] pt-3 text-xs font-semibold text-[#31574b]" aria-label="Passaggi per gestire il profilo">
+              <li><span className="mr-1 text-[#175640]">1.</span>Rivendica azienda</li>
+              <li><span className="mr-1 text-[#175640]">2.</span>Arricchisci profilo</li>
+              <li><span className="mr-1 text-[#175640]">3.</span>Verifica informazioni</li>
+            </ol>
+            <div className="mt-2"><NetworkActivationHelp mode={provisional?"discovered":"published"}/></div>
+          </section> : null}
         <section aria-label="Connessione aziendale" className="mt-5 rounded-2xl border border-[#bcd7c8] bg-[#f1f8f3] p-4 sm:p-5">
           <h2 className="text-base font-semibold text-[#173f35]">Entra in contatto con questa azienda</h2>
           {status==="available"&&canConnect ? <Link href={"/network/"+companyId+"/connect"}
@@ -85,15 +105,6 @@ export async function FreeNetworkProfileView({
         </section> : null}
         {profile.company.description ? <p className="mt-5 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-[#43524c]">{profile.company.description}</p> : null}
         {website ? <a href={website} target="_blank" rel="noopener noreferrer" className="app-secondary mt-5 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Visita sito aziendale</a> : null}
-        {(provisional || isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status)) ?
-          <details className="mt-4 border-t border-[#edf1ef] pt-4 text-xs text-[#52615b]">
-            <summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda?</summary>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <NetworkActivationHelp mode={provisional?"discovered":"published"}/>
-              {provisional ? <NetworkActivationCta mode="discovered" companyId={companyId} companyName={profile.company.legal_name} source="network_profile"/> :
-               <NetworkActivationCta mode="published" companyId={companyId} companyName={profile.company.legal_name} source="network_profile"/>}
-            </div>
-          </details> : null}
         {(profile.products.length>0 || profile.facilities.length>0) ? <div className="mt-7 grid gap-6 sm:grid-cols-2">
           {profile.products.length>0 ? <div>
             <h2 className="text-base font-semibold text-[#173f35]">Prodotti dichiarati</h2>
