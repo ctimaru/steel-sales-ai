@@ -1,0 +1,281 @@
+{
+  "batch_key": "NET-RO1-WEB30-20261105",
+  "status": "private_web_research_only",
+  "country": "RO",
+  "new_companies": 30,
+  "classification": "business_website_source_not_owner_verified",
+  "visura_required": false,
+  "description": "Public first-party business webpages/search-indexed first-party pages. No personal contacts, prices, grades, certification or auto-claim; suspect retail-relevance held in private review lane.",
+  "records": [
+    {
+      "research_id": "NET-RO1-WEB30-001",
+      "canonical_domain": "marex-distribution.ro",
+      "display_name": "Marex Distribution",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://marex-distribution.ro/produs/teava-din-otel-rectangulara-200-x-80-x-5-mm/",
+      "source_summary": "Il sito aziendale presenta la distribuzione di tubi rettangolari in acciaio per carpenteria e costruzioni metalliche.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-002",
+      "canonical_domain": "metalman.ro",
+      "display_name": "Metal Man",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://metalman.ro/servicii/",
+      "source_summary": "Il sito aziendale elenca servizi di taglio laser su tubi tondi, rettangolari e profili metallici.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-003",
+      "canonical_domain": "eurobusines.ro",
+      "display_name": "Euro Busines SRL",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://eurobusines.ro/debitare-cu-laser/",
+      "source_summary": "Il sito aziendale elenca servizi industriali di taglio laser di tubi e profili, lavorazioni e saldatura.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-004",
+      "canonical_domain": "wsteel.ro",
+      "display_name": "West Steel",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://wsteel.ro/tevi/teava-sudata-longitudinal/",
+      "source_summary": "Il sito commerciale presenta tubi in acciaio saldati longitudinalmente, tondi, quadrati e rettangolari.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-005",
+      "canonical_domain": "directline.ro",
+      "display_name": "Direct Line Inox",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.directline.ro/",
+      "source_summary": "Il sito aziendale presenta tubi in acciaio inox e semilavorati per applicazioni industriali e lavorazioni metalliche.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-006",
+      "canonical_domain": "grossner.ro",
+      "display_name": "Grossner",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://grossner.ro/pages/tevi-de-otel-fara-sudura-laminate-trase",
+      "source_summary": "Il sito commerciale dedica una categoria ai tubi in acciaio senza saldatura laminati e trafilati.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-007",
+      "canonical_domain": "metal-green.ro",
+      "display_name": "Metal Green",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://metal-green.ro/",
+      "source_summary": "Il sito aziendale propone tubi in acciaio saldati, senza saldatura e provenienti da recupero per impieghi industriali.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-008",
+      "canonical_domain": "rlhconstruct.com",
+      "display_name": "RLH Construct",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://rlhconstruct.com/teava-trasa-din-otel-fara-sudura-laminate-la-cald/",
+      "source_summary": "Il sito aziendale presenta tubi in acciaio trafilati e senza saldatura per applicazioni tecniche.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-009",
+      "canonical_domain": "constal.ro",
+      "display_name": "Constal",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.constal.ro/catalog/produse-metalurgice-1/filtru-tip-otel-s355-16",
+      "source_summary": "Il catalogo aziendale presenta tubi e profili in acciaio, compresi materiali per strutture e carpenteria.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-010",
+      "canonical_domain": "pipes-distribution-romania.ro",
+      "display_name": "Pipes Distribution Romania",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://pipes-distribution-romania.ro/produse-tevi/teava-sudata/",
+      "source_summary": "Il sito aziendale offre tubi in acciaio saldati longitudinalmente ed elicoidalmente per impianti e costruzioni.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-011",
+      "canonical_domain": "kueryosteel.ro",
+      "display_name": "Kueryo Steel",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://kueryosteel.ro/",
+      "source_summary": "Il sito aziendale descrive la vendita di prodotti siderurgici e metallici e la fornitura di profili in acciaio.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-012",
+      "canonical_domain": "melindasteel.ro",
+      "display_name": "Melinda Steel",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://melindasteel.ro/",
+      "source_summary": "Il catalogo aziendale comprende tubi e sezioni in acciaio e altri semilavorati siderurgici.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-013",
+      "canonical_domain": "trutzi.ro",
+      "display_name": "Trutzi",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.trutzi.ro/profile-laminate-tevi-si-tabla/teava-patrata/",
+      "source_summary": "Il sito aziendale presenta tubi quadrati, rettangolari e rotondi con profili e lamiere in acciaio.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-014",
+      "canonical_domain": "cncadvertising.ro",
+      "display_name": "CNC Advertising",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.cncadvertising.ro/",
+      "source_summary": "Il sito aziendale descrive taglio laser di tubi e metalli e lavorazioni di saldatura su commessa.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-015",
+      "canonical_domain": "metaleinternational.ro",
+      "display_name": "Metale International",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://metaleinternational.ro/produs/materiale/profile-metalice/",
+      "source_summary": "Il sito aziendale dichiara la commercializzazione di tubi circolari e rettangolari e profili per carpenteria.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-016",
+      "canonical_domain": "nnbindustry.ro",
+      "display_name": "NNB Industry",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://nnbindustry.ro/",
+      "source_summary": "Il sito aziendale presenta lavorazioni e componenti metallici per industria con servizi di taglio laser CNC.",
+      "review_lane": "industrial_fit_review"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-017",
+      "canonical_domain": "debitare-carotare-laser.ro",
+      "display_name": "Debitare Carotare Laser",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://debitare-carotare-laser.ro/servicii/",
+      "source_summary": "Il sito aziendale propone taglio laser di tubi tondi e rettangolari, profili e lavorazioni industriali.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-018",
+      "canonical_domain": "laserstarke.ro",
+      "display_name": "Laser Starke",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://laserstarke.ro/debitare-laser-teava/",
+      "source_summary": "Il sito aziendale dedica una sezione al taglio laser e alla lavorazione precisa di tubi metallici.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-019",
+      "canonical_domain": "mpxmetal.ro",
+      "display_name": "MPX Metal",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://mpxmetal.ro/feroase/teava-de-otel/",
+      "source_summary": "Il sito aziendale dichiara la distribuzione di tubi in acciaio tondi, quadrati, rettangolari e trafilati.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-020",
+      "canonical_domain": "thm.ro",
+      "display_name": "Tehnometal Development",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://thm.ro/",
+      "source_summary": "Il sito aziendale descrive importazione e distribuzione di tubi inox trafilati e saldati e altri prodotti metallici.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-021",
+      "canonical_domain": "materialeconstructiiploiesti.ro",
+      "display_name": "ADF Metal Concept",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.materialeconstructiiploiesti.ro/",
+      "source_summary": "Il sito commerciale espone tubi e profili laminati in acciaio tra i materiali per costruzioni.",
+      "review_lane": "web_profile_review_pending"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-022",
+      "canonical_domain": "silvesrom.ro",
+      "display_name": "Silvesrom",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://silvesrom.ro/materiale-constructii/produse-metalurgice/tevi-si-profile-metalice/",
+      "source_summary": "Il catalogo commerciale comprende tubi rettangolari e altri profili metallici per costruzioni.",
+      "review_lane": "retail_industrial_fit_review"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-023",
+      "canonical_domain": "livrarebaiamare.ro",
+      "display_name": "Livrare Baia Mare",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://livrarebaiamare.ro/oferte/teava/teava-rectangulara/",
+      "source_summary": "Il sito commerciale offre tubi rettangolari in acciaio per impieghi di carpenteria e strutture metalliche.",
+      "review_lane": "retail_industrial_fit_review"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-024",
+      "canonical_domain": "redcon1.ro",
+      "display_name": "Redcon1",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.redcon1.ro/fier-beton/teava-rectangulara-15x15-20x20-30x20-30x30-30x40-30x60-40x20-40x30-40x40-50x30-50x50-60x40-60x60-70x70-80x80-100x100-etc.html",
+      "source_summary": "Il sito commerciale presenta tubolari rettangolari in acciaio per costruzioni con diverse dimensioni.",
+      "review_lane": "retail_industrial_fit_review"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-025",
+      "canonical_domain": "revival.ro",
+      "display_name": "Revival",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.revival.ro/teava-pentru-constructii",
+      "source_summary": "Il catalogo commerciale comprende tubi tondi e quadrati in acciaio per costruzioni.",
+      "review_lane": "retail_industrial_fit_review"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-026",
+      "canonical_domain": "dennver.ro",
+      "display_name": "Dennver",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.dennver.ro/teava-rectangulara",
+      "source_summary": "Pagina aziendale indicizzata con offerta di tubi rettangolari in acciaio; sito non accessibile al crawler.",
+      "review_lane": "retail_industrial_fit_review"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-027",
+      "canonical_domain": "maxbau.ro",
+      "display_name": "MaxBau",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.maxbau.ro/teava-pentru-constructii/",
+      "source_summary": "Pagina commerciale indicizzata con tubi in acciaio tondi, quadrati e rettangolari; accesso crawler limitato.",
+      "review_lane": "retail_industrial_fit_review"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-028",
+      "canonical_domain": "romstal.ro",
+      "display_name": "Romstal",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.romstal.ro/",
+      "source_summary": "Il catalogo del distributore contiene tubi in acciaio saldati e laminati per impiantistica; pertinenza strutturale da rivedere.",
+      "review_lane": "retail_industrial_fit_review"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-029",
+      "canonical_domain": "casaalex.ro",
+      "display_name": "Casa Alex",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://casaalex.ro/index.php?route=product/category&path=2492",
+      "source_summary": "Pagina aziendale indicizzata con catalogo di tubolari rettangolari in acciaio; rilevanza industriale da rivedere.",
+      "review_lane": "retail_industrial_fit_review"
+    },
+    {
+      "research_id": "NET-RO1-WEB30-030",
+      "canonical_domain": "depomax.ro",
+      "display_name": "Depomax",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://depomax.ro/blog/cum-alegi-teava-metalica-potrivita-patrata-rectangulara-sau-rotunda",
+      "source_summary": "Il sito del distributore tratta tubi in acciaio quadrati, rettangolari e rotondi; offerta industriale da confermare.",
+      "review_lane": "retail_industrial_fit_review"
+    }
+  ]
+}
