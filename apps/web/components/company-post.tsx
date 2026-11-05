@@ -349,6 +349,8 @@ const SPAN = {
   half: "col-span-2 sm:col-span-3",
   third: "col-span-1 sm:col-span-2",
   twoThirds: "col-span-2 sm:col-span-4",
+  /** A third on desktop, the full row on mobile (avoids half-empty rows). */
+  thirdWide: "col-span-2 sm:col-span-2",
 } as const;
 
 function Field({
@@ -407,7 +409,7 @@ function TypedFields({ type, draft, set, id }: { type: CompanyPostType; draft: D
         )}
         <Field id={id + "-from"} label="Dal" type="date" span="third" value={v("available_from")} onChange={(x) => set("available_from", x)} />
         <Field id={id + "-to"} label="Al" type="date" span="third" value={v("available_to")} onChange={(x) => set("available_to", x)} />
-        <Field id={id + "-location"} label="Luogo" span="third" value={v("location")} onChange={(x) => set("location", x)} placeholder="es. Brescia" />
+        <Field id={id + "-location"} label="Luogo" span="thirdWide" value={v("location")} onChange={(x) => set("location", x)} placeholder="es. Brescia" />
         {v("process") === "altro" ? (
           <Field id={id + "-quantity"} label="Quantità o capacità" span="full" value={v("quantity")} onChange={(x) => set("quantity", x)} placeholder="es. 200 t/mese" maxLength={80} />
         ) : null}
@@ -435,10 +437,10 @@ function TypedFields({ type, draft, set, id }: { type: CompanyPostType; draft: D
     return (
       <div className={grid}>
         <Field id={id + "-name"} label="Nome dell’evento" required span="twoThirds" value={v("name")} onChange={(x) => set("name", x)} placeholder="es. Made in Steel" />
-        <Field id={id + "-stand"} label="Stand" span="third" value={v("stand")} onChange={(x) => set("stand", x)} placeholder="Pad. 3 B12" maxLength={40} />
+        <Field id={id + "-stand"} label="Stand" span="thirdWide" value={v("stand")} onChange={(x) => set("stand", x)} placeholder="Pad. 3 B12" maxLength={40} />
         <Field id={id + "-from"} label="Dal" required type="date" span="third" value={v("date_from")} onChange={(x) => set("date_from", x)} />
         <Field id={id + "-to"} label="Al" type="date" span="third" value={v("date_to")} onChange={(x) => set("date_to", x)} />
-        <Field id={id + "-location"} label="Luogo" required span="third" value={v("location")} onChange={(x) => set("location", x)} placeholder="Fiera Milano" />
+        <Field id={id + "-location"} label="Luogo" required span="thirdWide" value={v("location")} onChange={(x) => set("location", x)} placeholder="Fiera Milano" />
       </div>
     );
   }
@@ -543,9 +545,9 @@ export function CompanyPostComposer({
             <button key={option.value} type="button" onClick={() => start(option.value)}
               data-testid={"company-post-start-" + option.value}
               aria-label={"Nuovo post: " + option.label}
-              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-1 text-xs font-semibold text-[#3f5248] transition hover:bg-[#f1f6f3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+              className="inline-flex min-h-10 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1 text-[11px] font-semibold text-[#3f5248] transition hover:bg-[#f1f6f3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] sm:flex-row sm:gap-1.5 sm:text-xs">
               <TypeIcon type={option.value} className={TYPE_ICON_TONE[option.value]} />
-              <span className="truncate">{COMPOSER_LABEL[option.value]}</span>
+              <span>{COMPOSER_LABEL[option.value]}</span>
             </button>
           ))}
         </div>
@@ -562,12 +564,12 @@ export function CompanyPostComposer({
       className="rounded-2xl border border-[#c9dbd0] bg-white p-3 shadow-[0_4px_18px_rgba(18,61,52,0.06)]">
       <h2 id={id + "-heading"} className="sr-only">Pubblica un aggiornamento</h2>
       <div className="flex items-center justify-between gap-2">
-        <div role="radiogroup" aria-label="Tipo di post" className="flex min-w-0 gap-0.5 overflow-x-auto rounded-full bg-[#f1f5f2] p-0.5">
+        <div role="radiogroup" aria-label="Tipo di post" className="grid min-w-0 flex-1 grid-cols-4 gap-0.5 rounded-2xl bg-[#f1f5f2] p-0.5 sm:flex sm:flex-none sm:rounded-full">
           {COMPANY_POST_TYPES.map((option) => (
             <button key={option.value} type="button" role="radio" aria-checked={type === option.value}
               data-testid={"company-post-type-" + option.value}
               onClick={() => choose(option.value)}
-              className={"inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#175640] " +
+              className={"inline-flex min-h-8 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#175640] sm:h-8 sm:flex-row sm:gap-1.5 sm:rounded-full sm:px-2.5 sm:py-0 sm:text-xs " +
                 (type === option.value ? "bg-white text-[#173f35] shadow-[0_1px_3px_rgba(18,61,52,0.15)]" : "text-[#5b6b62] hover:text-[#173f35]")}>
               <TypeIcon type={option.value} className={type === option.value ? TYPE_ICON_TONE[option.value] : ""} />
               {COMPOSER_LABEL[option.value]}
@@ -610,7 +612,7 @@ export function CompanyPostComposer({
           Come {organizationName}{companyPostIsOffer(type) ? " · visibile 30 giorni" : ""} · max {COMPANY_POST_DAILY_LIMIT} al giorno
           <span className="sr-only"> · {current.hint}</span>
         </p>
-        <div className="flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-3">
           {showNotes ? <CharCount value={value} /> : null}
           <button
             type="button"
