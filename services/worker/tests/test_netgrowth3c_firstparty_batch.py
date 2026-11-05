@@ -18,7 +18,7 @@ def test_fifty_distinct_source_backed_traders_and_explicit_holds():
     assert batch == "NET-GROWTH3C-IT-TRADERS-20261105-A"
     assert len(records) == 50
     assert len({x["domain"] for x in records}) == 50
-    assert len(hold) == 8
+    assert len(hold) == 0
     assert all(x["role"] == "trader_distributor" for x in records)
     assert all(x["evidence_url"].startswith("https://") for x in records)
 
@@ -58,15 +58,19 @@ def test_default_offline_dry_run_makes_no_http_calls(monkeypatch):
     result = asyncio.run(run(apply=False))
     assert result["status"] == "validated_offline"
     assert result["requested"] == 50
-    assert result["held_for_source_review"] == 8
+    assert result["held_for_source_review"] == 0
     assert result["published"] == 0
 
 
-def test_apply_refuses_holds_before_credentials_or_writes(monkeypatch):
+def test_apply_refuses_holds_before_credentials_or_writes(monkeypatch, tmp_path):
     monkeypatch.setattr(module, "credentials_from_environment", lambda: (
         _ for _ in ()).throw(AssertionError("No secrets when held")))
+    held = payload()
+    held["review_hold_domains"] = [held["records"][0]["domain"]]
+    path = tmp_path / "held.json"
+    path.write_text(json.dumps(held), encoding="utf-8")
     with pytest.raises(RuntimeError, match="holds must be cleared"):
-        asyncio.run(run(apply=True))
+        asyncio.run(run(apply=True, manifest=path))
 
 
 def test_source_review_must_be_consistent_and_auditable():
@@ -74,3 +78,15 @@ def test_source_review_must_be_consistent_and_auditable():
     item["review_hold_domains"] = ["not-the-source.example"]
     with pytest.raises(ValueError, match="Unknown company"):
         validate_manifest(item)
+
+
+def test_verified_replacements_preserve_fifty_real_businesses():
+    item = payload()
+    names = {x["domain"]: x["name"] for x in item["records"]}
+    assert {"comfersrl.com","ostp.it","tirvalvoflangia.com",
+            "sudferro.net","siderimport3.it","cil-inox.com",
+            "sicomsas.it","rizzasnc.it"}.issubset(names)
+    assert "comfer.it" not in names
+    assert "ftlrossi.it" not in names
+    assert "ispraviareggio.it" not in names
+    assert len(set(names)) == 50
