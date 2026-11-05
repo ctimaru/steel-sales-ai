@@ -1,0 +1,439 @@
+{
+  "phase": "NET-GROWTH3.F.2",
+  "observed_date": "2026-11-05",
+  "mode": "research_only",
+  "allow_import": false,
+  "prerequisite_branch": "feat/net-growth3f-evidence-seed-20261105",
+  "note": "Company-owned product/processing statements only. Legal identity and source reuse rights pending, not a confirmed supplier/stock/buyer and not an import cohort.",
+  "baseline": {
+    "canonical": 278,
+    "provisional": 408
+  },
+  "records": [
+    {
+      "name": "AL.PI. Taglio Laser",
+      "domain": "alpilaser.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.alpilaser.it/azienda-taglio-laser-tubi-laser-lamiera/",
+      "identity_evidence_url": "https://www.alpilaser.it/azienda-taglio-laser-tubi-laser-lamiera/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser tubolari conto terzi",
+          "source_url": "https://www.alpilaser.it/azienda-taglio-laser-tubi-laser-lamiera/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Nanni Ottavio",
+      "domain": "nanniottavio.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.nanniottavio.it/?lang=en",
+      "identity_evidence_url": "https://www.nanniottavio.it/?lang=en",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser tubi",
+          "source_url": "https://www.nanniottavio.it/?lang=en",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Andrea Balboni S.r.l. (Teknolaser)",
+      "domain": "teknolaser.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://teknolaser.it/en/",
+      "identity_evidence_url": "https://teknolaser.it/en/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "dimension",
+          "value": "diametro massimo tubo dichiarato 254 mm",
+          "source_url": "https://teknolaser.it/en/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Mondeo",
+      "domain": "mondeovalves.com",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.mondeovalves.com/it/servizi-taglio-laser/",
+      "identity_evidence_url": "https://www.mondeovalves.com/it/servizi-taglio-laser/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser e foratura tubi inox conto terzi",
+          "source_url": "https://www.mondeovalves.com/it/servizi-taglio-laser/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "F.lli Bellani",
+      "domain": "fllibellani.com",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.fllibellani.com/taglio-laser",
+      "identity_evidence_url": "https://www.fllibellani.com/taglio-laser",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser di lamiere e tubi conto terzi",
+          "source_url": "https://www.fllibellani.com/taglio-laser",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Carpentecnica",
+      "domain": "carpentecnica.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.carpentecnica.it/servizio/taglio-laser-tubo/",
+      "identity_evidence_url": "https://www.carpentecnica.it/servizio/taglio-laser-tubo/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser tubo conto terzi",
+          "source_url": "https://www.carpentecnica.it/servizio/taglio-laser-tubo/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Officine Foresto",
+      "domain": "officineforesto.com",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.officineforesto.com/",
+      "identity_evidence_url": "https://www.officineforesto.com/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser tubo e saldatura",
+          "source_url": "https://www.officineforesto.com/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Metal Master S.r.l.",
+      "domain": "metalmaster.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.metalmaster.it/",
+      "identity_evidence_url": "https://www.metalmaster.it/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser tubo e curvatubi",
+          "source_url": "https://www.metalmaster.it/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "La Moderna di Merlo",
+      "domain": "lamodernadimerlo.com",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://lamodernadimerlo.com/",
+      "identity_evidence_url": "https://lamodernadimerlo.com/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser e curvatura tubi",
+          "source_url": "https://lamodernadimerlo.com/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "CE.PI. Exemplar S.n.c.",
+      "domain": "cepisnc.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.cepisnc.it/altreinfo/lavorazione-acciaio-inox/",
+      "identity_evidence_url": "https://www.cepisnc.it/altreinfo/lavorazione-acciaio-inox/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "foratura, taglio e saldatura tubolari inox",
+          "source_url": "https://www.cepisnc.it/altreinfo/lavorazione-acciaio-inox/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Metacom / Arsenale S.a.s.",
+      "domain": "metacom.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.metacom.it/lavorazioni/taglio-laser/",
+      "identity_evidence_url": "https://www.metacom.it/lavorazioni/taglio-laser/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "dimension",
+          "value": "tubi diametro 12-220 mm",
+          "source_url": "https://www.metacom.it/lavorazioni/taglio-laser/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Someca S.r.l.",
+      "domain": "someca.org",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.someca.org/lasertubo/",
+      "identity_evidence_url": "https://www.someca.org/lasertubo/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser su tubi e sezioni speciali",
+          "source_url": "https://www.someca.org/lasertubo/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "FA.PI. S.r.l.",
+      "domain": "fapisrl.com",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.fapisrl.com/",
+      "identity_evidence_url": "https://www.fapisrl.com/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser tubi e profilati",
+          "source_url": "https://www.fapisrl.com/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "CMA Costruzioni Meccaniche",
+      "domain": "cma-costruzionimeccaniche.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://cma-costruzionimeccaniche.it/lavorazioni-meccaniche-conto-terzi/",
+      "identity_evidence_url": "https://cma-costruzionimeccaniche.it/lavorazioni-meccaniche-conto-terzi/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "laser tubo fibra su profilati",
+          "source_url": "https://cma-costruzionimeccaniche.it/lavorazioni-meccaniche-conto-terzi/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "SC S.r.l. (Soncini Caraffi)",
+      "domain": "scsrl-tagliolaser.com",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.scsrl-tagliolaser.com/taglio-laser-tubo-reggio-emilia-parma/",
+      "identity_evidence_url": "https://www.scsrl-tagliolaser.com/taglio-laser-tubo-reggio-emilia-parma/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser tubi conto terzi",
+          "source_url": "https://www.scsrl-tagliolaser.com/taglio-laser-tubo-reggio-emilia-parma/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Cash Metal",
+      "domain": "cashmetal.com",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.cashmetal.com/lavorazioni/",
+      "identity_evidence_url": "https://www.cashmetal.com/lavorazioni/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser e saldatura su tubi e lamiere",
+          "source_url": "https://www.cashmetal.com/lavorazioni/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "SGM S.r.l.",
+      "domain": "sgmsrl.com",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.sgmsrl.com/contatti.php",
+      "identity_evidence_url": "https://www.sgmsrl.com/contatti.php",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser e curvatura di tubo",
+          "source_url": "https://www.sgmsrl.com/contatti.php",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "FabbroFerro",
+      "domain": "fabbroferro.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://fabbroferro.it/produzione/",
+      "identity_evidence_url": "https://fabbroferro.it/produzione/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "calandratura e piegatura tubi acciaio",
+          "source_url": "https://fabbroferro.it/produzione/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "LASERMEC",
+      "domain": "lasermec.it",
+      "role": "producer",
+      "country": "IT",
+      "source_url": "https://lasermec.it/",
+      "identity_evidence_url": "https://lasermec.it/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "product",
+          "value": "tubi circolari saldati",
+          "source_url": "https://lasermec.it/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "TIS S.r.l.",
+      "domain": "tubi-tis.it",
+      "role": "producer",
+      "country": "IT",
+      "source_url": "https://www.tubi-tis.it/it/",
+      "identity_evidence_url": "https://www.tubi-tis.it/it/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "product",
+          "value": "tubi saldati in acciaio inox",
+          "source_url": "https://www.tubi-tis.it/it/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Prometal S.r.l.",
+      "domain": "prometalsrl.net",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "source_url": "https://www.prometalsrl.net/taglio-laser-tubi-e-tubolari/",
+      "identity_evidence_url": "https://www.prometalsrl.net/taglio-laser-tubi-e-tubolari/",
+      "review_state": "research_candidate",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "taglio laser tubi e tubolari metallici",
+          "source_url": "https://www.prometalsrl.net/taglio-laser-tubi-e-tubolari/",
+          "review_state": "candidate_first_party"
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    {
+      "domain": "scaltritti.it",
+      "reason": "canonical and discovery already present"
+    },
+    {
+      "domain": "siderbrescia.it",
+      "reason": "existing core lead; hybrid role review"
+    },
+    {
+      "domain": "stlitalia.com",
+      "reason": "discovery already present"
+    },
+    {
+      "domain": "franchilaser.it",
+      "reason": "source review required"
+    },
+    {
+      "domain": "abstagliotubi.it",
+      "reason": "source review required"
+    },
+    {
+      "domain": "ricos.it",
+      "reason": "source review required"
+    }
+  ]
+}
