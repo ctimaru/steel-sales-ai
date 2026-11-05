@@ -24,7 +24,7 @@ function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplica
     <span>{item.processor.toLocaleString("it-IT")} terzisti</span>
     <span className="text-[#7a9386]" aria-hidden="true">·</span>
     <span>{item.endUser.toLocaleString("it-IT")} utilizzatori</span>
-    {item.other>0?<span>· {item.other.toLocaleString("it-IT")} altre tipologie</span>:null}
+    {item.other>0?<span>· {item.other.toLocaleString("it-IT")} ruoli da precisare</span>:null}
     <span className="text-[#7a9386]" aria-hidden="true">·</span>
     <span>{item.published.toLocaleString("it-IT")} profili pubblicati</span>
     {item.sourced>0?<span>· {item.sourced.toLocaleString("it-IT")} da fonti, da confermare</span>:null}
@@ -34,6 +34,9 @@ function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplica
 function Messages({items,duplicate=false}:{items:NetworkCountryStats[];duplicate?:boolean}){
   return <>
     {items.map(item=><CountryMessage key={item.countryCode} item={item} duplicate={duplicate}/>)}
+    {!items.some(item=>item.countryCode==="RO")?<span className="inline-flex min-h-9 shrink-0 items-center gap-2 text-xs text-[#466455]">
+      <NetworkCountryFlag code="RO"/> <strong>Romania</strong> · Espansione in corso, profili pubblici in preparazione
+    </span>:null}
     <span className="inline-flex min-h-9 shrink-0 items-center gap-2 text-xs font-medium text-[#466455]">
       <span aria-hidden="true">✦</span> Smart Steel Sales · Il Network europeo continua a crescere
     </span>
