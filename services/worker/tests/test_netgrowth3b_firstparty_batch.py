@@ -7,7 +7,7 @@ import httpx
 import pytest
 
 from app.netgrowth3b_firstparty_batch import (
-    MANIFEST, SOURCE_TABLES, preflight, run, validate_manifest,
+    MANIFEST, SOURCE_TABLES, legacy_rpc_items, preflight, run, validate_manifest,
 )
 
 
@@ -103,3 +103,26 @@ def test_live_preflight_has_no_write_even_with_service_credentials(monkeypatch):
     result = asyncio.run(run(apply=False, preflight_only=True))
     assert result["status"] == "verified_no_write"
     assert seen == {"checked": True, "posted": False}
+
+
+def test_legacy_rpc_www_adaptation_preserves_verified_manifest():
+    payload = manifest()
+    batch, records = validate_manifest(payload)
+    assert len(records) == 25 and batch
+    with_www = [r for r in records if r["evidence_url"].startswith("https://www.")]
+    assert len(with_www) == 15
+    adapted = legacy_rpc_items(records)
+    assert len(adapted) == len(records)
+    for original, forwarded in zip(records, adapted):
+        assert forwarded["name"] == original["name"]
+        assert forwarded["domain"] == original["domain"]
+        assert forwarded["evidence_url"].startswith("https://" + original["domain"] + "/")
+        assert forwarded["summary"] == original["summary"]
+    assert payload["records"] == records  # input references are never mutated
+
+
+def test_legacy_rpc_www_adaptation_rejects_foreign_domain():
+    records = manifest()["records"]
+    records[1]["evidence_url"] = "https://www.other-company.com/tubi/"
+    with pytest.raises(ValueError, match="Source host"):
+        legacy_rpc_items(records)
