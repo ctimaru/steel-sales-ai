@@ -4,10 +4,11 @@ import {networkCountryName} from "@/lib/network-eu-countries";
 import {getNetworkCountryStats,type NetworkCountryStats} from "@/lib/network-country-stats";
 import styles from "./network-country-ticker.module.css";
 
-function CountryMessage({item}:{item:NetworkCountryStats}){
+function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplicate?:boolean}){
   const name=networkCountryName(item.countryCode)||item.countryCode;
   return <Link
     href={"/network?country="+encodeURIComponent(item.countryCode)+"#network-results"}
+    tabIndex={duplicate?-1:undefined}
     title={"Esplora "+name+" · "+item.published+" profili pubblicati e "+item.sourced+" aziende censite da fonti"}
     className="inline-flex min-h-9 shrink-0 items-center gap-2 rounded-md px-1 text-xs text-[#284b3d] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
     <NetworkCountryFlag code={item.countryCode}/>
@@ -23,15 +24,16 @@ function CountryMessage({item}:{item:NetworkCountryStats}){
     <span>{item.processor.toLocaleString("it-IT")} terzisti</span>
     <span className="text-[#7a9386]" aria-hidden="true">·</span>
     <span>{item.endUser.toLocaleString("it-IT")} utilizzatori</span>
+    {item.other>0?<span>· {item.other.toLocaleString("it-IT")} altre tipologie</span>:null}
     <span className="text-[#7a9386]" aria-hidden="true">·</span>
     <span>{item.published.toLocaleString("it-IT")} profili pubblicati</span>
     {item.sourced>0?<span>· {item.sourced.toLocaleString("it-IT")} da fonti, da confermare</span>:null}
   </Link>;
 }
 
-function Messages({items}:{items:NetworkCountryStats[]}){
+function Messages({items,duplicate=false}:{items:NetworkCountryStats[];duplicate?:boolean}){
   return <>
-    {items.map(item=><CountryMessage key={item.countryCode} item={item}/>)}
+    {items.map(item=><CountryMessage key={item.countryCode} item={item} duplicate={duplicate}/>)}
     <span className="inline-flex min-h-9 shrink-0 items-center gap-2 text-xs font-medium text-[#466455]">
       <span aria-hidden="true">✦</span> Smart Steel Sales · Il Network europeo continua a crescere
     </span>
@@ -54,7 +56,7 @@ export async function NetworkCountryTicker({organizationId,accessMode}:{
       <div className={styles.track}>
         <div className={styles.group}><Messages items={items}/></div>
         <div aria-hidden="true" className={styles.group+" "+styles.duplicate}>
-          <Messages items={items}/>
+          <Messages items={items} duplicate/>
         </div>
       </div>
     </div>
