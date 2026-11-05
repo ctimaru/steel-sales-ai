@@ -50,6 +50,18 @@
       "role_evidence_url": "https://www.inpipe.it/produzione/",
       "identity_evidence_url": "https://www.inpipe.it/chi-siamo/",
       "source_status": "first_party_screened"
+    },
+    {
+      "name": "Tubi e Servizi S.r.l.",
+      "domain": "tubieservizi.com",
+      "evidence_url": "https://www.tubieservizi.com/produzione/",
+      "summary": "L'azienda realizza tubi saldati di medio e grande diametro da lamiera, in acciaio al carbonio, con calandratura e saldature longitudinali per impianti industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "producer",
+      "role_evidence_url": "https://www.tubieservizi.com/produzione/",
+      "identity_evidence_url": "https://www.tubieservizi.com/",
+      "source_status": "first_party_screened"
     }
   ],
   "review_hold_domains": [
