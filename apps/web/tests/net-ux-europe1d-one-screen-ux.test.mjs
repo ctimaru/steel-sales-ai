@@ -11,13 +11,13 @@ test("EUROPE1D puts map next to shared filter pane, not next to a giant empty he
   const search=page.indexOf('aria-label="Ricerca e filtri delle aziende"');
   const desktopMap=page.indexOf('<NetworkEuropeanMap ');
   const results=page.indexOf('id="network-results"');
-  assert.ok(header>=0&&shell>header&&search>shell&&desktopMap>search&&results>desktopMap);
-  // NET-UX LOT1: filters (with the collapsed map) in a 280px left column, list on the right.
+  assert.ok(header>=0&&shell>header&&desktopMap>shell&&search>desktopMap&&results>search);
+  // NET-UX-MAP1: map permanently tops the 280px left column, filters below.
   assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,1);
   assert.match(page,/lg:grid-cols-\[280px_minmax\(0,1fr\)\]/);
 });
-test("EUROPE1D respects mobile disclosure and visible aligned facet labels",()=>{
-  assert.match(page,/data-testid="network-compact-mobile-map"/);
+test("EUROPE1D keeps the map visible on mobile and exposes aligned facet labels",()=>{
+  assert.match(page,/data-testid="network-europe-persistent-map"/);
   assert.match(page,/<NetworkFilterDrawer activeCount=/); // NET-UX LOT1
   for(const label of ["Paese","Regione"])assert.match(geo,new RegExp('text-\\[11px\\].*>'+label+'</span>'));
   for(const label of ["Prodotti","Lavorazioni e servizi","Mercato"])assert.ok(page.includes('label:"'+label+'"'));

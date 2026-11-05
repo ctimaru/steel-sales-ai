@@ -10,6 +10,7 @@ import Link from "next/link";
 import {safeNetworkWebsiteUrl, type FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compact-directory";
 import {NetworkEuropeanMap} from "@/components/network-europe-map";
+import {NetworkCountryTicker} from "@/components/network-country-ticker";
 import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters";
 import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
 import {NetworkRfqSelectionBar} from "@/components/network-rfq-selection-bar";
@@ -229,8 +230,13 @@ export function NetworkCompactExperience({
         {knownTotals?<> · <strong className="tabular-nums text-[#173f35]">{directory.discovered.toLocaleString("it-IT")}</strong> {directory.marketEvidence?"con settore da fonte":technicalOnly?"censite non filtrabili":"censite da fonti pubbliche"}</>:null}
       </p>
     </header>
+    <NetworkCountryTicker organizationId={organizationId} accessMode={accessMode}/>
     <div data-testid="network-europe1d-one-screen-shell" className="grid items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
       <aside aria-label="Filtri delle aziende" className="min-w-0 lg:sticky lg:top-24" data-testid="network-side-column">
+        {/* NET-UX-MAP1: the European map is always visible, including on mobile. */}
+        <div className="mb-3" data-testid="network-europe-persistent-map">
+          <NetworkEuropeanMap filters={filters} coverage={europeCoverage} fullMapHref={fullMapHref}/>
+        </div>
         <NetworkFilterDrawer activeCount={activeFilterCount}>
           <section aria-label="Ricerca e filtri delle aziende" className="space-y-4 rounded-2xl border border-[#d7e3dc] bg-white p-4">
             <div>
@@ -274,14 +280,6 @@ export function NetworkCompactExperience({
             </form>
             <NetworkSpecPanel filters={filters} accessMode={accessMode}/>
             {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 w-full items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
-            <details className="rounded-xl border border-[#d8e5dd]" data-testid="network-compact-mobile-map">
-              <summary className="cursor-pointer list-none px-3 py-2 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-                Mappa dei Paesi UE <span aria-hidden="true">▾</span>
-              </summary>
-              <div className="px-2 pb-2">
-                <NetworkEuropeanMap filters={filters} coverage={europeCoverage} fullMapHref={fullMapHref}/>
-              </div>
-            </details>
           </section>
         </NetworkFilterDrawer>
         {/* NET-AUDIT1.4: the chat stays beside the list, which stays visible while chatting. */}
