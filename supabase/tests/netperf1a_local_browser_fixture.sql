@@ -3,18 +3,14 @@
 -- against the same local GoTrue/Postgres instance.
 \set ON_ERROR_STOP on
 begin;
-do $check$ begin
-  if not exists(select 1 from public.platform_user_roles
+-- A fail-closed assertion. The psql variable is substituted only in this
+-- ordinary SQL statement (not inside a dollar-quoted plpgsql body).
+select 1/(case when exists(select 1 from public.platform_user_roles
     where user_id=:'owner_user_id'::uuid
-    and role='platform_superadmin' and status='active') then
-    raise exception 'NET-PERF1.A: synthetic owner is missing';
-  end if;
-  if not exists(select 1 from public.organizations
+    and role='platform_superadmin' and status='active')
+  and exists(select 1 from public.organizations
     where id='00000000-0000-0000-0000-000000023301'::uuid
-      and slug='dt23-buyer') then
-    raise exception 'NET-PERF1.A: disposable tenant is missing';
-  end if;
-end $check$;
+      and slug='dt23-buyer') then 1 else 0 end) as local_owner_fixture_verified;
 
 -- The existing PERF1 owner is intentionally membership-less. This additional
 -- membership is used ONLY by the dedicated NET-PERF workflow; it is destroyed
