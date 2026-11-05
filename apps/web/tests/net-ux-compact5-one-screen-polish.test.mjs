@@ -28,13 +28,13 @@ test("COMPACT5 places the region within the single filter form instead of a sepa
   }
 });
 
-test("EUROPE1B preserves COMPACT5 optional map and desktop location",()=>{
-  assert.match(page,/data-testid="network-compact-mobile-map"/);
-  assert.match(page,/<details className="rounded-xl border/);
-  // NET-UX LOT1: one map, collapsed inside the filter pane on every screen size.
-  assert.match(page,/Mappa dei Paesi UE/);
+test("NET-UX-MAP1 keeps the European map permanently visible above filters",()=>{
+  assert.match(page,/data-testid="network-europe-persistent-map"/);
+  assert.doesNotMatch(page,/data-testid="network-compact-mobile-map"/);
+  // NET-UX-MAP1: exactly one map remains outside the mobile filter drawer.
+  assert.ok(page.indexOf('data-testid="network-europe-persistent-map"')<page.indexOf('<NetworkFilterDrawer activeCount='));
   assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,1);
-  assert.match(page,/hidden min-w-0 lg:block/);
+  assert.match(page,/aria-label="Filtri delle aziende"/);
   assert.match(page,/aria-label="Ricerca e filtri delle aziende"/);
 });
 
