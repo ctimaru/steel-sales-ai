@@ -1,0 +1,435 @@
+{
+  "phase": "NET-GROWTH3.G.2",
+  "date": "2026-11-05",
+  "strategy": "online_first_owner_claim_later",
+  "batch": "NET-GROWTH3G-ONLINE-20261105-C",
+  "status": "actual_production_staged_50_unclaimed",
+  "database_before": {
+    "canonical_published": 278,
+    "provisional": 508,
+    "directory_backing": 786
+  },
+  "database_after": {
+    "canonical_published": 278,
+    "provisional": 558,
+    "directory_backing": 836
+  },
+  "readback": {
+    "lead_count": 50,
+    "unique_domains": 50,
+    "needs_review": 50,
+    "trader_distributor": 50,
+    "provisional_mirror_domains": 50,
+    "provisional_mirror_roles": 50
+  },
+  "trust": {
+    "claim_status": "unclaimed",
+    "verification_status": "unverified",
+    "discovery_status": "unconfirmed",
+    "stock_or_price_verified": false,
+    "technical_standards_auto_assigned": false,
+    "public_canonical_published": false
+  },
+  "records": [
+    {
+      "company_name": "Agnelli Metalli",
+      "domain": "agnellimetalli.com",
+      "source_url": "https://www.agnellimetalli.com/prodotti-in-ferro-e-acciai/tubi-quadri/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Amato",
+      "domain": "amatosrl.it",
+      "source_url": "https://www.amatosrl.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Astori",
+      "domain": "astorispa.it",
+      "source_url": "https://www.astorispa.it/azienda/54/prodotti-siderurgici",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Beato Edoardo",
+      "domain": "beatosrl.it",
+      "source_url": "https://beatosrl.it/prodotti/tubi/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Bronifer",
+      "domain": "bronifer.com",
+      "source_url": "https://www.bronifer.com/prodotti/tubo/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Catania Metalli",
+      "domain": "cataniametalli.com",
+      "source_url": "https://www.cataniametalli.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Centro Siderurgico Industriale",
+      "domain": "centrosiderurgico.com",
+      "source_url": "https://www.centrosiderurgico.com/azienda/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Commerciale Bosio",
+      "domain": "commercialebosio.com",
+      "source_url": "https://www.commercialebosio.com/vendita-ferro-torino/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Di Marco",
+      "domain": "dimarcospa.com",
+      "source_url": "https://dimarcospa.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Di Raimondo",
+      "domain": "diraimondosrl.it",
+      "source_url": "https://www.diraimondosrl.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "FEAT",
+      "domain": "featsrl.it",
+      "source_url": "https://www.featsrl.it/prodotto/tubi-saldati-tondi-quadri-rettangoli-ovali-serramenti/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Posio Ferramenta",
+      "domain": "ferramentaposio.it",
+      "source_url": "https://www.ferramentaposio.it/prodotti-siderurgici",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Ferrari Acciai",
+      "domain": "ferrariacciai.it",
+      "source_url": "https://ferrariacciai.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "FerroFacile",
+      "domain": "ferrofacile.com",
+      "source_url": "https://www.ferrofacile.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Ferro Irno",
+      "domain": "ferroirno.com",
+      "source_url": "https://www.ferroirno.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Fiordigiglio Alfonso",
+      "domain": "fiordigigliosiderurgica.it",
+      "source_url": "https://fiordigigliosiderurgica.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Franzini",
+      "domain": "franzini.it",
+      "source_url": "https://www.franzini.it/settori/siderurgico/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Fratelli Bellacosa",
+      "domain": "fratellibellacosa.com",
+      "source_url": "https://www.fratellibellacosa.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Inox Forniture",
+      "domain": "inoxforniture.it",
+      "source_url": "https://www.inoxforniture.it/tubi-e-barre/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Intrametal",
+      "domain": "intrametal.it",
+      "source_url": "https://www.intrametal.it/page/221117113911-tubi-in-acciaio",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Lasa Metalli",
+      "domain": "lasametalli.com",
+      "source_url": "https://www.lasametalli.com/vendita-tubi-tondi-quadri-ovali-rettangolari-in-ferro-a-modena-reggio-emilia-e-bologna/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Loda Group",
+      "domain": "lodagroup.it",
+      "source_url": "https://www.lodagroup.it/prontuario/tubi_e_tubolari",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Longhi",
+      "domain": "longhisrl.com",
+      "source_url": "https://www.longhisrl.com/shop/59-tubolari-in-ferro",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Maccagnani Ferro",
+      "domain": "maccagnaniferro.it",
+      "source_url": "https://www.maccagnaniferro.it/it",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Magazzino Metalli",
+      "domain": "magazzinometalli.net",
+      "source_url": "https://www.magazzinometalli.net/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Mariani Ferro",
+      "domain": "marianiferro.it",
+      "source_url": "https://www.marianiferro.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Mazzoni Tubi",
+      "domain": "mazzonitubi.it",
+      "source_url": "https://mazzonitubi.it/_vendita_tubi_acciaio/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Metalferro",
+      "domain": "metalferro.net",
+      "source_url": "https://metalferro.net/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Metal Servizi",
+      "domain": "metalservizi.it",
+      "source_url": "https://www.metalservizi.it/prodotti/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "MTF Ferro",
+      "domain": "mtf-ferro.it",
+      "source_url": "https://mtf-ferro.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Nuova Siderurgica",
+      "domain": "nuovasiderurgica.it",
+      "source_url": "https://www.nuovasiderurgica.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Olivieri Ferro",
+      "domain": "olivieriferro.it",
+      "source_url": "https://www.olivieriferro.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Pacini Ferro",
+      "domain": "paciniferro.it",
+      "source_url": "https://www.paciniferro.it/tubolari-e-tubi/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Palmerio Ferro",
+      "domain": "palmerioferrosrl.it",
+      "source_url": "https://palmerioferrosrl.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Pietrobin Prodotti Siderurgici",
+      "domain": "pietrobinprodottisiderurgici.com",
+      "source_url": "https://www.pietrobinprodottisiderurgici.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Poletti",
+      "domain": "polettispa.com",
+      "source_url": "https://www.polettispa.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Prosider",
+      "domain": "prosider.ra.it",
+      "source_url": "https://www.prosider.ra.it/it/prodotti/tubi-tondi",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Quadri Umberto Siderurgica",
+      "domain": "quadrispa.com",
+      "source_url": "https://quadrispa.com/featured_item/tubolari/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Siderurgica Ferro Bulloni",
+      "domain": "sfb.it",
+      "source_url": "https://sfb.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Siderbrenta",
+      "domain": "siderbrenta.net",
+      "source_url": "https://www.siderbrenta.net/commercio-prodotti-siderurgici/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Siderco",
+      "domain": "siderco.it",
+      "source_url": "https://www.siderco.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Siderpighi",
+      "domain": "siderpighi.it",
+      "source_url": "https://www.siderpighi.it/tubi-certificati",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Sider Pomezia",
+      "domain": "siderpomezia.it",
+      "source_url": "https://www.siderpomezia.it/tubimetallo",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Sidersan",
+      "domain": "sidersan.com",
+      "source_url": "https://www.sidersan.com/prodotti/tubi/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Sidertubi Roma",
+      "domain": "sidertubiromasrl.com",
+      "source_url": "https://www.sidertubiromasrl.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Stemo",
+      "domain": "stemo.it",
+      "source_url": "https://www.stemo.it/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Taliani Ferro",
+      "domain": "talianiferro.com",
+      "source_url": "https://www.talianiferro.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Tecnoriv",
+      "domain": "tecnoriv.it",
+      "source_url": "https://www.tecnoriv.it/distribuzione-di-prodotti-siderurgici/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Trafilati Fabrizio",
+      "domain": "trafilatifabrizio.it",
+      "source_url": "https://www.trafilatifabrizio.it/prodotti-siderurgici",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    },
+    {
+      "company_name": "Veneta Inox",
+      "domain": "venetainox.com",
+      "source_url": "https://www.venetainox.com/",
+      "original_factual_description": "Il sito aziendale presenta la fornitura di tubi o tubolari metallici tra i prodotti o servizi commercializzati; caratteristiche e disponibilità restano da confermare.",
+      "proposed_role": "trader_distributor",
+      "intake_status": "needs_review"
+    }
+  ]
+}

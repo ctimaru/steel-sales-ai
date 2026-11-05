@@ -33,7 +33,7 @@ export function NetworkActivationCta({
      {source,profile_state:mode}
    )}
    className={cn(actionClasses({ variant: compact ? "soft" : "default", size: compact ? "sm" : "md" }), compact ? "min-h-10" : "min-h-11")}>
-   {published?"Rivendica il profilo":"Registra la tua azienda"}
+   {published?"Rivendica il profilo":"Rivendica azienda"}
  </Link>;
 }
 
@@ -42,6 +42,6 @@ export function NetworkActivationHelp({mode}:{mode:NetworkActivationMode}){
  return <p className="text-xs leading-5 text-[#5c7165]">
   {mode==="published"
     ?"La richiesta verifica che rappresenti legalmente l’azienda. Il profilo sarà gestibile solo dopo l’approvazione, senza diventare automaticamente verificato."
-    :"Questa scheda è ancora da confermare. La registrazione verifica ragione sociale e dati aziendali: non assegna automaticamente questa scheda e non invia connessioni."}
+    :"Per iniziare registri la tua impresa. Il controllo della rappresentanza e il collegamento con questa scheda precedono qualsiasi modifica: nessuna assegnazione è automatica. Norme, dimensioni e capacità dichiarate saranno verificate separatamente."}
  </p>;
 }
