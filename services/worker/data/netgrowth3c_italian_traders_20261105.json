@@ -39,10 +39,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "Crisbar Tecnologie e Servizi S.r.l.",
-      "domain": "crisbar.it",
-      "evidence_url": "https://crisbar.it/prodotti/tubi-pali-micropali.html",
-      "summary": "Fornisce tubi e prodotti siderurgici destinati a pali, micropali e fondazioni.",
+      "name": "Negri S.p.A. Siderurgica Commerciale",
+      "domain": "sidernegri.it",
+      "evidence_url": "https://www.sidernegri.it/it/tubi",
+      "summary": "Fornisce tubi in acciaio tondi, quadri e rettangolari, per carpenteria, gas-acqua, meccanica e serramenti.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -111,10 +111,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "Rigel S.r.l.",
-      "domain": "rigelsrl.com",
-      "evidence_url": "https://rigelsrl.com/",
-      "summary": "Fornisce prodotti siderurgici e tubolari in acciaio per carpenterie e lavorazioni.",
+      "name": "Zoni 1941",
+      "domain": "zoni1941.it",
+      "evidence_url": "https://zoni1941.it/servizi/settore-siderurgico/",
+      "summary": "Distribuisce tubolari e tubi in acciaio a Varese, Milano, Como e Novara dal proprio magazzino siderurgico.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -201,10 +201,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "Siderpighi S.p.A.",
-      "domain": "siderpighi.it",
-      "evidence_url": "https://siderpighi.it/",
-      "summary": "Commercia e distribuisce tubi e altri prodotti siderurgici con servizio di magazzino.",
+      "name": "SiderFerro",
+      "domain": "siderferro.com",
+      "evidence_url": "https://www.siderferro.com/prodotti/",
+      "summary": "Distribuisce tubolari quadri e rettangolari e tubi tondi saldati, zincati e senza saldatura per uso industriale.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -273,10 +273,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "VE.MA.PLA. S.r.l.",
-      "domain": "vemapla.it",
-      "evidence_url": "https://vemapla.it/categoria-prodotto/tubi/",
-      "summary": "Fornisce tubi e componenti per impiantistica, comprese tubazioni in acciaio.",
+      "name": "SIDER.VI. S.r.l.",
+      "domain": "sidervi.com",
+      "evidence_url": "https://sidervi.com/it",
+      "summary": "Commercio prodotti siderurgici a Levata di Curtatone con magazzino di tubi in ferro e acciaio, lamiere e raccordi inox.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
