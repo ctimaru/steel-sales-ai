@@ -297,6 +297,12 @@ select pg_temp.hp13_assert(
         -- verification writes, claim changes or browser table grants.
         'net_europe1c_region_search',
         'net_europe1c_region_coverage',
+        -- NET-UX-MAP1: reviewed read-only aggregate country ticker facade.
+        -- SECURITY DEFINER required to call private ACL-revoked implementation;
+        -- internal guard requires active member (Free) or valid org entitlement
+        -- (Pro). Empty pinned search_path, anonymous EXECUTE revoked; no PII,
+        -- private research leads, raw company contacts or mutation side effects.
+        'netux_map1_country_stats',
         -- NET-PIPELINE1B.2: platform discovery.read-guarded bounded dry-run;
         -- no candidate PII exposed to anonymous callers.
         'net_pipeline1b2_preview_batch',
@@ -307,6 +313,30 @@ select pg_temp.hp13_assert(
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
 );
+
+-- NET-UX-MAP1 reviewed facade: explicit tenant guard remains in the private
+-- implementation, but only the tightly scoped aggregate facade is browser callable.
+select pg_temp.hp13_assert(
+  exists (
+    select 1 from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public' and p.proname='netux_map1_country_stats'
+      and p.prosecdef
+      and has_function_privilege('authenticated',p.oid,'EXECUTE')
+      and not has_function_privilege('anon',p.oid,'EXECUTE')
+      and coalesce(array_to_string(p.proconfig,','),'') like '%search_path=""%'
+  )
+  and exists (
+    select 1 from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='private' and p.proname='netux_map1_country_stats_impl'
+      and p.prosecdef
+      and not has_function_privilege('authenticated',p.oid,'EXECUTE')
+      and not has_function_privilege('anon',p.oid,'EXECUTE')
+  ),
+  'NET-UX-MAP1 country statistics facade must be pinned, guarded, and deny private direct execute'
+);
+
 
 select pg_temp.hp13_assert(
   not exists (

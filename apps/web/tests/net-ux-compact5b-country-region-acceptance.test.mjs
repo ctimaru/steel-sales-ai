@@ -35,8 +35,8 @@ test("COMPACT5B server defends URL imports and Free/Pro against a foreign-region
 test("EUROPE1B updates COMPACT5B: European map is contextual for every supported country",()=>{
   assert.doesNotMatch(ui,/const italySelected=!filters.country/);
   assert.match(ui,/NetworkEuropeanMap filters=\{filters\}/);
-  assert.match(ui,/data-testid="network-compact-mobile-map"/);
-  assert.equal((ui.match(/<NetworkEuropeanMap /g)||[]).length,1); // NET-UX LOT1
+  assert.match(ui,/data-testid="network-europe-persistent-map"/);
+  assert.equal((ui.match(/<NetworkEuropeanMap /g)||[]).length,1); // NET-UX-MAP1
 });
 
 test("COMPACT5B mobile rows show a short usable action with descriptive accessible name",()=>{

@@ -62,10 +62,10 @@ test("EUROPE1B: compact, full-screen dialog, focus, native links and keyboard li
   assert.doesNotMatch(map,/count\(\)|source_role|service_role|supabase|Math\.random\(/);
 });
 test("EUROPE1B: Free/Pro single-screen map always visible, Italy regions retained",()=>{
-  // NET-UX LOT1: one map, collapsed in the filter pane; full map unchanged.
+  // NET-UX-MAP1: one map, always visible before the collapsible filter panel.
   assert.equal((ui.match(/<NetworkEuropeanMap /g)||[]).length,1);
-  assert.match(ui,/data-testid="network-compact-mobile-map"/);
-  assert.match(ui,/Mappa dei Paesi UE/);
+  assert.match(ui,/data-testid="network-europe-persistent-map"/);
+  assert.ok(ui.indexOf('data-testid="network-europe-persistent-map"')<ui.indexOf('<NetworkFilterDrawer activeCount='));
   assert.match(ui,/const fullMapHref=accessMode==="pro"/);
   assert.match(originalItaly,/ITALY_REGION_PATHS\.map/);
   assert.match(originalItaly,/italyRegionFilterHref/);
