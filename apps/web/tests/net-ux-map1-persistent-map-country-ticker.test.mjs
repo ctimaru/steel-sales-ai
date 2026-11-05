@@ -7,7 +7,7 @@ const ui=read("../components/network-compact-experience.tsx");
 const ticker=read("../components/network-country-ticker.tsx");
 const css=read("../components/network-country-ticker.module.css");
 const data=read("../lib/network-country-stats.ts");
-const sql=read("../../../supabase/migrations/20261105160000_netux_map1_country_stats.sql");
+const sql=read("../../../supabase/migrations/20261105150152_netux_map1_country_stats.sql");
 
 test("MAP1: European map is first in the sidebar, outside the mobile filter drawer",()=>{
   const side=ui.indexOf('data-testid="network-side-column"');
