@@ -1,0 +1,535 @@
+{
+  "phase": "NET-GROWTH3.G",
+  "date": "2026-11-05",
+  "country": "IT",
+  "strategy": "online_first_unclaimed_claim_later",
+  "source": "first_party_business_webpages",
+  "production_staging_batch": "NET-GROWTH3D-ONLINE-20261105-A",
+  "profile_flags": {
+    "claimed_status": "unclaimed",
+    "verification_status": "unverified",
+    "discovery_status": "unconfirmed",
+    "publication_status": "not_published_canonical"
+  },
+  "expected_counts": {
+    "staged": 50,
+    "unique": 50,
+    "producer": 9,
+    "processor_service_provider": 41
+  },
+  "production_readback": {
+    "canonical_published": 278,
+    "provisional_directory": 458,
+    "directory_backing_total": 736,
+    "staged_in_this_batch": 50
+  },
+  "privacy_constraints": {
+    "private_user_contacts_collected": false,
+    "logos_or_images_copied": false,
+    "stock_or_prices_inferred": false,
+    "technical_certification_inferred": false,
+    "claim_owner_enrichment_future": true
+  },
+  "records": [
+    {
+      "name": "Acciaio T. & D. S.r.l.",
+      "domain": "acciaioted.com",
+      "source_url": "https://www.acciaioted.com/",
+      "original_short_factual_summary": "L'azienda offre lavorazioni conto terzi su tubi e lamiere in acciaio mediante taglio laser e altre tecnologie.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "AL.PI. Taglio Laser",
+      "domain": "alpilaser.it",
+      "source_url": "https://www.alpilaser.it/azienda-taglio-laser-tubi-laser-lamiera/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Curvatura Tubi Amarossi S.p.A.",
+      "domain": "amarossi.it",
+      "source_url": "https://amarossi.it/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Bendinox Europa S.r.l.",
+      "domain": "bendinox.it",
+      "source_url": "https://www.bendinox.it/lavorazioni/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Bonazzi Curvatura Tubi S.r.l.",
+      "domain": "bonazzi-srl.it",
+      "source_url": "https://www.bonazzi-srl.it/chi_siamo.htm",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Carpentecnica",
+      "domain": "carpentecnica.it",
+      "source_url": "https://www.carpentecnica.it/servizio/taglio-laser-tubo/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Danasi S.r.l.",
+      "domain": "carpenteriadanasi.it",
+      "source_url": "https://www.carpenteriadanasi.it/",
+      "original_short_factual_summary": "L'impresa documenta carpenteria e taglio laser di tubi in ferro, acciaio inox e altri metalli.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Cash Metal",
+      "domain": "cashmetal.com",
+      "source_url": "https://www.cashmetal.com/lavorazioni/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "CCT Inox S.p.A.",
+      "domain": "cctinox.it",
+      "source_url": "https://www.cctinox.it/it/azienda/",
+      "original_short_factual_summary": "Il sito aziendale documenta la produzione di tubi metallici per impieghi industriali; gamma e disponibilità da confermare.",
+      "proposed_role": "producer",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "CE.PI. Exemplar S.n.c.",
+      "domain": "cepisnc.it",
+      "source_url": "https://www.cepisnc.it/altreinfo/lavorazione-acciaio-inox/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "CMA Costruzioni Meccaniche",
+      "domain": "cma-costruzionimeccaniche.it",
+      "source_url": "https://cma-costruzionimeccaniche.it/lavorazioni-meccaniche-conto-terzi/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "CM Sagomatubi S.r.l.",
+      "domain": "cmsagomatubi.it",
+      "source_url": "https://www.cmsagomatubi.it/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Comit Industry S.r.l.",
+      "domain": "comitindustry.it",
+      "source_url": "https://www.comitindustry.it/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "CR Tubi",
+      "domain": "crtubi.com",
+      "source_url": "https://www.crtubi.com/lavorazioni/",
+      "original_short_factual_summary": "Il sito descrive taglio a misura, piegatura e altre lavorazioni di tubi e barre metallici.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Carema S.r.l.",
+      "domain": "curvaturatubolari.it",
+      "source_url": "https://www.curvaturatubolari.it/curvatura/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Euroflex S.p.A.",
+      "domain": "euroflexspa.it",
+      "source_url": "https://www.euroflexspa.it/it/tubolari/",
+      "original_short_factual_summary": "Il sito aziendale documenta la produzione di tubi metallici per impieghi industriali; gamma e disponibilità da confermare.",
+      "proposed_role": "producer",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "FA.PI. S.r.l.",
+      "domain": "fapisrl.com",
+      "source_url": "https://www.fapisrl.com/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "F.lli Bellani",
+      "domain": "fllibellani.com",
+      "source_url": "https://www.fllibellani.com/taglio-laser",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "FPN di Pisoni e Nesci",
+      "domain": "fpnlavorazioni.com",
+      "source_url": "https://www.fpnlavorazioni.com/lavorazioni/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "KGT Tubi S.r.l.",
+      "domain": "kgttubi.com",
+      "source_url": "https://www.kgttubi.com/chi-siamo/",
+      "original_short_factual_summary": "Il sito aziendale documenta la produzione di tubi metallici per impieghi industriali; gamma e disponibilità da confermare.",
+      "proposed_role": "producer",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "La Moderna di Merlo",
+      "domain": "lamodernadimerlo.com",
+      "source_url": "https://lamodernadimerlo.com/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Lasar S.r.l.",
+      "domain": "lasar.it",
+      "source_url": "https://lasar.it/lavorazioni",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "LaserSid S.r.l.",
+      "domain": "lasersid.it",
+      "source_url": "https://lasersid.it/",
+      "original_short_factual_summary": "La società descrive lavorazioni di taglio laser su tubi e profilati metallici per applicazioni industriali.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Meccanica Orlandini S.r.l.",
+      "domain": "meccanicaorlandini.it",
+      "source_url": "https://meccanicaorlandini.it/index.php/it/lavorazioni-conto-terzi/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "MEP S.r.l.",
+      "domain": "mep-snc.com",
+      "source_url": "https://www.mep-snc.com/azienda/",
+      "original_short_factual_summary": "L'azienda presenta servizi di lavorazione di precisione di tubi e lamiere per componenti industriali.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Metacom / Arsenale S.a.s.",
+      "domain": "metacom.it",
+      "source_url": "https://www.metacom.it/lavorazioni/taglio-laser/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Metal Master S.r.l.",
+      "domain": "metalmaster.it",
+      "source_url": "https://www.metalmaster.it/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Mondeo",
+      "domain": "mondeovalves.com",
+      "source_url": "https://www.mondeovalves.com/it/servizi-taglio-laser/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Nanni Ottavio",
+      "domain": "nanniottavio.it",
+      "source_url": "https://www.nanniottavio.it/?lang=en",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "NobilCut S.r.l.",
+      "domain": "nobilcut.it",
+      "source_url": "https://www.nobilcut.it/",
+      "original_short_factual_summary": "L'impresa presenta lavorazioni di carpenteria conto terzi, comprese costruzioni con tubi metallici.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "OCSA S.p.A.",
+      "domain": "ocsaspa.com",
+      "source_url": "https://www.ocsaspa.com/en/",
+      "original_short_factual_summary": "Il sito aziendale documenta la produzione di tubi metallici per impieghi industriali; gamma e disponibilità da confermare.",
+      "proposed_role": "producer",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "OEMMEVI S.r.l.",
+      "domain": "oemmevisrl.it",
+      "source_url": "https://oemmevisrl.it/",
+      "original_short_factual_summary": "Il sito presenta servizi conto terzi di taglio laser su tubi, carpenteria e lavorazioni lamiera.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Officine Foresto",
+      "domain": "officineforesto.com",
+      "source_url": "https://www.officineforesto.com/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Officine Orsi S.p.A.",
+      "domain": "officineorsi.it",
+      "source_url": "https://officineorsi.it/",
+      "original_short_factual_summary": "Il sito aziendale documenta la produzione di tubi metallici per impieghi industriali; gamma e disponibilità da confermare.",
+      "proposed_role": "producer",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "OMV Officine Metallurgiche Ventura S.p.A.",
+      "domain": "omvventura.it",
+      "source_url": "https://www.omvventura.it/prodotti.php",
+      "original_short_factual_summary": "Il sito aziendale documenta la produzione di tubi metallici per impieghi industriali; gamma e disponibilità da confermare.",
+      "proposed_role": "producer",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Prometal S.r.l.",
+      "domain": "prometalsrl.net",
+      "source_url": "https://www.prometalsrl.net/taglio-laser-tubi-e-tubolari/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "SBS S.r.l.",
+      "domain": "sbs-tube.it",
+      "source_url": "https://www.sbs-tube.it/lavorazioni/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Scamer S.r.l.",
+      "domain": "scamer.it",
+      "source_url": "https://scamer.it/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Scrosati Arredamenti Metallici S.r.l.",
+      "domain": "scrosati.com",
+      "source_url": "https://www.scrosati.com/it-taglio-laser.php",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "SC S.r.l. (Soncini Caraffi)",
+      "domain": "scsrl-tagliolaser.com",
+      "source_url": "https://www.scsrl-tagliolaser.com/taglio-laser-tubo-reggio-emilia-parma/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "SGM S.r.l.",
+      "domain": "sgmsrl.com",
+      "source_url": "https://www.sgmsrl.com/contatti.php",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Sideralba S.p.A.",
+      "domain": "sideralba.it",
+      "source_url": "https://www.sideralba.it/sedi/",
+      "original_short_factual_summary": "Il sito aziendale documenta la produzione di tubi metallici per impieghi industriali; gamma e disponibilità da confermare.",
+      "proposed_role": "producer",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Sidergamma S.r.l.",
+      "domain": "sidergamma.it",
+      "source_url": "https://www.sidergamma.it/prodotti/?lang=it",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Someca S.r.l.",
+      "domain": "someca.org",
+      "source_url": "https://www.someca.org/lasertubo/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Ta-Mec S.r.l.",
+      "domain": "tamec.it",
+      "source_url": "https://www.tamec.it/lavorazione-conto-terzi/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Andrea Balboni S.r.l. (Teknolaser)",
+      "domain": "teknolaser.it",
+      "source_url": "https://teknolaser.it/en/",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "TIS S.r.l.",
+      "domain": "tubi-tis.it",
+      "source_url": "https://www.tubi-tis.it/it/",
+      "original_short_factual_summary": "Il sito aziendale documenta la produzione di tubi metallici per impieghi industriali; gamma e disponibilità da confermare.",
+      "proposed_role": "producer",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Tubifaber S.p.A.",
+      "domain": "tubifaber.it",
+      "source_url": "https://www.tubifaber.it/produzione/",
+      "original_short_factual_summary": "Il sito aziendale documenta la produzione di tubi metallici per impieghi industriali; gamma e disponibilità da confermare.",
+      "proposed_role": "producer",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Tubi Solution",
+      "domain": "tubisolution.com",
+      "source_url": "https://tubisolution.com/it/",
+      "original_short_factual_summary": "Il sito propone subfornitura per curvatura, taglio, deformazione e assemblaggio di tubi metallici.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    },
+    {
+      "name": "Vastano Curvatura Tubi",
+      "domain": "vastanocurvaturatubi.it",
+      "source_url": "https://www.vastanocurvaturatubi.it/chi-siamo.php",
+      "original_short_factual_summary": "Il sito aziendale descrive lavorazioni su tubi e componenti metallici, con capacità e disponibilità da confermare.",
+      "proposed_role": "processor_service_provider",
+      "intake_status": "needs_review",
+      "verified": false,
+      "claimed": false
+    }
+  ]
+}
