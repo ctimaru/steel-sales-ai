@@ -91,14 +91,16 @@ begin
     'producers and processors must retain their true industrial roles');
 
   perform pg_temp.netgrowth3d_assert(
-    (select count(*) from private.netfast_discovered_records
-      where domain like 'netgrowth3d-role-%.invalid') = 50,
-    'all 50 provisional industrial companies are visible in the reader');
-
-  perform pg_temp.netgrowth3d_assert(
     not exists (select 1 from public.network_companies
       where website_domain like 'netgrowth3d-role-%.invalid'),
     'industrial importer must never publish canonical companies');
 end $$;
 reset role;
+
+-- View is deliberately not granted to service_role: use postgres for this
+-- readback, without expanding schema or RLS privileges.
+select pg_temp.netgrowth3d_assert(
+  (select count(*) from private.netfast_discovered_records
+    where domain like 'netgrowth3d-role-%.invalid') = 50,
+  '50 industrial entries must be read-visible without canonical publication');
 rollback;
