@@ -11,7 +11,7 @@ const ownerAction=read("../app/(italian)/(workspace)/network/actions.ts");
 const platform=read("../app/(italian)/(platform)/platform/network-activation/page.tsx");
 const reviewer=read("../app/(italian)/(platform)/platform/network-activation/actions.ts");
 test("G.3: SQL source-led authorization and no ownership minting",()=>{
- for(const word of ["enable row level security","netgrowth3g3_require_org_admin","m.role='admin'","private.require_platform_permission('claims.approve')","p.match_state='strong_evidence'","a.application_status='activated'","a.activated_organization_id=v_request.organization_id","a.email_verified_at is not null","private.netconnect2b_legal_key","private.netconnect2b_domain","v_domain_count>1","private.netfast_discovered_records","'unclaimed','unverified'"])assert.ok(migration.includes(word),word);
+ for(const word of ["enable row level security","netgrowth3g3_require_org_admin","m.role='admin'","private.require_platform_permission('claims.approve')","p.match_state='strong_evidence'","a.application_status='activated'","a.activated_organization_id=v_request.organization_id","a.email_verified_at is not null","private.netconnect2b_legal_key","private.netconnect2b_domain","v_domain_count>1","same legal name already registered at another domain","cl.status in ('requested','under_review','approved')","private.netfast_discovered_records","'unclaimed','unverified'"])assert.ok(migration.includes(word),word);
  assert.doesNotMatch(migration,/^\s*insert into public\.network_company_claims\s*\(/im);
  assert.doesNotMatch(migration,/^\s*insert into public\.organization_network_company_links\s*\(/im);
  assert.match(migration,/security invoker/);

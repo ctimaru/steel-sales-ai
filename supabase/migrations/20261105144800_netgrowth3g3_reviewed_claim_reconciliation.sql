@@ -272,6 +272,15 @@ begin
   if v_domain_count>1 then
     raise exception 'multiple canonical companies use this domain' using errcode='23505';
   end if;
+  if exists (
+    select 1 from public.network_companies other
+    where other.archived_at is null
+      and private.netconnect2b_legal_key(other.legal_name)=private.netconnect2b_legal_key(v_app.legal_name)
+      and private.netconnect2b_domain(other.website_domain)<>v_request.source_domain
+  ) then
+    raise exception 'same legal name already registered at another domain: review required'
+      using errcode='23505';
+  end if;
   if v_domain_count=1 then
     select * into v_company from public.network_companies c
       where c.archived_at is null and private.netconnect2b_domain(c.website_domain)=v_request.source_domain
@@ -282,10 +291,16 @@ begin
       raise exception 'existing canonical identity requires separate review'
         using errcode='23514';
     end if;
-    if v_company.claimed_status='claimed' or
+    if v_company.claimed_status in ('pending','claimed') or
        exists (select 1 from public.network_company_claims cl
-          where cl.network_company_id=v_company.id and cl.status='approved') then
-      raise exception 'canonical identity already claimed' using errcode='23505';
+          where cl.network_company_id=v_company.id and
+            cl.status in ('requested','under_review','approved') and
+            cl.organization_id<>v_request.organization_id) or
+       exists (select 1 from public.organization_network_company_links l
+          where l.network_company_id=v_company.id and
+            l.organization_id<>v_request.organization_id and l.link_status='active') then
+      raise exception 'canonical identity is claimed or under review for another organization'
+        using errcode='23505';
     end if;
     v_canonical_id:=v_company.id;
   else

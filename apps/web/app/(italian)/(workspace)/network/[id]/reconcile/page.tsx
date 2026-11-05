@@ -23,7 +23,7 @@ export default async function ReconcileProvisionalCompanyPage({
  const name=profile?.company.trading_name||profile?.company.legal_name||"Azienda riconciliata";
  const website=safeNetworkWebsiteUrl(profile?.company.website_url);
  return <main className="mx-auto max-w-[900px] space-y-4 pb-16">
-  <Link href={"/network/"+id} className="text-sm font-semibold text-[#175640] underline">Torna al profilo</Link>
+  <Link href={"/network/"+(ready?state.canonical_company_id:id)} className="text-sm font-semibold text-[#175640] underline">Torna al profilo</Link>
   <section className="rounded-3xl border border-[#dce2df] bg-white p-5 sm:p-7">
    <p className="text-xs font-semibold uppercase tracking-wider text-[#175640]">NET-GROWTH3.G.3 · Titolarità aziendale</p>
    <h1 className="mt-2 text-2xl font-semibold text-[#173f35]">Rivendica questa azienda</h1>
