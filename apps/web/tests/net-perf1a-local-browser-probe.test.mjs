@@ -34,3 +34,9 @@ test("NET-PERF1.A: labels distinguish lab measurements from official Core Web Vi
   assert.match(panel,/p75Ms:full\.length>=5/);
   assert.match(panel,/originalDocumentPath===\"\/network\"/);
 });
+
+test("NET-PERF1.A: compact mobile overlay avoids covering the Network during tests",()=>{
+  assert.match(panel,/const \[expanded,setExpanded\]=useState\(false\)/);
+  assert.match(panel,/!expanded\?<button/);
+  assert.match(panel,/Comprimi pannello misurazione/);
+});
