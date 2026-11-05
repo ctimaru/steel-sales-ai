@@ -13,9 +13,10 @@ test("NET-PROFILE1G: the first screen centers company identity and real connecti
     assert.match(profile,/app-primary/);
     assert.match(profile,/>\s*Connetti( →)?\s*<\/Link>/); // NET-UX LOT1: CTA renamed
     assert.match(profile,/max-w-6xl/);
-    assert.ok(profile.search(/>\s*Connetti( →)?\s*<\/Link>/) < profile.indexOf("Rappresenti questa azienda?"),
-      "connection should precede claim");
+    // Network company claim stays behind its existing authenticated route.
   }
+  assert.ok(pro.indexOf(">Connetti") < pro.indexOf('data-testid="network-unclaimed-company-claim"'),
+    "canonical profile connection should precede visible claim CTA");
   assert.ok(free.indexOf('aria-label="Connessione aziendale"') < free.indexOf('aria-label="Informazioni aziendali con fonte"'),
     "important action belongs in first screen, ahead of long evidence");
 });
@@ -32,7 +33,9 @@ test("NET-PROFILE1G: source provenance and provisional recipient guards remain v
 });
 
 test("NET-PROFILE1G: clean trustworthy cards, not empty claims or obsolete hardcoded status pills",()=>{
-  assert.doesNotMatch(pro,/Profilo non rivendicato|Azienda non verificata|Technical scope|Commercial snapshot/);
+  assert.doesNotMatch(pro,/Azienda non verificata|Technical scope|Commercial snapshot/);
+  assert.match(pro,/Profilo non rivendicato/);
+  assert.match(pro,/data-testid="network-unclaimed-company-claim"/);
   assert.doesNotMatch(pro,/text-\[#92a0b1\]|text-\[#87938e\]|text-\[#8a98aa\]/);
   assert.match(pro,/\["unclaimed", "revoked"\]\.includes\(profile.company.claimed_status\) &&/);
   assert.match(free,/profile.products.length>0 \|\| profile.facilities.length>0/);
