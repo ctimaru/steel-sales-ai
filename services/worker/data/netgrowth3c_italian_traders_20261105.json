@@ -147,10 +147,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "CIL Centro Inox Lombardo",
+      "name": "Centro Inox Lombardo S.r.l.",
       "domain": "cil-inox.com",
-      "evidence_url": "https://cil-inox.com/",
-      "summary": "Commercia tubi e prodotti in acciaio inossidabile destinati a impieghi industriali.",
+      "evidence_url": "https://cil-inox.com/prodotti/",
+      "summary": "Commercia tubi in acciaio inox, barre, lamiere e raccorderia da magazzino a Cermenate (CO).",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -264,10 +264,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "Sicom S.a.s.",
+      "name": "SICOM S.a.s.",
       "domain": "sicomsas.it",
-      "evidence_url": "https://sicomsas.it/",
-      "summary": "Commercia tubi e prodotti siderurgici destinati al mercato industriale.",
+      "evidence_url": "https://www.sicomsas.it/prodotti",
+      "summary": "Disponibili a magazzino tubi saldati tondi, quadri, rettangolari, tubi gas-acqua, meccanici e trafilati a freddo.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -284,17 +284,17 @@
     {
       "name": "Siderimport 3 S.r.l.",
       "domain": "siderimport3.it",
-      "evidence_url": "https://siderimport3.it/",
-      "summary": "Commercializza prodotti siderurgici e tubi in acciaio nel settore industriale.",
+      "evidence_url": "https://www.siderimport3.it/",
+      "summary": "Societa del Gruppo Bertolini a Guasticce (Livorno), distribuisce da magazzino tubolari, tubi per gas-acqua, travi e prodotti inox; sito ufficiale collegato al gruppo.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
     },
     {
-      "name": "Ispra S.r.l. Viareggio",
-      "domain": "ispraviareggio.it",
-      "evidence_url": "https://ispraviareggio.it/",
-      "summary": "Commercia e distribuisce prodotti siderurgici e tubi in acciaio.",
+      "name": "TIR Valvoflangia S.r.l.",
+      "domain": "tirvalvoflangia.com",
+      "evidence_url": "https://tirvalvoflangia.com/azienda/",
+      "summary": "Forniture industriali da Ravenna con magazzino di tubi inox saldati TIG e senza saldatura, raccordi e flange per impianti.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -318,10 +318,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "Sud Ferro S.r.l.",
+      "name": "Sud Ferro S.r.l. (Rizziconi RC)",
       "domain": "sudferro.net",
-      "evidence_url": "https://sudferro.net/",
-      "summary": "Commercia prodotti siderurgici e tubi per settori industriali e delle costruzioni.",
+      "evidence_url": "https://www.sudferro.net/",
+      "summary": "Azienda di Rizziconi (RC), P.IVA 02815490806, commercializza travi, tubi, laminati e lamiere; soggetto distinto dalla omonima Sud Ferro di Palermo.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -336,10 +336,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "Rizza S.n.c.",
+      "name": "Rizza S.n.c. di Antonio e Carmelo Rizza",
       "domain": "rizzasnc.it",
-      "evidence_url": "https://rizzasnc.it/chi-siamo/",
-      "summary": "Opera nell'intermediazione e commercio di tubi e prodotti siderurgici.",
+      "evidence_url": "https://www.rizzasnc.it/chi-siamo/",
+      "summary": "Agenzia commerciale che rappresenta vendita di tubolari, laminati e prodotti siderurgici in Sicilia; non dichiara un magazzino proprio.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
@@ -435,32 +435,23 @@
       "role": "trader_distributor"
     },
     {
-      "name": "Comfer",
-      "domain": "comfer.it",
-      "evidence_url": "https://comfer.it/",
-      "summary": "Commercia prodotti siderurgici e tubi in acciaio destinati a clienti industriali.",
+      "name": "Comfer S.r.l. Roma",
+      "domain": "comfersrl.com",
+      "evidence_url": "https://www.comfersrl.com/",
+      "summary": "Commercializza a Roma tubi e tubazioni metalliche, lamiere, travi, profilati e prodotti in ferro da magazzino.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
     },
     {
-      "name": "FTL Rossi S.r.l.",
-      "domain": "ftlrossi.it",
-      "evidence_url": "https://ftlrossi.it/",
-      "summary": "Commercia prodotti siderurgici e tubi in acciaio per imprese.",
+      "name": "OSTP Italy S.r.l.",
+      "domain": "ostp.it",
+      "evidence_url": "https://ostp.it/",
+      "summary": "Filiale italiana del gruppo OSTP che distribuisce tubi in acciaio inox, raccordi saldati e componenti per impianti a pressione.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
     }
   ],
-  "review_hold_domains": [
-    "cil-inox.com",
-    "ispraviareggio.it",
-    "sudferro.net",
-    "rizzasnc.it",
-    "comfer.it",
-    "ftlrossi.it",
-    "siderimport3.it",
-    "sicomsas.it"
-  ]
+  "review_hold_domains": []
 }
