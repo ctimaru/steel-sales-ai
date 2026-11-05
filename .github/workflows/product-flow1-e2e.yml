@@ -216,34 +216,6 @@ jobs:
           done
           echo "Local Next.js startup failed; private logs are not published"
           exit 1
-      # NET-RO1.4.C.1: local-only authenticated visual evidence. No hosted DB writes.
-      - name: NET-RO1.4.C.1 — Publish nine Romanian sources in disposable local CI only
-        env:
-          PGPASSWORD: postgres
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "${NEXT_PUBLIC_SUPABASE_URL}" = "http://127.0.0.1:54321"
-          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
-            -v ON_ERROR_STOP=1 \
-            -f supabase/tests/netro14d_chrome_claimable_local_seed.sql
-      - name: NET-RO1.4.C.1 — Chrome Romania profiles and claim, admin/viewer 1440/390/320
-        working-directory: apps/web
-        shell: bash
-        timeout-minutes: 10
-        run: |
-          set -euo pipefail
-          source "$RUNNER_TEMP/demotest23-local.env"
-          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
-            node tests/netro14d-chrome-claimable-visual.mjs
-      - name: NET-RO1.4.C.1 — Upload disposable Romania profile screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: netro14d-local-authenticated-visual
-          path: ${{ runner.temp }}/netro14d-synthetic-visual/*.png
-          if-no-files-found: ignore
-          retention-days: 7
       - name: NET-GROWTH2C.1 — Create independent local GoTrue Platform auditor
         working-directory: apps/web
         shell: bash
@@ -401,6 +373,34 @@ jobs:
           source "$RUNNER_TEMP/demotest23-local.env"
           DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             node tests/onboarding-qa3b2-hp8-real-invitations.mjs
+      # NET-RO1.4.C.1: local-only authenticated visual evidence. No hosted DB writes.
+      - name: NET-RO1.4.C.1 — Publish nine Romanian sources in disposable local CI only
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${NEXT_PUBLIC_SUPABASE_URL}" = "http://127.0.0.1:54321"
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f supabase/tests/netro14d_chrome_claimable_local_seed.sql
+      - name: NET-RO1.4.C.1 — Chrome Romania profiles and claim, admin/viewer 1440/390/320
+        working-directory: apps/web
+        shell: bash
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/demotest23-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            node tests/netro14d-chrome-claimable-visual.mjs
+      - name: NET-RO1.4.C.1 — Upload disposable Romania profile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: netro14d-local-authenticated-visual
+          path: ${{ runner.temp }}/netro14d-synthetic-visual/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Stop local processes and destroy temporary data and capabilities
         if: always()
         shell: bash
