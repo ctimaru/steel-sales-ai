@@ -69,6 +69,25 @@ def validate_manifest(payload: object) -> tuple[str, list[dict[str, str]]]:
     return batch, records
 
 
+
+def legacy_rpc_items(records: list[dict[str, str]]) -> list[dict[str, str]]:
+    """Keep verified manifest URLs, adapt only the legacy RPC host equality.
+
+    The existing PL/pgSQL RPC does not correctly strip www from evidence hosts,
+    although it accepts domains without www. Both URLs refer to the same first
+    party; we send the unprefixed host to the SQL RPC, not to a web crawler.
+    """
+    adapted = []
+    for record in records:
+        parsed = urlsplit(record["evidence_url"])
+        official_host = (parsed.hostname or "").removeprefix("www.")
+        if parsed.scheme != "https" or official_host != record["domain"]:
+            raise ValueError("Source host is not the declared company")
+        adapted.append({**record, "evidence_url": parsed._replace(
+            netloc=record["domain"]
+        ).geturl()})
+    return adapted
+
 def normalized(value: str) -> str:
     return value.lower().removeprefix("www.").strip()
 
@@ -129,7 +148,7 @@ async def run(*, apply: bool, preflight_only: bool = False, manifest: Path = MAN
             headers={"apikey": key, "Content-Type": "application/json",
                      "Accept": "application/json",
                      "User-Agent": "SmartSteelSales-NETGROWTH3B/1.0"},
-            json={"p_batch": batch, "p_items": records},
+            json={"p_batch": batch, "p_items": legacy_rpc_items(records)},
         )
     if response.status_code != 200:
         raise RuntimeError(f"Governed first-party intake failed: HTTP {response.status_code}")
