@@ -27,6 +27,7 @@ FIELDS = {
     "key": ("COD_INMATRICULARE", "COD_INMATRICULARE_FIRMA"),
     "registry_no": ("NR_REG_COM", "NR_INREGISTRARE", "NUMAR_INREGISTRARE", "NR_REGISTRUL_COMERTULUI"),
     "status": ("COD_STARE_FIRMA", "STARE_FIRMA", "COD_STARE"),
+    "legal_form": ("FORMA_JURIDICA", "DENUMIRE_FORMA_JURIDICA"),
 }
 
 
@@ -36,6 +37,16 @@ def normalize_name(value: str) -> str:
     value = "".join(c for c in value if not unicodedata.combining(c))
     value = value.translate(str.maketrans({"ș": "s", "Ș": "S", "ț": "t", "Ț": "T", "ş": "s", "ţ": "t"}))
     return "".join(c for c in value.casefold() if c.isalnum())
+
+
+def is_corporate_entity(name: str, legal_form: str = "") -> bool:
+    """Only company forms; never project a sole trader / PFA or natural-person row."""
+    label = (name + " " + legal_form).upper()
+    if re.search(r"\b(PFA|P\.F\.A\.|II|I\.I\.|IF|I\.F\.|PERSOANA FIZICA|INTREPRINDERE INDIVIDUALA|INTREPRINDERE FAMILIALA)\b", label):
+        return False
+    # Unknown numeric legal-form codes do not by themselves prove corporation.
+    return bool(re.search(r"\b(S\.?R\.?L\.?|S\.?A\.?|SNC|SCS|SCA)\b", name.upper()) or
+                re.search(r"\b(SOCIETATE CU RASPUNDERE LIMITATA|SOCIETATE PE ACTIUNI)\b", legal_form.upper()))
 
 
 def normalize_cui(value: str | None) -> str:
@@ -168,10 +179,14 @@ def scan_companies(path: Path, candidates: list[dict]) -> tuple[dict[str, list[d
     cui_col = col(columns, FIELDS["cui"])
     key_col = col(columns, FIELDS["key"])
     registry_col = col(columns, FIELDS["registry_no"], required=False)
+    form_col = col(columns, FIELDS["legal_form"], required=False)
     for row, _ in it:
         total += 1
         cui = normalize_cui(row.get(cui_col))
         name_key = normalize_name(row.get(name_col, ""))
+        # Individual traders also occur in OD_FIRME. Do not retain person names.
+        if not is_corporate_entity(row.get(name_col, ""), row.get(form_col, "") if form_col else ""):
+            continue
         ids = name_index.get(name_key, set()) | cui_index.get(cui, set())
         if not ids:
             continue
