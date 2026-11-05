@@ -28,17 +28,19 @@ Scale Smart Steel Sales' corporate Network toward **1,000 unique companies**, in
 
 ## Source review: early research seeds (not imported)
 
-`services/worker/data/netgrowth3d_traders_research_20261105.json`: three sourced **traders**:
+`services/worker/data/netgrowth3d_traders_research_20261105.json`: four sourced **traders**:
 - `eurotrade.bg.it` (Eurotrade S.r.l., official first-party 304/316 stainless tubes stock)
 - `mecsud.it` (MECSUD 2.0 S.R.L.S., official first-party inox tubes distribution)
 - `tubicondotte.it` (Tubi S.n.c., official first-party large-diameter steel water/gas pipeline tubes supply)
+- `sicgorizia.it` (SIC S.r.l. wholesale trader in Gorizia, official page confirms mechanical, structural and commercial EN 10210/10219 tubes)
 
-`services/worker/data/netgrowth3d_industrial_research_20261105.json`: three distinct business-only sources:
+`services/worker/data/netgrowth3d_industrial_research_20261105.json`: four distinct business-only sources:
 - `profiltubi.it`, **producer**, official site claims HF electric-resistance-welded carbon steel tube production in Reggiolo. `profiltubi.com` is a separate, already listed Rome distributor; cross-check the different legal entities before final approval.
 - `eurocromo.net`, **processor_service_provider**, official site states grinding and chrome-plating of steel tubes and bars.
+- `inpipe.it`, **producer**, official factory site states welded round stainless/alloy tube production made-to-order in Piozzano.
 - `tubisteelsrl.com`, proposed **producer**, official source search describes stainless welded tube manufacturing but direct automated site verification was blocked: deliberately on `review_hold_domains`. Do not clear until a primary source is re-confirmed.
 
-These **six** early research identities are NOT the 50–100-company import, NOT verified legal entities/accounts, and NOT new production records. Some websites are inaccessible to automatic reading; do not infer absence or false identity from a timeout. Grow the first trader research file from 3 to at least 50 **fully documented unique official sources** with accurate role and legal identity; continue industrial independently. Check every potential company against production six-register dedup and the normalized legal-name guard. On an existing canonical record or lead, do not re-import the business under an alias domain.
+These **eight** early research identities are NOT the 50–100-company import, NOT verified legal entities/accounts, and NOT new production records. Some websites are inaccessible to automatic reading; do not infer absence or false identity from a timeout. Grow the first trader research file from 4 to at least 50 **fully documented unique official sources** with accurate role and legal identity; continue industrial independently. Check every potential company against production six-register dedup and the normalized legal-name guard. On an existing canonical record or lead, do not re-import the business under an alias domain.
 
 ## Tests and release
 
