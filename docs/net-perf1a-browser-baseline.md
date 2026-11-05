@@ -10,7 +10,9 @@ l'esecuzione SQL o i tempi di CI per Core Web Vitals di un visitatore.
 
 1. Aprire Chrome autenticato nella workspace Smart Steel Sales.
 2. Aprire `/network?netperf=1` nel dominio del deployment che contiene la
-   PR. La piccola finestra 'NET-PERF1.A · Misura locale' appare in basso a destra.
+   PR. Un piccolo badge 'Misurazione attiva' appare in basso a destra:
+   rimane compatto durante la navigazione (anche a 320 px) e si apre
+   solo quando vuoi copiare il rapporto; dopo la copia scegli 'Riduci'.
    Negli accessi normali la finestra non viene montata e il chunk di misurazione
    non viene caricato.
 3. A ogni viewport 1440×900, 390×844 e 320×700, scegliere **Azzera** e
