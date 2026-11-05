@@ -85,7 +85,10 @@ def test_claim_entry_is_immediately_visible_but_existing_auth_guards_remain():
     assert '"/network/"+encodeURIComponent(companyId)+"/claim"' in cta
     assert 'data-testid="network-unclaimed-company-claim"' in profile
     assert "Profilo non rivendicato" in profile
-    assert 'adminOrganizationId && (!claimState' in profile
+    assert '(!adminOrganizationId || !claimState' in profile
+    assert 'adminOrganizationId ? (' in profile
+    assert 'data-testid="network-company-claim-registration"' in profile
+    assert 'href={"/register?company="+encodeURIComponent(displayName)+"#company-check"}' in profile
     assert '<NetworkActivationCta mode="published"' in profile
     assert "requireWorkspaceAdmin" in claim
     assert "getCompanyClaimExperience" in claim
