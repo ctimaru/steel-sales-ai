@@ -5,6 +5,8 @@ import {GovernanceWorkspaceNav} from "@/components/governance-workspace-nav";
 import {getPlatformAccessContext,requirePlatformPermission} from "@/lib/platform-admin";
 import {getNetworkActivationOverview} from "@/lib/network-activation-overview";
 import {appRoutes} from "@/lib/routes";
+import {getProvisionalReconciliationQueue} from "@/lib/network-provisional-claim";
+import {reviewProvisionalReconciliation} from "./actions";
 
 export const dynamic="force-dynamic";
 
@@ -21,11 +23,15 @@ const stages=[
   {key:"connections_accepted",name:"Connessioni accettate",hint:"Consenso effettivo del destinatario; non implica contratti o ordini"},
 ] as const;
 
-export default async function PlatformNetworkActivationPage(){
+export default async function PlatformNetworkActivationPage({searchParams}:{searchParams:Promise<{error?:string;message?:string}>}){
  await requirePlatformPermission("registrations.read");
  const access=await getPlatformAccessContext();
  if(!access?.is_platform_owner)redirect("/platform");
- const overview=await getNetworkActivationOverview();
+ const [overview,reconciliations]=await Promise.all([getNetworkActivationOverview(),getProvisionalReconciliationQueue()]);
+ const query=await searchParams;
+ const canApprove=access.permissions.includes("claims.approve");
+ const canReject=access.permissions.includes("claims.reject");
+ const canReviewProof=access.permissions.includes("claims.review_proof");
  const counts=overview.counts;
  return <main className="mx-auto max-w-7xl space-y-6 pb-14">
   <GovernanceWorkspaceNav current="registrations" permissions={access.permissions}/>
@@ -107,6 +113,38 @@ export default async function PlatformNetworkActivationPage(){
      </table>
     </div>
    }
+  </section>
+  <section id="claim-reconciliation" aria-label="Rivendicazioni delle schede provvisorie" className="rounded-2xl border border-[#dae5de] bg-white p-5 sm:p-6">
+   <h2 className="text-lg font-semibold text-[#173f35]">Richieste di collegamento · schede provvisorie</h2>
+   <p className="mt-2 text-sm leading-6 text-[#52615b]">Le corrispondenze con registrazioni attivate e prove forti possono essere approvate dalla piattaforma. L'approvazione crea un profilo canonico rivendicabile, non attribuisce ownership e non verifica automaticamente l'azienda.</p>
+   {query.error?<p role="alert" className="mt-3 rounded-xl border border-[#e6c6c1] bg-[#fff8f6] p-3 text-sm text-[#85483f]">{query.error}</p>:null}
+   {query.message?<p className="mt-3 rounded-xl border border-[#bddacb] bg-[#f4faf6] p-3 text-sm text-[#175640]">{query.message}</p>:null}
+   <p className="mt-2 text-xs font-semibold text-[#175640]">In attesa: {reconciliations.total_pending.toLocaleString("it-IT")}</p>
+   {reconciliations.items.length===0?<p className="mt-3 text-sm text-[#52615b]">Nessuna richiesta di collegamento presente.</p>:
+    <div className="mt-4 grid gap-3">
+     {reconciliations.items.map(item=><article key={item.request_id} className="rounded-xl border border-[#e1e9e4] p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+       <div>
+        <p className="font-semibold text-[#173f35]">{item.source_name}</p>
+        <p className="mt-1 text-xs text-[#52615b]">{item.source_domain} · {item.organization_name} · {item.status}</p>
+       </div>
+       <span className="rounded-full bg-[#edf5f1] px-2.5 py-1 text-xs font-semibold text-[#175640]">{item.has_activated_strong_match?"Registrazione attiva · prove forti":"Prove insufficienti"}</span>
+      </div>
+      {item.request_note?<p className="mt-2 text-xs leading-5 text-[#52615b]">Nota richiedente: {item.request_note}</p>:null}
+      {["requested","under_review"].includes(item.status)?<form action={reviewProvisionalReconciliation} className="mt-3 flex flex-wrap items-end gap-3 border-t border-[#eef2ef] pt-3">
+       <input type="hidden" name="request_id" value={item.request_id}/>
+       <label className="min-w-[220px] flex-1 text-xs font-semibold text-[#52615b]">Motivazione obbligatoria
+        <textarea name="note" rows={2} minLength={10} maxLength={2000} required placeholder="Fonte, ragione sociale e controllo effettuato" className="mt-1 w-full rounded-xl border border-[#cbdcd2] bg-white p-2 text-sm font-normal text-[#173f35]"/>
+       </label>
+       <div className="flex flex-wrap gap-2">
+        {item.status==="requested"&&canReviewProof?<button name="decision" value="under_review" type="submit" className="rounded-xl border border-[#c8d9ce] px-3 py-2 text-xs font-semibold text-[#175640]">In revisione</button>:null}
+        {canReject?<button name="decision" value="rejected" type="submit" className="rounded-xl border border-[#e3c3c0] px-3 py-2 text-xs font-semibold text-[#8d4138]">Respingi</button>:null}
+        {item.has_activated_strong_match&&canApprove?<button name="decision" value="ready_for_claim" type="submit" className="app-primary rounded-xl px-3 py-2 text-xs font-semibold">Approva corrispondenza</button>:null}
+       </div>
+      </form>:null}
+      {item.status==="ready_for_claim"&&item.canonical_company_id?<Link href={"/network/"+item.canonical_company_id} className="mt-3 inline-block text-xs font-semibold text-[#175640] underline">Apri profilo canonico</Link>:null}
+     </article>)}
+    </div>}
   </section>
   <p className="text-xs text-[#647269]">Fotografia dei dati alle {new Date(overview.snapshot_at).toLocaleString("it-IT")}. Visibile solo al proprietario della piattaforma.</p>
  </main>;

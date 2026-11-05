@@ -1,0 +1,35 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {readFileSync} from "node:fs";
+const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
+const migration=read("../../../supabase/migrations/20261105144800_netgrowth3g3_reviewed_claim_reconciliation.sql");
+const sql=read("../../../supabase/tests/netgrowth3g3_reviewed_claim_reconciliation.sql");
+const profile=read("../components/free-network-profile.tsx");
+const cta=read("../components/network-activation-cta.tsx");
+const owner=read("../app/(italian)/(workspace)/network/[id]/reconcile/page.tsx");
+const ownerAction=read("../app/(italian)/(workspace)/network/actions.ts");
+const platform=read("../app/(italian)/(platform)/platform/network-activation/page.tsx");
+const reviewer=read("../app/(italian)/(platform)/platform/network-activation/actions.ts");
+test("G.3: SQL source-led authorization and no ownership minting",()=>{
+ for(const word of ["enable row level security","netgrowth3g3_require_org_admin","m.role='admin'","private.require_platform_permission('claims.approve')","p.match_state='strong_evidence'","a.application_status='activated'","a.activated_organization_id=v_request.organization_id","a.email_verified_at is not null","private.netconnect2b_legal_key","private.netconnect2b_domain","v_domain_count>1","private.netfast_discovered_records","'unclaimed','unverified'"])assert.ok(migration.includes(word),word);
+ assert.doesNotMatch(migration,/^\s*insert into public\.network_company_claims\s*\(/im);
+ assert.doesNotMatch(migration,/^\s*insert into public\.organization_network_company_links\s*\(/im);
+ assert.match(migration,/security invoker/);
+ assert.match(sql,/has_function_privilege\('anon'/);
+ assert.match(sql,/has_table_privilege\('authenticated'/);
+});
+test("G.3: admins request, only platform reviewers reconcile",()=>{
+ assert.match(ownerAction,/submitProvisionalReconciliation/);
+ assert.match(ownerAction,/requireWorkspaceAdmin\(\)/);
+ assert.match(ownerAction,/netgrowth3g3_request_reconciliation/);
+ assert.match(reviewer,/requirePlatformPermission\(permission\)/);
+ assert.match(reviewer,/netgrowth3g3_review_reconciliation/);
+ assert.match(profile,/canReconcile=\{isWorkspaceAdmin\}/);
+ assert.match(cta,/networkActivationHref/);
+ assert.match(cta,/\/reconcile/);
+ assert.match(owner,/ready_for_claim/);
+ assert.match(owner,/\/claim/);
+ assert.match(platform,/getProvisionalReconciliationQueue/);
+ assert.match(platform,/Approva corrispondenza/);
+ assert.match(platform,/non attribuisce ownership/);
+});
