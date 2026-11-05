@@ -48,6 +48,7 @@ export const appRoutes = {
     connections: "/network/connections",
     company: (id: string) => `/network/${id}`,
     claim: (id: string) => `/network/${id}/claim`,
+    reconcile: (id: string) => `/network/${id}/reconcile`,
     saved: "/network/saved",
     following: "/network/following",
     activity: "/network/activity",

@@ -58,7 +58,7 @@ export async function FreeNetworkProfileView({
                 </p>
                 <h2 className="mt-1 text-base font-semibold text-[#173f35]">Rivendica questa azienda</h2>
               </div>
-              {provisional ? <NetworkActivationCta mode="discovered" companyId={companyId} companyName={profile.company.legal_name} source="network_profile"/> :
+              {provisional ? <NetworkActivationCta mode="discovered" companyId={companyId} companyName={profile.company.legal_name} source="network_profile" canReconcile={isWorkspaceAdmin}/> :
                 <NetworkActivationCta mode="published" companyId={companyId} companyName={profile.company.legal_name} source="network_profile"/>}
             </div>
             <ol className="mt-3 flex flex-wrap gap-x-4 gap-y-2 border-t border-[#ddebe2] pt-3 text-xs font-semibold text-[#31574b]" aria-label="Passaggi per gestire il profilo">
@@ -66,7 +66,7 @@ export async function FreeNetworkProfileView({
               <li><span className="mr-1 text-[#175640]">2.</span>Arricchisci profilo</li>
               <li><span className="mr-1 text-[#175640]">3.</span>Verifica informazioni</li>
             </ol>
-            <div className="mt-2"><NetworkActivationHelp mode={provisional?"discovered":"published"}/></div>
+            <div className="mt-2"><NetworkActivationHelp mode={provisional?"discovered":"published"} canReconcile={provisional&&isWorkspaceAdmin}/></div>
           </section> : null}
         <section aria-label="Connessione aziendale" className="mt-5 rounded-2xl border border-[#bcd7c8] bg-[#f1f8f3] p-4 sm:p-5">
           <h2 className="text-base font-semibold text-[#173f35]">Entra in contatto con questa azienda</h2>
