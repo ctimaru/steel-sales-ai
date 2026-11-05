@@ -520,15 +520,15 @@
       "source_status": "first_party_screened"
     },
     {
-      "name": "Geo.Fer",
-      "domain": "geofer.it",
-      "evidence_url": "https://www.geofer.it/startpag.htm",
-      "summary": "Commercia all'ingrosso prodotti siderurgici fra cui tubolari tondi, quadri e rettangolari e travi in acciaio.",
+      "name": "G.P. Inossidabile S.r.l.",
+      "domain": "gpinossidabile.com",
+      "evidence_url": "https://www.gpinossidabile.com/catalogo",
+      "summary": "Commercializza articoli in acciaio inossidabile, con catalogo di barre e tubi inox per impiantistica e industria.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor",
-      "role_evidence_url": "https://www.geofer.it/startpag.htm",
-      "identity_evidence_url": "https://www.geofer.it/startpag.htm",
+      "role_evidence_url": "https://www.gpinossidabile.com/catalogo",
+      "identity_evidence_url": "https://www.gpinossidabile.com/",
       "source_status": "first_party_screened"
     },
     {
