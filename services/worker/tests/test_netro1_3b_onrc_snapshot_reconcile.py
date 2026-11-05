@@ -25,14 +25,14 @@ def _official_meta(tmp_path: Path):
         "success": True,
         "result": {
             "title": "Firme înregistrate la Registrul Comerțului până la data de 19.10.2026",
-            "id": "TEST-PACKAGE-NOT-REAL",
+            "id": onrc.PINNED_COMPANIES_PACKAGE,
             "organization": {"name": "onrc"},
             "license_id": "CC-BY-4.0",
             "resources": [
-                {"id": "TEST-OD-FIRME", "name": "OD_FIRME.CSV",
-                 "url": "https://data.gov.ro/dataset/demo/resource/demo/download/OD_FIRME.CSV"},
-                {"id": "TEST-OD-STARE", "name": "OD_STARE_FIRMA.CSV",
-                 "url": "https://data.gov.ro/dataset/demo/resource/demo/download/OD_STARE_FIRMA.CSV"},
+                {"id": onrc.PINNED_ONRC_RESOURCES["OD_FIRME"][0], "name": "OD_FIRME.CSV",
+                 "url": onrc.PINNED_ONRC_RESOURCES["OD_FIRME"][1]},
+                {"id": onrc.PINNED_ONRC_RESOURCES["OD_STARE_FIRMA"][0], "name": "OD_STARE_FIRMA.CSV",
+                 "url": onrc.PINNED_ONRC_RESOURCES["OD_STARE_FIRMA"][1]},
             ],
         },
     }
@@ -91,6 +91,7 @@ def test_direct_official_package_metadata_fails_on_date_license_and_publisher(tm
     path = _official_meta(tmp_path)
     accepted = onrc.load_catalog_metadata(path)
     assert accepted["license_id_declared"] == "CC-BY-4.0"
+    assert accepted["package_id"] == onrc.PINNED_COMPANIES_PACKAGE
     assert accepted["source_reuse_approved"] is False
     assert accepted["company_rights_reviewed"] is False
     for key, value in [
@@ -160,3 +161,21 @@ def test_missing_join_key_and_invalid_metadata_never_silently_pass(tmp_path):
     meta.write_text(json.dumps(metadata), encoding="utf-8")
     with pytest.raises(ValueError, match="successful"):
         onrc.load_catalog_metadata(meta)
+
+
+def test_wrong_official_package_id_is_rejected_even_with_valid_company_names(tmp_path):
+    path = _official_meta(tmp_path)
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    doc["result"]["id"] = "not-the-official-onrc-october-package"
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(ValueError, match="package ID"):
+        onrc.load_catalog_metadata(path)
+
+
+def test_wrong_official_resource_id_rejected_even_on_data_gov_ro_host(tmp_path):
+    path = _official_meta(tmp_path)
+    doc = json.loads(path.read_text(encoding="utf-8"))
+    doc["result"]["resources"][0]["id"] = "wrong-month-resource-id"
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    with pytest.raises(ValueError, match="resource identity"):
+        onrc.load_catalog_metadata(path)
