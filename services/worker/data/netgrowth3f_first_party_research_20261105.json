@@ -1,0 +1,343 @@
+{
+  "phase": "NET-GROWTH3.F.1",
+  "observed_date": "2026-11-05",
+  "mode": "research_only",
+  "production_write_authorized": false,
+  "notice": "Research candidates from independently observed first-party company pages; not legally verified, not approved for reuse/publication, not a full 50–100 import batch. No PII.",
+  "baseline": {
+    "canonical_published": 278,
+    "provisional_explorable": 408
+  },
+  "records": [
+    {
+      "name": "Euroflex S.p.A.",
+      "domain": "euroflexspa.it",
+      "role": "producer",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://www.euroflexspa.it/it/tubolari/",
+      "source_url": "https://www.euroflexspa.it/it/tubolari/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "product",
+          "value": "welded round, square and rectangular steel tubes",
+          "url": "https://www.euroflexspa.it/it/tubolari/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "standard",
+          "value": "EN 10219",
+          "url": "https://www.euroflexspa.it/it/tubolari/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "De.Ma.",
+      "domain": "dematubi.it",
+      "role": "producer",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://www.dematubi.it/it/azienda",
+      "source_url": "https://www.dematubi.it/it/caratteristiche-produttive",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "product",
+          "value": "electrowelded stainless steel tubes",
+          "url": "https://www.dematubi.it/it/caratteristiche-produttive",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "TIG longitudinal welding",
+          "url": "https://www.dematubi.it/it/caratteristiche-produttive",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "standard",
+          "value": "EN 10217-7 TC1",
+          "url": "https://www.dematubi.it/it/caratteristiche-produttive",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Sideralba S.p.A.",
+      "domain": "sideralba.it",
+      "role": "producer",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://www.sideralba.it/",
+      "source_url": "https://www.sideralba.it/sedi/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "product",
+          "value": "welded round, square, rectangular and oval steel tubes",
+          "url": "https://www.sideralba.it/sedi/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "electric welding of tubes",
+          "url": "https://www.sideralba.it/sedi/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "OMV Officine Metallurgiche Ventura S.p.A.",
+      "domain": "omvventura.it",
+      "role": "producer",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://www.omvventura.it/",
+      "source_url": "https://www.omvventura.it/prodotti.php",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "product",
+          "value": "precision steel tubes in round, square and rectangular sections",
+          "url": "https://www.omvventura.it/prodotti.php",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "standard",
+          "value": "EN 10305-3",
+          "url": "https://www.omvventura.it/prodotti.php",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "standard",
+          "value": "EN 10305-5",
+          "url": "https://www.omvventura.it/prodotti.php",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "dimension",
+          "value": "outside dimension 10–89 mm; wall thickness 0.6–3.5 mm",
+          "url": "https://www.omvventura.it/prodotti.php",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "KGT Tubi S.r.l.",
+      "domain": "kgttubi.com",
+      "role": "producer",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://www.kgttubi.com/chi-siamo/",
+      "source_url": "https://www.kgttubi.com/chi-siamo/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "product",
+          "value": "laser-welded tubes for automotive applications",
+          "url": "https://www.kgttubi.com/chi-siamo/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "laser tube welding",
+          "url": "https://www.kgttubi.com/chi-siamo/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Comit Industry S.r.l.",
+      "domain": "comitindustry.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://www.comitindustry.it/",
+      "source_url": "https://www.comitindustry.it/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "CNC tube bending",
+          "url": "https://www.comitindustry.it/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "dimension",
+          "value": "tube bending up to 42 mm diameter",
+          "url": "https://www.comitindustry.it/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "MIG/TIG welding",
+          "url": "https://www.comitindustry.it/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Carema S.r.l.",
+      "domain": "curvaturatubolari.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://www.curvaturatubolari.it/chi-siamo/",
+      "source_url": "https://www.curvaturatubolari.it/curvatura/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "tube bending and cold rolling",
+          "url": "https://www.curvaturatubolari.it/curvatura/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "dimension",
+          "value": "tube diameters 8–60 mm",
+          "url": "https://www.curvaturatubolari.it/curvatura/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "material",
+          "value": "steel and stainless steel",
+          "url": "https://www.curvaturatubolari.it/curvatura/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Lasar S.r.l.",
+      "domain": "lasar.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://lasar.it/chi-siamo",
+      "source_url": "https://lasar.it/lavorazioni",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "3D fiber laser cutting of tubes and profiles",
+          "url": "https://lasar.it/lavorazioni",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "dimension",
+          "value": "laser tube cutting diameter 12–240 mm",
+          "url": "https://lasar.it/lavorazioni",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "CNC tube bending",
+          "url": "https://lasar.it/lavorazioni",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Ta-Mec S.r.l.",
+      "domain": "tamec.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://www.tamec.it/",
+      "source_url": "https://www.tamec.it/lavorazione-conto-terzi/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "cold tube bending for third parties",
+          "url": "https://www.tamec.it/lavorazione-conto-terzi/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "dimension",
+          "value": "tube bending diameter 4–45 mm",
+          "url": "https://www.tamec.it/lavorazione-conto-terzi/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Meccanica Orlandini S.r.l.",
+      "domain": "meccanicaorlandini.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "intake_lane": "net_new_research",
+      "identity_url": "https://meccanicaorlandini.it/index.php/it/privacy-policy/",
+      "source_url": "https://meccanicaorlandini.it/index.php/it/lavorazioni-conto-terzi/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "claims": [
+        {
+          "type": "process",
+          "value": "tube cutting, drilling, punching, welding and bending",
+          "url": "https://meccanicaorlandini.it/index.php/it/lavorazioni-conto-terzi/",
+          "status": "candidate_first_party"
+        }
+      ]
+    }
+  ],
+  "existing_enrichment": [
+    {
+      "domain": "tubi-spa.com",
+      "role": "producer",
+      "state": "canonical_published",
+      "source_url": "https://www.tubi-spa.com/azienda/",
+      "action": "enrich_existing_not_new"
+    },
+    {
+      "domain": "offborsari.it",
+      "role": "processor_service_provider",
+      "state": "canonical_published",
+      "source_url": "https://www.offborsari.it/taglio-laser-tubo-e-tubolare.html",
+      "action": "enrich_existing_not_new"
+    },
+    {
+      "domain": "ati-italia.com",
+      "role": "producer",
+      "state": "discovery_record_present",
+      "source_url": "https://www.ati-italia.com/",
+      "action": "review_discovery_not_new"
+    }
+  ],
+  "review_holds": [
+    {
+      "domain": "arvedi.it",
+      "reason": "shared group domain and rejected discovery aliases; separate legal entities before any import",
+      "source_url": "https://www.arvedi.it/azienda/aziende-del-gruppo/"
+    },
+    {
+      "domain": "metaltubispa.it",
+      "reason": "official group describes distribution/cutting; do not classify as manufacturer",
+      "source_url": "https://www.eusider.com/aziende-del-gruppo/metall-steel-metaltubi/"
+    },
+    {
+      "domain": "fasb2.it",
+      "reason": "prior discovery records rejected for malformed legal identity",
+      "source_url": "https://www.fasb2.it/"
+    }
+  ]
+}
