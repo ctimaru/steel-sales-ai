@@ -47,3 +47,22 @@ Data dimensions: `company_identity` · `industrial_role` · `product_family` · 
 Test with (a) HSS supplier near a named city, (b) tube laser processor with stated capacity, (c) manufacturer with specific standard. Return *not documented* if no evidence. Do not fabricate steel grades, sizes or capacity and do not connect private Commercial Memory to shared Network.
 
 **Status:** branch and research seed in preparation; import count **0**; production unchanged.
+
+## NET-RO1.2a — Independent Romanian market screening and growth wave (2026-11-05)
+
+**Outcome:** 25 research candidates across the first two waves, all source-backed *at website level*, no production import and no legal/rights sign-off: 6 candidate producers, 14 candidate traders, 5 candidate processors, 50 claimed product/process/role facts with source URLs. This is *not* a verified 25-company additions count. There are 15 new domains in `netro1_2a_romania_research_wave_20261105.json`; 10 original domains remain in `netro1_romania_first_party_research_20261105.json`.
+
+**Observed, read-only Supabase screening** on `ecrafjdummcdfycznitx` using exact normalized domains across six existing catalogs (`public.network_companies`, `public.network_core_target_leads`, `private.netfast_discovered_records`, `public.network_netfast2_structured_entities`, `public.network_company_discovery_candidates`, `public.network_discovery_domain_leads`):
+- First ten: **two exact domain collisions**, both multinational shared group domains. `tenaris.com` is already linked to Italian `Dalmine S.p.A.` in `network_companies` and Italian Tenaris in discovery; `vanleeuwen.com` is linked to Italian `Van Leeuwen Italia S.p.A.` in canonical and lead catalogs. This is **not** evidence that Romanian `SILCOTUB S.A.` or `Van Leeuwen Romania S.R.L.` are duplicates as legal entities: legal country-scoped uniqueness needs adjudication.
+- New fifteen: **zero exact-domain hits** across six registries. This does not establish 15 legally independent or completely new entities; group, name, VAT, legal status and opt-out checks remain.
+- `public.network_companies` country-code breakdown at read time: **282 IT, 0 RO** (other provisional catalogs do not expose reliable country for every row). The historical 278 published canonical + 408 provisional = 686 is a baseline from an earlier independent readback; these are different populations, so do not equate or add them.
+
+**Industrial relevance holds and caveats:**
+- `miras.ro` lists multiple MIRAS companies; map the chosen legal entity `MIRAS STEEL TRADE S.R.L.` to its proper site/facilities, not the group root alone.
+- `tenaris.com` / `vanleeuwen.com` shared global domains MUST NOT be used as globally unique company keys; use country + legal identity after verification.
+- `kovostroj.ro` rectangular tubes are described among group products; confirm they are made by the Romanian legal entity.
+- `laserprocessing.ro` and `comelf.ro` document general steel/profile processing but **not specific tube cutting** at reviewed pages; keep relevance *on hold* rather than inventing tube capability.
+- `lio-metal.ro` displays S235 for welded tubes, not automatically EN 10219. `baurom.ro` and `intacteco.ro` explicitly document EN 10219; `otelstructuri.ro` documents EN 10219 and EN 10210, but legal storefront verification is pending.
+- All research records: `research_only`, no PII, no contact outreach, no private commercial memory, `production_write_authorized=false`.
+
+**Next gate (RO1.2b):** reach 50–100 first-party candidates with stable legal identity, rights and source audit ledger, classify `new`/`existing-enrichment`/`hold`; complete offline validator and protected CI. Production import `RO1.4` remains a distinct gate after legal, opt-out and source-rights approvals. RO1.2a **does not authorize import or merge**.
