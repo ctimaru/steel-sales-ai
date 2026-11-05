@@ -38,6 +38,18 @@
       "role_evidence_url": "https://www.tubisteelsrl.com/",
       "identity_evidence_url": "https://www.tubisteelsrl.com/",
       "source_status": "first_party_screened"
+    },
+    {
+      "name": "In-Pipe S.r.l.",
+      "domain": "inpipe.it",
+      "evidence_url": "https://www.inpipe.it/produzione/",
+      "summary": "In-Pipe produce a Piozzano tubi saldati a sezione circolare in acciaio inox e leghe speciali su disegno, con diametri e spessori personalizzati.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "producer",
+      "role_evidence_url": "https://www.inpipe.it/produzione/",
+      "identity_evidence_url": "https://www.inpipe.it/chi-siamo/",
+      "source_status": "first_party_screened"
     }
   ],
   "review_hold_domains": [
