@@ -1,0 +1,410 @@
+{
+  "phase": "NET-GROWTH3.F.2B",
+  "observed_date": "2026-11-05",
+  "mode": "research_only",
+  "allow_import": false,
+  "purpose": "Complete 50 company-domain RESEARCH candidate pool only; no right to import until legal identity, rights, six-register dedup and all gates pass.",
+  "baseline": {
+    "canonical_published": 278,
+    "provisional_reader": 408
+  },
+  "records": [
+    {
+      "name": "Tecnotubi",
+      "domain": "tcbtubi.it",
+      "country": "IT",
+      "role": "producer",
+      "identity_evidence_url": "https://tcbtubi.it/",
+      "source_url": "https://tcbtubi.it/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "product",
+          "value": "Tubi saldati in acciaio per applicazioni industriali, fra cui EN 10219",
+          "source_url": "https://tcbtubi.it/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "OCSA S.p.A.",
+      "domain": "ocsaspa.com",
+      "country": "IT",
+      "role": "producer",
+      "identity_evidence_url": "https://www.ocsaspa.com/en/",
+      "source_url": "https://www.ocsaspa.com/en/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "dimension",
+          "value": "Tubi saldati di precisione con diametri dichiarati da 9,5 a 76 mm e spessori da 0,5 a 3 mm",
+          "source_url": "https://www.ocsaspa.com/en/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "CCT Inox S.p.A.",
+      "domain": "cctinox.it",
+      "country": "IT",
+      "role": "producer",
+      "identity_evidence_url": "https://www.cctinox.it/it/azienda/",
+      "source_url": "https://www.cctinox.it/it/azienda/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "product",
+          "value": "Tubi inox di piccolo diametro elettrosaldati con tecnologia TIG",
+          "source_url": "https://www.cctinox.it/it/azienda/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Tubifaber S.p.A.",
+      "domain": "tubifaber.it",
+      "country": "IT",
+      "role": "producer",
+      "identity_evidence_url": "https://www.tubifaber.it/produzione/",
+      "source_url": "https://www.tubifaber.it/produzione/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "product",
+          "value": "Produzione di tubi in acciaio al carbonio elettrosaldati",
+          "source_url": "https://www.tubifaber.it/produzione/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Sidergamma S.r.l.",
+      "domain": "sidergamma.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://www.sidergamma.it/prodotti/?lang=it",
+      "source_url": "https://www.sidergamma.it/prodotti/?lang=it",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "process",
+          "value": "Rettifica e cromatura esterna di tubi trafilati a freddo",
+          "source_url": "https://www.sidergamma.it/prodotti/?lang=it",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Bendinox Europa S.r.l.",
+      "domain": "bendinox.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://www.bendinox.it/lavorazioni/",
+      "source_url": "https://www.bendinox.it/lavorazioni/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "dimension",
+          "value": "Curvatura tubi metallici diametri dichiarati da 5 a 60 mm",
+          "source_url": "https://www.bendinox.it/lavorazioni/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Envasald S.r.l.",
+      "domain": "envasald.com",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://www.envasald.com/azienda/",
+      "source_url": "https://www.envasald.com/azienda/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "product",
+          "value": "Produzione di raccordi inox da tubo AISI 304L e AISI 316L",
+          "source_url": "https://www.envasald.com/azienda/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Emme Erre Inox S.r.l.",
+      "domain": "emmeerreinox.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://emmeerreinox.it/it/content/4-azienda",
+      "source_url": "https://emmeerreinox.it/it/content/4-azienda",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "product",
+          "value": "Produzione di raccordi a saldare in acciaio inossidabile",
+          "source_url": "https://emmeerreinox.it/it/content/4-azienda",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "T.ERRE S.r.l.",
+      "domain": "t-erre.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://t-erre.it/prodotti/",
+      "source_url": "https://t-erre.it/prodotti/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "process",
+          "value": "Lavorazione in-house di tubazioni rigide per automotive e impiantistica",
+          "source_url": "https://t-erre.it/prodotti/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Scamer S.r.l.",
+      "domain": "scamer.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://scamer.it/",
+      "source_url": "https://scamer.it/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "dimension",
+          "value": "Curvatura e saldatura di tubi metallici con diametri dichiarati da 4 a 114 mm",
+          "source_url": "https://scamer.it/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "SBS S.r.l.",
+      "domain": "sbs-tube.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://www.sbs-tube.it/lavorazioni/",
+      "source_url": "https://www.sbs-tube.it/lavorazioni/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "process",
+          "value": "Taglio laser tubo e saldatura di semilavorati metallici",
+          "source_url": "https://www.sbs-tube.it/lavorazioni/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "FPN di Pisoni e Nesci",
+      "domain": "fpnlavorazioni.com",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://www.fpnlavorazioni.com/lavorazioni/",
+      "source_url": "https://www.fpnlavorazioni.com/lavorazioni/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "process",
+          "value": "Taglio laser tubi e profili con tornitura CNC",
+          "source_url": "https://www.fpnlavorazioni.com/lavorazioni/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Gromet S.r.l.",
+      "domain": "gromet.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://gromet.it/",
+      "source_url": "https://gromet.it/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "process",
+          "value": "Taglio laser tubo e lamiera con impianti in fibra",
+          "source_url": "https://gromet.it/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Officine Orsi S.p.A.",
+      "domain": "officineorsi.it",
+      "country": "IT",
+      "role": "producer",
+      "identity_evidence_url": "https://officineorsi.it/",
+      "source_url": "https://officineorsi.it/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "product",
+          "value": "Produzione di tubi saldati, raccordi e prefabbricazioni in leghe speciali",
+          "source_url": "https://officineorsi.it/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Bonazzi Curvatura Tubi S.r.l.",
+      "domain": "bonazzi-srl.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://www.bonazzi-srl.it/chi_siamo.htm",
+      "source_url": "https://www.bonazzi-srl.it/chi_siamo.htm",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "dimension",
+          "value": "Curvatura tubi metallici con diametri dichiarati da 4 a 76 mm",
+          "source_url": "https://www.bonazzi-srl.it/chi_siamo.htm",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Vastano Curvatura Tubi",
+      "domain": "vastanocurvaturatubi.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://www.vastanocurvaturatubi.it/chi-siamo.php",
+      "source_url": "https://www.vastanocurvaturatubi.it/chi-siamo.php",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "process",
+          "value": "Curvatura e calandratura tubi tondi e quadri in acciaio",
+          "source_url": "https://www.vastanocurvaturatubi.it/chi-siamo.php",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Curvatura Tubi Amarossi S.p.A.",
+      "domain": "amarossi.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://amarossi.it/",
+      "source_url": "https://amarossi.it/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "process",
+          "value": "Piegatura e calandratura di tubi e profili metallici",
+          "source_url": "https://amarossi.it/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Scrosati Arredamenti Metallici S.r.l.",
+      "domain": "scrosati.com",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://www.scrosati.com/it-taglio-laser.php",
+      "source_url": "https://www.scrosati.com/it-taglio-laser.php",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "dimension",
+          "value": "Laser tubo tondo da 12 a 152,4 mm e tubo quadro fino 150x150 mm",
+          "source_url": "https://www.scrosati.com/it-taglio-laser.php",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "CM Sagomatubi S.r.l.",
+      "domain": "cmsagomatubi.it",
+      "country": "IT",
+      "role": "processor_service_provider",
+      "identity_evidence_url": "https://www.cmsagomatubi.it/",
+      "source_url": "https://www.cmsagomatubi.it/",
+      "legal_identity_status": "pending_independent_review",
+      "source_rights": "pending_independent_review",
+      "role_review_status": "candidate_first_party",
+      "claims": [
+        {
+          "type": "process",
+          "value": "Curvatura e sagomatura tubi rigidi con servizi di taglio laser e saldatura",
+          "source_url": "https://www.cmsagomatubi.it/",
+          "status": "candidate_first_party"
+        }
+      ]
+    }
+  ],
+  "exclusions_from_count": [
+    {
+      "domain": "corimefcurvaturatubi.com",
+      "reason": "existing core target lead"
+    },
+    {
+      "domain": "cpmtubes.com",
+      "reason": "existing discovery candidates"
+    },
+    {
+      "domain": "officineparolin.it",
+      "reason": "existing discovery candidates and normalized name match"
+    },
+    {
+      "domain": "planlavorazionetubi.it",
+      "reason": "existing discovery candidates"
+    },
+    {
+      "domain": "mecart-piegatura-tubi.it",
+      "reason": "already canonical/discovery"
+    },
+    {
+      "domain": "cmgsrlcarpenteria.it",
+      "reason": "existing discovery and name collision"
+    }
+  ],
+  "known_legal_holds": [
+    {
+      "domain": "dematubi.it",
+      "reason": "Source lists DE.MA. DI BALDINI GIANCARLO, while separate dematubisrl.it lists DE.MA. SRL with different VAT; confirm legal entity and same-address business relationship before approval."
+    },
+    {
+      "domain": "amarossi.it",
+      "reason": "Official group/parent relationship disclosed; validate distinct corporate VAT, brand and standalone domain usage."
+    }
+  ]
+}
