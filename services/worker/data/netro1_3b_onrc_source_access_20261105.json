@@ -1,0 +1,56 @@
+{
+  "phase": "NET-RO1.3.B",
+  "recorded_date": "2026-11-05",
+  "country": "RO",
+  "mode": "research_only",
+  "target_dataset": "Firme înregistrate la Registrul Comerțului până la data de 19.10.2026",
+  "target_snapshot_date": "2026-10-19",
+  "publisher_expected": "Oficiul Național al Registrului Comerțului (ONRC)",
+  "catalog_observations": [
+    {
+      "source": "european_data_portal",
+      "url": "https://data.europa.eu/data/catalogues/data-gov-ro?locale=ro",
+      "status": "dataset_listing_observed",
+      "scope": "ONRC dataset dated 19.10.2026 listed; not file bytes"
+    },
+    {
+      "source": "official_ckan_site",
+      "url": "https://data.gov.ro/dataset?res_format=csv&organization=onrc",
+      "status": "retrieval_timeout",
+      "scope": "Direct authoritative dataset package page not retrieved"
+    },
+    {
+      "source": "official_ckan_api",
+      "url": "https://data.gov.ro/api/3/action/package_search?q=19.10.2026&rows=5",
+      "status": "proxy_error_and_unavailable",
+      "scope": "Exact package ID, resources and per-resource licence not obtained"
+    },
+    {
+      "source": "independent_source_index",
+      "url": "https://firmedb.ro/surse",
+      "status": "secondary_license_statement_only",
+      "scope": "Independent listing associates OD_FIRME and OD_STARE_FIRMA 2026-10-19 with declared CC-BY-4.0; not authoritative per-resource verification"
+    }
+  ],
+  "expected_private_local_files": [
+    "OD_FIRME.CSV",
+    "OD_STARE_FIRMA.CSV",
+    "original_onrc_ckan_package_show.json"
+  ],
+  "ckan_official_package_id": null,
+  "resource_urls": {
+    "OD_FIRME": null,
+    "OD_STARE_FIRMA": null
+  },
+  "specific_distribution_license_id": null,
+  "official_license_metadata_verified": false,
+  "official_csv_bytes_downloaded": false,
+  "raw_onrc_csv_rows_scanned": 0,
+  "corporate_registry_snapshot_matches": 0,
+  "live_onrc_company_verifications": 0,
+  "company_source_rights_approvals": 0,
+  "companies_import_ready": 0,
+  "ro_company_production_imports": 0,
+  "next_action": "Obtain publisher-owned package_show metadata and two original 2026-10-19 CSVs through authorised channel; run local streaming reconciliation; inspect all ambiguous CUI/name/status cases; separately review reuse rights and country-scoped identity before protected import.",
+  "note": "Do not infer file-level licence or legal eligibility from a catalog snippet or a secondary data-source directory. No company metadata, rights or status has been approved by this access check."
+}
