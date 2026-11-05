@@ -1,0 +1,466 @@
+{
+  "batch": "NET-GROWTH3C-IT-TRADERS-20261105-A",
+  "observed_date": "2026-11-05",
+  "records": [
+    {
+      "name": "Inox Team S.r.l.",
+      "domain": "inoxteam.it",
+      "evidence_url": "https://inoxteam.it/",
+      "summary": "Distribuisce tubi senza saldatura e semilavorati in acciaio inossidabile con raccordi e flange.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Sider Siderurgica Industriale Bresciana S.p.A.",
+      "domain": "siderbrescia.it",
+      "evidence_url": "https://siderbrescia.it/tubi-acciaio-lombardia/commercio-tubi-acciaio.php",
+      "summary": "Commercializza tubi in acciaio saldati e senza saldatura, anche con taglio a misura.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Inox Division S.r.l.",
+      "domain": "inoxdivision.com",
+      "evidence_url": "https://inoxdivision.com/tubolari/",
+      "summary": "Fornisce tubolari inox tondi, quadrati, rettangolari e senza saldatura.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Resteel S.r.l.",
+      "domain": "resteel.it",
+      "evidence_url": "https://resteel.it/",
+      "summary": "Distribuisce tubi saldati in acciaio decapato o laminato a freddo e altri prodotti siderurgici.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Crisbar Tecnologie e Servizi S.r.l.",
+      "domain": "crisbar.it",
+      "evidence_url": "https://crisbar.it/prodotti/tubi-pali-micropali.html",
+      "summary": "Fornisce tubi e prodotti siderurgici destinati a pali, micropali e fondazioni.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "AMT S.r.l.",
+      "domain": "amtsrl.it",
+      "evidence_url": "https://amtsrl.it/",
+      "summary": "Propone tubi in acciaio saldati, trafilati, senza saldatura e componentistica tecnica.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Tubi Acciai S.r.l.",
+      "domain": "tubiacciai.com",
+      "evidence_url": "https://tubiacciai.com/",
+      "summary": "Commercia tubi e prodotti siderurgici per impieghi industriali con servizi di taglio.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "M.A. Centro Inossidabili S.p.A.",
+      "domain": "macentroinossidabili.it",
+      "evidence_url": "https://macentroinossidabili.it/azienda/",
+      "summary": "Distribuisce semilavorati e tubi in acciaio inossidabile; soggetto distinto nel gruppo Vender.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Castellan Maria & C. S.p.A.",
+      "domain": "castellanmariaspa.it",
+      "evidence_url": "https://castellanmariaspa.it/",
+      "summary": "Commercia prodotti siderurgici e tubi di acciaio per pressione, meccanica e impiantistica.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Socfeder S.p.A.",
+      "domain": "socfeder.it",
+      "evidence_url": "https://socfeder.it/tondi-tondini-piatti-tubi-meccanici/",
+      "summary": "Commercia prodotti siderurgici e tubi meccanici destinati a lavorazioni industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "F.lli Molteni S.p.A.",
+      "domain": "moltenifratelli.it",
+      "evidence_url": "https://moltenifratelli.it/attivita/",
+      "summary": "Commercia prodotti siderurgici e stocca tubolari, lamiere e trafilati per aziende industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Profiltubi S.r.l. Roma",
+      "domain": "profiltubi.com",
+      "evidence_url": "https://profiltubi.com/chi-siamo/",
+      "summary": "Distribuisce tubi e prodotti siderurgici per costruzioni e industria; distinta dall'omonimo produttore reggiano.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Rigel S.r.l.",
+      "domain": "rigelsrl.com",
+      "evidence_url": "https://rigelsrl.com/",
+      "summary": "Fornisce prodotti siderurgici e tubolari in acciaio per carpenterie e lavorazioni.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "A.T.I. Acciaio S.r.l.",
+      "domain": "atisrlacciaio.it",
+      "evidence_url": "https://atisrlacciaio.it/",
+      "summary": "Commercia tubi in acciaio inox saldati e senza saldatura e semilavorati siderurgici.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Sideralpi S.r.l.",
+      "domain": "sideralpi.it",
+      "evidence_url": "https://sideralpi.it/lazienda",
+      "summary": "Distribuisce prodotti siderurgici e tubolari in acciaio per la carpenteria.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Punto Inox Service S.r.l.",
+      "domain": "puntoinox.it",
+      "evidence_url": "https://puntoinox.it/chi-siamo/",
+      "summary": "Distribuisce all'ingrosso semilavorati in acciaio inox inclusi tubi e barre forate.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "CIL Centro Inox Lombardo",
+      "domain": "cil-inox.com",
+      "evidence_url": "https://cil-inox.com/",
+      "summary": "Commercia tubi e prodotti in acciaio inossidabile destinati a impieghi industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Vanoli Ferro S.p.A.",
+      "domain": "vanoliferro.it",
+      "evidence_url": "https://vanoliferro.it/chi-siamo.php",
+      "summary": "Commercia prodotti siderurgici con disponibilita di tubi e profilati in acciaio.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Carminati Tubi e Acciai S.r.l.",
+      "domain": "carminatitubieacciai.it",
+      "evidence_url": "https://carminatitubieacciai.it/",
+      "summary": "Distribuisce tubi di acciaio e prodotti siderurgici a magazzino per imprese.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Sidertubi S.r.l. Parma",
+      "domain": "sidertubiparma.com",
+      "evidence_url": "https://sidertubiparma.com/",
+      "summary": "Distribuisce tubi e tubolari in acciaio per applicazioni strutturali e meccaniche.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Fratubi S.r.l.",
+      "domain": "fratubi.it",
+      "evidence_url": "https://fratubi.it/azienda/",
+      "summary": "Commercia tubazioni e prodotti siderurgici a imprese industriali nel territorio marchigiano.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Cofert",
+      "domain": "cofert.it",
+      "evidence_url": "https://cofert.it/",
+      "summary": "Fornisce tubi e prodotti siderurgici a magazzino per uso professionale e industriale.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Siderpighi S.p.A.",
+      "domain": "siderpighi.it",
+      "evidence_url": "https://siderpighi.it/",
+      "summary": "Commercia e distribuisce tubi e altri prodotti siderurgici con servizio di magazzino.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Sidercorti S.r.l.",
+      "domain": "sidercorti.it",
+      "evidence_url": "https://sidercorti.it/home.html",
+      "summary": "Commercia tubi saldati a freddo e tubi trafilati di precisione per applicazioni meccaniche.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Elvinox",
+      "domain": "elvinox.it",
+      "evidence_url": "https://elvinox.it/",
+      "summary": "Distribuisce prodotti inox compresi tubi senza saldatura, tubi meccanici e tubolari saldati.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Spagna Tubi e Acciai S.r.l.",
+      "domain": "spagnatubiparma.it",
+      "evidence_url": "https://spagnatubiparma.it/chisiamo.php",
+      "summary": "Commercia tubi in acciaio e prodotti siderurgici con disponibilita a magazzino.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Rinaldi Siderurgica",
+      "domain": "rinaldisiderurgica.it",
+      "evidence_url": "https://rinaldisiderurgica.it/",
+      "summary": "Fornisce prodotti siderurgici e tubolari in acciaio per strutture e meccanica.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Gabrielli S.p.A.",
+      "domain": "gabrielli.it",
+      "evidence_url": "https://gabrielli.it/storia/",
+      "summary": "Commercia e distribuisce prodotti siderurgici e tubolari in acciaio per aziende.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "CSB Commerciale Siderurgica Bresciana S.p.A.",
+      "domain": "gruppocsb.com",
+      "evidence_url": "https://gruppocsb.com/it/gruppo-csb",
+      "summary": "Societa commerciale del gruppo CSB con stock di tubi, profili e altri siderurgici.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Sicom S.a.s.",
+      "domain": "sicomsas.it",
+      "evidence_url": "https://sicomsas.it/",
+      "summary": "Commercia tubi e prodotti siderurgici destinati al mercato industriale.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "VE.MA.PLA. S.r.l.",
+      "domain": "vemapla.it",
+      "evidence_url": "https://vemapla.it/categoria-prodotto/tubi/",
+      "summary": "Fornisce tubi e componenti per impiantistica, comprese tubazioni in acciaio.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Siderimport 3 S.r.l.",
+      "domain": "siderimport3.it",
+      "evidence_url": "https://siderimport3.it/",
+      "summary": "Commercializza prodotti siderurgici e tubi in acciaio nel settore industriale.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Ispra S.r.l. Viareggio",
+      "domain": "ispraviareggio.it",
+      "evidence_url": "https://ispraviareggio.it/",
+      "summary": "Commercia e distribuisce prodotti siderurgici e tubi in acciaio.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Bertolini Siderurgica S.r.l.",
+      "domain": "bertolinisiderurgica.it",
+      "evidence_url": "https://bertolinisiderurgica.it/",
+      "summary": "Commercia prodotti siderurgici e tubolari nel gruppo Bertolini, con identita societaria distinta.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Acciaioservice S.r.l.",
+      "domain": "acciaioservice.it",
+      "evidence_url": "https://acciaioservice.it/",
+      "summary": "Distribuisce prodotti siderurgici e tubolari per imprese industriali e carpenterie.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Sud Ferro S.r.l.",
+      "domain": "sudferro.net",
+      "evidence_url": "https://sudferro.net/",
+      "summary": "Commercia prodotti siderurgici e tubi per settori industriali e delle costruzioni.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Sardelli Lorenzo S.r.l.",
+      "domain": "sardelli1871.it",
+      "evidence_url": "https://sardelli1871.it/it/index.html",
+      "summary": "Commercia prodotti siderurgici e tubi d'acciaio per uso industriale e strutturale.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Rizza S.n.c.",
+      "domain": "rizzasnc.it",
+      "evidence_url": "https://rizzasnc.it/chi-siamo/",
+      "summary": "Opera nell'intermediazione e commercio di tubi e prodotti siderurgici.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "R.M. Fittings",
+      "domain": "rmfittings.it",
+      "evidence_url": "https://rmfittings.it/",
+      "summary": "Distribuisce tubi tondi, quadri e sagomati in acciaio e componenti per impianti industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Ciarcia S.n.c.",
+      "domain": "ciarciasnc.com",
+      "evidence_url": "https://ciarciasnc.com/",
+      "summary": "Commercializza prodotti siderurgici e tubolari in acciaio per carpenteria.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Comtubi S.p.A.",
+      "domain": "comtubi.it",
+      "evidence_url": "https://comtubi.it/chi-siamo/",
+      "summary": "Distribuisce prodotti siderurgici e tubi in acciaio, offrendo magazzino e taglio a misura.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "InterSteel S.r.l.",
+      "domain": "intersteel.it",
+      "evidence_url": "https://intersteel.it/",
+      "summary": "Distribuisce tubi inox tondi, quadri, rettangolari e senza saldatura.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Co.Metal S.r.l.",
+      "domain": "cometalsrl.it",
+      "evidence_url": "https://cometalsrl.it/prodotti/scheda-prodotto/tubi-tondi-senza-saldatura-in-acciaio-inossidabile",
+      "summary": "Commercia metalli e tubi inox senza saldatura, offrendo lavorazioni su misura e forniture industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "FAD International S.p.A.",
+      "domain": "fadint.it",
+      "evidence_url": "https://fadint.it/azienda/",
+      "summary": "Fornisce tubi in acciaio al carbonio e inox per impianti, affiancando produzione di raccordi.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "AGM Energy S.r.l.",
+      "domain": "agmenergy.com",
+      "evidence_url": "https://agmenergy.com/contatti/?lang=it",
+      "summary": "Opera come trader di prodotti piping in acciaio e leghe speciali per progetti industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Novati Commerciale Sarda S.r.l.",
+      "domain": "novatisarda.it",
+      "evidence_url": "https://novatisarda.it/index.php/chi-siamo",
+      "summary": "Commercia prodotti siderurgici e semilavorati inox dal proprio magazzino in Sardegna.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Inoxea S.r.l.",
+      "domain": "inoxea.it",
+      "evidence_url": "https://inoxea.it/commercio-inox/",
+      "summary": "Commercializza tubi inox saldati e senza saldatura e fornisce servizi di taglio.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Gruppo Gesa S.r.l.",
+      "domain": "gruppogesa.it",
+      "evidence_url": "https://gruppogesa.it/forniture-impiantistiche/",
+      "summary": "Distribuisce tubi carbonio e inox saldati e senza saldatura, fittings e valvole industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "Comfer",
+      "domain": "comfer.it",
+      "evidence_url": "https://comfer.it/",
+      "summary": "Commercia prodotti siderurgici e tubi in acciaio destinati a clienti industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    },
+    {
+      "name": "FTL Rossi S.r.l.",
+      "domain": "ftlrossi.it",
+      "evidence_url": "https://ftlrossi.it/",
+      "summary": "Commercia prodotti siderurgici e tubi in acciaio per imprese.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor"
+    }
+  ],
+  "review_hold_domains": [
+    "cil-inox.com",
+    "ispraviareggio.it",
+    "sudferro.net",
+    "rizzasnc.it",
+    "comfer.it",
+    "ftlrossi.it",
+    "siderimport3.it",
+    "sicomsas.it"
+  ]
+}
