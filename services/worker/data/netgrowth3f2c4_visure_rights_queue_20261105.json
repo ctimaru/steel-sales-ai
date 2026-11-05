@@ -1,0 +1,5300 @@
+{
+  "phase": "NET-GROWTH3.F.2C.4",
+  "as_of": "2026-11-05",
+  "mode": "official_document_request_and_rights_decision_queue",
+  "import_authorized": false,
+  "rpc_rollback_executed": false,
+  "commit_authorized": false,
+  "official_visure_acquired": 0,
+  "policy": {
+    "gleif": {
+      "url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+      "license": "CC0 1.0",
+      "scope": "GLEIF LEI reference data only. Does not authorize use of companies' website creative content."
+    },
+    "registry": {
+      "url": "https://registroimprese.infocamere.it/area-utente",
+      "purchasable_current_legal_document": "visura ordinaria/official current company extract",
+      "access_may_require_account": true,
+      "license_to_republish_entire_document_not_assumed": true
+    },
+    "website": {
+      "scope": "original minimal factual company name/domain/industry type and specific source URLs, with rights counsel assessment; no copied text/photos/logos/catalogs",
+      "approval_status": "pending_legal_reviewer"
+    },
+    "privacy": {
+      "url": "https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/application-gdpr_en",
+      "scope": "No person-level contact enrichment. Assess when trade name might refer to natural person."
+    }
+  },
+  "counts": {
+    "total_reviewed": 52,
+    "non_excluded_research": 50,
+    "quarantined_brands": 2,
+    "gleif_corrob_vat": 13,
+    "vat_firstparty_only": 14,
+    "missing_vat": 23,
+    "technical_claims_total": 67,
+    "technical_claims_active": 65,
+    "acquired_official_visure": 0,
+    "legal_approved": 0,
+    "rights_approved": 0,
+    "role_approved": 0,
+    "technical_approved": 0,
+    "import_ready": 0
+  },
+  "baseline": {
+    "canonical_published": 278,
+    "provisional": 408,
+    "netgrowth3f_new_import": 0
+  },
+  "guardrails": {
+    "always_keep_supplier_verified_false_until_claim_by_company": true,
+    "always_keep_stock_unknown": true,
+    "no_unrequested_contact_or_user_account": true,
+    "do_not_use_company_site_image_or_long_copy": true,
+    "do_not_treat_issued_lei_as_visura": true,
+    "do_not_run_rpc_before_50_approved_and_protected_ci": true
+  },
+  "records": [
+    {
+      "domain": "euroflexspa.it",
+      "company_name_candidate": "Euroflex S.p.A.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "00170350656",
+        "company_vat_url": "https://www.euroflexspa.it/it/qualita-e-certificazioni/",
+        "gleif_lei": "815600C9FF9D7056F675",
+        "gleif_name": "EUROFLEX - S.P.A.",
+        "gleif_registered_vat": "00170350656",
+        "gleif_registration_status": "ISSUED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/815600C9FF9D7056F675"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.euroflexspa.it/it/qualita-e-certificazioni/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "euroflexspa.it#01",
+          "type": "product",
+          "statement": "welded round, square and rectangular steel tubes",
+          "original_url": "https://www.euroflexspa.it/it/tubolari/",
+          "review_url": "https://www.euroflexspa.it/it/tubolari/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "euroflexspa.it#02",
+          "type": "standard",
+          "statement": "EN 10219",
+          "original_url": "https://www.euroflexspa.it/it/tubolari/",
+          "review_url": "https://www.euroflexspa.it/it/qualita-e-certificazioni/",
+          "evidence_note": "Certifications/standards context, not a blanket claim of every EN10219 grade and dimension",
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "dematubi.it",
+      "company_name_candidate": "De.Ma.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "01248890426",
+        "company_vat_url": "https://www.dematubi.it/it/contatti",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.dematubi.it/it/caratteristiche-produttive",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "dematubi.it#01",
+          "type": "product",
+          "statement": "electrowelded stainless steel tubes",
+          "original_url": "https://www.dematubi.it/it/caratteristiche-produttive",
+          "review_url": "https://www.dematubi.it/it/caratteristiche-produttive",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "dematubi.it#02",
+          "type": "process",
+          "statement": "TIG longitudinal welding",
+          "original_url": "https://www.dematubi.it/it/caratteristiche-produttive",
+          "review_url": "https://www.dematubi.it/it/caratteristiche-produttive",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "dematubi.it#03",
+          "type": "standard",
+          "statement": "EN 10217-7 TC1",
+          "original_url": "https://www.dematubi.it/it/caratteristiche-produttive",
+          "review_url": "https://www.dematubi.it/it/caratteristiche-produttive",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "sideralba.it",
+      "company_name_candidate": "Sideralba S.p.A.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "02731591216",
+        "company_vat_url": "https://www.sideralba.it/informazioni-legali/",
+        "gleif_lei": "815600EBAFC9A1873C97",
+        "gleif_name": "SIDERALBA S.P.A",
+        "gleif_registered_vat": "02731591216",
+        "gleif_registration_status": "ISSUED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/815600EBAFC9A1873C97"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.sideralba.it/sedi/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "sideralba.it#01",
+          "type": "product",
+          "statement": "welded round, square, rectangular and oval steel tubes",
+          "original_url": "https://www.sideralba.it/sedi/",
+          "review_url": "https://www.sideralba.it/sedi/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "sideralba.it#02",
+          "type": "process",
+          "statement": "electric welding of tubes",
+          "original_url": "https://www.sideralba.it/sedi/",
+          "review_url": "https://www.sideralba.it/sedi/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "omvventura.it",
+      "company_name_candidate": "OMV Officine Metallurgiche Ventura S.p.A.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "00692480965",
+        "company_vat_url": "https://www.omvventura.it/contatti.php",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.omvventura.it/prodotti.php",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "omvventura.it#01",
+          "type": "product",
+          "statement": "precision steel tubes in round, square and rectangular sections",
+          "original_url": "https://www.omvventura.it/prodotti.php",
+          "review_url": "https://www.omvventura.it/prodotti.php",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "omvventura.it#02",
+          "type": "standard",
+          "statement": "EN 10305-3",
+          "original_url": "https://www.omvventura.it/prodotti.php",
+          "review_url": "https://www.omvventura.it/prodotti.php",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "omvventura.it#03",
+          "type": "standard",
+          "statement": "EN 10305-5",
+          "original_url": "https://www.omvventura.it/prodotti.php",
+          "review_url": "https://www.omvventura.it/prodotti.php",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "omvventura.it#04",
+          "type": "dimension",
+          "statement": "outside dimension 10–89 mm; wall thickness 0.6–3.5 mm",
+          "original_url": "https://www.omvventura.it/prodotti.php",
+          "review_url": "https://www.omvventura.it/prodotti.php",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "kgttubi.com",
+      "company_name_candidate": "KGT Tubi S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "01442910558",
+        "company_vat_url": "https://www.kgttubi.com/",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.kgttubi.com/chi-siamo/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "kgttubi.com#01",
+          "type": "product",
+          "statement": "laser-welded tubes for automotive applications",
+          "original_url": "https://www.kgttubi.com/chi-siamo/",
+          "review_url": "https://www.kgttubi.com/chi-siamo/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "kgttubi.com#02",
+          "type": "process",
+          "statement": "laser tube welding",
+          "original_url": "https://www.kgttubi.com/chi-siamo/",
+          "review_url": "https://www.kgttubi.com/chi-siamo/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "comitindustry.it",
+      "company_name_candidate": "Comit Industry S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.comitindustry.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "comitindustry.it#01",
+          "type": "process",
+          "statement": "CNC tube bending",
+          "original_url": "https://www.comitindustry.it/",
+          "review_url": "https://www.comitindustry.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "comitindustry.it#02",
+          "type": "dimension",
+          "statement": "tube bending up to 42 mm diameter",
+          "original_url": "https://www.comitindustry.it/",
+          "review_url": "https://www.comitindustry.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "comitindustry.it#03",
+          "type": "process",
+          "statement": "MIG/TIG welding",
+          "original_url": "https://www.comitindustry.it/",
+          "review_url": "https://www.comitindustry.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "curvaturatubolari.it",
+      "company_name_candidate": "Carema S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "01785790161",
+        "company_vat_url": "https://www.curvaturatubolari.it/privacy-policy-2/",
+        "gleif_lei": "81560083F0083C572C82",
+        "gleif_name": "CAREMA S.R.L.",
+        "gleif_registered_vat": "01785790161",
+        "gleif_registration_status": "LAPSED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/81560083F0083C572C82"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.curvaturatubolari.it/curvatura/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "curvaturatubolari.it#01",
+          "type": "process",
+          "statement": "tube bending and cold rolling",
+          "original_url": "https://www.curvaturatubolari.it/curvatura/",
+          "review_url": "https://www.curvaturatubolari.it/curvatura/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "curvaturatubolari.it#02",
+          "type": "dimension",
+          "statement": "tube diameters 8–60 mm",
+          "original_url": "https://www.curvaturatubolari.it/curvatura/",
+          "review_url": "https://www.curvaturatubolari.it/curvatura/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "curvaturatubolari.it#03",
+          "type": "material",
+          "statement": "steel and stainless steel",
+          "original_url": "https://www.curvaturatubolari.it/curvatura/",
+          "review_url": "https://www.curvaturatubolari.it/curvatura/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "lasar.it",
+      "company_name_candidate": "Lasar S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "03315100267",
+        "company_vat_url": "https://lasar.it/contatti",
+        "gleif_lei": "81560013E13BC6EAA950",
+        "gleif_name": "LASAR S.R.L.",
+        "gleif_registered_vat": "03315100267",
+        "gleif_registration_status": "LAPSED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/81560013E13BC6EAA950"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://lasar.it/lavorazioni",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "lasar.it#01",
+          "type": "process",
+          "statement": "3D fiber laser cutting of tubes and profiles",
+          "original_url": "https://lasar.it/lavorazioni",
+          "review_url": "https://lasar.it/lavorazioni",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "lasar.it#02",
+          "type": "dimension",
+          "statement": "laser tube cutting diameter 12–240 mm",
+          "original_url": "https://lasar.it/lavorazioni",
+          "review_url": "https://lasar.it/lavorazioni",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "lasar.it#03",
+          "type": "process",
+          "statement": "CNC tube bending",
+          "original_url": "https://lasar.it/lavorazioni",
+          "review_url": "https://lasar.it/lavorazioni",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "tamec.it",
+      "company_name_candidate": "Ta-Mec S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.tamec.it/lavorazione-conto-terzi/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "tamec.it#01",
+          "type": "process",
+          "statement": "cold tube bending for third parties",
+          "original_url": "https://www.tamec.it/lavorazione-conto-terzi/",
+          "review_url": "https://www.tamec.it/lavorazione-conto-terzi/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        },
+        {
+          "claim_id": "tamec.it#02",
+          "type": "dimension",
+          "statement": "tube bending diameter 4–45 mm",
+          "original_url": "https://www.tamec.it/lavorazione-conto-terzi/",
+          "review_url": "https://www.tamec.it/lavorazione-conto-terzi/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "meccanicaorlandini.it",
+      "company_name_candidate": "Meccanica Orlandini S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://meccanicaorlandini.it/index.php/it/lavorazioni-conto-terzi/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "meccanicaorlandini.it#01",
+          "type": "process",
+          "statement": "tube cutting, drilling, punching, welding and bending",
+          "original_url": "https://meccanicaorlandini.it/index.php/it/lavorazioni-conto-terzi/",
+          "review_url": "https://meccanicaorlandini.it/index.php/it/lavorazioni-conto-terzi/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "alpilaser.it",
+      "company_name_candidate": "AL.PI. Taglio Laser",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.alpilaser.it/azienda-taglio-laser-tubi-laser-lamiera/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "alpilaser.it#01",
+          "type": "process",
+          "statement": "taglio laser tubolari conto terzi",
+          "original_url": "https://www.alpilaser.it/azienda-taglio-laser-tubi-laser-lamiera/",
+          "review_url": "https://www.alpilaser.it/azienda-taglio-laser-tubi-laser-lamiera/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "nanniottavio.it",
+      "company_name_candidate": "Nanni Ottavio",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "02014650408",
+        "company_vat_url": "https://www.nanniottavio.it/contatti/",
+        "gleif_lei": "8156001F557935C85923",
+        "gleif_name": "NANNI OTTAVIO S.R.L.",
+        "gleif_registered_vat": "02014650408",
+        "gleif_registration_status": "LAPSED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/8156001F557935C85923"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.nanniottavio.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "nanniottavio.it#01",
+          "type": "process",
+          "statement": "taglio laser tubi",
+          "original_url": "https://www.nanniottavio.it/?lang=en",
+          "review_url": "https://www.nanniottavio.it/?lang=en",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "teknolaser.it",
+      "company_name_candidate": "Andrea Balboni S.r.l. (Teknolaser)",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "01908860388",
+        "company_vat_url": "https://teknolaser.it/contatti/",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://teknolaser.it/en/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "teknolaser.it#01",
+          "type": "dimension",
+          "statement": "diametro massimo tubo dichiarato 254 mm",
+          "original_url": "https://teknolaser.it/en/",
+          "review_url": "https://teknolaser.it/laser-tubo/",
+          "evidence_note": "Reported capability 15-254 mm for one machine, no guarantee of section 100x100x6 or material compatibility",
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "mondeovalves.com",
+      "company_name_candidate": "Mondeo",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "01813340245",
+        "company_vat_url": "https://www.mondeovalves.com/it/contatti/",
+        "gleif_lei": "894500K5TQTBBJ21YU26",
+        "gleif_name": "MONDEO SRL",
+        "gleif_registered_vat": "01813340245",
+        "gleif_registration_status": "ISSUED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/894500K5TQTBBJ21YU26"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.mondeovalves.com/it/servizi-taglio-laser/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "mondeovalves.com#01",
+          "type": "process",
+          "statement": "taglio laser e foratura tubi inox conto terzi",
+          "original_url": "https://www.mondeovalves.com/it/servizi-taglio-laser/",
+          "review_url": "https://www.mondeovalves.com/it/servizi-taglio-laser/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "fllibellani.com",
+      "company_name_candidate": "F.lli Bellani",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.fllibellani.com/taglio-laser",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "fllibellani.com#01",
+          "type": "process",
+          "statement": "taglio laser di lamiere e tubi conto terzi",
+          "original_url": "https://www.fllibellani.com/taglio-laser",
+          "review_url": "https://www.fllibellani.com/taglio-laser",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "carpentecnica.it",
+      "company_name_candidate": "Carpentecnica",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.carpentecnica.it/servizio/taglio-laser-tubo/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "carpentecnica.it#01",
+          "type": "process",
+          "statement": "taglio laser tubo conto terzi",
+          "original_url": "https://www.carpentecnica.it/servizio/taglio-laser-tubo/",
+          "review_url": "https://www.carpentecnica.it/servizio/taglio-laser-tubo/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "officineforesto.com",
+      "company_name_candidate": "Officine Foresto",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "01481090932",
+        "company_vat_url": "https://www.officineforesto.com/",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.officineforesto.com/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "officineforesto.com#01",
+          "type": "process",
+          "statement": "taglio laser tubo e saldatura",
+          "original_url": "https://www.officineforesto.com/",
+          "review_url": "https://www.officineforesto.com/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "metalmaster.it",
+      "company_name_candidate": "Metal Master S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "03091460174",
+        "company_vat_url": "https://www.metalmaster.it/",
+        "gleif_lei": "815600A86C6D65B65A77",
+        "gleif_name": "METAL MASTER S.R.L.",
+        "gleif_registered_vat": "03091460174",
+        "gleif_registration_status": "ISSUED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/815600A86C6D65B65A77"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.metalmaster.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "metalmaster.it#01",
+          "type": "process",
+          "statement": "taglio laser tubo e curvatubi",
+          "original_url": "https://www.metalmaster.it/",
+          "review_url": "https://www.metalmaster.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "lamodernadimerlo.com",
+      "company_name_candidate": "La Moderna di Merlo",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://lamodernadimerlo.com/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "lamodernadimerlo.com#01",
+          "type": "process",
+          "statement": "taglio laser e curvatura tubi",
+          "original_url": "https://lamodernadimerlo.com/",
+          "review_url": "https://lamodernadimerlo.com/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "cepisnc.it",
+      "company_name_candidate": "CE.PI. Exemplar S.n.c.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.cepisnc.it/altreinfo/lavorazione-acciaio-inox/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "cepisnc.it#01",
+          "type": "process",
+          "statement": "foratura, taglio e saldatura tubolari inox",
+          "original_url": "https://www.cepisnc.it/altreinfo/lavorazione-acciaio-inox/",
+          "review_url": "https://www.cepisnc.it/altreinfo/lavorazione-acciaio-inox/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "metacom.it",
+      "company_name_candidate": "Metacom / Arsenale S.a.s.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.metacom.it/lavorazioni/taglio-laser/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "metacom.it#01",
+          "type": "dimension",
+          "statement": "tubi diametro 12-220 mm",
+          "original_url": "https://www.metacom.it/lavorazioni/taglio-laser/",
+          "review_url": "https://www.metacom.it/lavorazioni/taglio-laser/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "someca.org",
+      "company_name_candidate": "Someca S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "00975720962",
+        "company_vat_url": "https://www.someca.org/lasertubo/",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.someca.org/lasertubo/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "someca.org#01",
+          "type": "process",
+          "statement": "taglio laser su tubi e sezioni speciali",
+          "original_url": "https://www.someca.org/lasertubo/",
+          "review_url": "https://www.someca.org/lasertubo/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "fapisrl.com",
+      "company_name_candidate": "FA.PI. S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "00141970434",
+        "company_vat_url": "https://www.fapisrl.com/chi-siamo/",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.fapisrl.com/chi-siamo/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "fapisrl.com#01",
+          "type": "process",
+          "statement": "taglio laser tubi e profilati",
+          "original_url": "https://www.fapisrl.com/",
+          "review_url": "https://www.fapisrl.com/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "cma-costruzionimeccaniche.it",
+      "company_name_candidate": "CMA Costruzioni Meccaniche",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://cma-costruzionimeccaniche.it/lavorazioni-meccaniche-conto-terzi/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "cma-costruzionimeccaniche.it#01",
+          "type": "process",
+          "statement": "laser tubo fibra su profilati",
+          "original_url": "https://cma-costruzionimeccaniche.it/lavorazioni-meccaniche-conto-terzi/",
+          "review_url": "https://cma-costruzionimeccaniche.it/lavorazioni-meccaniche-conto-terzi/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "scsrl-tagliolaser.com",
+      "company_name_candidate": "SC S.r.l. (Soncini Caraffi)",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.scsrl-tagliolaser.com/taglio-laser-tubo-reggio-emilia-parma/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "scsrl-tagliolaser.com#01",
+          "type": "process",
+          "statement": "taglio laser tubi conto terzi",
+          "original_url": "https://www.scsrl-tagliolaser.com/taglio-laser-tubo-reggio-emilia-parma/",
+          "review_url": "https://www.scsrl-tagliolaser.com/taglio-laser-tubo-reggio-emilia-parma/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "cashmetal.com",
+      "company_name_candidate": "Cash Metal",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "02287871202",
+        "company_vat_url": "https://www.cashmetal.com/contatti/",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.cashmetal.com/lavorazioni/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "cashmetal.com#01",
+          "type": "process",
+          "statement": "taglio laser e saldatura su tubi e lamiere",
+          "original_url": "https://www.cashmetal.com/lavorazioni/",
+          "review_url": "https://www.cashmetal.com/lavorazioni/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "sgmsrl.com",
+      "company_name_candidate": "SGM S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.sgmsrl.com/contatti.php",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "sgmsrl.com#01",
+          "type": "process",
+          "statement": "taglio laser e curvatura di tubo",
+          "original_url": "https://www.sgmsrl.com/contatti.php",
+          "review_url": "https://www.sgmsrl.com/lavorazioni.html",
+          "evidence_note": "Company service, not proof of structural grade/dimensional RFQ suitability",
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "fabbroferro.it",
+      "company_name_candidate": "FabbroFerro",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://fabbroferro.it/produzione/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "fabbroferro.it#01",
+          "type": "process",
+          "statement": "calandratura e piegatura tubi acciaio",
+          "original_url": "https://fabbroferro.it/produzione/",
+          "review_url": "https://fabbroferro.it/produzione/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "lasermec.it",
+      "company_name_candidate": "LASERMEC",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "QUARANTINE",
+      "quarantined": true,
+      "quarantine_reason": "Lasermec is a commercial brand owned by Dumont S.r.l., not standalone legal company record. Legal name and independent current registration still to verify.",
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": false,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://lasermec.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "lasermec.it#01",
+          "type": "product",
+          "statement": "tubi circolari saldati",
+          "original_url": "https://lasermec.it/",
+          "review_url": "https://lasermec.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "tubi-tis.it",
+      "company_name_candidate": "TIS S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "02378390138",
+        "company_vat_url": "https://www.tubi-tis.it/it/",
+        "gleif_lei": "815600326CEFAA70DD71",
+        "gleif_name": "TIS S.R.L.",
+        "gleif_registered_vat": "02378390138",
+        "gleif_registration_status": "ISSUED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/815600326CEFAA70DD71"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.tubi-tis.it/it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "tubi-tis.it#01",
+          "type": "product",
+          "statement": "tubi saldati in acciaio inox",
+          "original_url": "https://www.tubi-tis.it/it/",
+          "review_url": "https://www.tubi-tis.it/it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "prometalsrl.net",
+      "company_name_candidate": "Prometal S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.prometalsrl.net/taglio-laser-tubi-e-tubolari/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "prometalsrl.net#01",
+          "type": "process",
+          "statement": "taglio laser tubi e tubolari metallici",
+          "original_url": "https://www.prometalsrl.net/taglio-laser-tubi-e-tubolari/",
+          "review_url": "https://www.prometalsrl.net/taglio-laser-tubi-e-tubolari/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "tcbtubi.it",
+      "company_name_candidate": "Tecnotubi",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "QUARANTINE",
+      "quarantined": true,
+      "quarantine_reason": "Brand/factory site footer has Amenduni Tubi Acciaio S.r.l. VAT 06651880962, matching existing Alessio Tubi discovery rows; no distinct operator registration verified.",
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": false,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://tcbtubi.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "tcbtubi.it#01",
+          "type": "product",
+          "statement": "Tubi saldati in acciaio per applicazioni industriali, fra cui EN 10219",
+          "original_url": "https://tcbtubi.it/",
+          "review_url": "https://tcbtubi.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "ocsaspa.com",
+      "company_name_candidate": "OCSA S.p.A.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.ocsaspa.com/en/tubes/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "ocsaspa.com#01",
+          "type": "dimension",
+          "statement": "Tubi saldati di precisione con diametri dichiarati da 9,5 a 76 mm e spessori da 0,5 a 3 mm",
+          "original_url": "https://www.ocsaspa.com/en/",
+          "review_url": "https://www.ocsaspa.com/en/tubes/",
+          "evidence_note": "EN10305-3/5 and thickness/dimension range differs by feedstock type, do not pool indiscriminately",
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "cctinox.it",
+      "company_name_candidate": "CCT Inox S.p.A.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "13022780152",
+        "company_vat_url": "https://www.cctinox.it/it/privacy/",
+        "gleif_lei": "8156005738141F24A621",
+        "gleif_name": "CCT INOX SPA",
+        "gleif_registered_vat": "13022780152",
+        "gleif_registration_status": "ISSUED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/8156005738141F24A621"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.cctinox.it/en/azienda/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "cctinox.it#01",
+          "type": "product",
+          "statement": "Tubi inox di piccolo diametro elettrosaldati con tecnologia TIG",
+          "original_url": "https://www.cctinox.it/it/azienda/",
+          "review_url": "https://www.cctinox.it/it/azienda/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "tubifaber.it",
+      "company_name_candidate": "Tubifaber S.p.A.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "04246810263",
+        "company_vat_url": "https://www.tubifaber.it/produzione/",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.tubifaber.it/produzione/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "tubifaber.it#01",
+          "type": "product",
+          "statement": "Produzione di tubi in acciaio al carbonio elettrosaldati",
+          "original_url": "https://www.tubifaber.it/produzione/",
+          "review_url": "https://www.tubifaber.it/produzione/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "sidergamma.it",
+      "company_name_candidate": "Sidergamma S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "01607420245",
+        "company_vat_url": "https://www.sidergamma.it/contacts/?lang=it",
+        "gleif_lei": "8156003451DE48B4FE69",
+        "gleif_name": "SIDERGAMMA S.R.L.",
+        "gleif_registered_vat": "01607420245",
+        "gleif_registration_status": "ISSUED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/8156003451DE48B4FE69"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.sidergamma.it/prodotti/?lang=it",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "sidergamma.it#01",
+          "type": "process",
+          "statement": "Rettifica e cromatura esterna di tubi trafilati a freddo",
+          "original_url": "https://www.sidergamma.it/prodotti/?lang=it",
+          "review_url": "https://www.sidergamma.it/prodotti/?lang=it",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "bendinox.it",
+      "company_name_candidate": "Bendinox Europa S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "12983460150",
+        "company_vat_url": "https://www.bendinox.it/contatti/",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.bendinox.it/lavorazioni/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "bendinox.it#01",
+          "type": "dimension",
+          "statement": "Curvatura tubi metallici diametri dichiarati da 5 a 60 mm",
+          "original_url": "https://www.bendinox.it/lavorazioni/",
+          "review_url": "https://www.bendinox.it/lavorazioni/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "envasald.com",
+      "company_name_candidate": "Envasald S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.envasald.com/azienda/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "envasald.com#01",
+          "type": "product",
+          "statement": "Produzione di raccordi inox da tubo AISI 304L e AISI 316L",
+          "original_url": "https://www.envasald.com/azienda/",
+          "review_url": "https://www.envasald.com/azienda/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "emmeerreinox.it",
+      "company_name_candidate": "Emme Erre Inox S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "08725690963",
+        "company_vat_url": "https://emmeerreinox.it/it/content/12-contatti",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://emmeerreinox.it/it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "emmeerreinox.it#01",
+          "type": "product",
+          "statement": "Produzione di raccordi a saldare in acciaio inossidabile",
+          "original_url": "https://emmeerreinox.it/it/content/4-azienda",
+          "review_url": "https://emmeerreinox.it/it/content/4-azienda",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "t-erre.it",
+      "company_name_candidate": "T.ERRE S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "00713490365",
+        "company_vat_url": "https://t-erre.it/prodotti/",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://t-erre.it/prodotti/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "t-erre.it#01",
+          "type": "process",
+          "statement": "Lavorazione in-house di tubazioni rigide per automotive e impiantistica",
+          "original_url": "https://t-erre.it/prodotti/",
+          "review_url": "https://t-erre.it/prodotti/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "scamer.it",
+      "company_name_candidate": "Scamer S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://scamer.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "scamer.it#01",
+          "type": "dimension",
+          "statement": "Curvatura e saldatura di tubi metallici con diametri dichiarati da 4 a 114 mm",
+          "original_url": "https://scamer.it/",
+          "review_url": "https://scamer.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "sbs-tube.it",
+      "company_name_candidate": "SBS S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.sbs-tube.it/lavorazioni/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "sbs-tube.it#01",
+          "type": "process",
+          "statement": "Taglio laser tubo e saldatura di semilavorati metallici",
+          "original_url": "https://www.sbs-tube.it/lavorazioni/",
+          "review_url": "https://www.sbs-tube.it/lavorazioni/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "fpnlavorazioni.com",
+      "company_name_candidate": "FPN di Pisoni e Nesci",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.fpnlavorazioni.com/lavorazioni/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "fpnlavorazioni.com#01",
+          "type": "process",
+          "statement": "Taglio laser tubi e profili con tornitura CNC",
+          "original_url": "https://www.fpnlavorazioni.com/lavorazioni/",
+          "review_url": "https://www.fpnlavorazioni.com/lavorazioni/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "gromet.it",
+      "company_name_candidate": "Gromet S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://gromet.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "gromet.it#01",
+          "type": "process",
+          "statement": "Taglio laser tubo e lamiera con impianti in fibra",
+          "original_url": "https://gromet.it/",
+          "review_url": "https://gromet.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "officineorsi.it",
+      "company_name_candidate": "Officine Orsi S.p.A.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "producer",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "02821570153",
+        "company_vat_url": "https://officineorsi.it/",
+        "gleif_lei": "815600BFF63FDB4B0C56",
+        "gleif_name": "OFFICINE ORSI S.P.A.",
+        "gleif_registered_vat": "02821570153",
+        "gleif_registration_status": "ISSUED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/815600BFF63FDB4B0C56"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://officineorsi.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "officineorsi.it#01",
+          "type": "product",
+          "statement": "Produzione di tubi saldati, raccordi e prefabbricazioni in leghe speciali",
+          "original_url": "https://officineorsi.it/",
+          "review_url": "https://officineorsi.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "bonazzi-srl.it",
+      "company_name_candidate": "Bonazzi Curvatura Tubi S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.bonazzi-srl.it/chi_siamo.htm",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "bonazzi-srl.it#01",
+          "type": "dimension",
+          "statement": "Curvatura tubi metallici con diametri dichiarati da 4 a 76 mm",
+          "original_url": "https://www.bonazzi-srl.it/chi_siamo.htm",
+          "review_url": "https://www.bonazzi-srl.it/chi_siamo.htm",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "vastanocurvaturatubi.it",
+      "company_name_candidate": "Vastano Curvatura Tubi",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.vastanocurvaturatubi.it/chi-siamo.php",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "vastanocurvaturatubi.it#01",
+          "type": "process",
+          "statement": "Curvatura e calandratura tubi tondi e quadri in acciaio",
+          "original_url": "https://www.vastanocurvaturatubi.it/chi-siamo.php",
+          "review_url": "https://www.vastanocurvaturatubi.it/chi-siamo.php",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "amarossi.it",
+      "company_name_candidate": "Curvatura Tubi Amarossi S.p.A.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "01496290352",
+        "company_vat_url": "https://amarossi.it/",
+        "gleif_lei": "815600E6EDF4F89FA334",
+        "gleif_name": "CURVATURA TUBI AMAROSSI S.P.A.",
+        "gleif_registered_vat": "01496290352",
+        "gleif_registration_status": "ISSUED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/815600E6EDF4F89FA334"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://amarossi.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "amarossi.it#01",
+          "type": "process",
+          "statement": "Piegatura e calandratura di tubi e profili metallici",
+          "original_url": "https://amarossi.it/",
+          "review_url": "https://amarossi.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "scrosati.com",
+      "company_name_candidate": "Scrosati Arredamenti Metallici S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P1_GLEIF_CORROBORATED",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "02223730124",
+        "company_vat_url": "https://www.scrosati.com/it-contatti.php",
+        "gleif_lei": "894500B60YDBR51PXO92",
+        "gleif_name": "SCROSATI ARREDAMENTI METALLICI S.R.L.",
+        "gleif_registered_vat": "02223730124",
+        "gleif_registration_status": "LAPSED",
+        "gleif_source_url": "https://api.gleif.org/api/v1/lei-records/894500B60YDBR51PXO92"
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "CC0_1.0",
+        "gleif_license_terms_url": "https://www.gleif.org/en/meta/lei-data-terms-of-use",
+        "gleif_use_scope": "GLEIF LEI reference fields only",
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.scrosati.com/it-taglio-laser.php",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "scrosati.com#01",
+          "type": "dimension",
+          "statement": "Laser tubo tondo da 12 a 152,4 mm e tubo quadro fino 150x150 mm",
+          "original_url": "https://www.scrosati.com/it-taglio-laser.php",
+          "review_url": "https://www.scrosati.com/it-taglio-laser.php",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "cmsagomatubi.it",
+      "company_name_candidate": "CM Sagomatubi S.r.l.",
+      "source_cohort": "F1_F2_F2B_original",
+      "candidate_role": "processor_service_provider",
+      "priority": "P3_MISSING_TAX_ID",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": null,
+        "company_vat_url": null,
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.cmsagomatubi.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "cmsagomatubi.it#01",
+          "type": "process",
+          "statement": "Curvatura e sagomatura tubi rigidi con servizi di taglio laser e saldatura",
+          "original_url": "https://www.cmsagomatubi.it/",
+          "review_url": "https://www.cmsagomatubi.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "mmtubi.it",
+      "company_name_candidate": "M. M. Montanari Massimo S.r.l.",
+      "source_cohort": "F2C1_replacement_reserve",
+      "candidate_role": "producer",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "01004310395",
+        "company_vat_url": "https://www.mmtubi.it/contatti.html",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "producer",
+        "source_url": "https://www.mmtubi.it/",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "mmtubi.it#01",
+          "type": "process",
+          "statement": "Produces longitudinally welded carbon steel pipes and large-diameter spiral-welded steel pipes",
+          "original_url": "https://www.mmtubi.it/",
+          "review_url": "https://www.mmtubi.it/",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    },
+    {
+      "domain": "fromsrl.it",
+      "company_name_candidate": "FROM S.r.l.",
+      "source_cohort": "F2C1_replacement_reserve",
+      "candidate_role": "processor_service_provider",
+      "priority": "P2_COMPANY_VAT_ONLY",
+      "quarantined": false,
+      "quarantine_reason": null,
+      "identity_evidence": {
+        "company_vat": "02757641200",
+        "company_vat_url": "https://www.fromsrl.it/index.html",
+        "gleif_lei": null,
+        "gleif_name": null,
+        "gleif_registered_vat": null,
+        "gleif_registration_status": null,
+        "gleif_source_url": null
+      },
+      "visura_request": {
+        "portal_url": "https://registroimprese.infocamere.it/area-utente",
+        "needs_current_official_document": true,
+        "document_type": "visura_ordinaria_or_current_official_company_extract",
+        "requested_at": null,
+        "document_storage_ref": null,
+        "document_sha256": null,
+        "issue_date": null,
+        "issuer": null,
+        "registered_legal_name": null,
+        "registered_vat": null,
+        "registered_company_status": null,
+        "registered_legal_form": null,
+        "registered_office": null,
+        "rea_number": null,
+        "group_brand_operating_entity_resolution": null,
+        "reviewer": null,
+        "reviewed_at": null,
+        "review_attestation_ref": null
+      },
+      "rights": {
+        "gleif_reference_license": "not_applicable",
+        "gleif_license_terms_url": null,
+        "gleif_use_scope": null,
+        "website_rights_decision": "pending_legal_review",
+        "website_terms_url": null,
+        "allowed_publication_scope": null,
+        "original_summary_only": true,
+        "copy_site_text_photos_logos_catalog": false,
+        "database_rights_evaluation": "pending",
+        "personal_data_legal_basis": "pending",
+        "optout_check": "pending",
+        "legal_reviewer": null,
+        "decision_document_ref": null
+      },
+      "industrial_role": {
+        "proposal": "processor_service_provider",
+        "source_url": "https://www.fromsrl.it/index.html",
+        "final_role": null,
+        "role_review": "pending",
+        "changed_role_reason": null,
+        "reviewer": null,
+        "review_attestation_ref": null
+      },
+      "claims": [
+        {
+          "claim_id": "fromsrl.it#01",
+          "type": "process",
+          "statement": "Precision subcontract processing on stainless steel tubing and other metal components",
+          "original_url": "https://www.fromsrl.it/index.html",
+          "review_url": "https://www.fromsrl.it/index.html",
+          "evidence_note": null,
+          "review_decision": "pending",
+          "approved_original_summary": null,
+          "reviewer": null,
+          "reviewed_at": null,
+          "technical_validity_scope": null
+        }
+      ],
+      "final_company_decision": {
+        "status": "unreviewed",
+        "reviewer": null,
+        "reviewed_at": null,
+        "approval_document_ref": null
+      },
+      "last_db_six_catalog_and_vat_check": {
+        "status": "not_run_on_final_approved_manifest",
+        "checked_at": null,
+        "collision_count": null,
+        "reviewer": null
+      },
+      "ai_visibility": {
+        "identity_accepted": false,
+        "role_documented": false,
+        "tech_claims_approved": false,
+        "supplier_verified": false,
+        "stock_known": false,
+        "rfq_allowed": false
+      }
+    }
+  ]
+}
