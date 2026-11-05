@@ -377,6 +377,32 @@ export default async function NetworkCompanyProfilePage({
             </div>
 
             <div className="flex w-full min-w-0 flex-col gap-2 lg:w-56">
+              {/* NET-RO1.4.C: claim action is visible without opening a nested accordion.
+                  Account/affiliation proof and actual ownership approval remain server-gated. */}
+              {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
+                (!adminOrganizationId || !claimState || ["rejected","revoked"].includes(claimState.status)) ? (
+                <div className="w-full rounded-xl border border-[#c8ddd1] bg-[#f5faf7] px-3 py-3" data-testid="network-unclaimed-company-claim">
+                  <p className="mb-2 text-xs font-semibold text-[#175640]">Profilo non rivendicato</p>
+                  {adminOrganizationId ? (
+                    <NetworkActivationCta mode="published" companyId={profile.company.id}
+                      companyName={displayName} source="network_profile" compact />
+                  ) : (
+                    <Link
+                      href={"/register?company="+encodeURIComponent(displayName)+"#company-check"}
+                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#c8ddd1] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#eaf4ef]"
+                      data-testid="network-company-claim-registration"
+                    >
+                      Rivendica questa azienda
+                    </Link>
+                  )}
+                  <p className="mt-2 text-[11px] leading-5 text-[#52615b]">
+                    {adminOrganizationId
+                      ? "Per rappresentanti aziendali. La richiesta richiede la verifica dell'affiliazione."
+                      : "Per rivendicare il profilo, registrati come rappresentante aziendale. La gestione sarà abilitata solo dopo la verifica dell'affiliazione."}
+                  </p>
+                </div>
+              ) : null}
+
               {inquiryEligible && canInteract ? (
                 <Link
                   href={"/network/" + profile.company.id + "/connect"}
@@ -422,31 +448,7 @@ export default async function NetworkCompanyProfilePage({
                   ) : null}
                 </div>
               ) : null}
-              {/* NET-RO1.4.C: claim action is visible without opening a nested accordion.
-                  Account/affiliation proof and actual ownership approval remain server-gated. */}
-              {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
-                (!adminOrganizationId || !claimState || ["rejected","revoked"].includes(claimState.status)) ? (
-                <div className="w-full rounded-xl border border-[#c8ddd1] bg-[#f5faf7] px-3 py-3" data-testid="network-unclaimed-company-claim">
-                  <p className="mb-2 text-xs font-semibold text-[#175640]">Profilo non rivendicato</p>
-                  {adminOrganizationId ? (
-                    <NetworkActivationCta mode="published" companyId={profile.company.id}
-                      companyName={displayName} source="network_profile" compact />
-                  ) : (
-                    <Link
-                      href={"/register?company="+encodeURIComponent(displayName)+"#company-check"}
-                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#c8ddd1] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#eaf4ef]"
-                      data-testid="network-company-claim-registration"
-                    >
-                      Rivendica questa azienda
-                    </Link>
-                  )}
-                  <p className="mt-2 text-[11px] leading-5 text-[#52615b]">
-                    {adminOrganizationId
-                      ? "Per rappresentanti aziendali. La richiesta richiede la verifica dell'affiliazione."
-                      : "Per rivendicare il profilo, registrati come rappresentante aziendale. La gestione sarà abilitata solo dopo la verifica dell'affiliazione."}
-                  </p>
-                </div>
-              ) : null}
+
             </div>
           </div>
 
