@@ -15,7 +15,7 @@ test("NET-PROFILE1G: the first screen centers company identity and real connecti
     assert.match(profile,/max-w-6xl/);
     // Network company claim stays behind its existing authenticated route.
   }
-  assert.ok(pro.indexOf(">Connetti") < pro.indexOf('data-testid="network-unclaimed-company-claim"'),
+  assert.ok(pro.search(/>\s*Connetti( →)?\s*<\/Link>/) < pro.indexOf('data-testid="network-unclaimed-company-claim"'),
     "canonical profile connection should precede visible claim CTA");
   assert.ok(free.indexOf('aria-label="Connessione aziendale"') < free.indexOf('aria-label="Informazioni aziendali con fonte"'),
     "important action belongs in first screen, ahead of long evidence");
