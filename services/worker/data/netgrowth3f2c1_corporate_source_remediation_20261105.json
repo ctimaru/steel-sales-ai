@@ -1,0 +1,235 @@
+{
+  "phase": "NET-GROWTH3.F.2C.1",
+  "observed_date": "2026-11-05",
+  "mode": "documentary_remediation_read_only",
+  "allow_import": false,
+  "registry_proof_all_50": false,
+  "rights_review_all_50": false,
+  "production_rpc_called": false,
+  "notes": "Superseding review decisions only, original 50 research manifests preserved as immutable research snapshots. A public-web source or VAT checksum is not an official current chamber verification.",
+  "baseline": {
+    "canonical": 278,
+    "provisional": 408,
+    "F_imports": 0
+  },
+  "domain_vat_reconciliation": {
+    "tcbtubi.it": {
+      "decision": "excluded_from_net_new_pending_distinct_legal_identity",
+      "claimed_product_role": "producer",
+      "website_legal_owner_name": "Amenduni Tubi Acciaio S.r.l.",
+      "website_legal_owner_vat": "06651880962",
+      "first_party_source": "https://tcbtubi.it/contatti/",
+      "existing_network_match": {
+        "source": "network_company_discovery_candidates",
+        "domain": "alessiotubi.it",
+        "vat_id": "06651880962",
+        "records": 2
+      },
+      "reason": "Shared footer entity VAT already present; the factory may have another separate legal operator, not independently proven. Never count website/brand as a unique new company without operator-specific company registry evidence."
+    },
+    "dematubi.it": {
+      "decision": "hold_legal_successor_or_related_entity",
+      "registered_first_party_name": "DE.MA. DI BALDINI GIANCARLO",
+      "registered_vat": "01248890426",
+      "first_party_source": "https://www.dematubi.it/it/contatti",
+      "related_domain": "dematubisrl.it",
+      "related_first_party_name": "DE.MA. SRL",
+      "related_vat": "02794420428",
+      "related_source": "https://www.dematubisrl.it/",
+      "reason": "Two legal IDs but same commercial history/site address; do not merge or assume succession without official check."
+    },
+    "amarossi.it": {
+      "decision": "parent_relation_documented_distinct_VAT_indicated",
+      "entity_name": "Curvatura Tubi Amarossi S.p.A.",
+      "entity_vat": "01496290352",
+      "parent_name": "Amarossi 1976 S.r.l.",
+      "first_party_identity_source": "https://amarossi.it/wp-content/uploads/2026/02/Anagrafica.pdf",
+      "status": "independent_registry_confirmation_pending",
+      "reason": "Group control alone is not proof of duplicate; do not delete company, confirm current legal registry. First-party supply terms do not support generic ISO9001/EN1090 certifications."
+    }
+  },
+  "technical_claim_source_corrections": [
+    {
+      "domain": "euroflexspa.it",
+      "claim": "EN 10219",
+      "old_url": "https://www.euroflexspa.it/it/tubolari/",
+      "new_url": "https://www.euroflexspa.it/it/qualita-e-certificazioni/",
+      "decision": "first_party_stronger_citation_candidate",
+      "technical_scope": "Certifications/standards context, not a blanket claim of every EN10219 grade and dimension"
+    },
+    {
+      "domain": "ocsaspa.com",
+      "claim": "precision welded tube sizes",
+      "old_url": "https://www.ocsaspa.com/en/",
+      "new_url": "https://www.ocsaspa.com/en/tubes/",
+      "decision": "first_party_stronger_citation_candidate",
+      "technical_scope": "EN10305-3/5 and thickness/dimension range differs by feedstock type, do not pool indiscriminately"
+    },
+    {
+      "domain": "sgmsrl.com",
+      "claim": "taglio laser e curvatura tubo",
+      "old_url": "https://www.sgmsrl.com/contatti.php",
+      "new_url": "https://www.sgmsrl.com/lavorazioni.html",
+      "decision": "first_party_stronger_citation_candidate",
+      "technical_scope": "Company service, not proof of structural grade/dimensional RFQ suitability"
+    },
+    {
+      "domain": "teknolaser.it",
+      "claim": "diametro massimo tubo dichiarato 254 mm",
+      "old_url": "https://teknolaser.it/en/",
+      "new_url": "https://teknolaser.it/laser-tubo/",
+      "decision": "indexed_official_technical_page_corroboration",
+      "technical_scope": "Reported capability 15-254 mm for one machine, no guarantee of section 100x100x6 or material compatibility"
+    }
+  ],
+  "role_review_holds": [
+    {
+      "domain": "envasald.com",
+      "reason": "Manufacturer and seller of stainless fittings, not documented buyer-supplied tube subcontractor; needs role taxonomy review"
+    },
+    {
+      "domain": "emmeerreinox.it",
+      "reason": "Manufacturer of butt-weld stainless fittings, not documented laser-tube processing; needs role taxonomy review"
+    },
+    {
+      "domain": "t-erre.it",
+      "reason": "Member of Gruppo Borghi, produces rigid/flexible OEM tubing systems; producer vs processor cannot be assigned solely from the group and a generic product page"
+    }
+  ],
+  "source_fetch_recovery": [
+    {
+      "domain": "dematubi.it",
+      "live_original": "unreachable",
+      "public_web_official_corroboration": "https://www.dematubi.it/it/caratteristiche-produttive",
+      "state": "indexed_corroborated_only"
+    },
+    {
+      "domain": "kgttubi.com",
+      "live_original": "503",
+      "public_web_official_corroboration": "https://www.kgttubi.com/chi-siamo/",
+      "state": "indexed_corroborated_only",
+      "legal_name": "KGT TUBI Srl",
+      "vat": "01442910558",
+      "group": "Koenig Metall"
+    },
+    {
+      "domain": "teknolaser.it",
+      "live_original": "empty_content",
+      "public_web_official_corroboration": "https://teknolaser.it/laser-tubo/",
+      "state": "indexed_corroborated_only",
+      "legal_name": "Andrea Balboni S.r.l.",
+      "vat": "01908860388"
+    },
+    {
+      "domain": "tubifaber.it",
+      "live_original": "timeout",
+      "public_web_official_corroboration": "https://www.tubifaber.it/produzione/",
+      "state": "indexed_corroborated_only",
+      "legal_name": "Tubifaber S.p.A.",
+      "vat": "04246810263"
+    },
+    {
+      "domain": "gromet.it",
+      "live_original": "timeout",
+      "public_web_official_corroboration": "https://gromet.it/",
+      "state": "indexed_corroborated_only"
+    }
+  ],
+  "independent_corporate_cross_evidence": [
+    {
+      "domain": "tubi-tis.it",
+      "legal_name": "TIS S.r.l.",
+      "vat": "02378390138",
+      "basis": "LEI record current fully corroborated by Infocamere",
+      "url": "https://lei.bloomberg.com/leis/view/815600326CEFAA70DD71",
+      "next_renewal": "2027-06-06",
+      "review_decision": "supporting_registry_evidence_not_human_approval"
+    },
+    {
+      "domain": "cctinox.it",
+      "legal_name": "CCT INOX SPA",
+      "vat": "13022780152",
+      "basis": "LEI record validated Infocamere; latest listed renewal 2026-10-04 is before current date",
+      "url": "https://lei.bloomberg.com/leis/view/8156005738141F24A621",
+      "next_renewal": "2026-10-04",
+      "review_decision": "stale_renewal_status_check_required"
+    },
+    {
+      "domain": "amarossi.it",
+      "legal_name": "Curvatura Tubi Amarossi S.p.A.",
+      "vat": "01496290352",
+      "basis": "First-party legal document includes VAT REA + parent, not current independent registry check",
+      "url": "https://amarossi.it/wp-content/uploads/2026/02/Anagrafica.pdf",
+      "review_decision": "needs_current_registry_validation"
+    }
+  ],
+  "rights": {
+    "general_rule": "Public first-party site factual data/URL can be researched but not bulk-republished or interpreted as permission to copy protected catalog text, photos or private data without appropriate legal assessment. License/rights of all 50 still pending.",
+    "explicit_case": {
+      "domain": "teknolaser.it",
+      "source": "https://teknolaser.it/note-legali/",
+      "status": "protected_site_content_commercial_reuse_requires_explicit_authorization_review",
+      "decision": "do_not_republish_copyrighted_text_or_media"
+    }
+  },
+  "replacement_reserve": [
+    {
+      "name": "M. M. Montanari Massimo S.r.l.",
+      "domain": "mmtubi.it",
+      "role": "producer",
+      "country": "IT",
+      "first_party_identity_url": "https://www.mmtubi.it/",
+      "first_party_claim_url": "https://www.mmtubi.it/",
+      "first_party_vat": "01004310395",
+      "claim": "Produces longitudinally welded carbon steel pipes and large-diameter spiral-welded steel pipes",
+      "qualification_state": "source_backed_candidate",
+      "legal_review": "pending_independent_registry",
+      "rights_review": "pending",
+      "network_preflight": "zero_domain_exact_name_vat_collisions_on_2026-11-05"
+    },
+    {
+      "name": "FROM S.r.l.",
+      "domain": "fromsrl.it",
+      "role": "processor_service_provider",
+      "country": "IT",
+      "first_party_identity_url": "https://www.fromsrl.it/index.html",
+      "first_party_claim_url": "https://www.fromsrl.it/index.html",
+      "first_party_vat": "02757641200",
+      "claim": "Precision subcontract processing on stainless steel tubing and other metal components",
+      "qualification_state": "source_backed_candidate",
+      "legal_review": "pending_independent_registry",
+      "rights_review": "pending",
+      "network_preflight": "zero_domain_exact_name_vat_collisions_on_2026-11-05"
+    }
+  ],
+  "rejected_reserve": [
+    {
+      "domain": "adtubi.com",
+      "reason": "core lead already exists; not net new"
+    },
+    {
+      "domain": "inpipe.it",
+      "reason": "core lead already exists; not net new"
+    },
+    {
+      "domain": "pessinatubi.com",
+      "reason": "discovery already exists; not net new"
+    },
+    {
+      "domain": "lovatospa.com",
+      "reason": "Official site manufactures HVAC system modules; sector code is not enough to claim steel tube manufacturing"
+    },
+    {
+      "domain": "ispadue.it",
+      "reason": "Multi-entity Profilmec group landing page; legal domain owner and independent operator not confirmed"
+    }
+  ],
+  "status_summary": {
+    "original_research_domains": 50,
+    "excluded_from_eligible_count": 1,
+    "additional_reserve_candidates": 2,
+    "unverified_still_all": true,
+    "production_approved": 0,
+    "production_write_permitted": false
+  }
+}
