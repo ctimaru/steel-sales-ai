@@ -49,7 +49,20 @@ try {
   const {context,page,runtimeErrors}=await loggedInPage(width);
   try{
    await page.goto(process.env.DEMOTEST23_WEB_URL+"/network",{waitUntil:"domcontentloaded",timeout:90000});
-   await page.getByTestId("network-compact-experience").waitFor({timeout:60000});
+   try{
+    await page.getByTestId("network-compact-experience").waitFor({timeout:15000});
+   }catch(error){
+    const diagnostic=await page.evaluate(()=>({
+     url:location.pathname,
+     title:document.title,
+     headings:Array.from(document.querySelectorAll("h1,h2")).slice(0,8).map(x=>x.textContent?.trim()),
+     ids:Array.from(document.querySelectorAll("[data-testid]")).slice(0,25).map(x=>x.getAttribute("data-testid")),
+     summary:document.querySelector("main")?.innerText?.slice(0,500),
+    }));
+    console.log("NET-UX-MAP1 LOCAL SCREEN DIAGNOSTIC",width,JSON.stringify(diagnostic));
+    await page.screenshot({path:path.join(out,"network-map-diagnostic-"+width+".png"),fullPage:false,animations:"disabled"});
+    throw error;
+   }
    const sidebar=page.getByTestId("network-side-column");
    const persistent=page.getByTestId("network-europe-persistent-map");
    const mini=persistent.getByTestId("network-europe-mini-map");
