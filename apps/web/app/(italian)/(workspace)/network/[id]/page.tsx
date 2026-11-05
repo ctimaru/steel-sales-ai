@@ -388,7 +388,7 @@ export default async function NetworkCompanyProfilePage({
                       companyName={displayName} source="network_profile" compact />
                   ) : (
                     <Link
-                      href={"/register?company="+encodeURIComponent(displayName)+"#company-check"}
+                      href={"/register?company="+encodeURIComponent(displayName)+"&return_to="+encodeURIComponent("/network/"+profile.company.id+"/claim")+"#company-check"}
                       className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#c8ddd1] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#eaf4ef]"
                       data-testid="network-company-claim-registration"
                     >
