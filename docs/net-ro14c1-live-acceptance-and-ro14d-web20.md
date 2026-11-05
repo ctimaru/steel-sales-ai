@@ -47,3 +47,17 @@ A website business statement supports a **provisional public company profile**, 
 6. Readback: **29** total public canonical RO profiles if successful, **20** new exact role/product/assertion/link records, all unclaimed/unverified, **117** unchanged research seeds; no automated RFQs, mail or company owner contact.
 
 **No paid visura required** for basic source-backed public profile descriptions. Advanced technical declarations, certificates and actual availability are owner-entered after the authenticated and approved claim.
+
+
+## NET-RO1.4.C.1 UX correction — Claim visibility for new owners
+
+A source audit found that `Rivendica questa azienda` on the published profile appeared only when the current user already had an administrator organization. That hid the claim entry for prospective new owners, even after an unclaimed profile was publicly discoverable.
+
+The existing company-profile first-screen now prioritizes **one claim CTA above secondary Connect / website actions**:
+- **Authenticated organization administrator**: `Rivendica questa azienda` links directly to `/network/{id}/claim` and reuses the server-side `requireWorkspaceAdmin`, ownership proof, duplicate-domain, claimant-role and superadmin approval process.
+- **User without an administrator workspace**: the same claim label enters the established `/register?company={companyName}#company-check` registration/company check, with explanatory text that claim approval is not automatic.
+- **Pending claim, already claimed, or approved claim**: no second redundant claim CTA is created for the same administrator. Existing pending and managed states remain governed separately.
+
+This is a UI/accessibility funnel change, **not** permission escalation: no new RPC grants, no claim approval, no certificates, no unverified personal contact, and no automatic company ownership. It must pass frontend tests, UI contrast and mobile gates; it must also be visually inspected in production at 1440, 390 and 320 px **after the next approved deployment**. The real claim submission remains a distinct authenticated acceptance scenario.
+
+**Release note:** adding this to PR #1155 keeps the company-claim entry consistent before growing the public RO directory from 9 to 29. It does not itself publish any of the 20 proposed companies. The known Supabase migration history mismatch remains an independent unresolved release blocker.
