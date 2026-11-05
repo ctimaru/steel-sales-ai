@@ -37,7 +37,7 @@ test("P4.1 Network profile exposes save/remove controls while preserving governe
   assert.doesNotMatch(profile, /Salva azienda|Rimuovi dai salvati/);
   assert.match(profile, />\n\s*Connetti\n\s*<\/Link>/); // NET-UX LOT1: CTA renamed
   assert.match(profile, /NetworkActivationCta mode="published"/);
-  assert.match(activationCta, /Rivendica il profilo/);
+  assert.match(activationCta, /Rivendica questa azienda/);
   assert.match(activationCta, /\/claim"/);
   assert.match(profile, /adminOrganizationId/);
   assert.match(claimPage, /requestNetworkClaim/);
