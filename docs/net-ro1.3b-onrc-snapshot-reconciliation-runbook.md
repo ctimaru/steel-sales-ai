@@ -1,6 +1,6 @@
 # NET-RO1.3.B — ONRC snapshot reconciliation (operator runbook)
 
-**Decision (2026-11-05):** source metadata and original CSV **not obtained** from official host, which returned timeout/proxy errors. The October 19 snapshot is listed on [data.europa.eu's Romanian catalog](https://data.europa.eu/data/catalogues/data-gov-ro?locale=ro), but the source's actual CKAN `package_show` metadata, exact resource identifiers/download URLs, licence and CSV bytes have **not** been independently retrieved. A third-party [source catalogue](https://firmedb.ro/surse) lists CC BY 4.0 as the **declared** licence; this is not an adequate substitute for the actual publisher metadata. The safety hold is versioned in [netro1_3b_onrc_source_access_20261105.json](../services/worker/data/netro1_3b_onrc_source_access_20261105.json).
+**Decision (2026-11-05, resource-link discovery):** official ONRC dataset URL and three direct `data.gov.ro` CSV resource links are now identified through the [official ONRC dataset catalog](https://data.gov.ro/dataset?organization=onrc&res_format=csv) and an independent [source index linking straight to the official files](https://firmedb.ro/surse). However, the host's actual CKAN `package_show` response, the underlying CSV bytes, SHA-256 and the specific publisher-verified licence **have not been retrieved**; direct page/API requests timed out or failed. The versioned [source-access record](../services/worker/data/netro1_3b_onrc_source_access_20261105.json) records the exact IDs/URLs, evidence scope and continuing holds. A source-index CC BY 4.0 statement is a **licence hint**, not the actual publisher's distribution approval.
 
 **Outcome:** zero official ONRC rows processed, zero actual ONRC snapshot matches, zero current ONRC live verifications, zero source-rights clearances, zero eligible companies and zero imports. No claims that 50 sites have become 50 legally verified Romanian companies.
 
@@ -9,6 +9,20 @@
 - `services/worker/scripts/netro1_3b_onrc_snapshot_reconcile.py`: stdlib-only, streaming local CSV reader. Designed for ONRC's caret-separated CSV files with UTF-8 BOM, given an **operator-supplied** CKAN `package_show` JSON document.
 - `services/worker/tests/test_netro1_3b_onrc_snapshot_reconcile.py`: synthetic test cases for Romanised/diacritic legal names, CUI and corporate-name agreement, former-vs-current-name handling, ambiguous multi-CUI/company matches, mismatched CUI, official package metadata, no natural persons and no import authority.
 - Existing `services/worker/scripts/netro1_3_import_readiness.py` remains the independent company-level release gate; an ONRC snapshot match **never automatically sets** `legal_identity_status=onrc_verified` or `source_rights_status=approved_for_public_facts`.
+
+## Exact 2026-10-19 ONRC resources discovered (not downloaded)
+
+| Resource | Official publisher URL | File result |
+| --- | --- | --- |
+| Dataset | [Firme 19.10.2026](https://data.gov.ro/dataset/firme-19-10-2026) | Exact official listing; page detail timed out |
+| `OD_FIRME.CSV` | [Company identities](https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/361e52e3-4590-40af-ae0f-8a15089fc927/download/od_firme.csv) | Direct CSV URL known; not downloaded |
+| `OD_STARE_FIRMA.CSV` | [Status code relations](https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/0689b858-8371-44ec-bc2f-0fc6e5ae2fcc/download/od_stare_firma.csv) | Direct CSV URL known; request timed out |
+| Nomenclature | [Nomenclatoare 19.10.2026](https://data.gov.ro/dataset/nomenclatoare-19-10-2026) | Exact official listing; page detail timed out |
+| `N_STARE_FIRMA.CSV` | [Status-code descriptions](https://data.gov.ro/dataset/7729250c-f03a-45d5-b2de-df015340b619/resource/eb45f5fd-b2c5-4ed2-876d-2d6f92ed6922/download/n_stare_firma.csv) | Direct CSV URL known; not downloaded |
+
+Company package ID: `1962670f-acda-41b5-b52c-c430d7a1ef5e`. Nomenclature package ID: `7729250c-f03a-45d5-b2de-df015340b619`. These are evidence-based URL identifiers, **not an authenticated `package_show` result**, and neither package licence nor file checksum is approved yet.
+
+The parser now **pins** the company package and exact file resource UUIDs. Tests reject substituted editions. The third status-code nomenclature must be obtained to interpret status safely; an unexplained status code must remain unverified, not active.
 
 ## Controlled source acquisition
 
@@ -45,12 +59,13 @@
 - [x] 50 candidate domain research manifest remains read-only.
 - [x] CLI streaming reconciliation implemented and synthetic tests supplied.
 - [x] Official catalog presence observed via EU catalog; access failures documented.
-- [ ] Official 19.10.2026 CKAN package ID, two actual HTTPS resource URLs and exact licence retrieved and confirmed.
-- [ ] Real OD_FIRME/OD_STARE files downloaded privately, hashes recorded.
+- [x] Exact government dataset and three CSV URL paths identified via linked source index (not data downloads).
+- [ ] Actual official CKAN `package_show`, publisher licence and matching resource UUIDs retrieved and authenticated.
+- [ ] Real OD_FIRME / OD_STARE and N_STARE files downloaded privately, hashes recorded.
 - [ ] 50 corporate candidates reconciled against real ONRC snapshot.
 - [ ] Status semantics decoded, company group/alias/independent CUI identities accepted.
 - [ ] Source rights/opt-out and technical roles accepted by independent reviewers.
 - [ ] 50–100 genuinely eligible RO legal entities.
 - [ ] Future protected RPC design, rollback rehearsal, independent readback and mobile/desktop Network QA.
 
-**Status: SOURCE ACCESS BLOCKED — no legal approval, no production import.**
+**Status: RESOURCE URL DISCOVERED, OFFICIAL BYTES/METADATA STILL BLOCKED — no legal approval, no production import.**
