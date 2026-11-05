@@ -1,0 +1,81 @@
+name: "NET-GROWTH3.D — Role-Correct Italian Industrial Acquisition (manual only)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      cohort:
+        description: "Reviewed source cohort (research below 50 is read-only)"
+        type: choice
+        options:
+          - traders
+          - industrial
+        required: true
+        default: traders
+      apply:
+        description: "Explicit import only after ≥50 independently verified records, no holds and protected release"
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-growth3d-role-correct-intake
+  cancel-in-progress: false
+
+jobs:
+  intake:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install worker and test dependencies
+        working-directory: services/worker
+        run: python -m pip install -e '.[test]'
+      - name: Offline source-validation and role-isolation tests
+        working-directory: services/worker
+        run: |
+          python -m pytest -q tests/test_netgrowth3d_role_correct.py
+          python -m app.netgrowth3d_role_correct --manifest data/netgrowth3d_traders_research_20261105.json --dry-run
+          python -m app.netgrowth3d_role_correct --manifest data/netgrowth3d_industrial_research_20261105.json --dry-run
+      - name: Restrict source manifest to known reviewed cohort
+        id: cohort
+        working-directory: services/worker
+        env:
+          COHORT: ${{ inputs.cohort }}
+        run: |
+          case "$COHORT" in
+            traders) echo "manifest=data/netgrowth3d_traders_research_20261105.json" >> "$GITHUB_OUTPUT" ;;
+            industrial) echo "manifest=data/netgrowth3d_industrial_research_20261105.json" >> "$GITHUB_OUTPUT" ;;
+            *) exit 1 ;;
+          esac
+      - name: Production source-registry dedup preflight — strictly read-only
+        working-directory: services/worker
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+          SOURCE_MANIFEST: ${{ steps.cohort.outputs.manifest }}
+        run: |
+          test "$CRAWL_IT65B_SUPABASE_URL" = "https://ecrafjdummcdfycznitx.supabase.co" || exit 1
+          case "$CRAWL_IT65B_SUPABASE_SECRET_KEY" in sb_secret_*) ;; *) exit 1 ;; esac
+          echo "::add-mask::$CRAWL_IT65B_SUPABASE_SECRET_KEY"
+          python -m app.netgrowth3d_role_correct --manifest "$SOURCE_MANIFEST" --preflight
+      - name: Explicit source-approved, role-correct service-only write
+        if: ${{ inputs.apply == true }}
+        working-directory: services/worker
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+          SOURCE_MANIFEST: ${{ steps.cohort.outputs.manifest }}
+        run: |
+          test "$CRAWL_IT65B_SUPABASE_URL" = "https://ecrafjdummcdfycznitx.supabase.co" || exit 1
+          case "$CRAWL_IT65B_SUPABASE_SECRET_KEY" in sb_secret_*) ;; *) exit 1 ;; esac
+          echo "::add-mask::$CRAWL_IT65B_SUPABASE_SECRET_KEY"
+          python -m app.netgrowth3d_role_correct --manifest "$SOURCE_MANIFEST" --apply
