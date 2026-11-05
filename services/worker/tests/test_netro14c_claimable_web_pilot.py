@@ -22,7 +22,7 @@ EXPECTED = {
 def test_pilot_cohort_uses_only_nine_sourced_domains():
     sql = SQL_PATH.read_text(encoding="utf-8")
     # Three appearances: eligibility, opt-out, exact duplicate/readback, and loop.
-    matches = re.findall(r"\\('([a-z0-9.-]+)', '([^']+)'\\)", sql)
+    matches = re.findall(r"\('([a-z0-9.-]+)', '([^']+)'\)", sql)
     assert len(matches) == len(EXPECTED) * 4
     assert {domain for domain, _ in matches} == EXPECTED
     assert all(len(description) >= 40 for _, description in matches)
@@ -40,7 +40,7 @@ def test_commit_never_happens_on_migration_and_preview_is_default():
     assert "LOCK TABLE public.network_companies IN SHARE ROW EXCLUSIVE MODE" in sql
     assert "GRANT EXECUTE ON FUNCTION private.network_ro14c_publish_pilot(boolean)" in sql
     assert "FROM PUBLIC, anon, authenticated" in sql
-    assert re.search(r"CREATE TABLE IF NOT EXISTS private\\.network_ro14c_publication_links",sql)
+    assert re.search(r"CREATE TABLE IF NOT EXISTS private\.network_ro14c_publication_links",sql)
     assert "ENABLE ROW LEVEL SECURITY" in sql
     assert "INSERT INTO public.network_companies" in sql
     assert "INSERT INTO public.network_company_claims" not in sql
