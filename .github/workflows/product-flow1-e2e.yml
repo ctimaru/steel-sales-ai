@@ -246,6 +246,18 @@ jobs:
           path: ${{ runner.temp }}/netgrowth2c1-safe-screenshots/*.png
           if-no-files-found: ignore
           retention-days: 7
+      - name: NET-UX-MAP1 — Real local GoTrue Chrome map and ticker 1440/390/320
+        working-directory: apps/web
+        timeout-minutes: 8
+        run: node tests/net-ux-map1-chrome-visual-acceptance.mjs
+      - name: NET-UX-MAP1 — Retain three synthetic screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-ux-map1-responsive-visual
+          path: ${{ runner.temp }}/net-ux-map1-visual/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: ONBOARDING-UX1 — Chrome IT/EN 320/390/1440 and real synthetic GoTrue handoff
         working-directory: apps/web
         shell: bash
