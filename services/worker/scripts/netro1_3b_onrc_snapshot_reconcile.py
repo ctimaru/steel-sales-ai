@@ -21,6 +21,21 @@ LEDGER = DATA / "netro1_first50_qualification_ledger_20261105.json"
 OBSERVATIONS = DATA / "netro1_3_identity_evidence_observations_20261105.json"
 SNAPSHOT_DATE = "2026-10-19"
 EXPECTED_LICENSE = {"cc-by-4.0", "cc-by-4.0-international"}
+# Pinned from 2026-10-19 ONRC official resource links surfaced through
+# the government catalogue and referenced by a public-source index.
+# This is a resource identity check, NOT independent authenticated origin
+# verification, licensing approval, file content retrieval or live ONRC status.
+PINNED_COMPANIES_PACKAGE = "1962670f-acda-41b5-b52c-c430d7a1ef5e"
+PINNED_ONRC_RESOURCES = {
+    "OD_FIRME": (
+        "361e52e3-4590-40af-ae0f-8a15089fc927",
+        "https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/361e52e3-4590-40af-ae0f-8a15089fc927/download/od_firme.csv",
+    ),
+    "OD_STARE_FIRMA": (
+        "0689b858-8371-44ec-bc2f-0fc6e5ae2fcc",
+        "https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/0689b858-8371-44ec-bc2f-0fc6e5ae2fcc/download/od_stare_firma.csv",
+    ),
+}
 FIELDS = {
     "name": ("DENUMIRE", "DENUMIRE_FIRMA", "DENUMIRE_PROFESIONIST", "DENUMIRE_SOCIETATE"),
     "cui": ("CUI", "COD_UNIC_INREGISTRARE", "COD_UNIC_DE_INREGISTRARE", "COD_FISCAL"),
@@ -78,6 +93,8 @@ def load_catalog_metadata(path: Path) -> dict:
     if not isinstance(result, dict):
         raise ValueError("Missing CKAN result object")
     title = result.get("title", "")
+    if result.get("id") != PINNED_COMPANIES_PACKAGE:
+        raise ValueError("ONRC package ID does not match the pinned 2026-10-19 company dataset")
     if "19.10.2026" not in title:
         raise ValueError("Dataset is not the ONRC 19.10.2026 snapshot")
     organization = result.get("organization") or {}
@@ -99,6 +116,9 @@ def load_catalog_metadata(path: Path) -> dict:
             raise ValueError(f"Unverified third-party CSV resource for {name}")
         if name in resource_map:
             raise ValueError(f"Duplicate named ONRC resource {name}")
+        expected_id, expected_url = PINNED_ONRC_RESOURCES[name]
+        if str(resource.get("id", "")) != expected_id or url != expected_url:
+            raise ValueError(f"Unexpected 2026-10-19 ONRC resource identity for {name}")
         resource_map[name] = {
             "resource_id": str(resource.get("id", "")),
             "url": url,
