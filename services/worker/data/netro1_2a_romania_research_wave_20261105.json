@@ -1,0 +1,443 @@
+{
+  "phase": "NET-RO1.2a",
+  "observed_date": "2026-11-05",
+  "country": "RO",
+  "mode": "research_only",
+  "production_write_authorized": false,
+  "notice": "Second research wave with 15 further first-party website candidates. No legal verification or automatic publication; 0 records imported. No PII. No asserted cross-catalog legal uniqueness.",
+  "source_review": {
+    "first_party_pages_inspected": true,
+    "reuse_rights_clear": false,
+    "legal_verification_complete": false,
+    "screening": "Exact-domain read-only check against 6 production catalogues on 2026-11-05 returned zero collisions for these 15 domains. Distinct legal identities and non-domain collisions not verified.",
+    "source_of_truth": "company-owned public web pages, per-claim URLs",
+    "cautions": [
+      "MIRAS multiple legal entities behind shared domain",
+      "Kovostroj rectangular tube offered via group, attribution pending",
+      "OtelStructuri / Meta Cos store or brand legal identities pending",
+      "Laser Processing and Comelf have broad metal services but not tube-specific evidence; hold"
+    ]
+  },
+  "records": [
+    {
+      "name": "LIO-METAL",
+      "domain": "lio-metal.ro",
+      "country": "RO",
+      "role": "producer",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://lio-metal.ro/produse-metalurgice/tevi-sudate/",
+      "source_url": "https://lio-metal.ro/produse-metalurgice/tevi-sudate/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Structural grade S235 does NOT imply EN 10219; do not infer the standard",
+      "claims": [
+        {
+          "type": "product",
+          "value": "welded rectangular and round steel tubes",
+          "url": "https://lio-metal.ro/produse-metalurgice/tevi-sudate/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "material",
+          "value": "S235 steel for round and rectangular tube products",
+          "url": "https://lio-metal.ro/produse-metalurgice/tevi-sudate/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Kovostroj SRL",
+      "domain": "kovostroj.ro",
+      "country": "RO",
+      "role": "producer",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.kovostroj.ro/",
+      "source_url": "https://www.kovostroj.ro/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Group-level rectangular-tube attribution requires legal entity review",
+      "claims": [
+        {
+          "type": "product",
+          "value": "cold-formed galvanized steel drywall profiles",
+          "url": "https://www.kovostroj.ro/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "product",
+          "value": "rectangular steel tube listed among group products",
+          "url": "https://www.kovostroj.ro/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "AVIROB",
+      "domain": "avirob.eu",
+      "country": "RO",
+      "role": "processor_service_provider",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://avirob.eu/",
+      "source_url": "https://avirob.eu/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Processor/fabricator; end-user purchase intent must not be assumed",
+      "claims": [
+        {
+          "type": "process",
+          "value": "TRUMPF TruLaser Tube 7000 for metal tube cutting",
+          "url": "https://avirob.eu/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "product",
+          "value": "fabricated square and rectangular tube supports and frames",
+          "url": "https://avirob.eu/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "MIRAS STEEL TRADE S.R.L.",
+      "domain": "miras.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://miras.ro/produse/teava",
+      "source_url": "https://miras.ro/produse/teava",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "The site lists multiple MIRAS legal entities; only STEEL TRADE company is candidate, hold corporate dedup",
+      "claims": [
+        {
+          "type": "product",
+          "value": "square and rectangular welded steel tubes",
+          "url": "https://miras.ro/produse/teava",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "material",
+          "value": "S235JRH and S355J2H product grades",
+          "url": "https://miras.ro/produse/teava",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "OtelStructuri",
+      "domain": "otelstructuri.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://otelstructuri.ro/teava-rectangulara-otel",
+      "source_url": "https://otelstructuri.ro/teava-rectangulara-otel",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Trading website/brand; legal entity name is unverified",
+      "claims": [
+        {
+          "type": "standard",
+          "value": "EN 10219 and EN 10210 tube products offered",
+          "url": "https://otelstructuri.ro/teava-rectangulara-otel",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "material",
+          "value": "S235JRH and S355J2H steel grades",
+          "url": "https://otelstructuri.ro/teava-rectangulara-otel",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Baurom",
+      "domain": "baurom.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.baurom.ro/portfolio-item/tevi-sudate-longitudinal-en-10219/",
+      "source_url": "https://www.baurom.ro/portfolio-item/tevi-sudate-longitudinal-en-10219/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Supplier/trader label requires separate legal verification",
+      "claims": [
+        {
+          "type": "standard",
+          "value": "EN 10219 longitudinal-welded tubes offered",
+          "url": "https://www.baurom.ro/portfolio-item/tevi-sudate-longitudinal-en-10219/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "material",
+          "value": "S235JRH and S355J2H tube grades",
+          "url": "https://www.baurom.ro/portfolio-item/tevi-sudate-longitudinal-en-10219/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Alcon Ind",
+      "domain": "alconind.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.alconind.ro/produse/tevi",
+      "source_url": "https://www.alconind.ro/produse/tevi",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Company says request offers from suppliers; does not claim holding fixed stock",
+      "claims": [
+        {
+          "type": "product",
+          "value": "welded square and rectangular sections offered",
+          "url": "https://www.alconind.ro/produse/tevi",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "standard",
+          "value": "EN 10219 and EN 10255 listed for tube products",
+          "url": "https://www.alconind.ro/produse/tevi",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "KönigFrankStahl Romania",
+      "domain": "konigfrankstahl.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://konigfrankstahl.ro/produse/",
+      "source_url": "https://konigfrankstahl.ro/produse/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Romanian company legal identity and international group dedup pending",
+      "claims": [
+        {
+          "type": "product",
+          "value": "rectangular and round steel tubes offered",
+          "url": "https://konigfrankstahl.ro/produse/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "role",
+          "value": "distribution of steel products",
+          "url": "https://konigfrankstahl.ro/produse/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Metalcas Grup",
+      "domain": "metalcas.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.metalcas.ro/produse-otel-metalcas-gama-completa",
+      "source_url": "https://www.metalcas.ro/produse-otel-metalcas-gama-completa",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Legal trading entity to confirm",
+      "claims": [
+        {
+          "type": "product",
+          "value": "square and rectangular steel tubes offered",
+          "url": "https://www.metalcas.ro/produse-otel-metalcas-gama-completa",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "product",
+          "value": "round black and galvanized steel tubes offered",
+          "url": "https://www.metalcas.ro/produse-otel-metalcas-gama-completa",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Metalurgic 21 Plan SRL",
+      "domain": "produse-metalurgice.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://produse-metalurgice.ro/",
+      "source_url": "https://produse-metalurgice.ro/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Site names Metalurgic 21 Plan SRL in Galați",
+      "claims": [
+        {
+          "type": "product",
+          "value": "square, rectangular and round construction tubes offered",
+          "url": "https://produse-metalurgice.ro/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "product",
+          "value": "welded black installation tubes offered",
+          "url": "https://produse-metalurgice.ro/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Quick Comarf Business (QCB)",
+      "domain": "qcb.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://qcb.ro/produse/",
+      "source_url": "https://qcb.ro/produse/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Full legal entity name pending independent review",
+      "claims": [
+        {
+          "type": "product",
+          "value": "square and rectangular steel tube assortment",
+          "url": "https://qcb.ro/produse/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "product",
+          "value": "welded and drawn round steel tubes listed",
+          "url": "https://qcb.ro/produse/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Intact Eco",
+      "domain": "intacteco.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.intacteco.ro/tevi-din-otel-instalatii-constructii/tevi-otel-rectangulare-si-patrate",
+      "source_url": "https://www.intacteco.ro/tevi-din-otel-instalatii-constructii/tevi-otel-rectangulare-si-patrate",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Trading company legal identity and rights pending",
+      "claims": [
+        {
+          "type": "standard",
+          "value": "EN 10219 cold-formed and EN 10210 hot-finished rectangular tubes offered",
+          "url": "https://www.intacteco.ro/tevi-din-otel-instalatii-constructii/tevi-otel-rectangulare-si-patrate",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "material",
+          "value": "S235JRH and S355J2H listed among grades",
+          "url": "https://www.intacteco.ro/tevi-din-otel-instalatii-constructii/tevi-otel-rectangulare-si-patrate",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Meta Cos",
+      "domain": "meta-cos.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.meta-cos.ro/categorie-produs/tevi-metalice/tevi-patrate-si-rectangulare/",
+      "source_url": "https://www.meta-cos.ro/categorie-produs/tevi-metalice/tevi-patrate-si-rectangulare/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Storefront; legal entity and exact EN product grade pairing to reconfirm",
+      "claims": [
+        {
+          "type": "product",
+          "value": "square/rectangular welded tube retail catalog",
+          "url": "https://www.meta-cos.ro/categorie-produs/tevi-metalice/tevi-patrate-si-rectangulare/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "standard",
+          "value": "EN 10219-2 stated for square tube items",
+          "url": "https://www.meta-cos.ro/categorie-produs/tevi-metalice/tevi-patrate-si-rectangulare/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Laser Processing Romania",
+      "domain": "laserprocessing.ro",
+      "country": "RO",
+      "role": "processor_service_provider",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://laserprocessing.ro/servicii-debitare-laser-romania/",
+      "source_url": "https://laserprocessing.ro/servicii-debitare-laser-romania/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "No direct evidence of tube-specific processing; hold for relevance. Site/legal identity may be SC Debitare Indoire Sudura SRL",
+      "claims": [
+        {
+          "type": "process",
+          "value": "contract laser-cutting services for metal",
+          "url": "https://laserprocessing.ro/servicii-debitare-laser-romania/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "market",
+          "value": "industrial metal part processing in Romania",
+          "url": "https://laserprocessing.ro/servicii-debitare-laser-romania/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    },
+    {
+      "name": "Comelf S.A.",
+      "domain": "comelf.ro",
+      "country": "RO",
+      "role": "processor_service_provider",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://comelf.ro/dotari-tehnice/",
+      "source_url": "https://comelf.ro/dotari-tehnice/",
+      "evidence_status": "observed_public_first_party_page",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "imported": false,
+      "group_or_facility_note": "Industrial profile processing demonstrated, but tube-specific service NOT documented; hold until evidence",
+      "claims": [
+        {
+          "type": "process",
+          "value": "laser cutting of metal sheets and profiles",
+          "url": "https://comelf.ro/dotari-tehnice/",
+          "status": "observed_public_first_party_page"
+        },
+        {
+          "type": "process",
+          "value": "CNC saw cutting of large structural profiles",
+          "url": "https://comelf.ro/dotari-tehnice/",
+          "status": "observed_public_first_party_page"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,781 @@
+{
+  "phase": "NET-RO1.2b",
+  "observed_date": "2026-11-05",
+  "country": "RO",
+  "mode": "research_only",
+  "production_write_authorized": false,
+  "notice": "25 candidate Romanian first-party websites, not 25 legally confirmed companies. Total of 50 website candidates across RO1.1, RO1.2a, RO1.2b. No import, legal approval, contact data or source reuse clearance.",
+  "source_review": {
+    "first_party_pages_observed": true,
+    "reuse_rights_clear": false,
+    "legal_verification_complete": false,
+    "opt_out_review_complete": false,
+    "six_catalog_exact_domain_screen": "zero matches for these 25 normalized domains in read-only production query on 2026-11-05; does not establish legal uniqueness or group separation",
+    "explicit_holds": [
+      "isoplus.group shared multinational corporate domain; preinsulated pipes rather than structural hollow sections",
+      "h-metal.ro related to metal-online.ro; no duplicate company from second storefront",
+      "mairon-tubes.ro producer linked to wider Mairon group; not second row per facility",
+      "retail storefront names and VAT ID pending"
+    ],
+    "reviewer_status": "pending",
+    "no_automatic_publication": true,
+    "no_private_memory": true
+  },
+  "candidate_counts": {
+    "producer": 3,
+    "trader_distributor": 16,
+    "processor_service_provider": 6
+  },
+  "records": [
+    {
+      "candidate_id": "NET-RO1.2B-001",
+      "name": "MAIRON TUBES S.R.L.",
+      "domain": "mairon-tubes.ro",
+      "country": "RO",
+      "role": "producer",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.mairon-tubes.ro/",
+      "source_url": "https://www.mairon-tubes.ro/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Distinct producer site within Mairon group; do not merge with MAIRON GALATI",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Manufacture of welded steel tubes for construction",
+          "url": "https://www.mairon-tubes.ro/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "Steel coil slitting and cut-to-length operations",
+          "url": "https://www.mairon-tubes.ro/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-002",
+      "name": "COMTECH CO S.R.L.",
+      "domain": "comtechco.ro",
+      "country": "RO",
+      "role": "producer",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://comtechco.ro/en/",
+      "source_url": "https://comtechco.ro/en/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Slatina and Zimnicea are facilities not separate legal companies",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Spiral-welded SAWH steel pipe manufacture",
+          "url": "https://comtechco.ro/en/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "3LPE/3LPP steel pipe exterior coating",
+          "url": "https://comtechco.ro/en/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-003",
+      "name": "ISOPLUS ROMANIA S.R.L.",
+      "domain": "isoplus.group",
+      "country": "RO",
+      "role": "producer",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.isoplus.group/isoplus-group/locations/filter/romania/",
+      "source_url": "https://www.isoplus.group/isoplus-group/locations/filter/romania/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Shared multinational domain; not structural HSS and no inference of EN 10219",
+      "imported": false,
+      "claims": [
+        {
+          "type": "role",
+          "value": "Romanian company listed for production and sales",
+          "url": "https://www.isoplus.group/isoplus-group/locations/filter/romania/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Preinsulated piping systems for district heating",
+          "url": "https://www.isoplus.group/isoplus-group/locations/filter/romania/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-004",
+      "name": "REMAT BRAȘOV S.A.",
+      "domain": "rematbv.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://rematbv.ro/produse-siderurgice",
+      "source_url": "https://rematbv.ro/produse-siderurgice",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Legal registration and stock require independent checks",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Welded seamless square and rectangular steel tubes in assortment",
+          "url": "https://rematbv.ro/produse-siderurgice",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "role",
+          "value": "Steel products sold from warehouse or on order",
+          "url": "https://rematbv.ro/produse-siderurgice",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-005",
+      "name": "STIFT LUX DESIGN S.R.L.",
+      "domain": "stift.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.stift.ro/produse-noi/teava-rectangulara/",
+      "source_url": "https://www.stift.ro/produse-noi/teava-rectangulara/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Retail and metal products seller; industrial B2B scale unknown",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Rectangular steel tube catalog for sale",
+          "url": "https://www.stift.ro/produse-noi/teava-rectangulara/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Square and round tube product ranges listed",
+          "url": "https://www.stift.ro/produse-noi/teava-rectangulara/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-006",
+      "name": "NETINVEST S.R.L.",
+      "domain": "net-invest.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://net-invest.ro/despre-noi/",
+      "source_url": "https://net-invest.ro/despre-noi/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Not a tube manufacturer",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Welded rolled and rectangular steel tubes distributed",
+          "url": "https://net-invest.ro/despre-noi/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "role",
+          "value": "Construction and metal products distribution in Romania",
+          "url": "https://net-invest.ro/despre-noi/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-007",
+      "name": "thyssenkrupp Materials Romania S.R.L.",
+      "domain": "thyssenkrupp-materials.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.thyssenkrupp-materials.ro/ro",
+      "source_url": "https://www.thyssenkrupp-materials.ro/ro",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "National subsidiary; treat country and legal entity separately from group",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Round rectangular and square steel tubes offered",
+          "url": "https://www.thyssenkrupp-materials.ro/ro",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "role",
+          "value": "Romanian steel storage and wholesale distribution",
+          "url": "https://www.thyssenkrupp-materials.ro/ro",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-008",
+      "name": "GROUP METAL TRADING S.R.L.",
+      "domain": "groupmetal.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://groupmetal.ro/",
+      "source_url": "https://groupmetal.ro/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "VAT and current legal identity not independently accepted",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Carbon steel seamless cold drawn pipes distributed",
+          "url": "https://groupmetal.ro/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Round square and rectangular tube lines listed",
+          "url": "https://groupmetal.ro/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-009",
+      "name": "SCI DISTRIBUTION",
+      "domain": "sci-distribution.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://sci-distribution.ro/categorie-produs/tevi/teava-rectangulara/",
+      "source_url": "https://sci-distribution.ro/categorie-produs/tevi/teava-rectangulara/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Storefront; legal business name and physical stock to verify",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Rectangular steel tubes for sale",
+          "url": "https://sci-distribution.ro/categorie-produs/tevi/teava-rectangulara/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Square steel tubes in six-metre lengths listed",
+          "url": "https://sci-distribution.ro/categorie-produs/tevi/teava-rectangulara/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-010",
+      "name": "DITA INDUSTRIAL IMPORT-EXPORT S.A.",
+      "domain": "ditaindustrial.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://ditaindustrial.ro/despre-noi/",
+      "source_url": "https://ditaindustrial.ro/despre-noi/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Stainless focus, not proof of carbon structural stock",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Stainless square and rectangular welded tubes offered",
+          "url": "https://ditaindustrial.ro/despre-noi/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Stainless round and seamless tubes supplied",
+          "url": "https://ditaindustrial.ro/despre-noi/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-011",
+      "name": "RETA COM S.R.L.",
+      "domain": "retacom.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://retacom.ro/categorie-produs/teava/teava-rectangulara/",
+      "source_url": "https://retacom.ro/categorie-produs/teava/teava-rectangulara/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Online inventory unverified offline",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Rectangular steel tube catalog",
+          "url": "https://retacom.ro/categorie-produs/teava/teava-rectangulara/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Six-metre tube size variants listed",
+          "url": "https://retacom.ro/categorie-produs/teava/teava-rectangulara/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-012",
+      "name": "H METAL S.R.L.",
+      "domain": "h-metal.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.h-metal.ro/ro/produse-teava/",
+      "source_url": "https://www.h-metal.ro/ro/produse-teava/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Related store metal-online.ro must not become extra legal record",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Square rectangular round and galvanized steel tubes",
+          "url": "https://www.h-metal.ro/ro/produse-teava/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Seamless and cold drawn tube categories offered",
+          "url": "https://www.h-metal.ro/ro/produse-teava/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-013",
+      "name": "EISEN METAL",
+      "domain": "eisen-metal.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://eisen-metal.ro/eticheta-produs/tevi-rectangulare/",
+      "source_url": "https://eisen-metal.ro/eticheta-produs/tevi-rectangulare/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Legal identity and location unknown",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Rectangular steel tubes in retail product listing",
+          "url": "https://eisen-metal.ro/eticheta-produs/tevi-rectangulare/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Six-metre rectangular tube sizes advertised",
+          "url": "https://eisen-metal.ro/eticheta-produs/tevi-rectangulare/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-014",
+      "name": "EUROZONE METAL CONSTANȚA",
+      "domain": "eurozonemetal.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://eurozonemetal.ro/",
+      "source_url": "https://eurozonemetal.ro/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Construction materials trader; no automatic EN structural competence",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Steel tubes and metallurgical construction materials",
+          "url": "https://eurozonemetal.ro/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "role",
+          "value": "Warehousing and steel materials distribution in Constanța",
+          "url": "https://eurozonemetal.ro/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-015",
+      "name": "MAROLA",
+      "domain": "marola.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://marola.ro/metalurgice",
+      "source_url": "https://marola.ro/metalurgice",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "General building retail; underlying legal company needs review",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Square and rectangular steel tube products in catalog",
+          "url": "https://marola.ro/metalurgice",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Six-metre tube sections for sale",
+          "url": "https://marola.ro/metalurgice",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-016",
+      "name": "TROTUȘ GRUP S.R.L.",
+      "domain": "trotusgrup.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://trotusgrup.ro/despre-noi",
+      "source_url": "https://trotusgrup.ro/despre-noi",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Also sanitary supplies; industrial fit only the sourced metallurgical division",
+      "imported": false,
+      "claims": [
+        {
+          "type": "role",
+          "value": "Warehouse distribution of metallurgical products",
+          "url": "https://trotusgrup.ro/despre-noi",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Steel tubes profiles and sheet sold by metal division",
+          "url": "https://trotusgrup.ro/despre-noi",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-017",
+      "name": "THEBA CONS S.R.L.",
+      "domain": "thebacons.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.thebacons.ro/despre-noi.html",
+      "source_url": "https://www.thebacons.ro/despre-noi.html",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Construction retailer; inventory and wholesale size unknown",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Rectangular and square steel tubes sold",
+          "url": "https://www.thebacons.ro/despre-noi.html",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "Construction pipes and structural steel profiles in assortment",
+          "url": "https://www.thebacons.ro/despre-noi.html",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-018",
+      "name": "METAL DISTRIB EXPERT SEMA S.R.L.",
+      "domain": "metaldistrib.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.metaldistrib.ro/despre-noi/1/",
+      "source_url": "https://www.metaldistrib.ro/despre-noi/1/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Distribution only; manufacturing not inferred",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Rectangular and construction steel tubes distributed",
+          "url": "https://www.metaldistrib.ro/despre-noi/1/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "role",
+          "value": "Metal warehouse distribution at Maracineni Buzau",
+          "url": "https://www.metaldistrib.ro/despre-noi/1/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-019",
+      "name": "ARCO TRUST STEEL S.R.L.",
+      "domain": "arcotrust.ro",
+      "country": "RO",
+      "role": "trader_distributor",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.arcotrust.ro/",
+      "source_url": "https://www.arcotrust.ro/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Hybrid fabrication of gates and metal retail; primary-role review needed",
+      "imported": false,
+      "claims": [
+        {
+          "type": "product",
+          "value": "Rectangular and round steel tube categories offered",
+          "url": "https://www.arcotrust.ro/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "role",
+          "value": "Industrial metal profile distribution warehouse at Targu Neamt",
+          "url": "https://www.arcotrust.ro/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-020",
+      "name": "HABA RESEARCH",
+      "domain": "habaresearch.eu",
+      "country": "RO",
+      "role": "processor_service_provider",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://habaresearch.eu/debitare-laser-teava-profile",
+      "source_url": "https://habaresearch.eu/debitare-laser-teava-profile",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Machine capacities first-party only; check full company identity",
+      "imported": false,
+      "claims": [
+        {
+          "type": "process",
+          "value": "Laser cutting of tubes and profiles from technical drawings",
+          "url": "https://habaresearch.eu/debitare-laser-teava-profile",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "capability",
+          "value": "Round square and rectangular tube cutting with published size envelope",
+          "url": "https://habaresearch.eu/debitare-laser-teava-profile",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-021",
+      "name": "NEDTRIX",
+      "domain": "nedtrix.ro",
+      "country": "RO",
+      "role": "processor_service_provider",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.nedtrix.ro/services",
+      "source_url": "https://www.nedtrix.ro/services",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "No independent validation of technical capacity",
+      "imported": false,
+      "claims": [
+        {
+          "type": "process",
+          "value": "Metal tube and profile laser cutting",
+          "url": "https://www.nedtrix.ro/services",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "CNC milling and turning for industrial components",
+          "url": "https://www.nedtrix.ro/services",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-022",
+      "name": "AR METAL TECHNOLOGY",
+      "domain": "armetal-tech.ro",
+      "country": "RO",
+      "role": "processor_service_provider",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://armetal-tech.ro/about/",
+      "source_url": "https://armetal-tech.ro/about/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Legal identity and certifications to be reviewed",
+      "imported": false,
+      "claims": [
+        {
+          "type": "process",
+          "value": "Tube laser cutting and tube bending services",
+          "url": "https://armetal-tech.ro/about/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "Welded industrial metal assemblies and constructions",
+          "url": "https://armetal-tech.ro/about/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-023",
+      "name": "TECHNIC STEEL CONCEPT",
+      "domain": "technicsteel.ro",
+      "country": "RO",
+      "role": "processor_service_provider",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://technicsteel.ro/servicii/debitare-laser-teava-si-profile/",
+      "source_url": "https://technicsteel.ro/servicii/debitare-laser-teava-si-profile/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "First-party performance figures not independently certified",
+      "imported": false,
+      "claims": [
+        {
+          "type": "process",
+          "value": "Fiber laser cutting of round square and rectangular steel tubes",
+          "url": "https://technicsteel.ro/servicii/debitare-laser-teava-si-profile/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "capability",
+          "value": "Up to 6.5-metre tube and profile cutting stated",
+          "url": "https://technicsteel.ro/servicii/debitare-laser-teava-si-profile/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-024",
+      "name": "ARC GRUP S.R.L.",
+      "domain": "arcgrup.ro",
+      "country": "RO",
+      "role": "processor_service_provider",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://arcgrup.ro/servicii.html",
+      "source_url": "https://arcgrup.ro/servicii.html",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Electrochemical plating is NOT hot-dip galvanization",
+      "imported": false,
+      "claims": [
+        {
+          "type": "process",
+          "value": "Laser cutting of tubes with stated length and diameter limitations",
+          "url": "https://arcgrup.ro/servicii.html",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "Electrochemical zinc plating for metal parts",
+          "url": "https://arcgrup.ro/servicii.html",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "candidate_id": "NET-RO1.2B-025",
+      "name": "QSELF TECHNOLOGY",
+      "domain": "centrudebitarelaser.ro",
+      "country": "RO",
+      "role": "processor_service_provider",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://centrudebitarelaser.ro/despre-noi/",
+      "source_url": "https://centrudebitarelaser.ro/despre-noi/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "review_status": "needs_review",
+      "group_or_facility_note": "Brand and legal company identity to review",
+      "imported": false,
+      "claims": [
+        {
+          "type": "process",
+          "value": "Metal tube laser-cutting service",
+          "url": "https://centrudebitarelaser.ro/despre-noi/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "Metal sheet laser-cutting service",
+          "url": "https://centrudebitarelaser.ro/despre-noi/",
+          "status": "candidate_first_party"
+        }
+      ]
+    }
+  ]
+}

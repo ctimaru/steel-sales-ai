@@ -1,0 +1,314 @@
+{
+  "phase": "NET-RO1.1",
+  "observed_date": "2026-11-05",
+  "country": "RO",
+  "mode": "research_only",
+  "production_write_authorized": false,
+  "notice": "Ten Romanian first-party web research candidates. NOT legally verified; NOT 10 confirmed net-new identities; rights and opt-out screening pending. Not an import manifest. No PII.",
+  "reference_baseline": {
+    "canonical_published": 278,
+    "provisional_explorable": 408,
+    "baseline_date": "2026-11-05",
+    "source": "NET-GROWTH3.E.1 Notion readback"
+  },
+  "candidate_counts": {
+    "producer": 4,
+    "trader_distributor": 4,
+    "processor_service_provider": 2
+  },
+  "records": [
+    {
+      "name": "METINVEST TUBULAR IAȘI S.A.",
+      "domain": "iasi.metinvestholding.com",
+      "role": "producer",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://iasi.metinvestholding.com/ro-ro/",
+      "source_url": "https://iasi.metinvestholding.com/ro-ro/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": "Romanian entity on Metinvest group subdomain; legal entity and group dedup pending",
+      "claims": [
+        {
+          "type": "product",
+          "value": "longitudinally welded steel tubes",
+          "url": "https://iasi.metinvestholding.com/ro-ro/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "process",
+          "value": "ERW lines for HSS hollow structural profiles",
+          "url": "https://iasi.metinvestholding.com/ro-ro/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "ARTROM STEEL TUBES S.A.",
+      "domain": "artrom.com",
+      "role": "producer",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.artrom.com/where-we-operate/",
+      "source_url": "https://www.artrom.com/products/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": "Slatina tube works and Reșița steelworks are facilities, not two company rows",
+      "claims": [
+        {
+          "type": "product",
+          "value": "seamless steel pipes for industrial applications",
+          "url": "https://www.artrom.com/products/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "mechanical tubes and hydraulic-cylinder pipes",
+          "url": "https://www.artrom.com/products/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "SILCOTUB S.A. (TenarisSilcotub)",
+      "domain": "tenaris.com",
+      "role": "producer",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.tenaris.com/en/contact/tenaris-around-the-world",
+      "source_url": "https://www.tenaris.com/en/contact/tenaris-around-the-world",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": "tenaris.com shared global corporate domain; do not create duplicate row per location",
+      "claims": [
+        {
+          "type": "product",
+          "value": "seamless tubes manufactured at Zalău",
+          "url": "https://www.tenaris.com/en/contact/tenaris-around-the-world",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "facility",
+          "value": "seamless tubes manufacturing center in Zalău, Romania",
+          "url": "https://www.tenaris.com/en/contact/tenaris-around-the-world",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Hatboru Romania",
+      "domain": "hatboru.ro",
+      "role": "producer",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.hatboru.ro/",
+      "source_url": "https://www.hatboru.ro/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": "Romanian operation under Hatboru group; legal suffix/registration requires verification",
+      "claims": [
+        {
+          "type": "product",
+          "value": "helical welded steel pipes (HSAW)",
+          "url": "https://www.hatboru.ro/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "facility",
+          "value": "manufacturing plant in Giurgiu",
+          "url": "https://www.hatboru.ro/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Van Leeuwen Romania S.R.L.",
+      "domain": "vanleeuwen.com",
+      "role": "trader_distributor",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.vanleeuwen.com/ro/locations",
+      "source_url": "https://www.vanleeuwen.com/ro/locations",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": "Romanian subsidiary listed at Slatina on official group website. Global product navigation does not prove Romanian warehouse stock; exact-domain already mapped to Italy, hold legal separation.",
+      "claims": [
+        {
+          "type": "product",
+          "value": "group steel tubes and hollow sections offered; local inventory unknown",
+          "url": "https://www.vanleeuwen.com/ro/locations",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "facility",
+          "value": "Van Leeuwen Romania distribution location at Slatina",
+          "url": "https://www.vanleeuwen.com/ro/locations",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "SC Tevi Romania SRL",
+      "domain": "tevi-romania.ro",
+      "role": "trader_distributor",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://tevi-romania.ro/",
+      "source_url": "https://tevi-romania.ro/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": null,
+      "claims": [
+        {
+          "type": "product",
+          "value": "steel tubes, welded and seamless",
+          "url": "https://tevi-romania.ro/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "product",
+          "value": "spiral and longitudinal welded steel pipes",
+          "url": "https://tevi-romania.ro/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "S.C. STEEL TUBES S.R.L.",
+      "domain": "steel-tubes.ro",
+      "role": "trader_distributor",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://steel-tubes.ro/despre-noi",
+      "source_url": "https://steel-tubes.ro/despre-noi",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": null,
+      "claims": [
+        {
+          "type": "product",
+          "value": "distribution of carbon and low-alloy seamless steel pipes",
+          "url": "https://steel-tubes.ro/despre-noi",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "market",
+          "value": "Romanian nationwide tube distribution",
+          "url": "https://steel-tubes.ro/despre-noi",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Green Stal",
+      "domain": "greenstal.ro",
+      "role": "trader_distributor",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.greenstal.ro/articole/articole/info.html",
+      "source_url": "https://www.greenstal.ro/articole/articole/info.html",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": "Green Stal brand; legal business name to check before import",
+      "claims": [
+        {
+          "type": "product",
+          "value": "black and galvanized welded steel pipes for installations",
+          "url": "https://www.greenstal.ro/articole/articole/info.html",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "role",
+          "value": "import and distribution of steel products",
+          "url": "https://www.greenstal.ro/articole/articole/info.html",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "Zsofia SRL",
+      "domain": "zsofia.ro",
+      "role": "processor_service_provider",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://zsofia.ro/ro/capabilitati/debitare-laser-3d/",
+      "source_url": "https://zsofia.ro/ro/capabilitati/debitare-laser-3d/",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": "3D contour cutting documented; no automatic inference of stock or EN product standards",
+      "claims": [
+        {
+          "type": "process",
+          "value": "3D laser contour cutting of profiles and tubes",
+          "url": "https://zsofia.ro/ro/capabilitati/debitare-laser-3d/",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "material",
+          "value": "steel and stainless steel in the 3D laser cutting capability",
+          "url": "https://zsofia.ro/ro/capabilitati/debitare-laser-3d/",
+          "status": "candidate_first_party"
+        }
+      ]
+    },
+    {
+      "name": "SC RISK MANAGEMENT COMPANY SRL (R.M.C. Debitare Laser)",
+      "domain": "laser-rmc.ro",
+      "role": "processor_service_provider",
+      "country": "RO",
+      "intake_lane": "research_candidate",
+      "identity_url": "https://www.laser-rmc.ro/",
+      "source_url": "https://www.laser-rmc.ro/debitare-laser-teava-rectangulara",
+      "evidence_status": "candidate_first_party",
+      "legal_identity_status": "pending_independent_review",
+      "rights_status": "pending_independent_review",
+      "group_or_facility_note": "Romanian legal name stated on company's tube cutting webpage; registration and independent validation pending",
+      "claims": [
+        {
+          "type": "process",
+          "value": "laser cutting of rectangular and square steel tubes",
+          "url": "https://www.laser-rmc.ro/debitare-laser-teava-rectangulara",
+          "status": "candidate_first_party"
+        },
+        {
+          "type": "material",
+          "value": "carbon steel tube cutting",
+          "url": "https://www.laser-rmc.ro/debitare-laser-teava-rectangulara",
+          "status": "candidate_first_party"
+        }
+      ]
+    }
+  ],
+  "first_party_screening": {
+    "reviewed_date": "2026-11-05",
+    "exact_domain_check": "Read-only domain lookup across 6 production catalogs; 8/10 had no exact match. This does not imply legal identity uniqueness.",
+    "collisions": [
+      {
+        "domain": "tenaris.com",
+        "existing_country": "IT",
+        "existing_legal_entity": "Dalmine S.p.A.",
+        "resolution": "hold_shared_group_domain; Romanian SILCOTUB S.A. separate legal entity to verify",
+        "source": "public.network_companies and public.network_company_discovery_candidates"
+      },
+      {
+        "domain": "vanleeuwen.com",
+        "existing_country": "IT",
+        "existing_legal_entity": "Van Leeuwen Italia S.p.A.",
+        "resolution": "hold_shared_group_domain; Romanian Van Leeuwen Romania S.R.L. separate legal entity to verify",
+        "source": "public.network_companies and public.network_core_target_leads"
+      }
+    ],
+    "country_snapshot": "public.network_companies currently has 0 country_code=RO records; not proof of zero Romanian companies in all provisional catalogs.",
+    "rights_review": "pending",
+    "import_eligibility": "none"
+  }
+}

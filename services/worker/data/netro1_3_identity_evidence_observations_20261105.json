@@ -1,0 +1,194 @@
+{
+  "phase": "NET-RO1.3",
+  "observed_date": "2026-11-05",
+  "country": "RO",
+  "mode": "read_only_identity_evidence",
+  "production_write_authorized": false,
+  "notice": "Seven partial identity observations. Corporate websites, chamber listing and third-party mirrors do not replace a direct ONRC registry check. All candidate identity states remain PENDING, no source-use rights approved.",
+  "verification_method": "Search ONRC Recom online by official CUI/registration name; capture current company name, state, CUI, EUID, timestamp and permitted source reference, then reconcile alias and facility separately; never scrape private persons or treat a website as a legal certificate.",
+  "official_reference": "https://e-justice.europa.eu/topics/registers-business-insolvency-land/business-registers-eu-countries/ro_en",
+  "sources_reuse_decision": "none",
+  "partial_observation_count": 7,
+  "confirmed_onrc_count": 0,
+  "records": [
+    {
+      "candidate_id": "NET-RO1-002",
+      "domain": "artrom.com",
+      "research_name": "ARTROM STEEL TUBES S.A.",
+      "observed_current_name": "ARTROM STEEL TUBES S.A.",
+      "cui_hint": null,
+      "register_no_hint": null,
+      "notes": "Romanian name and two plants documented; independent ONRC CUI/status not yet checked",
+      "evidence": [
+        {
+          "tier": "company_first_party",
+          "url": "https://www.artrom.com/privacy-policy/",
+          "supports": "Romanian company name and Slatina registered office"
+        },
+        {
+          "tier": "company_first_party",
+          "url": "https://www.artrom.com/where-we-operate/",
+          "supports": "Slatina and Resita are two manufacturing sites of one named company"
+        }
+      ],
+      "evidence_read_status": "partial_identity_observations",
+      "onrc_live_check": "not_completed",
+      "source_rights_review": "pending",
+      "opt_out_check": "pending",
+      "identity_approved": false,
+      "import_ready": false
+    },
+    {
+      "candidate_id": "NET-RO1-005",
+      "domain": "vanleeuwen.com",
+      "research_name": "Van Leeuwen Romania S.R.L.",
+      "observed_current_name": "VAN LEEUWEN ROMANIA S.R.L.",
+      "cui_hint": "18587332",
+      "register_no_hint": "J2006000309284",
+      "notes": "Shared group domain collides with Italian Van Leeuwen entity; country-scoped legal identity requires ONRC",
+      "evidence": [
+        {
+          "tier": "company_first_party",
+          "url": "https://www.vanleeuwen.com/ro/locations",
+          "supports": "Romanian site presence on group domain"
+        },
+        {
+          "tier": "secondary_aggregator",
+          "url": "https://www.craiova.ro/firme/van-leeuwen-romania-s-r-l",
+          "supports": "Romanian identity, registration and CUI from independent mirror (not an ONRC query)"
+        }
+      ],
+      "evidence_read_status": "partial_identity_observations",
+      "onrc_live_check": "not_completed",
+      "source_rights_review": "pending",
+      "opt_out_check": "pending",
+      "identity_approved": false,
+      "import_ready": false
+    },
+    {
+      "candidate_id": "NET-RO1-026",
+      "domain": "mairon-tubes.ro",
+      "research_name": "MAIRON TUBES S.R.L.",
+      "observed_current_name": "MAIRON TUBES S.R.L.",
+      "cui_hint": null,
+      "register_no_hint": null,
+      "notes": "Mairon group legal relationship and registered entity remain to verify",
+      "evidence": [
+        {
+          "tier": "company_first_party",
+          "url": "https://www.mairon-tubes.ro/",
+          "supports": "Steel tube producer and company website"
+        }
+      ],
+      "evidence_read_status": "partial_identity_observations",
+      "onrc_live_check": "not_completed",
+      "source_rights_review": "pending",
+      "opt_out_check": "pending",
+      "identity_approved": false,
+      "import_ready": false
+    },
+    {
+      "candidate_id": "NET-RO1-027",
+      "domain": "comtechco.ro",
+      "research_name": "COMTECH CO S.R.L.",
+      "observed_current_name": "COMTECH CO SRL",
+      "cui_hint": "9600823",
+      "register_no_hint": "J28/215/1997",
+      "notes": "Company site appears to label J28/215/1997 as CUI; registry-format number is not tax CUI. Check directly with ONRC before acceptance",
+      "evidence": [
+        {
+          "tier": "company_first_party",
+          "url": "https://comtechco.ro/politica-de-confidentialitate/",
+          "supports": "COMTECH CO SRL and J28/215/1997 in business imprint"
+        },
+        {
+          "tier": "secondary_aggregator",
+          "url": "https://craiova.ro/firme/comtech-co-srl",
+          "supports": "Reports tax CUI 9600823 and legal identity"
+        }
+      ],
+      "evidence_read_status": "partial_identity_observations",
+      "onrc_live_check": "not_completed",
+      "source_rights_review": "pending",
+      "opt_out_check": "pending",
+      "identity_approved": false,
+      "import_ready": false
+    },
+    {
+      "candidate_id": "NET-RO1-028",
+      "domain": "isoplus.group",
+      "research_name": "ISOPLUS ROMANIA S.R.L.",
+      "observed_current_name": "ISOPLUS ROMANIA S.R.L.",
+      "cui_hint": null,
+      "register_no_hint": null,
+      "notes": "Group domain; preinsulated utility pipes only, no documented structural hollow section product",
+      "evidence": [
+        {
+          "tier": "company_first_party",
+          "url": "https://www.isoplus.group/isoplus-group/locations/filter/romania/",
+          "supports": "Romanian production and sales group presence"
+        }
+      ],
+      "evidence_read_status": "partial_identity_observations",
+      "onrc_live_check": "not_completed",
+      "source_rights_review": "pending",
+      "opt_out_check": "pending",
+      "identity_approved": false,
+      "import_ready": false
+    },
+    {
+      "candidate_id": "NET-RO1-029",
+      "domain": "rematbv.ro",
+      "research_name": "REMAT BRAȘOV S.A.",
+      "observed_current_name": "REMAT BRAȘOV SA",
+      "cui_hint": "1088125",
+      "register_no_hint": "J08/85/1991",
+      "notes": "Romanian chamber of commerce directory corroborates company CUI and website; ONRC live status and reuse governance still pending",
+      "evidence": [
+        {
+          "tier": "chamber_of_commerce_directory",
+          "url": "https://ccibv.ro/catalog-membri/",
+          "supports": "Company name CUI 1088125 J08/85/1991 and rematbv.ro domain"
+        },
+        {
+          "tier": "secondary_aggregator",
+          "url": "https://craiova.ro/firme/remat-brasov-sa",
+          "supports": "Independent mirror reported company and current operation"
+        }
+      ],
+      "evidence_read_status": "partial_identity_observations",
+      "onrc_live_check": "not_completed",
+      "source_rights_review": "pending",
+      "opt_out_check": "pending",
+      "identity_approved": false,
+      "import_ready": false
+    },
+    {
+      "candidate_id": "NET-RO1-032",
+      "domain": "thyssenkrupp-materials.ro",
+      "research_name": "thyssenkrupp Materials Romania S.R.L.",
+      "observed_current_name": "tk accelis Materials Romania SRL",
+      "cui_hint": "18992475",
+      "register_no_hint": "J40/11614/2009",
+      "notes": "IMPORTANT 2026 RENAME: group website identifies new legal name and former name; CUI continuity reported by independent company register; no new entity should be created from name change",
+      "evidence": [
+        {
+          "tier": "company_first_party",
+          "url": "https://www.thyssenkrupp-materials.ro/en/imprint",
+          "supports": "New current name, former thyssenkrupp Materials Romania name, VAT RO18992475, J40/11614/2009"
+        },
+        {
+          "tier": "secondary_aggregator",
+          "url": "https://dosarfirma.ro/firma/tk-accelis-materials-romania-srl-18992475",
+          "supports": "October 2026 company-name change report and tax CUI continuity"
+        }
+      ],
+      "evidence_read_status": "partial_identity_observations",
+      "onrc_live_check": "not_completed",
+      "source_rights_review": "pending",
+      "opt_out_check": "pending",
+      "identity_approved": false,
+      "import_ready": false
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "phase": "NET-RO1.3.B",
+  "recorded_date": "2026-11-05",
+  "country": "RO",
+  "mode": "research_only",
+  "target_dataset": "Firme înregistrate la Registrul Comerțului până la data de 19.10.2026",
+  "target_snapshot_date": "2026-10-19",
+  "publisher_expected": "Oficiul Național al Registrului Comerțului (ONRC)",
+  "catalog_observations": [
+    {
+      "source": "european_data_portal",
+      "url": "https://data.europa.eu/data/catalogues/data-gov-ro?locale=ro",
+      "status": "dataset_listing_observed",
+      "scope": "ONRC dataset dated 19.10.2026 listed; not file bytes"
+    },
+    {
+      "source": "official_ckan_site",
+      "url": "https://data.gov.ro/dataset?res_format=csv&organization=onrc",
+      "status": "retrieval_timeout",
+      "scope": "Direct authoritative dataset package page not retrieved"
+    },
+    {
+      "source": "official_ckan_api",
+      "url": "https://data.gov.ro/api/3/action/package_search?q=19.10.2026&rows=5",
+      "status": "proxy_error_and_unavailable",
+      "scope": "Exact package ID, resources and per-resource licence not obtained"
+    },
+    {
+      "source": "independent_source_index",
+      "url": "https://firmedb.ro/surse",
+      "status": "secondary_license_statement_only",
+      "scope": "Independent listing associates OD_FIRME and OD_STARE_FIRMA 2026-10-19 with declared CC-BY-4.0; not authoritative per-resource verification"
+    },
+    {
+      "source": "direct_official_dataset_listing",
+      "url": "https://data.gov.ro/dataset/firme-19-10-2026",
+      "status": "dataset_slug_resolved_via_official_catalog_link",
+      "scope": "Official ONRC 19 Oct 2026 page URL identified; detail rendering timed out"
+    },
+    {
+      "source": "independent_index_with_official_resource_href",
+      "url": "https://firmedb.ro/surse",
+      "status": "3_official_data_gov_ro_resource_urls_extracted",
+      "scope": "Exact ONRC CSV and nomenclature resource paths. Only URL discovery; no original data rows or per-resource licence obtained."
+    }
+  ],
+  "expected_private_local_files": [
+    "OD_FIRME.CSV",
+    "OD_STARE_FIRMA.CSV",
+    "original_onrc_ckan_package_show.json"
+  ],
+  "ckan_official_package_id": "1962670f-acda-41b5-b52c-c430d7a1ef5e",
+  "resource_urls": {
+    "OD_FIRME": "https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/361e52e3-4590-40af-ae0f-8a15089fc927/download/od_firme.csv",
+    "OD_STARE_FIRMA": "https://data.gov.ro/dataset/1962670f-acda-41b5-b52c-c430d7a1ef5e/resource/0689b858-8371-44ec-bc2f-0fc6e5ae2fcc/download/od_stare_firma.csv",
+    "N_STARE_FIRMA": "https://data.gov.ro/dataset/7729250c-f03a-45d5-b2de-df015340b619/resource/eb45f5fd-b2c5-4ed2-876d-2d6f92ed6922/download/n_stare_firma.csv"
+  },
+  "specific_distribution_license_id": null,
+  "official_license_metadata_verified": false,
+  "official_csv_bytes_downloaded": false,
+  "raw_onrc_csv_rows_scanned": 0,
+  "corporate_registry_snapshot_matches": 0,
+  "live_onrc_company_verifications": 0,
+  "company_source_rights_approvals": 0,
+  "companies_import_ready": 0,
+  "ro_company_production_imports": 0,
+  "next_action": "Obtain original official CKAN package_show JSON and original OD_FIRME/OD_STARE and N_STARE CSV bytes privately; verify SHA-256 and package-level resource IDs, decode status codes, reconcile 50 candidate legal identities and separately approve rights/opt-outs before any import.",
+  "note": "Do not infer file-level licence or legal eligibility from a catalog snippet or a secondary data-source directory. No company metadata, rights or status has been approved by this access check.",
+  "official_dataset_listing_url": "https://data.gov.ro/dataset/firme-19-10-2026",
+  "official_nomenclature_listing_url": "https://data.gov.ro/dataset/nomenclatoare-19-10-2026",
+  "nomenclature_package_id": "7729250c-f03a-45d5-b2de-df015340b619",
+  "resource_identifiers": {
+    "OD_FIRME": "361e52e3-4590-40af-ae0f-8a15089fc927",
+    "OD_STARE_FIRMA": "0689b858-8371-44ec-bc2f-0fc6e5ae2fcc",
+    "N_STARE_FIRMA": "eb45f5fd-b2c5-4ed2-876d-2d6f92ed6922"
+  },
+  "resource_discovery_evidence": {
+    "href_index": "https://firmedb.ro/surse",
+    "official_listing": "https://data.gov.ro/dataset?organization=onrc&res_format=csv",
+    "verification": "Official dataset page linked from official organization listing. Actual resource HTTPS URLs extracted from independent source catalog linking straight to data.gov.ro; web attempted CSV access and OD_FIRME and N_STARE responded as text/csv, OD_STARE timed out. Direct CKAN package_show and original file bytes not retrieved.",
+    "actual_official_ckan_license_verification": false,
+    "checksum_verified": false,
+    "source_readiness": "resource_urls_observed_but_original_bytes_unavailable"
+  }
+}
