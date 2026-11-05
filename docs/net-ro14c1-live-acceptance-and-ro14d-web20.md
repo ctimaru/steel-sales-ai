@@ -55,7 +55,7 @@ A source audit found that `Rivendica questa azienda` on the published profile ap
 
 The existing company-profile first-screen now prioritizes **one claim CTA above secondary Connect / website actions**:
 - **Authenticated organization administrator**: `Rivendica questa azienda` links directly to `/network/{id}/claim` and reuses the server-side `requireWorkspaceAdmin`, ownership proof, duplicate-domain, claimant-role and superadmin approval process.
-- **User without an administrator workspace**: the same claim label enters the established `/register?company={companyName}#company-check` registration/company check, with explanatory text that claim approval is not automatic.
+- **User without an administrator workspace**: the same claim label enters the established `/register?company={companyName}&return_to={canonicalClaimPath}#company-check` registration/company check. The existing `safeCommercialReturnTo` guard explicitly permits `/network/{uuid}/claim`, so the user retains the **original published company claim target** after registration instead of starting a detached company identity. Claim approval is never automatic.
 - **Pending claim, already claimed, or approved claim**: no second redundant claim CTA is created for the same administrator. Existing pending and managed states remain governed separately.
 
 This is a UI/accessibility funnel change, **not** permission escalation: no new RPC grants, no claim approval, no certificates, no unverified personal contact, and no automatic company ownership. It must pass frontend tests, UI contrast and mobile gates; it must also be visually inspected in production at 1440, 390 and 320 px **after the next approved deployment**. The real claim submission remains a distinct authenticated acceptance scenario.
