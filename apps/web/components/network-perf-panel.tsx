@@ -5,7 +5,8 @@ import {useCallback,useEffect,useRef,useState} from "react";
 const STORE="sss:net-perf1a:samples:v1";
 const PENDING="sss:net-perf1a:pending:v1";
 const MAX_SAMPLES=100;
-const classifyRoute=(pathname:string)=>
+type RouteKind="network"|"company_profile"|"other";
+const classifyRoute=(pathname:string):RouteKind=>
   pathname==="/network"?"network":/^\/network\/[^/]+$/.test(pathname)?"company_profile":"other";
 
 type PerfSample={
