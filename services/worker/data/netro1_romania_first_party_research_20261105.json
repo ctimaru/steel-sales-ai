@@ -132,16 +132,16 @@
       "country": "RO",
       "intake_lane": "research_candidate",
       "identity_url": "https://www.vanleeuwen.com/ro/locations",
-      "source_url": "https://www.vanleeuwen.com/ro/products",
+      "source_url": "https://www.vanleeuwen.com/ro/locations",
       "evidence_status": "candidate_first_party",
       "legal_identity_status": "pending_independent_review",
       "rights_status": "pending_independent_review",
-      "group_or_facility_note": "vanleeuwen.com shared multinational domain; check Romanian legal identity separately",
+      "group_or_facility_note": "Romanian subsidiary listed at Slatina on official group website. Global product navigation does not prove Romanian warehouse stock; exact-domain already mapped to Italy, hold legal separation.",
       "claims": [
         {
           "type": "product",
-          "value": "carbon steel tubes and hollow sections",
-          "url": "https://www.vanleeuwen.com/ro/products",
+          "value": "group steel tubes and hollow sections offered; local inventory unknown",
+          "url": "https://www.vanleeuwen.com/ro/locations",
           "status": "candidate_first_party"
         },
         {
@@ -261,7 +261,7 @@
       ]
     },
     {
-      "name": "R.M.C. Debitare Laser",
+      "name": "SC RISK MANAGEMENT COMPANY SRL (R.M.C. Debitare Laser)",
       "domain": "laser-rmc.ro",
       "role": "processor_service_provider",
       "country": "RO",
@@ -271,7 +271,7 @@
       "evidence_status": "candidate_first_party",
       "legal_identity_status": "pending_independent_review",
       "rights_status": "pending_independent_review",
-      "group_or_facility_note": "Public business name R.M.C.; confirm full legal identity before import",
+      "group_or_facility_note": "Romanian legal name stated on company's tube cutting webpage; registration and independent validation pending",
       "claims": [
         {
           "type": "process",
@@ -287,5 +287,28 @@
         }
       ]
     }
-  ]
+  ],
+  "first_party_screening": {
+    "reviewed_date": "2026-11-05",
+    "exact_domain_check": "Read-only domain lookup across 6 production catalogs; 8/10 had no exact match. This does not imply legal identity uniqueness.",
+    "collisions": [
+      {
+        "domain": "tenaris.com",
+        "existing_country": "IT",
+        "existing_legal_entity": "Dalmine S.p.A.",
+        "resolution": "hold_shared_group_domain; Romanian SILCOTUB S.A. separate legal entity to verify",
+        "source": "public.network_companies and public.network_company_discovery_candidates"
+      },
+      {
+        "domain": "vanleeuwen.com",
+        "existing_country": "IT",
+        "existing_legal_entity": "Van Leeuwen Italia S.p.A.",
+        "resolution": "hold_shared_group_domain; Romanian Van Leeuwen Romania S.R.L. separate legal entity to verify",
+        "source": "public.network_companies and public.network_core_target_leads"
+      }
+    ],
+    "country_snapshot": "public.network_companies currently has 0 country_code=RO records; not proof of zero Romanian companies in all provisional catalogs.",
+    "rights_review": "pending",
+    "import_eligibility": "none"
+  }
 }
