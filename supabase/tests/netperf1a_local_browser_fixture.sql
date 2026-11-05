@@ -32,12 +32,11 @@ insert into public.user_legal_acceptances(
 -- Public, fictional, and deterministic companies. The dataset is deliberately
 -- small: it validates interactions, not realistic production database latency.
 insert into public.network_companies(
-  id,legal_name,normalized_legal_name,country_code,publication_status,description
+  id,legal_name,country_code,publication_status,description
 )
 select
  ('70000000-0000-0000-0000-'||lpad(i::text,12,'0'))::uuid,
  'NET-PERF1.A Synthetic Steel '||lpad(i::text,2,'0'),
- 'net perf1a synthetic steel '||lpad(i::text,2,'0'),
  case when i<=24 then 'IT' else 'RO' end,
  'published',
  'Disposable synthetic company for localhost browser measurements only'
