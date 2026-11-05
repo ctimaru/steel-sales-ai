@@ -96,3 +96,15 @@ The **atomic** service-role RPC must be a new RO-specific contract: protected pe
 **Next execution — NET-RO1.3.B:** do official company-registry checks, resolve 2026 rename and multinational CUI identities, review source rights and opt-outs, reject/hold irrelevant sites, only then backfill additional verified first-party companies if genuinely qualified count falls below 50.
 
 _This decision record is not legal advice. Preserve original research evidence and reviewer audit logs; do not mutate the ledger into an import payload._
+
+## NET-RO1.3.B — 19 October 2026 OFFICIAL SNAPSHOT SOURCE ACCESS / LOCAL RECONCILIATION
+
+Read the full [ONRC snapshot streaming runbook](net-ro1.3b-onrc-snapshot-reconciliation-runbook.md), [read-only local matcher](../services/worker/scripts/netro1_3b_onrc_snapshot_reconcile.py), [synthetic tests](../services/worker/tests/test_netro1_3b_onrc_snapshot_reconcile.py) and [source-access audit record](../services/worker/data/netro1_3b_onrc_source_access_20261105.json).
+
+The European data catalog listed the ONRC dataset dated **19.10.2026** and third-party source directories reported **CC BY 4.0** as the ONRC package's declared licence. However, repeated direct requests to `data.gov.ro` (CKAN catalog and dataset) failed with timeout/proxy error. Exact official package ID, resource links, `package_show` licence, two raw original CSV files and file hashes were **not obtained**. `metadata_verified=false`; this is a genuine unresolved blocker, not a cached/approved licence. No ONRC raw records have been scanned or matched to the 50 SSS research candidates at this point.
+
+The new stdlib-only Python reader is intentionally offline and fail-closed: it uses locally supplied official `OD_FIRME.CSV`, `OD_STARE_FIRMA.CSV`, and authenticated/provenance-reviewed CKAN metadata; scans large CSVs in streaming mode; maps CUI and exact normalized corporate aliases; excludes PFA/individual legal forms; reads only legal entity fields and code-level statuses; labels ambiguous CUI, renames and cross-candidate duplicates for manual review; **never** changes production or flips any source-rights, ONRC live check, publication or import flag. Tests use synthetic rows, not the inaccessible ONRC company export.
+
+**Acceptance (current):** Local matcher committed and tested via CI; real official package metadata and data **blocked**; 0/50 reconciled against actual ONRC snapshot; 0/50 legally approved; 0/50 rights cleared; 0 imported. Request the actual publisher `package_show` record and private CSVs when accessible, record their SHA-256 and provenance, then run the offline matcher and review differences. After that, record source-attribution/permission and opt-out decisions separately. Only if 50–100 genuine RO legal entities are independently approved should the RO-specific service-role importer even be designed, rehearsed with ROLLBACK and considered for separate approval.
+
+**Licence note:** CC BY 4.0 generally permits commercial use with attribution where it actually applies to the publisher's licensed material; it never by itself licenses materials on private company websites nor overrides privacy rights.
