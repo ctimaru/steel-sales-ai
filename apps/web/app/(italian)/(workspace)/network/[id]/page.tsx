@@ -422,15 +422,16 @@ export default async function NetworkCompanyProfilePage({
                   ) : null}
                 </div>
               ) : null}
+              {/* NET-RO1.4.C: claim action is visible without opening a nested accordion.
+                  Account/affiliation proof and actual ownership approval remain server-gated. */}
               {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
                 adminOrganizationId && (!claimState || ["rejected","revoked"].includes(claimState.status)) ? (
-                <details className="w-full text-xs text-[#52615b]">
-                  <summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda?</summary>
-                  <div className="mt-3">
-                    <NetworkActivationCta mode="published" companyId={profile.company.id}
-                      companyName={displayName} source="network_profile" />
-                  </div>
-                </details>
+                <div className="w-full rounded-xl border border-[#c8ddd1] bg-[#f5faf7] px-3 py-3" data-testid="network-unclaimed-company-claim">
+                  <p className="mb-2 text-xs font-semibold text-[#175640]">Profilo non rivendicato</p>
+                  <NetworkActivationCta mode="published" companyId={profile.company.id}
+                    companyName={displayName} source="network_profile" compact />
+                  <p className="mt-2 text-[11px] leading-5 text-[#52615b]">Per rappresentanti aziendali. La rivendicazione richiede un account amministratore e la verifica dell'affiliazione.</p>
+                </div>
               ) : null}
             </div>
           </div>

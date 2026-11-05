@@ -51,7 +51,7 @@ test("P3.6 approved direct claim creates a control link without changing verific
 test("P3.6 claim workflow is available to company admins and Platform Superadmin", () => {
   assert.match(networkActions, /p3_6_request_company_claim/);
   assert.match(profile, /NetworkActivationCta mode="published"/);
-  assert.match(activationCta, /Rivendica il profilo/);
+  assert.match(activationCta, /Rivendica questa azienda/);
   assert.match(profile, /Ownership verificata/);
   assert.match(platformIa, /appRoutes\.platform\.claims/);
   assert.match(platformClaims, /Company Claims/);
