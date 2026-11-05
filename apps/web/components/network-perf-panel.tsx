@@ -37,15 +37,16 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
   const latestLcp=useRef<number|null>(null);
   const latestCls=useRef(0);
   const latestEvent=useRef(0);
+  const documentRoute=useRef<RouteKind>("other");
   const pending=useRef<{
     action:string;start:number;epoch:number;route:PerfSample["route"];
     url:string;results:Element|null;heading:string;
   }|null>(null);
 
-  const record=useCallback((kind:PerfSample["kind"],metric:string,ms:number,mode?:string)=>{
+  const record=useCallback((kind:PerfSample["kind"],metric:string,ms:number,mode?:string,routeOverride?:RouteKind)=>{
     const value=asFinite(ms);
     if(value===null)return;
-    const sample:PerfSample={kind,metric,ms:value,route:classifyRoute(location.pathname),
+    const sample:PerfSample={kind,metric,ms:value,route:routeOverride??classifyRoute(location.pathname),
       viewport:window.innerWidth,...(mode?{mode}:{})};
     const current=[...samplesRef.current,sample].slice(-MAX_SAMPLES);
     samplesRef.current=current;
@@ -78,7 +79,10 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
     }catch{}
 
     const nav=performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming|undefined;
-    if(nav){
+    const originalDocumentPath=nav?new URL(nav.name).pathname:location.pathname;
+    documentRoute.current=classifyRoute(originalDocumentPath);
+    const measuringOriginalNetwork=originalDocumentPath==="/network";
+    if(nav&&measuringOriginalNetwork){
       record("navigation","ttfb",nav.responseStart-nav.startTime,nav.type);
       if(nav.domContentLoadedEventEnd>0)record("navigation","dom_content_loaded",
         nav.domContentLoadedEventEnd-nav.startTime,nav.type);
@@ -93,18 +97,18 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
         observers.push(observer);
       }catch{}
     };
-    observe("paint",list=>{
+    if(measuringOriginalNetwork)observe("paint",list=>{
       for(const entry of list.getEntries()){
         if(entry.name==="first-contentful-paint")
           record("paint","fcp",entry.startTime);
       }
     },{type:"paint",buffered:true});
-    observe("largest-contentful-paint",list=>{
+    if(measuringOriginalNetwork)observe("largest-contentful-paint",list=>{
       const last=list.getEntries().at(-1);
       if(last)latestLcp.current=round(last.startTime);
     },{type:"largest-contentful-paint",buffered:true});
     let shiftStart=0,shiftLast=0,shiftWindow=0;
-    observe("layout-shift",list=>{
+    if(measuringOriginalNetwork)observe("layout-shift",list=>{
       for(const raw of list.getEntries()){
         const shift=raw as PerformanceEntry&{value:number;hadRecentInput:boolean};
         if(shift.hadRecentInput)continue;
@@ -117,7 +121,7 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
       }
     },{type:"layout-shift",buffered:true});
     // A longest-event diagnostic, NOT the official field INP algorithm.
-    observe("event",list=>{
+    if(measuringOriginalNetwork)observe("event",list=>{
       for(const entry of list.getEntries()){
         latestEvent.current=Math.max(latestEvent.current,entry.duration);
       }
@@ -196,9 +200,10 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
     observer.observe(document.documentElement,{subtree:true,childList:true,characterData:true});
 
     const onPageHide=()=>{
-      if(latestLcp.current!==null)record("paint","lcp_candidate",latestLcp.current);
-      record("paint","cls_session_max",latestCls.current);
-      if(latestEvent.current>0)record("paint","longest_event_duration",latestEvent.current);
+      if(!measuringOriginalNetwork)return;
+      if(latestLcp.current!==null)record("paint","lcp_candidate",latestLcp.current,undefined,documentRoute.current);
+      record("paint","cls_session_max",latestCls.current,undefined,documentRoute.current);
+      if(latestEvent.current>0)record("paint","longest_event_duration",latestEvent.current,undefined,documentRoute.current);
     };
     window.addEventListener("pagehide",onPageHide);
 
@@ -215,23 +220,30 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
 
   const exportReport=()=>{
     const routeSamples=[...samplesRef.current];
-    if(latestLcp.current!==null)routeSamples.push({
-      kind:"paint",metric:"lcp_candidate",ms:latestLcp.current,
-      route:classifyRoute(location.pathname),viewport:innerWidth,
-    });
-    routeSamples.push({kind:"paint",metric:"cls_session_max",ms:round(latestCls.current),
-      route:classifyRoute(location.pathname),viewport:innerWidth});
-    if(latestEvent.current>0)routeSamples.push({
-      kind:"paint",metric:"longest_event_duration",ms:round(latestEvent.current),
-      route:classifyRoute(location.pathname),viewport:innerWidth,
-    });
-    const interactions=routeSamples.filter(s=>s.kind==="interaction").map(s=>s.ms);
+    if(documentRoute.current==="network"){
+      if(latestLcp.current!==null)routeSamples.push({
+        kind:"paint",metric:"lcp_candidate",ms:latestLcp.current,
+        route:"network",viewport:innerWidth,
+      });
+      routeSamples.push({kind:"paint",metric:"cls_session_max",ms:round(latestCls.current),
+        route:"network",viewport:innerWidth});
+      if(latestEvent.current>0)routeSamples.push({
+        kind:"paint",metric:"longest_event_duration",ms:round(latestEvent.current),
+        route:"network",viewport:innerWidth,
+      });
+    }
+    const soft=routeSamples.filter(s=>s.kind==="interaction"&&s.mode==="action_to_dom_update").map(s=>s.ms);
+    const full=routeSamples.filter(s=>s.kind==="interaction"&&s.mode==="full_document_to_probe_ready").map(s=>s.ms);
     return JSON.stringify({
       contract:"net-perf1a-local-v1",scope:"tab_local_opt_in",measurement:"Chrome Performance API; not real-user p75 Core Web Vitals",
       generatedAt:new Date().toISOString(),samples:routeSamples,
-      summary:{interactionCount:interactions.length,interactionP50Ms:percentile(interactions,.5),
-        interactionP75Ms:interactions.length>=5?percentile(interactions,.75):null,
-        note:"Soft navigation: action to results DOM update; native reload: action to diagnostic probe ready. Do not pool modes."}
+      summary:{
+        softNavigation:{count:soft.length,p50Ms:percentile(soft,.5),
+          p75Ms:soft.length>=5?percentile(soft,.75):null},
+        fullDocument:{count:full.length,p50Ms:percentile(full,.5),
+          p75Ms:full.length>=5?percentile(full,.75):null},
+        note:"Soft navigation: action to results DOM update; native reload: action to diagnostic probe ready. The two modes are NOT pooled."
+      }
     },null,2);
   };
   const copy=async()=>{
@@ -240,6 +252,7 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
   };
   const reset=()=>{
     samplesRef.current=[];setSamples([]);
+    latestLcp.current=null;latestCls.current=0;latestEvent.current=0;
     try{sessionStorage.removeItem(STORE);sessionStorage.removeItem(PENDING);}catch{}
     setMessage("Campioni azzerati.");
   };
