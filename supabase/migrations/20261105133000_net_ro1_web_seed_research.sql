@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS private.network_web_research_seeds (
   first_seen_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT network_web_research_seeds_country_domain_unique UNIQUE(country_code,canonical_domain),
-  CONSTRAINT network_web_research_seeds_no_auto_promotion
-      CHECK (publication_status <> 'published' OR claim_status = 'claimed')
+  CONSTRAINT network_web_research_seeds_never_published
+      CHECK (publication_status <> 'published')
 );
 ALTER TABLE private.network_web_research_seeds ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON private.network_web_research_seeds FROM PUBLIC;
