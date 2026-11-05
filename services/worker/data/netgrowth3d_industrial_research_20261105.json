@@ -1,0 +1,70 @@
+{
+  "batch": "NET-GROWTH3D-IT-INDUSTRIAL-20261105-A",
+  "observed_date": "2026-11-05",
+  "kind": "industrial",
+  "records": [
+    {
+      "name": "Profiltubi S.p.A. (Reggiolo)",
+      "domain": "profiltubi.it",
+      "evidence_url": "https://www.profiltubi.it/",
+      "summary": "L'azienda produce tubi in acciaio al carbonio elettrosaldati HF a sezione tonda, quadra e rettangolare nel sito industriale di Reggiolo.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "producer",
+      "role_evidence_url": "https://www.profiltubi.it/",
+      "identity_evidence_url": "https://www.profiltubi.it/",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "Eurocromo S.r.l.",
+      "domain": "eurocromo.net",
+      "evidence_url": "https://www.eurocromo.net/",
+      "summary": "L'azienda effettua rettifica e cromatura su tubi in acciaio e lavorazioni meccaniche specializzate conto terzi su barre e tubolari.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "processor_service_provider",
+      "role_evidence_url": "https://www.eurocromo.net/",
+      "identity_evidence_url": "https://www.eurocromo.net/",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "Tubisteel S.r.l.",
+      "domain": "tubisteelsrl.com",
+      "evidence_url": "https://www.tubisteelsrl.com/",
+      "summary": "Il sito aziendale presenta la produzione di tubi saldati longitudinalmente in acciai inossidabili, duplex e leghe speciali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "producer",
+      "role_evidence_url": "https://www.tubisteelsrl.com/",
+      "identity_evidence_url": "https://www.tubisteelsrl.com/",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "In-Pipe S.r.l.",
+      "domain": "inpipe.it",
+      "evidence_url": "https://www.inpipe.it/produzione/",
+      "summary": "In-Pipe produce a Piozzano tubi saldati a sezione circolare in acciaio inox e leghe speciali su disegno, con diametri e spessori personalizzati.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "producer",
+      "role_evidence_url": "https://www.inpipe.it/produzione/",
+      "identity_evidence_url": "https://www.inpipe.it/chi-siamo/",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "Tubi e Servizi S.r.l.",
+      "domain": "tubieservizi.com",
+      "evidence_url": "https://www.tubieservizi.com/produzione/",
+      "summary": "L'azienda realizza tubi saldati di medio e grande diametro da lamiera, in acciaio al carbonio, con calandratura e saldature longitudinali per impianti industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "producer",
+      "role_evidence_url": "https://www.tubieservizi.com/produzione/",
+      "identity_evidence_url": "https://www.tubieservizi.com/",
+      "source_status": "first_party_screened"
+    }
+  ],
+  "review_hold_domains": [
+    "tubisteelsrl.com"
+  ]
+}

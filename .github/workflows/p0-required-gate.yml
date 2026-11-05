@@ -367,6 +367,7 @@ jobs:
             netcov1_end_user_density.sql \
             netcov2_campaign_batch_acquisition.sql \
             netcov2b_licensed_first_party.sql \
+            netgrowth3d_role_correct_intake.sql \
             netfast_discovered_free.sql \
             netfast2_structured_cc0.sql \
             netfast3_licensed_bulk_import.sql \

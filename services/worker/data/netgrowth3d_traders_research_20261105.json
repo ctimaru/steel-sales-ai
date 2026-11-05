@@ -1,0 +1,80 @@
+{
+  "batch": "NET-GROWTH3D-IT-TRADERS-20261105-A",
+  "observed_date": "2026-11-05",
+  "kind": "trader",
+  "records": [
+    {
+      "name": "Eurotrade S.r.l.",
+      "domain": "eurotrade.bg.it",
+      "evidence_url": "https://eurotrade.bg.it/__wp/it/",
+      "summary": "L'azienda dichiara la vendita da magazzino di tubi in acciaio inox AISI 304L e 316L per impiantistica, oltre a raccordi, flange e valvole.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor",
+      "role_evidence_url": "https://eurotrade.bg.it/__wp/it/",
+      "identity_evidence_url": "https://eurotrade.bg.it/__wp/it/",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "MECSUD 2.0 S.R.L.S.",
+      "domain": "mecsud.it",
+      "evidence_url": "https://mecsud.it/",
+      "summary": "L'azienda di Mesagne (BR) dichiara commercializzazione e disponibilita da magazzino di tubi tondi, quadri e rettangolari in acciaio inox.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor",
+      "role_evidence_url": "https://mecsud.it/",
+      "identity_evidence_url": "https://mecsud.it/",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "Tubi S.n.c. (Tubi Condotte)",
+      "domain": "tubicondotte.it",
+      "evidence_url": "https://www.tubicondotte.it/chi-siamo",
+      "summary": "La societa fornisce tubazioni in acciaio per acquedotti e gasdotti, anche di grande diametro, tramite produttori partner e consegne industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor",
+      "role_evidence_url": "https://www.tubicondotte.it/chi-siamo",
+      "identity_evidence_url": "https://www.tubicondotte.it/chi-siamo",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "SIC S.r.l. (Gorizia)",
+      "domain": "sicgorizia.it",
+      "evidence_url": "https://www.sicgorizia.it/sic-metalli/acciaio-al-carbonio/",
+      "summary": "La società distribuisce da magazzino tubi commerciali e per impieghi meccanici, tubi quadri e rettangolari in acciaio secondo EN 10210 e EN 10219.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor",
+      "role_evidence_url": "https://www.sicgorizia.it/sic-metalli/acciaio-al-carbonio/",
+      "identity_evidence_url": "https://www.sicgorizia.it/",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "Inoxtubi Padova S.r.l.",
+      "domain": "inoxtubi.com",
+      "evidence_url": "https://inoxtubi.com/",
+      "summary": "Il distributore veneto commercia tubi inox AISI 304/304L e 316/316L, saldati tondi, quadri e rettangolari, tubi senza saldatura e barre forate.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor",
+      "role_evidence_url": "https://inoxtubi.com/",
+      "identity_evidence_url": "https://inoxtubi.com/",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "Meris S.r.l.",
+      "domain": "merissrl.it",
+      "evidence_url": "https://www.merissrl.it/",
+      "summary": "La società di Treviolo commercia e lavora materiali siderurgici inclusi tubolari in ferro e acciaio, lamiere, laminati e travi per clienti industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor",
+      "role_evidence_url": "https://www.merissrl.it/",
+      "identity_evidence_url": "https://www.merissrl.it/",
+      "source_status": "first_party_screened"
+    }
+  ],
+  "review_hold_domains": []
+}

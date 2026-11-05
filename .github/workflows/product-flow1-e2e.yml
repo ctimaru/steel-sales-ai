@@ -72,9 +72,11 @@ jobs:
           python-version: "3.12"
           cache: pip
           cache-dependency-path: services/worker/pyproject.toml
-      - uses: supabase/setup-cli@v1
+      # Pin both action and CLI to avoid GitHub latest-release API throttling
+      # and unreviewed Supabase CLI v3 local/remote behavior changes.
+      - uses: supabase/setup-cli@v3
         with:
-          version: latest
+          version: 2.122.1
       - name: Install Worker, Next.js and Google Chrome stable
         shell: bash
         run: |
