@@ -75,7 +75,7 @@
       "role": "trader_distributor"
     },
     {
-      "name": "EFC Acciai",
+      "name": "E.F.C. Acciai S.r.l.",
       "domain": "efc-acciai.com",
       "evidence_url": "https://efc-acciai.com/",
       "summary": "Il sito aziendale presenta fornitura commerciale di prodotti siderurgici, compresi tubi in acciaio.",
@@ -120,10 +120,10 @@
       "role": "trader_distributor"
     },
     {
-      "name": "IMS Piping",
+      "name": "I.M.S. S.p.A.",
       "domain": "imspiping.it",
       "evidence_url": "https://imspiping.it/tubi/",
-      "summary": "Il catalogo aziendale presenta commercializzazione di tubi per piping in acciaio al carbonio, legato e inossidabile.",
+      "summary": "L'azienda I.M.S. S.p.A. dichiara fornitura di tubi e condutture in acciaio al carbonio, legato, inox, duplex e leghe speciali, saldati e senza saldatura.",
       "segment": "other",
       "material_signal": "explicit_steel_tube_product",
       "role": "trader_distributor"
