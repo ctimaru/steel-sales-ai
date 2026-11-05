@@ -39,9 +39,11 @@ l'esecuzione SQL o i tempi di CI per Core Web Vitals di un visitatore.
 La sonda campiona l'azione e la mutazione DOM senza conoscere contenuti
 privati. Alcuni aggiornamenti indistinguibili non generano un campione.
 Non fare claim su LCP/INP p75 reali o guadagni % senza **prima/dopo**
-su browser e rete omogenei. `interactionP75Ms` è calcolato solo con almeno
-5 campioni, ma non combinare `action_to_dom_update` e
-`full_document_to_probe_ready` per confronti statisticamente rigorosi.
+su browser e rete omogenei. `summary.softNavigation.p75Ms` e `summary.fullDocument.p75Ms` sono calcolati
+separatamente, ciascuno solo con almeno 5 campioni; non combinare
+`action_to_dom_update` e `full_document_to_probe_ready`.
+I timing TTFB/FCP/LCP/CLS vengono attribuiti soltanto al documento
+inizialmente aperto su `/network`, mai a una successiva rotta client-side.
 
 ## Dati e accessi
 
