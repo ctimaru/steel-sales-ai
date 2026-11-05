@@ -33,7 +33,7 @@ export function NetworkActivationCta({
      {source,profile_state:mode}
    )}
    className={cn(actionClasses({ variant: compact ? "soft" : "default", size: compact ? "sm" : "md" }), compact ? "min-h-10" : "min-h-11")}>
-   {published?"Rivendica il profilo":"Registra la tua azienda"}
+   {published?"Rivendica questa azienda":"Registra la tua azienda"}
  </Link>;
 }
 
