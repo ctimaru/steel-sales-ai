@@ -955,3 +955,26 @@ export async function decideNetworkConnection(formData: FormData) {
    decision==="accepted"?"Connessione accettata. Potete iniziare a collaborare.":
    decision==="declined"?"Richiesta rifiutata.":"Richiesta ritirata."));
 }
+
+/** G.3: a provisional discovery UUID cannot be used as a canonical ownership claim. */
+export async function submitProvisionalReconciliation(formData:FormData){
+ const context=await requireWorkspaceAdmin();
+ const discoveryId=textValue(formData,"discovery_id");
+ if(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}-[a-f0-9]{12}$/i.test(discoveryId))
+   redirect("/network?error=Profilo%20non%20valido");
+ const path="/network/"+discoveryId+"/reconcile";
+ if(textValue(formData,"authority_confirmed")!=="true")
+   redirect(path+"?error="+encodeURIComponent("Conferma di rappresentare questa azienda."));
+ const note=textValue(formData,"note");
+ if(note.length>1000)
+   redirect(path+"?error="+encodeURIComponent("Nota troppo lunga."));
+ const supabase=await createClient();
+ const {error}=await supabase.rpc("netgrowth3g3_request_reconciliation",{
+  p_discovery_id:discoveryId,p_organization_id:context.organizationId,p_note:note||null
+ });
+ if(error)
+   redirect(path+"?error="+encodeURIComponent(safeErrorMessage(error,"Richiesta non completata. Controlla le informazioni e riprova.")));
+ revalidatePath(path);
+ revalidatePath("/platform/network-activation");
+ redirect(path+"?message="+encodeURIComponent("Richiesta inviata alla revisione della piattaforma."));
+}
