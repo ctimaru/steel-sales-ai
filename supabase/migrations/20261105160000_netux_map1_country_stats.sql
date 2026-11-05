@@ -68,7 +68,7 @@ $$;
 
 create or replace function public.netux_map1_country_stats(
   p_organization_id uuid, p_access text
-) returns jsonb language sql stable security definer set search_path=''
+) returns jsonb language sql stable security invoker set search_path=''
 as $$
   select private.netux_map1_country_stats_impl(p_organization_id,p_access);
 $$;
