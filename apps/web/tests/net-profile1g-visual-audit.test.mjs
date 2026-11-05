@@ -13,10 +13,10 @@ test("NET-PROFILE1G: the first screen centers company identity and real connecti
     assert.match(profile,/app-primary/);
     assert.match(profile,/>\s*Connetti( →)?\s*<\/Link>/); // NET-UX LOT1: CTA renamed
     assert.match(profile,/max-w-6xl/);
-    // Network company claim stays behind its existing authenticated route.
+    // Network company claim is visible; ownership approval remains server-gated.
   }
-  assert.ok(pro.search(/>\s*Connetti( →)?\s*<\/Link>/) < pro.indexOf('data-testid="network-unclaimed-company-claim"'),
-    "canonical profile connection should precede visible claim CTA");
+  assert.ok(pro.indexOf('data-testid="network-unclaimed-company-claim"') < pro.search(/>\s*Connetti( →)?\s*<\/Link>/),
+    "unclaimed company claim must precede secondary connection action in the first profile screen");
   assert.ok(free.indexOf('aria-label="Connessione aziendale"') < free.indexOf('aria-label="Informazioni aziendali con fonte"'),
     "important action belongs in first screen, ahead of long evidence");
 });
