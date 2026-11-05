@@ -105,3 +105,15 @@ Key source distinctions: `comtechco.ro` and `mairon-tubes.ro` describe steel pip
 5. A later, separately approved service-role atomic production import and independent post-COMMIT readback must measure requested/added/duplicates/held/invalid, country RO, per-role, provenance/review and Network reader visibility. Browser QA is a separate acceptance gate.
 
 **Current authorization: `DENIED_PENDING_REVIEW`; imported from NET-RO1: 0.** No production or UX modifications in RO1.2b. Do not describe the 50 *research candidates* as 50 published Romanian companies.
+
+## NET-RO1.3 — Legal Identity, Source Rights & Protected Import Readiness (2026-11-05)
+
+See the detailed [NET-RO1.3 decision record](net-ro1.3-legal-identity-source-rights-import-readiness.md), [seven partial legal identity observations](../services/worker/data/netro1_3_identity_evidence_observations_20261105.json), [50-row read-only catalog/suppression SQL](../services/worker/sql/netro1_3_catalog_preflight_readonly.sql), [read-only Python readiness gate](../services/worker/scripts/netro1_3_import_readiness.py), and [offline gate tests](../services/worker/tests/test_netro1_3_import_readiness.py).
+
+Production read-only preflight returned 50 candidate rows; exactly two shared multinational domains, zero exact legal-name matches, no matched suppressions or historic rights decisions/RO objections. **Missing a rights decision is not rights approval.** Actual ONRC live queries completed: **zero**; company evidence observations for **seven** candidates are partial and preserve pending status. A 2026 corporate rename `thyssenkrupp Materials Romania` → `tk accelis Materials Romania SRL` is proposed as **one entity, one CUI 18992475**, never an extra company.
+
+**CRITICAL:** Existing `public.netgrowth3d_stage_industrial` is specific to a prior batch, only supports producer/processor and requires 50–100 items plus `NET-GROWTH3D-` batch. The RO research cohort contains 30 traders: do **not** call this RPC with Romania data, even as a test. New RO country/CUI-aware, trader-capable, private service-role atomic import contract requires a separate protected design/review after source rights and legal qualification.
+
+No production import has occurred. Read-only script returns `approved_new_legal_entities=0`, `eligible_for_protected_import_manifest=false` and `RESEARCH_ONLY_NO_IMPORT` on current committed evidence. The 50 research websites are **not** 50 qualified legal entities.
+
+**Next:** independent current ONRC registry checks, legal group/facility and name-change reconciliation, rights/opt-out and technical claims review. Only when 50–100 legal companies are actually approved: protected RO-specific importer design, dry-run rollback, and future separately authorized atomic import/readback.
