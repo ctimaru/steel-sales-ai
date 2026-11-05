@@ -306,6 +306,53 @@ export function CompanyPostCard({
 
 type Draft = Record<string, string | boolean>;
 
+/**
+ * CPOST3 (founder request, 5 Nov 2026): a compact composer. Closed it is one
+ * line plus four type buttons, like LinkedIn; open it shows a segmented type
+ * picker, dense fields and a single footer. Closing keeps the draft.
+ */
+const COMPOSER_LABEL: Record<CompanyPostType, string> = {
+  capacity: "Capacità",
+  stock: "Materiale",
+  news: "Novità",
+  event: "Evento",
+};
+
+const TYPE_ICON_TONE: Record<CompanyPostType, string> = {
+  capacity: "text-[#284b86]",
+  stock: "text-[#175640]",
+  news: "text-[#5a3d83]",
+  event: "text-[#815017]",
+};
+
+function TypeIcon({ type, className = "" }: { type: CompanyPostType; className?: string }) {
+  const common = { width: 16, height: 16, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true, className };
+  if (type === "capacity") {
+    return <svg {...common}><path d="M3 21V10l5 3v-3l5 3V6l8 4v11z" /><path d="M7 17h2M12 17h2M17 17h1" /></svg>;
+  }
+  if (type === "stock") {
+    return <svg {...common}><circle cx="7" cy="16" r="3.5" /><circle cx="17" cy="16" r="3.5" /><circle cx="12" cy="8" r="3.5" /></svg>;
+  }
+  if (type === "news") {
+    return <svg {...common}><path d="M4 10v4h3l7 4V6l-7 4z" /><path d="M17.5 9.5a3.5 3.5 0 0 1 0 5" /></svg>;
+  }
+  return <svg {...common}><rect x="3.5" y="5" width="17" height="15.5" rx="2" /><path d="M3.5 10h17M8 3v4M16 3v4" /></svg>;
+}
+
+const compactField =
+  "h-9 w-full rounded-lg border border-[#cfdcd4] bg-white px-2.5 text-[13px] text-[#143f30] placeholder:text-[#8a9a90] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#175640]";
+
+const compactLabel = "mb-1 block text-[11px] font-medium text-[#5b6b62]";
+
+const SPAN = {
+  full: "col-span-2 sm:col-span-6",
+  half: "col-span-2 sm:col-span-3",
+  third: "col-span-1 sm:col-span-2",
+  twoThirds: "col-span-2 sm:col-span-4",
+  /** A third on desktop, the full row on mobile (avoids half-empty rows). */
+  thirdWide: "col-span-2 sm:col-span-2",
+} as const;
+
 function Field({
   id,
   label,
@@ -315,6 +362,7 @@ function Field({
   type = "text",
   placeholder,
   maxLength = 120,
+  span = "half",
 }: {
   id: string;
   label: string;
@@ -324,77 +372,86 @@ function Field({
   type?: "text" | "date";
   placeholder?: string;
   maxLength?: number;
+  span?: keyof typeof SPAN;
 }) {
   return (
-    <div className="min-w-0">
-      <label htmlFor={id} className={labelClass}>
-        {label}{required ? <span aria-hidden="true"> *</span> : <span className="font-normal text-[#72877a]"> (facoltativo)</span>}
+    <div className={"min-w-0 " + SPAN[span]}>
+      <label htmlFor={id} className={compactLabel}>
+        {label}{required ? <span aria-hidden="true" className="text-[#9d4e28]"> *</span> : null}
+        {required ? <span className="sr-only"> (obbligatorio)</span> : null}
       </label>
       <input id={id} type={type} value={value} required={required} maxLength={maxLength} placeholder={placeholder}
-        onChange={(event) => onChange(event.target.value)} className={"mt-1 " + fieldClass} />
+        onChange={(event) => onChange(event.target.value)} className={compactField} />
     </div>
   );
 }
 
 function TypedFields({ type, draft, set, id }: { type: CompanyPostType; draft: Draft; set: (key: string, value: string | boolean) => void; id: string }) {
   const v = (key: string) => (typeof draft[key] === "string" ? (draft[key] as string) : "");
+  const grid = "grid grid-cols-2 gap-x-2.5 gap-y-2 sm:grid-cols-6";
   if (type === "capacity") {
     return (
-      <div className="grid gap-3 sm:grid-cols-2">
-        <div className="min-w-0">
-          <label htmlFor={id + "-process"} className={labelClass}>Lavorazione<span aria-hidden="true"> *</span></label>
+      <div className={grid}>
+        <div className={"min-w-0 " + SPAN.half}>
+          <label htmlFor={id + "-process"} className={compactLabel}>
+            Lavorazione<span aria-hidden="true" className="text-[#9d4e28]"> *</span><span className="sr-only"> (obbligatorio)</span>
+          </label>
           <select id={id + "-process"} value={v("process")} required onChange={(event) => set("process", event.target.value)}
-            className={"mt-1 " + fieldClass}>
+            className={compactField + " pr-8"}>
             <option value="">Scegli…</option>
             {CAPACITY_PROCESSES.map((process) => <option key={process.value} value={process.value}>{process.label}</option>)}
           </select>
         </div>
         {v("process") === "altro" ? (
-          <Field id={id + "-process-detail"} label="Quale lavorazione" required value={v("process_detail")} onChange={(x) => set("process_detail", x)} />
+          <Field id={id + "-process-detail"} label="Quale lavorazione" required value={v("process_detail")} onChange={(x) => set("process_detail", x)} placeholder="es. calandratura" />
         ) : (
-          <Field id={id + "-quantity"} label="Quantità o capacità" value={v("quantity")} onChange={(x) => set("quantity", x)} placeholder="es. 200 t/mese, 40 ore/settimana" maxLength={80} />
-        )}
-        <Field id={id + "-from"} label="Disponibile dal" type="date" value={v("available_from")} onChange={(x) => set("available_from", x)} />
-        <Field id={id + "-to"} label="Fino al" type="date" value={v("available_to")} onChange={(x) => set("available_to", x)} />
-        {v("process") === "altro" ? (
           <Field id={id + "-quantity"} label="Quantità o capacità" value={v("quantity")} onChange={(x) => set("quantity", x)} placeholder="es. 200 t/mese" maxLength={80} />
+        )}
+        <Field id={id + "-from"} label="Dal" type="date" span="third" value={v("available_from")} onChange={(x) => set("available_from", x)} />
+        <Field id={id + "-to"} label="Al" type="date" span="third" value={v("available_to")} onChange={(x) => set("available_to", x)} />
+        <Field id={id + "-location"} label="Luogo" span="thirdWide" value={v("location")} onChange={(x) => set("location", x)} placeholder="es. Brescia" />
+        {v("process") === "altro" ? (
+          <Field id={id + "-quantity"} label="Quantità o capacità" span="full" value={v("quantity")} onChange={(x) => set("quantity", x)} placeholder="es. 200 t/mese" maxLength={80} />
         ) : null}
-        <Field id={id + "-location"} label="Luogo" value={v("location")} onChange={(x) => set("location", x)} placeholder="es. Brescia" />
       </div>
     );
   }
   if (type === "stock") {
     return (
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Field id={id + "-product"} label="Prodotto" required value={v("product")} onChange={(x) => set("product", x)} placeholder="es. Tubo senza saldatura" />
-        <Field id={id + "-standard"} label="Norma" value={v("standard")} onChange={(x) => set("standard", x)} placeholder="es. EN 10216-2" maxLength={60} />
-        <Field id={id + "-grade"} label="Grado" value={v("grade")} onChange={(x) => set("grade", x)} placeholder="es. P235GH" maxLength={60} />
-        <Field id={id + "-dimensions"} label="Dimensioni" value={v("dimensions")} onChange={(x) => set("dimensions", x)} placeholder="es. 114,3 × 6,02 mm" maxLength={80} />
-        <Field id={id + "-quantity"} label="Quantità" value={v("quantity")} onChange={(x) => set("quantity", x)} placeholder="es. 18 t" maxLength={80} />
-        <Field id={id + "-location"} label="Luogo di ritiro" value={v("location")} onChange={(x) => set("location", x)} placeholder="es. Milano" />
-        <label className="flex min-h-10 items-center gap-2 text-xs text-[#2f4a3e] sm:col-span-2">
+      <div className={grid}>
+        <Field id={id + "-product"} label="Prodotto" required span="twoThirds" value={v("product")} onChange={(x) => set("product", x)} placeholder="es. Tubo senza saldatura" />
+        <Field id={id + "-quantity"} label="Quantità" span="third" value={v("quantity")} onChange={(x) => set("quantity", x)} placeholder="es. 18 t" maxLength={80} />
+        <Field id={id + "-standard"} label="Norma" span="third" value={v("standard")} onChange={(x) => set("standard", x)} placeholder="EN 10216-2" maxLength={60} />
+        <Field id={id + "-grade"} label="Grado" span="third" value={v("grade")} onChange={(x) => set("grade", x)} placeholder="P235GH" maxLength={60} />
+        <Field id={id + "-dimensions"} label="Dimensioni" span="third" value={v("dimensions")} onChange={(x) => set("dimensions", x)} placeholder="114,3 × 6,02" maxLength={80} />
+        <Field id={id + "-location"} label="Luogo di ritiro" span="half" value={v("location")} onChange={(x) => set("location", x)} placeholder="es. Milano" />
+        <label className={"flex h-9 items-center gap-2 self-end text-[13px] text-[#2f4a3e] " + SPAN.half}>
           <input type="checkbox" checked={draft.certificate_31 === true} onChange={(event) => set("certificate_31", event.target.checked)}
             className="h-4 w-4 accent-[#176045]" />
-          Con certificato EN 10204 3.1
+          Certificato EN 10204 3.1
         </label>
       </div>
     );
   }
   if (type === "event") {
     return (
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Field id={id + "-name"} label="Nome dell’evento" required value={v("name")} onChange={(x) => set("name", x)} placeholder="es. Made in Steel" />
-        <Field id={id + "-location"} label="Luogo" required value={v("location")} onChange={(x) => set("location", x)} placeholder="es. Fiera Milano Rho" />
-        <Field id={id + "-from"} label="Dal" required type="date" value={v("date_from")} onChange={(x) => set("date_from", x)} />
-        <Field id={id + "-to"} label="Al" type="date" value={v("date_to")} onChange={(x) => set("date_to", x)} />
-        <Field id={id + "-stand"} label="Stand" value={v("stand")} onChange={(x) => set("stand", x)} placeholder="es. Padiglione 3, B12" maxLength={40} />
+      <div className={grid}>
+        <Field id={id + "-name"} label="Nome dell’evento" required span="twoThirds" value={v("name")} onChange={(x) => set("name", x)} placeholder="es. Made in Steel" />
+        <Field id={id + "-stand"} label="Stand" span="thirdWide" value={v("stand")} onChange={(x) => set("stand", x)} placeholder="Pad. 3 B12" maxLength={40} />
+        <Field id={id + "-from"} label="Dal" required type="date" span="third" value={v("date_from")} onChange={(x) => set("date_from", x)} />
+        <Field id={id + "-to"} label="Al" type="date" span="third" value={v("date_to")} onChange={(x) => set("date_to", x)} />
+        <Field id={id + "-location"} label="Luogo" required span="thirdWide" value={v("location")} onChange={(x) => set("location", x)} placeholder="Fiera Milano" />
       </div>
     );
   }
   return null;
 }
 
-/** CPOST1/CPOST2 composer above the feed; shown only when cpost1_can_publish allows it. */
+function hasDraft(value: string, draft: Draft) {
+  return value.trim().length > 0 || Object.values(draft).some((x) => x === true || (typeof x === "string" && x.trim()));
+}
+
+/** CPOST1/CPOST2/CPOST3 composer above the feed; shown only when cpost1_can_publish allows it. */
 export function CompanyPostComposer({
   organizationName,
   onPublished,
@@ -402,26 +459,55 @@ export function CompanyPostComposer({
   organizationName: string;
   onPublished: (item: CompanyPostItem | null) => void;
 }) {
+  const [open, setOpen] = useState(false);
   const [type, setType] = useState<CompanyPostType>("capacity");
   const [value, setValue] = useState("");
   const [draft, setDraft] = useState<Draft>({});
+  const [notesOpen, setNotesOpen] = useState(false);
   const [error, setError] = useState("");
   const [done, setDone] = useState(false);
   const [pending, startTransition] = useTransition();
   const id = useId();
+  const panel = useRef<HTMLDivElement | null>(null);
+  const opener = useRef<HTMLButtonElement | null>(null);
   const length = value.trim().length;
   const textRequired = type === "news";
+  const showNotes = textRequired || notesOpen || value.length > 0;
+  const draftInProgress = hasDraft(value, draft);
 
   const set = useCallback((key: string, next: string | boolean) => {
     setDraft((current) => ({ ...current, [key]: next }));
     setDone(false);
   }, []);
 
+  // Focus the first field when the composer opens (not on type change, so keyboard users stay on the picker).
+  useEffect(() => {
+    if (!open) return;
+    const first = panel.current?.querySelector<HTMLElement>("input, select, textarea");
+    first?.focus();
+  }, [open]);
+
+  function start(next: CompanyPostType) {
+    if (next !== type) {
+      setType(next);
+      setDraft({});
+    }
+    setError("");
+    setDone(false);
+    setOpen(true);
+  }
+
+  function close() {
+    setOpen(false);
+    setError("");
+    requestAnimationFrame(() => opener.current?.focus());
+  }
+
   function choose(next: CompanyPostType) {
+    if (next === type) return;
     setType(next);
     setDraft({});
     setError("");
-    setDone(false);
   }
 
   function publish() {
@@ -432,67 +518,114 @@ export function CompanyPostComposer({
       if (!result.ok) return setError(result.error);
       setValue("");
       setDraft({});
+      setNotesOpen(false);
       setDone(true);
+      setOpen(false);
       onPublished(result.item);
     });
+  }
+
+  const initials = companyInitials(organizationName);
+
+  if (!open) {
+    return (
+      <section aria-label="Pubblica un aggiornamento" data-testid="company-post-composer" data-state="collapsed"
+        className="rounded-2xl border border-[#dce5df] bg-white px-3 pb-1.5 pt-3">
+        <div className="flex items-center gap-2.5">
+          <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#176045] text-xs font-bold text-white">
+            {initials}
+          </span>
+          <button ref={opener} type="button" onClick={() => start(type)} data-testid="company-post-open"
+            className="min-h-10 flex-1 truncate rounded-full border border-[#cfdcd4] bg-[#f7faf8] px-4 text-left text-sm text-[#5b6b62] transition hover:bg-[#eef5f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+            {draftInProgress ? "Riprendi la bozza del post…" : "Condividi capacità, materiale o una novità…"}
+          </button>
+        </div>
+        <div className="mt-1.5 grid grid-cols-4 gap-0.5">
+          {COMPANY_POST_TYPES.map((option) => (
+            <button key={option.value} type="button" onClick={() => start(option.value)}
+              data-testid={"company-post-start-" + option.value}
+              aria-label={"Nuovo post: " + option.label}
+              className="inline-flex min-h-10 flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-1 text-[11px] font-semibold text-[#3f5248] transition hover:bg-[#f1f6f3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] sm:flex-row sm:gap-1.5 sm:text-xs">
+              <TypeIcon type={option.value} className={TYPE_ICON_TONE[option.value]} />
+              <span>{COMPOSER_LABEL[option.value]}</span>
+            </button>
+          ))}
+        </div>
+        {done ? <p role="status" className="px-1 pb-1 text-xs font-semibold text-[#175640]">Post pubblicato.</p> : null}
+      </section>
+    );
   }
 
   const current = COMPANY_POST_TYPES.find((option) => option.value === type)!;
 
   return (
-    <section aria-labelledby={id + "-heading"} data-testid="company-post-composer" className="rounded-2xl border border-[#dce5df] bg-white p-3 sm:p-4">
-      <h2 id={id + "-heading"} className="text-sm font-semibold text-[#173f35]">Pubblica un aggiornamento</h2>
-      <p className="mt-0.5 text-[11px] leading-4 text-[#5b6b62]">
-        Come {organizationName} · visibile alle aziende della piattaforma · massimo {COMPANY_POST_DAILY_LIMIT} post al giorno
-      </p>
-
-      <div role="radiogroup" aria-label="Tipo di post" className="mt-3 flex flex-wrap gap-1.5">
-        {COMPANY_POST_TYPES.map((option) => (
-          <button key={option.value} type="button" role="radio" aria-checked={type === option.value}
-            data-testid={"company-post-type-" + option.value}
-            onClick={() => choose(option.value)}
-            className={"inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
-              (type === option.value ? "border-[#176045] bg-[#176045] text-white" : "border-[#d5e4da] bg-white text-[#3f5248] hover:bg-[#f2f8f4]")}>
-            {option.label}
-          </button>
-        ))}
-      </div>
-      <p className="mt-1.5 text-[11px] text-[#5b6b62]">
-        {current.hint}{companyPostIsOffer(type) ? " · resta visibile 30 giorni" : ""}
-      </p>
-
-      <div className="mt-3 space-y-3">
-        <TypedFields type={type} draft={draft} set={set} id={id} />
-        <div>
-          <label htmlFor={id + "-body"} className={textRequired ? "sr-only" : labelClass}>
-            {textRequired ? "Testo del post" : <>Note <span className="font-normal text-[#72877a]">(facoltative)</span></>}
-          </label>
-          <textarea
-            id={id + "-body"}
-            value={value}
-            onChange={(event) => { setValue(event.target.value); setDone(false); }}
-            rows={textRequired ? 3 : 2}
-            maxLength={COMPANY_POST_MAX_CHARS + 200}
-            placeholder={textRequired ? "Nuovi impianti, nuove gamme, investimenti, collaborazioni…" : "Condizioni, tempi, contatti interni…"}
-            className={"mt-1 resize-y " + fieldClass}
-          />
+    <section aria-labelledby={id + "-heading"} data-testid="company-post-composer" data-state="open"
+      onKeyDown={(event) => { if (event.key === "Escape" && !(event.target instanceof HTMLSelectElement)) close(); }}
+      className="rounded-2xl border border-[#c9dbd0] bg-white p-3 shadow-[0_4px_18px_rgba(18,61,52,0.06)]">
+      <h2 id={id + "-heading"} className="sr-only">Pubblica un aggiornamento</h2>
+      <div className="flex items-center justify-between gap-2">
+        <div role="radiogroup" aria-label="Tipo di post" className="grid min-w-0 flex-1 grid-cols-4 gap-0.5 rounded-2xl bg-[#f1f5f2] p-0.5 sm:flex sm:flex-none sm:rounded-full">
+          {COMPANY_POST_TYPES.map((option) => (
+            <button key={option.value} type="button" role="radio" aria-checked={type === option.value}
+              data-testid={"company-post-type-" + option.value}
+              onClick={() => choose(option.value)}
+              className={"inline-flex min-h-8 flex-col items-center justify-center gap-0.5 rounded-xl px-1 py-1 text-[11px] font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#175640] sm:h-8 sm:flex-row sm:gap-1.5 sm:rounded-full sm:px-2.5 sm:py-0 sm:text-xs " +
+                (type === option.value ? "bg-white text-[#173f35] shadow-[0_1px_3px_rgba(18,61,52,0.15)]" : "text-[#5b6b62] hover:text-[#173f35]")}>
+              <TypeIcon type={option.value} className={type === option.value ? TYPE_ICON_TONE[option.value] : ""} />
+              {COMPOSER_LABEL[option.value]}
+            </button>
+          ))}
         </div>
-      </div>
-
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-        <CharCount value={value} />
-        <button
-          type="button"
-          onClick={publish}
-          disabled={pending || (textRequired && length === 0) || length > COMPANY_POST_MAX_CHARS}
-          data-testid="company-post-publish"
-          className="inline-flex min-h-10 items-center rounded-full bg-[#176045] px-5 text-xs font-semibold !text-white hover:bg-[#114b36] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
-        >
-          {pending ? "Pubblicazione…" : "Pubblica"}
+        <button type="button" onClick={close} aria-label="Chiudi senza pubblicare (la bozza resta)"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-lg leading-none text-[#5b6b62] hover:bg-[#f1f5f2] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#175640]">
+          <span aria-hidden="true">×</span>
         </button>
       </div>
+
+      <div ref={panel} className="mt-3 space-y-2.5">
+        <TypedFields type={type} draft={draft} set={set} id={id} />
+        {showNotes ? (
+          <div>
+            <label htmlFor={id + "-body"} className={textRequired ? "sr-only" : compactLabel}>
+              {textRequired ? "Testo del post" : "Note"}
+            </label>
+            <textarea
+              id={id + "-body"}
+              value={value}
+              onChange={(event) => { setValue(event.target.value); setDone(false); }}
+              rows={textRequired ? 4 : 2}
+              maxLength={COMPANY_POST_MAX_CHARS + 200}
+              placeholder={textRequired ? "Cosa c’è di nuovo? Impianti, gamme, investimenti, collaborazioni…" : "Condizioni, tempi, contatti interni…"}
+              className={"block w-full resize-y rounded-lg border border-[#cfdcd4] bg-white px-2.5 py-2 text-[13px] leading-5 text-[#143f30] placeholder:text-[#8a9a90] focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[#175640]"}
+            />
+          </div>
+        ) : (
+          <button type="button" onClick={() => setNotesOpen(true)}
+            className="text-xs font-semibold text-[#175640] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2">
+            ＋ Aggiungi una nota
+          </button>
+        )}
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#edf2ef] pt-2.5">
+        <p className="min-w-0 text-[11px] leading-4 text-[#65746c]">
+          Come {organizationName}{companyPostIsOffer(type) ? " · visibile 30 giorni" : ""} · max {COMPANY_POST_DAILY_LIMIT} al giorno
+          <span className="sr-only"> · {current.hint}</span>
+        </p>
+        <div className="ml-auto flex items-center gap-3">
+          {showNotes ? <CharCount value={value} /> : null}
+          <button
+            type="button"
+            onClick={publish}
+            disabled={pending || (textRequired && length === 0) || length > COMPANY_POST_MAX_CHARS}
+            data-testid="company-post-publish"
+            className="inline-flex h-9 items-center rounded-full bg-[#176045] px-5 text-xs font-semibold !text-white hover:bg-[#114b36] disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176045]"
+          >
+            {pending ? "Pubblicazione…" : "Pubblica"}
+          </button>
+        </div>
+      </div>
       {error ? <p role="alert" className="mt-2 text-xs text-[#9d4e28]">{error}</p> : null}
-      {done ? <p role="status" className="mt-2 text-xs font-semibold text-[#175640]">Post pubblicato.</p> : null}
     </section>
   );
 }

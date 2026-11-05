@@ -108,3 +108,20 @@ test("CPOST2 composer starts on capacity; feed filter shows only one type", () =
   assert.match(feed, /hidden=\{postFilter !== null\}/);
   assert.match(gate, /cpost2_company_post_types\.sql/);
 });
+
+test("CPOST3 compact composer: one line when closed, dense fields when open, draft kept on close", () => {
+  // Founder request, 5 Nov 2026: a more compact, nicer post box.
+  assert.match(card, /const \[open, setOpen\] = useState\(false\);/, "starts closed");
+  assert.match(card, /data-state="collapsed"/);
+  assert.match(card, /data-testid="company-post-open"/);
+  assert.match(card, /data-testid=\{"company-post-start-" \+ option\.value\}/, "four type shortcuts when closed");
+  assert.match(card, /Riprendi la bozza del post/, "closing keeps the draft");
+  assert.match(card, /function close\(\) \{\s*setOpen\(false\);/);
+  assert.doesNotMatch(card.slice(card.indexOf("function close()"), card.indexOf("function choose(")), /setDraft|setValue/, "close never discards the draft");
+  assert.match(card, /＋ Aggiungi una nota/, "notes are opt-in for typed posts");
+  assert.match(card, /const compactField =\s*"h-9 /, "fields are 36px high");
+  assert.match(card, /grid grid-cols-2 gap-x-2\.5 gap-y-2 sm:grid-cols-6/);
+  assert.match(card, /event\.key === "Escape" && !\(event\.target instanceof HTMLSelectElement\)/);
+  assert.match(card, /aria-label="Chiudi senza pubblicare \(la bozza resta\)"/);
+  assert.match(card, /setOpen\(false\);\s*onPublished\(result\.item\);/, "publishing closes the box");
+});
