@@ -61,8 +61,12 @@ def assess_candidate(
         reasons.append("explicit_import_readiness_not_approved")
     if candidate.get("publication_approved") is not True:
         reasons.append("publication_governance_not_approved")
-    if not candidate.get("independent_legal_reviewer") or not candidate.get("independent_rights_reviewer"):
+    legal_reviewer = candidate.get("independent_legal_reviewer")
+    rights_reviewer = candidate.get("independent_rights_reviewer")
+    if not legal_reviewer or not rights_reviewer:
         reasons.append("independent_review_actors_missing")
+    elif legal_reviewer == rights_reviewer:
+        reasons.append("dual_control_reviewers_not_independent")
     if not candidate.get("last_registry_verified_at") or not candidate.get("last_rights_approved_at"):
         reasons.append("dated_registry_and_rights_evidence_missing")
 
@@ -116,7 +120,18 @@ def report(ledger: dict[str, Any], observations: dict[str, Any]) -> dict[str, An
     approved = [x for x in assessments if x.eligible]
     # A dataset with fewer than 50 genuinely approved RO legal entities is
     # never a permissible import cohort, even if all research domains are unique.
-    enough = MIN_IMPORT_SIZE <= len(approved) <= MAX_IMPORT_SIZE
+    approved_ids = {x.candidate_id for x in approved}
+    # Corporate subsidiaries may share a website but must not share Romanian CUI.
+    # Double count by brand/storefront or a 2026 rename must not qualify a cohort.
+    legal_cuis = [
+        obs[candidate_id]["cui_hint"] for candidate_id in approved_ids
+        if candidate_id in obs
+    ]
+    cui_uniqueness_confirmed = (
+        len(legal_cuis) == len(approved)
+        and len(set(legal_cuis)) == len(approved)
+    )
+    enough = MIN_IMPORT_SIZE <= len(approved) <= MAX_IMPORT_SIZE and cui_uniqueness_confirmed
     reason_counts = Counter(reason for x in assessments for reason in x.reasons)
     return {
         "contract": "netro1.3-readonly-qualification-v1",
@@ -128,6 +143,7 @@ def report(ledger: dict[str, Any], observations: dict[str, Any]) -> dict[str, An
         "import_batch_minimum": MIN_IMPORT_SIZE,
         "import_batch_maximum": MAX_IMPORT_SIZE,
         "eligible_for_protected_import_manifest": enough,
+        "approved_cui_uniqueness_confirmed": cui_uniqueness_confirmed,
         "missing_approved_entities_to_minimum": max(0, MIN_IMPORT_SIZE - len(approved)),
         "hold_reason_counts": dict(sorted(reason_counts.items())),
         "eligible_by_primary_role": dict(sorted(Counter(x.proposed_role for x in approved).items())),
