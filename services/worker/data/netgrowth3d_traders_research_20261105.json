@@ -50,6 +50,30 @@
       "role_evidence_url": "https://www.sicgorizia.it/sic-metalli/acciaio-al-carbonio/",
       "identity_evidence_url": "https://www.sicgorizia.it/",
       "source_status": "first_party_screened"
+    },
+    {
+      "name": "Inoxtubi Padova S.r.l.",
+      "domain": "inoxtubi.com",
+      "evidence_url": "https://inoxtubi.com/",
+      "summary": "Il distributore veneto commercia tubi inox AISI 304/304L e 316/316L, saldati tondi, quadri e rettangolari, tubi senza saldatura e barre forate.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor",
+      "role_evidence_url": "https://inoxtubi.com/",
+      "identity_evidence_url": "https://inoxtubi.com/",
+      "source_status": "first_party_screened"
+    },
+    {
+      "name": "Meris S.r.l.",
+      "domain": "merissrl.it",
+      "evidence_url": "https://www.merissrl.it/",
+      "summary": "La società di Treviolo commercia e lavora materiali siderurgici inclusi tubolari in ferro e acciaio, lamiere, laminati e travi per clienti industriali.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor",
+      "role_evidence_url": "https://www.merissrl.it/",
+      "identity_evidence_url": "https://www.merissrl.it/",
+      "source_status": "first_party_screened"
     }
   ],
   "review_hold_domains": []
