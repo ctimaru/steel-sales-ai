@@ -38,6 +38,18 @@
       "role_evidence_url": "https://www.tubicondotte.it/chi-siamo",
       "identity_evidence_url": "https://www.tubicondotte.it/chi-siamo",
       "source_status": "first_party_screened"
+    },
+    {
+      "name": "SIC S.r.l. (Gorizia)",
+      "domain": "sicgorizia.it",
+      "evidence_url": "https://www.sicgorizia.it/sic-metalli/acciaio-al-carbonio/",
+      "summary": "La società distribuisce da magazzino tubi commerciali e per impieghi meccanici, tubi quadri e rettangolari in acciaio secondo EN 10210 e EN 10219.",
+      "segment": "other",
+      "material_signal": "explicit_steel_tube_product",
+      "role": "trader_distributor",
+      "role_evidence_url": "https://www.sicgorizia.it/sic-metalli/acciaio-al-carbonio/",
+      "identity_evidence_url": "https://www.sicgorizia.it/",
+      "source_status": "first_party_screened"
     }
   ],
   "review_hold_domains": []
