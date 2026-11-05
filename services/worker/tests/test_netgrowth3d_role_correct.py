@@ -18,7 +18,7 @@ def read(path):
 def test_trader_records_are_always_traders():
     batch, kind, records, holds = validate_manifest(read(DEFAULT_MANIFEST))
     assert kind == "trader"
-    assert len(records) == 3 and not holds
+    assert len(records) == 4 and not holds
     assert all(r["role"] == "trader_distributor" for r in records)
 
 
@@ -26,7 +26,9 @@ def test_industrial_roles_are_preserved():
     _, kind, records, holds = validate_manifest(read(INDUSTRIAL))
     assert kind == "industrial"
     assert {r["role"] for r in records} == {"producer", "processor_service_provider"}
+    assert len(records) == 4
     assert holds == ["tubisteelsrl.com"]
+    assert any(r["domain"] == "inpipe.it" and r["role"] == "producer" for r in records)
 
 
 def test_sub_fifty_and_holds_cannot_write():
@@ -82,3 +84,11 @@ def test_fifty_synthetic_distinct_industrial_sources_are_valid():
     data["records"] = records
     _, kind, actual, holds = validate_manifest(data)
     assert kind == "industrial" and len(actual) == 50 and not holds
+
+
+def test_independent_new_research_source_roles_are_documented():
+    _, _, traders, _ = validate_manifest(read(DEFAULT_MANIFEST))
+    _, _, industrial, holds = validate_manifest(read(INDUSTRIAL))
+    assert any(r["domain"] == "sicgorizia.it" and r["role"] == "trader_distributor" for r in traders)
+    assert any(r["domain"] == "inpipe.it" and r["role"] == "producer" for r in industrial)
+    assert set(holds).issubset({x["domain"] for x in industrial})
