@@ -19,3 +19,6 @@ grant execute on function public.netux_map1_country_stats(uuid,text)
 
 comment on function public.netux_map1_country_stats(uuid,text) is
   'NET-UX-MAP1 reviewed read-only SECURITY DEFINER facade, pinned empty search_path. Private implementation checks active company membership (Free) or current Network entitlement (Pro) and rejects other modes. Only aggregate directory counts; no private Romanian research candidates or PII; anon and private implementation EXECUTE revoked.';
+
+-- Release gate: HP13 explicitly reviews only this aggregate facade. The
+-- implementation remains inaccessible directly to browser database roles.
