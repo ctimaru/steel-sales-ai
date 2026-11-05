@@ -66,3 +66,42 @@ Test with (a) HSS supplier near a named city, (b) tube laser processor with stat
 - All research records: `research_only`, no PII, no contact outreach, no private commercial memory, `production_write_authorized=false`.
 
 **Next gate (RO1.2b):** reach 50–100 first-party candidates with stable legal identity, rights and source audit ledger, classify `new`/`existing-enrichment`/`hold`; complete offline validator and protected CI. Production import `RO1.4` remains a distinct gate after legal, opt-out and source-rights approvals. RO1.2a **does not authorize import or merge**.
+
+
+## NET-RO1.2b — First 50 Romania industrial website research cohort (5 November 2026)
+
+**Research milestone achieved; legal qualification and import NOT achieved.** Across the three research-only manifests:
+
+| Wave | Candidate websites | Source-linked research claims |
+| --- | ---: | ---: |
+| RO1.1 | 10 | 20 |
+| RO1.2a | 15 | 30 |
+| RO1.2b | 25 | 50 |
+| **Total** | **50 distinct website domains** | **100 claim URLs** |
+
+- Candidate primary roles: **9 producers, 30 traders/distributors, 11 industrial service/processing providers**. None is a verified company or approved supplier by virtue of inclusion.
+- Third-wave research file: [NET-RO1.2b manifest](../services/worker/data/netro1_2b_romania_research_wave_20261105.json); 25 Romanian company first-party URL candidates, no personal contact records, no automatic outreach, and `production_write_authorized=false`.
+- Governed qualification queue: [50-candidate independent ledger](../services/worker/data/netro1_first50_qualification_ledger_20261105.json); every candidate is **not import-ready**, with legal registration, rights, opt-out, technical semantics and company/facility separation pending independent review.
+- Offline safeguards: [first-50 research test](../services/worker/tests/test_netro1_2b_first_50_research.py) and [qualification ledger test](../services/worker/tests/test_netro1_first50_qualification_ledger.py).
+
+### Read-only production dedup screening and review lanes
+
+The 50 candidate domains and normalized names were compared against **six existing catalog sources**: `network_companies`, `network_core_target_leads`, `private.netfast_discovered_records`, `network_netfast2_structured_entities`, `network_company_discovery_candidates`, and `network_discovery_domain_leads`. **Two exact-domain collisions**, both multinational and previously known (Tenaris / Dalmine IT and Van Leeuwen Italia IT). **No exact normalized domain/name match in the other 48**. Exact matching is NOT independent confirmation of 48 unique legal entities. It also does not prove absence of business opt-outs or permission to reuse website material. The existing `network_companies` country snapshot showed 0 RO and 282 IT; it is a separate population from the previously documented 278 published + 408 provisional.
+
+The recorded, mutually exclusive qualification lanes are:
+- **41** pending legal identity, source rights and opt-out review.
+- **2** multinational shared-domain collision holds (`tenaris.com`, `vanleeuwen.com`).
+- **5** group, brand or facility relationship reviews (`mairon-tubes.ro`, `isoplus.group`, `h-metal.ro`, `miras.ro`, `kovostroj.ro`).
+- **2** specific tube-processing relevance holds (`laserprocessing.ro`, `comelf.ro`); general metal processing is not proof of laser tube capability.
+
+Key source distinctions: `comtechco.ro` and `mairon-tubes.ro` describe steel pipe manufacturing; `isoplus.group` is preinsulated district-heating piping, not evidence of EN 10219 structural HSS; `h-metal.ro` is a distributor, not a producer, and its associated storefront is not a new legal company; laser process parameters on processor websites are company assertions, not independently verified machine certification. Grade S235 does not imply certified EN 10219 production.
+
+### Next protected gate (NET-RO1.3 qualification and import preflight)
+
+1. Review legal identities with registration ID/VAT when available from permitted company/registry evidence; classify company versus facility versus subsidiary and any duplicate/provisional enrichment **without overwrites**.
+2. Confirm source use rights, opt-outs, data-minimization/privacy and technical statements; hold unresolved cases and explicitly count how many are *eligible* for the future 50–100-company import.
+3. Finish all required CI, code review and protected merge of research artifacts. Green CI alone is insufficient for import approval.
+4. Only then prepare a **new** explicit, role-correct, immutable import manifest for 50–100 qualified distinct legal entities. Run service-only transactional dry-run with ROLLBACK; no manual SQL inserts.
+5. A later, separately approved service-role atomic production import and independent post-COMMIT readback must measure requested/added/duplicates/held/invalid, country RO, per-role, provenance/review and Network reader visibility. Browser QA is a separate acceptance gate.
+
+**Current authorization: `DENIED_PENDING_REVIEW`; imported from NET-RO1: 0.** No production or UX modifications in RO1.2b. Do not describe the 50 *research candidates* as 50 published Romanian companies.
