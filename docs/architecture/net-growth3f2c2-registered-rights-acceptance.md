@@ -31,8 +31,8 @@ Legal posture is **not auto-approved**:
 
 ## Engineering acceptance
 
-- Machine-readable [52-row legal review ledger](../services/worker/data/netgrowth3f2c2_registered_rights_20261105.json) with original source, first-party VAT if supported, independent evidence where available, role/rights/identity gates, 2 brand exclusions, and a review artifact field.
-- Offline [read-only validator](../services/worker/app/netgrowth3f2c2_registered_rights.py), [tests](../services/worker/tests/test_netgrowth3f2c2_registered_rights.py) block if 50 official registrations, reviewed technical facts, documented rights assessment and reviewer decisions are not all accepted.
+- Machine-readable [52-row legal review ledger](../../services/worker/data/netgrowth3f2c2_registered_rights_20261105.json) with original source, first-party VAT if supported, independent evidence where available, role/rights/identity gates, 2 brand exclusions, and a review artifact field.
+- Offline [read-only validator](../../services/worker/app/netgrowth3f2c2_registered_rights.py), [tests](../../services/worker/tests/test_netgrowth3f2c2_registered_rights.py) block if 50 official registrations, reviewed technical facts, documented rights assessment and reviewer decisions are not all accepted.
 - All 52 currently held, **0 approved for production**, no approved import manifest, no RPC ROLLBACK called. Protected checks and branch review are separate.
 - Protected PR order **#1140 → #1141 → #1143 → #1144 → #1145 → F.2C.2**, no premature merges, one deployment per day.
 
@@ -44,3 +44,7 @@ Legal posture is **not auto-approved**:
 4. Rerun **six DB registers plus VAT/aliases** on the *approved final 50–100*. Only then build approved RPC manifest and do one service-role transaction with ROLLBACK, verify no-write readback. COMMIT must remain a distinct authorized decision.
 
 [GitHub tracking #1139](https://github.com/ctimaru/steel-sales-ai/issues/1139) · [Notion F roadmap](https://app.notion.com/p/40ff059cecb58184a284e22c2ffa3304).
+
+## Additional privacy gate
+
+The [European Commission's GDPR guidance](https://commission.europa.eu/law/law-topic/data-protection/rules-business-and-organisations/application-regulation/do-data-protection-rules-apply-data-about-company_en) distinguishes data about legal-person companies (generally outside GDPR scope) from information identifying a natural person in one-person enterprises and professional contacts. Two trade-name candidates (DE.MA and Nanni Ottavio) have an explicit *possible individual-operator* review flag, **not** an assertion of their actual legal form. All 52 records need a recorded privacy classification and legal-basis decision before any publication. No named contacts are collected.

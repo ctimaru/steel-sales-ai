@@ -74,6 +74,8 @@ def audit():
             reasons.append("source_claim_not_accepted")
         if r["rights_assessment"] != "approved_legal_basis":
             reasons.append("rights_decision_not_signed")
+        if r.get("privacy_lawful_basis_review") != "accepted_for_minimized_metadata":
+            reasons.append("privacy_basis_not_accepted")
         if not r.get("reviewer") or not r.get("reviewed_at") or not r.get("acceptance_artifact_url"):
             reasons.append("company_reviewer_not_signed")
         if r["reuse_of_protected_media_or_bulk_catalog"]:

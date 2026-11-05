@@ -82,7 +82,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "EN10219_claim_source_url_needs_specific_quality_page"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "De.Ma.",
@@ -109,7 +111,9 @@
       "prioritized_holds": [
         "legal_alias_conflict_two_company_VATs_01248890426_and_02794420428",
         "original_technical_page_unreachable_in_live_reader"
-      ]
+      ],
+      "natural_person_business_risk": "possible_natural_person_trade_name_requires_review",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Sideralba S.p.A.",
@@ -133,7 +137,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "OMV Officine Metallurgiche Ventura S.p.A.",
@@ -157,7 +163,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "KGT Tubi S.r.l.",
@@ -183,7 +191,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "original_source_503_in_live_reader"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Comit Industry S.r.l.",
@@ -207,7 +217,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Carema S.r.l.",
@@ -231,7 +243,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Lasar S.r.l.",
@@ -257,7 +271,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "live_reader_limited_to_cookie_text_indexed_page_supports_claim"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Ta-Mec S.r.l.",
@@ -281,7 +297,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Meccanica Orlandini S.r.l.",
@@ -305,7 +323,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "AL.PI. Taglio Laser",
@@ -329,7 +349,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Nanni Ottavio",
@@ -353,7 +375,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "possible_natural_person_trade_name_requires_review",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Andrea Balboni S.r.l. (Teknolaser)",
@@ -380,7 +404,9 @@
       "prioritized_holds": [
         "explicit_copyright_commercial_reuse_restriction_requires_legal_assessment",
         "original_page_empty_in_live_reader"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Mondeo",
@@ -404,7 +430,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "F.lli Bellani",
@@ -428,7 +456,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Carpentecnica",
@@ -452,7 +482,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Officine Foresto",
@@ -476,7 +508,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Metal Master S.r.l.",
@@ -500,7 +534,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "La Moderna di Merlo",
@@ -524,7 +560,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "CE.PI. Exemplar S.n.c.",
@@ -548,7 +586,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Metacom / Arsenale S.a.s.",
@@ -572,7 +612,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Someca S.r.l.",
@@ -596,7 +638,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "FA.PI. S.r.l.",
@@ -620,7 +664,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "CMA Costruzioni Meccaniche",
@@ -644,7 +690,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "SC S.r.l. (Soncini Caraffi)",
@@ -668,7 +716,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Cash Metal",
@@ -692,7 +742,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "SGM S.r.l.",
@@ -718,7 +770,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "process_claim_points_at_contacts_not_processing_page"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "FabbroFerro",
@@ -742,7 +796,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "LASERMEC",
@@ -768,7 +824,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "existing_vat_or_commercial_brand_legal_identity"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "TIS S.r.l.",
@@ -803,7 +861,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Prometal S.r.l.",
@@ -827,7 +887,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Tecnotubi",
@@ -853,7 +915,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "existing_vat_or_commercial_brand_legal_identity"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "OCSA S.p.A.",
@@ -879,7 +943,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "dimension_claim_source_url_needs_specific_tubes_page"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "CCT Inox S.p.A.",
@@ -916,7 +982,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "LEI_renewal_date_in_past"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Tubifaber S.p.A.",
@@ -942,7 +1010,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "original_source_timeout_in_live_reader"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Sidergamma S.r.l.",
@@ -966,7 +1036,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Bendinox Europa S.r.l.",
@@ -990,7 +1062,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Envasald S.r.l.",
@@ -1016,7 +1090,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "fittings_producer_vs_processor_role_review"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Emme Erre Inox S.r.l.",
@@ -1042,7 +1118,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "fittings_producer_vs_processor_role_review"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "T.ERRE S.r.l.",
@@ -1068,7 +1146,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "rigid_automotive_tubing_assembler_role_review"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Scamer S.r.l.",
@@ -1092,7 +1172,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "SBS S.r.l.",
@@ -1116,7 +1198,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "FPN di Pisoni e Nesci",
@@ -1140,7 +1224,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Gromet S.r.l.",
@@ -1166,7 +1252,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "original_source_timeout_in_live_reader"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Officine Orsi S.p.A.",
@@ -1190,7 +1278,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Bonazzi Curvatura Tubi S.r.l.",
@@ -1214,7 +1304,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Vastano Curvatura Tubi",
@@ -1238,7 +1330,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Curvatura Tubi Amarossi S.p.A.",
@@ -1264,7 +1358,9 @@
       "acceptance_artifact_url": null,
       "prioritized_holds": [
         "parent_company_direction_Amarossi_1976_must_disambiguate"
-      ]
+      ],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "Scrosati Arredamenti Metallici S.r.l.",
@@ -1288,7 +1384,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "CM Sagomatubi S.r.l.",
@@ -1312,7 +1410,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "M. M. Montanari Massimo S.r.l.",
@@ -1342,7 +1442,9 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     },
     {
       "company_name_as_researched": "FROM S.r.l.",
@@ -1372,7 +1474,10 @@
       "reviewer": null,
       "reviewed_at": null,
       "acceptance_artifact_url": null,
-      "prioritized_holds": []
+      "prioritized_holds": [],
+      "natural_person_business_risk": "not_classified",
+      "privacy_lawful_basis_review": "pending_human_review"
     }
-  ]
+  ],
+  "privacy_restriction": "For sole proprietors/individual professionals, company title and business VAT may identify a natural person. No personal data/contact enrichment or publication absent independent GDPR lawful-basis review. Official EU Commission guidance: https://commission.europa.eu/law/law-topic/data-protection/rules-business-and-organisations/application-regulation/do-data-protection-rules-apply-data-about-company_en"
 }

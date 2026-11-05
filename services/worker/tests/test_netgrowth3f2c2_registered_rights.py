@@ -47,3 +47,12 @@ def test_unsupported_approval_flags_are_insufficient():
     assert all(r["registration_verification"] != "official_current_registry_validated"
                for r in d["records"])
     assert all(not r["acceptance_artifact_url"] for r in d["records"])
+
+
+def test_natural_person_trade_names_are_separately_reviewed():
+    d = snapshot()
+    by_domain = {r["domain"]: r for r in d["records"]}
+    for domain in ("dematubi.it", "nanniottavio.it"):
+        assert by_domain[domain]["natural_person_business_risk"] == "possible_natural_person_trade_name_requires_review"
+        assert by_domain[domain]["privacy_lawful_basis_review"] == "pending_human_review"
+    assert all(r["privacy_lawful_basis_review"] != "accepted_for_minimized_metadata" for r in d["records"])
