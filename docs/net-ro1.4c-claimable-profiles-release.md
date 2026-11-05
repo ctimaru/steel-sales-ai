@@ -20,7 +20,7 @@ These are **public company-business facts only**, paraphrased rather than copied
 
 ## Implementation
 
-- `supabase/migrations/20261105161000_net_ro14c_claimable_web_pilot.sql`
+- `supabase/migrations/20261105151955_net_ro14c_claimable_web_pilot.sql`
   - Private, RLS-protected publication ledger `private.network_ro14c_publication_links`.
   - `private.network_ro14c_publish_pilot(p_commit boolean DEFAULT false)`: **preview-only by default**, protected on the private schema, `EXECUTE` revoked for `PUBLIC`, `anon`, and `authenticated`; service role and migration operator allowed.
   - Explicit nine-domain allowlist, only `RO`, `first_party_web`, neutral `web_profile_review_pending`, `unclaimed`, `web_sourced_unverified`, `not_published`.
@@ -45,3 +45,7 @@ These are **public company-business facts only**, paraphrased rather than copied
 ## Follow-up
 
 **NET-RO1.4.C.2** should make it easier for qualified companies to claim and enrich dimensions, products, facilities, services and company documents with simple, compact inline UI. **NET-RO1.4.D**: expand from a small company-sourced pilot through incremental 20–50 public profiles per wave once quality, opt-outs, deduplication and claim UX are verified. Do not create a paid-visura prerequisite for company-business website facts.
+
+### Production-migration version alignment (NET-RO1.4.D)
+
+The live SQL was applied by Supabase under migration version `20261105151955` and its stored statement was checked byte-for-byte identical to the tracked SQL. The migration file is renamed from `20261105161000` to `20261105151955` in the protected NET-RO1.4.D PR with **exactly the same blob**, without touching production SQL or the migration ledger. Check local/other environment histories individually before `db push`.

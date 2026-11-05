@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-SQL_PATH = ROOT / "supabase/migrations/20261105161000_net_ro14c_claimable_web_pilot.sql"
+SQL_PATH = ROOT / "supabase/migrations/20261105151955_net_ro14c_claimable_web_pilot.sql"
 CTA = ROOT / "apps/web/components/network-activation-cta.tsx"
 PROFILE = ROOT / "apps/web/app/(italian)/(workspace)/network/[id]/page.tsx"
 CLAIM = ROOT / "apps/web/app/(italian)/(workspace)/network/[id]/claim/page.tsx"
