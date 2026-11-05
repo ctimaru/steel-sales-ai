@@ -30,5 +30,7 @@ test("NET-PERF1.A: labels distinguish lab measurements from official Core Web Vi
   assert.match(panel,/NOT the official field INP algorithm/);
   assert.match(panel,/action_to_dom_update/);
   assert.match(panel,/full_document_to_probe_ready/);
-  assert.match(panel,/interactionP75Ms:interactions\.length>=5/);
+  assert.match(panel,/p75Ms:soft\.length>=5/);
+  assert.match(panel,/p75Ms:full\.length>=5/);
+  assert.match(panel,/originalDocumentPath===\"\/network\"/);
 });
