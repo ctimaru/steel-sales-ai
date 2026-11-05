@@ -42,3 +42,13 @@ test("MAP1: counts are live, scoped and do not present private research as publi
   assert.match(sql,/revoke all on function private\.netux_map1_country_stats_impl/);
   assert.match(sql,/grant execute on function public\.netux_map1_country_stats\(uuid,text\) to authenticated/);
 });
+
+test("MAP1: production ACL repair and reviewed HP13 guard are versioned",()=>{
+ const acl=read("../../../supabase/migrations/20261105160954_netux_map1_country_stats_facade_acl.sql");
+ const hp13=read("../../../supabase/tests/hp13_permissions_tenant_isolation.sql");
+ assert.ok(acl.includes("alter function public.netux_map1_country_stats(uuid,text) security definer"));
+ assert.ok(acl.includes("revoke all on function private.netux_map1_country_stats_impl(uuid,text)"));
+ assert.ok(acl.includes("grant execute on function public.netux_map1_country_stats(uuid,text)"));
+ assert.ok(hp13.includes("'netux_map1_country_stats'"));
+ assert.ok(hp13.includes("NET-UX-MAP1 country statistics facade must be pinned"));
+});
