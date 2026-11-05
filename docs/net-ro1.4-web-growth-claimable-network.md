@@ -42,3 +42,26 @@ The private research table can never be directly marked published. Public unclai
 - [ ] Next 50–100 new industrial website domains, favor producers, traders and tube-laser services over generic retail.
 
 **Supersedes NET-RO1.3.B as immediate work priority**; ONRC/visure workflow remains an optional later data-quality path and is not required for private research growth.
+
+## NET-RO1.4.WEB-GROWTH2 — Second sourced web wave, 2026-11-05
+
+50 new Romanian company website candidates, screened read-only against six production company catalogs. **Zero exact domain or normalized-name collisions**; not proof of 50 distinct current registered companies, nor a licence for any third-party content.
+
+| Research waves | Domains | Producer | Trader | Processor |
+| --- | ---: | ---: | ---: | ---: |
+| First NET-RO1 waves | 50 | 9 | 30 | 11 |
+| WEB-GROWTH1 | 17 | 1 | 13 | 3 |
+| **WEB-GROWTH2** | **50** | **5** | **30** | **15** |
+| **Total** | **117** | **15** | **73** | **29** |
+
+**Sources:** 41 rows cite company-operated sites; 8 use industrial directory listings; 1 uses a historical 2007 trade advertisement. The last nine are source-backed research leads **with manual source/current-business holds** rather than current website-confirmed businesses. Some first-party profiles are held for multinational groups, name aliases, retail-only activity or plant-vs-trader roles.
+
+Illustrative relevant sites: `wecubex.ro` processes/perforates tubes; `estmetalcab.ro` says it makes galvanized rectangular tubing; `valrotrade.ro` distributes steel pipes; `caroltech.ro` performs laser cutting of steel tubes; `www.metal-inox.ro` distributes stainless square/rectangular tubing. Important exception: `metal-inox.ro` apex and `www` present different brands; hold canonical profile identity for later review. `tevi-europa.ro` vs `valrotrade.ro` also require a possible-identity-overlap review.
+
+- [WEB-GROWTH2 50-record public-source research manifest](../services/worker/data/netro1_4_web_growth2_20261105.json), with exact source URL, role, own-word summary, source tier and unresolved hold.
+- [Additive migration for 50 additional private seeds](../supabase/migrations/20261105144500_net_ro1_web_growth2_research.sql), idempotent and **no public Network writes**; assumes WEB-GROWTH1 table with 67 seeds. Research only, unclaimed, unverified, unpublished.
+- [Offline tests](../services/worker/tests/test_netro1_4_web_growth2_research.py) verify 117 unique research domains, 50 migration rows, source tiers and non-publication.
+
+**Acceptance:** 50 source-linked research records [x], six-catalog exact duplicate screen [x], conservative role/source flags [x], code and tests versioned [x]. CI and protected merge [ ], production staging migration applied/readback [ ], publisher-governed unclaimed profile promotion [ ], authenticated owner-claim enrichment QA [ ].
+
+**Reporting:** 117 GitHub research domains != 117 actual records in Supabase != 117 public unclaimed companies. All three measures must be reported independently.
