@@ -34,6 +34,7 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
   const samplesRef=useRef<PerfSample[]>([]);
   const [samples,setSamples]=useState<PerfSample[]>([]);
   const [message,setMessage]=useState("");
+  const [expanded,setExpanded]=useState(false);
   const latestLcp=useRef<number|null>(null);
   const latestCls=useRef(0);
   const latestEvent=useRef(0);
@@ -261,11 +262,22 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
     onStop();
   };
   return <aside data-netperf-panel aria-label="Misurazione prestazioni Network"
-    className="fixed bottom-3 right-3 z-[90] w-[min(320px,calc(100vw-24px))] rounded-xl border border-[#a7c4b7] bg-white p-3 text-[#173f35] shadow-xl"
+    className={"fixed bottom-3 right-3 z-[90] rounded-xl border border-[#a7c4b7] bg-white text-[#173f35] shadow-xl "+
+      (expanded?"w-[min(320px,calc(100vw-24px))] p-3":"max-w-[calc(100vw-24px)] p-1.5")}
     role="region">
+    {!expanded?<button type="button" aria-expanded={false}
+      onClick={()=>setExpanded(true)}
+      className="inline-flex min-h-9 items-center gap-2 rounded-lg bg-white px-2 text-xs font-semibold text-[#165b43]"
+      aria-label={"Espandi misurazione Network, "+samples.length+" campioni"}>
+      <span aria-hidden="true">⚡</span> Misurazione attiva · {samples.length} <span aria-hidden="true">▴</span>
+    </button>:<>
     <div className="flex items-center justify-between gap-2">
       <strong className="text-sm">NET-PERF1.A · Misura locale</strong>
-      <button type="button" onClick={stop} aria-label="Termina misurazione" className="rounded px-2 py-1 text-xs font-bold">×</button>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={()=>setExpanded(false)}
+          aria-label="Comprimi pannello misurazione" className="rounded px-2 py-1 text-xs font-semibold">Riduci</button>
+        <button type="button" onClick={stop} aria-label="Termina misurazione" className="rounded px-2 py-1 text-xs font-bold">×</button>
+      </div>
     </div>
     <p className="mt-1 text-[11px] leading-4 text-[#52615b]">
       Solo questa scheda · nessun invio di dati · non registra ricerche o nomi.
@@ -285,5 +297,6 @@ export function NetworkPerfPanel({onStop}:{onStop:()=>void}){
         className="rounded-lg border border-[#bacfc3] px-3 py-2 text-xs font-semibold">Termina</button>
     </div>
     {message?<p role="status" className="mt-2 text-[11px]">{message}</p>:null}
+    </>}
   </aside>;
 }
