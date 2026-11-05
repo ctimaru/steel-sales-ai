@@ -129,7 +129,9 @@ def validate(queue):
         "official_documents_recorded":sum(_docref(r["visura_request"]["document_storage_ref"]) for r in active),
         "company_paperwork_approved":ready,
         "blocked_active":len(active)-ready,
-        "may_request_separate_db_preflight":ready==len(active) and not violations.get(""),
+        "may_request_separate_db_preflight":ready==len(active) and all(
+            d in {r["domain"] for r in records if r["quarantined"]} for d in violations
+        ),
         "transactional_rpc_rollback_executed":False,
         "production_commit_permitted":False,
         "blocking_reasons":violations,
