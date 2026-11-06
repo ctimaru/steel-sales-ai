@@ -251,7 +251,7 @@ export function Rfqc1ChatWorkspace(props: Props) {
               <p className="text-[11px] leading-5 text-[#6f7f73]">Il confronto completo, l'aggiudicazione RFQH7 e i PO rimangono disponibili nella gestione commerciale sottostante fino alla loro integrazione in P1.</p>
             </div>
           ) : (
-            <p className="mt-3 rounded-xl bg-[#f5f7f5] p-3 text-xs text-[#677a6d]">In attesa di offerte confrontabili.</p>
+            <p className="mt-3 rounded-xl bg-[#f5f7f5] p-3 text-xs text-[#4f6457]">In attesa di offerte confrontabili.</p>
           )}
         </aside>
       </div>
