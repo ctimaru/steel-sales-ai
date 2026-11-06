@@ -34,18 +34,18 @@ export function verifyRfqc1InboundSvix(input: {
 
   const rawKey = secret.startsWith("whsec_") ? secret.slice(6) : secret;
   if (!/^[A-Za-z0-9+/]+={0,2}$/.test(rawKey)) return false;
-  const key = Buffer.from(rawKey, "base64");
+  const key = Uint8Array.from(Buffer.from(rawKey, "base64"));
   if (key.length < 24) return false;
 
   const signed = headers.id + "." + headers.timestamp + "." + rawPayload;
-  const expected = Buffer.from(createHmac("sha256", key).update(signed).digest());
+  const expected = Uint8Array.from(createHmac("sha256", key).update(signed).digest());
   const candidates = headers.signature.split(" ").filter(Boolean);
   if (candidates.length === 0 || candidates.length > 8) return false;
 
   return candidates.some((candidate) => {
     const m = /^v1,([A-Za-z0-9+/]{43}=)$/.exec(candidate);
     if (!m) return false;
-    const actual = Buffer.from(m[1], "base64");
+    const actual = Uint8Array.from(Buffer.from(m[1], "base64"));
     return actual.length === expected.length && timingSafeEqual(actual, expected);
   });
 }
@@ -75,9 +75,13 @@ export async function readRfqc1BoundedRawBody(
       }
       chunks.push(value);
     }
-    return new TextDecoder("utf-8", { fatal: true }).decode(
-      Buffer.concat(chunks.map((part) => Buffer.from(part))),
-    );
+    const joined = new Uint8Array(bytes);
+    let offset = 0;
+    for (const part of chunks) {
+      joined.set(part, offset);
+      offset += part.byteLength;
+    }
+    return new TextDecoder("utf-8", { fatal: true }).decode(joined);
   } catch {
     return null;
   } finally {
