@@ -57,6 +57,17 @@ function normalizeMailbox(value: string): string | null {
   return address;
 }
 
+/**
+ * Email domains are case-insensitive, but a signed base64url local-part is not.
+ * Never lowercase a signature before timing-safe comparison.
+ */
+function normalizeAliasMailbox(value: string): string | null {
+  if (typeof value !== "string" || value.length > 320 || /[\r\n,<>\s]/.test(value)) return null;
+  const at = value.lastIndexOf("@");
+  if (at <= 0 || at === value.length - 1) return null;
+  return value.slice(0, at) + "@" + value.slice(at + 1).toLowerCase();
+}
+
 function requiredUuid(uuid: string): string {
   const normalized = uuid.toLowerCase();
   if (!(new RegExp("^" + UUID + "$")).test(normalized)) throw new Error("Invalid dispatch identity");
@@ -82,7 +93,7 @@ function matchesReplyAlias(
   receivedAddress: string, identity: Rfqc1InboundDispatch,
   domain: string, secret: string,
 ): boolean {
-  const normalized = normalizeMailbox(receivedAddress);
+  const normalized = normalizeAliasMailbox(receivedAddress);
   if (!normalized) return false;
   const match = normalized.match(ALIAS);
   if (!match || match[1] !== requiredUuid(identity.dispatchId) ||
