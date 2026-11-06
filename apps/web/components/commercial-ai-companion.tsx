@@ -53,7 +53,7 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
               Descrivi i tubi che ti servono
             </h2>
             <p className="mt-0.5 text-xs leading-4 text-[#5c7063]">
-              Continua nella chat con l’anteprima della Distinta a lato; nessuna richiesta viene inviata automaticamente.
+              Prosegui nella chat con la Distinta a lato; nessuna richiesta viene inviata automaticamente.
             </p>
           </div>
         </div>
@@ -68,13 +68,13 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
                 placeholder="Es. 40 tubi quadri 100×100×5, S355J2H, EN 10219, lunghi 6 m…"
                 className="min-h-[52px] min-w-0 flex-1 resize-y rounded-xl border border-[#b8d6c3] bg-white px-3 py-2 text-sm leading-5 text-[#143f30] placeholder:text-[#72877a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
               <button type="submit" disabled={!ready || !request.trim()} data-testid="commercial-ai-first-cta"
-                className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50 sm:max-w-[164px]">
+                className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50 sm:max-w-[198px]">
                 Apri chat e anteprima →
               </button>
             </div>
             {error ? <p role="alert" className="text-xs text-[#9d4e28]">{error}</p> : null}
-            <p className="text-[11px] leading-4 text-[#5c7063]">
-              Invio per continuare · Maiusc+Invio per andare a capo · L’analisi AI richiede una tua conferma.
+            <p className="hidden text-[11px] leading-4 text-[#5c7063] sm:block">
+              Invio per continuare · Maiusc+Invio per andare a capo · Conferma prima di inviare.
             </p>
           </form>
         ) : (
