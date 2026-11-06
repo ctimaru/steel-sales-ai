@@ -65,7 +65,7 @@ export function CommercialDirectorPriorityDesk({
                   {confirmedCount === null
                     ? "Controlla le segnalazioni disponibili nell’inbox."
                     : confirmedCount === 0
-                      ? "Nessuna RFQ segnalata per una verifica."
+                      ? "0 da verificare"
                       : `${confirmedCount} ${confirmedCount === 1 ? "elemento segnalato" : "elementi segnalati"} per una verifica.`}
                 </p>
                 {actionableRfqs.length > 0 ? (
