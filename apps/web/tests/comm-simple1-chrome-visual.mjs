@@ -60,6 +60,9 @@ try {
       if (width === 1440) {
         assert.ok(boxes[0].height <= 120, "Commerciale hero should be compact: " + boxes[0].height);
         assert.ok(boxes[3].y < 760, "Commerciale worklist must start in first viewport: " + boxes[3].y);
+      } else {
+        assert.ok(boxes[2].y < 440,
+          "COMM-SIMPLE1 mobile AI must enter the first screen; y=" + boxes[2].y);
       }
       await noOverflow(page, "Commerciale " + width);
       await page.screenshot({
