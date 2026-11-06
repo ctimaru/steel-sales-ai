@@ -387,9 +387,9 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
           {isPreparation ? "RFQ privata · preparazione" : "RFQ multi-fornitore"}
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-[#1d2824]">
-          {campaign.title}
-        </h1>
+        <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[#1d2824]">
+          Dettagli operativi · {campaign.title}
+        </h2>
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
           <div className="rounded-xl bg-[#f7f9f8] p-3">
             <p className="text-xs text-[#718078]">Righe</p>
