@@ -70,6 +70,10 @@ try{
       throw error;
     }
     await page.locator("#network-results").waitFor({timeout:90000});
+    // The server renders the input before its client-side handlers hydrate.
+    // A test starting immediately at DOMContentLoaded could type into inert SSR
+    // markup, falsely reporting a 90s "slow search" when no route was sent.
+    await page.waitForLoadState("load",{timeout:25000});
     const data=await page.evaluate(()=>{
       const nav=performance.getEntriesByType("navigation")[0];
       const paint=performance.getEntriesByType("paint").find(x=>x.name==="first-contentful-paint");
@@ -126,12 +130,42 @@ try{
     numbers.roleSelect.push(Date.now()-start);
 
     await visit("/network?netperf=1&country=IT");
-    const search=page.locator('input[name="q"]').first();
-    await search.waitFor({state:"visible",timeout:90000});
+    const search=page.locator("#network-compact-search");
+    await search.waitFor({state:"visible",timeout:20000});
     start=Date.now();
     await search.fill("Synthetic Steel");
-    await page.waitForURL(u=>u.pathname==="/network"&&u.searchParams.has("q"),{timeout:90000});
-    await page.getByTestId("network-compact-experience").waitFor({timeout:90000});
+    // This button only appears after React processes the controlled input
+    // state. If absent, force one further input after hydration has settled.
+    let reactInputReady=false;
+    for(let retry=0;retry<4;retry++){
+      try{
+        await page.getByRole("button",{name:"Cancella ricerca"}).waitFor({state:"visible",timeout:1500});
+        reactInputReady=true;
+        break;
+      }catch{
+        // No content in diagnostic output; retry only after event handlers mount.
+        await page.waitForTimeout(300);
+        await search.fill("");
+        await search.fill("Synthetic Steel");
+      }
+    }
+    assert.ok(reactInputReady,"The debounced React search input never hydrated");
+    try{
+      await page.waitForURL(u=>u.pathname==="/network"&&u.searchParams.has("q"),{
+        waitUntil:"commit",timeout:25000,
+      });
+    }catch(error){
+      const diag=await page.evaluate(()=>({
+        routeKind:location.pathname==="/network"?"network":"other",
+        hasSearchParam:new URLSearchParams(location.search).has("q"),
+        inputCount:document.querySelectorAll('input[name="q"]').length,
+        reactClearButton:!!document.querySelector('button[aria-label="Cancella ricerca"]'),
+        compactMounted:!!document.querySelector('[data-testid="network-compact-experience"]'),
+      }));
+      console.error("NET-PERF1.A LOCAL SEARCH ROUTE DIAGNOSTIC",JSON.stringify(diag));
+      throw error;
+    }
+    await page.getByTestId("network-compact-experience").waitFor({timeout:25000});
     numbers.search.push(Date.now()-start);
 
     await visit("/network?netperf=1&country=IT");
