@@ -104,7 +104,7 @@ export function ItalyRegionMap({
                     stroke="#ffffff" strokeWidth={2}
                     className="transition-colors group-hover:fill-[#2c8669] group-focus-visible:fill-[#256e58] group-focus-visible:stroke-[#b56a22] group-focus-visible:stroke-[4px]"
                   />
-                  <title>{region.name}: {count === null ? "copertura non disponibile" : count + " pubblicate"} · {provisional} da confermare</title>
+                  {/* The enclosing SVG link already has a descriptive aria-label.\n                      Omit <title> to avoid React 19 document-metadata hoisting\n                      during server/client hydration of the interactive map. */}
                 </a>
               );
             })}
