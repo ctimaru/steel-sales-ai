@@ -156,7 +156,8 @@ export default async function NetworkDirectoryPage({
          process.env.NEXT_PUBLIC_SUPABASE_URL==="http://127.0.0.1:54321"){
         console.error("NET-PERF1.A LOCAL_COMPACT_QUERY_FAILURE",JSON.stringify({
           category:error instanceof Error?error.name:"unknown",
-          hasMessage:error instanceof Error&&Boolean(error.message),
+          messageCode:error instanceof Error&&/^[a-z][a-z0-9_]{3,90}$/.test(error.message)
+            ?error.message:"not_a_known_code",
           // Non-identifying error code only; full exception is never serialized.
           code:typeof error==="object"&&error!==null&&"code" in error
             ?String((error as {code?:unknown}).code).slice(0,16):null,
