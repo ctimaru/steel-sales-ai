@@ -38,16 +38,16 @@ $netro14d_ci$;
 -- The synthetic DEMOTEST23 buyer + viewer are members of this one local-only
 -- organization. Grant only a local pilot entitlement, no real plan/contract.
 insert into public.organization_product_entitlement_events(
- event_order,organization_id,product_key,event_type,
+ organization_id,product_key,event_type,
  source_kind,source_reference,idempotency_key,
  effective_at,actor_authority_type,metadata
 )
-select coalesce(max(event_order),0)+1,
+select
  '00000000-0000-0000-0000-000000023301'::uuid,
  'network_access','granted','pilot','NET-RO1.4.D-ci-local',
  'netro14d.local.visual.20261105',now(),'system',
  '{"fixture":"netro14d_local_chrome_only","no_production":true}'::jsonb
-from public.organization_product_entitlement_events;
+;
 
 commit;
 select 'NET-RO1.4.D disposable Chrome setup: 9 RO public test profiles, synthetic paid Network access, zero claims' AS result;
