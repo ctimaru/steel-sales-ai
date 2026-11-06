@@ -102,7 +102,7 @@ function matchesReplyAlias(
   const actual = match[2];
   // same-length constant-time signature comparison, no direct string compare.
   return actual.length === expected.length &&
-    timingSafeEqual(Buffer.from(actual, "ascii"), Buffer.from(expected, "ascii"));
+    timingSafeEqual(Uint8Array.from(Buffer.from(actual, "ascii")), Uint8Array.from(Buffer.from(expected, "ascii")));
 }
 
 /** Removes quoted original messages, forwarded header blocks, and signatures.
