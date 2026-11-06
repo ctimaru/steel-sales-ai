@@ -1,6 +1,6 @@
 "use server";
 
-import { selectRfqc1ReplyToFromServer } from "@/lib/rfqc1-inbound-reply-to";
+import { selectRfqc1ReplyToFromServer } from "@/lib/rfqc1-inbound-email";
 
 import { revalidatePath } from "next/cache";
 
