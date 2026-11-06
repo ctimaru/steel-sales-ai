@@ -207,7 +207,7 @@ export default async function CommercialHomePage({
               Smart Steel Sales / Commerciale
             </div>
             <h1 className={"mt-0.5 text-[clamp(1.2rem,1.6vw,1.5rem)] font-semibold leading-[1.12] tracking-[-0.025em] text-white " + cinematic.heroTitle}>
-              Le tue trattative. <span className="text-[#b4dec2]">Un’unica visione.</span>
+              Le tue trattative. <span className="hidden text-[#b4dec2] sm:inline">Un’unica visione.</span>
             </h1>
             <p className="mt-0.5 text-[11px] leading-4 text-[#d2e7db]">
               Richieste, offerte e ordini in un unico spazio.
