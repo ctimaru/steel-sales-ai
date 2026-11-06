@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 
 const page=readFileSync(new URL("../components/network-compact-experience.tsx",import.meta.url),"utf8");
+const filterForm=readFileSync(new URL("../components/network-filter-client-form.tsx",import.meta.url),"utf8");
 const live=readFileSync(new URL("../components/network-live-search.tsx",import.meta.url),"utf8");
 const geo=readFileSync(new URL("../components/network-country-region-filters.tsx",import.meta.url),"utf8");
 
@@ -15,11 +16,12 @@ test("COMPACT5 keeps the dashboard summary compact and free of filler metrics",(
 });
 
 test("COMPACT5 places the region within the single filter form instead of a separate disclosure",()=>{
-  assert.equal((page.match(/<form method="get" action="\/network"/g)||[]).length,1);
+  assert.equal((page.match(/<NetworkFilterClientForm>/g)||[]).length,1);
+  assert.equal((filterForm.match(/<form method="get" action="\/network"/g)||[]).length,1);
   assert.equal((geo.match(/name="region"/g)||[]).length,1);
   assert.match(geo,/name="region" aria-label="Regione"/);
   assert.match(geo,/Tutte le regioni/);
-  assert.match(page,/className="grid grid-cols-1 gap-3"/); // NET-UX LOT1: one column in the filter pane
+  assert.match(filterForm,/className="grid grid-cols-1 gap-3"/); // NET-UX LOT1: one column in the filter pane
   assert.match(page,/Applica filtri/);
   assert.doesNotMatch(page,/open=\{Boolean\(filters.region\)\}/);
   // Preserve search query, role and persona when submitting all five facets.
