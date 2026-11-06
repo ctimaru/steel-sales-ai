@@ -3,6 +3,24 @@
 -- against the same local GoTrue/Postgres instance.
 \set ON_ERROR_STOP on
 begin;
+-- The hosted project has a reviewed SECURITY DEFINER facade for
+-- netlaunch4b_browse_page (verified through pg_proc); a fresh local
+-- migrations reset still has the older SECURITY INVOKER wrapper. Mirror
+-- the HOSTED authorization boundary in this throwaway lab database only.
+-- Do not grant direct EXECUTE on private impl or anonymous facade access.
+do $check$ begin
+  if to_regprocedure('public.netlaunch4b_browse_page(uuid,text,text,text,text,text,text,integer,integer)') is null
+  or to_regprocedure('private.netlaunch4b_browse_page_impl(uuid,text,text,text,text,text,text,integer,integer)') is null
+  then raise exception 'NET-PERF1.A: Network browse facade not installed'; end if;
+end $check$;
+alter function public.netlaunch4b_browse_page(uuid,text,text,text,text,text,text,integer,integer)
+  security definer;
+revoke all on function private.netlaunch4b_browse_page_impl(uuid,text,text,text,text,text,text,integer,integer)
+  from public,anon,authenticated;
+revoke all on function public.netlaunch4b_browse_page(uuid,text,text,text,text,text,text,integer,integer)
+  from public,anon;
+grant execute on function public.netlaunch4b_browse_page(uuid,text,text,text,text,text,text,integer,integer)
+  to authenticated;
 -- A fail-closed assertion. The psql variable is substituted only in this
 -- ordinary SQL statement (not inside a dollar-quoted plpgsql body).
 select 1/(case when exists(select 1 from public.platform_user_roles
