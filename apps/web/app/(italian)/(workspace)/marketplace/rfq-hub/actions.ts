@@ -1,6 +1,6 @@
 "use server";
 
-import { selectRfqc1ReplyToFromServer } from "@/lib/rfqc1-inbound-reply-to";
+import { selectRfqc1ReplyToFromServer } from "@/lib/rfqc1-inbound-email";
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
