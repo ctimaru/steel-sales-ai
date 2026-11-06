@@ -2,8 +2,8 @@
  * Chrome/Windows commonly renders 🇮🇹 as the letters "IT".
  * Country names remain the accessible text next to these decorative icons.
  */
-export type NetworkFlagCountry="IT"|"DE"|"FR"|"ES"|"US"|"GB"|"CH";
-const supported=new Set<string>(["IT","DE","FR","ES","US","GB","CH"]);
+export type NetworkFlagCountry="IT"|"RO"|"DE"|"FR"|"ES"|"US"|"GB"|"CH";
+const supported=new Set<string>(["IT","RO","DE","FR","ES","US","GB","CH"]);
 
 function FlagShapes({country}:{country:NetworkFlagCountry}){
   switch(country){
@@ -11,6 +11,11 @@ function FlagShapes({country}:{country:NetworkFlagCountry}){
       <rect width="8" height="16" fill="#009246"/>
       <rect x="8" width="8" height="16" fill="#fff"/>
       <rect x="16" width="8" height="16" fill="#ce2b37"/>
+    </>;
+    case "RO":return <>
+      <rect width="8" height="16" fill="#002b7f"/>
+      <rect x="8" width="8" height="16" fill="#fcd116"/>
+      <rect x="16" width="8" height="16" fill="#ce1126"/>
     </>;
     case "FR":return <>
       <rect width="8" height="16" fill="#0055a4"/>
