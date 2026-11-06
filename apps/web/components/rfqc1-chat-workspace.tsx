@@ -70,7 +70,6 @@ function stateClass(state: Rfqc1RecipientState) {
 export function Rfqc1ChatWorkspace(props: Props) {
   const [supplierId, setSupplierId] = useState(props.suppliers[0]?.id ?? "");
   const [showList, setShowList] = useState(false);
-  const [showComparison, setShowComparison] = useState(false);
   const [requestExpanded, setRequestExpanded] = useState(false);
   const supplier = props.suppliers.find(item => item.id === supplierId) ?? props.suppliers[0] ?? null;
   const compared = props.comparison?.suppliers ?? [];
@@ -88,8 +87,8 @@ export function Rfqc1ChatWorkspace(props: Props) {
         <div className="flex shrink-0 gap-1.5">
           <button type="button" aria-controls="rfqc1-campaign-list" aria-expanded={showList} onClick={() => setShowList(v => !v)}
             className="rounded-lg border border-[#bcd0c4] bg-white px-2.5 py-2 text-xs font-semibold text-[#214f3e] xl:hidden">RFQ</button>
-          <button type="button" aria-controls="rfqc1-comparison" aria-expanded={showComparison} onClick={() => setShowComparison(v => !v)}
-            className="rounded-lg border border-[#bcd0c4] bg-white px-2.5 py-2 text-xs font-semibold text-[#214f3e] xl:hidden">Confronto</button>
+          <a href="#rfqc1-comparison"
+            className="rounded-lg border border-[#bcd0c4] bg-white px-2.5 py-2 text-xs font-semibold text-[#214f3e] xl:hidden">Confronto</a>
           <Link href="/rfq-hub" className="rounded-lg bg-[#174b3d] px-2.5 py-2 text-xs font-semibold text-white">Hub</Link>
         </div>
       </div>
@@ -207,9 +206,9 @@ export function Rfqc1ChatWorkspace(props: Props) {
         </div>
 
         <aside id="rfqc1-comparison" aria-label="Confronto offerte"
-          className={(showComparison ? "block" : "hidden") + " border-t border-[#dce6df] bg-white p-3 xl:block xl:border-l xl:border-t-0"}>
+          className="border-t border-[#dce6df] bg-white p-3 xl:border-l xl:border-t-0">
           <p className="text-[10px] font-bold uppercase tracking-[.1em] text-[#2c7656]">Confronto RFQH5</p>
-          <h2 className="mt-1 text-sm font-bold text-[#1c4232]">Decisione commerciale</h2>
+          <h2 className="mt-1 text-sm font-bold text-[#1c4232]">Confronto offerte</h2>
           {props.comparison ? (
             <div className="mt-3 space-y-3">
               <div className="rounded-xl border border-[#dce9df] bg-[#f4faf5] p-3">
@@ -223,6 +222,31 @@ export function Rfqc1ChatWorkspace(props: Props) {
                 <p className="text-sm text-[#446353]">{bestDelivery?.effective_lead_time_days ?? "—"} giorni</p>
               </div>
               <p className="text-xs text-[#53695d]">{props.comparison.summary.comparable_supplier_count} offerte confrontabili · {props.comparison.summary.complete_offer_count} complete</p>
+              <section aria-label="Prezzi comparati per articolo" className="rounded-xl border border-[#dce6de] bg-[#fcfdfc] p-2.5">
+                <h3 className="text-xs font-bold text-[#205039]">Prezzi €/t per articolo</h3>
+                <div className="mt-2 space-y-2">
+                  {props.comparison.lines.slice(0, 6).map(line => (
+                    <div key={line.line_id} className="rounded-lg border border-[#e3eae4] bg-white px-2 py-2">
+                      <p className="line-clamp-2 text-[11px] font-semibold text-[#41584a]">
+                        {line.position}. {line.description}
+                      </p>
+                      {line.quotes.filter(quote => quote.response_status === "quoted").map(quote => (
+                        <div key={quote.quote_id + ":" + quote.supplier_id}
+                          className="mt-1 flex items-baseline justify-between gap-1.5 text-[11px]">
+                          <span className="min-w-0 truncate text-[#586b5e]">
+                            {quote.supplier_name || compared.find(s => s.supplier_id === quote.supplier_id)?.supplier_name || "Fornitore"}
+                          </span>
+                          <span className="shrink-0 font-bold tabular-nums text-[#1c593a]">
+                            € {number(quote.normalized_eur_t, 2)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                  {props.comparison.lines.length > 6 &&
+                    <p className="text-[11px] text-[#65786b]">Altre {props.comparison.lines.length - 6} righe nel confronto completo</p>}
+                </div>
+              </section>
               <p className="text-[11px] leading-5 text-[#6f7f73]">Il confronto completo, l'aggiudicazione RFQH7 e i PO rimangono disponibili nella gestione commerciale sottostante fino alla loro integrazione in P1.</p>
             </div>
           ) : (
