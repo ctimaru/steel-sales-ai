@@ -5,9 +5,23 @@ import {readFileSync} from "node:fs";
 const read=path=>readFileSync(new URL(path,import.meta.url),"utf8");
 const ui=read("../components/network-compact-experience.tsx");
 const ticker=read("../components/network-country-ticker.tsx");
+const flags=read("../components/network-country-flag.tsx");
 const css=read("../components/network-country-ticker.module.css");
 const data=read("../lib/network-country-stats.ts");
 const sql=read("../../../supabase/migrations/20261105150152_netux_map1_country_stats.sql");
+
+test("MAP1: Romanian flag uses same vector component and dimensions as Italy in ticker and cards",()=>{
+  assert.match(flags,/NetworkFlagCountry="IT"\|"RO"/);
+  assert.match(flags,/supported=new Set<string>\(\["IT","RO"/);
+  const ro=flags.match(/case "RO":return <>[\s\S]*?<\/\>;/)?.[0]||"";
+  assert.match(ro,/<rect width="8" height="16" fill="#002b7f"\/>/);
+  assert.match(ro,/<rect x="8" width="8" height="16" fill="#fcd116"\/>/);
+  assert.match(ro,/<rect x="16" width="8" height="16" fill="#ce1126"\/>/);
+  assert.match(flags,/w-6/);
+  assert.match(flags,/aria-hidden="true"/);
+  assert.match(ticker,/<NetworkCountryFlag code=\{item.countryCode\}\/>/);
+  assert.match(ui,/<NetworkCountryFlag code=\{countryCode\}\/>/);
+});
 
 test("MAP1: European map is first in the sidebar, outside the mobile filter drawer",()=>{
   const side=ui.indexOf('data-testid="network-side-column"');

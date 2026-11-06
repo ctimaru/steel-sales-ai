@@ -1,0 +1,202 @@
+{
+  "wave": "NET-RO1.4.D-WEB20",
+  "created_date": "2026-11-05",
+  "country": "RO",
+  "public_candidates": 20,
+  "roles": {
+    "producer": 1,
+    "trader_distributor": 15,
+    "processor_service_provider": 4
+  },
+  "source_fidelity": "first_party_company_website_validated",
+  "verification": "web_sourced_unverified",
+  "claim": "unclaimed",
+  "publication": "not_published_pending_authenticated_visual_gate",
+  "no_legal_registry_required": true,
+  "no_personal_contacts": true,
+  "no_automatic_ownership_proof": true,
+  "visual_gate": "NOT COMPLETED: connected Chrome tab is read-only and on Italy page, Opera not connected, TinyFish browser wallet negative; GitHub responsive CI is not authenticated browser QA.",
+  "notes": "Every domain corresponds to exactly one existing private RO research seed with first-party source and neutral review lane; no canonical duplicate, opt-out or prior publication. HTML evidence read through company websites; copy is an independently paraphrased factual business activity description, not product certification or supplier availability.",
+  "candidates": [
+    {
+      "domain": "iasi.metinvestholding.com",
+      "description_it": "Produzione di tubi in acciaio saldati longitudinalmente e profili strutturali destinati a impieghi industriali e nelle costruzioni.",
+      "role_expected": "producer",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "tevi-romania.ro",
+      "description_it": "Distribuzione di tubi in acciaio saldati longitudinalmente, a spirale e senza saldatura per applicazioni industriali.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "metalcas.ro",
+      "description_it": "Fornitura di tubolari in acciaio quadri, rettangolari e tondi, insieme ad altri prodotti siderurgici per carpenteria.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "qcb.ro",
+      "description_it": "Distribuzione di tubi in acciaio quadri, rettangolari, tondi saldati e zincati per costruzioni e lavorazioni.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "ditaindustrial.ro",
+      "description_it": "Distribuzione di tubi e profili in acciaio inossidabile, anche in sezioni tonde, quadre e rettangolari.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "intacteco.ro",
+      "description_it": "Fornitura commerciale di profili tubolari in acciaio quadri e rettangolari destinati a costruzioni e applicazioni industriali.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "alconind.ro",
+      "description_it": "Commercio di tubi in acciaio saldati e senza saldatura, inclusi tubolari strutturali quadri e rettangolari.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "meta-cos.ro",
+      "description_it": "Catalogo commerciale di tubolari in acciaio quadri e rettangolari per costruzioni e carpenteria metallica.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "sci-distribution.ro",
+      "description_it": "Vendita di tubolari rettangolari in acciaio e di altri materiali per opere e lavorazioni metalliche.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "retacom.ro",
+      "description_it": "Distribuzione di profili tubolari rettangolari in acciaio per strutture e opere di carpenteria.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "rematbv.ro",
+      "description_it": "Commercio di prodotti siderurgici comprendenti tubi in acciaio saldati e tubi tondi senza saldatura.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "utchimsteel.ro",
+      "description_it": "Distribuzione di prodotti siderurgici per edilizia e industria, tra cui tubi in acciaio e profili cavi.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "metaltrading.ro",
+      "description_it": "Fornitura di tubazioni in acciaio e materiali per progetti di infrastrutture e applicazioni industriali.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "primetal.ro",
+      "description_it": "Vendita di tubi in acciaio tondi, quadri e rettangolari per costruzioni e carpenteria metallica.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "profilometal.ro",
+      "description_it": "Distribuzione di tubi rettangolari in acciaio e materiali metallici destinati a cantieri e carpenteria.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "deccons.ro",
+      "description_it": "Catalogo commerciale di tubi e profili in acciaio per costruzioni, compresi tubolari quadri e rettangolari.",
+      "role_expected": "trader_distributor",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "smp-srl.ro",
+      "description_it": "Servizi di taglio laser di tubi metallici su commessa, con lavorazioni per carpenteria e applicazioni industriali.",
+      "role_expected": "processor_service_provider",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "technicsteel.ro",
+      "description_it": "Taglio laser su tubi tondi, quadri e rettangolari e lavorazione di profili metallici per commesse industriali.",
+      "role_expected": "processor_service_provider",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "netvers.ro",
+      "description_it": "Servizi di taglio laser e lavorazione di tubi metallici tondi, quadri e rettangolari su specifiche del cliente.",
+      "role_expected": "processor_service_provider",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    },
+    {
+      "domain": "habaresearch.eu",
+      "description_it": "Taglio laser su tubi e profili metallici con fori, asole e tagli sagomati per assemblaggio industriale.",
+      "role_expected": "processor_service_provider",
+      "source_basis": "first_party_business_page_in_private_network_web_research_seeds",
+      "role_uncertainty": "proposed_not_company_verified",
+      "technical_details": "not_asserted",
+      "public_profile_status": "pending_protected_release"
+    }
+  ]
+}
