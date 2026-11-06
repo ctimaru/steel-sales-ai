@@ -32,6 +32,16 @@ const report={contract:"net-perf1a-chrome-lab-v1",environment:"localhost_next_pr
   fieldData:false,notice:"Numbers are local synthetic lab only, NOT production Core Web Vitals p75",
   viewports:{}};
 const allErrors=[];
+function safeSyntheticError(error){
+  // Disposable localhost CI only: redact dynamic URLs, emails, ids and tokens.
+  const sanitized=String(error?.message||"").replace(/https?:\/\/[^\s)]+/gi,"[url]")
+    .replace(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,"[email]")
+    .replace(/\b[0-9a-f]{8}-[0-9a-f-]{27,}\b/gi,"[id]")
+    .replace(/eyJ[A-Za-z0-9._-]{30,}/g,"[token]")
+    .replace(/NET-PERF1\.A Synthetic Steel [0-9]+/g,"[synthetic company]")
+    .slice(0,180);
+  return {name:String(error?.name||"Error").slice(0,36),message:sanitized};
+}
 
 try{
  for(const width of widths){
@@ -43,7 +53,7 @@ try{
   });
   const page=await ctx.newPage();
   const scriptErrors=[];
-  page.on("pageerror",error=>scriptErrors.push(error.name));
+  page.on("pageerror",error=>scriptErrors.push(safeSyntheticError(error)));
   const numbers={ttfb:[],fcp:[],navigateToResults:[],countrySwitch:[],
     returnToItaly:[],roleSelect:[],search:[],openProfile:[],documentWidthOverflow:[]};
 
@@ -178,12 +188,19 @@ try{
     numbers.openProfile.push(Date.now()-start);
    }
    const metrics=Object.fromEntries(Object.entries(numbers).map(([name,values])=>[name,summary(values)]));
-   report.viewports[String(width)]={trials,metrics,runtimeErrorCount:scriptErrors.length};
-   console.log("NET-PERF1.A LOCAL CHROME",JSON.stringify({width,metrics,runtimeErrorCount:scriptErrors.length}));
+   const errorGroups=Object.entries(scriptErrors.reduce((acc,item)=>{
+     acc[item.message]=(acc[item.message]||0)+1;return acc;
+   },{})).slice(0,4).map(([message,count])=>({message,count}));
+   report.viewports[String(width)]={trials,metrics,
+     runtimeErrorCount:scriptErrors.length,runtimeErrors:errorGroups};
+   console.log("NET-PERF1.A LOCAL CHROME",JSON.stringify({
+     width,metrics,runtimeErrorCount:scriptErrors.length,runtimeErrors:errorGroups,
+   }));
    if(scriptErrors.length)allErrors.push(...scriptErrors);
   }finally{await ctx.close();}
  }
- assert.deepEqual(allErrors,[],"Synthetic Chrome runtime errors detected");
+ // A failed run still preserves the sanitized numeric summary for inspection.
  writeFileSync(path.join(out,"numeric-summary.json"),JSON.stringify(report,null,2));
+ if(allErrors.length)throw new Error("NET-PERF1.A Chrome had "+allErrors.length+" script errors; review sanitized categories in the report");
  console.log("NET-PERF1.A CHROME LAB BASELINE PASS: 1440/390/320, 5 cycles each; numeric-only artifact");
 }finally{await browser.close();}
