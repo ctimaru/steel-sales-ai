@@ -204,7 +204,9 @@ BEGIN
     -- Do not manufacture tube capabilities or certificate claims when a
     -- source only establishes general metallic work. Leave those profiles
     -- discoverable by company/role, without false product qualification.
-    IF v_seed.source_summary ~* '(tub|teav|țeav|pipe|piping|profil|hss)' THEN
+    IF v_seed.source_summary !~* '^Profilo candidato da ricerca di fonti web'
+       AND v_seed.source_summary ~* '(tub|teav|țeav|pipe|piping|profil|hss)'
+       AND v_seed.source_summary !~* '(taglio laser tubi non attestato|laser tubi non documentato)' THEN
       INSERT INTO public.network_company_products(
         company_id,product_family_id,relationship_type,source_assertion_id
       ) VALUES (v_company_id,v_family_id,v_relationship,v_assertion_id);
