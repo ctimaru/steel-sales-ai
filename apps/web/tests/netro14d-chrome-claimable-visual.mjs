@@ -105,6 +105,18 @@ async function noOverflow(page, tag) {
     });
     assert.fail("Horizontal overflow on "+tag+": "+JSON.stringify({metrics,offenders}));
   }
+  // Native selects must remain inside the viewport even if an ancestor
+  // hides page-level overflow. This catches intrinsic min-content regressions.
+  const escapedSelects = await page.evaluate(() => {
+    const viewport = document.documentElement.clientWidth;
+    return [...document.querySelectorAll("select")].flatMap((select) => {
+      const box = select.getBoundingClientRect();
+      if (!box.width || box.right <= viewport + 12) return [];
+      return [{label:select.getAttribute("aria-label") || select.name,
+        left:Math.round(box.left),right:Math.round(box.right),viewport}];
+    });
+  });
+  assert.deepEqual(escapedSelects, [], "Native filter select escaped the mobile viewport on "+tag);
   assertions++;
 }
 async function screenshot(page,slug,width) {
