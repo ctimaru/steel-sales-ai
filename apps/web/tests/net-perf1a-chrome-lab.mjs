@@ -51,7 +51,24 @@ try{
     const start=Date.now();
     const response=await page.goto(base+pathAndQuery,{waitUntil:"domcontentloaded",timeout:90000});
     assert.ok(response?.status()<500,"Unexpected localhost server error");
-    await page.getByTestId("network-compact-experience").waitFor({timeout:90000});
+    try{
+      await page.getByTestId("network-compact-experience").waitFor({timeout:18000});
+    }catch(error){
+      // Synthetic data only. Do not print URL, cookies, user identity,
+      // requests, company names or arbitrary page text.
+      const diagnostic=await page.evaluate(()=>({
+        pageKind:document.querySelector('[data-testid="network-compact-experience"]')?"compact":
+          document.querySelector('[data-testid="network-access-mode"]')?"network_other":
+          document.querySelector('form[role="search"]')?"network_search_fallback":"other",
+        testIds:[...document.querySelectorAll("[data-testid]")].slice(0,25)
+          .map(n=>n.getAttribute("data-testid")),
+        hasLoginForm:Boolean(document.querySelector('input[name="email"]')),
+        hasNetworkResults:Boolean(document.getElementById("network-results")),
+        hasMain:Boolean(document.querySelector("main")),
+      }));
+      console.error("NET-PERF1.A LOCAL FALLBACK DIAGNOSTIC",JSON.stringify(diagnostic));
+      throw error;
+    }
     await page.locator("#network-results").waitFor({timeout:90000});
     const data=await page.evaluate(()=>{
       const nav=performance.getEntriesByType("navigation")[0];
