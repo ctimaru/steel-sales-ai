@@ -98,6 +98,9 @@ try {
     const {context,page,height,errors}=await session(admin,width);
     try {
       await navigate(page,"/network?country=RO");
+      // Wait for authenticated workspace hydration and the first sourced company card.
+      // DOM content alone can still show "Caricamento workspace…" immediately after navigation.
+      await page.getByText(/ARTROM|Baurom/).first().waitFor({state:"visible",timeout:90000});
       assert.match(await page.locator("body").innerText(), /ARTROM|Baurom/);
       await noOverflow(page,"Romania-directory/admin/"+width);
       await screenshot(page,"romania-directory-admin",width);
