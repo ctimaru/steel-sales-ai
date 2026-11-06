@@ -16,6 +16,7 @@ DECLARE
   v_manifest_count integer;
   v_manifest_unique integer;
   v_eligible integer;
+  v_existing_public integer;
   v_previous integer;
   v_published_existing integer;
   v_suppressed integer;
@@ -61,6 +62,14 @@ BEGIN
   IF v_previous<>0 THEN
     RAISE EXCEPTION 'NET-RO1.4.E: unexpected partial wave %/%',
       v_previous,v_expected;
+  END IF;
+
+  SELECT count(*) INTO v_existing_public
+  FROM public.network_companies
+  WHERE country_code='RO' AND publication_status='published';
+  IF v_existing_public<>9 THEN
+    RAISE EXCEPTION 'NET-RO1.4.E: live RO public baseline drifted (% vs 9)',
+      v_existing_public;
   END IF;
 
   SELECT count(*) INTO v_suppressed
