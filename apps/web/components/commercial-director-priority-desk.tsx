@@ -24,6 +24,8 @@ export function CommercialDirectorPriorityDesk({
   // A partial/inconsistent RPC response must never be displayed as a reliable
   // zero or authoritative count. The RFQ links themselves are RLS-scoped.
   const confirmedCount = count !== null && count >= actionableRfqs.length ? count : null;
+  // No verified action should consume the same visual space as a real alert.
+  const zeroAttention = confirmedCount === 0 && actionableRfqs.length === 0;
   const resume = selectCommercialDirectorResumeItem(data, view);
   const resumeHref = resume
     ? commercialHref("all", "", resume.key).replace("#commercial-worklist", "#commercial-detail")
@@ -32,8 +34,8 @@ export function CommercialDirectorPriorityDesk({
   return (
     <section id="commercial-today" aria-labelledby="commercial-today-heading"
       data-testid="commercial-compact-actions"
-      className="scroll-mt-28 rounded-xl border border-[#dce8df] bg-white px-3 py-2">
-      <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center lg:gap-3">
+      className={"scroll-mt-28 rounded-xl border border-[#dce8df] bg-white px-3 " + (zeroAttention ? "py-1.5" : "py-2")}>
+      <div className={"flex min-w-0 flex-col lg:flex-row lg:items-center lg:gap-3 " + (zeroAttention ? "gap-1" : "gap-2")}>
         <div className="flex min-w-0 items-center justify-between gap-3 lg:w-[175px] lg:shrink-0">
           <h2 id="commercial-today-heading" className="text-xs font-bold text-[#173f35]">
             Cosa richiede attenzione
@@ -44,11 +46,13 @@ export function CommercialDirectorPriorityDesk({
             Le mie trattative →
           </Link>
         </div>
-        <div className="grid min-w-0 flex-1 gap-x-3 gap-y-2 sm:grid-cols-2"
+        <div className={"grid min-w-0 flex-1 gap-x-3 sm:grid-cols-2 " + (zeroAttention ? "gap-y-1" : "gap-y-2")}
           data-testid="commercial-compact-attention">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1"
             data-testid="commercial-director-rfq-priorities">
-            <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.05em] text-[#386c55]">
+            <p className={zeroAttention
+              ? "sr-only"
+              : "shrink-0 text-[10px] font-bold uppercase tracking-[0.05em] text-[#386c55]"}>
               RFQ · Da verificare
             </p>
             {!canWrite ? (
@@ -61,7 +65,8 @@ export function CommercialDirectorPriorityDesk({
               </p>
             ) : (
               <>
-                <p className="min-w-0 text-xs text-[#345447]" data-testid="commercial-director-attention-summary">
+                <p className={zeroAttention ? "sr-only" : "min-w-0 text-xs text-[#345447]"}
+                  data-testid="commercial-director-attention-summary">
                   {confirmedCount === null
                     ? "Controlla le segnalazioni disponibili nell’inbox."
                     : confirmedCount === 0
