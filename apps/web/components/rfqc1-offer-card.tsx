@@ -54,7 +54,7 @@ export function Rfqc1OfferCard({ offer, status, requestLines }: {
       </div>
       <div className="overflow-x-auto border-t border-[#e1ebe5]">
         <table className="w-full min-w-[390px] border-collapse text-left text-xs">
-          <thead className="bg-[#fafbfa] text-[10px] uppercase tracking-[.06em] text-[#6c7c71]">
+          <thead className="bg-[#fafbfa] text-[10px] uppercase tracking-[.06em] text-[#4f6355]">
             <tr>
               <th scope="col" className="px-3 py-2">Articolo</th>
               <th scope="col" className="px-3 py-2 text-right">€/t</th>
