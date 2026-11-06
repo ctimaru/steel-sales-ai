@@ -84,8 +84,27 @@ async function noOverflow(page, tag) {
     width: document.documentElement.clientWidth,
     documentWidth: document.documentElement.scrollWidth,
   }));
-  assert.ok(metrics.documentWidth <= metrics.width + 12,
-    "Horizontal overflow on "+tag+": "+JSON.stringify(metrics));
+  if (metrics.documentWidth > metrics.width + 12) {
+    // Fail with actionable culprit geometry, not only the document's scrollWidth.
+    // No user data is included; this runner uses disposable local fixtures only.
+    const offenders = await page.evaluate(() => {
+      const width = document.documentElement.clientWidth;
+      return [...document.querySelectorAll("body *")].map((element) => {
+        const rect = element.getBoundingClientRect();
+        const computed = getComputedStyle(element);
+        return {
+          tag: element.tagName.toLowerCase(),
+          className: typeof element.className === "string" ? element.className.slice(0,180) : "",
+          testId: element.getAttribute("data-testid") || "",
+          left: Math.round(rect.left), right: Math.round(rect.right),
+          scrollWidth: element.scrollWidth, clientWidth: element.clientWidth,
+          overflowX: computed.overflowX,
+        };
+      }).filter(item => item.right > width + 12 && item.left < width)
+        .sort((a,b) => b.right - a.right).slice(0,20);
+    });
+    assert.fail("Horizontal overflow on "+tag+": "+JSON.stringify({metrics,offenders}));
+  }
   assertions++;
 }
 async function screenshot(page,slug,width) {
