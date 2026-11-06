@@ -183,6 +183,13 @@ export function Rfqc1ChatWorkspace(props: Props) {
                   <div className="mt-2 rounded-xl border border-[#d6e5dc] bg-white p-3">
                     <p className="text-xs font-bold text-[#1a5740]">Offerta ricevuta · revisione {item.quote.revision}</p>
                     <p className="mt-1 text-[11px] text-[#4c685a]">{item.quote.lines.length} righe · {item.quote.leadTimeDays ?? "—"} gg · {item.quote.paymentTerms || "Pagamento da definire"}</p>
+                    <div className="mt-2 space-y-1 border-t border-[#e2e9e4] pt-2">
+                      {item.quote.lines.map(line => (
+                        <p key={line.lineId} className="text-xs font-semibold tabular-nums text-[#205540]">
+                          Riga {line.position} · €/t {number(line.priceEurT, 2)} · €/m {number(line.priceEurM, 4)}
+                        </p>
+                      ))}
+                    </div>
                   </div>
                 )}
               </article>
