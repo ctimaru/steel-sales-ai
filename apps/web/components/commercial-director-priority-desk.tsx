@@ -32,73 +32,92 @@ export function CommercialDirectorPriorityDesk({
   return (
     <section id="commercial-today" aria-labelledby="commercial-today-heading"
       data-testid="commercial-compact-actions"
-      className="scroll-mt-28 rounded-2xl border border-[#dce8df] bg-[#f8fbf9] px-3 py-2 sm:px-4 sm:py-1">
-      <div className="mb-1 flex flex-wrap items-center justify-between gap-2">
-        <div className="min-w-0">
-          <h2 id="commercial-today-heading" className="text-sm font-semibold text-[#173f35]">
+      className="scroll-mt-28 rounded-xl border border-[#dce8df] bg-white px-3 py-2">
+      <div className="flex min-w-0 flex-col gap-2 lg:flex-row lg:items-center lg:gap-3">
+        <div className="flex min-w-0 items-center justify-between gap-3 lg:w-[175px] lg:shrink-0">
+          <h2 id="commercial-today-heading" className="text-xs font-bold text-[#173f35]">
             Cosa richiede attenzione
           </h2>
           <p className="sr-only">Decisioni da verificare e attività da riprendere, senza automatismi.</p>
+          <Link href="#commercial-worklist"
+            className="inline-flex min-h-8 shrink-0 items-center text-[11px] font-semibold text-[#175640] hover:underline lg:hidden">
+            Le mie trattative →
+          </Link>
         </div>
-        <Link href="#commercial-worklist" className="inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline-offset-2 hover:underline sm:min-h-0">
-          Le mie trattative →
-        </Link>
-      </div>
-      <div className="grid min-w-0 gap-1.5 sm:grid-cols-2 sm:gap-1" data-testid="commercial-compact-attention">
-        <div className="min-w-0 rounded-xl border border-[#d7e5dc] bg-white px-2.5 py-1.5 sm:py-1" data-testid="commercial-director-rfq-priorities">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-[11px] font-bold uppercase tracking-[0.07em] text-[#386c55]">RFQ · Da verificare</p>
-            <Link href={appRoutes.rfqHub.inbox} className="inline-flex min-h-8 items-center text-xs font-semibold text-[#175640] hover:underline">
+        <div className="grid min-w-0 flex-1 gap-x-3 gap-y-2 sm:grid-cols-2"
+          data-testid="commercial-compact-attention">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1"
+            data-testid="commercial-director-rfq-priorities">
+            <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.05em] text-[#386c55]">
+              RFQ · Da verificare
+            </p>
+            {!canWrite ? (
+              <p className="min-w-0 text-xs text-[#52685b]">
+                Consultazione in sola lettura. Le azioni richiedono un ruolo autorizzato.
+              </p>
+            ) : !procurementAvailable ? (
+              <p role="status" className="min-w-0 text-xs text-[#52685b]">
+                Segnalazioni RFQ non disponibili. Controlla direttamente l’inbox.
+              </p>
+            ) : (
+              <>
+                <p className="min-w-0 text-xs text-[#345447]" data-testid="commercial-director-attention-summary">
+                  {confirmedCount === null
+                    ? "Controlla le segnalazioni disponibili nell’inbox."
+                    : confirmedCount === 0
+                      ? "Nessuna RFQ segnalata per una verifica."
+                      : `${confirmedCount} ${confirmedCount === 1 ? "elemento segnalato" : "elementi segnalati"} per una verifica.`}
+                </p>
+                {actionableRfqs.length > 0 ? (
+                  <div className="flex min-w-0 flex-wrap gap-1">
+                    {actionableRfqs.slice(0, 2).map(item => (
+                      <Link key={item.rfq_id} href={appRoutes.rfqHub.campaign(item.rfq_id)}
+                        className="inline-flex min-h-8 max-w-full items-center rounded-md bg-[#edf6f0] px-2 text-[11px] font-semibold text-[#175640] hover:bg-[#dceee3]">
+                        <span className="max-w-[13rem] truncate">
+                          {item.headline?.trim() || "Apri RFQ segnalata"}
+                        </span>
+                        <span aria-hidden="true" className="ml-1 shrink-0">→</span>
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </>
+            )}
+            <Link href={appRoutes.rfqHub.inbox}
+              className="inline-flex min-h-8 shrink-0 items-center text-[11px] font-semibold text-[#175640] hover:underline">
               Apri inbox →
             </Link>
           </div>
-          {!canWrite ? (
-            <p className="mt-0.5 text-xs leading-4 text-[#52685b]">Consultazione in sola lettura. Le azioni richiedono un ruolo autorizzato.</p>
-          ) : !procurementAvailable ? (
-            <p role="status" className="mt-0.5 text-xs leading-4 text-[#52685b]">Segnalazioni RFQ non disponibili. Controlla direttamente l’inbox.</p>
-          ) : (
-            <>
-              <p className="mt-0.5 text-xs leading-4 text-[#345447]" data-testid="commercial-director-attention-summary">
-                {confirmedCount === null
-                  ? "Controlla le segnalazioni disponibili nell’inbox."
-                  : confirmedCount === 0
-                    ? "Nessuna RFQ segnalata per una verifica."
-                    : `${confirmedCount} ${confirmedCount === 1 ? "elemento segnalato" : "elementi segnalati"} per una verifica.`}
-              </p>
-              {actionableRfqs.length > 0 ? (
-                <div className="mt-0.5 flex min-w-0 flex-wrap gap-1">
-                  {actionableRfqs.slice(0, 2).map(item => (
-                    <Link key={item.rfq_id} href={appRoutes.rfqHub.campaign(item.rfq_id)}
-                      className="inline-flex min-h-8 max-w-full items-center rounded-md border border-[#c9e0d2] bg-[#f4faf6] px-2 py-0.5 text-[11px] font-semibold text-[#175640] hover:border-[#8bb49b]">
-                      <span className="max-w-[14rem] truncate">{item.headline?.trim() || "Apri RFQ segnalata"}</span>
-                      <span aria-hidden="true" className="ml-1.5 shrink-0">→</span>
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </>
-          )}
-        </div>
-        <div className="min-w-0 rounded-xl border border-[#d7e5dc] bg-white px-2.5 py-1.5 sm:py-1" data-testid="commercial-director-resume">
-          <p className="text-[11px] font-bold uppercase tracking-[0.07em] text-[#386c55]">Riprendi il lavoro</p>
-          {resume && resumeHref ? (
-            <>
-              <Link href={resumeHref}
-                className="mt-0.5 block min-h-8 min-w-0 rounded-md py-0.5 text-xs font-semibold text-[#175640] hover:underline"
-                title={resume.title}>
-                <span className="block truncate">{commercialDirectorResumeLabel(resume)} · {resume.title} →</span>
-              </Link>
-              <p className="text-[10px] leading-3 text-[#61766a]">Ultima attività acquisti disponibile, non classificata urgente.</p>
-            </>
-          ) : (
-            <p className="mt-0.5 text-xs leading-4 text-[#52685b]">
-              {view !== "all" ? "Apri la vista Tutte per riprendere un’attività recente." :
-                data.procurementUnavailable || data.truncated
-                  ? "Vista incompleta: usa la ricerca o la lista delle trattative."
-                  : "Nessuna attività acquisti recente disponibile in questa vista."}
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 sm:border-l sm:border-[#e1eae4] sm:pl-3"
+            data-testid="commercial-director-resume">
+            <p className="shrink-0 text-[10px] font-bold uppercase tracking-[0.05em] text-[#386c55]">
+              Riprendi il lavoro
             </p>
-          )}
+            {resume && resumeHref ? (
+              <>
+                <Link href={resumeHref}
+                  className="min-w-0 text-xs font-semibold text-[#175640] hover:underline"
+                  title={resume.title}>
+                  <span className="block max-w-[20rem] truncate">
+                    {commercialDirectorResumeLabel(resume)} · {resume.title} →
+                  </span>
+                </Link>
+                <p className="sr-only">Ultima attività acquisti disponibile, non classificata urgente.</p>
+              </>
+            ) : (
+              <p className="min-w-0 text-xs text-[#52685b]">
+                {view !== "all" ? "Apri la vista Tutte per riprendere un’attività recente." :
+                  data.procurementUnavailable || data.truncated
+                    ? "Vista incompleta: usa la ricerca o la lista delle trattative."
+                    : "Nessuna attività acquisti recente disponibile in questa vista."}
+              </p>
+            )}
+          </div>
         </div>
+        <Link href="#commercial-worklist"
+          className="hidden shrink-0 items-center text-xs font-semibold text-[#175640] hover:underline lg:inline-flex">
+          Le mie trattative →
+        </Link>
       </div>
     </section>
   );
