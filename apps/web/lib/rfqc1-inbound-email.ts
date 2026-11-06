@@ -9,7 +9,7 @@
  * Reply aliases are correlation hints, not login capabilities.
  */
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
-import { isRfqc1TrustedSenderVerifierAvailable } from "./rfqc1-inbound-transport-auth";
+import { isRfqc1TrustedSenderVerifierAvailable } from "./rfqc1-inbound-transport-auth.ts";
 
 export type Rfqc1InboundDispatch = {
   rfqId: string;
