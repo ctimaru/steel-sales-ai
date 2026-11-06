@@ -18,7 +18,7 @@ test("RFQC1.7 posts to existing RFQH6 only after explicit confirmation", () => {
   assert.doesNotMatch(composer, /Promise\.all\(.*supplier/);
 });
 test("RFQC1.7 blocks mutation on read-only/closed RFQs", () => {
-  assert.match(composer, /disabled \|\| !pending/);
+  assert.match(composer, /!disabled && !pending/);
   assert.match(layout, /!props\.canExecute/);
   assert.match(layout, /\["launched", "collecting"\]/);
 });
