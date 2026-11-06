@@ -366,7 +366,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         responseLabel={currentResponses.label} comparison={comparisonData}
         canExecute={canExecuteCritical}
       />
-      <details id="rfqc1-advanced" open={isPreparation} className="rounded-2xl border border-[#cddbd6] bg-white">
+      <details id="rfqc1-advanced" open={isPreparation || Boolean(awardSnapshot) || Boolean(poState?.purchase_orders?.length)} className="rounded-2xl border border-[#cddbd6] bg-white">
         <summary className="cursor-pointer px-4 py-4 text-sm font-bold text-[#214f3d]">
           Gestione RFQ · Invio, governance, offerte complete, aggiudicazione e ordini
         </summary>
