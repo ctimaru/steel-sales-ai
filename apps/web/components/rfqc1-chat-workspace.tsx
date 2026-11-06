@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Rfqc1ChatComposer } from "@/components/rfqc1-chat-composer";
 import { Rfqc1OfferCard } from "@/components/rfqc1-offer-card";
 import { useState } from "react";
 
@@ -190,10 +191,19 @@ export function Rfqc1ChatWorkspace(props: Props) {
             )}
           </div>
           <div className="border-t border-[#dfe7e1] bg-white p-3 sm:px-5">
-            <p className="text-[11px] text-[#637569]">
-              {props.canExecute ? "Messaggi, chiarimenti, revisioni, counter target e BAFO si inviano dalla gestione avanzata finché il composer integrato non supera i test." :
-                "L'accesso attuale è in sola lettura."}
-            </p>
+            {supplier ? (
+              <Rfqc1ChatComposer
+                key={supplier.id}
+                rfqId={props.rfqId}
+                supplierId={supplier.id}
+                supplierName={supplier.name}
+                lines={props.lines}
+                disabled={!props.canExecute || !["launched", "collecting"].includes(props.status) ||
+                  ["draft", "queued", "declined", "delivery_error", "awarded", "expired"].includes(supplier.state)}
+              />
+            ) : (
+              <p className="text-xs text-[#637569]">Seleziona almeno un fornitore nella gestione RFQ.</p>
+            )}
           </div>
         </div>
 
