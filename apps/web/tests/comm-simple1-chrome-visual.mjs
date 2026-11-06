@@ -72,6 +72,11 @@ try {
 
       await page.goto(origin + "/rfq-hub", { waitUntil: "domcontentloaded", timeout: 90000 });
       await page.getByRole("heading", { name: "RFQ Hub", exact: true }).waitFor({ state: "visible", timeout: 60000 });
+      if (width < 1000) {
+        const header = await page.locator('[data-testid="rfq-hub-simple-workspace"] > header').boundingBox();
+        assert.ok(header && header.height <= 155,
+          "COMM-SIMPLE1 mobile RFQ header must not bury campaigns: " + header?.height);
+      }
       const summary = page.getByTestId("rfq-hub-compact-summary");
       const campaigns = page.getByTestId("rfq-hub-primary-campaigns");
       const distinte = page.getByTestId("rfq-hub-primary-distinte");
