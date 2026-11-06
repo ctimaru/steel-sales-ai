@@ -13,6 +13,7 @@ import {NetworkEuropeanMap} from "@/components/network-europe-map";
 import {NetworkCountryTicker} from "@/components/network-country-ticker";
 import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters";
 import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
+import {NetworkFilterClientForm} from "@/components/network-filter-client-form";
 import {NetworkRfqSelectionBar} from "@/components/network-rfq-selection-bar";
 import {NetworkFilterDrawer} from "@/components/network-filter-drawer";
 import {NetworkSaveToggle} from "@/components/network-save-toggle";
@@ -253,7 +254,7 @@ export function NetworkCompactExperience({
                 })}
               </nav>
             </div>
-            <form method="get" action="/network" aria-label="Filtri tecnici e geografici" className="grid grid-cols-1 gap-3">
+            <NetworkFilterClientForm>
               {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
               {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
               {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
@@ -277,7 +278,7 @@ export function NetworkCompactExperience({
               </label>)}
               {/* NET-AUDIT1.4: selects apply on change; this stays for no-JS and keyboard users. */}
               <button type="submit" className="ui-action ui-action-secondary sr-only inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold focus:not-sr-only">Applica filtri</button>
-            </form>
+            </NetworkFilterClientForm>
             <NetworkSpecPanel filters={filters} accessMode={accessMode}/>
             {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 w-full items-center justify-center rounded-lg px-3 text-xs font-semibold">Azzera filtri</Link>:null}
           </section>
