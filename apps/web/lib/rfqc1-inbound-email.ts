@@ -9,6 +9,7 @@
  * Reply aliases are correlation hints, not login capabilities.
  */
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { isRfqc1TrustedSenderVerifierAvailable } from "./rfqc1-inbound-transport-auth.ts";
 
 export type Rfqc1InboundDispatch = {
   rfqId: string;
@@ -195,7 +196,15 @@ export function selectRfqc1ReplyToFromServer(input: {
   return selectRfqc1ReplyTo({
     ...input,
     flags: {
-      enabled: process.env.RFQC1_INBOUND_EMAIL_ENABLED === "true",
+      // A dedicated atomic receipt ledger is a separate founder-authorised gate.
+      // Even if earlier two flags are mistakenly enabled, never create
+      // incoming Reply-To aliases before the ledger exists.
+      // Proof must be a real trusted transport attestation, not mail headers.
+      // Currently false until the separate security integration is completed.
+      enabled: process.env.RFQC1_INBOUND_EMAIL_ENABLED === "true" &&
+        process.env.RFQC1_INBOUND_ATOMIC_LEDGER_READY === "true" &&
+        process.env.RFQC1_INBOUND_TRUSTED_SENDER_PROOF_READY === "true" &&
+        isRfqc1TrustedSenderVerifierAvailable(),
       receiverReady: process.env.RFQC1_INBOUND_RECEIVER_READY === "true",
       receivingDomain: process.env.RFQC1_INBOUND_DOMAIN,
       signingSecret: process.env.RFQC1_INBOUND_SIGNING_SECRET,
