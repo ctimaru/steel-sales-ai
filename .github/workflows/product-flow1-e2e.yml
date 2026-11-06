@@ -5,6 +5,7 @@ on:
     paths:
       - ".github/workflows/product-flow1-e2e.yml"
       - "apps/web/tests/product-flow1-*.mjs"
+      - "apps/web/tests/rfqc1-*.mjs"
       - "apps/web/tests/calc-dist3-chrome-authenticated-private-save.mjs"
       - "apps/web/tests/comm-rfq-ux3a-*.mjs"
       - "apps/web/tests/comm-rfq-ux3a-*.cjs"
