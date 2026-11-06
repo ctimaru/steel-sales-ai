@@ -125,6 +125,7 @@ export default async function BuyerRfqHubPage() {
           <p className="mt-0.5 max-w-2xl text-xs text-[var(--text-secondary)]">
             Le tue richieste e Distinte in un unico spazio. Marketplace resta un canale opzionale di pubblicazione.
           </p>
+          <p className="sr-only">Distinte, richieste ai fornitori, offerte e ordini.</p>
         </div>
         {canWrite ? (
           <Link href={appRoutes.rfqHub.createDistinta}
