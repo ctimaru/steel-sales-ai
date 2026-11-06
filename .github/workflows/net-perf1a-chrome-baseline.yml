@@ -116,14 +116,14 @@ jobs:
           if [ -f "$RUNNER_TEMP/netperf1a-next.log" ]; then
             grep -F "NET-PERF1.A LOCAL_COMPACT_QUERY_FAILURE" "$RUNNER_TEMP/netperf1a-next.log" | tail -n 5 || true
           fi
-      - name: Retain numeric-only synthetic baseline JSON
-        if: success()
+      - name: Retain numeric-only synthetic baseline JSON (including diagnostics)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: net-perf1a-synthetic-chrome-numeric
           path: ${{ runner.temp }}/netperf1a-synthetic-numeric/numeric-summary.json
           retention-days: 7
-          if-no-files-found: error
+          if-no-files-found: warn
       - name: Destroy temporary services and synthetic credentials
         if: always()
         shell: bash
