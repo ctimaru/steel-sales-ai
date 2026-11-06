@@ -374,7 +374,7 @@ export default async function NetworkDirectoryPage({
                 : "· ruolo, prodotto, capability, mercato e paese"}
             </span>
           </summary>
-          <form className="grid gap-3 border-t border-[#d9e8e2] p-4 sm:grid-cols-2 lg:grid-cols-5">
+          <form className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-3 border-t border-[#d9e8e2] p-4 sm:grid-cols-2 lg:grid-cols-5">
             {params.q ? <input type="hidden" name="q" value={params.q} /> : null}
             {listingView!=="all" ? <input type="hidden" name="view" value={listingView} /> : null}
             {validNetworkPersona(params.persona) ? <input type="hidden" name="persona" value={params.persona} /> : null}
