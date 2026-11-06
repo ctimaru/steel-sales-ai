@@ -46,7 +46,7 @@ test("RFQC1.EMAIL1.A signed aliases are deterministic and supplier-isolated", ()
 test("RFQC1.EMAIL1.A rejects wrong supplier, forged alias, other recipient, group message", () => {
   assert.deepEqual(check(b, incoming), { kind: "rejected", reason: "recipient" });
   assert.deepEqual(check(a, { ...incoming, from: b.supplierEmail }), { kind: "rejected", reason: "sender" });
-  assert.deepEqual(check(a, { ...incoming, envelopeTo: [emailToA.replace(/[A-Za-z0-9_-](?=@)/, "x")] }), { kind: "rejected", reason: "recipient" });
+  assert.deepEqual(check(a, { ...incoming, envelopeTo: [emailToA.replace(/([A-Za-z0-9_-])@/, (_, char) => (char === "x" ? "y" : "x") + "@")] }), { kind: "rejected", reason: "recipient" });
   assert.deepEqual(check(a, { ...incoming, envelopeTo: [emailToA, buildRfqc1InboundAlias(b, domain, secret)] }), { kind: "rejected", reason: "recipient" });
 });
 test("RFQC1.EMAIL1.A quarantines unauthenticated From even when address matches", () => {
