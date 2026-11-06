@@ -7,6 +7,7 @@ on:
       - "apps/web/tests/comm-ux1c-chrome-search.mjs"
       - "apps/web/tests/comm-ux1-chrome-auth.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
+      - "apps/web/tests/rfqc1-16-chrome-chat.mjs"
       - "apps/web/tests/bd15-*.mjs"
       - "apps/web/tests/bd18-*.mjs"
       - "supabase/tests/bd15_*.sql"
@@ -166,6 +167,10 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/rfqh14-2-chrome-procurement.mjs
+      - name: "RFQC1.16 — Authenticated chat 1440/390/320, supplier isolation and no automatic sends"
+        working-directory: apps/web
+        timeout-minutes: 10
+        run: node tests/rfqc1-16-chrome-chat.mjs
       - name: "BD15 — Chrome E2E calculator → RFQ → bulk suppliers → reviewed confirmation"
         working-directory: apps/web
         timeout-minutes: 15

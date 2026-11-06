@@ -1,5 +1,7 @@
 "use server";
 
+import { selectRfqc1ReplyToFromServer } from "@/lib/rfqc1-inbound-email";
+
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 
@@ -532,7 +534,15 @@ export async function launchBuyerRfq(
       const providerMessageId = await sendRfqh3Email({
         apiKey,
         from,
-        replyTo: user.email ?? null,
+        replyTo: selectRfqc1ReplyToFromServer({
+          buyerReplyTo: user.email ?? null,
+          identity: {
+            rfqId: context.campaign.id,
+            dispatchId: dispatch.dispatchId,
+            supplierId: dispatch.supplier.id,
+            supplierEmail: dispatch.supplier.supplier_email_normalized!,
+          },
+        }),
         recipient: dispatch.supplier.supplier_email_normalized!,
         idempotencyKey: dispatch.idempotencyKey,
         headers: links.headers,
@@ -646,7 +656,15 @@ export async function retryFailedBuyerRfq(
       const providerMessageId = await sendRfqh3Email({
         apiKey,
         from,
-        replyTo: user.email ?? null,
+        replyTo: selectRfqc1ReplyToFromServer({
+          buyerReplyTo: user.email ?? null,
+          identity: {
+            rfqId: context.campaign.id,
+            dispatchId: dispatch.id,
+            supplierId: supplier.id,
+            supplierEmail: supplier.supplier_email_normalized,
+          },
+        }),
         recipient: supplier.supplier_email_normalized,
         idempotencyKey: security.idempotencyKey,
         headers: retryLinks.headers,
@@ -792,7 +810,15 @@ export async function sendBuyerRfqReminders(
       const providerMessageId = await sendRfqh3Email({
         apiKey,
         from,
-        replyTo: user.email ?? null,
+        replyTo: selectRfqc1ReplyToFromServer({
+          buyerReplyTo: user.email ?? null,
+          identity: {
+            rfqId: context.campaign.id,
+            dispatchId: dispatch.id,
+            supplierId: supplier.id,
+            supplierEmail: supplier.supplier_email_normalized,
+          },
+        }),
         recipient: supplier.supplier_email_normalized,
         idempotencyKey,
         headers: reminderLinks.headers,
