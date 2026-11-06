@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 
-import { selectRfqc1ReplyTo } from "../lib/rfqc1-inbound-reply-to.ts";
+import { selectRfqc1ReplyTo } from "../lib/rfqc1-inbound-email.ts";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const identity = {
