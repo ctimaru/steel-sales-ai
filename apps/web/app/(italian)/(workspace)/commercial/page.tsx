@@ -200,16 +200,16 @@ export default async function CommercialHomePage({
       ) : (<>
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
         className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white " + cinematic.hero}>
-        <div className={"grid items-center gap-3 px-4 py-3 sm:px-6 lg:min-h-[112px] lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-4 lg:px-6 lg:py-2.5 " + cinematic.heroGrid}>
+        <div className={"grid items-center gap-2 px-4 py-2 sm:px-5 lg:min-h-[78px] lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-3 lg:px-5 lg:py-2 " + cinematic.heroGrid}>
           <div className="relative z-10 min-w-0">
             <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#add4bb]">
               <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9fe4b5]" />
               Smart Steel Sales / Commerciale
             </div>
-            <h1 className={"mt-1 text-[clamp(1.5rem,2.2vw,2rem)] font-semibold leading-[1.08] tracking-[-0.04em] text-white " + cinematic.heroTitle}>
+            <h1 className={"mt-0.5 text-[clamp(1.2rem,1.6vw,1.5rem)] font-semibold leading-[1.12] tracking-[-0.025em] text-white " + cinematic.heroTitle}>
               Le tue trattative. <span className="text-[#b4dec2]">Un’unica visione.</span>
             </h1>
-            <p className="mt-1 text-xs leading-4 text-[#d2e7db]">
+            <p className="mt-0.5 text-[11px] leading-4 text-[#d2e7db]">
               Richieste, offerte e ordini in un unico spazio.
             </p>
           </div>
@@ -245,10 +245,10 @@ export default async function CommercialHomePage({
 
       <section id="commercial-tool-access" aria-label="Alternative alla chat e ricerca nello storico"
         data-testid="commercial-primary-quick-actions"
-        className="scroll-mt-28 rounded-2xl border border-[#d6e5db] bg-white px-3 py-2 sm:px-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        className="scroll-mt-28 rounded-xl border border-[#d6e5db] bg-white px-3 py-1.5 sm:px-3">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5" data-testid="commercial-alternative-methods">
-            <span className="text-[11px] font-semibold text-[#5a6f60]">In alternativa</span>
+            <span className="hidden text-[11px] font-semibold text-[#5a6f60] xl:inline">Strumenti</span>
             <CommercialCalculatorQuickAccess references={calculatorReferences} />
             {canWrite ? (
               <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
@@ -264,18 +264,7 @@ export default async function CommercialHomePage({
               className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] bg-[#f3f7f4] px-3 text-xs font-semibold text-[#254f3d] hover:bg-[#e4f0e8] focus-visible:outline-2 focus-visible:outline-offset-2">
               Cerca nello storico ↗
             </Link>
-            {networkAvailable ? (
-              <nav aria-label="Relazioni commerciali" className="flex flex-wrap items-center gap-3">
-                <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
-                  className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] hover:underline">
-                  Aziende da seguire →
-                </Link>
-                <Link href={appRoutes.network.directory}
-                  className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] hover:underline">
-                  Network
-                </Link>
-              </nav>
-            ) : null}
+
           </div>
         </div>
       </section>
