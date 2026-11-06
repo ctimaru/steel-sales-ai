@@ -162,3 +162,43 @@ export function evaluateRfqc1InboundReply(input: {
     body,
   };
 }
+
+
+// RFQC1.EMAIL1.B — outbound header selection only, never a webhook or ingest.
+export type Rfqc1InboundReplyToFlags = {
+  enabled: boolean;
+  receiverReady: boolean;
+  receivingDomain?: string | null;
+  signingSecret?: string | null;
+};
+
+/**
+ * The existing buyer address is the fallback until the fully validated
+ * receiver is explicitly activated; incomplete receiving config fails closed.
+ */
+export function selectRfqc1ReplyTo(input: {
+  identity: Rfqc1InboundDispatch;
+  buyerReplyTo: string | null;
+  flags: Rfqc1InboundReplyToFlags;
+}): string | null {
+  if (!input.flags.enabled || !input.flags.receiverReady) return input.buyerReplyTo;
+  if (!input.flags.receivingDomain || !input.flags.signingSecret)
+    throw new Error("RFQC1 inbound receiving is not fully configured");
+  return buildRfqc1InboundAlias(input.identity, input.flags.receivingDomain, input.flags.signingSecret);
+}
+
+/** Server-only env selection. Never send keys or flags to client components. */
+export function selectRfqc1ReplyToFromServer(input: {
+  identity: Rfqc1InboundDispatch;
+  buyerReplyTo: string | null;
+}): string | null {
+  return selectRfqc1ReplyTo({
+    ...input,
+    flags: {
+      enabled: process.env.RFQC1_INBOUND_EMAIL_ENABLED === "true",
+      receiverReady: process.env.RFQC1_INBOUND_RECEIVER_READY === "true",
+      receivingDomain: process.env.RFQC1_INBOUND_DOMAIN,
+      signingSecret: process.env.RFQC1_INBOUND_SIGNING_SECRET,
+    },
+  });
+}
