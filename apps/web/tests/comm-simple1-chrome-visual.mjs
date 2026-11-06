@@ -63,6 +63,11 @@ try {
       } else {
         assert.ok(boxes[2].y < 440,
           "COMM-SIMPLE1 mobile AI must enter the first screen; y=" + boxes[2].y);
+        if (width === 320) {
+          const aiCta = await page.getByTestId("commercial-ai-first-cta").boundingBox();
+          assert.ok(aiCta && aiCta.y + aiCta.height <= height - 55,
+            "320px buyer must see the chat CTA above bottom navigation: " + JSON.stringify(aiCta));
+        }
       }
       await noOverflow(page, "Commerciale " + width);
       await page.screenshot({
