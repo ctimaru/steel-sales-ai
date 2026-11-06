@@ -361,7 +361,7 @@ export default async function CommercialHomePage({
               </div>
               <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"}
                 className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4"
-              >La mia lista →</Link>
+              >Aziende da seguire →</Link>
             </div>
             {prospect.status === "saved" ? (
               <div>
@@ -473,6 +473,9 @@ export default async function CommercialHomePage({
               href={appRoutes.network.company(networkContext.id)}
               className="inline-flex min-h-10 items-center px-1 text-xs font-semibold text-[#175640] underline underline-offset-4"
             >Rivedi il profilo Network →</Link>
+            <Link href={appRoutes.network.directory}
+              className="inline-flex min-h-10 items-center px-1 text-xs font-semibold text-[#175640] underline underline-offset-4"
+            >Esplora il Network →</Link>
           </div>
         </section>
       ) : null}
