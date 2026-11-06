@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Rfqc1OfferCard } from "@/components/rfqc1-offer-card";
 import { useState } from "react";
 
 import type { Rfqc1TimelineItem } from "@/lib/rfqc1-timeline";
@@ -180,10 +181,7 @@ export function Rfqc1ChatWorkspace(props: Props) {
                 </div>
                 {item.body && <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-[#283e34]">{item.body}</p>}
                 {item.quote && (
-                  <div className="mt-2 rounded-xl border border-[#d6e5dc] bg-white p-3">
-                    <p className="text-xs font-bold text-[#1a5740]">Offerta ricevuta · revisione {item.quote.revision}</p>
-                    <p className="mt-1 text-[11px] text-[#4c685a]">{item.quote.lines.length} righe · {item.quote.leadTimeDays ?? "—"} gg · {item.quote.paymentTerms || "Pagamento da definire"}</p>
-                  </div>
+                  <Rfqc1OfferCard offer={item.quote} status={item.status} requestLines={props.lines} />
                 )}
               </article>
             ))}
