@@ -79,6 +79,10 @@ jobs:
             -f "$RUNNER_TEMP/perf1-psql-vars.sql" \
             -f supabase/tests/perf1_chrome_seed.sql \
             -f supabase/tests/netperf1a_local_browser_fixture.sql
+      - name: Verify real local GoTrue and PostgREST browse contract before the slow Chrome build
+        working-directory: apps/web
+        timeout-minutes: 2
+        run: node tests/net-perf1a-local-rpc-preflight.mjs
       - name: Build production-mode Next.js (localhost only)
         working-directory: apps/web
         timeout-minutes: 12
