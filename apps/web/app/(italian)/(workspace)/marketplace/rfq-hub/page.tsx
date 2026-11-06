@@ -122,7 +122,7 @@ export default async function BuyerRfqHubPage() {
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--brand-primary)]">Workspace aziendale · Acquisti</p>
           <h1 className="mt-0.5 text-xl font-extrabold text-[var(--brand-deep)]">RFQ Hub</h1>
-          <p className="mt-0.5 max-w-2xl text-xs text-[var(--text-secondary)]">
+          <p className="hidden max-w-2xl text-xs text-[var(--text-secondary)] sm:mt-0.5 sm:block">
             Le tue richieste e Distinte in un unico spazio. Marketplace resta un canale opzionale di pubblicazione.
           </p>
           <p className="sr-only">Distinte, richieste ai fornitori, offerte e ordini.</p>
