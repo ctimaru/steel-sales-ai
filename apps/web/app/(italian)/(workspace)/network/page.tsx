@@ -149,7 +149,21 @@ export default async function NetworkDirectoryPage({
     side2:params.side2,stock:params.stock});
   const needsTechnicalFinder=Boolean(params.advanced==="1"||params.province||params.city);
   if(!needsTechnicalFinder){
-    const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch(()=>null);
+    const compact=await getCompactNetworkPage(context.organizationId,"pro",compactFilters).catch((error:unknown)=>{
+      // Disposable local CI only. Never log URLs, SQL arguments, user IDs,
+      // company names or exception contents to production observability.
+      if(process.env.NETPERF_LAB_DIAGNOSTICS==="true"&&
+         process.env.NEXT_PUBLIC_SUPABASE_URL==="http://127.0.0.1:54321"){
+        console.error("NET-PERF1.A LOCAL_COMPACT_QUERY_FAILURE",JSON.stringify({
+          category:error instanceof Error?error.name:"unknown",
+          hasMessage:error instanceof Error&&Boolean(error.message),
+          // Non-identifying error code only; full exception is never serialized.
+          code:typeof error==="object"&&error!==null&&"code" in error
+            ?String((error as {code?:unknown}).code).slice(0,16):null,
+        }));
+      }
+      return null;
+    });
     if(compact){
       // NET-AUDIT1.2: capability labels come from getCompactNetworkPage for the
       // exact companies on the page. The previous fallback read a different
