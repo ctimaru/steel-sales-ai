@@ -15,6 +15,10 @@ on:
       - "supabase/tests/rfqh14_2b_*.sql"
       - "supabase/tests/rfqh14_2_chrome_procurement_seed.sql"
       - "supabase/tests/demotest2_3_chrome_seed.sql"
+      - "supabase/tests/rfqc1_email1d_atomic_behavior_local.sql"
+      - "supabase/tests/rfqc1_email1e_dispatch_lookup_local.sql"
+      - "apps/web/tests/rfqc1-email1e-local-disabled-route.mjs"
+      - "supabase/migrations/*rfqc1*.sql"
       - ".github/workflows/demotest2-3-chrome-auth.yml"
       - "apps/web/app/login/**"
       - "apps/web/lib/workspace-context.ts"
@@ -171,6 +175,21 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 10
         run: node tests/rfqc1-16-chrome-chat.mjs
+      - name: "RFQC1.EMAIL1.D — Atomic receipt and supplier isolation, LOCAL SQL rollback only"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 -f supabase/tests/rfqc1_email1d_atomic_behavior_local.sql
+      - name: "RFQC1.EMAIL1.E — Server lookup, revoked dispatch, cross-supplier isolation (LOCAL)"
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 -f supabase/tests/rfqc1_email1e_dispatch_lookup_local.sql
+      - name: "RFQC1.EMAIL1.E — Inbound POST cannot accept unverified sender (LOCAL)"
+        working-directory: apps/web
+        run: node tests/rfqc1-email1e-local-disabled-route.mjs
       - name: "BD15 — Chrome E2E calculator → RFQ → bulk suppliers → reviewed confirmation"
         working-directory: apps/web
         timeout-minutes: 15

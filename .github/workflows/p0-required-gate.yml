@@ -344,6 +344,8 @@ jobs:
             supa_ledger5c_security_negative.sql \
             supa_ledger5c_assisted_rebuild_invariants.sql \
             rfqh14_pilot_readiness.sql \
+            rfqc1_email1d_atomic_inbound_receipts.sql \
+            rfqc1_email1e_dispatch_lookup_contract.sql \
             nc12_operational_alert_authorization_audit.sql \
             nc21_segregated_notification_inbox_schema.sql \
             nc22_notification_router_idempotency_outbox.sql \
