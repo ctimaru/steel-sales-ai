@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { Rfqc1ChatWorkspace } from "@/components/rfqc1-chat-workspace";
+import { buildRfqc1SupplierTimeline } from "@/lib/rfqc1-timeline";
+import { rfqc1RecipientState, rfqc1ResponseSummary } from "@/lib/rfqc1-recipient-status";
 import { notFound } from "next/navigation";
 
 import {
@@ -82,6 +85,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     { data: purchaseOrderState },
     { data: governanceState },
     { data: approvalRows },
+    { data: rfqEvents },
   ] = await Promise.all([
     supabase
       .from("buyer_distintas")
@@ -134,8 +138,10 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .from("buyer_procurement_approvals")
       .select("id,action_type,po_draft_id,status,reason,requested_by,requested_at,expires_at,decided_by,decided_at,decision_note,consumed_at,payload_snapshot")
       .eq("rfq_id", campaign.id)
-      .order("requested_at", { ascending: false })
-      .limit(50),
+      .order("requested_at", { ascending: false }).limit(50),
+    supabase.from("buyer_rfq_events")
+      .select("id,supplier_id,event_type,created_at,event_sequence")
+      .eq("rfq_id", campaign.id).order("event_sequence", { ascending: true }).limit(300),
   ]);
 
   const governanceBase =
@@ -172,7 +178,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
   }
 
   const latestQuotes = Array.from(latestQuoteBySupplier.values());
-  const latestQuoteIds = latestQuotes.map((quote) => quote.id);
+  const latestQuoteIds = quoteRows.map((quote) => quote.id);
   const quoteLinesResult =
     latestQuoteIds.length > 0
       ? await supabase
@@ -207,7 +213,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     negotiationThreadIds.length > 0
       ? await supabase
           .from("buyer_rfq_negotiation_messages")
-          .select("id,thread_id,sender_role,message_type,round_no,body,request_due_at,notification_status,created_at")
+          .select("id,thread_id,supplier_id,sender_role,message_type,round_no,body,request_due_at,notification_status,created_at")
           .in("thread_id", negotiationThreadIds)
           .order("created_at", { ascending: true })
       : null;
@@ -308,8 +314,63 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
     } as Rfqh7AwardSnapshot;
   }
 
+  // Buyer-only projection; supplier RPCs remain token-scoped.
+  const { data: chatCampaignRows } = await supabase.from("buyer_rfq_campaigns")
+    .select("id,title,status,created_at").eq("organization_id", campaign.organization_id)
+    .order("created_at", { ascending: false }).limit(40);
+  const chatCampaignIds = Array.from(new Set([campaign.id, ...(chatCampaignRows ?? []).map(r => r.id)]));
+  const [{ data: allChatRecipients }, { data: allChatQuotes }] = await Promise.all([
+    supabase.from("buyer_rfq_suppliers").select("id,rfq_id,status").in("rfq_id", chatCampaignIds),
+    supabase.from("buyer_rfq_quotes").select("supplier_id,rfq_id,status,revision_no").in("rfq_id", chatCampaignIds),
+  ]);
+  const currentResponses = rfqc1ResponseSummary({ suppliers: supplierRows, quotes: quoteRows });
+  const poTimeline = (poState?.purchase_orders ?? []).flatMap(po => (po.versions ?? []).map(v => ({
+    id: v.id, supplier_id: po.supplier_id, version_no: v.version_no,
+    status: v.status, issued_at: v.issued_at, supplier_responded_at: v.response?.responded_at ?? null,
+  })));
+  const chatSuppliers = supplierRows.map(s => ({
+    id: s.id, name: s.supplier_name || s.supplier_email_normalized || "Fornitore",
+    email: s.supplier_email_normalized,
+    state: rfqc1RecipientState({
+      supplier: s, dispatch: (dispatches ?? []).find(d => d.supplier_id === s.id),
+      quotes: quoteRows, thread: negotiationThreadRows.find(t => t.supplier_id === s.id),
+      dueAt: campaign.due_at,
+    }),
+    timeline: buildRfqc1SupplierTimeline({
+      supplierId: s.id, dispatches: dispatches ?? [],
+      messages: negotiationMessageRows, quotes: quoteRows, quoteLines: quoteLineRows,
+      events: rfqEvents ?? [], purchaseOrders: poTimeline,
+    }),
+  }));
+  const chatCampaigns = (chatCampaignRows ?? []).map(row => ({
+    id: row.id, title: row.title, status: row.status,
+    responseLabel: rfqc1ResponseSummary({
+      suppliers: (allChatRecipients ?? []).filter(s => s.rfq_id === row.id),
+      quotes: (allChatQuotes ?? []).filter(q => q.rfq_id === row.id),
+    }).label,
+  }));
+  if (!chatCampaigns.some(row => row.id === campaign.id))
+    chatCampaigns.unshift({ id: campaign.id, title: campaign.title, status: campaign.status, responseLabel: currentResponses.label });
   return (
-    <div className="space-y-5">
+    <div className="min-w-0 space-y-4 pb-8">
+      <Rfqc1ChatWorkspace
+        rfqId={campaign.id} title={campaign.title} status={campaign.status}
+        dueAt={campaign.due_at} buyerMessage={campaign.buyer_message}
+        campaigns={chatCampaigns} suppliers={chatSuppliers}
+        lines={lineRows.map(line => ({
+          id: line.id, position: line.line_position, description: line.description,
+          standard: line.standard_code, grade: line.grade_code,
+          quantity: line.quantity, quantityMode: line.quantity_mode,
+          weightKgM: line.weight_kg_m,
+        }))}
+        responseLabel={currentResponses.label} comparison={comparisonData}
+        canExecute={canExecuteCritical}
+      />
+      <details id="rfqc1-advanced" open={isPreparation || Boolean(awardSnapshot) || Boolean(poState?.purchase_orders?.length)} className="rounded-2xl border border-[#cddbd6] bg-white">
+        <summary className="cursor-pointer px-4 py-4 text-sm font-bold text-[#214f3d]">
+          Gestione RFQ · Invio, governance, offerte complete, aggiudicazione e ordini
+        </summary>
+        <div className="space-y-5 border-t border-[#e2eae5] p-3 sm:p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={appRoutes.rfqHub.home}
@@ -326,9 +387,9 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
           {isPreparation ? "RFQ privata · preparazione" : "RFQ multi-fornitore"}
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-[#1d2824]">
-          {campaign.title}
-        </h1>
+        <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-[#1d2824]">
+          Dettagli operativi · {campaign.title}
+        </h2>
         <div className="mt-5 grid gap-2 sm:grid-cols-3">
           <div className="rounded-xl bg-[#f7f9f8] p-3">
             <p className="text-xs text-[#718078]">Righe</p>
@@ -780,6 +841,8 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
           I PO generati dall&apos;assegnazione possono essere versionati, emessi e confermati dal fornitore tramite link personale, mantenendo prezzi e quantità della decisione commerciale.
         </p>
       </section>
+        </div>
+      </details>
         </div>
       </details>
     </div>

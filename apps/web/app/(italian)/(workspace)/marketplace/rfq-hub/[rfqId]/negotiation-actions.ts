@@ -1,5 +1,7 @@
 "use server";
 
+import { selectRfqc1ReplyToFromServer } from "@/lib/rfqc1-inbound-email";
+
 import { revalidatePath } from "next/cache";
 
 import {
@@ -255,7 +257,15 @@ async function deliverNegotiationNotification(input: {
       from:
         process.env.RFQ_EMAIL_FROM ||
         "Smart Steel Sales <rfq@smartsteelsales.com>",
-      replyTo: input.userEmail,
+      replyTo: selectRfqc1ReplyToFromServer({
+        buyerReplyTo: input.userEmail,
+        identity: {
+          rfqId: context.campaign.id,
+          dispatchId: context.dispatch.id,
+          supplierId: context.supplier.id,
+          supplierEmail: context.supplier.supplier_email_normalized,
+        },
+      }),
       recipient: context.supplier.supplier_email_normalized,
       idempotencyKey: "rfqh6-" + input.messageId,
       subject: email.subject,
