@@ -38,7 +38,7 @@ import { appRoutes } from "@/lib/routes";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 function selectClass() {
-  return "h-11 w-full rounded-xl border border-[#dce2df] bg-white px-3 text-sm text-[#2b3d46] outline-none transition focus:border-[#82aa9b] focus:ring-4 focus:ring-[#e1ece8]";
+  return "h-11 min-w-0 w-full max-w-full rounded-xl border border-[#dce2df] bg-white px-3 text-sm text-[#2b3d46] outline-none transition focus:border-[#82aa9b] focus:ring-4 focus:ring-[#e1ece8]";
 }
 
 const companyTypeDoors = [
