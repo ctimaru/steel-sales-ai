@@ -23,6 +23,7 @@ jobs:
       NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3010
       NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
       NETPERF_WEB_URL: http://127.0.0.1:3010
+      NETPERF_LAB_DIAGNOSTICS: "true"
       COMPANY_DISCOVERY_ENABLED: "false"
       SEMANTIC_INDEX_ENABLED: "false"
       CRAWL_IT3_ENABLED: "false"
@@ -104,6 +105,13 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 14
         run: node tests/net-perf1a-chrome-lab.mjs
+      - name: Report sanitized fallback category if synthetic benchmark failed
+        if: failure()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/netperf1a-next.log" ]; then
+            grep -F "NET-PERF1.A LOCAL_COMPACT_QUERY_FAILURE" "$RUNNER_TEMP/netperf1a-next.log" | tail -n 5 || true
+          fi
       - name: Retain numeric-only synthetic baseline JSON
         if: success()
         uses: actions/upload-artifact@v4
