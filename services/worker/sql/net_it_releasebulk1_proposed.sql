@@ -105,6 +105,11 @@ BEGIN
         -- this transaction before changing canonical public rows.
         LOCK TABLE public.network_companies IN SHARE ROW EXCLUSIVE MODE;
         LOCK TABLE private.network_web_research_seeds IN SHARE ROW EXCLUSIVE MODE;
+        -- Disallow concurrent staging/suppression that could invalidate a
+        -- clean preflight before the canonical insert within this transaction.
+        LOCK TABLE public.network_core_target_leads IN SHARE ROW EXCLUSIVE MODE;
+        LOCK TABLE public.network_company_discovery_candidates IN SHARE ROW EXCLUSIVE MODE;
+        LOCK TABLE public.network_netfast3_suppressed_domains IN SHARE ROW EXCLUSIVE MODE;
     END IF;
 
     SELECT count(*) INTO v_previous
@@ -151,8 +156,12 @@ BEGIN
           AND l.fingerprint=p_expected_fingerprint
           AND c.country_code='IT' AND c.publication_status='published'
           AND c.archived_at IS NULL;
+        -- Idempotence must only acknowledge the *identical* approved
+        -- manifest and unchanged source snapshot. A caller-supplied stale
+        -- digest must never be accepted as a successful replay.
         IF v_previous=v_expected AND v_good_previous=v_expected
-           AND p_expected_fingerprint IS NOT NULL THEN
+           AND p_expected_fingerprint IS NOT NULL
+           AND p_expected_fingerprint = v_hash THEN
             RETURN pg_catalog.jsonb_build_object(
               'status','already_published','wave',p_wave,
               'published_count',v_expected,'created_now',0);
