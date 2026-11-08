@@ -108,11 +108,11 @@ export function CommercialCalculatorQuickAccess({ references }: { references: Pu
     <section data-commercial-calculator-access className="flex flex-wrap items-center gap-2">
       <button ref={triggerRef} type="button" onClick={showCalculator}
         aria-haspopup="dialog" aria-expanded={open} aria-controls="commercial-calculator-panel"
-        className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#17583f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0d4630] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17583f]">
+        className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-[#17583f] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#0d4630] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17583f]">
         <span aria-hidden="true">▦</span> Calcolatrice pesi
       </button>
       <Link href={appRoutes.rfqHub.savedDistinte} data-commercial-saved-distinte-entry
-        className="inline-flex min-h-11 items-center rounded-lg border border-[#bdd7c6] bg-white px-3 text-xs font-bold text-[#17583f] hover:bg-[#edf8f1]">
+        className="inline-flex min-h-10 items-center rounded-lg border border-[#bdd7c6] bg-white px-2.5 text-xs font-bold text-[#17583f] hover:bg-[#edf8f1]">
         Distinte salvate →
       </Link>
       <span className="hidden text-[11px] text-[#61736a] xl:inline">Calcola → salva → scegli i fornitori</span>
