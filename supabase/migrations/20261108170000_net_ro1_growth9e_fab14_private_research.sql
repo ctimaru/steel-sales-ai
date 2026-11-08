@@ -1,4 +1,4 @@
--- NET-RO1.GROWTH9.A / nine new first-party source records for Romania metal-fabrication and end-user census.
+-- NET-RO1.GROWTH9.E / fourteen first-party source records for Romania metal-fabrication and end-user census.
 -- PRIVATE RESEARCH ONLY: a separate guarded publisher creates public profiles.
 DO $growth9_stage$
 DECLARE
@@ -39,9 +39,9 @@ BEGIN
            pg_catalog.regexp_replace(lower(m.display_name),'[^[:alnum:]]','','g')))
     AND NOT EXISTS (SELECT 1 FROM public.network_netfast3_suppressed_domains d WHERE d.domain=m.canonical_domain);
   IF v_count<>14 OR
-     (SELECT count(DISTINCT x.canonical_domain) FROM pg_catalog.jsonb_to_recordset(v_manifest) AS x(canonical_domain text))<>9 OR
-     (SELECT count(DISTINCT x.research_id) FROM pg_catalog.jsonb_to_recordset(v_manifest) AS x(research_id text))<>9
-  THEN RAISE EXCEPTION 'NET-RO1.GROWTH9.E: research cohort must be 9 unique, found %',v_count; END IF;
+     (SELECT count(DISTINCT x.canonical_domain) FROM pg_catalog.jsonb_to_recordset(v_manifest) AS x(canonical_domain text))<>14 OR
+     (SELECT count(DISTINCT x.research_id) FROM pg_catalog.jsonb_to_recordset(v_manifest) AS x(research_id text))<>14
+  THEN RAISE EXCEPTION 'NET-RO1.GROWTH9.E: research cohort must be 14 unique, found %',v_count; END IF;
   INSERT INTO private.network_web_research_seeds(
     country_code,canonical_domain,display_name,proposed_role,source_url,source_summary,
     source_kind,review_lane,research_id,batch_key)
