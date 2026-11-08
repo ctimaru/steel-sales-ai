@@ -42,6 +42,23 @@ def test_netit_releasebulk1_sql_security_contract():
     assert "p_attested boolean default false" in sql
     assert "from public.network_company_roles" in sql
 
+def test_netit_releasebulk1_requires_discovery_publish_for_commit_only():
+    """Static fail-closed guard: review grants cannot authorize a publish."""
+    sql = SQL.read_text(encoding="utf-8").lower()
+    clause = (
+        "if coalesce(p_commit,false) then\\n"
+        "        perform private.require_platform_permission('discovery.publish');\\n"
+        "    end if;"
+    )
+    assert clause.replace("\\n", "\n") in sql
+    # Commit authorization is checked before replay/idempotency and canonical writes.
+    guard_index = sql.index("private.require_platform_permission('discovery.publish')")
+    assert sql.index("private.require_platform_permission('discovery.run')") < guard_index
+    assert guard_index < sql.index("if v_previous>0 then")
+    assert guard_index < sql.index("insert into public.network_companies")
+    assert sql.count("private.require_platform_permission('discovery.publish')") == 1
+
+
 def test_netit_releasebulk1_review_template_blocks_false_approval():
     x=json.loads(MANIFEST.read_text(encoding="utf-8"))
     assert x["status"]=="readonly_pilot_blocked_rights_not_submittable"
