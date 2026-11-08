@@ -49,7 +49,7 @@ DECLARE
     v_assertion_id uuid;
     v_description text;
     v_item jsonb;
-    r record;
+    v_publication_item record;
 BEGIN
     -- Guard is required even for preview: no private cohort leakage to anon.
     PERFORM private.require_platform_permission('discovery.governance_review');
@@ -309,7 +309,7 @@ BEGIN
             USING ERRCODE='42501';
     END IF;
 
-    FOR r IN
+    FOR v_publication_item IN
       SELECT m.*,s.research_id,s.id AS source_seed_id,s.source_url
       FROM pg_catalog.jsonb_to_recordset(p_items) AS m(
         seed_id uuid, domain text, role text, legal_name text,
@@ -322,9 +322,9 @@ BEGIN
         -- The transaction holds the canonical write lock; no partial publish.
         SELECT id INTO STRICT v_role_id
         FROM public.network_company_roles
-        WHERE canonical_key=r.role AND status='active' AND searchable=true;
+        WHERE canonical_key=v_publication_item.role AND status='active' AND searchable=true;
 
-        v_description := CASE r.role
+        v_description := CASE v_publication_item.role
           WHEN 'producer' THEN
             'Azienda della produzione industriale individuata da fonte aziendale. Gamma e qualifiche da confermare.'
           WHEN 'trader_distributor' THEN
@@ -339,7 +339,7 @@ BEGIN
           legal_name,country_code,website_url,website_domain,description,
           publication_status,claimed_status,verification_status
         ) VALUES (
-          r.legal_name,'IT','https://'||r.domain,r.domain,v_description,
+          v_publication_item.legal_name,'IT','https://'||v_publication_item.domain,v_publication_item.domain,v_description,
           'published','unclaimed','unverified'
         ) RETURNING id INTO v_company_id;
 
@@ -350,17 +350,17 @@ BEGIN
         ) VALUES (
           'company',v_company_id,'netit_releasebulk1_company_profile',
           pg_catalog.jsonb_build_object(
-            'research_id',r.research_id,'source_url',r.source_url,
-            'identity_evidence_url',r.identity_evidence_url,
-            'rights_reference_url',r.rights_reference_url,
-            'rights_decision',r.rights_decision,
-            'rights_review_note',r.rights_note,
-            'role_key_proposed',r.role,
+            'research_id',v_publication_item.research_id,'source_url',v_publication_item.source_url,
+            'identity_evidence_url',v_publication_item.identity_evidence_url,
+            'rights_reference_url',v_publication_item.rights_reference_url,
+            'rights_decision',v_publication_item.rights_decision,
+            'rights_review_note',v_publication_item.rights_note,
+            'role_key_proposed',v_publication_item.role,
             'role_confirmed_by_company',false,
             'company_verified',false,
             'buyer_confirmed',false,
             'tube_procurement_confirmed',false
-          ),'public_web',r.source_url,'platform_curated',v_actor,
+          ),'public_web',v_publication_item.source_url,'platform_curated',v_actor,
           0.50,'accepted'
         ) RETURNING id INTO v_assertion_id;
 
@@ -373,9 +373,9 @@ BEGIN
           approved_by,identity_evidence_url,rights_reference_url,
           rights_decision,rights_note
         ) VALUES (
-          p_wave,r.source_seed_id,r.research_id,v_company_id,v_hash,
-          v_actor,r.identity_evidence_url,r.rights_reference_url,
-          r.rights_decision,r.rights_note
+          p_wave,v_publication_item.source_seed_id,v_publication_item.research_id,v_company_id,v_hash,
+          v_actor,v_publication_item.identity_evidence_url,v_publication_item.rights_reference_url,
+          v_publication_item.rights_decision,v_publication_item.rights_note
         );
         v_published := v_published+1;
     END LOOP;
