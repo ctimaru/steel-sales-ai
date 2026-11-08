@@ -1,0 +1,56 @@
+-- NET-RO1.GROWTH9.A / nine new first-party source records for Romania metal-fabrication and end-user census.
+-- PRIVATE RESEARCH ONLY: a separate guarded publisher creates public profiles.
+DO $growth9_stage$
+DECLARE
+  v_manifest constant jsonb := '[{"country_code":"RO","canonical_domain":"cadranindustries.ro","display_name":"CADRAN INDUSTRIES SRL","proposed_role":"processor_service_provider","source_url":"https://www.cadranindustries.ro/","source_summary":"Sito ufficiale CADRAN INDUSTRIES SRL: taglio laser di lamiere e profili, piegatura, saldatura MIG/MAG, verniciatura e assemblaggio di componenti per macchine e strutture industriali. Capacità e certificazioni da verificare dal proprietario.","source_kind":"first_party_web","review_lane":"web_profile_review_pending","research_id":"NET-RO1-G9D-001","batch_key":"NET-RO1-G9D-FAB9","claim_status":"unclaimed","verification_status":"web_sourced_unverified","publication_status":"not_published","region":"Nord-Vest","province":"Cluj","city":"Cluj-Napoca","nuts":"RO11","census_row":9,"company_tax_id":"35844681","public_company_contact_email":null,"public_company_contact_phone":"+40770874278"},{"country_code":"RO","canonical_domain":"galemidmetal.ro","display_name":"GALEMID SRL","proposed_role":"processor_service_provider","source_url":"https://galemidmetal.ro/contact/","source_summary":"GALEMID SRL (CUI 25462935) documenta sede e officina di carpenteria ad Oradea, costruzione di capannoni, taglio laser/plasma, piegatura e saldatura di manufatti metallici.","source_kind":"first_party_web","review_lane":"web_profile_review_pending","research_id":"NET-RO1-G9D-002","batch_key":"NET-RO1-G9D-FAB9","claim_status":"unclaimed","verification_status":"web_sourced_unverified","publication_status":"not_published","region":"Nord-Vest","province":"Bihor","city":"Oradea","nuts":"RO11","census_row":10,"company_tax_id":"25462935","public_company_contact_email":null,"public_company_contact_phone":"+40359800398"},{"country_code":"RO","canonical_domain":"atlasmetalwork.ro","display_name":"ATLAS METALWORK SRL","proposed_role":"processor_service_provider","source_url":"https://atlasmetalwork.ro/en","source_summary":"Sito aziendale: ATLAS METALWORK SRL, Calea Prutului 12 Galați, produce strutture saldate, telai per macchine, piattaforme e supporti per tubazioni, con progettazione e montaggio.","source_kind":"first_party_web","review_lane":"web_profile_review_pending","research_id":"NET-RO1-G9D-003","batch_key":"NET-RO1-G9D-FAB9","claim_status":"unclaimed","verification_status":"web_sourced_unverified","publication_status":"not_published","region":"Sud-Est","province":"Galați","city":"Galați","nuts":"RO22","census_row":62,"company_tax_id":null,"public_company_contact_email":"office@atlasmetalwork.ro","public_company_contact_phone":"+40752041509"},{"country_code":"RO","canonical_domain":"industrial-montaj.ro","display_name":"INDUSTRIAL MONTAJ SA","proposed_role":"processor_service_provider","source_url":"https://www.industrial-montaj.ro/","source_summary":"INDUSTRIAL MONTAJ SA (CUI 1348195), identificata anche in elenco tecnico ISCIR, esegue carpenterie e piping per impianti industriali, skid, montaggio e manutenzione a Ploiești.","source_kind":"first_party_web","review_lane":"web_profile_review_pending","research_id":"NET-RO1-G9D-004","batch_key":"NET-RO1-G9D-FAB9","claim_status":"unclaimed","verification_status":"web_sourced_unverified","publication_status":"not_published","region":"Sud-Muntenia","province":"Prahova","city":"Ploiești","nuts":"RO31","census_row":51,"company_tax_id":"1348195","public_company_contact_email":"contact@industrial-montaj.ro","public_company_contact_phone":"+40244515774"},{"country_code":"RO","canonical_domain":"confind.ro","display_name":"CONFIND SRL","proposed_role":"processor_service_provider","source_url":"https://www.confind.ro/","source_summary":"CONFIND SRL (CUI 1324099) descrive sul sito ufficiale produzioni metalmeccaniche pesanti, strutture saldate, serbatoi, skid ed attrezzature per oil & gas, sede a Câmpina.","source_kind":"first_party_web","review_lane":"web_profile_review_pending","research_id":"NET-RO1-G9D-005","batch_key":"NET-RO1-G9D-FAB9","claim_status":"unclaimed","verification_status":"web_sourced_unverified","publication_status":"not_published","region":"Sud-Muntenia","province":"Prahova","city":"Câmpina","nuts":"RO31","census_row":41,"company_tax_id":"1324099","public_company_contact_email":null,"public_company_contact_phone":null},{"country_code":"RO","canonical_domain":"structb.com","display_name":"STRUCT BUCOVINA SRL","proposed_role":"processor_service_provider","source_url":"https://www.structb.com/","source_summary":"Il sito aziendale STRUCT BUCOVINA presenta produzione e montaggio di edifici e capannoni su struttura metallica a Suceava; CUI 35413158 da repertorio societario.","source_kind":"first_party_web","review_lane":"web_profile_review_pending","research_id":"NET-RO1-G9D-006","batch_key":"NET-RO1-G9D-FAB9","claim_status":"unclaimed","verification_status":"web_sourced_unverified","publication_status":"not_published","region":"Nord-Est","province":"Suceava","city":"Suceava","nuts":"RO21","census_row":29,"company_tax_id":"35413158","public_company_contact_email":null,"public_company_contact_phone":"+40758119424"},{"country_code":"RO","canonical_domain":"ozelsteelprofil.ro","display_name":"OZEL STEEL PROFIL SRL","proposed_role":"producer","source_url":"https://www.ozelsteelprofil.ro/ozel-steel-profil-srl-despre-companie.html","source_summary":"OZEL STEEL PROFIL SRL (CUI 14388400) produce profili zincati aperti U/C/Z/Sigma e componenti per strutture leggere a Filipeștii de Pădure; NON è verificato come produttore di tubi strutturali chiusi EN 10219.","source_kind":"first_party_web","review_lane":"web_profile_review_pending","research_id":"NET-RO1-G9D-007","batch_key":"NET-RO1-G9D-FAB9","claim_status":"unclaimed","verification_status":"web_sourced_unverified","publication_status":"not_published","region":"Sud-Muntenia","province":"Prahova","city":"Filipeștii de Pădure","nuts":"RO31","census_row":49,"company_tax_id":"14388400","public_company_contact_email":null,"public_company_contact_phone":"+40244387575"},{"country_code":"RO","canonical_domain":"skela.ro","display_name":"SKELA INDUSTRIES SRL","proposed_role":"processor_service_provider","source_url":"https://www.skela.ro/ro/","source_summary":"Il sito ufficiale SKELA INDUSTRIES descrive progettazione, produzione e montaggio di carpenterie strutturali pesanti, ponti, capannoni e passerelle; sede a București.","source_kind":"first_party_web","review_lane":"web_profile_review_pending","research_id":"NET-RO1-G9D-008","batch_key":"NET-RO1-G9D-FAB9","claim_status":"unclaimed","verification_status":"web_sourced_unverified","publication_status":"not_published","region":"București-Ilfov","province":"București","city":"București","nuts":"RO32","census_row":38,"company_tax_id":null,"public_company_contact_email":"office@skela.ro","public_company_contact_phone":"+40212563080"},{"country_code":"RO","canonical_domain":"ardacometal.ro","display_name":"ARDACO TEHNIC METAL SRL","proposed_role":"processor_service_provider","source_url":"https://www.ardacometal.ro/","source_summary":"ARDACO TEHNIC METAL documenta carpenterie strutturali, lavorazioni meccaniche, produzioni in serie e montaggi metallici, sede Câmpulung in Argeș.","source_kind":"first_party_web","review_lane":"web_profile_review_pending","research_id":"NET-RO1-G9D-009","batch_key":"NET-RO1-G9D-FAB9","claim_status":"unclaimed","verification_status":"web_sourced_unverified","publication_status":"not_published","region":"Sud-Muntenia","province":"Argeș","city":"Câmpulung","nuts":"RO31","census_row":50,"company_tax_id":null,"public_company_contact_email":"office@ardacometal.ro","public_company_contact_phone":"+40374499998"}]'::jsonb;
+  v_count integer;
+  v_inserted integer;
+BEGIN
+  PERFORM pg_catalog.pg_advisory_xact_lock(pg_catalog.hashtext('NET-RO1.GROWTH9.D-FAB15'));
+  LOCK TABLE private.network_web_research_seeds IN SHARE ROW EXCLUSIVE MODE;
+  SELECT count(*) INTO v_count
+  FROM pg_catalog.jsonb_to_recordset(v_manifest) AS m(
+    country_code text,canonical_domain text,display_name text,proposed_role text,
+    source_url text,source_summary text,source_kind text,review_lane text,
+    research_id text,batch_key text,claim_status text,verification_status text,
+    publication_status text,region text,province text,city text,nuts text
+  )
+  JOIN public.network_company_roles r ON r.canonical_key=m.proposed_role AND r.status='active'
+  JOIN public.network_eu_nuts2024_regions geo ON geo.code=m.nuts AND geo.country_code='RO' AND geo.nuts_level=2
+  WHERE m.country_code='RO' AND m.batch_key='NET-RO1-G9D-FAB9'
+    AND m.source_kind='first_party_web'
+    AND m.review_lane='web_profile_review_pending'
+    AND m.claim_status='unclaimed'
+    AND m.verification_status='web_sourced_unverified'
+    AND m.publication_status='not_published'
+    AND m.canonical_domain ~ '^[a-z0-9][a-z0-9.-]*[.][a-z]{2,24}$'
+    AND m.source_url LIKE 'https://%'
+    AND pg_catalog.regexp_replace(lower(split_part(split_part(m.source_url,'/',3),':',1)),'^www[.]','')
+         =m.canonical_domain
+    AND length(trim(m.display_name)) BETWEEN 3 AND 255
+    AND length(trim(m.source_summary)) BETWEEN 30 AND 950
+    AND m.region<>'' AND m.province<>'' AND m.city<>''
+    AND NOT EXISTS (SELECT 1 FROM private.network_web_research_seeds s
+      WHERE s.country_code='RO' AND (s.canonical_domain=m.canonical_domain OR s.research_id=m.research_id
+        OR pg_catalog.regexp_replace(lower(s.display_name),'[^[:alnum:]]','','g')=
+           pg_catalog.regexp_replace(lower(m.display_name),'[^[:alnum:]]','','g')))
+    AND NOT EXISTS (SELECT 1 FROM public.network_companies c WHERE lower(c.website_domain)=m.canonical_domain
+        OR (c.country_code='RO' AND pg_catalog.regexp_replace(lower(c.legal_name),'[^[:alnum:]]','','g')=
+           pg_catalog.regexp_replace(lower(m.display_name),'[^[:alnum:]]','','g')))
+    AND NOT EXISTS (SELECT 1 FROM public.network_netfast3_suppressed_domains d WHERE d.domain=m.canonical_domain);
+  IF v_count<>9 OR
+     (SELECT count(DISTINCT x.canonical_domain) FROM pg_catalog.jsonb_to_recordset(v_manifest) AS x(canonical_domain text))<>9 OR
+     (SELECT count(DISTINCT x.research_id) FROM pg_catalog.jsonb_to_recordset(v_manifest) AS x(research_id text))<>9
+  THEN RAISE EXCEPTION 'NET-RO1.GROWTH9.D: research cohort must be 9 unique, found %',v_count; END IF;
+  INSERT INTO private.network_web_research_seeds(
+    country_code,canonical_domain,display_name,proposed_role,source_url,source_summary,
+    source_kind,review_lane,research_id,batch_key)
+  SELECT m.country_code,m.canonical_domain,m.display_name,m.proposed_role,m.source_url,m.source_summary,
+    m.source_kind,m.review_lane,m.research_id,m.batch_key
+  FROM pg_catalog.jsonb_to_recordset(v_manifest) AS m(
+    country_code text,canonical_domain text,display_name text,proposed_role text,source_url text,
+    source_summary text,source_kind text,review_lane text,research_id text,batch_key text);
+  GET DIAGNOSTICS v_inserted=ROW_COUNT;
+  IF v_inserted<>9 THEN RAISE EXCEPTION 'NET-RO1.GROWTH9.D: atomic stage mismatch %',v_inserted; END IF;
+END;
+$growth9_stage$;
