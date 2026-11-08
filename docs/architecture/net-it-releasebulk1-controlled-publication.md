@@ -21,7 +21,7 @@ Data 8 novembre 2026. Tracking GitHub issue #1202. Il codice è una proposta NON
 
 ## Regole e sicurezza
 
-- Entrambe le chiamate richiedono auth.uid reale e i permessi Platform discovery.governance_review e discovery.run. La funzione Definer è in private, il wrapper public è Security Invoker e non invocabile da anon.
+- Anteprima e commit richiedono `auth.uid()` reale e i permessi Platform `discovery.governance_review` e `discovery.run`. **Il solo commit (`p_commit=true`) richiede inoltre `discovery.publish`**, verificato prima di replay, lock o scritture: un revisore con i soli permessi di governance può leggere l'anteprima, ma non pubblicare. La funzione Definer è in `private`, il wrapper `public` è Security Invoker e la chiamata anon è revocata.
 - Ammessi soltanto seed IT di fonte aziendale e corsia web_profile_review_pending, non rivendicati, web_sourced_unverified e not_published, con ruolo attivo.
 - Identità societaria e nome esatto già riconciliati. Brand di gruppo, collisioni nominali, siti soppressi e lead già presenti nella pipeline devono essere esclusi prima di approvare la coorte.
 - Nessuna licenza/diritto può essere inventato: le verifiche e le evidenze dei diritti devono essere documentate e attestate da un reviewer reale. Il prototipo non usa una visura obbligatoria per il semplice record privato di ricerca.
@@ -41,3 +41,10 @@ Prima del deployment: generare una migrazione ufficiale nel repository; eseguire
 La coorte pilota aggiornate è composta da **Lazzari S.r.l.**, **Retissima S.r.l.** e **Sottile S.r.l.**, nel batch `NET-IT-USER1B-PRIVATE21-20261108`. Una query di produzione **SELECT-only** ha verificato per tutte le tre righe: source URL HTTPS first-party, review lane `web_profile_review_pending`, ruolo proposto `end_user`, nome in ricerca coerente con il manifesto, nessun canonical/CORE domain collision e nessuna soppressione. Per tutte **rights_review_attested=false**, quindi **authorized_for_publication=false**. Nessuna funzione RELEASEBULK1 installata e nessun write canonico eseguito.
 
 Due fonti GROWFAST2 sono state corrette prima dell'avvio del publisher: Adeglas tratta principalmente tubi in plexiglass/plastica/alluminio (`industrial_fit_review`), mentre TCB Tubi identifica Tecnotubi/Gruppo Amenduni Steel (`brand_legal_identity_review`). Entrambi restano privati. Le condizioni tecniche del pilot3 non sostituiscono la decisione legale/riuso dei dati dell'operatore.
+
+## Gate di sicurezza NET-IT-CARP1.C — 8 novembre 2026
+
+- Fix richiesto in review: la pubblicazione ora esige `discovery.publish` anche con `p_attested=true` e fingerprint corretto; `discovery.governance_review` + `discovery.run` non bastano. La sola preview resta disponibile ai revisori autorizzati.
+- Aggiunto un test statico per posizione e unicità del permesso. Non dichiarare test con sessioni reale/anon finché non effettuati in ambiente autorizzato.
+- Restano necessari una prova reale con Platform reviewer privo di `discovery.publish`, una con utente che lo possiede, una con anon, prove di rollback/duplicati e diritti/identità documentati sui candidati. Non usare service-role o JWT simulati.
+- La PR è una proposta SQL e non installa il publisher in produzione; mantenere il gate di protected merge/CI, un deploy al giorno.
