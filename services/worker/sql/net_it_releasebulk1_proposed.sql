@@ -57,6 +57,12 @@ BEGIN
     IF v_actor IS NULL THEN
         RAISE EXCEPTION 'Authenticated Platform operator required' USING ERRCODE='42501';
     END IF;
+    -- A governance reviewer may preview, but may not publish.
+    -- Enforce the separate Platform publication grant before replay, locks,
+    -- or any canonical write; never rely on attestations for authorization.
+    IF coalesce(p_commit,false) THEN
+        PERFORM private.require_platform_permission('discovery.publish');
+    END IF;
     IF p_batch IS NULL OR p_batch !~ '^NET-IT-[A-Za-z0-9_.:-]{4,110}$'
        OR p_wave IS NULL OR p_wave !~ '^NET-IT-[A-Za-z0-9_.:-]{4,110}$'
        OR p_batch = p_wave THEN
