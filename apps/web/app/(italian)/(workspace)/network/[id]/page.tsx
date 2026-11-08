@@ -450,7 +450,7 @@ export default async function NetworkCompanyProfilePage({
                 <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
                   <span className="font-semibold text-[#52615b]">Telefono</span>
                   {phoneContact?.phone ? (
-                    <a href={"tel:" + phoneContact.phone.replace(/[^\\d+]/g, "")} className="font-semibold text-[#1a5144] underline underline-offset-2" data-testid="network-company-public-phone">{phoneContact.phone}</a>
+                    <a href={"tel:" + phoneContact.phone.replace(/[^\d+]/g, "")} className="font-semibold text-[#1a5144] underline underline-offset-2" data-testid="network-company-public-phone">{phoneContact.phone}</a>
                   ) : <span className="text-[#66776f]" data-testid="network-company-phone-unavailable">Da integrare</span>}
                 </div>
                 {!emailContact?.email || !phoneContact?.phone ? (
