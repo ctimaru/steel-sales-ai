@@ -1,0 +1,191 @@
+[
+  {
+    "name": "Ramon Costruzioni Metalliche e Serre",
+    "domain": "serreramon.com",
+    "evidence_url": "https://serreramon.com/",
+    "summary": "Serre tunnel con colonne in tubo zincato a caldo e arcate in tubi di ferro zincato Sendzimir.",
+    "segment": "agricultural_equipment",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Novarino Serre",
+    "domain": "serrenovarino.com",
+    "evidence_url": "https://serrenovarino.com/serre-professionali/",
+    "summary": "Costruzione di serre con tubi rettangolari; materiale metallico del tubo da confermare puntualmente.",
+    "segment": "agricultural_equipment",
+    "material_signal": "finished_equipment_only",
+    "role": "end_user"
+  },
+  {
+    "name": "Taborre & Tumbarello",
+    "domain": "taborre.com",
+    "evidence_url": "https://www.taborre.com/",
+    "summary": "Azienda produttrice di pali in acciaio e strutture/archi per serre e vigneti; tubo strutturale non esplicitato.",
+    "segment": "agricultural_equipment",
+    "material_signal": "finished_equipment_only",
+    "role": "end_user"
+  },
+  {
+    "name": "Turatello Group",
+    "domain": "turatello.com",
+    "evidence_url": "https://turatello.com/azienda/",
+    "summary": "Costruzione di telai per rimorchi con acciaio tagliato, piegato e saldato; tubo/profilo cavo non confermato.",
+    "segment": "agricultural_equipment",
+    "material_signal": "finished_equipment_only",
+    "role": "end_user"
+  },
+  {
+    "name": "Sottile Serre",
+    "domain": "sottileserre.com",
+    "evidence_url": "https://sottileserre.com/serre/serra-in-ferro-zincato/",
+    "summary": "Serre con arcate in tubolare di ferro zincato diametro 27 mm spessore 2 mm.",
+    "segment": "agricultural_equipment",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Metalsiti",
+    "domain": "metalsiti.it",
+    "evidence_url": "https://metalsiti.it/",
+    "summary": "Costruzione di serre e carpenteria metallica in ferro; uso di tubolari specifici non dimostrato nella pagina.",
+    "segment": "agricultural_equipment",
+    "material_signal": "finished_equipment_only",
+    "role": "end_user"
+  },
+  {
+    "name": "Tecnocarpenteria",
+    "domain": "tecnocarpenteria.it",
+    "evidence_url": "https://www.tecnocarpenteria.it/serre/tunnel/",
+    "summary": "Serre tunnel in ferro zincato con archi tubolari diametro 28/40/60 mm e correnti tubolari diametro 28 mm.",
+    "segment": "agricultural_equipment",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Retissima",
+    "domain": "retissima.it",
+    "evidence_url": "https://www.retissima.it/reti_e_recinzioni/cancellata-lima-recinzione-in-ferro-zincato/",
+    "summary": "Recinzioni con pali in tubolare quadro di acciaio zincato 50x50x2 mm.",
+    "segment": "industrial_equipment",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Tecno Recinzioni Radis",
+    "domain": "tecnorecinzionisportiveindustriali.it",
+    "evidence_url": "https://www.tecnorecinzionisportiveindustriali.it/index.php/news/item/285-recinzioni-metalliche-a-rivoli-susa",
+    "summary": "Recinzioni costruite con elementi tubolari metallici saldati; specifica del materiale del tubo da approfondire.",
+    "segment": "industrial_equipment",
+    "material_signal": "finished_equipment_only",
+    "role": "end_user"
+  },
+  {
+    "name": "MAD Urban Design",
+    "domain": "madurbandesign.it",
+    "evidence_url": "https://www.madurbandesign.it/prodotti/scia/",
+    "summary": "Panchina Scia con telaio in profili tubolari di acciaio S235.",
+    "segment": "urban_furniture",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Primula Giorgetti",
+    "domain": "primulagiorgetti.it",
+    "evidence_url": "https://www.primulagiorgetti.it/prodotto/panca-liberty/",
+    "summary": "Panca Liberty con seduta e schienale in tubolari ovali di acciaio zincato.",
+    "segment": "urban_furniture",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "SICOS Italy",
+    "domain": "sicositaly.com",
+    "evidence_url": "https://sicositaly.com/",
+    "summary": "Fabbricazione di trabattelli industriali in acciaio con sezioni dei tubolari in acciaio dichiarate.",
+    "segment": "scaffolding",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Italscale",
+    "domain": "italscalesrl.it",
+    "evidence_url": "https://www.italscalesrl.it/azienda/",
+    "summary": "Fabbricazione di scale e trabattelli in inox e alluminio; uso di tubolare strutturale in acciaio da precisare.",
+    "segment": "scaffolding",
+    "material_signal": "finished_equipment_only",
+    "role": "end_user"
+  },
+  {
+    "name": "Ferolab",
+    "domain": "ferolab.it",
+    "evidence_url": "https://www.ferolab.it/panchina-metallica-tubo/",
+    "summary": "Panchina Tubo con tubetti in acciaio zincato/inox saldati e tubolare portante in acciaio.",
+    "segment": "urban_furniture",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Lazzari Srl",
+    "domain": "lazzarisrl.it",
+    "evidence_url": "https://www.lazzarisrl.it/panche-e-panchine-per-arredo-urbano/",
+    "summary": "Produzione panchine modello Tube in tubolari di acciaio zincato diametri 25 e 76 mm.",
+    "segment": "urban_furniture",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "AUG Arredi Urbani e Giochi",
+    "domain": "augspa.com",
+    "evidence_url": "https://www.augspa.com/shop/arredo-urbano/panchine/panchina-con-braccioli-36ea469/",
+    "summary": "Panchina con supporti in tubo di acciaio zincato diametro 40 mm e doghe tubolari rettangolari 60x30 mm.",
+    "segment": "urban_furniture",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Giochipark",
+    "domain": "giochipark.com",
+    "evidence_url": "https://www.giochipark.com/prodotti/arredo-urbano/panchine/panca-idola/",
+    "summary": "Panca Idola: supporti in tubo di acciaio zincato diametro 40 mm e seduta in tubolari ovali 40x20 mm.",
+    "segment": "urban_furniture",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Idromeccanica Lucchini",
+    "domain": "lucchiniidromeccanica.it",
+    "evidence_url": "https://www.lucchiniidromeccanica.it/serre-professionali/linea-titan/serra-multyhortus/",
+    "summary": "Serra Multyhortus con piantoni e arcate in tubo zincato diametro 60 mm; materiale della parete non dichiarato in questa fonte.",
+    "segment": "agricultural_equipment",
+    "material_signal": "finished_equipment_only",
+    "role": "end_user"
+  },
+  {
+    "name": "Galbusera Serre",
+    "domain": "serregalbusera.it",
+    "evidence_url": "https://www.serregalbusera.it/prodotti/",
+    "summary": "Serre professionali in ferro zincato e bancali/tunnel in tubolare zincato Sendzimir; collegamento esatto ferro-tubolare da revisionare.",
+    "segment": "agricultural_equipment",
+    "material_signal": "finished_equipment_only",
+    "role": "end_user"
+  },
+  {
+    "name": "Umbria Serre",
+    "domain": "umbriaserre.it",
+    "evidence_url": "https://www.umbriaserre.it/serre-ombraio/",
+    "summary": "Serre ombraio costruite in tubolare di ferro zincato a caldo.",
+    "segment": "agricultural_equipment",
+    "material_signal": "explicit_steel_tube_product",
+    "role": "end_user"
+  },
+  {
+    "name": "Artemisia Srl",
+    "domain": "artemisiasrl.it",
+    "evidence_url": "https://artemisiasrl.it/",
+    "summary": "Produzione dichiarata di panchine, transenne, portabici e arredi in acciaio o legno; tubo di acciaio non documentato.",
+    "segment": "urban_furniture",
+    "material_signal": "finished_equipment_only",
+    "role": "end_user"
+  }
+]
