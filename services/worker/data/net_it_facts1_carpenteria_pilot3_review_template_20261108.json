@@ -11,7 +11,7 @@
   "rights_verified": false,
   "publisher_installed_in_production": false,
   "published_in_this_workstream": 0,
-  "notes": "No copyright license is assumed. Legal counsel reviews source methods, database rights, company legal identity, sole-trader exclusions, contact/privacy minimisation and opt-out; only a real authenticated Platform reviewer may record the approval. User cannot submit this manifest while rights data remain null and seed names do not match.",
+  "notes": "No copyright license is assumed. Legal counsel reviews source methods, database rights, company legal identity, sole-trader exclusions, contact/privacy minimisation and opt-out; only a real authenticated Platform reviewer may record the approval. User cannot submit this manifest while rights data remain null and seed names do not match. Ferrinox is a documented exact-name homonym with another S.r.l. in Resana; reviewer must pin VAT and source domain before any canonical insert.",
   "items": [
     {
       "seed_id": "b0fd60ba-a028-4fcb-8eae-658718bf8736",
@@ -57,7 +57,13 @@
       "seed_display_name": "Ferrinox",
       "expected_legal_name": "Ferrinox S.r.l.",
       "vat_observed": "01706870340",
-      "legal_name_reconciled": false
+      "legal_name_reconciled": false,
+      "homonym_review_required": true,
+      "identity_collision_note": "Fidenza (PR), VAT 01706870340 is different from Ferrinox S.r.l. at ferrinox.it in Resana (TV), VAT 01341740288. Same normalized corporate name, separate declared tax IDs. Never merge these on name alone; manual reviewer must confirm domain-to-VAT before publication.",
+      "comparison_source_urls": [
+        "https://www.ferrinoxsrl.it/it/contatti",
+        "https://ferrinox.it/contatti"
+      ]
     },
     {
       "domain": "presmetalspa.it",
