@@ -168,11 +168,8 @@ BEGIN
    JOIN public.network_company_roles r ON r.id=a.role_id
    WHERE a.company_id=v_company AND r.canonical_key='end_user'
  ) THEN RAISE EXCEPTION 'Published company missing role assertion'; END IF;
- IF NOT EXISTS(
-   SELECT 1 FROM private.netit_releasebulk1_links l
-   WHERE l.company_id=v_company AND l.approved_by='5e5dfabe-f01d-4bca-89dc-61d031f80a01'
-     AND l.wave='NET-IT-CI-WAVE01'
- ) THEN RAISE EXCEPTION 'Missing reviewer ledger record'; END IF;
+ -- Direct SELECT of the private audit ledger is intentionally denied
+ -- to authenticated clients. Its presence is checked by postgres below.
 
  -- Exactly identical replay is idempotent.
  v_repeat := public.netit_releasebulk1(
@@ -197,5 +194,19 @@ BEGIN
 END $accept$;
 
 RESET ROLE;
+
+-- PostgreSQL audit inspection after dropping authenticated session role:
+-- user-facing RPC does not grant SELECT on this private table.
+DO $audit$
+BEGIN
+ IF NOT EXISTS(
+   SELECT 1 FROM private.netit_releasebulk1_links l
+   JOIN public.network_companies c ON c.id=l.company_id
+   WHERE c.website_domain='netit-ci-synthetic.invalid'
+     AND l.approved_by='5e5dfabe-f01d-4bca-89dc-61d031f80a01'
+     AND l.wave='NET-IT-CI-WAVE01'
+ ) THEN RAISE EXCEPTION 'Missing reviewer ledger record'; END IF;
+END $audit$;
+
 ROLLBACK;
 SELECT 'NET-IT-RELEASEBULK1 isolated live SQL acceptance PASS; synthetic test fully rolled back' AS result;
