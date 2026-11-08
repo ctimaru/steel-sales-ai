@@ -51,6 +51,11 @@ async function verifyArea(page, route, selected) {
   const current = nav.getByRole("link", { name: selected, exact: true });
   await current.waitFor({ state: "visible" });
   assert.equal(await current.getAttribute("aria-current"), "page", route + ": " + selected);
+  // COMM-SIMPLE2: one active destination, never both a worklist filter and RFQ parent.
+  assert.equal(await nav.locator('a[aria-current="page"]').count(), 1,
+    route + ": one active commercial destination");
+  assert.ok(await nav.locator('[data-testid="commercial-director-groups"] > details[open]').count() <= 1,
+    route + ": a single expanded sidebar group");
   assert.equal(await page.getByRole("navigation", { name: "Sezioni Commerciale" }).count(), 0,
     "The old three-tab bar must not duplicate the director menu");
   const mobile = (page.viewportSize()?.width ?? 1440) < 1280;
@@ -357,6 +362,10 @@ try {
     await signIn(page, buyer);
     await page.goto(base + "/commercial", { waitUntil: "domcontentloaded" });
     await verifyCinematic(page, "Commerciale mobile 320px buyer");
+    await verifyArea(page, "/commercial", "Scrivania");
+    await verifyArea(page, "/commercial/market-intelligence", "Mercato");
+    await noHorizontalPageOverflow(page, "Commerciale secondary menu 320px");
+    await page.goto(base + "/commercial", { waitUntil: "domcontentloaded" });
     await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-mobile-320.png"),
       fullPage: false, animations: "disabled", caret: "initial" });
   } finally {
