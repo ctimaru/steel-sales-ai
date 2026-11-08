@@ -31,7 +31,13 @@ Data 8 novembre 2026. Tracking GitHub issue #1202. Il codice è una proposta NON
 ## File e gate di rilascio
 
 SQL di proposta: services/worker/sql/net_it_releasebulk1_proposed.sql.
-Template NON APPROVATO dei primi cinque: services/worker/data/net_it_releasebulk1_first5_review_template_20261108.json.
+Template NON APPROVATO dei primi tre: services/worker/data/net_it_releasebulk1_first5_review_template_20261108.json.
 Test offline: services/worker/tests/test_net_it_releasebulk1_contract.py.
 
 Prima del deployment: generare una migrazione ufficiale nel repository; eseguire revisione RLS, grants e privacy; testare con account Platform reale, falso account e anon; testare fingerprint drift, duplicati fra cataloghi, opt-out, idempotenza e rollback di una riga. Solo dopo CI verde e merge protetto applicare la migrazione e realizzare l'interfaccia compatta, una pagina, desktop/mobile. Un deploy di produzione al giorno. Il documento NON costituisce autorizzazione alla pubblicazione.
+
+## Pilot read-only specifico (8 novembre 2026)
+
+La coorte pilota aggiornate è composta da **Lazzari S.r.l.**, **Retissima S.r.l.** e **Sottile S.r.l.**, nel batch `NET-IT-USER1B-PRIVATE21-20261108`. Una query di produzione **SELECT-only** ha verificato per tutte le tre righe: source URL HTTPS first-party, review lane `web_profile_review_pending`, ruolo proposto `end_user`, nome in ricerca coerente con il manifesto, nessun canonical/CORE domain collision e nessuna soppressione. Per tutte **rights_review_attested=false**, quindi **authorized_for_publication=false**. Nessuna funzione RELEASEBULK1 installata e nessun write canonico eseguito.
+
+Due fonti GROWFAST2 sono state corrette prima dell'avvio del publisher: Adeglas tratta principalmente tubi in plexiglass/plastica/alluminio (`industrial_fit_review`), mentre TCB Tubi identifica Tecnotubi/Gruppo Amenduni Steel (`brand_legal_identity_review`). Entrambi restano privati. Le condizioni tecniche del pilot3 non sostituiscono la decisione legale/riuso dei dati dell'operatore.
