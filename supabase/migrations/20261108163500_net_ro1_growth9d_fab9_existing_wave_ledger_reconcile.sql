@@ -19,6 +19,21 @@ BEGIN
     pg_catalog.hashtext('NET-RO1.GROWTH9.D-FAB9')
   );
   LOCK TABLE private.network_ro14c_publication_links IN SHARE ROW EXCLUSIVE MODE;
+  -- In a clean CI / local database the data-only public publishing function has
+  -- never been called. Keep replayable migrations safe: no existing wave AND
+  -- no 220-profile production state means there is no historical label to fix.
+  -- Any partial wave or the real 220-profile production baseline still hits
+  -- the strict nine-company identity and count assertions below.
+  IF NOT EXISTS(
+    SELECT 1 FROM private.network_ro14c_publication_links
+    WHERE publication_wave IN (v_old_wave,v_correct_wave)
+  ) AND (
+    SELECT count(*) FROM public.network_companies
+    WHERE country_code='RO' AND publication_status='published'
+      AND archived_at IS NULL
+  ) <> 220 THEN
+    RETURN;
+  END IF;
 
   IF (SELECT count(*) FROM public.network_companies
       WHERE country_code='RO' AND publication_status='published' AND archived_at IS NULL) <> 220
