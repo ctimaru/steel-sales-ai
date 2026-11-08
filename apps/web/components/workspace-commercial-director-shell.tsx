@@ -55,10 +55,10 @@ function DirectorGroup({
       }}
       className="group rounded-xl border border-transparent open:border-[#e1ebe5] open:bg-[#f8fbf9]"
     >
-      <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-bold text-[#25483b] hover:bg-[#edf5ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between gap-2 rounded-lg px-3 py-1.5 text-xs font-bold text-[#25483b] hover:bg-[#edf5ef] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] xl:min-h-11 xl:py-2 [&::-webkit-details-marker]:hidden">
         <span className="min-w-0">
           <span className="block">{group.label}</span>
-          <span className="mt-0.5 block text-[10px] font-normal text-[#687d72]">{group.description}</span>
+          <span className="mt-0.5 hidden text-[10px] font-normal text-[#687d72] xl:block">{group.description}</span>
         </span>
         <span aria-hidden="true" className="shrink-0 text-sm text-[#547666] transition group-open:rotate-90">›</span>
       </summary>
