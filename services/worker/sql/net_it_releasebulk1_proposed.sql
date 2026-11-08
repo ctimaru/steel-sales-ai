@@ -377,9 +377,9 @@ BEGIN
           pg_catalog.jsonb_build_object(
             'research_id',v_publication_item.research_id,'source_url',v_publication_item.source_url,
             'identity_evidence_url',v_publication_item.identity_evidence_url,
-            'rights_reference_url',v_publication_item.rights_reference_url,
+            -- Keep legal review URL and reviewer note in the PRIVATE ledger only;
+            -- public assertions must not expose internal legal-memo material.
             'rights_decision',v_publication_item.rights_decision,
-            'rights_review_note',v_publication_item.rights_note,
             'role_key_proposed',v_publication_item.role,
             'role_confirmed_by_company',false,
             'company_verified',false,
