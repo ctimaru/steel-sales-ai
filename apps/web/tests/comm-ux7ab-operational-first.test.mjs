@@ -17,7 +17,7 @@ const paged = read("../lib/commercial-unified-paged.ts");
 const data = read("../lib/commercial-unified-data.ts");
 
 test("COMM-UX7.A preserves priority-first order while compacting the workspace", () => {
-  assert.match(home, /lg:min-h-\[112px\]/);
+  assert.match(home, /lg:min-h-\[78px\]/);
   assert.match(home, /Storico commerciale/);
   assert.ok(home.indexOf("<CommercialDirectorPriorityDesk") < home.indexOf("<CommercialAiCompanion"));
   assert.ok(home.indexOf("<CommercialAiCompanion") < home.indexOf("<CommercialUnifiedWorklist"));

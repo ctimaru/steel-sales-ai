@@ -6,7 +6,7 @@
   isolation: isolate;
   overflow: hidden;
   background: #082f28;
-  border-radius: 24px;
+  border-radius: 15px;
 }
 .hero::before {
   content: "";
@@ -29,15 +29,15 @@
   pointer-events: none;
   background:
     linear-gradient(180deg, rgba(3,21,16,.06), rgba(3,21,16,.28)),
-    repeating-linear-gradient(90deg, transparent 0, transparent 79px, rgba(217,250,227,.025) 80px);
+    repeating-linear-gradient(90deg, transparent 0, transparent 79px, rgba(217,250,227,.008) 80px);
 }
 .heroGrid {
   position: relative;
   z-index: 2;
 }
 .heroTitle {
-  max-width: 11.5em;
-  text-wrap: balance;
+  max-width: none;
+  text-wrap: normal;
   font-kerning: normal;
 }
 .heroMetrics {
@@ -54,7 +54,7 @@
   border-left: 1px solid rgba(196,234,212,.21);
   padding-left: 13px;
 }
-.heroMetrics dd { margin: 0; font-variant-numeric: tabular-nums; }
+.heroMetrics dd { margin: 0; font-size: 0.95rem; font-variant-numeric: tabular-nums; }
 .heroMetrics dt { margin: 0; }
 .companion {
   border-color: #d0e1d6;
@@ -154,8 +154,8 @@
   .hero::before { background-position: center, 63% center; }
 }
 @media (max-width: 640px) {
-  .hero { border-radius: 18px; }
-  .heroTitle { font-size: clamp(1.45rem, 6vw, 1.75rem); line-height: 1.07; max-width: 12.8em; }
+  .hero { border-radius: 14px; }
+  .heroTitle { font-size: clamp(1.25rem, 5vw, 1.5rem); line-height: 1.12; max-width: 13em; }
   .heroGrid { min-height: 0; }
   .hero::before {
     background-image:
