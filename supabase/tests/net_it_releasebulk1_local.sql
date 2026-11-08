@@ -89,6 +89,17 @@ BEGIN
    RAISE EXCEPTION 'anonymous caller reached publisher';
  END IF;
 END $anon$;
+DO $anonfacts$
+DECLARE denied boolean := false;
+BEGIN
+ BEGIN
+   PERFORM public.netit_facts1_signoff(
+      true,'https://netit-ci-review.invalid/legal/facts1',
+      'SYNTHETIC ONLY: this is not a legal approval; the anonymous caller must never be allowed to sign off a policy.');
+ EXCEPTION WHEN insufficient_privilege THEN denied := true;
+ END;
+ IF NOT denied THEN RAISE EXCEPTION 'Anonymous FACTS1 signoff accepted'; END IF;
+END $anonfacts$;
 RESET ROLE;
 
 -- Authenticated but not Platform user also fails closed; no spoofed auth.
@@ -106,6 +117,17 @@ BEGIN
    RAISE EXCEPTION 'non-Platform user passed governance gate';
  END IF;
 END $notplatform$;
+DO $notplatformfacts$
+DECLARE denied boolean := false;
+BEGIN
+ BEGIN
+   PERFORM public.netit_facts1_signoff(
+      true,'https://netit-ci-review.invalid/legal/facts1',
+      'SYNTHETIC ONLY: this is not a legal approval; non-Platform authenticated user must not be allowed to approve facts publication.');
+ EXCEPTION WHEN insufficient_privilege THEN denied := true;
+ END;
+ IF NOT denied THEN RAISE EXCEPTION 'Non-Platform FACTS1 signoff accepted'; END IF;
+END $notplatformfacts$;
 RESET ROLE;
 
 -- The synthetic identity has a real local Platform role, but its "rights"
