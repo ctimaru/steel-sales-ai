@@ -3,6 +3,8 @@
 -- directly from an AI session or bypass the existing release/CI pipeline.
 -- One authenticated, attested commit publishes ONE pinned 1..100 cohort.
 -- Source-rights evidence is an explicit operator input: not inferred from a URL.
+-- FACTS1 facts-only path additionally requires the separate default-OFF
+-- net_it_facts1_policy_proposed.sql and a real legal/Platform signoff.
 -- No personal data, contact extraction, false buyer claims, or automatic RFQ.
 
 CREATE TABLE IF NOT EXISTS private.netit_releasebulk1_links (
@@ -116,6 +118,7 @@ BEGIN
         -- this transaction before changing canonical public rows.
         LOCK TABLE public.network_companies IN SHARE ROW EXCLUSIVE MODE;
         LOCK TABLE private.network_web_research_seeds IN SHARE ROW EXCLUSIVE MODE;
+        LOCK TABLE private.netit_facts1_policy IN SHARE ROW EXCLUSIVE MODE;
         -- Disallow concurrent staging/suppression that could invalidate a
         -- clean preflight before the canonical insert within this transaction.
         LOCK TABLE public.network_core_target_leads IN SHARE ROW EXCLUSIVE MODE;
@@ -144,6 +147,13 @@ BEGIN
               'rights_url',m.rights_reference_url,
               'rights_decision',m.rights_decision,
               'rights_note',m.rights_note,
+              -- A change/revocation of the FACTS1 policy invalidates the preview SHA.
+              'facts1_policy_revision',(
+                SELECT CASE WHEN m.rights_decision='factual_metadata_only_reviewed'
+                   THEN p.revision::text || ':' || p.enabled::text
+                   ELSE 'not_applicable' END
+                FROM private.netit_facts1_policy p WHERE p.singleton=true
+              ),
               'source_url',s.source_url,'source_summary',s.source_summary,
               'source_updated_at',s.updated_at,
               'source_lane',s.review_lane,
@@ -212,7 +222,22 @@ BEGIN
                      'processor_service_provider','end_user')
       AND m.identity_evidence_url ~ '^https://'
       AND m.rights_reference_url ~ '^https://'
-      AND m.rights_decision IN ('allows_limited_reuse','licensed','allows_reuse')
+      AND (
+        m.rights_decision IN ('allows_limited_reuse','licensed','allows_reuse')
+        OR (
+          m.rights_decision='factual_metadata_only_reviewed'
+          AND length(btrim(m.rights_note)) BETWEEN 80 AND 2000
+          -- Restrict the facts-only path to obvious incorporated legal persons;
+          -- do not treat sole-trader names or natural-person contact details as company data.
+          AND m.legal_name ~* '(^|[^[:alpha:]])(s[.]?r[.]?l[.]?|s[.]?p[.]?a[.]?)([^[:alpha:]]|$)'
+          AND EXISTS (
+            SELECT 1 FROM private.netit_facts1_policy p
+            WHERE p.singleton=true AND p.enabled=true
+              AND p.approved_by IS NOT NULL AND p.approved_at IS NOT NULL
+              AND p.legal_review_url=m.rights_reference_url
+          )
+        )
+      )
       AND length(btrim(m.rights_note)) BETWEEN 30 AND 2000
       AND pg_catalog.regexp_replace(
           lower(pg_catalog.split_part(m.identity_evidence_url,'/',3)),
