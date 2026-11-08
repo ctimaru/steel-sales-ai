@@ -24,3 +24,9 @@ Il publisher corrente `NET-IT-RELEASEBULK1` richiede un unico `p_batch`; le 26 s
 4. Batch A/B 9 già verificati come seconda ondata con manifest per batch, senza fusione non prevista; 50 indicizzati del lotto C restano nella corsia industrial_fit_review.
 
 Nessuna visura camerale obbligatoria per ricerca privata. Nessuna simulazione JWT, service_role o attestazioni dei diritti inventate.
+
+## Espansione parallela delle province (NET-IT-CARP1.D)
+
+Durante il gate di pubblicazione sono stati letti altri **18 siti first-party** da ricerche in province meno coperte (fra cui Biella, Vercelli, Verbano-Cusio-Ossola, Benevento, Vibo Valentia e Macerata). Due siti risultavano già presenti nei registri: **16 nuove candidature** acquisite in produzione con `batch_key=NET-IT-CARP1-D-PROVINCES-FIRSTPARTY-20261108`. I siti non attestano automaticamente diritti o identità legale.
+
+Totale nuovi record di carpenteria di tutte le ondate A+B+C+D: **271 privati con dominio distinto**, zero nuove pubblicazioni; 278 canonical Italia `published` invariati alla rilettura. Readback manifest: `services/worker/data/net_it_carp1d_province16_firstparty_20261108.json`. Le 16 sono in corsia `web_profile_review_pending`, `not_published` e `unclaimed`.
