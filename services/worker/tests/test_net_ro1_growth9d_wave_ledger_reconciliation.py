@@ -16,6 +16,9 @@ def test_ledger_reconciliation_matches_nine_source_pinned_public_profiles():
     assert "v_matching<>9" in sql and "v_updated<>9" in sql
     assert "v_correct_count<>9 OR v_old_count<>0" in sql
     assert "LOCK TABLE private.network_ro14c_publication_links IN SHARE ROW EXCLUSIVE MODE" in sql
+    assert "WHERE publication_wave IN (v_old_wave,v_correct_wave)" in sql
+    assert ") <> 220 THEN" in sql
+    assert "RETURN;" in sql
     assert "pg_advisory_xact_lock" in sql
     assert "SET publication_wave=v_correct_wave" in sql
     assert "m.source_url=l.published_source_url" in sql
