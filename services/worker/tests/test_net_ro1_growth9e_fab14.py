@@ -68,7 +68,7 @@ def test_private_source_batch_atomic_guarded():
                  "network_netfast3_suppressed_domains","network_eu_nuts2024_regions",
                  "SHARE ROW EXCLUSIVE MODE","pg_advisory_xact_lock","NET-RO1-G9E-FAB14"):
         assert term in sql,term
-    found=re.search(r"v_manifest constant jsonb := '([\\s\\S]*?)'::jsonb;",sql)
+    found=re.search(r"v_manifest constant jsonb := '(.*?)'::jsonb;",sql,re.S)
     assert found
     embedded=json.loads(found.group(1).replace("''","'"))
     assert len(embedded)==len(m["companies"])==14
