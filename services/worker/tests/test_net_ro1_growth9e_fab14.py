@@ -64,6 +64,8 @@ def test_private_source_batch_atomic_guarded():
     assert sql.count("INSERT INTO private.network_web_research_seeds") == 1
     assert "INSERT INTO public.network_companies" not in sql
     assert "INSERT INTO public.network_contacts" not in sql
+    assert "m.batch_key='NET-RO1-G9E-FAB14'" in sql
+    assert "NET-RO1-G9E-FAB9" not in sql
     for term in ("v_count<>14","v_inserted<>14","canonical_domain text))<>14","research_id text))<>14",
                  "network_netfast3_suppressed_domains","network_eu_nuts2024_regions",
                  "SHARE ROW EXCLUSIVE MODE","pg_advisory_xact_lock","NET-RO1-G9E-FAB14"):
@@ -85,6 +87,8 @@ def test_publication_requires_explicit_service_role_commit():
                  "netro_growth9e_fabricator_web","REVOKE ALL ON FUNCTION",
                  "TO service_role","'owner_verified',false","'tube_purchases_verified',false"):
         assert term in sql,term
+    assert "s.batch_key='NET-RO1-G9E-FAB14'" in sql
+    assert "NET-RO1-G9E-FAB9" not in sql
     assert sql.count("INSERT INTO public.network_companies") == 1
     assert sql.count("INSERT INTO public.network_facilities") == 1
     assert sql.count("INSERT INTO public.network_company_role_assignments") == 1
