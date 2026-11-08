@@ -1,0 +1,462 @@
+{
+  "batch": "NET-IT-GROWFAST2",
+  "as_of": "2026-11-08",
+  "status": "source_pool_not_imported",
+  "candidates": [
+    {
+      "name": "CMM Laser",
+      "role": "processor_service_provider",
+      "url": "https://www.cmmlaser.it/",
+      "summary": "Taglio laser di tubi travi e lamiere per lavorazioni industriali",
+      "domain": "cmmlaser.it"
+    },
+    {
+      "name": "Nuova SCM",
+      "role": "processor_service_provider",
+      "url": "https://www.nuovascm.com/curvatura-tubi-e-metalli-conto-terzi-a-torino-lavorazioni-su-misura-per-lindustria/",
+      "summary": "Curvatura di tubi metallici conto terzi per componenti industriali",
+      "domain": "nuovascm.com"
+    },
+    {
+      "name": "Tecnosicur",
+      "role": "processor_service_provider",
+      "url": "https://www.tecnosicur.it/taglio-laser-tubo/",
+      "summary": "Taglio laser di tubi e profili in acciaio inox e al carbonio",
+      "domain": "tecnosicur.it"
+    },
+    {
+      "name": "Baldoni",
+      "role": "processor_service_provider",
+      "url": "https://baldonisrl.it/",
+      "summary": "Taglio laser tubo e lamiera e carpenteria metallica industriale",
+      "domain": "baldonisrl.it"
+    },
+    {
+      "name": "Nuova CAM",
+      "role": "processor_service_provider",
+      "url": "https://www.nuovacam.it/carpenteria-meccanica/taglio-laser-tubo/",
+      "summary": "Taglio laser di tubi per carpenteria meccanica conto terzi",
+      "domain": "nuovacam.it"
+    },
+    {
+      "name": "GSG",
+      "role": "processor_service_provider",
+      "url": "https://gsg.it/it/metodo-di-lavoro",
+      "summary": "Taglio laser di tubi e lavorazioni industriali conto terzi",
+      "domain": "gsg.it"
+    },
+    {
+      "name": "Officine Borsari",
+      "role": "processor_service_provider",
+      "url": "https://www.offborsari.it/taglio-laser-tubo-modena-emilia-romagna-italia.html",
+      "summary": "Taglio laser del tubo per componenti industriali conto terzi",
+      "domain": "offborsari.it"
+    },
+    {
+      "name": "Alpilaser",
+      "role": "processor_service_provider",
+      "url": "https://www.alpilaser.it/azienda-taglio-laser-tubi-laser-lamiera/",
+      "summary": "Taglio laser di tubi e lamiere per carpenteria",
+      "domain": "alpilaser.it"
+    },
+    {
+      "name": "FASB",
+      "role": "processor_service_provider",
+      "url": "https://www.fasb2.it/lavorazioni/taglio-laser/",
+      "summary": "Lavorazioni di taglio laser tubo per il settore industriale",
+      "domain": "fasb2.it"
+    },
+    {
+      "name": "Scaltritti",
+      "role": "processor_service_provider",
+      "url": "https://www.scaltritti.it/taglio-laser-tubi.php",
+      "summary": "Taglio laser conto terzi di tubolari in acciaio",
+      "domain": "scaltritti.it"
+    },
+    {
+      "name": "Scamer",
+      "role": "processor_service_provider",
+      "url": "https://www.scamer.it/",
+      "summary": "Curvatura di tubi metallici e lavorazioni di carpenteria",
+      "domain": "scamer.it"
+    },
+    {
+      "name": "Officine GSP",
+      "role": "processor_service_provider",
+      "url": "https://www.officine-gsp.it/it/lavorazioni/lavorazione-tubolari",
+      "summary": "Curvatura e calandratura di tubolari metallici",
+      "domain": "officine-gsp.it"
+    },
+    {
+      "name": "Officine Parolin",
+      "role": "processor_service_provider",
+      "url": "https://officineparolin.it/azienda-officine-parolin/",
+      "summary": "Produzione di componenti tramite piegatura del tubo",
+      "domain": "officineparolin.it"
+    },
+    {
+      "name": "Metalplast",
+      "role": "processor_service_provider",
+      "url": "https://metalplastsrl.it/azienda",
+      "summary": "Taglio laser e curvatura di tubi in acciaio inox",
+      "domain": "metalplastsrl.it"
+    },
+    {
+      "name": "Mecart",
+      "role": "processor_service_provider",
+      "url": "https://mecart-piegatura-tubi.it/ita/",
+      "summary": "Curvatura e piegatura di tubi rigidi sagomati in acciaio",
+      "domain": "mecart-piegatura-tubi.it"
+    },
+    {
+      "name": "Laserweld Group",
+      "role": "processor_service_provider",
+      "url": "https://laserweldgroup.com/carpenteria/lavorazioni/detail/tube-tubular-profile-laser-cutting-8",
+      "summary": "Taglio laser di tubi e profili tubolari conto terzi",
+      "domain": "laserweldgroup.com"
+    },
+    {
+      "name": "Studio Laser",
+      "role": "processor_service_provider",
+      "url": "https://www.studio-laser.it/",
+      "summary": "Lavorazioni laser per il settore industriale con tubi da confermare",
+      "domain": "studio-laser.it"
+    },
+    {
+      "name": "Coimi",
+      "role": "processor_service_provider",
+      "url": "https://www.coimisrl.com/carpenteria-metallica/lavorazioni/saldatura-lamiere-tubi/",
+      "summary": "Saldatura di lamiere e tubi per strutture industriali",
+      "domain": "coimisrl.com"
+    },
+    {
+      "name": "BFB Group",
+      "role": "processor_service_provider",
+      "url": "https://bfbgroup.it/servizi/",
+      "summary": "Produzione e assemblaggio per carpenteria metallica",
+      "domain": "bfbgroup.it"
+    },
+    {
+      "name": "Canfora",
+      "role": "processor_service_provider",
+      "url": "https://www.canfora.it/carpenteria/precisione-resistenza-serialita-carpenteria-metallica-industriale/",
+      "summary": "Carpenteria industriale in serie con CNC e laser",
+      "domain": "canfora.it"
+    },
+    {
+      "name": "IN.CO.S.",
+      "role": "processor_service_provider",
+      "url": "https://incos-carpenteria.com/",
+      "summary": "Carpenteria metallica strutturale per industria e infrastrutture",
+      "domain": "incos-carpenteria.com"
+    },
+    {
+      "name": "Aspirtecnica Genovese",
+      "role": "processor_service_provider",
+      "url": "https://aspirtecnica.it/carpenteria-metallica-industriale-e-per-edilizia/",
+      "summary": "Carpenteria metallica e strutture per l'industria",
+      "domain": "aspirtecnica.it"
+    },
+    {
+      "name": "Macom Carpenteria Meccanica",
+      "role": "processor_service_provider",
+      "url": "https://www.macomcarpenteriameccanica.com/carpenteria-metallica-tra-emilia-e-nord-italia/",
+      "summary": "Fabbricazione di manufatti in acciaio e acciaio inox",
+      "domain": "macomcarpenteriameccanica.com"
+    },
+    {
+      "name": "Brama Italia",
+      "role": "end_user",
+      "url": "https://www.bramaitalia.it/cancelli-e-recinzioni-in-acciaio/",
+      "summary": "Produzione di cancelli e recinzioni industriali in acciaio",
+      "domain": "bramaitalia.it"
+    },
+    {
+      "name": "Fors",
+      "role": "processor_service_provider",
+      "url": "https://www.forssrl.com/carpenteria/cancelli/",
+      "summary": "Carpenteria fabbrile e produzione di cancelli",
+      "domain": "forssrl.com"
+    },
+    {
+      "name": "MP Attrezzature Agricole",
+      "role": "end_user",
+      "url": "https://www.mpattrezzatureagricole.it/",
+      "summary": "Progettazione e costruzione di attrezzature agricole",
+      "domain": "mpattrezzatureagricole.it"
+    },
+    {
+      "name": "Crosetto Rimorchi",
+      "role": "end_user",
+      "url": "https://www.rimorchicrosetto.com/",
+      "summary": "Produzione di rimorchi agricoli e telai per agricoltura",
+      "domain": "rimorchicrosetto.com"
+    },
+    {
+      "name": "Officine Meccaniche Ferruzza",
+      "role": "end_user",
+      "url": "https://www.ferruzza.it/ita/azienda.html",
+      "summary": "Produzione di rimorchi agricoli e attrezzature",
+      "domain": "ferruzza.it"
+    },
+    {
+      "name": "Feba Rimorchi",
+      "role": "end_user",
+      "url": "https://www.febarimorchi.com/",
+      "summary": "Costruzione di rimorchi agricoli e carribotte",
+      "domain": "febarimorchi.com"
+    },
+    {
+      "name": "Mantella Trailers",
+      "role": "end_user",
+      "url": "https://www.mantellatrailers.com/personalizzazioni/",
+      "summary": "Costruzione di semirimorchi con telai su misura",
+      "domain": "mantellatrailers.com"
+    },
+    {
+      "name": "Gervasi Ecologica",
+      "role": "end_user",
+      "url": "https://www.gervasiecologica.com/it/",
+      "summary": "Produttore di mezzi e attrezzature per ecologia e trasporto",
+      "domain": "gervasiecologica.com"
+    },
+    {
+      "name": "Viberti",
+      "role": "end_user",
+      "url": "https://www.viberti.it/azienda/",
+      "summary": "Produttore di semirimorchi e attrezzature di trasporto",
+      "domain": "viberti.it"
+    },
+    {
+      "name": "Corradini Rimorchi",
+      "role": "end_user",
+      "url": "https://corradinirimorchi.it/azienda/",
+      "summary": "Produzione di rimorchi e allestimenti per il trasporto",
+      "domain": "corradinirimorchi.it"
+    },
+    {
+      "name": "OCM Steel",
+      "role": "end_user",
+      "url": "https://www.ocmsteel.it/fgm-rimorchi-semirimorchi/",
+      "summary": "Rimorchi e semirimorchi per trasporti industriali",
+      "domain": "ocmsteel.it"
+    },
+    {
+      "name": "Marinelli Macchine Agricole",
+      "role": "end_user",
+      "url": "https://www.marinellimacchineagricole.it/prodotti/telai-antiribaltamento/",
+      "summary": "Costruzione di telai di sicurezza per macchine agricole",
+      "domain": "marinellimacchineagricole.it"
+    },
+    {
+      "name": "Rinieri",
+      "role": "end_user",
+      "url": "https://www.rinieri.com/",
+      "summary": "Produzione di attrezzature agricole per vigneti e frutteti",
+      "domain": "rinieri.com"
+    },
+    {
+      "name": "Sika Profili",
+      "role": "producer",
+      "url": "https://www.sikaprofili.com/settori/profili-agricoltura-pali-vigneto/profili-cabine-trattori-macchine-agricole/",
+      "summary": "Produzione di profili metallici per cabine di macchine agricole",
+      "domain": "sikaprofili.com"
+    },
+    {
+      "name": "Siderval",
+      "role": "producer",
+      "url": "https://www.siderval.com/it/applicazioni/agricoltura/",
+      "summary": "Produzione di profili in acciaio estruso per applicazioni industriali",
+      "domain": "siderval.com"
+    },
+    {
+      "name": "Helios Arredo Urbano",
+      "role": "end_user",
+      "url": "https://heliosarredourbano.com/",
+      "summary": "Produzione di panchine cestini portabici e pensiline",
+      "domain": "heliosarredourbano.com"
+    },
+    {
+      "name": "Urban Italian Design",
+      "role": "end_user",
+      "url": "https://www.urbanitaliandesign.com/",
+      "summary": "Arredo urbano e realizzazione di soluzioni per spazi pubblici",
+      "domain": "urbanitaliandesign.com"
+    },
+    {
+      "name": "Ubi Urbe",
+      "role": "end_user",
+      "url": "https://www.ubiurbe.com/",
+      "summary": "Panchine e complementi per arredo urbano con profili da verificare",
+      "domain": "ubiurbe.com"
+    },
+    {
+      "name": "Euroform W",
+      "role": "end_user",
+      "url": "https://www.euroform-w.com/it/news/2024-02-20/arredo-urbano",
+      "summary": "Produzione di elementi di arredo urbano e soluzioni per spazi pubblici",
+      "domain": "euroform-w.com"
+    },
+    {
+      "name": "LAB23",
+      "role": "end_user",
+      "url": "https://www.lab23.it/arredo-urbano/",
+      "summary": "Fabbricazione di arredo urbano e componenti per spazi pubblici",
+      "domain": "lab23.it"
+    },
+    {
+      "name": "Rete Plastic",
+      "role": "end_user",
+      "url": "https://www.reteplastic.it/",
+      "summary": "Produzione e distribuzione di reti e sistemi per recinzioni",
+      "domain": "reteplastic.it"
+    },
+    {
+      "name": "Euro Reti",
+      "role": "end_user",
+      "url": "https://www.euroretisrl.com/",
+      "summary": "Produzione e vendita di reti per recinzione",
+      "domain": "euroretisrl.com"
+    },
+    {
+      "name": "Solo Recinzioni Cancelli",
+      "role": "trader_distributor",
+      "url": "https://www.solorecinzionicancelli.it/it",
+      "summary": "Vendita di recinzioni modulari e cancelli in metallo",
+      "domain": "solorecinzionicancelli.it"
+    },
+    {
+      "name": "Eurotubi",
+      "role": "producer",
+      "url": "https://eurotubi.it/",
+      "summary": "Produzione di tubi in acciaio per industria ed edilizia",
+      "domain": "eurotubi.it"
+    },
+    {
+      "name": "Padanatubi",
+      "role": "producer",
+      "url": "https://www.padanatubi.it/prodotti/acciaio-al-carbonio/",
+      "summary": "Prodotti tubolari in acciaio al carbonio",
+      "domain": "padanatubi.it"
+    },
+    {
+      "name": "Sidersan",
+      "role": "trader_distributor",
+      "url": "https://www.sidersan.com/news-press-sidersan/tubi-strutturali-acciaio-qualita-s235-s275-s355/",
+      "summary": "Fornitura tubi strutturali S235 S275 e S355",
+      "domain": "sidersan.com"
+    },
+    {
+      "name": "Carboni Steel",
+      "role": "processor_service_provider",
+      "url": "https://carbonisteel.com/produzione-tubi-ferro-vari-tagli-formati/",
+      "summary": "Taglio e lavorazione di tubi in ferro",
+      "domain": "carbonisteel.com"
+    },
+    {
+      "name": "Trevigiana Metalli",
+      "role": "trader_distributor",
+      "url": "https://trevigianametalli.it/",
+      "summary": "Commercio e distribuzione di materiali metallici",
+      "domain": "trevigianametalli.it"
+    },
+    {
+      "name": "Sardelli 1871",
+      "role": "trader_distributor",
+      "url": "https://www.sardelli1871.it/it/tubi-neri.html",
+      "summary": "Fornitura di tubi neri in acciaio",
+      "domain": "sardelli1871.it"
+    },
+    {
+      "name": "Tubi Acciaio",
+      "role": "trader_distributor",
+      "url": "https://www.tubiacciaio.com/",
+      "summary": "Distribuzione di tubi e raccordi in acciaio inox",
+      "domain": "tubiacciaio.com"
+    },
+    {
+      "name": "Tecra Tubes",
+      "role": "trader_distributor",
+      "url": "https://tecratubes.com/",
+      "summary": "Distribuzione di tubi speciali e raccorderia",
+      "domain": "tecratubes.com"
+    },
+    {
+      "name": "TCB Tubi",
+      "role": "trader_distributor",
+      "url": "https://tcbtubi.it/costruzioni-in-acciaio/",
+      "summary": "Fornitura di tubi in acciaio per costruzioni",
+      "domain": "tcbtubi.it"
+    },
+    {
+      "name": "Castil",
+      "role": "processor_service_provider",
+      "url": "https://www.castil.it/chi-siamo/",
+      "summary": "Produzione di componenti metallici per sedute e arredi",
+      "domain": "castil.it"
+    },
+    {
+      "name": "Emme Italia",
+      "role": "processor_service_provider",
+      "url": "https://www.emmeitalia.com/carpenteria-metallica-in-acciaio-per-il-contract/",
+      "summary": "Carpenteria metallica in acciaio per mobili contract",
+      "domain": "emmeitalia.com"
+    },
+    {
+      "name": "Cicli Galetti",
+      "role": "end_user",
+      "url": "https://cicligaletti.it/sag/",
+      "summary": "Costruzione di telai artigianali per biciclette in acciaio",
+      "domain": "cicligaletti.it"
+    },
+    {
+      "name": "Faggin Bikes",
+      "role": "end_user",
+      "url": "https://www.fagginbikes.com/",
+      "summary": "Realizzazione artigianale di telai per biciclette",
+      "domain": "fagginbikes.com"
+    },
+    {
+      "name": "Simoncini Telai",
+      "role": "end_user",
+      "url": "https://simoncinitelaibiciclette.it/",
+      "summary": "Fabbricazione di telai per biciclette da corsa e città",
+      "domain": "simoncinitelaibiciclette.it"
+    },
+    {
+      "name": "Formigli",
+      "role": "end_user",
+      "url": "https://www.formigli.it/",
+      "summary": "Produzione di telai e biciclette artigianali",
+      "domain": "formigli.it"
+    },
+    {
+      "name": "Officine Mattio",
+      "role": "end_user",
+      "url": "https://www.officinemattio.com/costruzione-telaio",
+      "summary": "Produzione e costruzione di telai di biciclette",
+      "domain": "officinemattio.com"
+    },
+    {
+      "name": "Daccordi Cycles",
+      "role": "end_user",
+      "url": "https://www.daccordicycles.com/",
+      "summary": "Produzione di telai e biciclette artigianali",
+      "domain": "daccordicycles.com"
+    },
+    {
+      "name": "Gruppo SIF",
+      "role": "end_user",
+      "url": "https://www.grupposif.com/impalcature-edili-2/",
+      "summary": "Produzione e distribuzione di ponteggi e puntelli",
+      "domain": "grupposif.com"
+    },
+    {
+      "name": "Tubificio del Friuli",
+      "role": "producer",
+      "url": "https://www.tubificiodelfriuli.com/azienda/",
+      "summary": "Produzione di tubi in acciaio elettrosaldati",
+      "domain": "tubificiodelfriuli.com"
+    }
+  ]
+}
