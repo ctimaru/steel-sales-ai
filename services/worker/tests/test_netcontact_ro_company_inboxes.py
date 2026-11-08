@@ -9,7 +9,7 @@ def inbox_regex():
     sql = MIGRATION.read_text(encoding="utf8")
     clause = sql.split("select lower(btrim(coalesce(p_local,''))) ~ (", 1)[1].split(");",1)[0]
     pieces = re.findall(r"'([^']*)'", clause)
-    assert len(pieces) == 4
+    assert len(pieces) == 6
     pattern = "".join(pieces)
     return sql, re.compile(pattern)
 
