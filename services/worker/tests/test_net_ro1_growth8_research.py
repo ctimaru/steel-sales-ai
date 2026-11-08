@@ -50,6 +50,7 @@ def test_producers_with_shared_group_or_non_tube_evidence_remain_held():
     assert holds["greenbrier-europe.com"] == "multinational_group_local_facility_review"
     assert holds["jpx.ro"] == "brand_legal_identity_review"
     assert holds["dacia.ro"] == "group_brand_legal_identity_review"
+    assert holds["didicom.ro"] == "website_integrity_review_hold"
     assert "web_profile_review_pending" in {c["review_lane"] for c in leads}
 
 
