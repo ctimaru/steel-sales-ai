@@ -70,9 +70,12 @@ try {
         }
       }
       await noOverflow(page, "Commerciale " + width);
+      // Avoid modifying the SSR search field before hydration. Playwright's
+      // default caret:"hide" can temporarily insert caret-color:transparent
+      // and trigger a synthetic Next.js hydration warning during screenshots.
       await page.screenshot({
         path: path.join(output, `commerciale-${width}.png`),
-        fullPage: false, animations: "disabled",
+        fullPage: false, animations: "disabled", caret: "initial",
       });
 
       await page.goto(origin + "/rfq-hub", { waitUntil: "domcontentloaded", timeout: 90000 });
@@ -103,7 +106,7 @@ try {
       await noOverflow(page, "RFQ Hub " + width);
       await page.screenshot({
         path: path.join(output, `rfq-hub-${width}.png`),
-        fullPage: false, animations: "disabled",
+        fullPage: false, animations: "disabled", caret: "initial",
       });
       console.log("COMM-SIMPLE1 VISUAL PASS", width, {
         commercialHeroHeight: boxes[0].height,
