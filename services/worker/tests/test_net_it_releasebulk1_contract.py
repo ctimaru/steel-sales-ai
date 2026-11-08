@@ -5,6 +5,8 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 SQL=ROOT/"sql"/"net_it_releasebulk1_proposed.sql"
 MANIFEST=ROOT/"data"/"net_it_releasebulk1_pilot3_review_template_20261108.json"
+FACTS_POLICY=ROOT/"sql"/"net_it_facts1_policy_proposed.sql"
+FACTS_PILOT=ROOT/"data"/"net_it_facts1_carpenteria_pilot3_review_template_20261108.json"
 
 def test_netit_releasebulk1_sql_security_contract():
     sql=SQL.read_text(encoding="utf-8").lower()
@@ -97,3 +99,51 @@ def test_releasebulk1_legal_identity_and_all_catalog_gates():
     assert "where (lower(c.website_domain)=m.domain" in sql
     assert "where c.archived_at is null and" not in sql
     assert "p_expected_fingerprint = v_hash then" in sql
+
+
+def test_factsonly_policy_default_disabled_and_platform_privacy_gate():
+    policy=FACTS_POLICY.read_text(encoding="utf-8").lower()
+    publisher=SQL.read_text(encoding="utf-8").lower()
+    assert "enabled boolean not null default false" in policy
+    assert "values (true,false) on conflict (singleton) do nothing" in policy
+    assert "alter table private.netit_facts1_policy enable row level security" in policy
+    assert "revoke all on private.netit_facts1_policy from public, anon, authenticated" in policy
+    assert "revoke all on private.netit_facts1_signoff_ledger from public, anon, authenticated" in policy
+    assert "private.require_platform_permission('network.privacy_governance_review')" in policy
+    assert "private.require_platform_permission('discovery.governance_review')" in policy
+    assert "private.require_platform_permission('discovery.publish')" in policy
+    assert "auth.uid()" in policy
+    assert "revision=revision+1" in policy
+    assert "security invoker" in policy
+    assert "'factual_metadata_only_reviewed'" in publisher
+    assert "m.legal_name ~*" in publisher
+    assert "p.legal_review_url=m.rights_reference_url" in publisher
+    assert "'facts1_policy_revision'" in publisher
+    assert "lock table private.netit_facts1_policy" in publisher
+
+
+def test_factsonly_internal_legal_review_remains_private():
+    publisher=SQL.read_text(encoding="utf-8").lower()
+    assertion=publisher.split("insert into public.network_data_assertions(")[1].split(
+        "insert into public.network_company_role_assignments(")[0]
+    assert "'rights_reference_url'," not in assertion
+    assert "'rights_review_note'," not in assertion
+    ledger=publisher.split("insert into private.netit_releasebulk1_links(")[1]
+    assert "rights_reference_url" in ledger and "rights_note" in ledger
+
+
+def test_factsonly_three_carpenterie_are_not_preapproved():
+    packet=json.loads(FACTS_PILOT.read_text(encoding="utf-8"))
+    assert packet["status"]=="review_packet_only_not_submittable"
+    assert packet["legal_signoff_status"]=="pending"
+    assert packet["platform_signoff_status"]=="pending"
+    assert packet["rights_verified"] is False
+    assert packet["published_in_this_workstream"]==0
+    assert len(packet["items"])==3
+    assert len({r["domain"] for r in packet["items"]})==3
+    for entry in packet["items"]:
+        assert entry["rights_reference_url"] is None
+        assert entry["rights_decision"] is None
+        assert entry["rights_note"] is None
+    for entry in packet["identity_reconciliation"]:
+        assert entry["legal_name_reconciled"] is False
