@@ -72,6 +72,31 @@ const stateLabel = (state: string) => ({
   canonical_collision: "Collisione",
 } as Record<string, string>)[state] ?? "Da esaminare";
 
+const capabilityLabel = (key: string) => ({
+  metal_fabrication: "Carpenteria",
+  industrial_fabrication: "Carpenteria industriale",
+  light_fabrication: "Carpenteria leggera",
+  heavy_fabrication: "Carpenteria pesante",
+  steel_fabrication: "Lavorazione acciaio",
+  structural_fabrication: "Strutture metalliche",
+  steel_structures: "Strutture in acciaio",
+  structural_steel: "Acciaio strutturale",
+  sheet_metal: "Lavorazione lamiera",
+  laser_cutting: "Taglio laser",
+  welding: "Saldatura",
+  metal_cutting: "Taglio metalli",
+  metal_assembly: "Assemblaggio",
+  machine_frames: "Telai macchine",
+  industrial_equipment: "Impianti industriali",
+  piping_components: "Tubazioni/componenti",
+  industrial_plant_components: "Componenti impianti",
+  tube_processing: "Lavorazione tubi",
+  container_conversion: "Container e shelter",
+  metal_products: "Prodotti metallici",
+  safety_structures: "Protezioni industriali",
+  on_site_assembly: "Montaggio in cantiere",
+} as Record<string, string>)[key] ?? key.replaceAll("_", " ");
+
 function EvidenceLink({ url, label }: { url: string | null; label: string }) {
   const safe = safeNetworkWebsiteUrl(url);
   return safe ? (
@@ -223,7 +248,7 @@ export default async function CarpenterieGrowthPage({
                 : [];
               return (
                 <article key={item.candidate_id}
-                  className="grid gap-2 border-b border-[#edf1ee] px-3 py-3 last:border-0 hover:bg-[#fbfdfa] sm:px-4 lg:grid-cols-[minmax(200px,1.55fr)_95px_minmax(150px,1.25fr)_minmax(165px,1.1fr)_minmax(130px,1fr)] lg:items-center"
+                  className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-x-3 gap-y-2 border-b border-[#edf1ee] px-3 py-3 last:border-0 hover:bg-[#fbfdfa] sm:px-4 lg:grid-cols-[minmax(200px,1.55fr)_95px_minmax(150px,1.25fr)_minmax(165px,1.1fr)_minmax(130px,1fr)] lg:items-center"
                   data-testid="net-it-carp1-e5-company">
                   <div className="min-w-0">
                     <h2 className="truncate text-sm font-bold text-[#204d3e]" title={item.name}>
@@ -245,7 +270,7 @@ export default async function CarpenterieGrowthPage({
                   <div className="flex flex-wrap gap-1">
                     {capabilities.length ? capabilities.map(cap => (
                       <span key={cap} className="rounded-md bg-[#eef3f0] px-1.5 py-1 text-[10px] font-medium text-[#406353]">
-                        {cap.replaceAll("_", " ")}
+                        {capabilityLabel(cap)}
                       </span>
                     )) : <span className="text-[11px] text-[#8e9b92]">In attesa di evidenza</span>}
                   </div>
