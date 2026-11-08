@@ -65,3 +65,20 @@ def test_source_only_contacts_are_reviewed_by_existing_governance():
     assert "role_confirmed_by_company',false" in publisher
     assert "tube_purchases_verified',false" in publisher
     assert "'published','unclaimed','unverified'" in publisher
+
+def test_full_86_census_is_durable_and_not_mistaken_for_86_verified_websites():
+    report=json.loads((ROOT/"services/worker/data/net_ro1_growth9_census86_review_20261108.json").read_text(encoding="utf8"))
+    records=report["records"]
+    assert report["record_count"]==len(records)==86
+    assert Counter(r["status"] for r in records)=={
+        "source_cleared_publishing_wave":8,
+        "existing_profile":6,
+        "research_hold_verify_identity_and_company_website":72,
+    }
+    assert Counter(r["region"] for r in records)=={
+        "Nord-Est":17,"Nord-Vest":13,"Sud-Muntenia":12,"Centru":12,
+        "București-Ilfov":10,"Sud-Est":10,"Sud-Vest Oltenia":7,"Vest":5,
+    }
+    assert len({r["source_row"] for r in records})==86
+    assert all(r["email"] is None and r["phone"] is None for r in records)
+    assert all(r["source_url"] for r in records if r["status"]=="source_cleared_publishing_wave")
