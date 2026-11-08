@@ -70,7 +70,7 @@ def test_private_stage_is_atomic_and_checks_duplicate_names_domains_sources_and_
                  "pg_advisory_xact_lock","SHARE ROW EXCLUSIVE",
                  "count(DISTINCT x.canonical_domain)","count(DISTINCT x.research_id)"):
         assert term in sql
-    m=re.search(r"v_manifest constant jsonb := '([\\s\\S]*?)'::jsonb;",sql)
+    m=re.search(r"v_manifest constant jsonb := '([\s\S]*?)'::jsonb;",sql)
     assert m
     embedded=json.loads(m.group(1).replace("''","'"))
     assert len(embedded)==len(source["companies"])==15
