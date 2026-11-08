@@ -44,18 +44,28 @@ def test_netit_releasebulk1_sql_security_contract():
 
 def test_netit_releasebulk1_review_template_blocks_false_approval():
     x=json.loads(MANIFEST.read_text(encoding="utf-8"))
-    assert x["status"]=="operator_template_only_do_not_submit_without_actual_review"
+    assert x["status"]=="readonly_pilot_blocked_rights_not_submittable"
     assert x["p_commit"] is False and x["attested"] is False
     assert x["p_expected_fingerprint"] is None
     assert x["source_rights_verified"] is False
     assert x["identity_review_completed"] is False
-    assert len(x["items"])==5
-    assert len({r["seed_id"] for r in x["items"]})==5
-    assert len({r["domain"] for r in x["items"]})==5
+    assert len(x["items"])==3
+    assert len({r["seed_id"] for r in x["items"]})==3
+    assert len({r["domain"] for r in x["items"]})==3
     expected={"seed_id","domain","role","legal_name","identity_evidence_url","rights_reference_url","rights_decision","rights_note"}
     for row in x["items"]:
         assert set(row)==expected
-        assert row["identity_evidence_url"] is None
+        assert row["identity_evidence_url"].startswith("https://")
         assert row["rights_reference_url"] is None
         assert row["rights_decision"] is None
         assert row["rights_note"] is None
+
+
+def test_netit_releasebulk1_replay_hash_and_competing_writes_locked():
+    sql=SQL.read_text(encoding="utf-8").lower()
+    assert "and p_expected_fingerprint = v_hash then" in sql
+    assert "lock table public.network_core_target_leads" in sql
+    assert "lock table public.network_company_discovery_candidates" in sql
+    assert "lock table public.network_netfast3_suppressed_domains" in sql
+    assert "rights_reference_url" in sql
+    assert "m.rights_decision in ('allows_limited_reuse','licensed','allows_reuse')" in sql
