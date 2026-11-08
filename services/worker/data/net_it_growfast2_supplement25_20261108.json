@@ -1,0 +1,181 @@
+{
+  "batch": "NET-IT-GROWFAST2",
+  "status": "additional_preflight_candidates_only",
+  "candidates": [
+    {
+      "name": "Poletti Spa",
+      "role": "trader_distributor",
+      "url": "https://www.polettispa.com/",
+      "summary": "Distribuzione di prodotti siderurgici industriali",
+      "domain": "polettispa.com"
+    },
+    {
+      "name": "Paluan Carpenteria",
+      "role": "processor_service_provider",
+      "url": "https://www.paluancarpenteria.com/",
+      "summary": "Carpenteria metallica per strutture e applicazioni industriali",
+      "domain": "paluancarpenteria.com"
+    },
+    {
+      "name": "Bertero Carpenteria",
+      "role": "processor_service_provider",
+      "url": "https://www.berterocarpenteria.it/lavorazioni-in-metallo-come-nasce-un-progetto-su-misura/",
+      "summary": "Produzione di manufatti metallici su misura",
+      "domain": "berterocarpenteria.it"
+    },
+    {
+      "name": "OCAM",
+      "role": "processor_service_provider",
+      "url": "https://www.ocam.it/",
+      "summary": "Lavorazioni e prodotti metallici industriali da qualificare",
+      "domain": "ocam.it"
+    },
+    {
+      "name": "Incoservice",
+      "role": "end_user",
+      "url": "https://incoservice.org/",
+      "summary": "Vendita e produzione di cancelli e sistemi di recinzione",
+      "domain": "incoservice.org"
+    },
+    {
+      "name": "Zanda",
+      "role": "end_user",
+      "url": "https://www.zanda.it/cancelli-e-grate",
+      "summary": "Produzione di cancelli e grate di sicurezza",
+      "domain": "zanda.it"
+    },
+    {
+      "name": "Italmapi Group",
+      "role": "end_user",
+      "url": "https://www.italmapigroup.com/cancelli-recinzioni-metalliche",
+      "summary": "Realizzazione di cancelli e recinzioni metalliche su misura",
+      "domain": "italmapigroup.com"
+    },
+    {
+      "name": "RIB",
+      "role": "producer",
+      "url": "https://www.ribind.it/",
+      "summary": "Azienda italiana di soluzioni per cancelli",
+      "domain": "ribind.it"
+    },
+    {
+      "name": "Officine Locati",
+      "role": "end_user",
+      "url": "https://www.officinelocati.com/chiusure/cancelli-estensibili-milano/fabbrica-estensibili/",
+      "summary": "Produzione di cancelli estensibili e chiusure metalliche",
+      "domain": "officinelocati.com"
+    },
+    {
+      "name": "Asteco Industria",
+      "role": "end_user",
+      "url": "https://www.astecoindustria.com/realizzazioni/pensiline/",
+      "summary": "Realizzazione di pensiline e strutture per spazi pubblici",
+      "domain": "astecoindustria.com"
+    },
+    {
+      "name": "Metal System",
+      "role": "end_user",
+      "url": "https://www.metalsystem.mi.it/pensiline-in-acciaio-per-la-mobilita-sostenibile-quadro-normativo-e-criteri-di-scelta/",
+      "summary": "Strutture e pensiline in acciaio per uso pubblico",
+      "domain": "metalsystem.mi.it"
+    },
+    {
+      "name": "Bellitalia",
+      "role": "end_user",
+      "url": "https://www.bellitalia.net/",
+      "summary": "Produzione di componenti di arredo urbano",
+      "domain": "bellitalia.net"
+    },
+    {
+      "name": "Lietti",
+      "role": "end_user",
+      "url": "https://www.lietti.it/",
+      "summary": "Produzione di prodotti metallici e componenti per spazi pubblici da qualificare",
+      "domain": "lietti.it"
+    },
+    {
+      "name": "De Angelis Rimorchi",
+      "role": "end_user",
+      "url": "https://www.deangelisrimorchi.com/tradizione_ed_esperienza-45.html",
+      "summary": "Produzione di rimorchi e semirimorchi industriali",
+      "domain": "deangelisrimorchi.com"
+    },
+    {
+      "name": "V Orlandi",
+      "role": "producer",
+      "url": "https://www.orlandi.it/",
+      "summary": "Produzione di sistemi di traino e componenti per rimorchi",
+      "domain": "orlandi.it"
+    },
+    {
+      "name": "Siera",
+      "role": "processor_service_provider",
+      "url": "https://siera.it/lavorazioni/curvatura-piegatura-tubi-acciaio-inox-e-altri-metalli/",
+      "summary": "Curvatura e piegatura di tubi metallici e acciaio inox",
+      "domain": "siera.it"
+    },
+    {
+      "name": "Caroni",
+      "role": "processor_service_provider",
+      "url": "https://www.caroni.it/prodotti/piegatura-tubi/",
+      "summary": "Produzione di componenti tramite piegatura di tubi",
+      "domain": "caroni.it"
+    },
+    {
+      "name": "Adeglas",
+      "role": "processor_service_provider",
+      "url": "https://adeglas.it/piegatura-tubi/",
+      "summary": "Piegatura e lavorazione di tubi per commesse industriali",
+      "domain": "adeglas.it"
+    },
+    {
+      "name": "CPC Inox",
+      "role": "producer",
+      "url": "https://www.cpcinox.com/prodotti/tubi-e-tubi-tagliati/",
+      "summary": "Produzione di tubi e tubi tagliati in acciaio inox",
+      "domain": "cpcinox.com"
+    },
+    {
+      "name": "Forghieri",
+      "role": "processor_service_provider",
+      "url": "https://forghieri.it/en/about-us/",
+      "summary": "Produzione integrata di strutture metalliche e componenti",
+      "domain": "forghieri.it"
+    },
+    {
+      "name": "GIMA",
+      "role": "processor_service_provider",
+      "url": "https://www.gima-srl.it/en/fields-of-application/industrial/",
+      "summary": "Fabbricazione di componenti per settori industriali",
+      "domain": "gima-srl.it"
+    },
+    {
+      "name": "Urban 360",
+      "role": "end_user",
+      "url": "https://www.urban360gradi.it/categoria-arredo-urbano/panchine-design-arredo-urbano-prezzi/",
+      "summary": "Produzione e fornitura di arredi urbani in metallo",
+      "domain": "urban360gradi.it"
+    },
+    {
+      "name": "Kindof",
+      "role": "end_user",
+      "url": "https://kindoffurniture.com/kindof/",
+      "summary": "Fabbricazione di arredi con tondini di acciaio",
+      "domain": "kindoffurniture.com"
+    },
+    {
+      "name": "StylSerre",
+      "role": "end_user",
+      "url": "https://stylserre.com/",
+      "summary": "Serre e verande principalmente in alluminio da qualificare",
+      "domain": "stylserre.com"
+    },
+    {
+      "name": "Euroserre Italia",
+      "role": "end_user",
+      "url": "https://www.euroserreitalia.com/wp/green-style-serre-professionali.html",
+      "summary": "Serre e orangerie con strutture in profili di alluminio",
+      "domain": "euroserreitalia.com"
+    }
+  ]
+}

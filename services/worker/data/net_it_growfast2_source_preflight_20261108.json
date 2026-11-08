@@ -1,0 +1,751 @@
+{
+  "as_of": "2026-11-08",
+  "status": "source_fetch_preflight_not_imported",
+  "records": [
+    {
+      "domain": "gsg.it",
+      "name": "GSG",
+      "role": "processor_service_provider",
+      "url": "https://gsg.it/it/metodo-di-lavoro",
+      "ok": true,
+      "title": "Taglio Laser Tubo conto Terzi e altro: il Metodo di Lavoro GSG",
+      "text_length": 3916,
+      "signal_excerpts": [
+        "dotto**, assicurando una produzione sempre all'altezza delle aspettative."
+      ],
+      "error": null
+    },
+    {
+      "domain": "studio-laser.it",
+      "name": "Studio Laser",
+      "role": "processor_service_provider",
+      "url": "https://www.studio-laser.it/",
+      "ok": false,
+      "title": null,
+      "text_length": 0,
+      "signal_excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "coimisrl.com",
+      "name": "Coimi",
+      "role": "processor_service_provider",
+      "url": "https://www.coimisrl.com/carpenteria-metallica/lavorazioni/saldatura-lamiere-tubi/",
+      "ok": true,
+      "title": "Saldatura lamiere e tubi per strutture industriali Lodi e Piacenza – Ferro e acciaio inox",
+      "text_length": 2921,
+      "signal_excerpts": [
+        "bilità di ogni struttura metallica realizzata.",
+        " precisione**, la nostra carpenteria metallica realizza lavorazioni di saldature lamiere e tubi per "
+      ],
+      "error": null
+    },
+    {
+      "domain": "bfbgroup.it",
+      "name": "BFB Group",
+      "role": "processor_service_provider",
+      "url": "https://bfbgroup.it/servizi/",
+      "ok": true,
+      "title": "Servizi di Carpenteria Metallica e Produzione Industriale",
+      "text_length": 4688,
+      "signal_excerpts": [
+        "# I nostri servizi per Carpenteria Metallica e Produzione Industriale",
+        "**progettazione** alla **produzione, fino al** **controllo** **qualità**. Garantiamo **tempi** di sv"
+      ],
+      "error": null
+    },
+    {
+      "domain": "canfora.it",
+      "name": "Canfora",
+      "role": "processor_service_provider",
+      "url": "https://www.canfora.it/carpenteria/precisione-resistenza-serialita-carpenteria-metallica-industriale/",
+      "ok": true,
+      "title": "Carpenteria metallica industriale per grandi lotti",
+      "text_length": 12413,
+      "signal_excerpts": [
+        "La carpenteria metallica industriale non è semplicemente l’arte di piegare o saldare me",
+        "nche nei grandi lotti di produzione. Nel contesto manifatturiero moderno, questi tre fattori non son"
+      ],
+      "error": null
+    },
+    {
+      "domain": "incos-carpenteria.com",
+      "name": "IN.CO.S.",
+      "role": "processor_service_provider",
+      "url": "https://incos-carpenteria.com/",
+      "ok": true,
+      "title": "IN.CO.S. | Carpenteria Metallica Strutturale ISO 9001",
+      "text_length": 2918,
+      "signal_excerpts": [
+        "Strutture in ferro e acciaio destinate alla produzione e alla logistica industriale.",
+        "Strutture metalliche architettoniche in collaborazione con architetti e imprese ed"
+      ],
+      "error": null
+    },
+    {
+      "domain": "aspirtecnica.it",
+      "name": "Aspirtecnica Genovese",
+      "role": "processor_service_provider",
+      "url": "https://aspirtecnica.it/carpenteria-metallica-industriale-e-per-edilizia/",
+      "ok": true,
+      "title": "Carpenteria metallica per l'edilizia e industria",
+      "text_length": 5567,
+      "signal_excerpts": [
+        "# Carpenteria metallica per l'edilizia e l'industria: strutture in acciaio e lavorazio",
+        "passerelle, parapetti in acciaio"
+      ],
+      "error": null
+    },
+    {
+      "domain": "macomcarpenteriameccanica.com",
+      "name": "Macom Carpenteria Meccanica",
+      "role": "processor_service_provider",
+      "url": "https://www.macomcarpenteriameccanica.com/carpenteria-metallica-tra-emilia-e-nord-italia/",
+      "ok": true,
+      "title": "MACOM: un punto di riferimento per la carpenteria metallica tra Emilia e Nord Italia",
+      "text_length": 13064,
+      "signal_excerpts": [
+        "to di riferimento per la carpenteria metallica tra Emilia e Nord Italia",
+        "ostruzioni Meccaniche in Metalli"
+      ],
+      "error": null
+    },
+    {
+      "domain": "bramaitalia.it",
+      "name": "Brama Italia",
+      "role": "end_user",
+      "url": "https://www.bramaitalia.it/cancelli-e-recinzioni-in-acciaio/",
+      "ok": true,
+      "title": "CANCELLI E RECINZIONI IN ACCIAIO | BRAMA",
+      "text_length": 3136,
+      "signal_excerpts": [
+        "che grazie a processi di produzione estremamente automatizzati vengono offerti a prezzi imbattibili.",
+        "## MODULI IN ACCIAIO O IN RETE?"
+      ],
+      "error": null
+    },
+    {
+      "domain": "forssrl.com",
+      "name": "Fors",
+      "role": "processor_service_provider",
+      "url": "https://www.forssrl.com/carpenteria/cancelli/",
+      "ok": true,
+      "title": "Produzione di cancelli | Fors Srl",
+      "text_length": 4948,
+      "signal_excerpts": [
+        "La **produzione di cancelli**, rientra tra le lavorazioni fabbrili che la nostra",
+        "i o pedoni. Insieme alle recinzioni, anch’esse da noi prodotte, i cancelli, sono costruiti a disegn"
+      ],
+      "error": null
+    },
+    {
+      "domain": "mpattrezzatureagricole.it",
+      "name": "MP Attrezzature Agricole",
+      "role": "end_user",
+      "url": "https://www.mpattrezzatureagricole.it/",
+      "ok": true,
+      "title": "MP International | Attrezzature agricole",
+      "text_length": 2072,
+      "signal_excerpts": [
+        "* rimorchi cassone con ribaltamento trilaterale a 1, 2 e 3 assi;",
+        "* rimorchi per il trasporto dell’uva a caditoia inox a 1, 2 e 3 assi;"
+      ],
+      "error": null
+    },
+    {
+      "domain": "ferruzza.it",
+      "name": "Officine Meccaniche Ferruzza",
+      "role": "end_user",
+      "url": "https://www.ferruzza.it/ita/azienda.html",
+      "ok": true,
+      "title": "Officine Meccaniche Ferruzza - L'Azienda",
+      "text_length": 2960,
+      "signal_excerpts": [
+        "dosi alla costruzione di rimorchi agricoli e varie attrezzature quali zappatrici a rotore unico, c",
+        "1968, specializza la sua produzione nella costruzione esclusiva di rimorchi ampliando e diversifican"
+      ],
+      "error": null
+    },
+    {
+      "domain": "febarimorchi.com",
+      "name": "Feba Rimorchi",
+      "role": "end_user",
+      "url": "https://www.febarimorchi.com/",
+      "ok": true,
+      "title": "Feba Rimorchi - Montegiorgio (FM) Italia",
+      "text_length": 921,
+      "signal_excerpts": [
+        "* RIMORCHIO MONOASSE",
+        "* RIMORCHIO MONOASSE"
+      ],
+      "error": null
+    },
+    {
+      "domain": "mantellatrailers.com",
+      "name": "Mantella Trailers",
+      "role": "end_user",
+      "url": "https://www.mantellatrailers.com/personalizzazioni/",
+      "ok": true,
+      "title": "Telai – MANTELLA Trailers S.r.l.",
+      "text_length": 4193,
+      "signal_excerpts": [
+        "a possibilità di usare l’acciaio performante Strenx® 960 Plus per telai di semirimorchi con ottim",
+        "I nostri telai di semirimorchi subiscono un processo di **zincatura a caldo** che offre vantagg"
+      ],
+      "error": null
+    },
+    {
+      "domain": "gervasiecologica.com",
+      "name": "Gervasi Ecologica",
+      "role": "end_user",
+      "url": "https://www.gervasiecologica.com/it/",
+      "ok": true,
+      "title": "Homepage",
+      "text_length": 4698,
+      "signal_excerpts": [
+        "cologica è costruire semirimorchi innovativi per sostenere e rendere più efficiente la raccolta e ",
+        "ili, rottame e residuati ferrosi e non-ferrosi."
+      ],
+      "error": null
+    },
+    {
+      "domain": "viberti.it",
+      "name": "Viberti",
+      "role": "end_user",
+      "url": "https://www.viberti.it/azienda/",
+      "ok": true,
+      "title": "Azienda – Viberti",
+      "text_length": 4330,
+      "signal_excerpts": [
+        "e i nostri chassis con l’acciaio alto-resistenziale e le nostre casse con alluminio ENDUR-ALL 110",
+        " e acciaio HARDOX 450, a seconda degli impieghi. Così i nostri veicoli offr"
+      ],
+      "error": null
+    },
+    {
+      "domain": "corradinirimorchi.it",
+      "name": "Corradini Rimorchi",
+      "role": "end_user",
+      "url": "https://corradinirimorchi.it/azienda/",
+      "ok": true,
+      "title": "Azienda - Corradini Rimorchi",
+      "text_length": 2598,
+      "signal_excerpts": [
+        "La Corradini Rimorchi SRL nasce nel 2007 dalla passione e dalla visione del titolare C",
+        "ndita ed allestimenti di rimorchi, semirimorchi, bighe e casse mobili. "
+      ],
+      "error": null
+    },
+    {
+      "domain": "ocmsteel.it",
+      "name": "OCM Steel",
+      "role": "end_user",
+      "url": "https://www.ocmsteel.it/fgm-rimorchi-semirimorchi/",
+      "ok": false,
+      "title": null,
+      "text_length": 0,
+      "signal_excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "marinellimacchineagricole.it",
+      "name": "Marinelli Macchine Agricole",
+      "role": "end_user",
+      "url": "https://www.marinellimacchineagricole.it/prodotti/telai-antiribaltamento/",
+      "ok": true,
+      "title": "Telai Antiribaltamento | Marinelli Macchine Agricole - Aratri - Trinciatutto - Telai Antiribaltamento - Erpici Frangizolle - Vibrocoltivatori - Estirpatori",
+      "text_length": 2059,
+      "signal_excerpts": [
+        "## Telai Antiribaltamento",
+        "zione e realizzazione di telai certificati OCSE, conformi alle linee guida nazionali ISPEL, ed "
+      ],
+      "error": null
+    },
+    {
+      "domain": "siderval.com",
+      "name": "Siderval",
+      "role": "producer",
+      "url": "https://www.siderval.com/it/applicazioni/agricoltura/",
+      "ok": true,
+      "title": "Profili in acciaio per macchine agricole – Siderval S.p.A.",
+      "text_length": 4784,
+      "signal_excerpts": [
+        "al fornisce **profili in acciaio estruso a caldo robusti e affidabili**, progettati su misura per",
+        "asi finiti** e **profili tubolari sagomati**, garantendo un adattamento ottimale per svariate a"
+      ],
+      "error": null
+    },
+    {
+      "domain": "urbanitaliandesign.com",
+      "name": "Urban Italian Design",
+      "role": "end_user",
+      "url": "https://www.urbanitaliandesign.com/",
+      "ok": true,
+      "title": "Arredo Urbano innovativo: Fornitura e Progettazione del Verde - Urban Italian Design",
+      "text_length": 7903,
+      "signal_excerpts": [
+        "in Italy**, integrando **produzione italiana e fornitura diretta** con competenze di consulenza arch",
+        "icazione del verde**, la produzione di elementi su misura e l’assistenza tecnica in fase realizzativ"
+      ],
+      "error": null
+    },
+    {
+      "domain": "ubiurbe.com",
+      "name": "Ubi Urbe",
+      "role": "end_user",
+      "url": "https://www.ubiurbe.com/",
+      "ok": true,
+      "title": "Fioriere panchine in cemento e acciaio per l'arredo urbano.",
+      "text_length": 6473,
+      "signal_excerpts": [
+        "edo urbano di fioriere e panchine in cemento Scopri la collezione 2025",
+        "collezione di fioriere e panchine in cemento Scopri la collezione 2022"
+      ],
+      "error": null
+    },
+    {
+      "domain": "euroform-w.com",
+      "name": "Euroform W",
+      "role": "end_user",
+      "url": "https://www.euroform-w.com/it/news/2024-02-20/arredo-urbano",
+      "ok": true,
+      "title": "Arredo urbano",
+      "text_length": 4915,
+      "signal_excerpts": [
+        ": l'arredo urbano. Dalle panchine alle fioriere, fino alle rastrelliere per le biciclette, questi",
+        "inalmente sedervi su una panchina per riposare e osservare il trambusto della città. O che ne dit"
+      ],
+      "error": null
+    },
+    {
+      "domain": "reteplastic.it",
+      "name": "Rete Plastic",
+      "role": "end_user",
+      "url": "https://www.reteplastic.it/",
+      "ok": true,
+      "title": "Rete Plastic | Recinzioni dal 1973",
+      "text_length": 5288,
+      "signal_excerpts": [
+        "nza e affidabilità nelle recinzioni di alta qualità",
+        "rimento nella vendita di recinzioni di qualità: **reti, pali, cancelli, grigliati e accessori**. Of"
+      ],
+      "error": null
+    },
+    {
+      "domain": "euroretisrl.com",
+      "name": "Euro Reti",
+      "role": "end_user",
+      "url": "https://www.euroretisrl.com/",
+      "ok": true,
+      "title": "Euro Reti S.R.L.  - PRODUZIONE RETI METALLICHE PER RECINZIONE",
+      "text_length": 3071,
+      "signal_excerpts": [
+        "letti e Contropaletti in Ferro, Matasse di Filo, Chiodi, ecc. con spedizioni su tutto il territ"
+      ],
+      "error": null
+    },
+    {
+      "domain": "solorecinzionicancelli.it",
+      "name": "Solo Recinzioni Cancelli",
+      "role": "trader_distributor",
+      "url": "https://www.solorecinzionicancelli.it/it",
+      "ok": false,
+      "title": null,
+      "text_length": 0,
+      "signal_excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "trevigianametalli.it",
+      "name": "Trevigiana Metalli",
+      "role": "trader_distributor",
+      "url": "https://trevigianametalli.it/",
+      "ok": true,
+      "title": "Trevigiana Metalli – Metalli e acciai per l'industria",
+      "text_length": 795,
+      "signal_excerpts": [
+        "Dal 1982 Trevigiana Metalli opera nel settore della distribuzione e nel taglio di leghe meta",
+        " componente di materiale metallico e plastico."
+      ],
+      "error": null
+    },
+    {
+      "domain": "tcbtubi.it",
+      "name": "TCB Tubi",
+      "role": "trader_distributor",
+      "url": "https://tcbtubi.it/costruzioni-in-acciaio/",
+      "ok": true,
+      "title": "Tubi in Acciaio per Edilizia industriale, Civile, Infrastrutturale",
+      "text_length": 3685,
+      "signal_excerpts": [
+        "costruzioni in acciaio",
+        "**Strutture portanti e carpenteria metallica**"
+      ],
+      "error": null
+    },
+    {
+      "domain": "castil.it",
+      "name": "Castil",
+      "role": "processor_service_provider",
+      "url": "https://www.castil.it/chi-siamo/",
+      "ok": true,
+      "title": "Chi siamo – Castil",
+      "text_length": 1599,
+      "signal_excerpts": [
+        "le e centralizzata della produzione. Per noi, “Made in Italy” non è solo un’etichetta, ma un modo di",
+        "ti nella lavorazione del tubo e del tondino metallico, e lavoriamo acciaio, alluminio e acciai"
+      ],
+      "error": null
+    },
+    {
+      "domain": "emmeitalia.com",
+      "name": "Emme Italia",
+      "role": "processor_service_provider",
+      "url": "https://www.emmeitalia.com/carpenteria-metallica-in-acciaio-per-il-contract/",
+      "ok": false,
+      "title": null,
+      "text_length": 0,
+      "signal_excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "cicligaletti.it",
+      "name": "Cicli Galetti",
+      "role": "end_user",
+      "url": "https://cicligaletti.it/sag/",
+      "ok": true,
+      "title": "SOLO ACCIAIO GALETTI | CICLI GALETTI",
+      "text_length": 3726,
+      "signal_excerpts": [
+        "# **SAG – Solo Acciaio Galetti: telai artigianali italiani in acciaio**",
+        "ato dalla passione per l’acciaio**"
+      ],
+      "error": null
+    },
+    {
+      "domain": "fagginbikes.com",
+      "name": "Faggin Bikes",
+      "role": "end_user",
+      "url": "https://www.fagginbikes.com/",
+      "ok": true,
+      "title": "Faggin Bikes - Telai e Biciclette Artigianali dal 1945",
+      "text_length": 1894,
+      "signal_excerpts": [
+        "liane che ancora produce telai per biciclette artigianali secondo i più alti standard di qualit",
+        "è quella di esprimere il telaio come pratica trasversale tra acciaio, alluminio, titanio e fibr"
+      ],
+      "error": null
+    },
+    {
+      "domain": "simoncinitelaibiciclette.it",
+      "name": "Simoncini Telai",
+      "role": "end_user",
+      "url": "https://simoncinitelaibiciclette.it/",
+      "ok": true,
+      "title": "SIMONCINI TELAI",
+      "text_length": 2406,
+      "signal_excerpts": [
+        "smo. Dal 1949 produciamo telai per biciclette da corsa, pista, MTB, trekking, da città, gravel,",
+        "progettiamo e costruiamo telai su misura per il cliente e per grandi marchi e privati. **Scopri"
+      ],
+      "error": null
+    },
+    {
+      "domain": "formigli.it",
+      "name": "Formigli",
+      "role": "end_user",
+      "url": "https://www.formigli.it/",
+      "ok": true,
+      "title": "Formigli | Produzione Biciclette da Corsa su Misura",
+      "text_length": 2662,
+      "signal_excerpts": [
+        "## I nostri telai Made in Italy",
+        "ondiale capace di creare telai da corsa su misura, unici e personalizzati.**"
+      ],
+      "error": null
+    },
+    {
+      "domain": "officinemattio.com",
+      "name": "Officine Mattio",
+      "role": "end_user",
+      "url": "https://www.officinemattio.com/costruzione-telaio",
+      "ok": true,
+      "title": "Progettazione e costruzione dei telai | Officine Mattio",
+      "text_length": 3161,
+      "signal_excerpts": [
+        "azione e costruzione dei telai",
+        "Progettiamo i nostri telai partendo da ciò che conta in sella: peso, risposta alla pedalata"
+      ],
+      "error": null
+    },
+    {
+      "domain": "grupposif.com",
+      "name": "Gruppo SIF",
+      "role": "end_user",
+      "url": "https://www.grupposif.com/impalcature-edili-2/",
+      "ok": true,
+      "title": "Impalcature edili - Produzione e distribuzione prodotti edili",
+      "text_length": 1761,
+      "signal_excerpts": [
+        "stema antisfilamento del tubo interno da quello esterno, applicabile a qualsiasi tipologia di ",
+        "Parte della produzione viene terziarizzata attraverso collaborazioni con ditte selezion"
+      ],
+      "error": null
+    },
+    {
+      "domain": "berterocarpenteria.it",
+      "name": "Bertero Carpenteria",
+      "role": "processor_service_provider",
+      "url": "https://www.berterocarpenteria.it/lavorazioni-in-metallo-come-nasce-un-progetto-su-misura/",
+      "ok": true,
+      "title": "Lavorazioni in metallo: come nasce un progetto su misura - Bertero",
+      "text_length": 2980,
+      "signal_excerpts": [
+        "## Bertero Carpenteria offre una gamma di servizi personalizzati di carpenteria metalli",
+        "tro della progettazione, produzione e installazione di strutture, soddisfacendo le esigenze di svari"
+      ],
+      "error": null
+    },
+    {
+      "domain": "ocam.it",
+      "name": "OCAM",
+      "role": "processor_service_provider",
+      "url": "https://www.ocam.it/",
+      "ok": true,
+      "title": "OCAM",
+      "text_length": 1897,
+      "signal_excerpts": [
+        "l 1956, come Officina di CArpenteria Metallica. Oggi è in grado di lavorare 5.000 tonnellate di acci",
+        "mercato con strutture in acciaio e vetro, in acciaio e policarbonato, ristrutturazioni e consolid"
+      ],
+      "error": null
+    },
+    {
+      "domain": "incoservice.org",
+      "name": "Incoservice",
+      "role": "end_user",
+      "url": "https://incoservice.org/",
+      "ok": false,
+      "title": null,
+      "text_length": 0,
+      "signal_excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "zanda.it",
+      "name": "Zanda",
+      "role": "end_user",
+      "url": "https://www.zanda.it/cancelli-e-grate",
+      "ok": true,
+      "title": "Cancelli e Grate di Sicurezza Milano | Zanda Group",
+      "text_length": 4711,
+      "signal_excerpts": [
+        " a Milano**, grazie alla produzione diretta di manufatti in metallo progettati per garantire",
+        "**cancelli in ferro per esterni**, progettati per proteggere accessi e perimetri, e"
+      ],
+      "error": null
+    },
+    {
+      "domain": "italmapigroup.com",
+      "name": "Italmapi Group",
+      "role": "end_user",
+      "url": "https://www.italmapigroup.com/cancelli-recinzioni-metalliche",
+      "ok": true,
+      "title": "Fabbro, Cancelli e Recinzioni in Toscana | Italmapi",
+      "text_length": 9001,
+      "signal_excerpts": [
+        "# Recinzioni e cancelli su misura in Toscana",
+        "## Soluzioni in ferro e metallo per abitazioni, aziende e strutture industriali"
+      ],
+      "error": null
+    },
+    {
+      "domain": "ribind.it",
+      "name": "RIB",
+      "role": "producer",
+      "url": "https://www.ribind.it/",
+      "ok": true,
+      "title": "Azienda italiana specializzata in soluzioni per cancelli | Rib srl | Soluzioni per automazione cancelli, barriere, serrande e porte basculanti",
+      "text_length": 261,
+      "signal_excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "officinelocati.com",
+      "name": "Officine Locati",
+      "role": "end_user",
+      "url": "https://www.officinelocati.com/chiusure/cancelli-estensibili-milano/fabbrica-estensibili/",
+      "ok": true,
+      "title": "Fabbrica estensibili - su misura a prezzi competitivi.",
+      "text_length": 4816,
+      "signal_excerpts": [
+        "# FABBRICA CANCELLI ESTENSIBILI",
+        "o Storico Nazionale è la fabbrica Italiana leader nella produzione e vendita di **cancelli estens"
+      ],
+      "error": null
+    },
+    {
+      "domain": "astecoindustria.com",
+      "name": "Asteco Industria",
+      "role": "end_user",
+      "url": "https://www.astecoindustria.com/realizzazioni/pensiline/",
+      "ok": true,
+      "title": "Realizzazioni pensiline - Asteco Industria",
+      "text_length": 1472,
+      "signal_excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "metalsystem.mi.it",
+      "name": "Metal System",
+      "role": "end_user",
+      "url": "https://www.metalsystem.mi.it/pensiline-in-acciaio-per-la-mobilita-sostenibile-quadro-normativo-e-criteri-di-scelta/",
+      "ok": true,
+      "title": "Pensiline in acciaio per la mobilità sostenibile: quadro normativo e criteri di scelta",
+      "text_length": 7324,
+      "signal_excerpts": [
+        "# Pensiline in acciaio per la mobilità sostenibile: quadro normativo e criteri di scelt",
+        "ivi** delle pensiline in acciaio, forte incentivo alla mobilità sostenibile. In questo approfondi"
+      ],
+      "error": null
+    },
+    {
+      "domain": "bellitalia.net",
+      "name": "Bellitalia",
+      "role": "end_user",
+      "url": "https://www.bellitalia.net/",
+      "ok": true,
+      "title": "Homepage - Bellitalia",
+      "text_length": 599,
+      "signal_excerpts": [
+        "### PANCHINE"
+      ],
+      "error": null
+    },
+    {
+      "domain": "lietti.it",
+      "name": "Lietti",
+      "role": "end_user",
+      "url": "https://www.lietti.it/",
+      "ok": true,
+      "title": "Lietti Srl",
+      "text_length": 9322,
+      "signal_excerpts": [
+        "etti s.r.l. si occupa di carpenteria medio pesante, progettando e realizzando strutture e fabbricati",
+        "### Carpenteria Metallica"
+      ],
+      "error": null
+    },
+    {
+      "domain": "deangelisrimorchi.com",
+      "name": "De Angelis Rimorchi",
+      "role": "end_user",
+      "url": "https://www.deangelisrimorchi.com/tradizione_ed_esperienza-45.html",
+      "ok": true,
+      "title": "| De Angelis Rimorchi",
+      "text_length": 2584,
+      "signal_excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "orlandi.it",
+      "name": "V Orlandi",
+      "role": "producer",
+      "url": "https://www.orlandi.it/",
+      "ok": false,
+      "title": null,
+      "text_length": 0,
+      "signal_excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "adeglas.it",
+      "name": "Adeglas",
+      "role": "processor_service_provider",
+      "url": "https://adeglas.it/piegatura-tubi/",
+      "ok": true,
+      "title": "Piegatura tubi - Adeglas",
+      "text_length": 3388,
+      "signal_excerpts": [
+        "el LED** all’interno del tubo.",
+        "ità e tempestività nella produzione**), potrete infatti personalizzare nuove forme. Un’opportunità p"
+      ],
+      "error": null
+    },
+    {
+      "domain": "forghieri.it",
+      "name": "Forghieri",
+      "role": "processor_service_provider",
+      "url": "https://forghieri.it/en/about-us/",
+      "ok": true,
+      "title": "About us",
+      "text_length": 3100,
+      "signal_excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "gima-srl.it",
+      "name": "GIMA",
+      "role": "processor_service_provider",
+      "url": "https://www.gima-srl.it/en/fields-of-application/industrial/",
+      "ok": false,
+      "title": null,
+      "text_length": 0,
+      "signal_excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "urban360gradi.it",
+      "name": "Urban 360",
+      "role": "end_user",
+      "url": "https://www.urban360gradi.it/categoria-arredo-urbano/panchine-design-arredo-urbano-prezzi/",
+      "ok": true,
+      "title": "Panchine design per arredo urbano a prezzi competitivi | Urban 360",
+      "text_length": 9874,
+      "signal_excerpts": [
+        "Una panchina dal design innovativo migliora lo spazio urbano",
+        "# Una panchina dal design innovativo migliora lo spazio urbano"
+      ],
+      "error": null
+    },
+    {
+      "domain": "kindoffurniture.com",
+      "name": "Kindof",
+      "role": "end_user",
+      "url": "https://kindoffurniture.com/kindof/",
+      "ok": true,
+      "title": "Kindof: dal tondino d’acciaio al design sostenibile Made in Italy",
+      "text_length": 4367,
+      "signal_excerpts": [
+        " all’idea: un tondino di acciaio nervato che si trasformasse in sedia, tavolo, panchina, libreria",
+        "etta di tondo nervato in acciaio. Quello è per Kindof il pezzo unico. Non è prezioso e non è escl"
+      ],
+      "error": null
+    },
+    {
+      "domain": "stylserre.com",
+      "name": "StylSerre",
+      "role": "end_user",
+      "url": "https://stylserre.com/",
+      "ok": true,
+      "title": "Serre da giardino - Serre in alluminio - StylSerre",
+      "text_length": 3058,
+      "signal_excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "euroserreitalia.com",
+      "name": "Euroserre Italia",
+      "role": "end_user",
+      "url": "https://www.euroserreitalia.com/wp/green-style-serre-professionali.html",
+      "ok": true,
+      "title": "Euroserre Italia - Serre Professionali, Eleganti Serre da Giardino - Green Style",
+      "text_length": 4416,
+      "signal_excerpts": [
+        " viteria utilizzata è in acciaio inossidabile. ",
+        "Viteria in acciaio inossidabile, guarnizioni in gomma Epdm."
+      ],
+      "error": null
+    }
+  ]
+}
