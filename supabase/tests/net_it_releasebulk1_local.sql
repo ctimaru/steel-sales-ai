@@ -13,6 +13,12 @@ BEGIN
  IF has_function_privilege('anon','public.netit_releasebulk1(text,text,jsonb,text,boolean,boolean)','EXECUTE') THEN
    RAISE EXCEPTION 'anon must not be able to invoke publish RPC';
  END IF;
+ IF has_table_privilege('authenticated','private.netit_releasebulk1_runtime','SELECT') OR has_table_privilege('anon','private.netit_releasebulk1_runtime','UPDATE') THEN
+   RAISE EXCEPTION 'Publisher runtime switch must not be client accessible';
+ END IF;
+ IF (SELECT count(*) FROM private.netit_releasebulk1_runtime WHERE singleton=true AND enabled=false)<>1 THEN
+   RAISE EXCEPTION 'Publisher must be OFF immediately after migration';
+ END IF;
  IF has_function_privilege('anon','public.netit_facts1_signoff(boolean,text,text)','EXECUTE') THEN
    RAISE EXCEPTION 'anon must not be able to sign off FACTS1';
  END IF;
@@ -129,6 +135,24 @@ BEGIN
  IF NOT denied THEN RAISE EXCEPTION 'Non-Platform FACTS1 signoff accepted'; END IF;
 END $notplatformfacts$;
 RESET ROLE;
+
+-- CI-ONLY: ensure genuine Platform actor cannot publish while runtime switch OFF.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','5e5dfabe-f01d-4bca-89dc-61d031f80a01',true);
+SELECT set_config('request.jwt.claim.role','authenticated',true);
+DO $disabled_runtime$
+DECLARE blocked boolean := false;
+BEGIN
+ BEGIN
+  PERFORM public.netit_releasebulk1('NET-IT-CI-BATCH01','NET-IT-CI-WAVE01','[]'::jsonb,NULL,true,true);
+ EXCEPTION WHEN insufficient_privilege THEN blocked := true;
+ END;
+ IF NOT blocked THEN RAISE EXCEPTION 'Default-OFF runtime allowed a publish attempt'; END IF;
+END $disabled_runtime$;
+RESET ROLE;
+-- Only local disposable CI turns this ON to exercise the publisher mechanics.
+-- No equivalent release is enabled by any production migration.
+UPDATE private.netit_releasebulk1_runtime SET enabled=true WHERE singleton=true;
 
 -- The synthetic identity has a real local Platform role, but its "rights"
 -- reference is a fake .invalid URL *solely* for testing workflow mechanics.
