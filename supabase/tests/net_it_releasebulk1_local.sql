@@ -41,10 +41,11 @@ INSERT INTO public.platform_user_roles(user_id,role,status,reason)
 VALUES ('5e5dfabe-f01d-4bca-89dc-61d031f80a01','platform_superadmin','active','Synthetic local SQL acceptance only');
 
 INSERT INTO private.network_web_research_seeds (
- country_code,canonical_domain,display_name,proposed_role,source_url,
+ id,country_code,canonical_domain,display_name,proposed_role,source_url,
  source_summary,source_kind,review_lane,claim_status,verification_status,
  publication_status,research_id,batch_key
 ) VALUES (
+ '5e5dfabe-f01d-4bca-89dc-61d031f80b01',
  'IT','netit-ci-synthetic.invalid','NETIT CI SYNTHETIC INDUSTRIAL COMPANY','end_user',
  'https://netit-ci-synthetic.invalid/company',
  'Synthetic local-only source description for testing an industrial steel tube user; no actual company or rights exist.',
@@ -93,7 +94,7 @@ SELECT set_config('request.jwt.claim.role','authenticated',true);
 
 DO $accept$
 DECLARE
- v_seed uuid;
+ v_seed uuid := '5e5dfabe-f01d-4bca-89dc-61d031f80b01';
  v_items jsonb;
  v_bad_items jsonb;
  v_preview jsonb;
@@ -103,9 +104,6 @@ DECLARE
  v_fingerprint text;
  v_company uuid;
 BEGIN
- SELECT id INTO STRICT v_seed FROM private.network_web_research_seeds
- WHERE research_id='NETIT-CI-0001';
-
  v_items := jsonb_build_array(jsonb_build_object(
   'seed_id',v_seed,'domain','netit-ci-synthetic.invalid','role','end_user',
   'legal_name','NETIT CI SYNTHETIC INDUSTRIAL COMPANY',
