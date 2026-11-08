@@ -1,0 +1,529 @@
+{
+  "batch_key": "NET-IT-GROWFAST3-PRIVATE52-20261108",
+  "as_of": "2026-11-08",
+  "status": "prepared_for_atomic_private_research_intake",
+  "sources": "first_party_web",
+  "note": "Names are research display labels observed on first-party source sites, not necessarily legal entities; roles remain proposed and publication prohibited.",
+  "records": [
+    {
+      "research_id": "NET-IT-GROWFAST3-001",
+      "display_name": "Gruppo Pontiggia",
+      "canonical_domain": "gruppopontiggia.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.gruppopontiggia.it/lavorazioni/taglio-laser/",
+      "source_summary": "Gruppo Pontiggia è altamente specializzato con questa tecnologia e dispone di differenti tipologie di laser, adatti sia per il taglio di lamiera che di tubo:.",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-003",
+      "display_name": "Losa Pier Luigi",
+      "canonical_domain": "losapierluigi.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://losapierluigi.it/",
+      "source_summary": "Losa Pier Luigi leader nella lavorazione di tubi metallici, realizza deformazione a freddo di tubi in rame, ferro, alluminio e acciaio inox.",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-004",
+      "display_name": "OMR Automotive Steel Components",
+      "canonical_domain": "omrspa.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://omrspa.com/reparto/piegatura-tubi/",
+      "source_summary": "Gli impianti per la curvatura del tubo permettono di processare: – tubi a sezione tonda fino ad un diametro di 80 mm. e spessore 6 mm.",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-005",
+      "display_name": "SamTek",
+      "canonical_domain": "samtek.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://samtek.it/lavorazione-lamiera/taglio-laser-lamiera/",
+      "source_summary": "Nella nostra officina SamTek, situata a Casinalbo di Formigine in provincia di Modena, effettuiamo il taglio laser della lamiera.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-006",
+      "display_name": "Marietta Costruzioni Metalliche",
+      "canonical_domain": "mariettacostruzionimetalliche.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.mariettacostruzionimetalliche.com/carpenterie-metalliche",
+      "source_summary": "Franco Marietta è specializzato nella lavorazione acciaio inox e carpenteria metallica leggera per Torino e Cuneo. Da sempre nel campo della carpenteria ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-007",
+      "display_name": "Carpenteria Astegiano",
+      "canonical_domain": "astegianocarpenteria.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.astegianocarpenteria.it/taglio-laser.html",
+      "source_summary": "Scopri i servizi di Carpenteria Astegiano a Cuneo: ossitaglio, taglio laser, taglio plasma tubo, piegatura, calandratura, assemblaggio e saldatura, ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-008",
+      "display_name": "LaserCutting",
+      "canonical_domain": "lasercutting.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://lasercutting.it/tag/taglio-laser-tubi-friuli/",
+      "source_summary": "ecco perche LaserCutting.it si occupa di taglio laser tubi Friuli ⚡️⚡️Lavorazione al laser tubo e lamiera con consegna in tutta Italia.",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-009",
+      "display_name": "Metalcarp",
+      "canonical_domain": "metalcarp.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://metalcarp.com/novita-della-metalmeccanica/taglio-laser-e-carpenteria-a-brescia-soluzioni-professionali-per-la-tua-azienda/",
+      "source_summary": "Taglio laser e carpenteria metallica a Brescia. Lavorazioni su misura, alta precisione e consegne rapide per ogni esigenza produttiva.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-010",
+      "display_name": "Carpenteria Leuzzi",
+      "canonical_domain": "carpenterialeuzzi.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.carpenterialeuzzi.it/",
+      "source_summary": "Carpenteria Leuzzi da oltre 30 anni a fianco dei clienti. Carpenteria Metallica in provincia di Lecce - Puglia. Carpenteria Innovativa e professionale.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-011",
+      "display_name": "Mhamed S.r.l.",
+      "canonical_domain": "mhamedsrl.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.mhamedsrl.it/carpenteria-e-saldature-lavorazioni-e-manodopera-conto-terzi-a-Mantova.html",
+      "source_summary": "Carpenteria - lavorazioni e manodopera conto terzi a Mantova Contattaci 338.92.94.172 - info@mhamedsrl.it. M.Hamed Srl: Carpenteria Metallica e Servizi di ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-012",
+      "display_name": "SVS Sandri",
+      "canonical_domain": "calandraturasvs.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.calandraturasvs.com/",
+      "source_summary": "SVS Sandri offre servizi di Calandratura Travi, Curvatura, Centinatura Profili di grandi dimensioni, leghe speciali ed anelli. Saldatura di leghe speciali.",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-013",
+      "display_name": "Tromba Maurizio",
+      "canonical_domain": "trombamaurizio.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.trombamaurizio.it/",
+      "source_summary": "Siamo specializzati nella calandratura e curvatura di profili metallici strutturali di medie e grandi dimensioni impiegati nei settori della meccanica, ...",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-014",
+      "display_name": "Farè & Spagarino",
+      "canonical_domain": "farespagarino.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.farespagarino.com/calandratura/",
+      "source_summary": "Calandratura Farè & Spagarino è specializzata nella calandratura tubi, curvatura a freddo di tutti i profili in acciaio inox, alluminio e tutte le leghe.",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-015",
+      "display_name": "Gherardi",
+      "canonical_domain": "gherardi.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.gherardi.it/puntelli",
+      "source_summary": "Gherardi nasce producendo ponteggi e poi puntelli. La sua alta specializzazione è garanzia di conoscenza del prodotto che la pone ai vertici mondiali per ...",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-016",
+      "display_name": "Rimorchi Muzio",
+      "canonical_domain": "rimorchimuzio.it",
+      "proposed_role": "end_user",
+      "source_url": "https://rimorchimuzio.it/",
+      "source_summary": "Rimorchi Muzio a Casalmoro (Mantova) è leader nella costruzione di macchine per l'agricoltura con omologazione stradale​: pianali, dumper, carribotte, macchine",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-017",
+      "display_name": "Bonsegna",
+      "canonical_domain": "bonsegna.it",
+      "proposed_role": "end_user",
+      "source_url": "http://www.bonsegna.it/images/BONSEGNA/schedetecniche/IT_nuove/dumper_mono.pdf",
+      "source_summary": "La gamma Dumper è composta da: • Monoasse portata a pieno carico fino a 6 t. CUNA oppure > 9 t. in MOTHER REGULATION. • Tandem portata a pieno carico fino ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-018",
+      "display_name": "Omar Rimorchi",
+      "canonical_domain": "omarrimorchi.it",
+      "proposed_role": "end_user",
+      "source_url": "http://www.omarrimorchi.it/",
+      "source_summary": "La Omar srl è un azienda che da oltre 50 anni è specializzata nella produzione di rimorchi, semirimorchi e allestimenti su veicoli industriali di qualsiasi ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-019",
+      "display_name": "FAST Fabbrica Autotelai Speciali",
+      "canonical_domain": "fastenginery.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.fastenginery.com/",
+      "source_summary": "Semirimorchi a telaio dritto o a collo d'oca. Allestimenti speciali: buca coils, ribaltabili trasporto lamiere, piano mobile a rulli, tetto ribaltabile, rampe ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-020",
+      "display_name": "Bartoli Rimorchi",
+      "canonical_domain": "bartolispa.com",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.bartolispa.com/azienda/semirimorchio-schmitz-bartoli/",
+      "source_summary": "Bartoli Rimorchi è concessionaria Schmitz Cargobull. Vendiamo semirimorchi Schmitz nuovi e usati, centinati, frigo o furgonati. Inoltre abbiamo un ampio ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-021",
+      "display_name": "SO.CO.M.",
+      "canonical_domain": "socomsrl.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.socomsrl.com/carpenterie-metalliche",
+      "source_summary": "SO.CO.M. a Cingoli, MC è anche una carpenteria metallica che interviene nella progettazione e riparazione di tutti i macchinari dedicati all'agricoltura.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-022",
+      "display_name": "Mazzero Carpenteria",
+      "canonical_domain": "mazzerocarpenteria.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://mazzerocarpenteria.it/settori/agricoltura-movimento-terra/",
+      "source_summary": "Telai e strutture saldate realizzati con piastre, lamiere e profili fino a 12 metri, destinati al sostegno e al collegamento dei gruppi della macchina.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-023",
+      "display_name": "Belleri Luigi & C.",
+      "canonical_domain": "belleri.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://belleri.it/carpenteria-metallica/carpenteria-macchine-agricole/",
+      "source_summary": "Belleri Luigi & C. pone un lavoro sensibile per quanto riguarda la produzione di carpenteria per macchine agricole e forestali con assemblaggio di telai per ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-024",
+      "display_name": "SIBO",
+      "canonical_domain": "sibo.eu",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.sibo.eu/carpenteria/",
+      "source_summary": "Produzione di telai, bracci, staffe di supporto, attacchi e componenti strutturali per macchine movimento terra, gru, piattaforme aeree e ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-025",
+      "display_name": "OM Costruzioni Meccaniche",
+      "canonical_domain": "om-costruzionimeccaniche.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.om-costruzionimeccaniche.com/",
+      "source_summary": "ARATRI · RIPUNTATORI · FRANGIZOLLE · ARATRI A DISCO – COLTIVATORI A DISCO · PREPARATORI A DISCO · COLTIVATORI · VIBROCOLTIVATORI · RULLI COSTIPATORI.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-026",
+      "display_name": "MPM S.r.l.",
+      "canonical_domain": "mpm.srl",
+      "proposed_role": "end_user",
+      "source_url": "https://www.mpm.srl/recinzioni-e-piantoni/",
+      "source_summary": "MPM è specializzata nella produzione e vendita di recinzioni modulari a pannelli completi in acciaio inox AISI 316L e AISI 304, che vengono interamente ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-027",
+      "display_name": "Inox Kit",
+      "canonical_domain": "inoxkit.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.inoxkit.it/",
+      "source_summary": "Pannello modulare realizzato in acciaio inossidabile con tecnologia laser e tubi e montanti a sezione tonda. I tubi sono rifiniti con tappi di plastica.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-028",
+      "display_name": "LL53",
+      "canonical_domain": "ll53.it",
+      "proposed_role": "end_user",
+      "source_url": "https://ll53.it/arredo-urbano/portabici-arredo-urbano/",
+      "source_summary": "Rastrelliere, archi e pensiline portabici in acciaio zincato e inox per promuovere la mobilità sostenibile ... Via Paolo Losa, 19, 10093 Collegno TO, Italia ...",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-029",
+      "display_name": "Alba",
+      "canonical_domain": "alba.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.alba.it/it/",
+      "source_summary": "Produzione Made in Italy di sedie, tavoli e complementi d'arredo in kit di montaggio per settori B2B quali Community, Office, Conference, Contract e Ho.Re.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-030",
+      "display_name": "STF Sedie",
+      "canonical_domain": "stfsedie.it",
+      "proposed_role": "end_user",
+      "source_url": "https://stfsedie.it/",
+      "source_summary": "STF produce sedie e tavoli per congressi, convegni, collettività, alberghi e ristoranti. Grande assortimento di sedie e tavoli in metallo e legno.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-032",
+      "display_name": "MZ S.r.l.",
+      "canonical_domain": "mzsrl.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.mzsrl.it/carpenteria-metallica-industriale-pensiline-rampe-recinzioni/",
+      "source_summary": "In tutta Italia ci occupiamo della produzione ci carpenteria metallica industriale tra cui capannoni, ponti, coperture, pensiline, rampe e scale ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-033",
+      "display_name": "Omniasystem",
+      "canonical_domain": "omniastrutture.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.omniastrutture.it/pensiline-tettoie-in-ferro-acciaio",
+      "source_summary": "Tettoie in ferro e pensiline in acciaio su misura Omniasystem. Soluzioni per coperture adiacenti e soppalchi industriali in acciaio S235JR certificato.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-034",
+      "display_name": "SACE S.r.l.",
+      "canonical_domain": "sacesrl.eu",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.sacesrl.eu/coperture-per-tetti/pensiline-e-strutture-metalliche/",
+      "source_summary": "Sace Srl realizza per i propri clienti pensiline da esterni, tettoie e capottine per ingressi le cui forme e finiture possono essere standard oppure su misura; ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-035",
+      "display_name": "Selvolina",
+      "canonical_domain": "selvoline.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.selvoline.com/it/aziende",
+      "source_summary": "Selvolina è un'azienda leader nella carpenteria metallica, con oltre quarant'anni di esperienza nella produzione di strutture metalliche di alta qualità.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-036",
+      "display_name": "SICOM Containers",
+      "canonical_domain": "sicom-containers.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.sicom-containers.com/prodotti/",
+      "source_summary": "Le casse mobili furgonate da 7,15-7,45-7,82m sono disegnate per trasporto intermodale e la distribuzione. (altro…) CASSE MOBILI TELONATE 7,15-7,45-7,82m · Le ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-037",
+      "display_name": "Metella Container",
+      "canonical_domain": "metellacontainer.com",
+      "proposed_role": "end_user",
+      "source_url": "https://metellacontainer.com/",
+      "source_summary": "Trasformiamo container in soluzioni modulari abitative, commerciali e civili. Vendita e noleggio di container nuovi e usati, su misura e pronti all'uso.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-038",
+      "display_name": "Gruppo Carnovali-CBS",
+      "canonical_domain": "carpenteriacarnovali.it",
+      "proposed_role": "end_user",
+      "source_url": "https://carpenteriacarnovali.it/",
+      "source_summary": "Dal 1977 costruiamo container scarrabili, compattatori, presse e allestimenti per la raccolta e il trasporto dei rifiuti. Sette brand, otto sedi, ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-039",
+      "display_name": "EuroScaf",
+      "canonical_domain": "euroscaf.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.euroscaf.it/it/telai-intelaiature/",
+      "source_summary": "In EUROSCAF, siamo specializzati nella progettazione e produzione di telai e chassis di alta qualità per case mobili. Le nostre soluzioni sono progettate ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-040",
+      "display_name": "Rollawaycontainer",
+      "canonical_domain": "rollawaycontainer.it",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.rollawaycontainer.it/",
+      "source_summary": "Oltre 30 anni di produzione e vendita diretta ad Aziende, Imprese Enti e privati, di attrezzature per la logistica, per il magazzino e prodotti per la ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-041",
+      "display_name": "SIB Case Mobili",
+      "canonical_domain": "sibcase.com",
+      "proposed_role": "end_user",
+      "source_url": "https://sibcase.com/",
+      "source_summary": "La SIB CASE è localizzata in Puglia, nella sede produttiva di Maruggio (Ta), l'azienda si è innovata nel tempo, sperimentando nuove tecniche costruttive e ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-042",
+      "display_name": "Poppi S.r.l.",
+      "canonical_domain": "poppisrl.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.poppisrl.it/",
+      "source_summary": "Effettuiamo la piegatura della lamiera in acciaio inox e cnc conto terzi tra Bologna e Faenza.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-043",
+      "display_name": "Metal P",
+      "canonical_domain": "metal-p.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.metal-p.it/produzione-componenti-carter-macchine-agricole-forestali-reggio-emilia-maranello/",
+      "source_summary": "Ci occupiamo della progettazione e della produzione su misura di telai, ricambi e carpenteria per vari mezzi da lavoro. Dai mezzi agricoli alle macchine per il ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-044",
+      "display_name": "Somale Carpenteria",
+      "canonical_domain": "somalecarpenteria.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://somalecarpenteria.it/produzione-di-macchine-agricole/",
+      "source_summary": "Oltre alla produzione di macchine agricole, la nostra azienda opera con successo anche nei settori della carpenteria metallica e del taglio ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-045",
+      "display_name": "Metal.co",
+      "canonical_domain": "metal-co.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.metal-co.it/it/azienda-metal-co.html",
+      "source_summary": "Metal.co è specializzata nella realizzazione di macchine agricole sia per le colture tradizionali che biologiche, che vende sia in Italia che all'estero.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-046",
+      "display_name": "LamaLaser",
+      "canonical_domain": "lamalaser.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.lamalaser.it/",
+      "source_summary": "In particolare Lamalaser è specializzata nella carpenteria fine o leggera, ma anche nella carpenteria medio-pesante e ogni nostro lavorato è ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-047",
+      "display_name": "Barnobi",
+      "canonical_domain": "barnobi.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://barnobi.it/quali-sono-alcune-lavorazioni-di-carpenteria-metallica-che-si-possono-fare-solo-con-il-laser-tubo/",
+      "source_summary": "Partiamo da una definizione: il taglio laser tubo è una tecnologia specializzata per la lavorazione di tubi e profilati metallici cavi di varie ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-048",
+      "display_name": "Enerbuilding",
+      "canonical_domain": "enerbuilding.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.enerbuilding.com/strutture-per-uso-civile",
+      "source_summary": "Progettiamo e realizziamo costruzioni in acciaio per uso civile e industriale: strutture resistenti, su misura e certificate. Richiedi un preventivo rapido.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-050",
+      "display_name": "MCT Scaffalature",
+      "canonical_domain": "mctscaffalature.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.mctscaffalature.com/strutture-metalliche/",
+      "source_summary": "MCT Scaffalature - Strutture metalliche su misura: tettoie, capannoni in ferro, passerelle e scale metalliche. Smontabili, zincate o verniciate.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-051",
+      "display_name": "Trefil",
+      "canonical_domain": "trefil.it",
+      "proposed_role": "trader_distributor",
+      "source_url": "https://www.trefil.it/strutture-metalliche-tubolare-ferro",
+      "source_summary": "Trefil fornisce alla propria clientela numerose strutture metalliche, in ferro e nelle leghe del ferro, fra cui tubolari, in differenti dimensioni e diametri ...",
+      "review_lane": "web_profile_review_pending",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-052",
+      "display_name": "Starmodul",
+      "canonical_domain": "starmodul.com",
+      "proposed_role": "end_user",
+      "source_url": "https://starmodul.com/it/strutture-metalliche-su-misura/",
+      "source_summary": "Strutture metalliche su misura con giunti bullonati: portici, capannoni, bungalow o abitazioni. Montaggio rapido, senza saldare. Chiedi un preventivo.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-053",
+      "display_name": "Centro Reti",
+      "canonical_domain": "centroreti.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.centroreti.com/",
+      "source_summary": "Proteggiamo i tuoi spazi – realizziamo reti, recinzioni e cancelli in tutta Italia. ... Italia, con soluzioni su misura per privati, aziende e cantieri.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-054",
+      "display_name": "Euro-Fer",
+      "canonical_domain": "eurofer.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.eurofer.com/it/prodotti/cancelli",
+      "source_summary": "Euro-Fer realizza cancelli in ferro battuto e ferro zincato, progettati per garantire solidità strutturale, continuità nel tempo e coerenza con le recinzioni ...",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    },
+    {
+      "research_id": "NET-IT-GROWFAST3-055",
+      "display_name": "Chironna Officine",
+      "canonical_domain": "chironnaofficinesrl.com",
+      "proposed_role": "end_user",
+      "source_url": "https://chironnaofficinesrl.com/",
+      "source_summary": "Da oltre 35 anni Chironna Officine produce rimorchi agricoli, carrelloni di grossa portata e carrelli speciali per il trasporto. Scopri la produzione.",
+      "review_lane": "industrial_fit_review",
+      "site_fetch_ok": true
+    }
+  ]
+}
