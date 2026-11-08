@@ -14,17 +14,22 @@ const compiled = ts.transpileModule(
   routes + "\n" + groups.replace(/^import \{ appRoutes \} from "@\/lib\/routes";\s*/u, ""),
   { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } },
 ).outputText;
-const { commercialDirectorGroups, commercialDirectorLinkSelected } = await import(
+const { commercialDirectorGroups, commercialDirectorAllItems, commercialDirectorLinkSelected } = await import(
   "data:text/javascript;base64," + Buffer.from(compiled).toString("base64")
 );
 
-test("COMM-NAV7 has exactly five sales-director groups with canonical destinations", () => {
+test("COMM-SIMPLE2 exposes five compact groups while retaining canonical destinations", () => {
   assert.deepEqual(commercialDirectorGroups.map(g => g.label), [
-    "La mia scrivania", "Trattative e acquisti", "Clienti e fornitori",
-    "Analisi e opportunità", "Strumenti e memoria",
+    "Scrivania", "Trattative e RFQ", "Aziende", "Analisi", "Strumenti",
   ]);
-  const items = commercialDirectorGroups.flatMap(g => g.items);
-  assert.ok(items.length >= 20);
+  const primary = commercialDirectorGroups.flatMap(g => g.items);
+  const items = commercialDirectorGroups.flatMap(commercialDirectorAllItems);
+  assert.equal(primary.length, 11, "Only 11 immediate destinations");
+  assert.equal(items.length, 19, "Less-used destinations remain under disclosure");
+  assert.ok(commercialDirectorGroups.every(g => "moreItems" in g));
+  assert.ok(!items.some(i => i.href.includes("#commercial-today")));
+  assert.ok(!items.some(i => i.href.includes("?view=sent") || i.href.includes("?view=received")
+    || i.href.includes("?view=offers") || i.href.includes("?view=orders")));
   assert.equal(new Set(items.map(i => i.href)).size, items.length, "No duplicate destination");
   for (const { href } of items) {
     assert.ok(href.startsWith("/"), "Internal navigation only: " + href);
@@ -41,8 +46,9 @@ test("COMM-NAV7 has exactly five sales-director groups with canonical destinatio
 
 test("COMM-NAV7 resolves active filtered RFQ tabs, detail routes and independent spaces", () => {
   assert.equal(commercialDirectorLinkSelected("/commercial", "/commercial", null), true);
-  assert.equal(commercialDirectorLinkSelected("/commercial?view=sent#commercial-worklist", "/commercial", "sent"), true);
-  assert.equal(commercialDirectorLinkSelected("/commercial?view=sent#commercial-worklist", "/commercial", "received"), false);
+  assert.equal(commercialDirectorLinkSelected("/commercial?view=all#commercial-worklist", "/commercial", "sent"), true);
+  assert.equal(commercialDirectorLinkSelected("/commercial?view=all#commercial-worklist", "/commercial", "received"), true);
+  assert.equal(commercialDirectorLinkSelected("/commercial?view=all#commercial-worklist", "/commercial", null), false);
   assert.equal(commercialDirectorLinkSelected("/commercial#commercial-worklist", "/commercial", null), false);
   assert.equal(commercialDirectorLinkSelected("/rfq-hub/distinte", "/rfq-hub/distinte/abc", null), true);
   assert.equal(commercialDirectorLinkSelected("/rfq-hub", "/rfq-hub/distinte/abc", null), false);
@@ -66,27 +72,33 @@ test("COMM-NAV7 is lateral on desktop and disclosure-based on mobile; keeps role
 
 test("COMM-NAV8 keeps a single director destination on deal details and legacy bookmarks", () => {
   const selected = (pathname, view = null) => commercialDirectorGroups
-    .flatMap(group => group.items)
+    .flatMap(commercialDirectorAllItems)
     .filter(item => commercialDirectorLinkSelected(item.href, pathname, view))
     .map(item => item.label);
 
-  assert.deepEqual(selected("/commercial/offers/offer-1"), ["Offerte"]);
-  assert.deepEqual(selected("/offers/offer-1"), ["Offerte"]);
-  assert.deepEqual(selected("/commercial/orders/order-1"), ["Ordini"]);
-  assert.deepEqual(selected("/orders/order-1"), ["Ordini"]);
+  assert.deepEqual(selected("/commercial/offers/offer-1"), ["Trattative"]);
+  assert.deepEqual(selected("/offers/offer-1"), ["Trattative"]);
+  assert.deepEqual(selected("/commercial/orders/order-1"), ["Trattative"]);
+  assert.deepEqual(selected("/orders/order-1"), ["Trattative"]);
   assert.deepEqual(selected("/commercial/rfqs/request-1"), ["Centro RFQ"]);
   assert.deepEqual(selected("/rfqs/request-1"), ["Centro RFQ"]);
-  assert.deepEqual(selected("/commercial/conversations/thread-1"), ["Inbox operativa"]);
-  assert.deepEqual(selected("/conversations/thread-1"), ["Inbox operativa"]);
+  assert.deepEqual(selected("/commercial/conversations/thread-1"), ["Inbox e risposte"]);
+  assert.deepEqual(selected("/conversations/thread-1"), ["Inbox e risposte"]);
   assert.deepEqual(selected("/rfq-hub/campaign-1"), ["Centro RFQ"]);
   assert.deepEqual(selected("/rfq-hub/intelligence"), ["Centro RFQ"]);
   assert.deepEqual(selected("/rfq-hub/distinta"), ["Centro RFQ"]);
-  assert.deepEqual(selected("/rfq-hub/inbox"), ["Inbox operativa"]);
+  assert.deepEqual(selected("/rfq-hub/inbox"), ["Inbox e risposte"]);
   assert.deepEqual(selected("/rfq-hub/suppliers/abc"), ["Fornitori RFQ"]);
-  assert.deepEqual(selected("/rfq-hub/distinte/abc"), ["Distinte salvate"]);
+  assert.deepEqual(selected("/rfq-hub/distinte/abc"), ["Distinte"]);
   assert.deepEqual(selected("/commercial?not-a-real-path"), [], "No accidental substring matching");
-  assert.deepEqual(selected("/commercial", "offers"), ["Offerte"]);
-  assert.deepEqual(selected("/commercial", "orders"), ["Ordini"]);
+  assert.deepEqual(selected("/commercial", "offers"), ["Trattative"]);
+  assert.deepEqual(selected("/commercial", "orders"), ["Trattative"]);
+  assert.deepEqual(selected("/commercial", "drafts"), ["Trattative"]);
+  assert.deepEqual(selected("/commercial", "received"), ["Trattative"]);
+  assert.deepEqual(selected("/commercial", "sent"), ["Trattative"]);
+  assert.deepEqual(selected("/commercial"), ["Scrivania"]);
+  assert.deepEqual(selected("/commercial/knowledge"), ["Memoria documentale"]);
+  assert.deepEqual(selected("/commercial/market-intelligence"), ["Mercato"]);
 });
 
 test("COMM-NAV8 mobile section closes after selection and preserves disclosure choices", () => {
@@ -96,5 +108,9 @@ test("COMM-NAV8 mobile section closes after selection and preserves disclosure c
   assert.match(shell, /setMobileOpen\(false\); \}, \[pathname, view\]/);
   assert.match(shell, /Attuale: \{selectedLabel\}/, "Current location is visible before opening the menu");
   assert.match(shell, /<DirectorGroup key=\{group.key\}/, "Do not remount accordions on every filter change");
+  assert.match(shell, /onExpandedChange=\{open => setExpandedKey/, "Only one top-level group expands");
+  assert.match(shell, /commercialDirectorAllItems\(group\)/, "Secondary links count for active selection");
+  assert.match(shell, /Altre funzioni/, "Secondary functions remain discoverable");
+  assert.match(shell, /if \(extraActive\) setExtraOpen\(true\)/, "Deep links reveal their active secondary entry");
   assert.doesNotMatch(shell, /group.key \+ ":" \+ pathname/, "Preserve user expansion choices");
 });
