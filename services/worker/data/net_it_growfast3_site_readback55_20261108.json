@@ -1,0 +1,664 @@
+{
+  "batch": "NET-IT-GROWFAST3",
+  "status": "first_party_http_site_fetch",
+  "as_of": "2026-11-08",
+  "records": [
+    {
+      "domain": "gruppopontiggia.it",
+      "url": "https://www.gruppopontiggia.it/lavorazioni/taglio-laser/",
+      "ok": true,
+      "title": "Taglio laser su misura Como e Lecco conto terzi",
+      "body_length": 3908,
+      "evidence": [
+        "## Taglio laser di lamiera o tubo",
+        "r il **taglio di lamiera che di tubo:**",
+        " di 4000\\*2000, attualmente è impiegata per le lavorazioni di alluminio, inox, ferro e ottone."
+      ],
+      "error": null
+    },
+    {
+      "domain": "osmek.it",
+      "url": "https://osmek.it/en/piegatura-di-tubi-in-acciaio-inox/",
+      "ok": false,
+      "body_length": 0,
+      "evidence": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "losapierluigi.it",
+      "url": "https://losapierluigi.it/",
+      "ok": true,
+      "title": "Lavorazione tubi metallici: rame, ferro, alluminio, acciaio inox",
+      "body_length": 1942,
+      "evidence": [
+        "ovazione nella lavorazione tubi metallici",
+        "a, opera nella lavorazione tubi metallici, deformazione a freddo di tubi in rame, ferro, alluminio e",
+        " acciaio inox da oltre 45 anni."
+      ],
+      "error": null
+    },
+    {
+      "domain": "omrspa.com",
+      "url": "https://omrspa.com/reparto/piegatura-tubi/",
+      "ok": true,
+      "title": "Piegatura tubi - OMR Automotive Steel Components",
+      "body_length": 404,
+      "evidence": [],
+      "error": null
+    },
+    {
+      "domain": "samtek.it",
+      "url": "https://samtek.it/lavorazione-lamiera/taglio-laser-lamiera/",
+      "ok": true,
+      "title": "Taglio laser lamiera - SAMTEK SRL",
+      "body_length": 2728,
+      "evidence": [
+        "l taglio laser: **250/10 per il ferro**, **150/10 per l’acciaio inox**, **80/10 per l’alluminio**",
+        "R AFFIDABILE PER LAVORAZIONI DI CARPENTERIA?",
+        "### TAGLIO LASER TUBO"
+      ],
+      "error": null
+    },
+    {
+      "domain": "mariettacostruzionimetalliche.com",
+      "url": "https://www.mariettacostruzionimetalliche.com/carpenterie-metalliche",
+      "ok": true,
+      "title": "Marietta Franco Villafranca Piemonte Torino Lavorazione acciaio - Lavorazione acciaio inox",
+      "body_length": 8201,
+      "evidence": [
+        "specializzato nella lavorazione acciaio inox e carpenteria metallica leggera per Torino e Cuneo. Da",
+        " sempre nel campo della carpenteria metallica e nella lavorazione dei metalli, in particolare",
+        " la lavorazione acciaio inox su misura e il ferro, produce manufatti e strutture su"
+      ],
+      "error": null
+    },
+    {
+      "domain": "astegianocarpenteria.it",
+      "url": "https://www.astegianocarpenteria.it/taglio-laser.html",
+      "ok": true,
+      "title": "Servizi di Carpenteria Metallica | Taglio Laser, Plasma, Piegatura e Saldatura – Cuneo",
+      "body_length": 3045,
+      "evidence": [
+        "cianfrinato automatico ±45° con profilo y-v-x-k, lung. Ut. Mm 36000 x largh. Ut. Mm 3000.",
+        "## **TAGLIO PLASMA TUBO**",
+        "Nr. 1 plasma tubo 3d: taglio tubi in 3d lunghezza 12. 000 mm. – ø 600 sp. 35 "
+      ],
+      "error": null
+    },
+    {
+      "domain": "lasercutting.it",
+      "url": "https://lasercutting.it/tag/taglio-laser-tubi-friuli/",
+      "ok": true,
+      "title": "Azienda specializzata in taglio laser tubi Friuli - LaserCutting.it, taglio laser a Torino in Piemonte",
+      "body_length": 2742,
+      "evidence": [
+        "### Taglio laser tubo per veicoli industriali",
+        "Il taglio laser tubo consente di creare in maniera flessibile componenti per vei",
+        "ndo la tecnica del taglio laser tubo ha preso piede – molte aziende che realizzano veicoli e mac"
+      ],
+      "error": null
+    },
+    {
+      "domain": "metalcarp.com",
+      "url": "https://metalcarp.com/novita-della-metalmeccanica/taglio-laser-e-carpenteria-a-brescia-soluzioni-professionali-per-la-tua-azienda/",
+      "ok": true,
+      "title": "Taglio laser e carpenteria metallica professionale a Brescia | Metal Carp",
+      "body_length": 6634,
+      "evidence": [
+        "# Taglio Laser e carpenteria a Brescia: soluzioni professionali per la tua azienda",
+        " dell’azienda è il reparto di **carpenteria metallica e taglio laser**, dove l’innovazione tecnologic",
+        "Che si tratti di **taglio laser acciaio inox**, **acciaio al carbonio** o **alluminio**, l’efficien"
+      ],
+      "error": null
+    },
+    {
+      "domain": "carpenterialeuzzi.it",
+      "url": "https://www.carpenterialeuzzi.it/",
+      "ok": true,
+      "title": "Carpentry Leuzzi - Carpentry in the Province of Lecce - Puglia",
+      "body_length": 2580,
+      "evidence": [
+        "# Carpenteria Leuzzi",
+        "\"I chose Carpenteria Leuzzi on the advice of an entrepreneur friend, and he wa",
+        "\"The collaboration with Carpenteria Leuzzi has lasted for years and they are precise!\""
+      ],
+      "error": null
+    },
+    {
+      "domain": "mhamedsrl.it",
+      "url": "https://www.mhamedsrl.it/carpenteria-e-saldature-lavorazioni-e-manodopera-conto-terzi-a-Mantova.html",
+      "ok": true,
+      "title": "Lavorazioni di carpenteria e manodopera conto terzi a Mantova - Contattaci 338.92.94.172",
+      "body_length": 7951,
+      "evidence": [
+        "## Carpenteria - lavorazioni e manodopera conto terzi a Mantova Contatta",
+        "M.Hamed Srl: Carpenteria Metallica e Servizi di Manodopera Conto Terzi a Mantova",
+        "di eccellenza nel settore della carpenteria metallica leggera, media e pesante."
+      ],
+      "error": null
+    },
+    {
+      "domain": "calandraturasvs.com",
+      "url": "https://www.calandraturasvs.com/",
+      "ok": true,
+      "title": "Calandratura travi, Centinatura Profili, Curvatura tubi SVS Sandri",
+      "body_length": 1863,
+      "evidence": [
+        "cializzata nelle costruzioni di carpenteria saldata in leghe speciali. ",
+        "sta di particolari calandrati e saldati è stata creata una divisione in tutto e per tutto dedicat",
+        " la calandratura, centinatura e curvatura di lamiere e profilati sia di sezione cava che piena in "
+      ],
+      "error": null
+    },
+    {
+      "domain": "trombamaurizio.it",
+      "url": "https://www.trombamaurizio.it/",
+      "ok": false,
+      "body_length": 0,
+      "evidence": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "farespagarino.com",
+      "url": "https://www.farespagarino.com/calandratura/",
+      "ok": true,
+      "title": "Calandratura e curvatura - Farè & Spagarino",
+      "body_length": 3888,
+      "evidence": [
+        "ura tubi, travi, lamiere e ogni profilo metallico e curvatura a freddo di tutti i profili in accia",
+        "effettuare la calandratura e la curvatura garantendo margini di tolleranza estremamente ridotti. F",
+        "nti per la precisione delle sue curvature che possono distanziarsi da quanto richiesto di non più "
+      ],
+      "error": null
+    },
+    {
+      "domain": "gherardi.it",
+      "url": "https://www.gherardi.it/puntelli",
+      "ok": true,
+      "title": "PUNTELLI | Gherardi",
+      "body_length": 8201,
+      "evidence": [
+        "Gherardi nasce producendo ponteggi e poi puntelli.",
+        "omposti da due tubi denominati, tubo esterno di maggiore diametro e tubo interno di minore diame",
+        " a forca, fornito con una forca saldata sul tubo interno, permette di abbracciare la trave nel si"
+      ],
+      "error": null
+    },
+    {
+      "domain": "rimorchimuzio.it",
+      "url": "https://rimorchimuzio.it/",
+      "ok": true,
+      "title": "Benvenuti | Rimorchi Muzio - Costruzione macchine per l'agricoltura - Casalmoro | Mn",
+      "body_length": 312,
+      "evidence": [],
+      "error": null
+    },
+    {
+      "domain": "bonsegna.it",
+      "url": "http://www.bonsegna.it/images/BONSEGNA/schedetecniche/IT_nuove/dumper_mono.pdf",
+      "ok": true,
+      "title": null,
+      "body_length": 3411,
+      "evidence": [
+        "RIMORCHI AGRICOLI DUMPER",
+        "Questa tipologia di rimorchi è maggiormente utilizzata per il trasporto di prodotti non",
+        "trattore che è collegato con il rimorchio con un tubo a innesto rapido, "
+      ],
+      "error": null
+    },
+    {
+      "domain": "omarrimorchi.it",
+      "url": "http://www.omarrimorchi.it/",
+      "ok": true,
+      "title": "Omar Rimorchi - Costruttori di rimorchi, semirimorchi e carrozzerie industriali",
+      "body_length": 4372,
+      "evidence": [
+        "# Dal 1963 Costruttori di Rimorchi, Semirimorchi e Carrozzerie",
+        "ecializzata nella produzione di rimorchi, semirimorchi e allestimenti su veicoli industriali di qua",
+        "a linea di prodotti relativa ai Rimorchi Leggeri (fino a 3,5 ton di massa complessiva). "
+      ],
+      "error": null
+    },
+    {
+      "domain": "fastenginery.com",
+      "url": "https://www.fastenginery.com/",
+      "ok": true,
+      "title": "FAST Fabbrica Autotelai Speciali Treviso produzione sponde caricatrici oleodinamiche",
+      "body_length": 6039,
+      "evidence": [
+        "Officine F.A.S.T. (Fabbrica Autotelai Speciali Treviso) è stata fondata nel 1987 a Silea di Trevi",
+        "#### Rimorchi ad assi centrali",
+        "Rimorchi ad assi centrali con timone alto per ganci traino in posiz"
+      ],
+      "error": null
+    },
+    {
+      "domain": "bartolispa.com",
+      "url": "https://www.bartolispa.com/azienda/semirimorchio-schmitz-bartoli/",
+      "ok": true,
+      "title": "Semirimorchio Schmitz - Bartoli Rimorchi - Bartoli SpA",
+      "body_length": 3248,
+      "evidence": [
+        "## Semirimorchio Schmitz – Bartoli Rimorchi",
+        "## Semirimorchio Schmitz",
+        "riodo di espansione, costruendo rimorchi per autoveicoli con gomma piena, passando così da azienda "
+      ],
+      "error": null
+    },
+    {
+      "domain": "socomsrl.com",
+      "url": "https://www.socomsrl.com/carpenterie-metalliche",
+      "ok": true,
+      "title": "Carpenteria metallica | Cingoli | Macerata| SO.CO.M.",
+      "body_length": 1492,
+      "evidence": [
+        "# Carpenteria metallica",
+        ".M. srl effettua lavorazioni di carpenteria metallica pesante e leggera ed è quindi in grado di ripar",
+        "ri dedicati all'agricoltura. La carpenteria, situata all'interno dello stabilimento produttivo, dispo"
+      ],
+      "error": null
+    },
+    {
+      "domain": "mazzerocarpenteria.it",
+      "url": "https://mazzerocarpenteria.it/settori/agricoltura-movimento-terra/",
+      "ok": true,
+      "title": "Carpenteria macchine agricole e movimento terra | Mazzero",
+      "body_length": 5654,
+      "evidence": [
+        "## Staffe, bracci, telai e protezioni in acciaio per macchine agricole, forestali, d",
+        "taglio plasma su acciaio al carbonio",
+        "lunghezza massima di profili e manufatti"
+      ],
+      "error": null
+    },
+    {
+      "domain": "belleri.it",
+      "url": "https://belleri.it/carpenteria-metallica/carpenteria-macchine-agricole/",
+      "ok": true,
+      "title": "Carpenteria macchine agricole - Belleri Luigi & C. S.n.c.",
+      "body_length": 1494,
+      "evidence": [
+        "## Carpenteria macchine agricole",
+        "uanto riguarda la produzione di carpenteria per macchine agricole e forestali con assemblaggio di tel",
+        "* **Telai ed attacchi agricoli per macchinari per agricoltura** "
+      ],
+      "error": null
+    },
+    {
+      "domain": "sibo.eu",
+      "url": "https://www.sibo.eu/carpenteria/",
+      "ok": true,
+      "title": "Carpenteria metalmeccanica | Tipi e usi principali",
+      "body_length": 6216,
+      "evidence": [
+        "La carpenteria comprende l’insieme delle attività di montaggio e costruz",
+        "azione** (taglio, assemblaggio, saldatura, foratura), sia il **luogo fisico** in cui queste opera",
+        "zazione di tetti, impalcature e ponteggi – la carpenteria si è nel tempo **evoluta e diversificata*"
+      ],
+      "error": null
+    },
+    {
+      "domain": "om-costruzionimeccaniche.com",
+      "url": "https://www.om-costruzionimeccaniche.com/",
+      "ok": true,
+      "title": "OM Costruzioni Meccaniche | Produzione e Vendita Macchine Agricole",
+      "body_length": 807,
+      "evidence": [],
+      "error": null
+    },
+    {
+      "domain": "mpm.srl",
+      "url": "https://www.mpm.srl/recinzioni-e-piantoni/",
+      "ok": true,
+      "title": "Recinzioni e piantoni - MPM Srl",
+      "body_length": 2379,
+      "evidence": [
+        "# Recinzioni e piantoni",
+        "## Recinzioni modulari in acciaio inox e piantoni",
+        "a **produzione** e vendita di **recinzioni modulari** a pannelli completi in acciaio inox AISI 316"
+      ],
+      "error": null
+    },
+    {
+      "domain": "inoxkit.it",
+      "url": "https://www.inoxkit.it/wp-content/uploads/IK-RECINZIONI-E-CANCELLI-INOX.pdf",
+      "ok": false,
+      "body_length": 0,
+      "evidence": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "ll53.it",
+      "url": "https://ll53.it/arredo-urbano/portabici-arredo-urbano/",
+      "ok": true,
+      "title": "Portabici Arredo Urbano | Rastrelliere e Pensiline su Misura",
+      "body_length": 5236,
+      "evidence": [
+        "ovesciate, permettono di legare telaio e ruota: sono intuitive e ideali per marciapiedi e piazze.",
+        "Sul fronte dei materiali, l’acciaio zincato e verniciato assicura resistenza agli agenti atmosf",
+        " materiale tecnico proteggono i telai, mentre bulloneria anti-manomissione e piastre di fissaggio"
+      ],
+      "error": null
+    },
+    {
+      "domain": "alba.it",
+      "url": "https://www.alba.it/it/",
+      "ok": true,
+      "title": "Produttore di sedie, tavoli, complementi e componenti d&rsquo;arredo per il settore B2B",
+      "body_length": 1354,
+      "evidence": [],
+      "error": null
+    },
+    {
+      "domain": "stfsedie.it",
+      "url": "https://stfsedie.it/",
+      "ok": true,
+      "title": "Produzione Sedie e Tavoli per Congressi, Riunioni e Conferenze, Ristoranti, Collettività, in metallo, legno, imbottite. Sedie, poltroncine e tavoli pieghevoli - STF Sedie",
+      "body_length": 4127,
+      "evidence": [],
+      "error": null
+    },
+    {
+      "domain": "panattasport.com",
+      "url": "https://www.panattasport.com/it/",
+      "ok": false,
+      "body_length": 0,
+      "evidence": [],
+      "error": "bot_blocked"
+    },
+    {
+      "domain": "mzsrl.it",
+      "url": "https://www.mzsrl.it/carpenteria-metallica-industriale-pensiline-rampe-recinzioni/",
+      "ok": true,
+      "title": "Carpenteria metallica industriale – Produzione capannoni hangar ponti coperture scale antincendio acciaio",
+      "body_length": 3635,
+      "evidence": [
+        "# Produzione di carpenteria metallica industriale",
+        " nella **produzione di opere di carpenteria metallica pesante e leggera** per diversi settori industr",
+        "* Soppalchi, ringhiere, recinzioni per capannoni industriali;"
+      ],
+      "error": null
+    },
+    {
+      "domain": "omniastrutture.it",
+      "url": "https://www.omniastrutture.it/pensiline-tettoie-in-ferro-acciaio",
+      "ok": true,
+      "title": "Tettoie in Ferro e Pensiline in Acciaio | Omniasystem",
+      "body_length": 2916,
+      "evidence": [
+        "# **Pensiline e Tettoie in ferro o acciaio - Omniasystem**",
+        "## Le pensiline e tettoie in ferro o acciaio Omniasystem sono sistemi di copertura progettati ",
+        "rici, offrendo una soluzione di carpenteria metallica solida, duratura e funzionale per ogni esigenza"
+      ],
+      "error": null
+    },
+    {
+      "domain": "sacesrl.eu",
+      "url": "https://www.sacesrl.eu/coperture-per-tetti/pensiline-e-strutture-metalliche/",
+      "ok": true,
+      "title": "Pensiline e strutture metalliche - SACE S.r.l.",
+      "body_length": 2465,
+      "evidence": [
+        "# **PENSILINE E STRUTTURE METALLICHE**",
+        " una struttura in alluminio, in acciaio inox o in alternativa, in ferro battuto. Per quanto riguard",
+        "e pensiline sono realizzate con profilati estrusi di **alluminio EN-AW 6060**. Per il contenimento"
+      ],
+      "error": null
+    },
+    {
+      "domain": "selvoline.com",
+      "url": "https://www.selvoline.com/it/aziende",
+      "ok": true,
+      "title": "Tralicci, pensiline e coperture per aziende",
+      "body_length": 3271,
+      "evidence": [
+        "olina è un'azienda leader nella carpenteria metallica, con **oltre quarant'anni di esperienza nella p",
+        "roduzione di strutture metalliche di alta qualità.**"
+      ],
+      "error": null
+    },
+    {
+      "domain": "sicom-containers.com",
+      "url": "https://www.sicom-containers.com/prodotti/",
+      "ok": true,
+      "title": "Prodotti - Sicom",
+      "body_length": 3295,
+      "evidence": [
+        "CONTAINER INTERMODALE PER RIFIUTI",
+        "I container intermodali per rifiuti disegnati e costruiti per trasporto",
+        "SEMIRIMORCHIO FURGONATO INTERMODALE"
+      ],
+      "error": null
+    },
+    {
+      "domain": "metellacontainer.com",
+      "url": "https://metellacontainer.com/",
+      "ok": true,
+      "title": "Metella Container - Soluzioni modulari su misura",
+      "body_length": 6422,
+      "evidence": [
+        "Soluzioni in container certificate, rapide da installare e pensate per adattarsi a",
+        "Container standard nuovi o usati, robusti e certificati, perfetti per",
+        "Container isolati termicamente, adatti a usi tecnici, industriali o a"
+      ],
+      "error": null
+    },
+    {
+      "domain": "carpenteriacarnovali.it",
+      "url": "https://carpenteriacarnovali.it/",
+      "ok": true,
+      "title": "Gruppo Carnovali-CBS — Container, compattatori e allestimenti per il recycling",
+      "body_length": 4943,
+      "evidence": [
+        "## Nata come carpenteria di famiglia. Oggi un gruppo industriale.",
+        "*—*Container scarrabili e compattatori progettati e costruiti nei nostri",
+        "*—*Modifica dei telai e allestimento dei veicoli"
+      ],
+      "error": null
+    },
+    {
+      "domain": "euroscaf.it",
+      "url": "https://www.euroscaf.it/it/telai-intelaiature/",
+      "ok": true,
+      "title": "Divisione telai - Euroscaf",
+      "body_length": 5277,
+      "evidence": [
+        "# Telai su misura per le tue esigenze",
+        "a progettazione e produzione di telai e chassis di alta qualità per **case mobili.**",
+        "## **Perché scegliere i telai e chassis EUROSCAF?**"
+      ],
+      "error": null
+    },
+    {
+      "domain": "rollawaycontainer.it",
+      "url": "https://www.rollawaycontainer.it/",
+      "ok": true,
+      "title": "Rollawaycontainer Forniture Aziendali, Produzione e Vendita diretta",
+      "body_length": 343,
+      "evidence": [
+        "# Rollawaycontainer: tutto per le aziende a portata di clic",
+        "Rollawaycontainer da 40 anni produce e distribuisce le migliori soluzioni per"
+      ],
+      "error": null
+    },
+    {
+      "domain": "sibcase.com",
+      "url": "https://sibcase.com/",
+      "ok": true,
+      "title": "Home SIB CASE | Sib | Case prefabbricate ecosostenibili e case mobili",
+      "body_length": 5108,
+      "evidence": [
+        "o tra una struttura portante in acciaio e il Pannello Polfibre ha aperto un mondo di nuove costruzi",
+        "eco-sostenibili** si utilizzano telai modulari in acciaio scatolare e pannelli sandwich Polfibre,"
+      ],
+      "error": null
+    },
+    {
+      "domain": "poppisrl.it",
+      "url": "https://www.poppisrl.it/pressopiegatura-curvatura-lamiere-metalli-grosso-spessore-conto-terzi-bologna-faenza/",
+      "ok": false,
+      "body_length": 0,
+      "evidence": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "metal-p.it",
+      "url": "https://www.metal-p.it/produzione-componenti-carter-macchine-agricole-forestali-reggio-emilia-maranello/",
+      "ok": true,
+      "title": "Componenti per macchine agricole Reggio Emilia Maranello – Strutture carpenteria parti metalliche trattori",
+      "body_length": 4140,
+      "evidence": [
+        "La nostra **carpenteria metallica**, forte di **un’esperienza trentennale** nel settore, rea",
+        "lizza parti metalliche per **macchine agricole** e **forestali**, come per esemp",
+        "io **strutture e telai** per trattori."
+      ],
+      "error": null
+    },
+    {
+      "domain": "somalecarpenteria.it",
+      "url": "https://somalecarpenteria.it/produzione-di-macchine-agricole/",
+      "ok": true,
+      "title": "Produzione di macchine agricole | Somale Carpenteria",
+      "body_length": 2878,
+      "evidence": [
+        "o** è il cuore dell’attività di Carpenteria Somale. Da oltre trent’anni realizziamo soluzioni efficie",
+        "uccesso anche nei settori della carpenteria metallica e del **taglio laser**, integrando competenze t",
+        "ovincia di Cuneo**, rivolgiti a Carpenteria Somale. Offriamo:"
+      ],
+      "error": null
+    },
+    {
+      "domain": "metal-co.it",
+      "url": "https://www.metal-co.it/it/azienda-metal-co.html",
+      "ok": true,
+      "title": "Macchine agricole e carpenteria metallica a Vercelli, Biella, Torino | Metal-co",
+      "body_length": 2722,
+      "evidence": [
+        "el settore delle costruzioni in ferro.",
+        "o non rinnega la sua origine di carpenteria in ferro in grado ad eseguire diverse lavorazioni e manuf",
+        "progetti propri e carpenterie civili per privati. "
+      ],
+      "error": null
+    },
+    {
+      "domain": "lamalaser.it",
+      "url": "https://www.lamalaser.it/carpenteria/",
+      "ok": false,
+      "body_length": 0,
+      "evidence": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "barnobi.it",
+      "url": "https://barnobi.it/quali-sono-alcune-lavorazioni-di-carpenteria-metallica-che-si-possono-fare-solo-con-il-laser-tubo/",
+      "ok": true,
+      "title": "Quali sono alcune lavorazioni di carpenteria metallica che si possono fare solo con il laser tubo?",
+      "body_length": 5507,
+      "evidence": [
+        "uali sono alcune lavorazioni di carpenteria metallica che si possono fare solo con il laser tubo?",
+        "oluzionato le prestazioni della carpenteria metallica**, un posto d’onore va sicuramente al **taglio ",
+        "laser tubo**. Non solo **precisione**, ma anche **efficientamento dei "
+      ],
+      "error": null
+    },
+    {
+      "domain": "enerbuilding.com",
+      "url": "https://www.enerbuilding.com/strutture-per-uso-civile",
+      "ok": true,
+      "title": "Strutture e capannoni in acciaio su misura | Enerbuilding",
+      "body_length": 6545,
+      "evidence": [
+        "# Costruzione di carpenterie in acciaio",
+        "a nel settore delle costruzioni metalliche nei settori industriali, civili e pubblici; nella realizz",
+        "gni tipologia di costruzioni in acciaio: strutture metalliche di piccole e grandi luci a falda unic"
+      ],
+      "error": null
+    },
+    {
+      "domain": "icometprogetti.com",
+      "url": "https://icometprogetti.com/",
+      "ok": false,
+      "body_length": 0,
+      "evidence": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "mctscaffalature.com",
+      "url": "https://www.mctscaffalature.com/strutture-metalliche/",
+      "ok": true,
+      "title": "Strutture metalliche su misura",
+      "body_length": 2212,
+      "evidence": [
+        "e scegliere la giusta struttura metallica.",
+        "serve). La stessa “struttura in ferro” è quattro progetti diversi.",
+        "# Perché scegliere le strutture metalliche MCT."
+      ],
+      "error": null
+    },
+    {
+      "domain": "trefil.it",
+      "url": "https://www.trefil.it/strutture-metalliche-tubolare-ferro",
+      "ok": true,
+      "title": "Strutture metalliche tubolare ferro - Trefil - Lavorazione dell'acciaio inox, ferro, alluminio, ottone e rame a taglio laser",
+      "body_length": 1551,
+      "evidence": [
+        "# Strutture metalliche tubolare ferro",
+        "la realizzazione di **strutture metalliche tubolare in ferro**per la provincia di Como e Monza. I tu",
+        "bolari in ferro sono elementi cavi, a forma di tubo, che possono avere sezi"
+      ],
+      "error": null
+    },
+    {
+      "domain": "starmodul.com",
+      "url": "https://starmodul.com/it/strutture-metalliche-su-misura/",
+      "ok": true,
+      "title": "Strutture metalliche su misura senza saldatura | StarModul",
+      "body_length": 12105,
+      "evidence": [
+        "# Strutture metalliche su misura con giunti bullonati",
+        "Realizziamo **strutture metalliche su misura**, adattate alle dimensioni, alla geometria e a",
+        "arModul consente di predisporre profili e collegamenti per un montaggio modulare, ordinato e a sec"
+      ],
+      "error": null
+    },
+    {
+      "domain": "centroreti.com",
+      "url": "https://www.centroreti.com/",
+      "ok": true,
+      "title": "Centro Reti s.a.s Reti e Recinzioni | Proteggiamo i tuoi spazi – realizziamo reti, recinzioni e cancelli in tutta Italia",
+      "body_length": 1457,
+      "evidence": [
+        "## Soluzioni per recinzioni",
+        "Recinzioni, reti e cancelli per ogni esigenza",
+        "* ##### Edilizia – Recinzione mobile Roma"
+      ],
+      "error": null
+    },
+    {
+      "domain": "eurofer.com",
+      "url": "https://www.eurofer.com/it/prodotti/cancelli",
+      "ok": true,
+      "title": "Cancelli in ferro e zincati | Euro-Fer",
+      "body_length": 4326,
+      "evidence": [
+        "## Cancelli per esterni in ferro battuto e zincati",
+        "Euro-Fer realizza **cancelli in ferro battuto e ferro zincato**, progettati per garantire",
+        "ità nel tempo e coerenza con le recinzioni abbinate."
+      ],
+      "error": null
+    },
+    {
+      "domain": "chironnaofficinesrl.com",
+      "url": "https://chironnaofficinesrl.com/",
+      "ok": true,
+      "title": "Chironna Officine S.r.l. | Produzione Rimorchi Agricoli",
+      "body_length": 1283,
+      "evidence": [
+        "# PRODUZIONE RIMORCHI E ATTREZZI AGRICOLI",
+        "ha ampliato i suoi prodotti con rimorchi particolari, carrelloni di grossa portata e carrelli speci",
+        "### Rimorchi"
+      ],
+      "error": null
+    }
+  ]
+}
