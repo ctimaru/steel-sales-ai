@@ -83,6 +83,7 @@ def test_netit_releasebulk1_replay_hash_and_competing_writes_locked():
     assert "and p_expected_fingerprint = v_hash then" in sql
     assert "lock table public.network_core_target_leads" in sql
     assert "lock table public.network_company_discovery_candidates" in sql
+    assert "lock table public.network_discovery_domain_leads" in sql
     assert "lock table public.network_netfast3_suppressed_domains" in sql
     assert "rights_reference_url" in sql
     assert "m.rights_decision in ('allows_limited_reuse','licensed','allows_reuse')" in sql
