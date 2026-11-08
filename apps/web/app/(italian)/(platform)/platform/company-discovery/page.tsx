@@ -94,6 +94,14 @@ export default async function CompanyDiscoveryPage({
             >
               Importa aziende CSV
             </Link>
+            {access?.is_platform_owner ? (
+              <Link
+                href="/platform/company-discovery/carpenterie"
+                className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
+              >
+                Carpenterie · Growth 100
+              </Link>
+            ) : null}
             <Link
               href="/platform/company-discovery/italian-identities"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
