@@ -27,6 +27,26 @@ function DirectorGroup({
   const [extraOpen, setExtraOpen] = useState(extraActive);
   useEffect(() => { if (extraActive) setExtraOpen(true); }, [extraActive]);
 
+  // Scrivania is an actual destination, not another accordion containing
+  // an identical "Scrivania" link. Keep exactly one primary entry point.
+  if (group.key === "desk") {
+    const item = group.items[0];
+    const current = commercialDirectorLinkSelected(item.href, pathname, view);
+    return (
+      <Link
+        href={item.href}
+        onClick={onNavigate}
+        aria-current={current ? "page" : undefined}
+        className={[
+          "flex min-h-11 items-center rounded-lg px-3 py-2 text-xs font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]",
+          current ? "app-selected-solid" : "text-[#25483b] hover:bg-[#edf5ef]",
+        ].join(" ")}
+      >
+        {item.label}
+      </Link>
+    );
+  }
+
   return (
     <details
       open={expanded}
