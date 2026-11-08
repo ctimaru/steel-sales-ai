@@ -8,58 +8,62 @@ import { appRoutes } from "@/lib/routes";
 export const commercialDirectorGroups = [
   {
     key: "desk",
-    label: "La mia scrivania",
-    description: "Situazione e priorità",
+    label: "Scrivania",
+    description: "Situazione e prossime azioni",
     items: [
-      { label: "Cruscotto", href: appRoutes.commercial.home },
-      { label: "Cosa richiede attenzione", href: appRoutes.commercial.home + "#commercial-today" },
-      { label: "Le mie trattative", href: appRoutes.commercial.home + "#commercial-worklist" },
+      { label: "Scrivania", href: appRoutes.commercial.home },
     ],
+    moreItems: [],
   },
   {
     key: "deals",
-    label: "Trattative e acquisti",
-    description: "Dal materiale all'ordine",
+    label: "Trattative e RFQ",
+    description: "Richieste, offerte e ordini",
     items: [
+      // Filter links stay inside the Commerciale worklist, not duplicated in the sidebar.
+      { label: "Trattative", href: appRoutes.commercial.home + "?view=all#commercial-worklist" },
       { label: "Centro RFQ", href: appRoutes.rfqHub.home },
-      { label: "Inbox operativa", href: appRoutes.rfqHub.inbox },
-      { label: "Richieste ricevute", href: appRoutes.commercial.home + "?view=received#commercial-worklist" },
-      { label: "RFQ ai fornitori", href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
-      { label: "Offerte", href: appRoutes.commercial.home + "?view=offers#commercial-worklist" },
-      { label: "Ordini", href: appRoutes.commercial.home + "?view=orders#commercial-worklist" },
-      { label: "Distinte salvate", href: appRoutes.rfqHub.savedDistinte },
+      { label: "Inbox e risposte", href: appRoutes.rfqHub.inbox },
+      { label: "Distinte", href: appRoutes.rfqHub.savedDistinte },
     ],
+    moreItems: [],
   },
   {
     key: "accounts",
-    label: "Clienti e fornitori",
-    description: "Portafoglio e relazioni",
+    label: "Aziende",
+    description: "Clienti e fornitori",
     items: [
       { label: "Aziende", href: appRoutes.commercial.companies },
       { label: "Fornitori RFQ", href: appRoutes.rfqHub.suppliers },
+    ],
+    moreItems: [
       { label: "Riattivazione clienti", href: appRoutes.commercial.reengagement },
       { label: "Relazioni collegate", href: appRoutes.commercial.crossThreadRelationships },
     ],
   },
   {
     key: "insights",
-    label: "Analisi e opportunità",
-    description: "Decisioni basate sui dati",
+    label: "Analisi",
+    description: "Dati e opportunità",
     items: [
       { label: "Analisi commerciale", href: appRoutes.commercial.analysis },
-      { label: "Segnali di domanda", href: appRoutes.commercial.demand },
       { label: "Prezzi", href: appRoutes.commercial.priceIntelligence },
+    ],
+    moreItems: [
+      { label: "Segnali di domanda", href: appRoutes.commercial.demand },
       { label: "Mercato", href: appRoutes.commercial.marketIntelligence },
       { label: "Conversione", href: appRoutes.commercial.conversion },
     ],
   },
   {
     key: "tools",
-    label: "Strumenti e memoria",
+    label: "Strumenti",
     description: "Ricerca, AI e calcoli",
     items: [
       { label: "Calcolatrice pesi", href: appRoutes.commercial.home + "#commercial-tool-access" },
       { label: "Ricerca nello storico", href: appRoutes.commercial.search },
+    ],
+    moreItems: [
       { label: "Assistente AI privato", href: appRoutes.commercial.assistant },
       { label: "Memoria documentale", href: appRoutes.commercial.knowledgeExplorer },
       { label: "Prodotti", href: appRoutes.commercial.products },
@@ -68,6 +72,11 @@ export const commercialDirectorGroups = [
 ] as const;
 
 export type CommercialDirectorGroup = (typeof commercialDirectorGroups)[number];
+
+// Secondary destinations remain reachable without taking space in the default menu.
+export function commercialDirectorAllItems(group: CommercialDirectorGroup) {
+  return [...group.items, ...group.moreItems];
+}
 
 /**
  * Preserve canonical deep links. For filtered worklists only the explicit
@@ -85,11 +94,13 @@ export function commercialDirectorLinkSelected(
 
   // Deal detail pages and legacy bookmarks must retain the correct director
   // context. Their URLs don't carry the homepage ?view filter.
+  const worklistLink = path === appRoutes.commercial.home
+    && expectedView === "all" && href.endsWith("#commercial-worklist");
   if (isPath("/commercial/offers") || isPath("/offers")) {
-    return path === appRoutes.commercial.home && expectedView === "offers";
+    return worklistLink;
   }
   if (isPath("/commercial/orders") || isPath("/orders")) {
-    return path === appRoutes.commercial.home && expectedView === "orders";
+    return worklistLink;
   }
   if (isPath("/commercial/rfqs") || isPath("/rfqs")) {
     return path === appRoutes.rfqHub.home;
@@ -99,6 +110,11 @@ export function commercialDirectorLinkSelected(
   }
 
   if (pathname === appRoutes.commercial.home && path === pathname) {
+    // All worklist filters (received/sent/offers/orders/drafts) share one item.
+    // Existing ?view= URLs are unchanged and remain directly bookmarkable.
+    if (worklistLink) {
+      return view !== null && ["all", "received", "sent", "offers", "orders", "drafts"].includes(view);
+    }
     if (expectedView !== null) return expectedView === view;
     return view === null && !href.includes("#");
   }

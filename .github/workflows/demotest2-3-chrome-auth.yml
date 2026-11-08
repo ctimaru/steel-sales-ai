@@ -5,6 +5,7 @@ on:
     paths:
       - "apps/web/tests/demotest23-*.mjs"
       - "apps/web/tests/comm-ux1c-chrome-search.mjs"
+      - "apps/web/tests/comm-simple1-chrome-visual.mjs"
       - "apps/web/tests/comm-ux1-chrome-auth.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
       - "apps/web/tests/rfqc1-16-chrome-chat.mjs"
@@ -153,6 +154,18 @@ jobs:
         with:
           name: comm-ux1c-synthetic-search
           path: ${{ runner.temp }}/comm-ux1c-search-screenshots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: "COMM-SIMPLE1 — Authenticated Commerciale and RFQ Hub 1440/390/320 visual density"
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/comm-simple1-chrome-visual.mjs
+      - name: "COMM-SIMPLE1 — Save synthetic desktop and mobile before-merge screenshots"
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comm-simple1-commerciale-rfq-hub-visual
+          path: ${{ runner.temp }}/comm-simple1-synthetic-visual/*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: "Google Chrome browser: login, tenant isolation, RFQ Hub, Marketplace, mobile"
