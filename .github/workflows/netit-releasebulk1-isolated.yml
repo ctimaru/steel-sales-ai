@@ -1,0 +1,54 @@
+name: NET-IT-RELEASEBULK1 Isolated SQL Publisher Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'services/worker/sql/net_it_releasebulk1_proposed.sql'
+      - 'supabase/tests/net_it_releasebulk1_local.sql'
+      - '.github/workflows/netit-releasebulk1-isolated.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publisher-local:
+    name: Isolated PostgreSQL auth, preview, atomic commit, replay
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0
+      - name: Inject historical baselines into disposable checkout only
+        run: |
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Start disposable local PostgreSQL / Auth and reset migrations
+        run: |
+          set -euo pipefail
+          if ! supabase start > "$RUNNER_TEMP/netit-releasebulk1-start.log" 2>&1; then
+            grep -E -i 'error|failed|timeout|docker' "$RUNNER_TEMP/netit-releasebulk1-start.log" | tail -n 30 || true
+            exit 1
+          fi
+          if ! supabase db reset --local > "$RUNNER_TEMP/netit-releasebulk1-reset.log" 2>&1; then
+            grep -E -i 'error|failed|migration' "$RUNNER_TEMP/netit-releasebulk1-reset.log" | tail -n 30 || true
+            exit 1
+          fi
+      - name: Execute proposed SQL and test anon, Platform, fingerprint, commit, replay
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql -X --host 127.0.0.1 --port 54322 --username postgres \
+            --dbname postgres --set ON_ERROR_STOP=1 \
+            --file supabase/tests/net_it_releasebulk1_local.sql
+      - name: Destroy all disposable local data
+        if: always()
+        run: |
+          supabase stop --no-backup >/dev/null 2>&1 || true
+          rm -f "$RUNNER_TEMP/netit-releasebulk1-start.log" "$RUNNER_TEMP/netit-releasebulk1-reset.log"
