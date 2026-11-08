@@ -339,6 +339,12 @@ BEGIN
       AND rights_decision='factual_metadata_only_reviewed') THEN
    RAISE EXCEPTION 'FACTS1 fact-only evidence absent from private publication ledger';
  END IF;
+ IF EXISTS (SELECT 1 FROM public.network_data_assertions
+     WHERE field_path='netit_releasebulk1_company_profile'
+       AND (asserted_value ? 'rights_reference_url'
+         OR asserted_value ? 'rights_review_note')) THEN
+   RAISE EXCEPTION 'Private legal document URL or reviewer note leaked into company assertion';
+ END IF;
 END $audit$;
 
 ROLLBACK;
