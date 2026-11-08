@@ -17,7 +17,7 @@ BEGIN
   )
   JOIN public.network_company_roles r ON r.canonical_key=m.proposed_role AND r.status='active'
   JOIN public.network_eu_nuts2024_regions geo ON geo.code=m.nuts AND geo.country_code='RO' AND geo.nuts_level=2
-  WHERE m.country_code='RO' AND m.batch_key='NET-RO1-G9E-FAB9'
+  WHERE m.country_code='RO' AND m.batch_key='NET-RO1-G9E-FAB14'
     AND m.source_kind='first_party_web'
     AND m.review_lane='web_profile_review_pending'
     AND m.claim_status='unclaimed'
