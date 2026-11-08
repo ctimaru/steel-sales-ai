@@ -1,0 +1,991 @@
+{
+  "as_of": "2026-11-08",
+  "status": "live_source_readback_only_not_imported",
+  "records": [
+    {
+      "domain": "agribarri.it",
+      "source_url": "https://www.agribarri.it/",
+      "label": "Attrezzature zootecniche e macchinari per agricoltura | Barri",
+      "snippet": "Barri Agriforniture è un fornitore e rivenditore di macchine agricole, industriali, macchinari e attrezzature per l'allevamento e la zootecnia in provincia di ...",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "agrital.com",
+      "source_url": "https://www.agrital.com/it/home/",
+      "label": "Cabine per veicoli industriali, trattori, macchine movimento terra",
+      "snippet": "Dal 1972 progettiamo e produciamo cabine di guida per trattori agricoli e veicoli industriali. Fin dall'inizio abbiamo puntato su qualità e sicurezza: tutti i ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Produzione cabine per veicoli industriali, trattori, movimento terra",
+      "content_length": 1971,
+      "excerpts": [
+        "## per trattori, movimento terra e veicoli industriali",
+        "roduciamo cabine di guida per trattori agricoli e veicoli industriali. Fin dall’inizio abbiamo pun",
+        "miera e serbatoi oleodinamici saldati, spesso forniti insieme alle cabine."
+      ],
+      "error": null
+    },
+    {
+      "domain": "alilaser.it",
+      "source_url": "https://www.alilaser.it/",
+      "label": "Alilaser Integrated Metal Solutions - www.alilaser.it",
+      "snippet": "Laser e trasformazioni metalliche. Una filiera che integra taglio laser lamiera, laser tubo, piegatura CNC e saldatura, per componenti pronti all'assemblaggio.",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "arredolombardia.it",
+      "source_url": "https://www.arredolombardia.it/arredo-urbano/?doing_wp_cron=1794014296.8176050186157226562500",
+      "label": "Arredo urbano | forniture Arredo Urbano Milano e Lombardia",
+      "snippet": "MMCITE' arreda le città con pensiline, portabici, panchine, cestini, cestoni, fioriere, griglie protettive per alberi, dissuasori, pensiline rifugio fumatori.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Arredo urbano | forniture Arredo Urbano Milano e Lombardia",
+      "content_length": 2003,
+      "excerpts": [
+        " urbano spazia da quelle con struttura in lamiera e sedile in tubolari di acciaio zincate e verni",
+        " legno e basamenti in ghisa o acciaio oppure panche completamente in polietilene. ",
+        " possono essere in lamiera di acciaio zincata e verniciata, oppure rivestiti con fasce di legno d"
+      ],
+      "error": null
+    },
+    {
+      "domain": "artisport.it",
+      "source_url": "https://www.artisport.it/it/",
+      "label": "Artisport: Produzione di Impianti Sportivi e Attrezzature",
+      "snippet": "Artisport produce e vende Impianti per Calcio, Basket, Volley, Atletica. Offre una vasta selezione di attrezzature. Contattaci per un preventivo.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Artisport: Produzione di Impianti Sportivi e Attrezzature",
+      "content_length": 2187,
+      "excerpts": [
+        "a qualità e garantisce che la struttura sia stata costruita nel rispetto degli standard. Questo at"
+      ],
+      "error": null
+    },
+    {
+      "domain": "atastainless.com",
+      "source_url": "https://atastainless.com/it/architettura-di-lusso-impianti-sportivi/",
+      "label": "Acciaio inossidabile per architettura e impianti sportivi | ATA",
+      "snippet": "Le soluzioni ATA in acciaio inox per l'architettura di lusso e gli impianti sportivi offrono durata, resistenza alla corrosione e precisione di ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Acciaio inossidabile per architettura e impianti sportivi | ATA",
+      "content_length": 15930,
+      "excerpts": [
+        "ATA fornisce soluzioni in acciaio inossidabile altamente estetiche e durevoli per l'architett",
+        "ura di lusso e le strutture sportive, integrando Architettura di lusso e impianti spor",
+        "tivi competenza e Lamiera d'acciaio inossidabile artigianali per soddisfare le esigenze di desi"
+      ],
+      "error": null
+    },
+    {
+      "domain": "bianchinscale.it",
+      "source_url": "https://www.bianchinscale.it/ponteggi-e-trabattelli/",
+      "label": "Ponteggi e trabattelli professionali",
+      "snippet": "La Bianchin Scale S.r.l. nasce nel 1977 ed è specializzata nella produzione di scale industriali standard e su misura, di trabattelli e ponteggi mobili, di ...",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "brigato.net",
+      "source_url": "https://brigato.net/chi-siamo-brigato-carpenteria-metallica/",
+      "label": "Chi siamo",
+      "snippet": "Da oltre 60 anni accompagniamo le aziende nell'innovazione industriale con lavorazioni di carpenteria metallica. · Brigato, una storia di famiglia e di lavoro.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Chi siamo - Brigato s.r.l.",
+      "content_length": 3246,
+      "excerpts": [
+        "ndustriale con lavorazioni di carpenteria metallica.",
+        "# 60 anni di esperienza nella carpenteria metallica",
+        "erazione, quel laboratorio di carpenteria è diventata un’azienda strutturata, in grado di supportare "
+      ],
+      "error": null
+    },
+    {
+      "domain": "busetto.it",
+      "source_url": "https://www.busetto.it/",
+      "label": "Busetto - Produzione Sedie | Sito Ufficiale",
+      "snippet": "La nostra produzione di sedie, poltrone, divani e tavoli per il contract può essere personalizzata con infinite combinazioni di materiali, tessuti e accessori, ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Busetto - Produzione Sedie | Sito Ufficiale",
+      "content_length": 1521,
+      "excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "busirecinzioni.it",
+      "source_url": "https://busirecinzioni.it/",
+      "label": "Busi Recinzioni: Produzione e posa in opera di recinzioni reti ...",
+      "snippet": "Busi Recinzioni offre da oltre 60 anni i suoi servizi di produzione ed installazione di reti, paletti, reti elettrosaldate, recinzioni modulari e cancelli.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Produzione e posa in opera di recinzioni reti e cancelli - Busi Recinzioni",
+      "content_length": 855,
+      "excerpts": [
+        "* Rete elettrosaldata o romboidale, zincata o zincata e plastificata",
+        " Da 60 anni nel settore delle recinzioni",
+        "# Busi Recinzioni"
+      ],
+      "error": null
+    },
+    {
+      "domain": "cabonifratelli.com",
+      "source_url": "https://www.cabonifratelli.com/servizi/serricoltura.html",
+      "label": "Serricoltura",
+      "snippet": "CABONI F.lli S.r.l. ha il suo punto vendita di serre, serre multitunnel e tutto quanto serve per la serricoltura in Sardegna a Villasor, in provincia di ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Serricoltura",
+      "content_length": 2152,
+      "excerpts": [
+        "* Ristrutturazione serre ferro-vetro , tunnel e multitunnel.",
+        "* Portavetri, profili in pvc, gronde, battute, tubi tenditori, staffe, piantoni ",
+        "te per l’installazione e la ristrutturazione delle serre, e i montaggi dei diversi impianti."
+      ],
+      "error": null
+    },
+    {
+      "domain": "carpenteriafranciacorta.it",
+      "source_url": "https://www.carpenteriafranciacorta.it/portfolio_page/realizzazione-recinzioni-e-cancelli-in-tubolari-e-telai-frangisole/",
+      "label": "Realizzazione recinzioni e cancelli in tubolari e telai ...",
+      "snippet": "Carpenteria Franciacorta è un'azienda specializzata nella progettazione e realizzazione di opere di carpenteria metallica a uso industriale e commerciale: ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Carpenteria Franciacorta | Realizzazione recinzioni e cancelli in tubolari e telai frangisole",
+      "content_length": 277,
+      "excerpts": [
+        "Realizzazione recinzioni e cancelli in tubolari e telai frangisole",
+        "Civile / Residenziale, Recinzioni"
+      ],
+      "error": null
+    },
+    {
+      "domain": "containerbox.it",
+      "source_url": "https://www.containerbox.it/strutture-telai-container-vendita/",
+      "label": "Strutture Telai Container produzione - Containerbox.it",
+      "snippet": "Telai 10′ 20′ 40′ e telai su misura. Per la movimentazione sono presenti blocchi d'angolo e tasche per le forche. Basamenti realizzati con longheroni e ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Strutture Telai Container produzione - Containerbox.it",
+      "content_length": 2966,
+      "excerpts": [
+        "## Strutture Telai Container",
+        "**Utilizza le nostre strutture per contenere i tuoi impianti.** ",
+        "**Produzione di strutture telai per container. Tali strutture sono fondamentali per "
+      ],
+      "error": null
+    },
+    {
+      "domain": "dalbosrl.com",
+      "source_url": "https://www.dalbosrl.com/servizi/taglio-tubi-3d/",
+      "label": "Taglio Tubi 3D – Dal Bo'",
+      "snippet": "Taglio laser 3D su tubi fino a 6.500 mm, diametro max 220 mm. Potenza 12.000 W per sezioni tonde e quadre, spessore fino a 15 mm.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Taglio Tubi 3D – Dal Bo’",
+      "content_length": 1168,
+      "excerpts": [
+        "# Taglio Tubi 3D",
+        "Il taglio laser 3D su tubo permette di realizzare lavorazioni estremamente precise su ",
+        "profili tondi, quadrati e rettangolari, senza necessità di ulterio"
+      ],
+      "error": null
+    },
+    {
+      "domain": "epiconsrl.it",
+      "source_url": "https://www.epiconsrl.it/container-modificati",
+      "label": "Container modificati ed elaborazioni di carpenteria - Epicon Srl",
+      "snippet": "epicon Srl progetta e allestisce container modificati ISO standard in strutture ad utilizzo industriale, su progetto e specifiche dei propri clienti.",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "faraone.it",
+      "source_url": "https://faraone.it/parapetti/",
+      "label": "Ringhiere balaustre barriere e recinzioni in vetro Faraone ...",
+      "snippet": "Faraone è il punto di riferimento in Italia per i parapetti in vetro certificati,. ideali per balconi, terrazzi, scale, recinzioni e spazi interni. 50 anni ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Ringhiere balaustre barriere e recinzioni in vetro Faraone > Faraone Parapetti",
+      "content_length": 17652,
+      "excerpts": [
+        "### Per nuovo o ristrutturazione:",
+        "### residenziale, condomini, recinzioni, ambienti di lavoro, hospitality, infrastrutture, edifici ",
+        "### centri commerciali, strutture sanitarie, edifici scolastici, impianti sportivi."
+      ],
+      "error": null
+    },
+    {
+      "domain": "fermetal.it",
+      "source_url": "https://www.fermetal.it/Parapetti.html",
+      "label": "Fer Metal - Ringhiere e Parapetti in Acciaio Inox",
+      "snippet": "A completamento delle scale, Fer Metal progetta e realizza anche parapetti in acciaio inox di ottima qualità. I parapetti Fer Metal possono essere standard o ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Fer Metal - Ringhiere e Parapetti in Acciaio Inox",
+      "content_length": 1086,
+      "excerpts": [
+        "# Parapetti in Acciaio",
+        "Home */* Parapetti in Acciaio",
+        "### **Parapetti in Acciaio**"
+      ],
+      "error": null
+    },
+    {
+      "domain": "forniturezambon.com",
+      "source_url": "https://www.forniturezambon.com/it/categorie/quadri-e-rettangolari/?srsltid=AYCX9vKsNR6SyPPMvKWCa0vD5KkZm3H6S2putNc0sS98ARou9nWzGVTh",
+      "label": "Tubi rettangolari e quadri scanalati accessori e raccordi",
+      "snippet": "Accessori per vetro, Tubo e raccordi scanalati, Quadri e Rettangolari. Ordina per. Nome del prodotto crescente; Prezzo; Prezzo (decrescente); Popolarità ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Corrimano per Parapetti in Vetro Inox - Zambon",
+      "content_length": 4475,
+      "excerpts": [
+        "ano per parapetti in vetro in acciaio inox: profili da montare sul bordo del vetro, raccordi e ta",
+        "ppi per tubo scanalato tondo e quadro, sostegni corrimano su vetro regol",
+        "* ### Tubo scanalato doppio inox AISI 304 per parapetto in vetro Ø 48,"
+      ],
+      "error": null
+    },
+    {
+      "domain": "gbtgroup.it",
+      "source_url": "https://gbtgroup.it/blog/azienda/gbt-group-carpenteria-metallica-lodi-per-impianti-industriali-container-data-center-e-cabine-elettriche/",
+      "label": "carpenteria metallica Lodi per impianti industriali, container ...",
+      "snippet": "GBT Group offre soluzioni di carpenteria metallica a Lodi per impianti industriali, container, data center e cabine elettriche su misura.",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "gfoleodinamica.it",
+      "source_url": "https://gfoleodinamica.it/carpenteria-metallica-e-allestimenti/",
+      "label": "Carpenteria metallica e allestimenti",
+      "snippet": "Costruiamo allestimenti in ferro, acciaio inox, alluminio e leghe speciali, come cassoni, ribaltabili e scarrabili. A fine installazione, il mezzo viene ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Carpenteria metallica e allestimenti - GF OLEODINAMICA s.r.l.",
+      "content_length": 1735,
+      "excerpts": [
+        "# Carpenteria metallica e allestimenti",
+        "n reparto specializzato nella carpenteria metallica. Costruiamo allestimenti in ferro, acciaio inox, "
+      ],
+      "error": null
+    },
+    {
+      "domain": "giottofratelli.it",
+      "source_url": "https://www.giottofratelli.it/it/lavorazioni/taglio-laser-3d/",
+      "label": "Taglio laser tridimensionale 3D",
+      "snippet": "Giotto Fratelli è in grado di eseguire lavorazioni con taglio laser 3D, come per la saldatura laser con o senza riporto, su semilavorati o su tubo, ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Taglio laser tridimensionale 3D",
+      "content_length": 1324,
+      "excerpts": [
+        "### Taglio laser tridimensionale",
+        "Per il taglio laser 3D su semilavorati o su tubo, ci avvaliamo - come per la sa",
+        "ldatura laser - di un versatile impianto laser fibra 3D TRUMPF TruLaser C"
+      ],
+      "error": null
+    },
+    {
+      "domain": "gruppobertolini.it",
+      "source_url": "https://www.gruppobertolini.it/bertolini-siderurgica/",
+      "label": "Bertolini Siderurgica Srl",
+      "snippet": "Bertolini Siderurgica srl è un'azienda del Gruppo Bertolini con sede a Empoli che vende prodotti siderurgici. Contattaci adesso.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Bertolini Siderurgica - Empoli",
+      "content_length": 3813,
+      "excerpts": [
+        "Tubi per micropali, travi, tubi, lamiere, pannelli coibentati REI 120 per coperture e paret",
+        "Travi, tubi, lamiere, laminati mercantili, tondo e rete da c.a.. Tutti i prodott",
+        "### Tubi per micropali"
+      ],
+      "error": null
+    },
+    {
+      "domain": "gruppogabrielli.it",
+      "source_url": "https://gruppogabrielli.it/web/guest/prodotti/tubi-di-precisione",
+      "label": "Tubi di precisione - Gruppo Gabrielli",
+      "snippet": "Tubi di precisione · Tubi di precisione ricavati da nastri in acciaio · Tubi elettrosaldati in alluminio · Profili tubolari: nero, decapato, zincato.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Tubi di precisione",
+      "content_length": 22628,
+      "excerpts": [
+        "# Tubi di precisione",
+        "# Tubi di precisione",
+        "Tubi in acciaio, in alluminio e tubi forma"
+      ],
+      "error": null
+    },
+    {
+      "domain": "gruppovaliani.it",
+      "source_url": "https://www.gruppovaliani.it/carpenteria-veicoli-industriali.htm",
+      "label": "Carpenteria veicoli industriali, camion, furgoni e pullman",
+      "snippet": "La carpenteria del Gruppo Valiani è specializzata nel lavorazione e la costruzione di allestimenti per camion, furgoni e pullman.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Carpenteria veicoli industriali, camion, furgoni e pullman",
+      "content_length": 3451,
+      "excerpts": [
+        "# La Carpenteria",
+        "specializzato e dedicato alla Carpenteria per veicoli industriali. ",
+        "ù di 30 anni, grazie alla sua Carpenteria per camion, si occupa dell’allestimento di veicoli industri"
+      ],
+      "error": null
+    },
+    {
+      "domain": "icometprogetti.com",
+      "source_url": "https://icometprogetti.com/strutture-metalliche-negli-impianti-sportivi/",
+      "label": "Strutture metalliche negli impianti Sportivi",
+      "snippet": "La Icomet Costruzioni Metalliche è da anni a supporto degli impianti sportivi (stadio, palazzetto, ecc…), per la realizzazione di diversi elementi e ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Strutture metalliche negli impianti Sportivi | Icomet Costruzioni Metalliche",
+      "content_length": 1291,
+      "excerpts": [
+        "# Strutture metalliche negli impianti Sportivi",
+        "La Icomet Costruzioni Metalliche è da anni a supporto degli impianti sportivi (stadio, pal",
+        "zazione di diversi elementi e strutture metalliche. "
+      ],
+      "error": null
+    },
+    {
+      "domain": "inoxfriuli.com",
+      "source_url": "https://www.inoxfriuli.com/arredi-in-acciaio-inox-nuove-idee-per-larredamento-e-design/",
+      "label": "Arredi in acciaio inox: nuove idee per l'arredamento e design",
+      "snippet": "Inox Friuli trasforma l'acciaio inox in soluzioni su misura che superano il concetto tradizionale di arredamento puntando su eleganza, ...",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "ivefer.it",
+      "source_url": "https://www.ivefer.it/comunicazione/89/calandratura-in-acciaio-e-alluminio-tecniche-e-applicazioni-industriali",
+      "label": "Calandratura tubi e lamiere",
+      "snippet": "Calandratura in acciaio e alluminio: curvatura lamiere e tubi con calandra ISITAN. Forme cilindriche e coniche di precisione per carpenteria metallica.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Calandratura tubi e lamiere | IVEFER",
+      "content_length": 7862,
+      "excerpts": [
+        " settori mettono alla prova l'acciaio quanto quello agricolo. Le macchine e le attrezzature da la",
+        "# Calandratura in acciaio e alluminio: tecniche e applicazioni industriali",
+        "ologia di calandratura per la curvatura di lamiere e profili"
+      ],
+      "error": null
+    },
+    {
+      "domain": "leidal.it",
+      "source_url": "https://www.leidal.it/",
+      "label": "Leidal - Recinzioni, cancelli ferro, ringhiere PVC, ringhiere ferro",
+      "snippet": "Leidal produce recinzioni in ferro e PVC, ringhiere in ferro, cancelli in ferro, parapetti e balconate in vetro e acciaio INOX, complementi da giardino, ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Leidal - Recinzioni, cancelli ferro, ringhiere PVC, ringhiere ferro",
+      "content_length": 1983,
+      "excerpts": [
+        "# LEIDAL RECINZIONI",
+        "Realizzazione recinzioni metalliche e in PVC, parapetti acciaio vetro, cancelli in ferro, il ",
+        "rollo al fine di ottenere una recinzione di ottima qualità."
+      ],
+      "error": null
+    },
+    {
+      "domain": "libraindustriale.com",
+      "source_url": "https://www.libraindustriale.com/",
+      "label": "Libra Industriale: Recinzioni, cancelli e parapetti in acciaio",
+      "snippet": "Recinzioni, cancelli, parapetti e grigliati in acciaio per edilizia residenziale e industriale. Progettazione e produzione Libra Industriale, San Marino.",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "macagigym.com",
+      "source_url": "https://www.macagigym.com/perche-macgym/",
+      "label": "Perché Macgym | Produzione di attrezzature fitness all'aperto",
+      "snippet": "Pionieri nella produzione di attrezzature fitness all'aperto in Italia. Nel 2008 esce la nostra prima linea di macchine isotoniche Hercules, ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Perché Macgym | Produzione di attrezzature fitness all’aperto",
+      "content_length": 1989,
+      "excerpts": [
+        "ttore, progettiamo macchine e strutture adatte a tutti, per il benessere personale e collettivo."
+      ],
+      "error": null
+    },
+    {
+      "domain": "macchineagricolepolverari.it",
+      "source_url": "https://macchineagricolepolverari.it/project/telai-di-protezione/",
+      "label": "TELAI DI PROTEZIONE - MACCHINE AGRICOLE",
+      "snippet": "MODELLI DISPONIBILI IN KIT PRONTI PER L'ISTALLAZIONE · AGRIFULL CINGOLATP SERIE FIAT 70-65 · LAMBORGHINI CINGOLATO 553 554 664 · LAMBORGHINI CINGOLATO 553 554 664 ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "TELAI DI PROTEZIONE – MACCHINE AGRICOLE",
+      "content_length": 2214,
+      "excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "mattiolosrl.it",
+      "source_url": "https://www.mattiolosrl.it/index.php/taglio-laser-per-tubi-e-profili/taglio-laser-tubi-3d",
+      "label": "Taglio Laser Tubi 3D - Mattiolo Srl",
+      "snippet": "L'impianto per taglio laser tubi di ultima generazione installato da Benito Mattiolo consente di lavorare tubi anche con un diametro di 300 mm. ... Grazie al ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Taglio Laser Tubi 3D",
+      "content_length": 2724,
+      "excerpts": [
+        "# Taglio Laser Tubi in 3D",
+        "L’impianto per taglio laser tubi di ultima generazione installato da Benito Mattiolo consent",
+        "e di lavorare tubi anche con un diametro di 300 mm. "
+      ],
+      "error": null
+    },
+    {
+      "domain": "mbm-vr.it",
+      "source_url": "https://mbm-vr.it/portfolio-category/impianti-sportivi/",
+      "label": "Impianti Sportivi - M.B.M. Costruzioni in ...",
+      "snippet": "MBM Costruzioni in Acciaio ha realizzato Impianti Sportivi in Italia ed Europa, sviluppando, progettando e costruendo strutture prefabbricate in acciaio.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Impianti Sportivi - M.B.M. Costruzioni in Acciaio",
+      "content_length": 986,
+      "excerpts": [
+        "Strutture per la copertura tribune dello stadio Ettore Giardiniero d",
+        "o su ritti pendolari (colonne metalliche), un anello interno metallico sospeso e teso da travi di ",
+        " un telo di finitura in pvc.. Acciaio fornito in opera 1.700 tonn."
+      ],
+      "error": null
+    },
+    {
+      "domain": "metalbox.it",
+      "source_url": "https://www.metalbox.it/",
+      "label": "Progettazione e produzione prefabbricati modulari - MetalBox",
+      "snippet": "Metalbox è una azienda leader nella progettazione e produzione di prefabbricati modulari. Metalbox nasce negli anni 60 nel settore delle costruzioni metalliche, ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Progettazione e produzione prefabbricati modulari - MetalBox",
+      "content_length": 2732,
+      "excerpts": [
+        "nel settore delle costruzioni metalliche, come piccola azienda produttrice di box in lamiera zinca",
+        "cessità il **noleggio** delle strutture comporta vantaggi significativi."
+      ],
+      "error": null
+    },
+    {
+      "domain": "metalferspa.it",
+      "source_url": "https://www.metalferspa.it/",
+      "label": "Metalfer Spa: Homepage",
+      "snippet": "METALFER, gruppo siderurgico italiano leader nella produzione di tubi saldati trafilati a freddo, con diametro esterno da 8 mm a 235 mm, ha raggiunto i ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Metalfer Spa: Homepage",
+      "content_length": 1707,
+      "excerpts": [
+        " leader nella trafilatura del tubo saldato",
+        "no leader nella produzione di tubi saldati trafilati a freddo, con diametro esterno da 8 mm a ",
+        "nnua di 105.000 tonnellate di tubi trafilati a freddo, rasati / bruniti e levigati, inclusi ol"
+      ],
+      "error": null
+    },
+    {
+      "domain": "metalstyle.eu",
+      "source_url": "https://www.metalstyle.eu/ringhiere-balconi-balaustra/?srsltid=AYCX9vIz_FrkOb1616l3V7FvnPOMDWq1kF_fbonNn4bCKJZIij2YfcOP",
+      "label": "Ringhiere a pannelli per Balconi e Balaustre",
+      "snippet": "Realizziamo balaustre e ringhiere in pannelli adatte per contesti residenziali e parapetti in metallo di tipo industriale. E' possibile trovare soluzioni che ...",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "metalxact.com",
+      "source_url": "https://www.metalxact.com/it/tubi-in-acciaio-inox?srsltid=AYCX9vKvbaMy9em9iQRCvgmtf8a1xK5HoScA28kbHIIxN9_SWLZzDVGQ",
+      "label": "Tubi in acciaio inox su misura online | Tondi, quadri e ...",
+      "snippet": "Da METALXACT trovate tubi tondi, quadri e rettangolari in acciaio inox. Aprite la categoria di prodotto adatta e confrontate le misure, le lunghezze, i ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Tubi in acciaio inox su misura online | Tondi, quadri e rettangolari | METALXACT",
+      "content_length": 9915,
+      "excerpts": [
+        "# Tubi in acciaio inox su misura online",
+        "## Scegliere online tubi in acciaio inox su misura",
+        "Cercate un **tubo in acciaio inox su misura** per una ringhiera, un corrimano,"
+      ],
+      "error": null
+    },
+    {
+      "domain": "officinabrigoni.it",
+      "source_url": "https://www.officinabrigoni.it/allestimenti/",
+      "label": "Allestimenti di camion e automezzi",
+      "snippet": "Installiamo allestimenti personalizzati, meccanici ed estetici, su autocarri o mezzi di trasporto professionali di ogni tipo.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Allestimenti di camion e automezzi - Officina Brigoni",
+      "content_length": 984,
+      "excerpts": [
+        "alizzazione personalizzata di tubi flessibili idraulici ad alta pressione."
+      ],
+      "error": null
+    },
+    {
+      "domain": "officinasignorini.it",
+      "source_url": "https://www.officinasignorini.it/",
+      "label": "Officina Signorini Gennaro - Taglio laser lamiere e tubi",
+      "snippet": "Chi siamo. L'Officina Signorini Gennaro & c. srl opera nel settore metalmeccanico, in particolare si occupa della lavorazione di lamiere e tubi: taglio ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Officina Signorini Gennaro - Taglio laser lamiere e tubi",
+      "content_length": 2402,
+      "excerpts": [
+        "i occupa della lavorazione di lamiere e tubi: taglio laser, presso piegatura, assemblaggio e sald",
+        "integrata qualità processo di saldatura",
+        "**Macchinari** per taglio laser, piegatrici, stoccaggio lamiere"
+      ],
+      "error": null
+    },
+    {
+      "domain": "officinebpm.it",
+      "source_url": "https://www.officinebpm.it/",
+      "label": "Officine BPM: Allestimento autocarri | Allestimento veicoli ...",
+      "snippet": "Allestimenti per autocarri e veicoli industriali: progettazione, personalizzazione e realizzazione di allestimenti su misura con cassoni, centinature e gru ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Allestimento autocarri | Allestimento veicoli industriali | Officine BPM",
+      "content_length": 1471,
+      "excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "officineitaliabs.com",
+      "source_url": "https://officineitaliabs.com/it/",
+      "label": "Officine Italia Allestimento veicoli industriali commerciali ...",
+      "snippet": "Dal 1980 Officine Italia è specializzata in allestimenti personalizzati per veicoli industriali, commerciali e speciali. Richiedi un preventivo gratuito.",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "officinemartinidue.it",
+      "source_url": "https://www.officinemartinidue.it/",
+      "label": "Officina Camion Bologna Modena – Centro allestimento ...",
+      "snippet": "Siamo un'officina specializzata in mezzi pesanti, veicoli industriali e commerciali e autorizzata ad eseguire allestimenti su misura, riparazioni, revisioni e ...",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "panattasport.com",
+      "source_url": "https://www.panattasport.com/it/",
+      "label": "Panatta | Attrezzature e Macchinari Professionali da Palestra ...",
+      "snippet": "La nostra mission: ideare e realizzare attrezzatura da palestra professionale per il vero allenamento fisico. Attrezzature che siano belle, funzionali, ...",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "bot_blocked"
+    },
+    {
+      "domain": "peri.it",
+      "source_url": "https://www.peri.it/knowhow/ponteggi-per-ponti-e-viadotti.html",
+      "label": "Ponteggi per ponti e viadotti: panoramica delle soluzioni ...",
+      "snippet": "Scopri qui come gestire in sicurezza ed efficientemente lavori di manutenzione e consolidamento di ponti e viadotti con ponteggi modulari e soluzioni ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Ponteggi per ponti e viadotti: panoramica delle soluzioni disponibili",
+      "content_length": 13223,
+      "excerpts": [
+        "ieri di ripristino delle infrastrutture",
+        "L’Italia vanta una rete infrastrutturale vasta e articolata, con migliaia di ponti e viadotti rea",
+        " Ma operare su strutture esistenti, spesso senza interrompere la viabilità, impone "
+      ],
+      "error": null
+    },
+    {
+      "domain": "perozeni.net",
+      "source_url": "https://www.perozeni.net/it/lavorazioni-di-carpenteria-meccanica",
+      "label": "Lavorazioni di Carpenteria Meccanica, Saldatura ...",
+      "snippet": "Perozeni S.r.l. da anni opera nel campo della carpenteria meccanica medio pesante realizzando impianti, macchinari o parti di essi (per svariati settori ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Processes of mechanical metalwork - Robotic welding ",
+      "content_length": 2294,
+      "excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "pescemetalfactory.com",
+      "source_url": "https://www.pescemetalfactory.com/azienda/",
+      "label": "Dal 1979, lavorazione dei metalli e tornitura in lastra",
+      "snippet": "Pesce Metal Factory è specializzata nella lavorazione dei metalli e unisce un servizio completo di tornitura in lastra, stampaggio, punzonatura, ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Lavorazioni carpenteria metallica e tornitura in lastra dal 1979",
+      "content_length": 6152,
+      "excerpts": [
+        "i lavorazione di metalli come acciaio inox, ferro, alluminio e rame, all’estrema attenzione e pre",
+        "componenti dal design unico e strutture dall’alto valore tecnologico.",
+        "nella tornitura dei metalli e carpenteria metallica"
+      ],
+      "error": null
+    },
+    {
+      "domain": "poggi-spa.com",
+      "source_url": "https://www.poggi-spa.com/cosa-si-intende-per-carpenteria-metallica/",
+      "label": "Carpenteria metallica: significato, lavorazioni e silos",
+      "snippet": "La carpenteria metallica è l'insieme delle attività di progettazione, lavorazione, assemblaggio e montaggio di elementi in metallo destinati alla ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Carpenteria metallica: significato, lavorazioni e silos",
+      "content_length": 15077,
+      "excerpts": [
+        "# Cosa si intende per carpenteria metallica?",
+        "La **carpenteria metallica** è l’insieme delle attività di progettazione, lavorazione",
+        "stinati alla realizzazione di strutture, componenti e sistemi industriali. Quando si parla di carp"
+      ],
+      "error": null
+    },
+    {
+      "domain": "ramaxveteregiovanni.it",
+      "source_url": "https://www.ramaxveteregiovanni.it/curvatura-tubi-in-acciaio-e-inox/",
+      "label": "Curvatura tubi in acciaio e inox a Pegognaga (MN)",
+      "snippet": "Curvatura e calandratura di tubi e profilati in acciaio e acciaio inox con macchine a controllo numerico. Ramax, Pegognaga (MN).",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "refinfissi.com",
+      "source_url": "https://www.refinfissi.com/pdf/f14-it-recinzioni-industriali-wisniowski.pdf",
+      "label": "RECINZIONI INDUSTRIALI",
+      "snippet": "Cancelli scorrevoli su ruote di scorrimento sono costruzioni in profilati d'acciaio chiusi. La parte inferiore del cancello è rinforzata con una trave alla ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "",
+      "content_length": 54826,
+      "excerpts": [
+        "nti | Cancelletti | Sezioni | Recinzioni sportive",
+        "RECINZIONI INDUSTRIALI",
+        "RECINZIONI INDUSTRIALI"
+      ],
+      "error": null
+    },
+    {
+      "domain": "rfm-srl.it",
+      "source_url": "https://rfm-srl.it/",
+      "label": "Taglio Laser: Taglio waterjet a Firenze - Taglio ad acqua a ...",
+      "snippet": "R.F.M. s.r.l. è un'azienda specializzata nella lavorazione della lamiera, carpenteria medio-piccola in generale e fresatura, taglio waterjet e taglio laser.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Taglio waterjet a Firenze - Taglio ad acqua a Firenze - Taglio Laser",
+      "content_length": 1630,
+      "excerpts": [
+        "carpenteria medio-piccola in generale e fresatura, taglio waterjet e ta",
+        "glio laser. ",
+        "cializzata da anni nel Taglio Laser, "
+      ],
+      "error": null
+    },
+    {
+      "domain": "sagax.it",
+      "source_url": "https://www.sagax.it/it/home/",
+      "label": "Sedie, tavoli, sgabelli ed elementi d'arredo - Loreggia - Sagax",
+      "snippet": "Sagax si distingue per la produzione di sedie, sgabelli, tavoli, elementi d'arredo di design da oltre 10 anni. Clicca per scoprire la collezione Sagax.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Sagax - Sedie, tavoli, sgabelli ed elementi d'arredo",
+      "content_length": 1797,
+      "excerpts": [
+        "X E' UNA SEDIA IMPILABILE CON STRUTTURA IN ACCIAIO VERNICIATO E CORDA NAUTICA, DISPONIBILE NELLA V"
+      ],
+      "error": null
+    },
+    {
+      "domain": "sarzilamiere.com",
+      "source_url": "https://www.sarzilamiere.com/divisioni/lavorazioni-3d-taglio-e-saldatura-laser",
+      "label": "Lavorazioni laser 3D: taglio e saldatura laser",
+      "snippet": "Tagli e rifili di precisione e saldatura estetica di qualità. In questo reparto convergono tutti i semilavorati con geometrie complesse che devono essere ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Lavorazioni laser 3D: taglio e saldatura laser - Sarzi Lamiere",
+      "content_length": 645,
+      "excerpts": [
+        "# Lavorazioni laser 3D: taglio e saldatura laser",
+        "agli e rifili di precisione e saldatura estetica di qualità.",
+        " ulteriori lavorazioni oppure saldati. Possiamo saldare a laser con e senza apporto di materiale"
+      ],
+      "error": null
+    },
+    {
+      "domain": "serrerd.net",
+      "source_url": "https://www.serrerd.net/",
+      "label": "Serre policarbonato, da orto e giardino | Torino Piemonte",
+      "snippet": "Serre in policarbonato. Modelli BOX, TUNNEL e A MURO. Totalmente apribili. Struttura in acciaio profilato zincato a caldo e alluminio anodizzato. Scopri di più ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Serre policarbonato, da orto e giardino | Torino Piemonte",
+      "content_length": 364,
+      "excerpts": [
+        "Struttura in acciaio profilato zincato a caldo e alluminio anodizzato.",
+        "Robusta struttura tubolare, "
+      ],
+      "error": null
+    },
+    {
+      "domain": "siac-group.com",
+      "source_url": "https://www.siac-group.com/siac-is-you/prodotti/cabine/",
+      "label": "Cabine | Siac",
+      "snippet": "È la qualità che guida. Letteralmente. Realizziamo cabine complete per Macchine Movimento Terra, Agricole ed Industriali.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Cabine | Siac",
+      "content_length": 485,
+      "excerpts": [
+        "per, Cingolati, Mietitrebbie, Trattori Speciali e molto altro.",
+        "Trattori Speciali",
+        "Trattori Campo Aperto"
+      ],
+      "error": null
+    },
+    {
+      "domain": "sideaita.it",
+      "source_url": "https://www.sideaita.it/",
+      "label": "Sidea | Attrezzatura professionale palestra e strength training",
+      "snippet": "Attrezzatura fitness professionale di alta qualità per palestre e centri benessere, ideale per allenamenti intensivi. 08-11 APRILE 2027. COLOGNE (Germany).",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "bot_blocked"
+    },
+    {
+      "domain": "sideracciaisrl.com",
+      "source_url": "https://www.sideracciaisrl.com/",
+      "label": "SiderAcciai – il nostro ferro, la tua forza",
+      "snippet": "Con oltre 20 anni di esperienza forniamo un servizio di taglio e foratura su misura. ... Centro Servizi Tubolari. Tubolare tagliato a misura e forato a richiesta ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "SiderAcciai – il nostro ferro, la tua forza",
+      "content_length": 5351,
+      "excerpts": [
+        "i più completi Distributori d'Acciaio dal pronto in Puglia",
+        "### Centro Servizi Tubolari",
+        "Tubolare tagliato a misura e forato a richiesta in qualità S235JR –"
+      ],
+      "error": null
+    },
+    {
+      "domain": "stratogreen.com",
+      "source_url": "https://www.stratogreen.com/blog/coperture-in-acciaio-la-soluzione-ideale-per-impianti-sportivi/",
+      "label": "Coperture in Acciaio: La Soluzione Ideale per Impianti Sportivi",
+      "snippet": "Coperture in acciaio per impianti sportivi: Stratogreen leader nella costruzione di stadi e palestre con strutture resistenti e su misura.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Coperture in Acciaio per Impianti Sportivi | Stratogreen",
+      "content_length": 6533,
+      "excerpts": [
+        "Cosa Sono le Coperture in Acciaio e Perché Sceglierle?",
+        "Le coperture in acciaio rappresentano una scelta pratica e duratura per proteggere ",
+        "rti: ecco cosa offrono queste strutture. Realizzate con acciaio galvanizzato o inox, le coperture "
+      ],
+      "error": null
+    },
+    {
+      "domain": "studio-citta.it",
+      "source_url": "https://studio-citta.it/le-panchine-da-esterno-per-arredo-urbano-guida-alla-scelta/",
+      "label": "guida alla scelta Le panchine da esterno per l'Arredo Urbano",
+      "snippet": "Le panchine da esterno rappresentano un elemento imprescindibile nell'arredo urbano di città, parchi e luoghi pubblici. Guida alla scelta.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Le panchine da esterno per l’Arredo Urbano: guida alla scelta | Studio Città",
+      "content_length": 5243,
+      "excerpts": [
+        "ittadini e ai turisti, queste strutture svolgono un ruolo fondamentale nell’incrementare il **comf",
+        "legno, cemento, calcestruzzo, acciaio zincato a caldo e verniciato a polvere e materiali pregiati"
+      ],
+      "error": null
+    },
+    {
+      "domain": "sudferro.it",
+      "source_url": "https://www.sudferro.it/",
+      "label": "Sud Ferro: Home",
+      "snippet": "La Sud Ferro è stata una delle prime aziende in Italia nella commercio online di prodotti siderurgici. ... Tubi in acciaio · a omega · Pareti · Parete · P. a ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Home - Sud Ferro",
+      "content_length": 5821,
+      "excerpts": [
+        "LAMIERE FORATE",
+        "# Lamiere forate inox",
+        "isponibili in pronta consegna lamiere inox forate da 2mm a 5mm (altre misure disponibili a richie"
+      ],
+      "error": null
+    },
+    {
+      "domain": "talianiferroshop.com",
+      "source_url": "https://talianiferroshop.com/pages/tubolari-inox?srsltid=AYCX9vLORl-dY8hbpQwIyjAb4xapU12fAqDf3YAXyMLSRfPz1Fo2Thhn",
+      "label": "Tubolari Inox - Quadri, Rettangolari, Tondi Grezzi, Satinati",
+      "snippet": "Scopri i tubolari inox: quadri, rettangolari, tondi e scanalati, disponibili in finiture grezze, satinati e lucide. Soluzioni durevoli su Taliani Ferro ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Tubolari Inox - Quadri, Rettangolari, Tondi Grezzi, Satinati",
+      "content_length": 2961,
+      "excerpts": [
+        "Profili Pieni",
+        "Profili a L",
+        "Profili a T"
+      ],
+      "error": null
+    },
+    {
+      "domain": "tecafitness.com",
+      "source_url": "https://tecafitness.com/",
+      "label": "TECA Fitness: Attrezzature per palestra professionali",
+      "snippet": "TECA è un'azienda italiana specializzata da 40 anni nell'allenamento della forza. Fondata nel 1985, progetta e produce attrezzature professionali per palestre ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Attrezzature per palestra professionali",
+      "content_length": 8893,
+      "excerpts": [
+        "lizzate da professionisti, in strutture fitness, palestre e centri sportivi di tutto il mondo. L’o",
+        "centri sportivi, hotel, spa e strutture wellness. Questi macchinari devono garantire resistenza, p"
+      ],
+      "error": null
+    },
+    {
+      "domain": "tecnicaritalia.it",
+      "source_url": "https://www.tecnicaritalia.it/",
+      "label": "Allestimento furgoni, Laboratorio e Uffici Mobili e allestimenti ...",
+      "snippet": "Allestimento furgoni e veicoli commerciali per tutte le marche. Fai Crescere il tuo Business! Allestiamo veicoli commerciali con materiali di prima qualità ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Allestimento furgoni, Laboratorio e Uffici Mobili e allestimenti veicoli commerciali | Tecnicar",
+      "content_length": 4675,
+      "excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "tecnometalgroup.com",
+      "source_url": "https://tecnometalgroup.com/produzione/",
+      "label": "Produzione",
+      "snippet": "Carpenteria metallica su misura. Realizziamo strutture e componenti di carpenteria metallica su misura, tra cui telai, basamenti, supporti e sistemi modulari.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Produzione - Tecnometal Group",
+      "content_length": 2574,
+      "excerpts": [
+        "La produzione di contenitori metallici è il risultato di un’esperienza più che ventennale e quest",
+        "e e realizzare un contenitore metallico per ogni tipo di forma o peso del prodotto.",
+        "ione e sviluppo del packaging metallico per i vari componenti aereonautici come joystick, fusolier"
+      ],
+      "error": null
+    },
+    {
+      "domain": "tessaro.it",
+      "source_url": "https://www.tessaro.it/",
+      "label": "√ Tessaro Srl – Componenti per sedie e mobili",
+      "snippet": "Tessaro Srl è un'azienda specializzata nella produzione interna di componenti in metallo e plastica per sedie e mobili di design.",
+      "missing_https": false,
+      "source_live": false,
+      "title_live": "",
+      "content_length": 0,
+      "excerpts": [],
+      "error": "timeout"
+    },
+    {
+      "domain": "toorxprofessional.it",
+      "source_url": "https://toorxprofessional.it/",
+      "label": "Home - ToorxProfessional Italiano",
+      "snippet": "TOORX PROFESSIONAL offre infatti una linea completa di prodotti che spaziano dagli attrezzi HIIT dedicati al crosstraining e all'allenamento funzionale, tra cui ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Home",
+      "content_length": 6039,
+      "excerpts": [],
+      "error": null
+    },
+    {
+      "domain": "turra.srl",
+      "source_url": "https://turra.srl/dove-operiamo/ringhiere/ringhiere-cittadella-ringhiere-in-acciaio-inox-e-vetro-per-scale-balconi-e-terrazze-a-cittadella-38033-ringhiere.html",
+      "label": "Ringhiere a Cittadella",
+      "snippet": "L'Azienda Turra Srl che da anni opera nel settore dell'arredamento e dell'edilizia abitativa è oggi capace di offrire prodotti unici e su misura come ringhiere ...",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Ringhiere Cittadella Ringhiere in acciaio inox e vetro per scale balconi e terrazze a Cittadella - 38033 Ringhiere - Turra Lavorazione e Commercio Inox Ferro Alluminio",
+      "content_length": 5780,
+      "excerpts": [
+        "Ringhiere in acciaio inox e vetro per scale, balconi e terrazze",
+        "su misura come **ringhiere in acciaio inox per scale, ringhiere in acciaio inox per balconi e ter",
+        "alla clientela **ringhiere in acciaio inox** si rende indispensabile la conoscenza dei nuovi prod"
+      ],
+      "error": null
+    },
+    {
+      "domain": "waldem.it",
+      "source_url": "https://www.waldem.it/Lavorazioni-Modifiche-Container/",
+      "label": "Lavorazioni carpeneria containers shelter - Waldem Container",
+      "snippet": "Lavorazioni Riparazioni Carpenteria su Container. Lavorazioni di carpenteria Allestimenti su Container e Monoblocchi prefabbricati. Vengono messi su cavalletti.",
+      "missing_https": false,
+      "source_live": true,
+      "title_live": "Lavorazioni carpeneria containers shelter",
+      "content_length": 8622,
+      "excerpts": [
+        "tenza post vendita, dal 1980. Carpenteria su Container. Info su Container.",
+        "Lavorazioni di carpenteria Allestimenti su Container e Monoblocchi prefabbricati. Veng",
+        "no composti i containers, è l'acciaio"
+      ],
+      "error": null
+    },
+    {
+      "domain": "fllicum.it",
+      "source_url": "",
+      "label": "",
+      "snippet": "",
+      "missing_https": true
+    }
+  ]
+}
