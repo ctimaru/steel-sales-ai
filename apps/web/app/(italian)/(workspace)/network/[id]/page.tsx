@@ -218,7 +218,8 @@ export default async function NetworkCompanyProfilePage({
   );
   const primaryRole = profile.roles.find((role) => role.is_primary);
   // NET-UX LOT1: first published company channel shown in the header.
-  const headerContact = profile.contacts.find((contact) => contact.email || contact.phone) ?? null;
+  const emailContact = profile.contacts.find((contact) => contact.email) ?? null;
+  const phoneContact = profile.contacts.find((contact) => contact.phone) ?? null;
   const missingSections = [
     profile.facilities.length ? null : "sedi",
     profile.markets.length ? null : "mercati",
@@ -436,18 +437,26 @@ export default async function NetworkCompanyProfilePage({
               ) : null}
               {inquiryEligible && !canInteract ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Per connetterti serve un ruolo commerciale abilitato.</p> :
                 !inquiryEligible && inquiryReason !== "self_inquiry" ? <p id="network-connect-unavailable" className="max-w-xs text-xs leading-5 text-[#52615b]">Potrai connetterti quando l&apos;azienda sarà attiva sulla piattaforma.</p> : null}
-              {/* NET-UX LOT1: public company channels at the top, next to the actions. */}
-              {headerContact ? (
-                <div className="w-full rounded-xl border border-[#dce2df] bg-white px-3 py-2 text-xs" data-testid="network-profile-header-contact">
-                  <p className="font-semibold text-[#52615b]">Contatti aziendali</p>
-                  {headerContact.email ? (
-                    <a href={"mailto:" + headerContact.email} className="mt-1 block break-all font-semibold text-[#1a5144] underline underline-offset-2">{headerContact.email}</a>
-                  ) : null}
-                  {headerContact.phone ? (
-                    <a href={"tel:" + headerContact.phone.replace(/[^\d+]/g, "")} className="mt-0.5 block font-semibold text-[#1a5144] underline underline-offset-2">{headerContact.phone.replace(/^\+39(?=0)/, "+39 ")}</a>
-                  ) : null}
+              {/* NET-RO1.GROWTH9: visible field labels on every company profile.
+                  Only previously published, privacy-reviewed company channels are shown. */}
+              <div className="w-full rounded-xl border border-[#dce2df] bg-white px-3 py-2 text-xs" data-testid="network-profile-header-contact">
+                <p className="font-semibold text-[#52615b]">Contatti aziendali</p>
+                <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                  <span className="font-semibold text-[#52615b]">Email</span>
+                  {emailContact?.email ? (
+                    <a href={"mailto:" + emailContact.email} className="break-all font-semibold text-[#1a5144] underline underline-offset-2" data-testid="network-company-public-email">{emailContact.email}</a>
+                  ) : <span className="text-[#66776f]" data-testid="network-company-email-unavailable">Da integrare</span>}
                 </div>
-              ) : null}
+                <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                  <span className="font-semibold text-[#52615b]">Telefono</span>
+                  {phoneContact?.phone ? (
+                    <a href={"tel:" + phoneContact.phone.replace(/[^\d+]/g, "")} className="font-semibold text-[#1a5144] underline underline-offset-2" data-testid="network-company-public-phone">{phoneContact.phone}</a>
+                  ) : <span className="text-[#66776f]" data-testid="network-company-phone-unavailable">Da integrare</span>}
+                </div>
+                {!emailContact?.email || !phoneContact?.phone ? (
+                  <p className="mt-1 text-[11px] text-[#66776f]">I recapiti saranno aggiunti dopo verifica della fonte e revisione privacy.</p>
+                ) : null}
+              </div>
 
             </div>
           </div>
