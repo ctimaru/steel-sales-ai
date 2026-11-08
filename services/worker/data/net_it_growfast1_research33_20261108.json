@@ -1,0 +1,386 @@
+{
+  "batch_key": "NET-IT-GROWFAST1-20261108",
+  "country_code": "IT",
+  "observed_date": "2026-11-08",
+  "artifact_type": "production_private_research_readback",
+  "source": "Supabase production private.network_web_research_seeds",
+  "counts": {
+    "rows": 33,
+    "distinct_domains": 33,
+    "roles": {
+      "end_user": 21,
+      "producer": 4,
+      "processor_service_provider": 8
+    },
+    "review_lanes": {
+      "web_profile_review_pending": 9,
+      "industrial_fit_review": 24
+    }
+  },
+  "rights_and_status_note": "Research stage only, source permissions not assumed; not published, not verified buyer, not a canonical or official company identification.",
+  "records": [
+    {
+      "display_name": "Cabre S.r.l.",
+      "canonical_domain": "cabreserresrl.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.cabreserresrl.it/serre/serre-e-strutture-per-lagricoltura/",
+      "source_summary": "Produzione serre agricole E7.50 e Turbo: archi, gambe e correnti in tubi zincati, fino a tubolare quadro 60x60.",
+      "review_lane": "web_profile_review_pending",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-01"
+    },
+    {
+      "display_name": "Capriotti Rimorchi",
+      "canonical_domain": "capriottirimorchi.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.capriottirimorchi.com/",
+      "source_summary": "Costruttore di rimorchi agricoli; verificare in schede prodotto le sezioni e i materiali dei telai.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-02"
+    },
+    {
+      "display_name": "Cavatorta",
+      "canonical_domain": "cavatorta.it",
+      "proposed_role": "producer",
+      "source_url": "https://www.cavatorta.it/",
+      "source_summary": "Produzione di reti, fili e prodotti metallici per recinzioni; produzione di tubo strutturale non documentata.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-03"
+    },
+    {
+      "display_name": "CitySi",
+      "canonical_domain": "citysi.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.citysi.it/",
+      "source_summary": "Progettazione e produzione di panchine, pensiline e arredo urbano; verificare materiali tubolari dei singoli prodotti.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-04"
+    },
+    {
+      "display_name": "Claut Rimorchi",
+      "canonical_domain": "clautrimorchi.it",
+      "proposed_role": "end_user",
+      "source_url": "https://clautrimorchi.it/",
+      "source_summary": "Produzione italiana di rimorchi agricoli su misura a Portogruaro; uso di tubolari specifici nei telai da verificare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-05"
+    },
+    {
+      "display_name": "Comipont",
+      "canonical_domain": "comipont.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.comipont.it/",
+      "source_summary": "Produttore italiano di ponteggi, puntelli e accessori per edilizia; schede tubolari da qualificare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-06"
+    },
+    {
+      "display_name": "Dimcar",
+      "canonical_domain": "dimcar.it",
+      "proposed_role": "end_user",
+      "source_url": "https://dimcar.it/arredo-urbano/panchine/panchina-luxe-in-acciaio-zincato",
+      "source_summary": "Panchina Luxe in acciaio zincato e verniciato con struttura che riprende elementi tubolari; diametri e standard da confermare.",
+      "review_lane": "web_profile_review_pending",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-07"
+    },
+    {
+      "display_name": "Edilreti S.r.l.",
+      "canonical_domain": "edilreti.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.edilreti.it/",
+      "source_summary": "Produzione di recinzioni e cancellate metalliche e reti da carpenteria; utilizzo di tubo strutturale non verificato.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-08"
+    },
+    {
+      "display_name": "Elsa Metallurgica",
+      "canonical_domain": "elsametallurgica.it",
+      "proposed_role": "producer",
+      "source_url": "https://www.elsametallurgica.it/",
+      "source_summary": "Produttore di rete metallica e chiodi per agricoltura e recinzione, rilevante per acciaio ma non confermato per tubolari.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-09"
+    },
+    {
+      "display_name": "Emmegi Grigliati",
+      "canonical_domain": "emmegigrigliati.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.emmegigrigliati.it/emmegi-grigliati-l-azienda/",
+      "source_summary": "Produzione di grigliati elettrosaldati, cancellate e recinzioni metalliche; uso di profili cavi da approfondire.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-10"
+    },
+    {
+      "display_name": "Europrogress",
+      "canonical_domain": "europrogress.it",
+      "proposed_role": "end_user",
+      "source_url": "https://europrogress.it/",
+      "source_summary": "Produttore di serre professionali e impianti per colture protette; dimensioni e materiali tubolari da documentare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-11"
+    },
+    {
+      "display_name": "Eurorecinzioni",
+      "canonical_domain": "eurorecinzioni.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.eurorecinzioni.com/",
+      "source_summary": "Azienda produttrice di recinzioni, pali, cancelli e cancellate in metallo; confermare profili tubolari.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-12"
+    },
+    {
+      "display_name": "Ferro Bulloni Italia",
+      "canonical_domain": "ferrobulloni.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.ferrobulloni.it/",
+      "source_summary": "Produzione italiana di recinzioni metalliche, pannelli e cancelli; le specifiche tubolari dei prodotti richiedono review.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-13"
+    },
+    {
+      "display_name": "FLY S.r.l.",
+      "canonical_domain": "flysrl.com",
+      "proposed_role": "end_user",
+      "source_url": "https://ecommerce.flysrl.com/rastrelliere-portabiciclette/",
+      "source_summary": "Fabbricazione di rastrelliere e portabiciclette in acciaio zincato o inox, forma dei profili da qualificare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-14"
+    },
+    {
+      "display_name": "FMB Tubes",
+      "canonical_domain": "fmbtubes.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.fmbtubes.it/",
+      "source_summary": "Lavorazione dell'acciaio e produzione di prefabbricati modulari, box e strutture metalliche; tubo specifico non dimostrato.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-15"
+    },
+    {
+      "display_name": "MAN S.r.l. Manzano",
+      "canonical_domain": "mansrlmanzano.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.mansrlmanzano.com/azienda2.php",
+      "source_summary": "Produzione di telai per sedute e semilavorati con reparto di taglio automatico di tubi e profilati.",
+      "review_lane": "web_profile_review_pending",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-16"
+    },
+    {
+      "display_name": "Mastec",
+      "canonical_domain": "mastec.it",
+      "proposed_role": "end_user",
+      "source_url": "https://mastec.it/",
+      "source_summary": "Progetta e produce recinzioni modulari, cancelli, parapetti e grigliati; sezioni dei tubolari da verificare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-17"
+    },
+    {
+      "display_name": "Paladeri S.r.l.",
+      "canonical_domain": "paladeri.eu",
+      "proposed_role": "producer",
+      "source_url": "https://paladeri.eu/it/azienda/",
+      "source_summary": "Produzione di tubi spiralati compositi in acciaio zincato e polietilene per infrastrutture, drenaggio e irrigazione.",
+      "review_lane": "web_profile_review_pending",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-18"
+    },
+    {
+      "display_name": "RD Italia",
+      "canonical_domain": "rditalia.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.rditalia.it/product-category/sedie-in-metallo/",
+      "source_summary": "Produttore italiano di sedie e arredi in metallo e acciaio; componenti tubolari da qualificare per modello.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-19"
+    },
+    {
+      "display_name": "Recinti Modulari",
+      "canonical_domain": "recintimodulari.it",
+      "proposed_role": "end_user",
+      "source_url": "https://recintimodulari.it/",
+      "source_summary": "Produzione di sistemi di recinzione modulari, steccati e frangivista in acciaio zincato.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-20"
+    },
+    {
+      "display_name": "Reti Rusconi",
+      "canonical_domain": "retirusconi.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.retirusconi.it/",
+      "source_summary": "Produzione di reti, pannelli e cancellate per recinzioni; profili cavi e specifiche da verificare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-21"
+    },
+    {
+      "display_name": "Tecnolavorazioni",
+      "canonical_domain": "tecnolavorazioni.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.tecnolavorazioni.com/realizzazione-serre-personalizzate/",
+      "source_summary": "Realizzazione su misura di serre a tubi zincati per uso privato e professionale; materiali dettagliati da approfondire.",
+      "review_lane": "web_profile_review_pending",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-22"
+    },
+    {
+      "display_name": "TMT International",
+      "canonical_domain": "tmtinternational.it",
+      "proposed_role": "end_user",
+      "source_url": "https://www.tmtinternational.it/tmt-agropro-rimorchio-agricolo-frutto-dell-innovazione-continua/",
+      "source_summary": "Produzione semirimorchi e modello agricolo AgroPro; tubolari dei telai non confermati.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-23"
+    },
+    {
+      "display_name": "Verderone Rimorchi",
+      "canonical_domain": "verderonerimorchi.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.verderonerimorchi.com/",
+      "source_summary": "Azienda produttrice di rimorchi agricoli e carrelli; fonti tecniche sul profilo di acciaio da reperire.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-24"
+    },
+    {
+      "display_name": "C.P. Group S.r.l.",
+      "canonical_domain": "cpgroup.tech",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://cpgroup.tech/componenti-meccaniche-agricoltura/",
+      "source_summary": "Produzione conto terzi di componenti meccanici per macchine agricole, senza tubo strutturale documentato.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-25"
+    },
+    {
+      "display_name": "FORMEC Industry",
+      "canonical_domain": "formecindustry.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.formecindustry.it/prodotti/componenti-per-macchine-agricole/",
+      "source_summary": "Lavorazioni conto terzi per componenti e telai di macchine agricole; uso di tubo da verificare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-26"
+    },
+    {
+      "display_name": "Giampi S.r.l.",
+      "canonical_domain": "giampi.com",
+      "proposed_role": "end_user",
+      "source_url": "https://www.giampi.com/realizzazioni/telai-per-macchine-e-serbatoi.html",
+      "source_summary": "Produzione telai e serbatoi in tubo e lamiera per motopompe, gruppi elettrogeni e impianti industriali.",
+      "review_lane": "web_profile_review_pending",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-27"
+    },
+    {
+      "display_name": "Impiccichè Piegatura Tubi",
+      "canonical_domain": "impicciche.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://impicciche.it/it/telai-macchine-agricole/",
+      "source_summary": "Azienda specializzata in piegatura tubi e costruzione di telai per macchine agricole.",
+      "review_lane": "web_profile_review_pending",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-28"
+    },
+    {
+      "display_name": "Intermobel",
+      "canonical_domain": "intermobel.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.intermobel.it/prodotti/semi-lavorati/?lang=it",
+      "source_summary": "Trasformazione di tubi metallici e profili anche in alluminio per componenti e semilavorati; acciaio tubolare da confermare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-29"
+    },
+    {
+      "display_name": "Meccanica Italia",
+      "canonical_domain": "meccanicaitalia.com",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.meccanicaitalia.com/agricolo/",
+      "source_summary": "Carpenteria saldata, telai, attacchi e protezioni per macchinari agricoli; materiale in tubo da verificare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-30"
+    },
+    {
+      "display_name": "Metalcondotte",
+      "canonical_domain": "metalcondotte.it",
+      "proposed_role": "producer",
+      "source_url": "https://www.metalcondotte.it/la-qualita",
+      "source_summary": "Azienda del settore tubazioni in acciaio, con norme richiamate EN 10219 e EN 10210; prodotti specifici da confermare.",
+      "review_lane": "web_profile_review_pending",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-31"
+    },
+    {
+      "display_name": "Ortolani Adelino S.r.l.",
+      "canonical_domain": "ortolani-srl.it",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://www.ortolani-srl.it/curvatura-tubi/curvatura-tubi-2/",
+      "source_summary": "Lavorazioni di taglio laser e curvatura di tubi metallici conto terzi.",
+      "review_lane": "web_profile_review_pending",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-32"
+    },
+    {
+      "display_name": "Porfiri",
+      "canonical_domain": "porfiri.eu",
+      "proposed_role": "processor_service_provider",
+      "source_url": "https://porfiri.eu/taglio-laser-tubo-3d/",
+      "source_summary": "Servizi di taglio laser 3D di tubi fino a 12,5 m e diametro 254 mm; materiali da confermare.",
+      "review_lane": "industrial_fit_review",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published",
+      "research_id": "NET-IT-GROWFAST1-33"
+    }
+  ]
+}
