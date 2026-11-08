@@ -57,7 +57,7 @@ BEGIN
  JOIN public.network_company_roles roles ON roles.canonical_key=m.role AND roles.status='active'
  JOIN public.network_eu_nuts2024_regions geo
    ON geo.code=m.nuts AND geo.country_code='RO' AND geo.nuts_level=2
- WHERE s.batch_key='NET-RO1-G9E-FAB9' AND s.source_kind='first_party_web'
+ WHERE s.batch_key='NET-RO1-G9E-FAB14' AND s.source_kind='first_party_web'
    AND s.review_lane='web_profile_review_pending'
    AND s.publication_status='not_published' AND s.claim_status='unclaimed'
    AND s.verification_status='web_sourced_unverified'
