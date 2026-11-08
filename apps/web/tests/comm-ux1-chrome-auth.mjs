@@ -250,6 +250,15 @@ try {
         await page.locator("#commercial-worklist").scrollIntoViewIfNeeded();
         await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-deals-desktop.png"),
           fullPage: false, animations: "disabled", caret: "initial" });
+        // COMM-SIMPLE2 visual acceptance: capture the real expanded primary submenu.
+        const directorNav = page.getByRole("navigation", { name: "Menu Commerciale", exact: true });
+        await directorNav.locator("summary").filter({ hasText: "Trattative e RFQ" }).click();
+        await directorNav.getByRole("link", { name: "Inbox e risposte" })
+          .waitFor({ state: "visible" });
+        assert.equal(await directorNav.locator("details[open]").count(), 1,
+          "Only one primary sidebar group can be expanded on desktop");
+        await page.screenshot({ path: path.join(screenshotsDir, "commercial-director-deals-open-desktop.png"),
+          fullPage: false, animations: "disabled", caret: "initial" });
       }
       // Every specialist page retains a correctly highlighted area.
       await verifyArea(page, "/commercial/analysis", "Analisi commerciale");
@@ -364,7 +373,11 @@ try {
     await verifyCinematic(page, "Commerciale mobile 320px buyer");
     await verifyArea(page, "/commercial", "Scrivania");
     await verifyArea(page, "/commercial/market-intelligence", "Mercato");
+    const secondaryMenu = await open(page, "/commercial/market-intelligence");
+    await secondaryMenu.getByRole("link", { name: "Mercato", exact: true }).waitFor({ state: "visible" });
     await noHorizontalPageOverflow(page, "Commerciale secondary menu 320px");
+    await page.screenshot({ path: path.join(screenshotsDir, "commercial-director-secondary-mobile-320.png"),
+      fullPage: false, animations: "disabled", caret: "initial" });
     await page.goto(base + "/commercial", { waitUntil: "domcontentloaded" });
     await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-mobile-320.png"),
       fullPage: false, animations: "disabled", caret: "initial" });
