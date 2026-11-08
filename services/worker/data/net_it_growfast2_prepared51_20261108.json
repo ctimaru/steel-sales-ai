@@ -1,0 +1,367 @@
+{
+  "batch": "NET-IT-GROWFAST2-PRIVATE51-20261108",
+  "created": "2026-11-08",
+  "status": "prepared_for_atomic_dedup_insert",
+  "first_party_checked": true,
+  "confirmed_lawful_republication": false,
+  "canonical_published_authorized": false,
+  "records": [
+    {
+      "name": "GSG",
+      "role": "processor_service_provider",
+      "url": "https://gsg.it/it/metodo-di-lavoro",
+      "summary": "Attività manifatturiera con lavorazioni industriali e servizio indicato di taglio laser tubo; tipo di materiale da approfondire.",
+      "domain": "gsg.it"
+    },
+    {
+      "name": "Studio Laser S.r.l.",
+      "role": "processor_service_provider",
+      "url": "https://www.studio-laser.it/",
+      "summary": "Lavorazioni laser per il settore industriale con tubi da confermare",
+      "domain": "studio-laser.it"
+    },
+    {
+      "name": "Coimi",
+      "role": "processor_service_provider",
+      "url": "https://www.coimisrl.com/carpenteria-metallica/lavorazioni/saldatura-lamiere-tubi/",
+      "summary": "Saldatura di lamiere e tubi per strutture industriali",
+      "domain": "coimisrl.com"
+    },
+    {
+      "name": "BFB Group",
+      "role": "processor_service_provider",
+      "url": "https://bfbgroup.it/servizi/",
+      "summary": "Produzione e assemblaggio per carpenteria metallica",
+      "domain": "bfbgroup.it"
+    },
+    {
+      "name": "Canfora",
+      "role": "processor_service_provider",
+      "url": "https://www.canfora.it/carpenteria/precisione-resistenza-serialita-carpenteria-metallica-industriale/",
+      "summary": "Carpenteria industriale in serie con CNC e laser",
+      "domain": "canfora.it"
+    },
+    {
+      "name": "IN.CO.S.",
+      "role": "processor_service_provider",
+      "url": "https://incos-carpenteria.com/",
+      "summary": "Carpenteria metallica strutturale per industria e infrastrutture",
+      "domain": "incos-carpenteria.com"
+    },
+    {
+      "name": "Aspirtecnica Genovese",
+      "role": "processor_service_provider",
+      "url": "https://aspirtecnica.it/carpenteria-metallica-industriale-e-per-edilizia/",
+      "summary": "Carpenteria metallica e strutture per l'industria",
+      "domain": "aspirtecnica.it"
+    },
+    {
+      "name": "Macom Carpenteria Meccanica",
+      "role": "processor_service_provider",
+      "url": "https://www.macomcarpenteriameccanica.com/carpenteria-metallica-tra-emilia-e-nord-italia/",
+      "summary": "Fabbricazione di manufatti in acciaio e acciaio inox",
+      "domain": "macomcarpenteriameccanica.com"
+    },
+    {
+      "name": "Brama Italia",
+      "role": "end_user",
+      "url": "https://www.bramaitalia.it/cancelli-e-recinzioni-in-acciaio/",
+      "summary": "Produzione di cancelli e recinzioni industriali in acciaio",
+      "domain": "bramaitalia.it"
+    },
+    {
+      "name": "Fors",
+      "role": "processor_service_provider",
+      "url": "https://www.forssrl.com/carpenteria/cancelli/",
+      "summary": "Carpenteria fabbrile e produzione di cancelli",
+      "domain": "forssrl.com"
+    },
+    {
+      "name": "MP Attrezzature Agricole",
+      "role": "end_user",
+      "url": "https://www.mpattrezzatureagricole.it/",
+      "summary": "Progettazione e costruzione di attrezzature agricole",
+      "domain": "mpattrezzatureagricole.it"
+    },
+    {
+      "name": "Officine Meccaniche Ferruzza",
+      "role": "end_user",
+      "url": "https://www.ferruzza.it/ita/azienda.html",
+      "summary": "Produzione di rimorchi agricoli e attrezzature",
+      "domain": "ferruzza.it"
+    },
+    {
+      "name": "Feba Rimorchi",
+      "role": "end_user",
+      "url": "https://www.febarimorchi.com/",
+      "summary": "Costruzione di rimorchi agricoli e carribotte",
+      "domain": "febarimorchi.com"
+    },
+    {
+      "name": "Mantella Trailers",
+      "role": "end_user",
+      "url": "https://www.mantellatrailers.com/personalizzazioni/",
+      "summary": "Costruzione di semirimorchi con telai su misura",
+      "domain": "mantellatrailers.com"
+    },
+    {
+      "name": "Gervasi Ecologica",
+      "role": "end_user",
+      "url": "https://www.gervasiecologica.com/it/",
+      "summary": "Produttore di mezzi e attrezzature per ecologia e trasporto",
+      "domain": "gervasiecologica.com"
+    },
+    {
+      "name": "Viberti",
+      "role": "end_user",
+      "url": "https://www.viberti.it/azienda/",
+      "summary": "Produttore di semirimorchi e attrezzature di trasporto",
+      "domain": "viberti.it"
+    },
+    {
+      "name": "Corradini Rimorchi",
+      "role": "end_user",
+      "url": "https://corradinirimorchi.it/azienda/",
+      "summary": "Produzione di rimorchi e allestimenti per il trasporto",
+      "domain": "corradinirimorchi.it"
+    },
+    {
+      "name": "OCM Steel",
+      "role": "trader_distributor",
+      "url": "https://www.ocmsteel.it/",
+      "summary": "Commercio di rimorchi e semirimorchi per uso industriale, da qualificare per uso diretto di tubolari.",
+      "domain": "ocmsteel.it"
+    },
+    {
+      "name": "Marinelli Macchine Agricole",
+      "role": "end_user",
+      "url": "https://www.marinellimacchineagricole.it/prodotti/telai-antiribaltamento/",
+      "summary": "Costruzione di telai di sicurezza per macchine agricole",
+      "domain": "marinellimacchineagricole.it"
+    },
+    {
+      "name": "Siderval",
+      "role": "producer",
+      "url": "https://www.siderval.com/it/applicazioni/agricoltura/",
+      "summary": "Produzione di profili in acciaio estruso per applicazioni industriali",
+      "domain": "siderval.com"
+    },
+    {
+      "name": "Urban Italian Design",
+      "role": "end_user",
+      "url": "https://www.urbanitaliandesign.com/",
+      "summary": "Arredo urbano e realizzazione di soluzioni per spazi pubblici",
+      "domain": "urbanitaliandesign.com"
+    },
+    {
+      "name": "Euroform W",
+      "role": "end_user",
+      "url": "https://www.euroform-w.com/it/news/2024-02-20/arredo-urbano",
+      "summary": "Produzione di elementi di arredo urbano e soluzioni per spazi pubblici",
+      "domain": "euroform-w.com"
+    },
+    {
+      "name": "Rete Plastic",
+      "role": "end_user",
+      "url": "https://www.reteplastic.it/",
+      "summary": "Produzione e distribuzione di reti e sistemi per recinzioni",
+      "domain": "reteplastic.it"
+    },
+    {
+      "name": "Euro Reti",
+      "role": "trader_distributor",
+      "url": "https://www.euroretisrl.com/",
+      "summary": "Vendita e fornitura di reti e accessori per recinzioni industriali.",
+      "domain": "euroretisrl.com"
+    },
+    {
+      "name": "Solo Recinzioni Cancelli",
+      "role": "trader_distributor",
+      "url": "https://www.solorecinzionicancelli.it/",
+      "summary": "Vendita di recinzioni modulari e cancelli in metallo",
+      "domain": "solorecinzionicancelli.it"
+    },
+    {
+      "name": "Trevigiana Metalli",
+      "role": "trader_distributor",
+      "url": "https://trevigianametalli.it/",
+      "summary": "Commercio e distribuzione di materiali metallici",
+      "domain": "trevigianametalli.it"
+    },
+    {
+      "name": "TCB Tubi",
+      "role": "trader_distributor",
+      "url": "https://tcbtubi.it/costruzioni-in-acciaio/",
+      "summary": "Fornitura di tubi in acciaio per costruzioni",
+      "domain": "tcbtubi.it"
+    },
+    {
+      "name": "Castil",
+      "role": "processor_service_provider",
+      "url": "https://www.castil.it/chi-siamo/",
+      "summary": "Produzione di componenti metallici per sedute e arredi",
+      "domain": "castil.it"
+    },
+    {
+      "name": "Emme Italia",
+      "role": "processor_service_provider",
+      "url": "https://www.emmeitalia.com/",
+      "summary": "Carpenteria metallica in acciaio per mobili contract",
+      "domain": "emmeitalia.com"
+    },
+    {
+      "name": "Cicli Galetti",
+      "role": "end_user",
+      "url": "https://cicligaletti.it/sag/",
+      "summary": "Costruzione di telai artigianali per biciclette in acciaio",
+      "domain": "cicligaletti.it"
+    },
+    {
+      "name": "Faggin Bikes",
+      "role": "end_user",
+      "url": "https://www.fagginbikes.com/",
+      "summary": "Realizzazione artigianale di telai per biciclette",
+      "domain": "fagginbikes.com"
+    },
+    {
+      "name": "Simoncini Telai",
+      "role": "end_user",
+      "url": "https://simoncinitelaibiciclette.it/",
+      "summary": "Fabbricazione di telai per biciclette da corsa e città",
+      "domain": "simoncinitelaibiciclette.it"
+    },
+    {
+      "name": "Formigli",
+      "role": "end_user",
+      "url": "https://www.formigli.it/",
+      "summary": "Produzione di telai e biciclette artigianali",
+      "domain": "formigli.it"
+    },
+    {
+      "name": "Officine Mattio",
+      "role": "end_user",
+      "url": "https://www.officinemattio.com/costruzione-telaio",
+      "summary": "Produzione e costruzione di telai di biciclette",
+      "domain": "officinemattio.com"
+    },
+    {
+      "name": "Gruppo SIF",
+      "role": "end_user",
+      "url": "https://www.grupposif.com/impalcature-edili-2/",
+      "summary": "Produzione e distribuzione di ponteggi e puntelli",
+      "domain": "grupposif.com"
+    },
+    {
+      "name": "Bertero Carpenteria",
+      "role": "processor_service_provider",
+      "url": "https://www.berterocarpenteria.it/lavorazioni-in-metallo-come-nasce-un-progetto-su-misura/",
+      "summary": "Produzione di manufatti metallici su misura",
+      "domain": "berterocarpenteria.it"
+    },
+    {
+      "name": "OCAM",
+      "role": "processor_service_provider",
+      "url": "https://www.ocam.it/",
+      "summary": "Lavorazioni e prodotti metallici industriali da qualificare",
+      "domain": "ocam.it"
+    },
+    {
+      "name": "Incoservice",
+      "role": "trader_distributor",
+      "url": "https://incoservice.org/",
+      "summary": "Fornitura di cancelli recinzioni e grigliati su misura per clienti industriali.",
+      "domain": "incoservice.org"
+    },
+    {
+      "name": "Zanda",
+      "role": "end_user",
+      "url": "https://www.zanda.it/cancelli-e-grate",
+      "summary": "Produzione di cancelli e grate di sicurezza",
+      "domain": "zanda.it"
+    },
+    {
+      "name": "Italmapi Group",
+      "role": "end_user",
+      "url": "https://www.italmapigroup.com/cancelli-recinzioni-metalliche",
+      "summary": "Realizzazione di cancelli e recinzioni metalliche su misura",
+      "domain": "italmapigroup.com"
+    },
+    {
+      "name": "RIB",
+      "role": "producer",
+      "url": "https://www.ribind.it/",
+      "summary": "Azienda italiana di soluzioni per cancelli",
+      "domain": "ribind.it"
+    },
+    {
+      "name": "Officine Locati",
+      "role": "end_user",
+      "url": "https://www.officinelocati.com/chiusure/cancelli-estensibili-milano/fabbrica-estensibili/",
+      "summary": "Produzione di cancelli estensibili e chiusure metalliche",
+      "domain": "officinelocati.com"
+    },
+    {
+      "name": "Asteco Industria",
+      "role": "end_user",
+      "url": "https://www.astecoindustria.com/realizzazioni/pensiline/",
+      "summary": "Realizzazione di pensiline e strutture per spazi pubblici",
+      "domain": "astecoindustria.com"
+    },
+    {
+      "name": "Metal System",
+      "role": "end_user",
+      "url": "https://www.metalsystem.mi.it/pensiline-in-acciaio-per-la-mobilita-sostenibile-quadro-normativo-e-criteri-di-scelta/",
+      "summary": "Strutture e pensiline in acciaio per uso pubblico",
+      "domain": "metalsystem.mi.it"
+    },
+    {
+      "name": "Bellitalia",
+      "role": "end_user",
+      "url": "https://www.bellitalia.net/",
+      "summary": "Produzione di componenti di arredo urbano",
+      "domain": "bellitalia.net"
+    },
+    {
+      "name": "Lietti",
+      "role": "end_user",
+      "url": "https://www.lietti.it/",
+      "summary": "Produzione di prodotti metallici e componenti per spazi pubblici da qualificare",
+      "domain": "lietti.it"
+    },
+    {
+      "name": "De Angelis Rimorchi",
+      "role": "end_user",
+      "url": "https://www.deangelisrimorchi.com/tradizione_ed_esperienza-45.html",
+      "summary": "Produzione di rimorchi e semirimorchi industriali",
+      "domain": "deangelisrimorchi.com"
+    },
+    {
+      "name": "Adeglas",
+      "role": "processor_service_provider",
+      "url": "https://adeglas.it/piegatura-tubi/",
+      "summary": "Piegatura e lavorazione di tubi per commesse industriali",
+      "domain": "adeglas.it"
+    },
+    {
+      "name": "Forghieri",
+      "role": "processor_service_provider",
+      "url": "https://forghieri.it/en/about-us/",
+      "summary": "Produzione integrata di strutture metalliche e componenti",
+      "domain": "forghieri.it"
+    },
+    {
+      "name": "GIMA",
+      "role": "processor_service_provider",
+      "url": "https://www.gima-srl.it/",
+      "summary": "Fabbricazione di componenti per settori industriali",
+      "domain": "gima-srl.it"
+    },
+    {
+      "name": "Urban 360",
+      "role": "end_user",
+      "url": "https://www.urban360gradi.it/categoria-arredo-urbano/panchine-design-arredo-urbano-prezzi/",
+      "summary": "Produzione e fornitura di arredi urbani in metallo",
+      "domain": "urban360gradi.it"
+    }
+  ]
+}
