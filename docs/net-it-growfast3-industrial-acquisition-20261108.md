@@ -1,6 +1,6 @@
 # NET-IT-GROWFAST3 — Primo lotto reale di 50 candidati italiani (8 novembre 2026)
 
-**Tracking:** [GitHub issue #undefined](https://github.com/ctimaru/steel-sales-ai/issues/1208) · release separata [NET-IT-RELEASEBULK1 #1202](https://github.com/ctimaru/steel-sales-ai/issues/1202).
+**Tracking:** [GitHub issue #1208](https://github.com/ctimaru/steel-sales-ai/issues/1208) · release separata [NET-IT-RELEASEBULK1 #1202](https://github.com/ctimaru/steel-sales-ai/issues/1202).
 
 ## Conferma effettiva di produzione
 
