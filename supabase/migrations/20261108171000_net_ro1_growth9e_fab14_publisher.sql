@@ -1,4 +1,4 @@
--- NET-RO1.GROWTH9.E: definition-only, 9-source fabricator publisher.
+-- NET-RO1.GROWTH9.E: definition-only, 14-source fabricator publisher.
 -- Country-region sourced from company sites; no contact, ownership, tube-grade
 -- or EN 10219 capability is asserted. Contact publication requires NET-CONTACT1
 -- privacy governance and is NOT performed by this migration.
