@@ -1,0 +1,1316 @@
+{
+  "batch_key": "NET-IT-CARP1-B-PROVWEB-20261108",
+  "snapshot_date": "2026-11-08",
+  "source": "Supabase production readback",
+  "candidates_sourced": 142,
+  "inserted": 130,
+  "filtered": 12,
+  "public_canonical_added": 0,
+  "domain_uniqueness": 130,
+  "rights_review": "pending",
+  "identity_review": "pending",
+  "source_url_status": "homepage inferred from indexed first-party domain; not individually tested",
+  "regional_status": "search area, not verified office location",
+  "rows": [
+    {
+      "research_id": "NET-IT-CARP1B-20261108-001",
+      "display_name": "Officine Tampalini",
+      "canonical_domain": "officinetampalini.it",
+      "source_url": "https://officinetampalini.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-002",
+      "display_name": "Prodeco",
+      "canonical_domain": "prodecosrl.it",
+      "source_url": "https://prodecosrl.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia Mantova (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-003",
+      "display_name": "BBN Meccanica",
+      "canonical_domain": "bbnmeccanica.it",
+      "source_url": "https://bbnmeccanica.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia, Verolanuova; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-004",
+      "display_name": "SteelDel",
+      "canonical_domain": "steeldel.it",
+      "source_url": "https://steeldel.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-005",
+      "display_name": "Officina Z.I.",
+      "canonical_domain": "officinazi.it",
+      "source_url": "https://officinazi.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia, Provaglio d'Iseo; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-006",
+      "display_name": "Officine Tironi",
+      "canonical_domain": "officinetironi.it",
+      "source_url": "https://officinetironi.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bergamo Brescia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-007",
+      "display_name": "Eredi Boffi",
+      "canonical_domain": "erediboffi.it",
+      "source_url": "https://erediboffi.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Milano (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-008",
+      "display_name": "Palmieri Carpenteria Meccanica",
+      "canonical_domain": "palmiericarpenteriameccanica.com",
+      "source_url": "https://palmiericarpenteriameccanica.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Milano (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-010",
+      "display_name": "FA.DA.FER",
+      "canonical_domain": "fadafer.com",
+      "source_url": "https://fadafer.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Campania, Montoro; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-011",
+      "display_name": "Carpenteria C.L.A.F.",
+      "canonical_domain": "carpenteria-claf.com",
+      "source_url": "https://carpenteria-claf.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Milano, Bareggio; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-012",
+      "display_name": "GPZ Espositori",
+      "canonical_domain": "gpzespositori.com",
+      "source_url": "https://gpzespositori.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Veneto, Vicenza (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-013",
+      "display_name": "Faresin Luigi",
+      "canonical_domain": "faresinluigi.it",
+      "source_url": "https://faresinluigi.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Vicenza (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-014",
+      "display_name": "Artifilotech",
+      "canonical_domain": "artifilotech.it",
+      "source_url": "https://artifilotech.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Veneto (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-015",
+      "display_name": "Carpenteria Cenghialta",
+      "canonical_domain": "cenghialtacarpenteria.it",
+      "source_url": "https://cenghialtacarpenteria.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Vicenza (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-016",
+      "display_name": "Officina Viviani",
+      "canonical_domain": "officinaviviani.it",
+      "source_url": "https://officinaviviani.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Verona (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-017",
+      "display_name": "Carpenteria Bisognin",
+      "canonical_domain": "carpenteriabisognin.it",
+      "source_url": "https://carpenteriabisognin.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Vicenza, Montecchio Maggiore; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-018",
+      "display_name": "Ferrari Melidonio",
+      "canonical_domain": "ferrarimelidonio.it",
+      "source_url": "https://ferrarimelidonio.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Vicenza Verona (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-019",
+      "display_name": "TFB Meccanica",
+      "canonical_domain": "tfbmeccanica.it",
+      "source_url": "https://tfbmeccanica.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Vicenza Verona (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-020",
+      "display_name": "Carpenteria Metallica G.T.",
+      "canonical_domain": "carpenteriametallicagt.com",
+      "source_url": "https://carpenteriametallicagt.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Padova, Monselice; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-021",
+      "display_name": "Spadotto",
+      "canonical_domain": "spadotto.it",
+      "source_url": "https://spadotto.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Veneto, Padova Treviso (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-023",
+      "display_name": "SE.CAR.",
+      "canonical_domain": "se-car.it",
+      "source_url": "https://se-car.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Veneto, Venezia Padova (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-024",
+      "display_name": "Orifil",
+      "canonical_domain": "orifil.it",
+      "source_url": "https://orifil.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Padova (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-025",
+      "display_name": "Officine Ortiga",
+      "canonical_domain": "ortiga.it",
+      "source_url": "https://ortiga.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Veneto (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-026",
+      "display_name": "X2 Manufacturing",
+      "canonical_domain": "x2manufacturing.it",
+      "source_url": "https://x2manufacturing.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Modena Bologna (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-027",
+      "display_name": "Officina Maccaferri",
+      "canonical_domain": "maccaferri.mo.it",
+      "source_url": "https://maccaferri.mo.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Modena, Cavazzona; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-028",
+      "display_name": "GV di Vignali",
+      "canonical_domain": "gvdivignali.com",
+      "source_url": "https://gvdivignali.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bologna (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-029",
+      "display_name": "Officine Barbieri",
+      "canonical_domain": "officinebarbieri.it",
+      "source_url": "https://officinebarbieri.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Emilia Romagna, Bologna Modena (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-030",
+      "display_name": "TS Carpenterie",
+      "canonical_domain": "tscarpenteriesrl.com",
+      "source_url": "https://tscarpenteriesrl.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bologna Modena (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-031",
+      "display_name": "SemaIn",
+      "canonical_domain": "semainsrl.com",
+      "source_url": "https://semainsrl.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Modena Bologna (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-033",
+      "display_name": "Nuova Eurorampe",
+      "canonical_domain": "nuovaeurorampe.it",
+      "source_url": "https://nuovaeurorampe.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Modena Reggio Emilia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-035",
+      "display_name": "Gor.Far.",
+      "canonical_domain": "gorfar.it",
+      "source_url": "https://gorfar.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Reggio Emilia (ricerca, divisione E80); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-036",
+      "display_name": "TiEsse Carpenteria",
+      "canonical_domain": "tiessesas.com",
+      "source_url": "https://tiessesas.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Asti (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-037",
+      "display_name": "Riberi",
+      "canonical_domain": "riberi.com",
+      "source_url": "https://riberi.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Cuneo (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-039",
+      "display_name": "Dipa Carpenteria",
+      "canonical_domain": "dipacarpenteriatorino.it",
+      "source_url": "https://dipacarpenteriatorino.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Torino (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-040",
+      "display_name": "BTB",
+      "canonical_domain": "btbsrl.net",
+      "source_url": "https://btbsrl.net/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Torino Cuneo (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-041",
+      "display_name": "Carpenteria Primiano",
+      "canonical_domain": "carpenteriaprimiano.it",
+      "source_url": "https://carpenteriaprimiano.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Asti (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-042",
+      "display_name": "Martino Carpenteria",
+      "canonical_domain": "carpenteriamartino.com",
+      "source_url": "https://carpenteriamartino.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Piemonte (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-043",
+      "display_name": "FDUEG",
+      "canonical_domain": "fdueg.com",
+      "source_url": "https://fdueg.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Novara (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-044",
+      "display_name": "Eurometallica",
+      "canonical_domain": "eurometallica.it",
+      "source_url": "https://eurometallica.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Novara (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-045",
+      "display_name": "MAF Carpenteria Metallica",
+      "canonical_domain": "mafcarpenteriametallica.com",
+      "source_url": "https://mafcarpenteriametallica.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Novara, Romentino; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-046",
+      "display_name": "Carpenteria Malavasi",
+      "canonical_domain": "carpenteriamalavasi.it",
+      "source_url": "https://carpenteriamalavasi.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Mantova (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-047",
+      "display_name": "Officina Meccanica Ferri",
+      "canonical_domain": "officinameccanicaferri.eu",
+      "source_url": "https://officinameccanicaferri.eu/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Pavia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-049",
+      "display_name": "Officina Bonacina",
+      "canonical_domain": "officinabonacina.com",
+      "source_url": "https://officinabonacina.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Lecco (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-050",
+      "display_name": "LARP",
+      "canonical_domain": "larpsrl.com",
+      "source_url": "https://larpsrl.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Como Lecco (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-051",
+      "display_name": "Bima Impianti",
+      "canonical_domain": "bimaimpiantisrl.it",
+      "source_url": "https://bimaimpiantisrl.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Como Lecco Varese (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-052",
+      "display_name": "MG Montaggi",
+      "canonical_domain": "mgmontaggisrl.com",
+      "source_url": "https://mgmontaggisrl.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Lecco, La Valletta Brianza; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-053",
+      "display_name": "Metal Factory",
+      "canonical_domain": "metalfactory.eu",
+      "source_url": "https://metalfactory.eu/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Varese Como Lecco (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-054",
+      "display_name": "Costruzioni Colombo",
+      "canonical_domain": "costruzionicolombo.com",
+      "source_url": "https://costruzionicolombo.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Milano Varese Novara (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-055",
+      "display_name": "Cesari Pietro",
+      "canonical_domain": "cesaripietro.it",
+      "source_url": "https://cesaripietro.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bergamo, Treviolo; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-056",
+      "display_name": "Carpenteria Brogni",
+      "canonical_domain": "carpenteriabrogni.com",
+      "source_url": "https://carpenteriabrogni.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bergamo (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-057",
+      "display_name": "Lapi Lamiere",
+      "canonical_domain": "lapilamiere.com",
+      "source_url": "https://lapilamiere.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bergamo (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-059",
+      "display_name": "Stilmet",
+      "canonical_domain": "stilmet-srl.it",
+      "source_url": "https://stilmet-srl.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Monza Brianza (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-060",
+      "display_name": "F.lli Misani",
+      "canonical_domain": "misani.it",
+      "source_url": "https://misani.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Monza Brianza (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-061",
+      "display_name": "Carpenteria Luzzani",
+      "canonical_domain": "carpenterialuzzani.com",
+      "source_url": "https://carpenterialuzzani.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Monza Brianza, Limbiate; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-062",
+      "display_name": "Zaccaria Bruno",
+      "canonical_domain": "zaccariabruno.com",
+      "source_url": "https://zaccariabruno.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Vicenza, Arcugnano; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-063",
+      "display_name": "IMMEC",
+      "canonical_domain": "immec.it",
+      "source_url": "https://immec.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Vicenza (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-064",
+      "display_name": "Mantiero Group",
+      "canonical_domain": "mantierogroup.com",
+      "source_url": "https://mantierogroup.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Vicenza (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-067",
+      "display_name": "Metal Steel Group",
+      "canonical_domain": "metalsteelgroup.it",
+      "source_url": "https://metalsteelgroup.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Padova Treviso (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-068",
+      "display_name": "Carpenterie Romor",
+      "canonical_domain": "carpenterieindustriali.com",
+      "source_url": "https://carpenterieindustriali.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Belluno, Alpago; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-069",
+      "display_name": "Metalfer Belluno",
+      "canonical_domain": "metalferbelluno.it",
+      "source_url": "https://metalferbelluno.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Belluno; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-070",
+      "display_name": "Adami Group",
+      "canonical_domain": "adamigroup.it",
+      "source_url": "https://adamigroup.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Verona (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-072",
+      "display_name": "GAFM",
+      "canonical_domain": "gafmsrl.com",
+      "source_url": "https://gafmsrl.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Reggio Emilia; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-073",
+      "display_name": "Carpenteria Metallica F.F.T.",
+      "canonical_domain": "fftcarpenteria.com",
+      "source_url": "https://fftcarpenteria.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia, Serle; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-074",
+      "display_name": "VSB Carpenteria Metallica",
+      "canonical_domain": "vsbcarpenteria.it",
+      "source_url": "https://vsbcarpenteria.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Milano, Solaro; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-075",
+      "display_name": "M&T Carpenteria",
+      "canonical_domain": "mtcarpenteria.it",
+      "source_url": "https://mtcarpenteria.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Vicenza, Lonigo; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-076",
+      "display_name": "B.G.M.",
+      "canonical_domain": "bgm-it.com",
+      "source_url": "https://bgm-it.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-077",
+      "display_name": "CO.FER",
+      "canonical_domain": "cofer-srl.it",
+      "source_url": "https://cofer-srl.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia, Corte Franca; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-078",
+      "display_name": "Mectronics",
+      "canonical_domain": "mectronics.it",
+      "source_url": "https://mectronics.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-080",
+      "display_name": "Mazzacani",
+      "canonical_domain": "mazzacani.it",
+      "source_url": "https://mazzacani.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Brescia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-081",
+      "display_name": "Carpenteria Medicea",
+      "canonical_domain": "carpenteriamedicea.it",
+      "source_url": "https://carpenteriamedicea.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Firenze Prato (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-083",
+      "display_name": "Carpenteria Toscana",
+      "canonical_domain": "carpenteriatoscana.it",
+      "source_url": "https://carpenteriatoscana.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Toscana (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-084",
+      "display_name": "Siderlavori",
+      "canonical_domain": "siderlavori.it",
+      "source_url": "https://siderlavori.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Toscana (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-085",
+      "display_name": "SBC Carpenteria",
+      "canonical_domain": "carpenteriasbc.it",
+      "source_url": "https://carpenteriasbc.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Firenze Prato (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-086",
+      "display_name": "OMCF",
+      "canonical_domain": "omcf.it",
+      "source_url": "https://omcf.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Firenze (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-087",
+      "display_name": "DueDi Costruzioni Metalliche",
+      "canonical_domain": "duedicostruzionimetalliche.it",
+      "source_url": "https://duedicostruzionimetalliche.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Toscana (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-088",
+      "display_name": "San Services",
+      "canonical_domain": "sanservices.it",
+      "source_url": "https://sanservices.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Taranto Bari (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-089",
+      "display_name": "C.F.G.",
+      "canonical_domain": "cfgbari.it",
+      "source_url": "https://cfgbari.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bari (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-090",
+      "display_name": "Metalgi",
+      "canonical_domain": "metalgi.it",
+      "source_url": "https://metalgi.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Puglia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-091",
+      "display_name": "MP Montaggi e Carpenteria",
+      "canonical_domain": "mpmontaggisrl.it",
+      "source_url": "https://mpmontaggisrl.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Lecce, Salento (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-092",
+      "display_name": "AZ Impianti",
+      "canonical_domain": "azimpianti.info",
+      "source_url": "https://azimpianti.info/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Salerno (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-093",
+      "display_name": "MEI Meccanica Industriale",
+      "canonical_domain": "meimeccanicaindustrialesrl.com",
+      "source_url": "https://meimeccanicaindustrialesrl.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Caserta, Vitulazio; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-094",
+      "display_name": "DP Metal",
+      "canonical_domain": "dpmetal.it",
+      "source_url": "https://dpmetal.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Chieti, Vasto; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-095",
+      "display_name": "Herrero",
+      "canonical_domain": "herrero.it",
+      "source_url": "https://herrero.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Abruzzo Marche (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-096",
+      "display_name": "IMEA Serramenti",
+      "canonical_domain": "imeaserramenti.it",
+      "source_url": "https://imeaserramenti.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Teramo; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-097",
+      "display_name": "Adriatica Chiusure",
+      "canonical_domain": "adriaticachiusure.it",
+      "source_url": "https://adriaticachiusure.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Abruzzo (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-098",
+      "display_name": "Vetro Alluminio Verolense",
+      "canonical_domain": "vetroalluminioverolense.it",
+      "source_url": "https://vetroalluminioverolense.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Frosinone (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-099",
+      "display_name": "Macauda Carpenterie",
+      "canonical_domain": "macaudacarpenterie.it",
+      "source_url": "https://macaudacarpenterie.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Sicilia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-100",
+      "display_name": "Sicil Metalli La Rosa",
+      "canonical_domain": "sicilmetallilarosa.com",
+      "source_url": "https://sicilmetallilarosa.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Messina, Tremestieri; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-101",
+      "display_name": "PRO.CO.ME",
+      "canonical_domain": "procome.it",
+      "source_url": "https://procome.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Nuoro, Orosei; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-102",
+      "display_name": "Pinna Raffaele",
+      "canonical_domain": "rafaelepinna.com",
+      "source_url": "https://rafaelepinna.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Oristano, Ghilarza; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-103",
+      "display_name": "Soluzioni Metalliche",
+      "canonical_domain": "soluzionimetalliche.com",
+      "source_url": "https://soluzionimetalliche.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Sardegna (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-104",
+      "display_name": "Frener Paul",
+      "canonical_domain": "frener-paul.it",
+      "source_url": "https://frener-paul.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bolzano, Bressanone; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-105",
+      "display_name": "Plose Metallbau",
+      "canonical_domain": "plosemetallbau.it",
+      "source_url": "https://plosemetallbau.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bolzano (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-106",
+      "display_name": "Metall Ritten",
+      "canonical_domain": "metallritten.com",
+      "source_url": "https://metallritten.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Bolzano (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-107",
+      "display_name": "Carpenteria Grisenti",
+      "canonical_domain": "carpenteriagrisenti.it",
+      "source_url": "https://carpenteriagrisenti.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Trento, Baselga di Piné; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-108",
+      "display_name": "Pezzini Carpenteria",
+      "canonical_domain": "pezzinicarpenteria.com",
+      "source_url": "https://pezzinicarpenteria.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Trentino (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-109",
+      "display_name": "Frainer",
+      "canonical_domain": "frainer.it",
+      "source_url": "https://frainer.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Trento, Roncegno; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-110",
+      "display_name": "CMA Giuliano",
+      "canonical_domain": "cmagiuliano.com",
+      "source_url": "https://cmagiuliano.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Matera (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-111",
+      "display_name": "Bea Service",
+      "canonical_domain": "beaservice.it",
+      "source_url": "https://beaservice.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Potenza, Tito Scalo; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-112",
+      "display_name": "Catalano Serramenti",
+      "canonical_domain": "catalanoserramenti.it",
+      "source_url": "https://catalanoserramenti.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Campobasso, Montenero di Bisaccia; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-113",
+      "display_name": "ME.TE.S.",
+      "canonical_domain": "metescb.it",
+      "source_url": "https://metescb.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Campobasso, Spinete; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-114",
+      "display_name": "CM Carpenteria",
+      "canonical_domain": "carpenteriacm.it",
+      "source_url": "https://carpenteriacm.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Molise (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-115",
+      "display_name": "Metal Carpenteria",
+      "canonical_domain": "metalcarpenteria.org",
+      "source_url": "https://metalcarpenteria.org/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Calabria (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-116",
+      "display_name": "Cosentinox",
+      "canonical_domain": "cosentinox.com",
+      "source_url": "https://cosentinox.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Cosenza (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-117",
+      "display_name": "Metallica",
+      "canonical_domain": "metallicasrl.net",
+      "source_url": "https://metallicasrl.net/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: La Spezia; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-118",
+      "display_name": "Saavedra Carpenteria Metallica",
+      "canonical_domain": "saavedracarpenteriametallica.com",
+      "source_url": "https://saavedracarpenteriametallica.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Genova (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-119",
+      "display_name": "Acier Steel",
+      "canonical_domain": "acier-steel.com",
+      "source_url": "https://acier-steel.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Liguria (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-120",
+      "display_name": "AV Carpenteria",
+      "canonical_domain": "av-carpenteria.com",
+      "source_url": "https://av-carpenteria.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Liguria (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-121",
+      "display_name": "DMA Carpenteria",
+      "canonical_domain": "carpenteriadma.it",
+      "source_url": "https://carpenteriadma.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: La Spezia; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-122",
+      "display_name": "Arena Costruzione Infissi",
+      "canonical_domain": "arenacostruzioneinfissi.it",
+      "source_url": "https://arenacostruzioneinfissi.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Sicilia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-123",
+      "display_name": "Metal Group Castelvetrano",
+      "canonical_domain": "metalgroupcastelvetrano.com",
+      "source_url": "https://metalgroupcastelvetrano.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Trapani, Castelvetrano; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-124",
+      "display_name": "AgriMetalMec",
+      "canonical_domain": "agrimetalmec.com",
+      "source_url": "https://agrimetalmec.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Ragusa, Modica; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-125",
+      "display_name": "Metalmeccanica Lanotte",
+      "canonical_domain": "metalmeccanicalanotte.it",
+      "source_url": "https://metalmeccanicalanotte.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Barletta (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-126",
+      "display_name": "Officina Stefano Manca",
+      "canonical_domain": "officinastefanomanca.it",
+      "source_url": "https://officinastefanomanca.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Sardegna (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-127",
+      "display_name": "Unicosmo",
+      "canonical_domain": "carpenteriametallicaunicosmo.it",
+      "source_url": "https://carpenteriametallicaunicosmo.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Sassari (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-128",
+      "display_name": "Nuova SISMET",
+      "canonical_domain": "nuovasismetsrl.it",
+      "source_url": "https://nuovasismetsrl.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Sardegna (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-129",
+      "display_name": "Simec Carpenteria Metallica",
+      "canonical_domain": "simeccarpenteriametallica.it",
+      "source_url": "https://simeccarpenteriametallica.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Pescara, Cugnoli; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-130",
+      "display_name": "DBF Carpenteria Metallica",
+      "canonical_domain": "dbfcarpenteriametallica.it",
+      "source_url": "https://dbfcarpenteriametallica.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Abruzzo (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-131",
+      "display_name": "CSA Technology",
+      "canonical_domain": "csatechnologyinfissi.com",
+      "source_url": "https://csatechnologyinfissi.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Ascoli Piceno; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-132",
+      "display_name": "Fratelli Amabili",
+      "canonical_domain": "fratelliamabili.it",
+      "source_url": "https://fratelliamabili.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Ascoli Piceno; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-133",
+      "display_name": "ALCI Meccanica",
+      "canonical_domain": "alcimeccanica.it",
+      "source_url": "https://alcimeccanica.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Ascoli Piceno; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-134",
+      "display_name": "CS Carpenterie",
+      "canonical_domain": "cscarpenterie.it",
+      "source_url": "https://cscarpenterie.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Toscana (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-135",
+      "display_name": "Officine COS.MET.",
+      "canonical_domain": "officinecosmet.it",
+      "source_url": "https://officinecosmet.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Lazio (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-136",
+      "display_name": "C.G.S. Metalmeccanica",
+      "canonical_domain": "cgs-metalmeccanica.it",
+      "source_url": "https://cgs-metalmeccanica.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Pesaro Urbino, San Costanzo; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-137",
+      "display_name": "Veneta Montaggi Bellese",
+      "canonical_domain": "venetamontaggi.it",
+      "source_url": "https://venetamontaggi.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Treviso; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-138",
+      "display_name": "Trentin",
+      "canonical_domain": "trentinsrl.com",
+      "source_url": "https://trentinsrl.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Treviso, Breda di Piave; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-139",
+      "display_name": "Marchesin",
+      "canonical_domain": "marchesinsrl.it",
+      "source_url": "https://marchesinsrl.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Treviso, Vedelago; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-140",
+      "display_name": "Carpenteria Costa Dionisio",
+      "canonical_domain": "carpenteriacosta.com",
+      "source_url": "https://carpenteriacosta.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Padova, Grantorto; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-141",
+      "display_name": "M.A. Carpenteria",
+      "canonical_domain": "macarpenteria.com",
+      "source_url": "https://macarpenteria.com/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Padova, Limena; sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    },
+    {
+      "research_id": "NET-IT-CARP1B-20261108-142",
+      "display_name": "Ceolin G. & C.",
+      "canonical_domain": "ceolingec.it",
+      "source_url": "https://ceolingec.it/",
+      "source_summary": "Sito aziendale individuato tramite ricerca online sulla carpenteria metallica. Area di ricerca: Treviso Venezia (ricerca); sede e specializzazione ancora da confermare prima della pubblicazione.",
+      "proposed_role": "processor_service_provider",
+      "verification_status": "web_sourced_unverified",
+      "publication_status": "not_published"
+    }
+  ]
+}
