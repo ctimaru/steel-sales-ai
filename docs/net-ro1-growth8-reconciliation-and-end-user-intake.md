@@ -41,7 +41,9 @@ The 25 source URLs and factual summaries are frozen in `services/worker/data/net
 | **End users / industrial buyers** | **16** | Agricultural machinery, trailers, railway wagons, metal furniture and infrastructure manufacturing |
 | **Industrial subcontractors** | **7** | Welded metal structures, steel fabrication, specialized processing |
 | **Producers** | **2** | **Hold**: one local plant on a multinational group domain; one steel profile producer not documented as a structural tube mill |
-| **Total** | **25** | 17 initially in `web_profile_review_pending`, 8 in source/identity/product-fit holds |
+| **Total** | **25** | 16 initially in `web_profile_review_pending`, 9 in source/identity/product-fit/site-integrity holds |
+
+**Source-integrity exception:** Didicom (`didicom.ro`) displays unrelated gambling links alongside its metalworking description. It remains in `website_integrity_review_hold` and must not be publicly promoted until a clean first-party source/identity is established.
 
 Selected source examples:
 - **OEHLER MECANICA SRL** — agricultural trailer production; official https://www.oehlermecanica.ro/despre-noi/ — end user; tube purchases not confirmed.
