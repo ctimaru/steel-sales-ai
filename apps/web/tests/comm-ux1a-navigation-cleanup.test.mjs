@@ -29,9 +29,10 @@ test("COMM-NAV7 uses grouped director navigation instead of duplicated Commercia
   assert.match(directorShell, /aria-label="Menu Commerciale mobile"/);
   assert.match(directorShell, /getWorkspaceNavigationContext\(pathname\)\.primary !== "commercial"/);
   assert.match(directorShell, /xl:grid-cols-\[214px_minmax\(0,1fr\)\]/);
+  // COMM-SIMPLE2 preserves the five director areas with shorter labels.
   for (const title of [
-    "La mia scrivania", "Trattative e acquisti", "Clienti e fornitori",
-    "Analisi e opportunità", "Strumenti e memoria",
+    'label: "Scrivania"', 'label: "Trattative e RFQ"', 'label: "Aziende"',
+    'label: "Analisi"', 'label: "Strumenti"',
   ]) assert.ok(directorGroups.includes(title), title);
   assert.match(directorShell, /aria-current=\{current \? "page" : undefined\}/);
   assert.match(nav, /WorkspaceMobileBottomNavigation/);

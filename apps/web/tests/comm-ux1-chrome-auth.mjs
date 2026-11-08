@@ -51,6 +51,11 @@ async function verifyArea(page, route, selected) {
   const current = nav.getByRole("link", { name: selected, exact: true });
   await current.waitFor({ state: "visible" });
   assert.equal(await current.getAttribute("aria-current"), "page", route + ": " + selected);
+  // COMM-SIMPLE2: one active destination, never both a worklist filter and RFQ parent.
+  assert.equal(await nav.locator('a[aria-current="page"]').count(), 1,
+    route + ": one active commercial destination");
+  assert.ok(await nav.locator('[data-testid="commercial-director-groups"] > details[open]').count() <= 1,
+    route + ": a single expanded sidebar group");
   assert.equal(await page.getByRole("navigation", { name: "Sezioni Commerciale" }).count(), 0,
     "The old three-tab bar must not duplicate the director menu");
   const mobile = (page.viewportSize()?.width ?? 1440) < 1280;
@@ -187,7 +192,7 @@ try {
     const page = await context.newPage();
     try {
       await signIn(page, p);
-      await verifyArea(page, "/commercial", "Cruscotto");
+      await verifyArea(page, "/commercial", "Scrivania");
       await verifyCinematic(page, "Commerciale desktop " + p.id);
       await page.getByRole("heading", { name: "Le mie trattative" })
         .waitFor({ state: "visible", timeout: 60000 });
@@ -255,10 +260,10 @@ try {
       await verifyArea(page, "/commercial/companies", "Aziende");
       await verifyArea(page, "/rfq-hub", "Centro RFQ");
       if (p.id === "buyer") {
-        await verifyArea(page, "/rfq-hub/inbox", "Inbox operativa");
-        await verifyArea(page, "/rfq-hub/distinte", "Distinte salvate");
-        await verifyArea(page, "/commercial?view=offers#commercial-worklist", "Offerte");
-        await verifyArea(page, "/commercial?view=orders#commercial-worklist", "Ordini");
+        await verifyArea(page, "/rfq-hub/inbox", "Inbox e risposte");
+        await verifyArea(page, "/rfq-hub/distinte", "Distinte");
+        await verifyArea(page, "/commercial?view=offers#commercial-worklist", "Trattative");
+        await verifyArea(page, "/commercial?view=orders#commercial-worklist", "Trattative");
         console.log("COMM-NAV8 PASS canonical RFQ sections and filtered commercial worklist");
       }
       await verifyArea(page, "/commercial/products", "Prodotti");
@@ -267,7 +272,7 @@ try {
         await verifyArea(page, "/commercial/assistant", "Assistente AI privato");
         const other = personas.find(person => person.org !== p.org);
         const nav = await open(page, "/commercial?item=campaign:" + other.rfq);
-        assert.equal(await nav.getByRole("link", { name: "Cruscotto" }).getAttribute("aria-current"), "page");
+        assert.equal(await nav.getByRole("link", { name: "Scrivania" }).getAttribute("aria-current"), "page");
         assert.ok(!(await page.locator("body").innerText()).includes(other.rfqTitle),
           "Cross-tenant campaign deep link exposed content");
       }
@@ -286,7 +291,7 @@ try {
     const page = await context.newPage();
     try {
       await signIn(page, p);
-      await verifyArea(page, "/commercial", "Cruscotto");
+      await verifyArea(page, "/commercial", "Scrivania");
       await page.getByRole("heading", { name: "Le mie trattative" })
         .waitFor({ state: "visible", timeout: 60000 });
       await noHorizontalPageOverflow(page, "Commerciale 390px " + id);
@@ -304,7 +309,7 @@ try {
       await f.getByRole("searchbox").waitFor({ state: "visible", timeout: 60000 });
       assert.equal(await f.getByRole("searchbox").count(), 1);
       const mobileMenu = await open(page, "/commercial");
-      await mobileMenu.locator("summary").filter({ hasText: "Analisi e opportunità" }).click();
+      await mobileMenu.locator("summary").filter({ hasText: "Analisi" }).click();
       await mobileMenu.getByRole("link", { name: "Analisi commerciale", exact: true }).click();
       await page.waitForURL(u => u.pathname === "/commercial/analysis", { timeout: 60000 });
       // COMM-NAV8: selecting an item closes the mobile disclosure without
@@ -357,6 +362,10 @@ try {
     await signIn(page, buyer);
     await page.goto(base + "/commercial", { waitUntil: "domcontentloaded" });
     await verifyCinematic(page, "Commerciale mobile 320px buyer");
+    await verifyArea(page, "/commercial", "Scrivania");
+    await verifyArea(page, "/commercial/market-intelligence", "Mercato");
+    await noHorizontalPageOverflow(page, "Commerciale secondary menu 320px");
+    await page.goto(base + "/commercial", { waitUntil: "domcontentloaded" });
     await page.screenshot({ path: path.join(screenshotsDir, "commercial-owner-mobile-320.png"),
       fullPage: false, animations: "disabled", caret: "initial" });
   } finally {
