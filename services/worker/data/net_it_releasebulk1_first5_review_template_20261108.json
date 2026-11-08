@@ -1,0 +1,62 @@
+{
+  "batch": "NET-IT-GROWFAST2-PRIVATE51-20261108",
+  "wave": "NET-IT-GROWFAST2-PUBLISH-WAVE01",
+  "status": "operator_template_only_do_not_submit_without_actual_review",
+  "source_rights_verified": false,
+  "identity_review_completed": false,
+  "attested": false,
+  "p_commit": false,
+  "p_expected_fingerprint": null,
+  "items": [
+    {
+      "seed_id": "c2cbdf05-307b-4148-b73b-44aa7cc53cbb",
+      "domain": "adeglas.it",
+      "role": "processor_service_provider",
+      "legal_name": "Adeglas",
+      "identity_evidence_url": null,
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    },
+    {
+      "seed_id": "d3f142d9-c9e3-4304-9e21-77f8729fe7c6",
+      "domain": "cicligaletti.it",
+      "role": "end_user",
+      "legal_name": "Cicli Galetti",
+      "identity_evidence_url": null,
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    },
+    {
+      "seed_id": "f742c807-60ec-4685-a453-4823edd2f86e",
+      "domain": "coimisrl.com",
+      "role": "processor_service_provider",
+      "legal_name": "Coimi",
+      "identity_evidence_url": null,
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    },
+    {
+      "seed_id": "a15d8809-dc53-4430-9a42-0b96d60ab457",
+      "domain": "grupposif.com",
+      "role": "end_user",
+      "legal_name": "Gruppo SIF",
+      "identity_evidence_url": null,
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    },
+    {
+      "seed_id": "d0cbb9c8-7ef0-4502-8ade-953b5188bd68",
+      "domain": "tcbtubi.it",
+      "role": "trader_distributor",
+      "legal_name": "TCB Tubi",
+      "identity_evidence_url": null,
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    }
+  ]
+}
