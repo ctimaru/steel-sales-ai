@@ -115,6 +115,9 @@ BEGIN
         -- clean preflight before the canonical insert within this transaction.
         LOCK TABLE public.network_core_target_leads IN SHARE ROW EXCLUSIVE MODE;
         LOCK TABLE public.network_company_discovery_candidates IN SHARE ROW EXCLUSIVE MODE;
+        -- This table participates in the NOT EXISTS preflight below.
+        -- Lock it as well to prevent a new domain lead racing the final check.
+        LOCK TABLE public.network_discovery_domain_leads IN SHARE ROW EXCLUSIVE MODE;
         LOCK TABLE public.network_netfast3_suppressed_domains IN SHARE ROW EXCLUSIVE MODE;
     END IF;
 
