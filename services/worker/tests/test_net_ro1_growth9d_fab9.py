@@ -70,6 +70,9 @@ def test_staging_migration_private_only_fails_on_duplicates():
     assert "INSERT INTO public.network_companies" not in sql
     assert "INSERT INTO public.network_contacts" not in sql
     assert "v_count<>9" in sql and "v_inserted<>9" in sql
+    assert "x.canonical_domain) FROM pg_catalog.jsonb_to_recordset(v_manifest) AS x(canonical_domain text))<>9" in sql
+    assert "x.research_id) FROM pg_catalog.jsonb_to_recordset(v_manifest) AS x(research_id text))<>9" in sql
+    assert "<>15" not in sql
     assert "network_netfast3_suppressed_domains" in sql
     assert "network_eu_nuts2024_regions" in sql
     assert "pg_advisory_xact_lock" in sql
