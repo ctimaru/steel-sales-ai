@@ -25,6 +25,7 @@ jobs:
       FLOW1_LOCAL_PROVIDER: "true"
       RESEND_API_KEY: ""
       CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -83,7 +84,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          nohup npm run dev -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/netit-e7b-next.log" 2>&1 &
+          if ! npm run build > "$RUNNER_TEMP/netit-e7b-build.log" 2>&1; then
+            tail -n 100 "$RUNNER_TEMP/netit-e7b-build.log"
+            exit 1
+          fi
+          nohup npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/netit-e7b-next.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/netit-e7b-next.pid"
           for attempt in $(seq 1 60); do
             if curl --silent --fail --max-time 8 http://127.0.0.1:3000/login > /dev/null; then
@@ -109,6 +114,9 @@ jobs:
       - name: Local renderer diagnostics after failed QA
         if: failure()
         run: |
+          if [ -f "$RUNNER_TEMP/netit-e7b-build.log" ]; then
+            tail -n 60 "$RUNNER_TEMP/netit-e7b-build.log"
+          fi
           if [ -f "$RUNNER_TEMP/netit-e7b-next.log" ]; then
             tail -n 100 "$RUNNER_TEMP/netit-e7b-next.log" | sed -E 's/(password|token|key)=[^ ]+/\1=[redacted]/g'
           fi
