@@ -380,19 +380,16 @@ export async function CommercialUnifiedWorklist({
           {view !== "all" ? <input type="hidden" name="view" value={view} /> : null}
           <label htmlFor="commercial-worklist-q" className="sr-only">Filtra le attività visibili</label>
           <input id="commercial-worklist-q" type="search" name="q" maxLength={80} defaultValue={query}
+            title={isStreamView(view)
+              ? "Il filtro qui cerca nelle intestazioni RFQ, offerte e ordini."
+              : "Qui filtri le attività visibili, non tutto l’archivio documentale."}
             placeholder={isStreamView(view) ? "Cerca titolo RFQ, stato o riferimento ordine..." : "Filtra azienda, articolo o stato..."}
             className="min-h-10 min-w-0 flex-1 rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
           <button className="app-secondary min-h-10 shrink-0 rounded-lg px-3 text-xs font-semibold" type="submit">Filtra</button>
         </form>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-[var(--text-secondary)]">
-        <span>{isStreamView(view)
-          ? "Il filtro qui cerca nelle intestazioni RFQ, offerte e ordini."
-          : "Qui filtri le attività visibili, non tutto l’archivio documentale."}</span>
         <Link href={commercialSearchHref(query)}
-          className="font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">
-          Cerca anche aziende, articoli, misure e norme nello storico →
+          className="inline-flex min-h-10 shrink-0 items-center px-1 text-xs font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">
+          Cerca nello storico →
         </Link>
       </div>
 
