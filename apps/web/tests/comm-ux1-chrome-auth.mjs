@@ -252,7 +252,7 @@ try {
           fullPage: false, animations: "disabled", caret: "initial" });
         // COMM-SIMPLE2 visual acceptance: capture the real expanded primary submenu.
         const directorNav = page.getByRole("navigation", { name: "Menu Commerciale", exact: true });
-        await directorNav.locator("summary").filter({ hasText: "Trattative e RFQ" }).click();
+        await directorNav.locator("summary").filter({ hasText: "Direzione aziendale" }).click();
         await directorNav.getByRole("link", { name: "Inbox e risposte" })
           .waitFor({ state: "visible" });
         assert.equal(await directorNav.locator("details[open]").count(), 1,

@@ -70,8 +70,9 @@ test("HP8 carries permission and business role through invitation onboarding", (
   assert.match(worker, /business_role: BusinessRole \| None/);
   assert.match(worker, /"business_role": business_role/);
   assert.match(onboarding, /name="business_role"/);
-  assert.match(onboarding, /Sales Director/);
-  assert.match(onboarding, /Commerciale/);
+  assert.match(onboarding, /Direzione commerciale/);
+  assert.match(onboarding, /Ufficio commerciale/);
+  assert.match(onboarding, /Ufficio acquisti/);
   assert.match(onboarding, /Operations/);
   assert.match(authFinish, /organizationInvitation\.business_role/);
   assert.match(migration, /business_role text/);
