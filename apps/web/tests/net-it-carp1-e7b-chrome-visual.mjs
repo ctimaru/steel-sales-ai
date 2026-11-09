@@ -67,7 +67,7 @@ try{
       await page.getByRole("heading",{name:"Carpenterie · dati e riconciliazione"}).waitFor();
       assert.equal(await page.getByTestId("net-it-carp1-e5-company").count(),40,
         "First page must show forty fictional companies");
-      assert.match(await page.locator("main").innerText(),/100 risultati|100 risultati/i);
+      assert.match(await page.getByTestId("net-it-carp1-e5-cockpit").innerText(),/100 risultati|100 risultati/i);
       await assertNoOverflow(page,width,"all");
       await page.screenshot({
         path:path.join(out,"carpenterie-overview-"+width+".png"),
@@ -89,7 +89,7 @@ try{
       await page.getByRole("link",{name:"Solo candidature",exact:true}).click();
       await page.waitForURL(u=>u.searchParams.get("state")==="research_seed_missing",{timeout:30000});
       assert.equal(await page.getByTestId("net-it-carp1-e5-company").count(),40);
-      assert.match(await page.locator("main").innerText(),/66 candidature principali|66 risultati/i);
+      assert.match(await page.getByTestId("net-it-carp1-e5-cockpit").innerText(),/66 candidature principali|66 risultati/i);
       await page.getByRole("link",{name:/Successiva/}).click();
       await page.waitForURL(u=>u.searchParams.get("page")==="2",{timeout:30000});
       assert.equal(await page.getByTestId("net-it-carp1-e5-company").count(),26,
