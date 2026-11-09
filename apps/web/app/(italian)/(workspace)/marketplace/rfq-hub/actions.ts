@@ -16,6 +16,7 @@ import {
 import { legalIdentityConfigured } from "@/lib/legal";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { matchesConfirmedRecipients } from "@/lib/rfq-dispatch-recipient-check";
+import { officeWriteDenied } from "@/lib/office-profile-guard";
 import { createClient } from "@/lib/supabase/server";
 
 export type SupplierCandidate = {
@@ -185,6 +186,8 @@ export async function addSupplierToBuyerRfq(
   if (!authData.user) {
     return { ok: false, error: "Accedi per modificare il RFQ." };
   }
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
 
   const rfqId = input.rfqId.trim();
   const supplierName = input.supplierName?.trim() || null;
@@ -431,6 +434,8 @@ export async function launchBuyerRfq(
   const user = authData.user;
 
   if (!user) return { ok: false, error: "Accedi per inviare la RFQ." };
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
 
   const apiKey = process.env.RESEND_API_KEY;
   const inviteSecret = process.env.RFQ_INVITE_SECRET;
@@ -590,6 +595,8 @@ export async function retryFailedBuyerRfq(
   const user = authData.user;
 
   if (!user) return { ok: false, error: "Accedi per riprovare gli invii." };
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey || !process.env.RFQ_INVITE_SECRET) {
@@ -709,6 +716,8 @@ export async function sendBuyerRfqReminders(
   const user = authData.user;
 
   if (!user) return { ok: false, error: "Accedi per inviare i promemoria." };
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey || !process.env.RFQ_INVITE_SECRET) {

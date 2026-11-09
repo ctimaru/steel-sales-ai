@@ -65,4 +65,20 @@ test("OFFICE-PROFILES1 wiring: migration, worker, team UI and RFQ chat respect t
   const chat = read("../components/rfqc1-chat-workspace.tsx");
   assert.match(chat, /data-testid="rfqc1-new-request"/);
   assert.match(chat, /readOnlyByProfile/);
+
+  // Applicazione lato server: nessuna scrittura RFQ parte da un profilo in sola consultazione.
+  const base = "../app/(italian)/(workspace)/marketplace/rfq-hub/";
+  for (const [file, fns] of [
+    ["actions.ts", ["addSupplierToBuyerRfq", "launchBuyerRfq", "retryFailedBuyerRfq", "sendBuyerRfqReminders"]],
+    ["[rfqId]/award-actions.ts", ["confirmRfqAward"]],
+    ["[rfqId]/po-actions.ts", ["updatePurchaseOrderTerms", "issuePurchaseOrder"]],
+    ["[rfqId]/negotiation-actions.ts", ["postBuyerRfqNegotiation", "sendBuyerNegotiationReminder"]],
+  ]) {
+    const source = read(base + file);
+    for (const fn of fns) {
+      const body = source.slice(source.indexOf("export async function " + fn));
+      const guardAt = body.indexOf('officeWriteDenied("purchasing")');
+      assert.ok(guardAt > 0 && guardAt < 1400, fn + " must check the office profile first");
+    }
+  }
 });

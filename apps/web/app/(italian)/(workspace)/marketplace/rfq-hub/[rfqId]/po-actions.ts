@@ -8,6 +8,7 @@ import {
   createRfqh9PoSecurity,
   type Rfqh9SupplierPortal,
 } from "@/lib/rfqh9-po";
+import { officeWriteDenied } from "@/lib/office-profile-guard";
 import { createClient } from "@/lib/supabase/server";
 
 function readableError(message: string) {
@@ -47,6 +48,8 @@ export async function updatePurchaseOrderTerms(input: {
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) return { ok: false, error: "Accedi per modificare il PO." };
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
 
   const { error } = await supabase.rpc("rfqh9_update_po_terms", {
     p_po_draft_id: input.poDraftId,
@@ -81,6 +84,8 @@ export async function issuePurchaseOrder(input: {
   const { data: authData } = await supabase.auth.getUser();
   const user = authData.user;
   if (!user) return { ok: false, error: "Accedi per emettere il PO." };
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
 
   const { data: stateData, error: stateError } = await supabase.rpc("rfqh9_po_state", {
     p_rfq_id: input.rfqId,
