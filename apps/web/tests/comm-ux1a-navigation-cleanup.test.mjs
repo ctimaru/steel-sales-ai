@@ -23,16 +23,16 @@ const { getWorkspaceNavigationContext, getCommercialNavigationArea } = await imp
 );
 
 test("COMM-NAV7 uses grouped director navigation instead of duplicated Commerciale top tabs", () => {
-  assert.match(shell, /<WorkspaceCommercialDirectorShell>\{children\}<\/WorkspaceCommercialDirectorShell>/);
+  assert.match(shell, /<WorkspaceCommercialDirectorShell role=\{organizationRole\} businessRole=\{businessRole\}>/);
   assert.match(nav, /if \(current === "home" \|\| current === "commercial"\) return null/);
   assert.match(directorShell, /aria-label="Menu Commerciale"/);
   assert.match(directorShell, /aria-label="Menu Commerciale mobile"/);
   assert.match(directorShell, /getWorkspaceNavigationContext\(pathname\)\.primary !== "commercial"/);
   assert.match(directorShell, /xl:grid-cols-\[214px_minmax\(0,1fr\)\]/);
-  // COMM-SIMPLE2 preserves the five director areas with shorter labels.
+  // OFFICE-PROFILES1: Direzione aziendale contains the two offices; the other areas keep their labels.
   for (const title of [
-    'label: "Scrivania"', 'label: "Trattative e RFQ"', 'label: "Aziende"',
-    'label: "Analisi"', 'label: "Strumenti"',
+    'label: "Scrivania"', 'label: "Direzione aziendale"', 'label: "Ufficio commerciale"',
+    'label: "Ufficio acquisti"', 'label: "Analisi"', 'label: "Strumenti"',
   ]) assert.ok(directorGroups.includes(title), title);
   assert.match(directorShell, /aria-current=\{current \? "page" : undefined\}/);
   assert.match(nav, /WorkspaceMobileBottomNavigation/);
