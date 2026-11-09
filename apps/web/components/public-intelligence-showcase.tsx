@@ -9,7 +9,7 @@ import cineStyles from "./public-cinematic-continuity.module.css";
 const workflow = [
   {
     number: "01",
-    title: "Distinte salvate",
+    title: "Distinte",
     description: "Prepara articoli, norme, gradi e quantità.",
   },
   {
