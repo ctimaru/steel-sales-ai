@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { requirePlatformConsoleContext } from "@/lib/platform-admin";
+import { getFounderDecisionHistory } from "@/lib/founder-decision-history";
 import {
   getPlatformCockpitSnapshot,
   type PlatformCockpitKey,
@@ -92,12 +93,21 @@ const ORDER: readonly PlatformCockpitKey[] = [
 const formatNumber = (value: number | null) =>
   value === null ? "—" : new Intl.NumberFormat("it-IT").format(value);
 
-export default async function PlatformDecisionsPage() {
+export default async function PlatformDecisionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ before?: string | string[] }>;
+}) {
   const context = await requirePlatformConsoleContext();
   // This is the founder's cross-domain dashboard, not a delegated staff queue.
   if (!context.is_platform_owner) notFound();
 
-  const snapshot = await getPlatformCockpitSnapshot(context);
+  const { before } = await searchParams;
+  const cursor = typeof before === "string" ? before : undefined;
+  const [snapshot, history] = await Promise.all([
+    getPlatformCockpitSnapshot(context),
+    getFounderDecisionHistory(cursor),
+  ]);
   const pending = ORDER
     .map((key) => snapshot.signals.find((signal) => signal.key === key))
     .filter((signal): signal is PlatformCockpitSignal =>
@@ -192,13 +202,84 @@ export default async function PlatformDecisionsPage() {
         </section>
       ) : null}
 
+      <section id="history" aria-labelledby="platform-decision-history" className="scroll-mt-24 space-y-3">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 id="platform-decision-history" className="text-lg font-bold text-[#173f35]">
+              Storico delle decisioni
+            </h2>
+            <p className="mt-1 max-w-2xl text-xs leading-5 text-[#52615b]">
+              Approvazioni, verifiche e pubblicazioni già registrate nel sistema.
+              Non comprende automaticamente le scelte strategiche discusse fuori dalla piattaforma.
+            </p>
+          </div>
+          {cursor ? (
+            <Link href="/platform/decisions#history"
+              className="inline-flex min-h-10 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">
+              ← Torna alle più recenti
+            </Link>
+          ) : null}
+        </div>
+
+        {history.status === "unavailable" ? (
+          <div role="status" className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            Storico non consultabile in questo momento. Non significa che non siano state registrate decisioni.
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e6ece8] pb-3">
+              <span className="text-xs font-semibold text-[#52615b]">
+                {history.entries.length} {history.entries.length === 1 ? "decisione registrata" : "decisioni registrate"} in questa pagina
+              </span>
+              <span className="text-xs text-[#66736e]">
+                {history.checkedAt
+                  ? "Consultato alle " + new Intl.DateTimeFormat("it-IT", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Rome" }).format(new Date(history.checkedAt))
+                  : "Ora non disponibile"}
+              </span>
+            </div>
+            {history.entries.length === 0 ? (
+              <p className="py-5 text-sm leading-6 text-[#52615b]">
+                Nessun evento registrato per le categorie attualmente incluse nello storico.
+              </p>
+            ) : (
+              <ol className="divide-y divide-[#e6ece8]">
+                {history.entries.map((entry) => (
+                  <li key={entry.id} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-bold leading-5 text-[#173f35]">{entry.title}</h3>
+                      <p className="mt-1 text-xs leading-5 text-[#52615b]">{entry.effect}</p>
+                      <p className="mt-1 text-xs text-[#66736e]">
+                        {entry.actor} · <time dateTime={entry.at}>{new Intl.DateTimeFormat("it-IT", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Rome" }).format(new Date(entry.at))}</time>
+                      </p>
+                    </div>
+                    <Link href={entry.href}
+                      className="inline-flex min-h-10 shrink-0 items-center text-xs font-bold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                      Apri la sezione →
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            )}
+            {history.hasMore && history.nextCursor ? (
+              <Link href={"/platform/decisions?before=" + encodeURIComponent(history.nextCursor) + "#history"}
+                className="mt-2 inline-flex min-h-10 items-center rounded-xl border border-[#c8dcd0] px-3 text-sm font-semibold text-[#175640] hover:bg-[#f4f9f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                Mostra decisioni precedenti →
+              </Link>
+            ) : null}
+            <p className="mt-3 border-t border-[#e6ece8] pt-3 text-xs leading-5 text-[#66736e]">
+              Fonte: registro amministrativo della piattaforma. Solo operazioni concluse e documentate;
+              nessun dato delle trattative commerciali private viene mostrato.
+            </p>
+          </div>
+        )}
+      </section>
+
       <section className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
         <h2 className="text-sm font-bold text-[#173f35]">Come funzionano le decisioni</h2>
         <p className="mt-2 text-sm leading-6 text-[#52615b]">
-          Questo è un riepilogo delle attività operative, non uno storico delle tue approvazioni.
-          Quando apri una scheda, la decisione avviene nella funzione autorizzata della piattaforma.
-          Una cronologia unica e le decisioni strategiche del fondatore saranno introdotte separatamente,
-          senza inventare scelte già prese.
+          Le attività in alto richiedono ancora una valutazione; lo storico mostra invece operazioni già registrate.
+          Le decisioni si effettuano nelle funzioni autorizzate della piattaforma, non da questa pagina.
+          Un registro separato per le scelte strategiche verrà introdotto soltanto con una tracciatura verificabile.
         </p>
       </section>
     </FocusPage>
