@@ -1,5 +1,6 @@
 import "server-only";
 import { commercialRowQuantity, type CommercialRowFacts } from "@/lib/commercial-row-facts";
+import { ROW_LINES_FETCHED, summarizeRowLines } from "@/lib/commercial-row-lines";
 
 import { Buffer } from "node:buffer";
 
@@ -172,7 +173,7 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
       source === "offers" ? "Offerta commerciale inviata" + inboundReference(id) :
       (customer ? "Ordine cliente" : "Ordine cliente · cliente non indicato") + inboundReference(id);
     const rowFacts: CommercialRowFacts | undefined = source === "rfqs" || source === "offers" || source === "orders"
-      ? { counterparty: customer || undefined }
+      ? { counterparty: customer || undefined, ...summarizeRowLines(r.lines), dueAt: source === "rfqs" ? timestamp(r.due_at) ?? undefined : undefined }
       : source === "purchaseOrders"
         ? { counterparty: str(r.supplier_name_snapshot, "") || undefined, totalEur: r.total_eur }
         : source === "drafts"
@@ -202,27 +203,34 @@ async function fetchSource(
   organizationId: string,
   q: string,
   offset: number,
+  withLines = true,
 ): Promise<Loaded> {
   const from = offset, to = offset + FETCH_PER_STREAM - 1;
   // Authored select strings avoid dynamic SQL and never include private quote prices.
   let request;
   if (source === "rfqs") {
     request = db.from("rfqs")
-      .select("id,status,created_at,company:companies!rfqs_company_id_fkey(name)", { count: "exact" })
+      .select("id,status,created_at,due_at,company:companies!rfqs_company_id_fkey(name)"+(withLines?",lines:rfq_lines!rfq_lines_rfq_id_fkey(raw_spec_text,requested_quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
+    if (withLines) request = request.order("created_at", { referencedTable: "rfq_lines", ascending: true })
+      .limit(ROW_LINES_FETCHED, { referencedTable: "rfq_lines" });
     if (q) request = request.ilike("status", "%" + q + "%");
   } else if (source === "offers") {
     request = db.from("offers")
-      .select("id,status,created_at,company:companies!offers_company_id_fkey(name)", { count: "exact" })
+      .select("id,status,created_at,company:companies!offers_company_id_fkey(name)"+(withLines?",lines:offer_lines!offer_lines_offer_id_fkey(raw_spec_text,source_text,quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
+    if (withLines) request = request.order("created_at", { referencedTable: "offer_lines", ascending: true })
+      .limit(ROW_LINES_FETCHED, { referencedTable: "offer_lines" });
     if (q) request = request.ilike("status", "%" + q + "%");
   } else if (source === "orders") {
     request = db.from("orders")
-      .select("id,status,created_at,company:companies!orders_company_id_fkey(name)", { count: "exact" })
+      .select("id,status,created_at,company:companies!orders_company_id_fkey(name)"+(withLines?",lines:order_lines!order_lines_order_id_fkey(raw_spec_text,quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
+    if (withLines) request = request.order("created_at", { referencedTable: "order_lines", ascending: true })
+      .limit(ROW_LINES_FETCHED, { referencedTable: "order_lines" });
     if (q) request = request.ilike("status", "%" + q + "%");
   } else if (source === "campaigns") {
     request = db.from("buyer_rfq_campaigns")
@@ -251,6 +259,11 @@ async function fetchSource(
     if (q) request = request.ilike("title", "%" + q + "%");
   }
   const result = await request;
+  // Le righe sono un arricchimento: se la lettura combinata fallisce, la lista
+  // resta disponibile senza materiale/quantità invece di risultare non verificabile.
+  if (result.error && withLines && (source === "rfqs" || source === "offers" || source === "orders")) {
+    return fetchSource(db, source, organizationId, q, offset, false);
+  }
   if (result.error) return { id: source, rows: [], total: null, error: true };
   const data = (result.data ?? []) as Row[];
   return { id: source, rows: mapSource(source, data), total: result.count ?? null, error: false };
