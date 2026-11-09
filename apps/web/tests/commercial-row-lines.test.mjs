@@ -16,15 +16,32 @@ test("pulisce i trattini decorativi e mantiene le sigle di materiale", () => {
 });
 
 test("segnala le righe aggiuntive senza mostrarle tutte", () => {
-  assert.equal(summarizeRowLines([{ raw_spec_text: "a", quantity: 2, quantity_unit: "T" }, { raw_spec_text: "b" }]).material, "a · +1 riga");
-  const many = [1, 2, 3, 4].map((i) => ({ raw_spec_text: "x" + i, quantity: i, quantity_unit: "PZ" }));
-  assert.match(summarizeRowLines(many).material, /altre righe$/);
+  const spec = (n) => ({ raw_spec_text: "EN 10219 80x80x" + n, quantity: n, quantity_unit: "T" });
+  assert.equal(summarizeRowLines([spec(5), spec(6)]).material, "EN 10219 80x80x5 · +1 riga");
+  assert.match(summarizeRowLines([spec(1), spec(2), spec(3), spec(4)]).material, /\+ altre righe$/);
+});
+
+test("sceglie la riga che sembra un materiale e ignora le frasi delle email", () => {
+  const r = summarizeRowLines([
+    { raw_spec_text: "come da accordi telefonici, mettere in ordine per Bologna due pacchi", quantity: 20, quantity_unit: "PZ" },
+    { raw_spec_text: "EN 10219 tubolare S355J2H 80x80x10 ---- L: 12000", quantity: 9, quantity_unit: "PZ" },
+  ]);
+  assert.equal(r.material, "EN 10219 tubolare S355J2H 80x80x10 · L: 12000 · +1 riga");
+  assert.equal(r.quantity, "9 pz");
+  // Le misure dopo un discorso non bastano: è una frase, non un materiale.
+  assert.deepEqual(summarizeRowLines([{ raw_spec_text: "fai attenzione: mi hai inserito 2 pacchi di 193,7x6 L. 12000", quantity: 7, quantity_unit: "PZ" }]), {});
+});
+
+test("nella lista non compaiono importi in euro", () => {
+  const a = summarizeRowLines([{ raw_spec_text: "193,7x10 a 12000 25 ton disponibile ----- € 780,50/ton franco", quantity: 25, quantity_unit: "T" }]);
+  assert.doesNotMatch(a.material, /€|\d+,\d+\/ton/);
+  assert.equal(summarizeRowLines([{ raw_spec_text: "168,3x4 a 920 euro/t", quantity: 5, quantity_unit: "PZ" }]).material, "168,3x4");
 });
 
 test("senza righe o con dati non numerici non inventa nulla", () => {
   assert.deepEqual(summarizeRowLines([]), {});
   assert.deepEqual(summarizeRowLines(null), {});
-  assert.equal(summarizeRowLines([{ raw_spec_text: "x", quantity: "n.d.", quantity_unit: "PZ" }]).quantity, undefined);
+  assert.equal(summarizeRowLines([{ raw_spec_text: "80x80x5", quantity: "n.d.", quantity_unit: "PZ" }]).quantity, undefined);
 });
 
 test("le query della lista leggono le righe con la relazione esplicita e un limite", () => {
