@@ -112,6 +112,30 @@ const title = (value: unknown) => {
 const timestamp = (value: unknown) => typeof value === "string" && Number.isFinite(Date.parse(value)) ? value : null;
 const normalizedTime = (value: unknown) => timestamp(value) ?? "1970-01-01T00:00:00Z";
 
+// Stati delle attività in ingresso: valori di database mostrati in italiano.
+const inboundStatusLabels: Record<string, string> = {
+  new: "Nuova",
+  received: "Ricevuto",
+  sent: "Inviata",
+  draft: "Bozza",
+  open: "Aperta",
+  in_progress: "In lavorazione",
+  accepted: "Accettata",
+  confirmed: "Confermato",
+  rejected: "Rifiutata",
+  declined: "Rifiutata",
+  cancelled: "Annullata",
+  canceled: "Annullata",
+  closed: "Chiusa",
+  completed: "Completato",
+  expired: "Scaduta",
+};
+export function inboundStatusLabel(value: unknown): string {
+  const raw = typeof value === "string" ? value.trim() : "";
+  if (!raw) return "—";
+  return inboundStatusLabels[raw.toLowerCase()] ?? raw;
+}
+
 function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
   return rows.filter((r) => uuid(r.id)).map((r) => {
     const id = r.id as string;
@@ -136,13 +160,14 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
     const status = source === "campaigns" ? rfqCampaignStatusLabel(str(r.status, "")) :
       source === "purchaseOrders" ? rfqOrderStatusLabel(str(r.status, "")) :
       source === "quotes" ? "Offerta ricevuta" :
-      source === "drafts" ? "Salvata" : str(r.status, "—");
+      source === "drafts" ? "Salvata" : inboundStatusLabel(r.status);
     const subtitle = source === "quotes" ? "Risposta fornitore · revisione " + String(r.revision_no ?? "—") :
       source === "purchaseOrders" ? str(r.supplier_name_snapshot, str(campaignTitle, "Fornitore")) :
       source === "drafts" ? String(r.line_count ?? "—") + " righe · distinta privata" :
       source === "campaigns" ? "Campagna privata ai fornitori" :
       source === "rfqs" ? "Richiesta commerciale ricevuta" :
-      source === "offers" ? "Offerta commerciale inviata" : "Ordine cliente";
+      source === "offers" ? "Offerta commerciale inviata" :
+      customer ? "Ordine cliente" : "Ordine cliente · cliente non indicato";
     const rowFacts: CommercialRowFacts | undefined = source === "rfqs" || source === "offers" || source === "orders"
       ? { counterparty: customer || undefined }
       : source === "purchaseOrders"
