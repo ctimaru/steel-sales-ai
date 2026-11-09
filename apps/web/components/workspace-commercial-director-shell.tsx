@@ -8,11 +8,17 @@ import {
   commercialDirectorAllItems,
   commercialDirectorGroups,
   commercialDirectorLinkSelected,
+  type CommercialDirectorItem,
 } from "@/lib/commercial-director-navigation";
+import {
+  canManageOfficeProfiles,
+  officeProfileOf,
+  type OfficeProfile,
+} from "@/lib/office-profiles";
 import { getWorkspaceNavigationContext } from "@/lib/workspace-information-architecture";
 
 function DirectorGroup({
-  group, expanded, onExpandedChange, pathname, view, onNavigate,
+  group, expanded, onExpandedChange, pathname, view, onNavigate, canManageProfiles, profile,
 }: {
   group: (typeof commercialDirectorGroups)[number];
   expanded: boolean;
@@ -20,7 +26,10 @@ function DirectorGroup({
   pathname: string;
   view: string | null;
   onNavigate?: () => void;
+  canManageProfiles: boolean;
+  profile: OfficeProfile | null;
 }) {
+  const allowed = (item: CommercialDirectorItem) => !item.adminOnly || canManageProfiles;
   const extraActive = group.moreItems.some(item =>
     commercialDirectorLinkSelected(item.href, pathname, view)
   );
@@ -63,7 +72,7 @@ function DirectorGroup({
         <span aria-hidden="true" className="shrink-0 text-sm text-[#547666] transition group-open:rotate-90">›</span>
       </summary>
       <div className="space-y-0.5 px-1.5 pb-2 pt-0.5">
-        {group.items.map(item => {
+        {group.items.filter(allowed).map(item => {
           const current = commercialDirectorLinkSelected(item.href, pathname, view);
           return (
             <Link
@@ -82,6 +91,36 @@ function DirectorGroup({
             </Link>
           );
         })}
+        {(group.sections ?? []).map(section => (
+          <div key={section.key} className="mt-1.5 border-t border-[#e1ebe5] pt-1.5"
+            data-testid={"commercial-office-" + section.key}>
+            <p className="flex items-center justify-between px-3 pb-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-[#547666]">
+              <span>{section.label}</span>
+              {profile === section.key ? (
+                <span className="rounded-full bg-[#e3f1e8] px-1.5 py-0.5 text-[9px] normal-case tracking-normal text-[#175640]">Il tuo ufficio</span>
+              ) : null}
+            </p>
+            {section.items.filter(allowed).map(item => {
+              const current = commercialDirectorLinkSelected(item.href, pathname, view);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onNavigate}
+                  aria-current={current ? "page" : undefined}
+                  className={[
+                    "block min-h-9 rounded-md px-3 py-2 text-xs leading-5 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]",
+                    current
+                      ? "app-selected-solid font-bold"
+                      : "font-medium text-[#476458] hover:bg-[#eaf3ed] hover:text-[#123a2b]",
+                  ].join(" ")}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </div>
+        ))}
         {group.moreItems.length > 0 ? (
           <details
             open={extraOpen}
@@ -118,7 +157,7 @@ function DirectorGroup({
   );
 }
 
-function DirectorMenuGroups({ mobile = false, onNavigate }: { mobile?: boolean; onNavigate?: () => void }) {
+function DirectorMenuGroups({ mobile = false, onNavigate, access }: { mobile?: boolean; onNavigate?: () => void; access: DirectorAccess }) {
   const pathname = usePathname();
   const view = useSearchParams().get("view");
   const activeGroup = commercialDirectorGroups.find(group =>
@@ -126,7 +165,7 @@ function DirectorMenuGroups({ mobile = false, onNavigate }: { mobile?: boolean; 
       commercialDirectorLinkSelected(item.href, pathname, view)
     )
   )?.key;
-  const [expandedKey, setExpandedKey] = useState<string | null>(activeGroup ?? (mobile ? null : "deals"));
+  const [expandedKey, setExpandedKey] = useState<string | null>(activeGroup ?? (mobile ? null : "direction"));
   useEffect(() => {
     if (activeGroup) setExpandedKey(activeGroup);
   }, [activeGroup]);
@@ -138,13 +177,14 @@ function DirectorMenuGroups({ mobile = false, onNavigate }: { mobile?: boolean; 
           onExpandedChange={open => setExpandedKey(current =>
             open ? group.key : current === group.key ? null : current
           )}
-          pathname={pathname} view={view} onNavigate={onNavigate} />
+          pathname={pathname} view={view} onNavigate={onNavigate}
+          canManageProfiles={access.canManageProfiles} profile={access.profile} />
       ))}
     </div>
   );
 }
 
-function CommercialDirectorNavigation({ mobile = false }: { mobile?: boolean }) {
+function CommercialDirectorNavigation({ mobile = false, access }: { mobile?: boolean; access: DirectorAccess }) {
   const pathname = usePathname();
   const view = useSearchParams().get("view");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -177,7 +217,7 @@ function CommercialDirectorNavigation({ mobile = false }: { mobile?: boolean }) 
           <span aria-hidden="true" className="text-lg text-[#34664d]">☰</span>
         </summary>
         <nav aria-label="Menu Commerciale mobile" className="border-t border-[#e0e9e3] p-2.5">
-          <DirectorMenuGroups mobile onNavigate={() => setMobileOpen(false)} />
+          <DirectorMenuGroups mobile access={access} onNavigate={() => setMobileOpen(false)} />
         </nav>
       </details>
     );
@@ -189,7 +229,7 @@ function CommercialDirectorNavigation({ mobile = false }: { mobile?: boolean }) 
         <div className="mb-2 border-b border-[#e4ece7] px-3 pb-2">
           <h2 className="text-sm font-bold tracking-tight text-[#173f35]">Commerciale</h2>
         </div>
-        <DirectorMenuGroups />
+        <DirectorMenuGroups access={access} />
       </nav>
     </aside>
   );
@@ -198,8 +238,16 @@ function CommercialDirectorNavigation({ mobile = false }: { mobile?: boolean }) 
 /** Commercial is one workspace, including the existing private RFQ Hub.
  * The shell is navigation only: all routes and RLS gates remain unchanged.
  */
-export function WorkspaceCommercialDirectorShell({ children }: { children: ReactNode }) {
+type DirectorAccess = { canManageProfiles: boolean; profile: OfficeProfile | null };
+
+export function WorkspaceCommercialDirectorShell({
+  children, role = "member", businessRole = null,
+}: { children: ReactNode; role?: string; businessRole?: string | null }) {
   const pathname = usePathname();
+  const access: DirectorAccess = {
+    canManageProfiles: canManageOfficeProfiles(role),
+    profile: officeProfileOf(role, businessRole),
+  };
   if (getWorkspaceNavigationContext(pathname).primary !== "commercial") {
     return <div className="mx-auto w-full max-w-[1216px]">{children}</div>;
   }
@@ -207,12 +255,12 @@ export function WorkspaceCommercialDirectorShell({ children }: { children: React
     <div data-testid="commercial-director-shell" className="min-w-0">
       <div className="mb-3 xl:hidden">
         <Suspense fallback={<div className="h-12 rounded-xl bg-white" />}>
-          <CommercialDirectorNavigation mobile />
+          <CommercialDirectorNavigation mobile access={access} />
         </Suspense>
       </div>
       <div className="min-w-0 xl:grid xl:grid-cols-[214px_minmax(0,1fr)] xl:items-start xl:gap-5 2xl:grid-cols-[232px_minmax(0,1fr)]">
         <Suspense fallback={<div className="hidden xl:block" />}>
-          <CommercialDirectorNavigation />
+          <CommercialDirectorNavigation access={access} />
         </Suspense>
         <div className="min-w-0">{children}</div>
       </div>

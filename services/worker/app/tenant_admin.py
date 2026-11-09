@@ -20,7 +20,7 @@ from .repository import RepositoryConfigurationError
 router = APIRouter(prefix="/v1/admin", tags=["tenant-admin"])
 
 _EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
-BusinessRole = Literal["sales_director", "salesperson", "operations"]
+BusinessRole = Literal["sales_director", "salesperson", "purchasing", "operations"]
 
 
 class TenantAdminError(RuntimeError):

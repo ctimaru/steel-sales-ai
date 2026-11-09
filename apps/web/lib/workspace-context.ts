@@ -14,6 +14,8 @@ export type WorkspaceContext = {
   organizationId: string;
   organizationName: string;
   role: string;
+  /** Profilo operativo (ufficio) assegnato dalla Direzione Aziendale, se presente. */
+  businessRole: string | null;
   isDefault: boolean;
   platformSuperadmin: boolean;
   platformConsoleAccess: boolean;
@@ -51,7 +53,7 @@ export const getWorkspaceContext = cache(async function getWorkspaceContext(): P
   ] = await Promise.all([
       supabase
         .from("organization_memberships")
-        .select("organization_id,role,is_default,status")
+        .select("organization_id,role,business_role,is_default,status")
         .eq("user_id", user.id)
         .eq("status", "active"),
       supabase.rpc("platform_access_context"),
@@ -104,6 +106,7 @@ export const getWorkspaceContext = cache(async function getWorkspaceContext(): P
     organizationId: membership.organization_id,
     organizationName: organization.name ?? "Workspace azienda",
     role: membership.role,
+    businessRole: membership.business_role ?? null,
     isDefault: membership.is_default,
     platformSuperadmin: platformOwner,
     platformConsoleAccess,

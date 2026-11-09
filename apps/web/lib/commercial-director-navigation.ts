@@ -5,7 +5,28 @@ import { appRoutes } from "@/lib/routes";
  * negotiations, manage counterparties, interpret signals, access instruments.
  * Navigation only: no new authorizations, data queries or RFQ implementation.
  */
-export const commercialDirectorGroups = [
+export type CommercialDirectorItem = {
+  label: string;
+  href: string;
+  /** Visibile solo alla Direzione Aziendale (amministratori). */
+  adminOnly?: boolean;
+};
+export type CommercialDirectorSection = {
+  key: "commercial" | "purchasing";
+  label: string;
+  items: readonly CommercialDirectorItem[];
+};
+export type CommercialDirectorGroup = {
+  key: string;
+  label: string;
+  description: string;
+  items: readonly CommercialDirectorItem[];
+  moreItems: readonly CommercialDirectorItem[];
+  /** Sotto-aree con intestazione: usate da Direzione Aziendale per i due uffici. */
+  sections?: readonly CommercialDirectorSection[];
+};
+
+export const commercialDirectorGroups: readonly CommercialDirectorGroup[] = [
   {
     key: "desk",
     label: "Scrivania",
@@ -16,29 +37,37 @@ export const commercialDirectorGroups = [
     moreItems: [],
   },
   {
-    key: "deals",
-    label: "Trattative e RFQ",
-    description: "Richieste, offerte e ordini",
+    // Direzione Aziendale assegna i profili. Ogni ufficio vede anche l'altro:
+    // il profilo decide dove si può scrivere, non cosa si può consultare.
+    key: "direction",
+    label: "Direzione aziendale",
+    description: "Uffici e profili",
     items: [
-      // Filter links stay inside the Commerciale worklist, not duplicated in the sidebar.
-      { label: "Trattative", href: appRoutes.commercial.home + "?view=all#commercial-worklist" },
-      { label: "Centro RFQ", href: appRoutes.rfqHub.home },
-      { label: "Inbox e risposte", href: appRoutes.rfqHub.inbox },
-      { label: "Distinte", href: appRoutes.rfqHub.savedDistinte },
+      { label: "Team e profili", href: appRoutes.company.team, adminOnly: true },
     ],
     moreItems: [],
-  },
-  {
-    key: "accounts",
-    label: "Aziende",
-    description: "Clienti e fornitori",
-    items: [
-      { label: "Aziende", href: appRoutes.commercial.companies },
-      { label: "Fornitori RFQ", href: appRoutes.rfqHub.suppliers },
-    ],
-    moreItems: [
-      { label: "Riattivazione clienti", href: appRoutes.commercial.reengagement },
-      { label: "Relazioni collegate", href: appRoutes.commercial.crossThreadRelationships },
+    sections: [
+      {
+        key: "commercial",
+        label: "Ufficio commerciale",
+        items: [
+          // Filter links stay inside the Commerciale worklist, not duplicated in the sidebar.
+          { label: "Trattative", href: appRoutes.commercial.home + "?view=all#commercial-worklist" },
+          { label: "Aziende", href: appRoutes.commercial.companies },
+          { label: "Riattivazione clienti", href: appRoutes.commercial.reengagement },
+          { label: "Relazioni collegate", href: appRoutes.commercial.crossThreadRelationships },
+        ],
+      },
+      {
+        key: "purchasing",
+        label: "Ufficio acquisti",
+        items: [
+          { label: "Centro RFQ", href: appRoutes.rfqHub.home },
+          { label: "Inbox e risposte", href: appRoutes.rfqHub.inbox },
+          { label: "Fornitori RFQ", href: appRoutes.rfqHub.suppliers },
+          { label: "Distinte", href: appRoutes.rfqHub.savedDistinte },
+        ],
+      },
     ],
   },
   {
@@ -69,13 +98,15 @@ export const commercialDirectorGroups = [
       { label: "Prodotti", href: appRoutes.commercial.products },
     ],
   },
-] as const;
-
-export type CommercialDirectorGroup = (typeof commercialDirectorGroups)[number];
+];
 
 // Secondary destinations remain reachable without taking space in the default menu.
 export function commercialDirectorAllItems(group: CommercialDirectorGroup) {
-  return [...group.items, ...group.moreItems];
+  return [
+    ...group.items,
+    ...(group.sections ?? []).flatMap(section => section.items),
+    ...group.moreItems,
+  ];
 }
 
 /**

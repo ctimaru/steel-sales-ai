@@ -11,6 +11,7 @@ import {
 import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { Input } from "@/components/ui/input";
+import { businessRoleLabel as officeBusinessRoleLabel } from "@/lib/office-profiles";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { requireWorkspaceAdmin } from "@/lib/workspace-context";
@@ -56,10 +57,7 @@ function permissionLabel(role: string) {
 }
 
 function businessRoleLabel(role: string | null) {
-  if (role === "sales_director") return "Sales Director";
-  if (role === "salesperson") return "Commerciale";
-  if (role === "operations") return "Operations";
-  return "Non assegnato";
+  return officeBusinessRoleLabel(role);
 }
 
 function invitationStatusLabel(status: string, deliveryStatus: string) {
@@ -122,7 +120,7 @@ export default async function CompanyTeamPage({
       <FocusHeader
         eyebrow="Azienda"
         title="Team e accessi"
-        description="Invita persone, assegna i permessi del workspace e mantieni separato il ruolo operativo dalla funzione commerciale."
+        description="La Direzione Aziendale invita le persone e assegna il profilo: Ufficio commerciale o Ufficio acquisti. Ogni ufficio consulta anche l'altro; il profilo decide dove si può modificare."
       />
 
       <Feedback message={params.message} error={params.error} />
@@ -136,7 +134,7 @@ export default async function CompanyTeamPage({
             Invita una persona
           </h2>
           <p className="mt-2 text-sm leading-6 text-[#66736e]">
-            Il permesso decide cosa può fare nel workspace. Il ruolo commerciale descrive la sua funzione nel team.
+            Il permesso decide cosa può fare nel workspace. Il profilo decide in quale ufficio può modificare: l'altro ufficio resta consultabile.
           </p>
 
           <form action={inviteMember} className="mt-5 space-y-4">
@@ -167,15 +165,16 @@ export default async function CompanyTeamPage({
               </label>
 
               <label className="block text-sm font-medium text-[#43524c]">
-                Ruolo commerciale
+                Profilo (ufficio)
                 <select
                   name="business_role"
                   defaultValue="salesperson"
                   className="mt-2 h-10 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824]"
                 >
                   <option value="">Non assegnato</option>
-                  <option value="sales_director">Sales Director</option>
-                  <option value="salesperson">Commerciale</option>
+                  <option value="sales_director">Direzione commerciale</option>
+                  <option value="salesperson">Ufficio commerciale</option>
+                  <option value="purchasing">Ufficio acquisti</option>
                   <option value="operations">Operations</option>
                 </select>
               </label>
@@ -341,7 +340,7 @@ export default async function CompanyTeamPage({
                         <ReturnTo />
                         <input type="hidden" name="user_id" value={member.user_id} />
                         <label className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
-                          Ruolo commerciale
+                          Profilo (ufficio)
                           <div className="mt-1 flex gap-2">
                             <select
                               name="business_role"
@@ -349,8 +348,9 @@ export default async function CompanyTeamPage({
                               className="h-9 min-w-0 flex-1 rounded-lg border border-[#d7dfdb] bg-white px-2 text-xs normal-case tracking-normal text-[#43524c]"
                             >
                               <option value="">Non assegnato</option>
-                              <option value="sales_director">Sales Director</option>
-                              <option value="salesperson">Commerciale</option>
+                              <option value="sales_director">Direzione commerciale</option>
+                              <option value="salesperson">Ufficio commerciale</option>
+                              <option value="purchasing">Ufficio acquisti</option>
                               <option value="operations">Operations</option>
                             </select>
                             <PendingSubmitButton
