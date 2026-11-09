@@ -147,7 +147,7 @@ export default async function CarpenterieGrowthPage({
   const pages = snapshot ? Math.max(1, Math.ceil(snapshot.selected_total / PAGE_SIZE)) : 1;
 
   return (
-    <main className="mx-auto w-full max-w-[1480px] space-y-2 px-2 py-2 sm:space-y-3 sm:px-5 sm:py-5"
+    <section aria-label="Console Carpenterie Growth 100" className="mx-auto w-full max-w-[1480px] space-y-2 px-2 py-2 sm:space-y-3 sm:px-5 sm:py-5"
       data-testid="net-it-carp1-e5-cockpit">
       <div className="flex items-center justify-between gap-2">
         <Link href="/platform/company-discovery"
@@ -327,6 +327,6 @@ export default async function CarpenterieGrowthPage({
           </footer>
         </>
       )}
-    </main>
+    </section>
   );
 }
