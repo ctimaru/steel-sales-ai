@@ -64,7 +64,7 @@ try{
       const response=await page.goto(base+route,{waitUntil:"domcontentloaded",timeout:90000});
       assert.equal(response.status(),200,"Platform route must be 200 at "+width);
       await page.getByTestId("net-it-carp1-e5-cockpit").waitFor({timeout:60000});
-      await page.getByRole("heading",{name:"Carpenterie · dati e riconciliazione"}).waitFor();
+      await page.getByRole("heading",{name:"Carpenterie · Console unificata"}).waitFor();
       assert.equal(await page.getByTestId("net-it-carp1-e5-company").count(),40,
         "First page must show forty fictional companies");
       const firstCompany=await page.getByTestId("net-it-carp1-e5-company").first().boundingBox();
