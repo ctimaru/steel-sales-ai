@@ -113,7 +113,7 @@ export function CommercialCalculatorQuickAccess({ references }: { references: Pu
       </button>
       <Link href={appRoutes.rfqHub.savedDistinte} data-commercial-saved-distinte-entry
         className="inline-flex min-h-10 items-center rounded-lg border border-[#bdd7c6] bg-white px-2.5 text-xs font-bold text-[#17583f] hover:bg-[#edf8f1]">
-        Distinte salvate →
+        Distinte →
       </Link>
       <span className="hidden text-[11px] text-[#61736a] xl:inline">Calcola → salva → scegli i fornitori</span>
       {/* First mount stays alive after close: all unsaved inputs, named bill,

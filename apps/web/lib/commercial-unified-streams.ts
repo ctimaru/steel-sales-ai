@@ -136,6 +136,9 @@ export function inboundStatusLabel(value: unknown): string {
   return inboundStatusLabels[raw.toLowerCase()] ?? raw;
 }
 
+// Riferimento breve per distinguere righe simili (stessa data, stesso cliente).
+const inboundReference = (id: string) => " · rif. " + id.slice(0, 8).toUpperCase();
+
 function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
   return rows.filter((r) => uuid(r.id)).map((r) => {
     const id = r.id as string;
@@ -165,9 +168,9 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
       source === "purchaseOrders" ? str(r.supplier_name_snapshot, str(campaignTitle, "Fornitore")) :
       source === "drafts" ? String(r.line_count ?? "—") + " righe · distinta privata" :
       source === "campaigns" ? "Campagna privata ai fornitori" :
-      source === "rfqs" ? "Richiesta commerciale ricevuta" :
-      source === "offers" ? "Offerta commerciale inviata" :
-      customer ? "Ordine cliente" : "Ordine cliente · cliente non indicato";
+      source === "rfqs" ? "Richiesta commerciale ricevuta" + inboundReference(id) :
+      source === "offers" ? "Offerta commerciale inviata" + inboundReference(id) :
+      (customer ? "Ordine cliente" : "Ordine cliente · cliente non indicato") + inboundReference(id);
     const rowFacts: CommercialRowFacts | undefined = source === "rfqs" || source === "offers" || source === "orders"
       ? { counterparty: customer || undefined }
       : source === "purchaseOrders"

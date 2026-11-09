@@ -22,3 +22,13 @@ test("COMM-AUDIT1: la chat RFQ non mostra sigle interne di progetto", () => {
   assert.doesNotMatch(chat, /integrazione in P1/);
   assert.doesNotMatch(chat, /RFQH7/);
 });
+
+test("COMM-AUDIT1: le righe in ingresso hanno un riferimento breve per distinguerle", () => {
+  assert.match(read("lib/commercial-unified-streams.ts"), /inboundReference\(id\)/);
+});
+
+test("COMM-AUDIT1: le superfici dell'app usano il nome Distinte", () => {
+  assert.doesNotMatch(read("components/commercial-calculator-quick-access.tsx"), /Distinte salvate/);
+  assert.doesNotMatch(read("app/(italian)/(workspace)/rfq-hub/distinte/page.tsx"), /Distinte salvate/);
+  assert.doesNotMatch(read("app/(italian)/(workspace)/marketplace/rfq-hub/page.tsx"), /label="Distinte salvate"/);
+});
