@@ -138,6 +138,12 @@ export function inboundStatusLabel(value: unknown): string {
 }
 
 // Riferimento breve per distinguere righe simili (stessa data, stesso cliente).
+// Riferimento d'ordine del cliente (campo strutturato, non testo email).
+const orderReference = (value: unknown) => {
+  const ref = typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
+  return ref ? " · rif. cliente " + (ref.length > 32 ? ref.slice(0, 31) + "…" : ref) : "";
+};
+
 const inboundReference = (id: string) => " · rif. " + id.slice(0, 8).toUpperCase();
 
 function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
@@ -171,7 +177,7 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
       source === "campaigns" ? "Campagna privata ai fornitori" :
       source === "rfqs" ? "Richiesta commerciale ricevuta" + inboundReference(id) :
       source === "offers" ? "Offerta commerciale inviata" + inboundReference(id) :
-      (customer ? "Ordine cliente" : "Ordine cliente · cliente non indicato") + inboundReference(id);
+      (customer ? "Ordine cliente" : "Ordine cliente · cliente non indicato") + orderReference(r.customer_order_ref) + inboundReference(id);
     const rowFacts: CommercialRowFacts | undefined = source === "rfqs" || source === "offers" || source === "orders"
       ? { counterparty: customer || undefined, ...summarizeRowLines(r.lines), dueAt: source === "rfqs" ? timestamp(r.due_at) ?? undefined : undefined }
       : source === "purchaseOrders"
@@ -210,7 +216,7 @@ async function fetchSource(
   let request;
   if (source === "rfqs") {
     request = db.from("rfqs")
-      .select("id,status,created_at,due_at,company:companies!rfqs_company_id_fkey(name)"+(withLines?",lines:rfq_lines!rfq_lines_rfq_id_fkey(raw_spec_text,requested_quantity,quantity_unit,created_at)":""), { count: "exact" })
+      .select("id,status,created_at,due_at,company:companies!rfqs_company_id_fkey(name)"+(withLines?",lines:rfq_lines!rfq_lines_rfq_id_fkey(requested_quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (withLines) request = request.order("created_at", { referencedTable: "rfq_lines", ascending: true })
@@ -218,7 +224,7 @@ async function fetchSource(
     if (q) request = request.ilike("status", "%" + q + "%");
   } else if (source === "offers") {
     request = db.from("offers")
-      .select("id,status,created_at,company:companies!offers_company_id_fkey(name)"+(withLines?",lines:offer_lines!offer_lines_offer_id_fkey(raw_spec_text,source_text,quantity,quantity_unit,created_at)":""), { count: "exact" })
+      .select("id,status,created_at,company:companies!offers_company_id_fkey(name)"+(withLines?",lines:offer_lines!offer_lines_offer_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (withLines) request = request.order("created_at", { referencedTable: "offer_lines", ascending: true })
@@ -226,7 +232,7 @@ async function fetchSource(
     if (q) request = request.ilike("status", "%" + q + "%");
   } else if (source === "orders") {
     request = db.from("orders")
-      .select("id,status,created_at,company:companies!orders_company_id_fkey(name)"+(withLines?",lines:order_lines!order_lines_order_id_fkey(raw_spec_text,quantity,quantity_unit,created_at)":""), { count: "exact" })
+      .select("id,status,created_at,customer_order_ref,company:companies!orders_company_id_fkey(name)"+(withLines?",lines:order_lines!order_lines_order_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (withLines) request = request.order("created_at", { referencedTable: "order_lines", ascending: true })

@@ -2,6 +2,7 @@
 export type CommercialRowFacts = {
   counterparty?: string;
   material?: string;
+  lines?: string;
   quantity?: string;
   totalEur?: unknown;
   dueAt?: string;
