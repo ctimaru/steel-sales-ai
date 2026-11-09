@@ -72,6 +72,9 @@ try{
       assert.ok(firstCompany&&firstCompany.y<visibleHeight-24,
         "First company must start within first viewport at "+width+"px: "+JSON.stringify(firstCompany));
       assert.match(await page.getByTestId("net-it-carp1-e5-cockpit").innerText(),/100 risultati|100 risultati/i);
+      assert.equal(await page.getByRole("link",{name:"Tutte",exact:true})
+        .evaluate(el=>getComputedStyle(el).color),"rgb(255, 255, 255)",
+        "Active all-companies filter must have white text over dark green");
       await assertNoOverflow(page,width,"all");
       await page.screenshot({
         path:path.join(out,"carpenterie-overview-"+width+".png"),
@@ -83,6 +86,9 @@ try{
       await page.waitForURL(u=>u.searchParams.get("state")==="domain_alias_linked",{timeout:30000});
       assert.equal(await page.getByTestId("net-it-carp1-e5-company").count(),16,
         "Sixteen existing brand aliases must be visible");
+      assert.equal(await page.getByRole("link",{name:"Alias collegati",exact:true})
+        .evaluate(el=>getComputedStyle(el).color),"rgb(255, 255, 255)",
+        "Active alias filter must have white text over dark green");
       await assertNoOverflow(page,width,"linked aliases");
       await page.screenshot({
         path:path.join(out,"carpenterie-alias-"+width+".png"),
