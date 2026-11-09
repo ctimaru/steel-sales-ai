@@ -5,6 +5,7 @@ import { Rfqc1ChatComposer } from "@/components/rfqc1-chat-composer";
 import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
 import { Rfqc1OfferCard } from "@/components/rfqc1-offer-card";
 import { Rfqc1SupplierSuggestions } from "@/components/rfqc1-supplier-suggestions";
+import { Rfqc1DraftSummary } from "@/components/rfqc1-draft-summary";
 import { useState } from "react";
 
 import type { Rfqc1TimelineItem } from "@/lib/rfqc1-timeline";
@@ -163,6 +164,10 @@ export function Rfqc1ChatWorkspace(props: Props) {
           <Rfqc1SupplierSuggestions rfqId={props.rfqId} canAdd={Boolean(props.canStartRequest) && !props.readOnlyByProfile}
             existingEmails={props.suppliers.map(item => item.email ?? "")}
             existingNames={props.suppliers.map(item => item.name)} />
+
+          <Rfqc1DraftSummary status={props.status} dueAt={props.dueAt} canExecute={props.canExecute && !props.readOnlyByProfile}
+            lines={props.lines.map(line => ({ description: line.description, standard: line.standard, grade: line.grade, quantity: line.quantity }))}
+            suppliers={props.suppliers.map(item => ({ name: item.name, email: item.email }))} />
 
           <div role="tablist" aria-label="Trattative private per fornitore"
             className="flex gap-1.5 overflow-x-auto border-b border-[#e2eae5] bg-[#fbfcfb] px-3 py-3 sm:px-5">
