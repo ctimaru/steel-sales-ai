@@ -137,9 +137,9 @@ try {
     assert.equal(new URL(ownerPage.url()).pathname, "/platform");
   });
   await check("PLR3 owner cockpit has reliable operational sections", async () => {
-    await ownerPage.getByRole("heading", { name: "Stato operativo" }).waitFor();
-    await ownerPage.getByRole("heading", { name: "Cosa richiede attenzione" }).waitFor();
-    await ownerPage.getByRole("heading", { name: "Aree di gestione" }).waitFor();
+    await ownerPage.getByRole("heading", { name: "Numeri da tenere d’occhio" }).waitFor();
+    await ownerPage.getByRole("heading", { name: "Cosa richiede il tuo intervento" }).waitFor();
+    await ownerPage.getByRole("heading", { name: "Esplora la piattaforma" }).waitFor();
     assert.equal(await ownerPage.locator("h1").count(), 1);
     assert.ok(!((await pageText(ownerPage)).includes("Application error")));
   });
