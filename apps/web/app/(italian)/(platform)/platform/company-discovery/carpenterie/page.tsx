@@ -151,7 +151,7 @@ export default async function CarpenterieGrowthPage({
       data-testid="net-it-carp1-e5-cockpit">
       <div className="flex items-center justify-between gap-2">
         <Link href="/platform/company-discovery"
-          className="text-xs font-semibold text-[#175640] underline underline-offset-4">
+          className="shrink-0 whitespace-nowrap text-[11px] font-semibold text-[#175640] underline underline-offset-4 sm:text-xs">
           ← Discovery
         </Link>
         <span className="rounded-full border border-[#d8e7dc] bg-white px-2 py-1 text-[10px] font-semibold text-[#507164] sm:px-3 sm:text-[11px]">
@@ -217,6 +217,7 @@ export default async function CarpenterieGrowthPage({
                   return (
                     <Link href={makeUrl(option.key, q, 1)} key={option.key}
                       aria-current={active ? "page" : undefined}
+                      style={{ color: active ? "#ffffff" : "#426354" }}
                       className={"shrink-0 rounded-full px-3 py-1.5 text-[11px] font-semibold " +
                         (active ? "bg-[#175640] text-white" : "bg-[#eef4ef] text-[#426354] hover:bg-[#dceade]")}>
                       {option.label}
