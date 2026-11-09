@@ -34,7 +34,7 @@ test("SA5 exposes Company Discovery to authorized Platform Staff", () => {
   );
   assert.match(home, /canReadDiscovery/);
   assert.match(home, /context\.permissions\.includes\("discovery\.read"\)/);
-  assert.match(home, /Company Discovery/);
+  assert.match(home, /Nuove aziende da controllare/);
 });
 
 test("SA5 cuts the Company Discovery route over to discovery.read", () => {

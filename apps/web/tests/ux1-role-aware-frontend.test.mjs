@@ -50,8 +50,8 @@ test("UX1 Platform Console is structurally separate from tenant workspace", () =
   assert.match(platformShell, /Governance Smart Steel Sales/);
   assert.match(platformShell, /Torna al workspace aziendale/);
   assert.match(platformShell, /dati commerciali delle aziende restano separati/);
-  assert.match(platformHome, /Governance della piattaforma/);
-  assert.match(platformHome, /Registrazioni aziende/);
+  assert.match(platformHome, /La tua console/);
+  assert.match(platformHome, /Nuove aziende da approvare/);
   assert.doesNotMatch(platformShell, /Product 360/);
   assert.doesNotMatch(platformShell, /Importa documenti/);
 });
