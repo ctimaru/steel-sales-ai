@@ -68,17 +68,17 @@ export default async function CompanyDiscoveryPage({
       <GovernanceQueueControls title="Discovery" total={queue.total} readOnly={!(canRun || canReview || canPublish || canEnrich || canCloseDuplicates)} />
       <section className="platform-surface rounded-3xl p-6 sm:p-8">
         <p className="platform-kicker">
-          P3 · Industry Network
+          GESTIONE AZIENDE · PANORAMICA
         </p>
         <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight text-[#18263d] sm:text-4xl">
-              Company Discovery
+              Trova e gestisci aziende
             </h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e]">
-              Scansiona siti aziendali pubblici, classifica il ruolo nella filiera e
-              porta i risultati in review. Il crawler non pubblica e non unisce mai
-              automaticamente un&apos;azienda.
+              Qui puoi cercare nuove aziende, controllare le informazioni raccolte e decidere
+              quali schede rendere pubbliche. La raccolta dei dati non pubblica
+              automaticamente nessuna azienda.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -99,7 +99,7 @@ export default async function CompanyDiscoveryPage({
                 href="/platform/company-discovery/carpenterie"
                 className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
               >
-                Carpenterie · Console unificata
+                Carpenterie italiane
               </Link>
             ) : null}
             <Link
@@ -112,7 +112,7 @@ export default async function CompanyDiscoveryPage({
               href="/platform/company-discovery/steel-coverage"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
-              Copertura industriale · 508+
+              Settori industriali
             </Link>
             <Link
               href="/platform/company-discovery/market-review"
@@ -130,7 +130,7 @@ export default async function CompanyDiscoveryPage({
               href="/platform/company-discovery/governance"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
-              Governance PA1.5
+              Controlli e autorizzazioni
             </Link>
             {access?.is_platform_owner ? (
               <Link
@@ -149,6 +149,32 @@ export default async function CompanyDiscoveryPage({
               </Link>
             ) : null}
           </div>
+        </div>
+      </section>
+
+      <section aria-label="Riepilogo per il fondatore" className="grid gap-3 lg:grid-cols-[1.3fr_1fr]">
+        <div className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-5">
+          <h2 className="text-base font-bold text-[#173f35]">Cosa stiamo facendo</h2>
+          <p className="mt-2 text-sm leading-6 text-[#526a5d]">
+            Il sistema cerca aziende industriali e raccoglie informazioni da fonti web.
+            Le candidature restano private finché non vengono controllate e autorizzate per la pubblicazione.
+          </p>
+          {access?.is_platform_owner ? (
+            <Link href="/platform/company-discovery/carpenterie"
+              className="mt-3 inline-flex text-sm font-semibold text-[#175640] underline underline-offset-4">
+              Apri le carpenterie italiane →
+            </Link>
+          ) : null}
+        </div>
+        <div className="rounded-2xl border border-[#dce2df] bg-[#f6faf7] p-4 sm:p-5">
+          <h2 className="text-base font-bold text-[#173f35]">Quale decisione serve?</h2>
+          <p className="mt-2 text-sm leading-6 text-[#526a5d]">
+            Non è richiesta una decisione per proseguire la ricerca privata.
+            Per pubblicare nuove schede servono invece i controlli e le autorizzazioni previsti.
+          </p>
+          <p className="mt-2 text-xs font-semibold text-[#175640]">
+            In questa schermata nessuna azienda viene pubblicata automaticamente.
+          </p>
         </div>
       </section>
 
@@ -171,7 +197,7 @@ export default async function CompanyDiscoveryPage({
                       Nuova scansione
                     </p>
                     <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
-                      Seed URL → candidati
+                      Cerca nuove aziende da siti web
                     </h2>
                     <p className="mt-2 text-sm leading-6 text-[#66736e]">
                       Un URL per riga. Il worker visita solo pagine pubbliche dello stesso
@@ -224,7 +250,7 @@ export default async function CompanyDiscoveryPage({
                         P3.5: usa label e provenance per separare le campagne di coverage dalle revalidation e dagli enrichment batch.
                       </p>
                       <button className="platform-primary h-11 shrink-0 rounded-xl px-5 text-sm font-semibold">
-                        Avvia discovery
+                        Avvia ricerca
                       </button>
                     </div>
                   </form>
@@ -287,9 +313,9 @@ export default async function CompanyDiscoveryPage({
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-                Coverage telemetry
+                Risultati delle ricerche
               </p>
-              <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Batch discovery recenti</h2>
+              <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">Ricerche recenti</h2>
             </div>
             <p className="hidden text-xs text-[#87938e] sm:block">seed → candidati → review</p>
           </div>
@@ -341,7 +367,7 @@ export default async function CompanyDiscoveryPage({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#3c8192]">
-              Review queue
+              Aziende da controllare
             </p>
             <h2 className="mt-1 text-xl font-semibold text-[#1d2824]">
               {queue.total} candidati · {status.replaceAll("_", " ")}
