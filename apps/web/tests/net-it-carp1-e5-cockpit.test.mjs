@@ -7,6 +7,7 @@ const parent=readFileSync(new URL("../app/(italian)/(platform)/platform/company-
 const bridge=readFileSync(new URL("../../../supabase/migrations/20261108180241_net_it_carp1_e4_private_growth100_bridge.sql",import.meta.url),"utf8");
 const access=readFileSync(new URL("../../../supabase/migrations/20261108183857_net_it_carp1_e5_admin_cockpit_reader.sql",import.meta.url),"utf8");
 const capabilities=readFileSync(new URL("../../../supabase/migrations/20261108184239_net_it_carp1_e5_cockpit_capability_evidence.sql",import.meta.url),"utf8");
+const aliasMigration=readFileSync(new URL("../../../supabase/migrations/20261109082733_net_it_carp1_e7_alias_links_admin_status.sql",import.meta.url),"utf8");
 
 test("Growth100 cockpit is compact, read-only, source-linked, and restricted to Platform superadmin",()=>{
  assert.match(page,/requirePlatformSuperadmin\(\)/);
@@ -16,6 +17,10 @@ test("Growth100 cockpit is compact, read-only, source-linked, and restricted to 
  assert.match(page,/company_source_url/);
  assert.match(page,/contact_source_url/);
  assert.match(page,/name_reconciliation_needed/);
+ assert.match(page,/domain_alias_linked/);
+ assert.match(page,/snapshot\.alias_linked/);
+ assert.match(page,/vat_identity_review/);
+ assert.match(page,/Candidatura principale/);
  assert.match(page,/research_seed_missing/);
  assert.match(page,/needs_contact/);
  assert.match(page,/publications_performed === 0/);
@@ -38,5 +43,10 @@ test("Growth100 database reader guards private contact data and never changes pu
  assert.match(access,/LIMIT p_limit OFFSET p_offset/);
  assert.match(access,/publication[s]?_performed/);
  assert.match(capabilities,/observed_capabilities/);
+ assert.match(aliasMigration,/identity_link_e7/);
+ assert.match(aliasMigration,/exact_domain_alias_linked/);
+ assert.match(aliasMigration,/domain_alias_linked/);
+ assert.match(aliasMigration,/vat_identity_review/);
+ assert.match(aliasMigration,/WITH \(security_invoker=true\)/i);
  assert.doesNotMatch(access,/(insert\s+into|update\s+public\.network_companies|delete\s+from)\s+public\.network_companies/i);
 });
