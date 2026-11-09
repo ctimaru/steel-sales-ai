@@ -30,7 +30,7 @@ test("decisions never approve, publish, or fake a recorded decision from the das
 });
 
 test("each decision explains why it matters, recommendation and postponement", () => {
-  for (const text of ["Perché conta:", "Consiglio:", "Se rimandi:", "Cosa valutare"]) {
+  for (const text of ["Perché conta:", "Consiglio:", "Se rimandi:", "la scelta da valutare"]) {
     assert.ok(home.includes(text) || decisions.includes(text), text);
   }
 });
