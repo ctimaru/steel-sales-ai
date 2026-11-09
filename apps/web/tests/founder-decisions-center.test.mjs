@@ -24,7 +24,7 @@ test("decisions page is role restricted and based on real authorized queue snaps
 test("decisions never approve, publish, or fake a recorded decision from the dashboard", () => {
   assert.doesNotMatch(decisions, /<form|<button|server action|supabase\.from|\.rpc\(/);
   assert.match(decisions, /Nessuna approvazione avviene da questa pagina/);
-  assert.match(decisions, /non uno storico delle tue approvazioni/);
+  assert.match(decisions, /lo storico mostra invece operazioni già registrate/);
   assert.match(decisions, /pending\.slice\(0, 3\)/);
   assert.match(decisions, /<details/);
 });
