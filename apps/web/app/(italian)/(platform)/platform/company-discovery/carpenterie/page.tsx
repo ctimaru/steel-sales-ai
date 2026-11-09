@@ -20,11 +20,11 @@ const STATES = [
 
 type State = (typeof STATES)[number]["key"];
 const COHORTS = [
-  { key: "all", label: "Tutte coorti" },
-  { key: "Growth100", label: "Growth 100" },
-  { key: "E8A", label: "E.8.A" },
-  { key: "E8B", label: "E.8.B" },
-  { key: "E8C", label: "E.8.C" },
+  { key: "all", label: "Tutti i gruppi" },
+  { key: "Growth100", label: "Primo gruppo" },
+  { key: "E8A", label: "Gruppo 2" },
+  { key: "E8B", label: "Gruppo 3" },
+  { key: "E8C", label: "Gruppo recente" },
 ] as const;
 type Cohort = (typeof COHORTS)[number]["key"];
 type Row = {
@@ -186,12 +186,12 @@ export default async function CarpenterieGrowthPage({
   };
 
   return (
-    <section aria-label="Console Carpenterie Growth 100" className="mx-auto w-full max-w-[1480px] space-y-2 px-2 py-2 sm:space-y-3 sm:px-5 sm:py-5"
+    <section aria-label="Gestione carpenterie italiane" className="mx-auto w-full max-w-[1480px] space-y-2 px-2 py-2 sm:space-y-3 sm:px-5 sm:py-5"
       data-testid="net-it-carp1-e5-cockpit">
       <div className="flex items-center justify-between gap-2">
         <Link href="/platform/company-discovery"
           className="shrink-0 whitespace-nowrap text-[11px] font-semibold text-[#175640] underline underline-offset-4 sm:text-xs">
-          ← Discovery
+          ← Gestione aziende
         </Link>
         <span className="rounded-full border border-[#d8e7dc] bg-white px-2 py-1 text-[10px] font-semibold text-[#507164] sm:px-3 sm:text-[11px]">
           <span className="sm:hidden">Console privata · Non pubblica</span>
@@ -201,11 +201,11 @@ export default async function CarpenterieGrowthPage({
 
       <header className="rounded-xl border border-[#d8e5dc] bg-white px-3 py-2 sm:rounded-2xl sm:px-5 sm:py-3">
         <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#207057]">
-          NET-IT-CARP1.E.8.C · Growth100 + E.8
+          NETWORK ITALIA · PANORAMICA
         </p>
         <div className="mt-0.5 flex flex-wrap items-center justify-between gap-1 sm:mt-1 sm:gap-2">
           <h1 className="text-[18px] font-bold leading-6 text-[#173f35] sm:text-2xl">
-            Carpenterie · Console unificata
+            Carpenterie italiane
           </h1>
           <Link href="/platform/company-discovery/contacts"
             className="rounded-lg border border-[#bad4c4] bg-[#f6faf7] px-2 py-1 text-[11px] font-semibold text-[#175640] sm:px-3 sm:py-2 sm:text-xs">
@@ -224,21 +224,45 @@ export default async function CarpenterieGrowthPage({
 
       {!snapshot ? (
         <p role="alert" className="rounded-xl border border-[#ebd3b3] bg-white p-4 text-sm text-[#875928]">
-          Dati amministrativi non disponibili: controlla la sessione Platform e la migrazione E.8.C.
+          Dati momentaneamente non disponibili. Verifica di avere accesso alla console amministrativa.
           Non interpretiamo il mancato accesso come zero aziende.
         </p>
       ) : (
         <>
+          <section aria-label="Riepilogo per il fondatore" className="grid gap-2 lg:grid-cols-[1.3fr_1fr]">
+            <div className="rounded-xl border border-[#d8e5dc] bg-[#f6faf7] p-3 sm:p-4">
+              <h2 className="text-sm font-bold text-[#173f35]">Cosa sta succedendo</h2>
+              <p className="mt-1 text-xs leading-5 text-[#415f50]">
+                Stiamo ampliando il database delle carpenterie italiane. Qui trovi {snapshot.total} candidature
+                dei gruppi di lavoro selezionati, ancora riservate: non sono tutte imprese giuridicamente
+                distinte o verificate e non sono pubblicate sul Network.
+              </p>
+              <p className="mt-2 text-xs font-semibold text-[#175640]">
+                {snapshot.with_contact} con almeno un recapito · {snapshot.needs_contact} da arricchire
+              </p>
+            </div>
+            <div className="rounded-xl border border-[#d8e5dc] bg-white p-3 sm:p-4">
+              <h2 className="text-sm font-bold text-[#173f35]">Serve una decisione?</h2>
+              <p className="mt-1 text-xs leading-5 text-[#415f50]">
+                No, per consultare e arricchire queste aziende. La ricerca può continuare.
+                Rendere pubbliche nuove schede è un passaggio distinto, soggetto a verifiche e autorizzazioni.
+              </p>
+              <Link href="/platform/company-discovery"
+                className="mt-2 inline-flex text-xs font-bold text-[#175640] underline underline-offset-4">
+                Vai alla gestione completa delle aziende →
+              </Link>
+            </div>
+          </section>
           <section className="grid grid-cols-4 gap-1 sm:grid-cols-4 sm:gap-2 lg:grid-cols-7"
-            aria-label="KPI raccolta Carpenterie Growth100 ed E8">
+            aria-label="Risultati della raccolta carpenterie italiane">
             {[
               ["Candidature", snapshot.total],
               ["Con recapito", snapshot.with_contact],
               ["Senza recapito", snapshot.needs_contact],
               ["Email aziendali", snapshot.email_count],
               ["Telefoni aziendali", snapshot.phone_count],
-              ["Alias collegati", snapshot.alias_linked],
-              ["Province da verificare", snapshot.province_to_verify],
+              ["Siti collegati", snapshot.alias_linked],
+              ["Sedi da verificare", snapshot.province_to_verify],
             ].map(([label, value]) => (
               <div key={label} className="min-w-0 rounded-lg border border-[#dce8df] bg-white px-1.5 py-1 sm:rounded-xl sm:px-3 sm:py-2">
                 <div className="text-base font-bold tabular-nums text-[#173f35] sm:text-xl">{value}</div>
@@ -247,7 +271,7 @@ export default async function CarpenterieGrowthPage({
             ))}
           </section>
 
-          <nav aria-label="Filtra per coorte" className="flex gap-1 overflow-x-auto pb-0.5">
+          <nav aria-label="Filtra per gruppo di aziende" className="flex gap-1 overflow-x-auto pb-0.5">
             {COHORTS.map((option) => {
               const active = cohort === option.key;
               return (
@@ -305,7 +329,7 @@ export default async function CarpenterieGrowthPage({
           </section>
 
           <section className="overflow-hidden rounded-2xl border border-[#d9e5dc] bg-white"
-            aria-label="Elenco Carpenterie Growth100 e E8">
+            aria-label="Elenco delle carpenterie italiane">
             <div className="hidden grid-cols-[minmax(200px,1.55fr)_95px_minmax(150px,1.25fr)_minmax(165px,1.1fr)_minmax(130px,1fr)] gap-2 border-b border-[#dfe7e1] bg-[#f4f8f5] px-4 py-2 text-[10px] font-bold uppercase tracking-wide text-[#597368] lg:grid">
               <span>Azienda e fonte</span><span>Provincia</span><span>Recapiti privati</span>
               <span>Capacità da fonte</span><span>Riconciliazione</span>
@@ -325,7 +349,7 @@ export default async function CarpenterieGrowthPage({
                       {item.name}
                     </h2>
                     <div className="mt-0.5 flex flex-wrap items-center gap-1">
-                      <span className="rounded bg-[#edf4ef] px-1.5 py-0.5 text-[10px] font-bold text-[#1f5b46]">{item.cohort === "Growth100" ? "Growth100" : item.cohort}</span>
+                      <span className="rounded bg-[#edf4ef] px-1.5 py-0.5 text-[10px] font-bold text-[#1f5b46]">{COHORTS.find(group => group.key === item.cohort)?.label ?? "Gruppo aziende"}</span>
                       {item.source_kind === "third_party_directory_company_source" ? (
                         <span className="rounded bg-[#fff3e2] px-1.5 py-0.5 text-[10px] text-[#865c26]">Fonte terza</span>
                       ) : null}
