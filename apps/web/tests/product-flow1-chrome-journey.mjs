@@ -263,7 +263,15 @@ try {
       await confirm.evaluate(button => { button.click(); button.click(); });
       recipientCheckpoint = "wait local dispatch outcome";
       try {
-        await page.getByText(/RFQ avviata: 2 invii effettuati/).waitFor({ timeout: 60000 });
+        // Attesa sul testo nel DOM con polling a intervallo: l'attesa di visibilità di
+        // getByText usa requestAnimationFrame e può restare ferma se la scheda non è in
+        // primo piano, anche quando il banner è già presente (visto in CI: banner corretto
+        // nel DOM allo scadere dei 60 secondi).
+        await page.waitForFunction(
+          () => /RFQ avviata: 2 invii effettuati/.test(document.body.textContent ?? ""),
+          undefined,
+          { timeout: 60000, polling: 250 },
+        );
       } catch (error) {
         // Report only synthetic-local counts and fixed status categories. Never
         // print messages, recipient identities, supplier links, or credentials.
