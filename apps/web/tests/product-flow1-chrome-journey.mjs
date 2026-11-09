@@ -279,7 +279,16 @@ try {
           : body.includes("L'invio ad aziende non registrate") ? "legal-email-block"
           : body.includes("Controlla i destinatari e riprova") ? "dispatch-failed"
           : "none-matched";
+        // Diagnostica: testo esatto del banner di esito (formato fisso, senza dati di
+        // destinatari) e stato della pagina, per distinguere un conteggio diverso da
+        // un banner non renderizzato quando il test è instabile.
+        const bannerMatch = /RFQ avviata[^.\n]{0,120}\./.exec(body);
+        const bannerText = bannerMatch ? bannerMatch[0] : null;
+        const stillDraftPanel = body.includes("Conferma l'invio a") || body.includes("Conferma l’invio a");
         console.error("FLOW1 RECIPIENT OUTCOME", JSON.stringify({
+          bannerText,
+          stillDraftPanel,
+          pageStatusHint: body.includes("Bozza") ? "draft-visible" : "no-draft-label",
           ledgerCount:ledger.length,
           ledgerStatuses:ledger.map(row=>row.status).sort(),
           failureClasses:ledger.map(row => {
