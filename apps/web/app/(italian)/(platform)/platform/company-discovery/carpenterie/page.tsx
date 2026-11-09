@@ -20,7 +20,7 @@ const STATES = [
 
 type State = (typeof STATES)[number]["key"];
 const COHORTS = [
-  { key: "all", label: "Tutte" },
+  { key: "all", label: "Tutte coorti" },
   { key: "Growth100", label: "Growth 100" },
   { key: "E8A", label: "E.8.A" },
   { key: "E8B", label: "E.8.B" },
