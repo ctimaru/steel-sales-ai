@@ -53,7 +53,7 @@ function statusTone(status: string) {
 const statusBadgeClass = {
   action: "border-[#e2c27a] bg-[#fff4d6] text-[#6b4a07]",
   neutral: "border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--brand-deep)]",
-  done: "border-[#dde3df] bg-[#f3f5f4] text-[#6b7a72]",
+  done: "border-[#dde3df] bg-[#f3f5f4] text-[#4f5f56]",
 } as const;
 const rowAccentClass = {
   action: "border-l-[#d9a62e]",
