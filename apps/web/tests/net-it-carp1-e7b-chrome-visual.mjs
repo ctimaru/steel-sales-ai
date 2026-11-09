@@ -86,9 +86,18 @@ try{
       await page.waitForURL(u=>u.searchParams.get("state")==="domain_alias_linked",{timeout:30000});
       assert.equal(await page.getByTestId("net-it-carp1-e5-company").count(),16,
         "Sixteen existing brand aliases must be visible");
-      assert.equal(await page.getByRole("link",{name:"Alias collegati",exact:true})
-        .evaluate(el=>getComputedStyle(el).color),"rgb(255, 255, 255)",
-        "Active alias filter must have white text over dark green");
+      const aliasLink=page.getByRole("link",{name:"Alias collegati",exact:true});
+      // The URL may update before the Next.js client navigation has committed
+      // active-link state. Verify the eventual accessible state and contrast.
+      await page.waitForFunction(()=>{
+        const active=[...document.querySelectorAll("a[aria-current='page']")]
+          .find(el=>el.textContent?.trim()==="Alias collegati");
+        return Boolean(active&&getComputedStyle(active).color==="rgb(255, 255, 255)");
+      },undefined,{timeout:20000});
+      assert.equal(await aliasLink.getAttribute("aria-current"),"page",
+        "Alias filter must be explicitly marked current");
+      assert.equal(await aliasLink.evaluate(el=>getComputedStyle(el).color),
+        "rgb(255, 255, 255)","Active alias filter must have white text over dark green");
       await assertNoOverflow(page,width,"linked aliases");
       await page.screenshot({
         path:path.join(out,"carpenterie-alias-"+width+".png"),
