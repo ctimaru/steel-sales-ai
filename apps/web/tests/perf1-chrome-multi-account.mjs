@@ -162,7 +162,7 @@ try {
       }
       assert.ok(widths.scroll <= widths.client + 8,
         "PLR3 horizontal overflow " + width + "px: " + JSON.stringify(widths));
-      assert.equal(await ownerPage.getByRole("heading", { name: "Cosa richiede attenzione" }).count(), 1);
+      assert.equal(await ownerPage.getByRole("heading", { name: "Cosa richiede il tuo intervento" }).count(), 1);
     }
   });
   await check("PLR4 owner governance queues render permission-scoped navigation", async () => {
