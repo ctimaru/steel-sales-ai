@@ -180,6 +180,19 @@ export default async function PlatformHomePage() {
       />
 
       {context.is_platform_owner ? (
+        <section aria-label="Accesso alle decisioni" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#c8dcd0] bg-[#f4f9f5] p-4 sm:p-5">
+          <div>
+            <h2 className="text-base font-bold text-[#173f35]">Le mie decisioni</h2>
+            <p className="mt-1 text-xs leading-5 text-[#52675c]">Cosa valutare, perché conta e cosa consiglio. Solo attività confermate dal sistema.</p>
+          </div>
+          <Link href="/platform/decisions"
+            className="inline-flex min-h-10 items-center rounded-xl bg-[#175640] px-4 py-2 text-sm font-semibold text-white hover:bg-[#124a35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+            Apri le mie decisioni →
+          </Link>
+        </section>
+      ) : null}
+
+      {context.is_platform_owner ? (
         <section aria-label="Guida rapida alla console" className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-2xl border border-[#dce2df] bg-[#f5f9f6] p-4">
             <h2 className="text-sm font-bold text-[#173f35]">1. Cosa devo decidere?</h2>
