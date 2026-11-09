@@ -17,6 +17,32 @@ VALUES (:'netgrowth_auditor_user_id'::uuid,'platform_superadmin','active',
         :'netgrowth_auditor_user_id'::uuid,
         'Disposable synthetic CI only: prove real GoTrue Platform protected cockpit');
 
+-- Local-only registration lifecycle: the current login requires a tenant
+-- membership and synthetic legal acceptance before /dashboard, even for an
+-- already-authorized Platform superadmin. No real person has consented.
+INSERT INTO public.organizations(
+ id,name,slug,created_by,industry,country_code,onboarding_status,
+ guided_setup_completed_at,onboarding_completed_at
+) VALUES (
+ '00000000-0000-0000-0000-000000007700',
+ 'FICTIONAL E7B Metalwork Admin',
+ 'netit-e7b-local-demo',
+ :'netgrowth_auditor_user_id'::uuid,'steel','IT','completed',now(),now()
+);
+INSERT INTO public.organization_memberships(
+ organization_id,user_id,role,business_role,status,is_default
+) VALUES (
+ '00000000-0000-0000-0000-000000007700',
+ :'netgrowth_auditor_user_id'::uuid,'admin','sales_director','active',true
+);
+INSERT INTO public.user_legal_acceptances(
+ user_id,subject_user_ref,privacy_notice_version,privacy_acknowledged_at,
+ terms_version,terms_accepted_at,acceptance_source
+) VALUES (
+ :'netgrowth_auditor_user_id'::uuid,:'netgrowth_auditor_user_id'::uuid,
+ '2026-10-04-lr5-v1',now(),'2026-10-04-lr5-v1',now(),'account'
+);
+
 INSERT INTO public.network_company_discovery_runs(
  id,requested_by,country_code,seed_urls,source_reference,label,status,candidate_count,started_at,completed_at
 ) VALUES (
