@@ -1,5 +1,6 @@
 import Link from "next/link";
 import cinematic from "@/components/commercial-cinematic.module.css";
+import { groupCommercialRows } from "@/lib/commercial-row-groups";
 import { commercialRowAmount } from "@/lib/commercial-row-facts";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealQuickActions } from "@/components/commercial-deal-quick-actions";
@@ -266,6 +267,47 @@ export async function CommercialUnifiedWorklist({
         ? { href: appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake", label: "Prepara con la chat" }
         : { href: commercialHref("all"), label: "Mostra tutte le trattative" };
 
+  const renderRow = (item: UnifiedCommercialItem) => (
+        <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
+          aria-current={item.key === active?.key ? "true" : undefined}
+          className={"group grid min-h-[102px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-l-[3px] px-3 py-2 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] sm:min-h-[70px] sm:gap-x-3 sm:gap-y-0 sm:px-4 " +
+            (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : "border-l-transparent")}>
+          <div className="col-span-2 min-w-0 space-y-0.5 sm:col-span-1" data-testid="commercial-smart-deal-card">
+            <div className="flex min-w-0 items-center gap-1.5 text-[10px] leading-4">
+              <span className="shrink-0 font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</span>
+              <span aria-hidden="true" className="text-[var(--text-secondary)]">·</span>
+              <span className="min-w-0 truncate text-[var(--text-secondary)]">{item.origin}</span>
+            </div>
+            <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)] sm:line-clamp-1" title={item.title}>{item.title}</p>
+            {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)]">{item.subtitle}</p> : null}
+            {(item.rowFacts?.quantity ||
+              (item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle) ||
+              (item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title) ||
+              commercialRowAmount(item.rowFacts?.totalEur) ||
+              (item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt)))) ? (
+              <div data-testid="commercial-deal-row-facts" className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] leading-4 text-[#48685a]">
+                {item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle
+                  ? <span className="max-w-full truncate" title={item.rowFacts.counterparty}>Azienda · {item.rowFacts.counterparty}</span> : null}
+                {item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title
+                  ? <span className="max-w-full truncate" title={item.rowFacts.material}>Materiale · {item.rowFacts.material}</span> : null}
+                {item.rowFacts?.quantity ? <span className="font-medium">Quantità · {item.rowFacts.quantity}</span> : null}
+                {commercialRowAmount(item.rowFacts?.totalEur)
+                  ? <span className="font-semibold text-[#205a44]">Totale ordine · {commercialRowAmount(item.rowFacts?.totalEur)}</span> : null}
+                {item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt))
+                  ? <span>Scadenza · {formatHubDate(item.rowFacts.dueAt)}</span> : null}
+              </div>
+            ) : null}
+          </div>
+          <div className="col-span-2 flex min-w-0 items-center justify-between gap-2 border-t border-[#edf3ee] pt-1 text-right sm:col-span-1 sm:min-w-[104px] sm:max-w-[180px] sm:flex-col sm:items-end sm:gap-1 sm:border-0 sm:pt-0">
+            <span className="max-w-full truncate rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold leading-4 text-[var(--brand-deep)]" title={item.status}>{item.status}</span>
+            <div className="flex items-center gap-2">
+              {item.at ? <time className="text-[10px] tabular-nums text-[var(--text-secondary)]">{formatHubDate(item.at)}</time> : null}
+              <span aria-hidden="true" className="text-[11px] font-semibold text-[var(--brand-primary)]">Apri →</span>
+            </div>
+          </div>
+        </Link>
+  );
+
   return (
     <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-3 " + cinematic.worklist}>
       <div data-testid="comm-cine9-workspace-heading"
@@ -333,45 +375,19 @@ export async function CommercialUnifiedWorklist({
         <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-[22px] border border-[#dce7e0] bg-white shadow-[0_18px_55px_-40px_rgba(4,46,32,0.50)]"}>
           {filtered.length ? (
             <div className="divide-y divide-[var(--border)]">
-              {filtered.map((item) => (
-                <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
-                  aria-current={item.key === active?.key ? "true" : undefined}
-                  className={"group grid min-h-[102px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-l-[3px] px-3 py-2 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] sm:min-h-[70px] sm:gap-x-3 sm:gap-y-0 sm:px-4 " +
-                    (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : "border-l-transparent")}>
-                  <div className="col-span-2 min-w-0 space-y-0.5 sm:col-span-1" data-testid="commercial-smart-deal-card">
-                    <div className="flex min-w-0 items-center gap-1.5 text-[10px] leading-4">
-                      <span className="shrink-0 font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</span>
-                      <span aria-hidden="true" className="text-[var(--text-secondary)]">·</span>
-                      <span className="min-w-0 truncate text-[var(--text-secondary)]">{item.origin}</span>
-                    </div>
-                    <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)] sm:line-clamp-1" title={item.title}>{item.title}</p>
-                    {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)]">{item.subtitle}</p> : null}
-                    {(item.rowFacts?.quantity ||
-                      (item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle) ||
-                      (item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title) ||
-                      commercialRowAmount(item.rowFacts?.totalEur) ||
-                      (item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt)))) ? (
-                      <div data-testid="commercial-deal-row-facts" className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] leading-4 text-[#48685a]">
-                        {item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle
-                          ? <span className="max-w-full truncate" title={item.rowFacts.counterparty}>Azienda · {item.rowFacts.counterparty}</span> : null}
-                        {item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title
-                          ? <span className="max-w-full truncate" title={item.rowFacts.material}>Materiale · {item.rowFacts.material}</span> : null}
-                        {item.rowFacts?.quantity ? <span className="font-medium">Quantità · {item.rowFacts.quantity}</span> : null}
-                        {commercialRowAmount(item.rowFacts?.totalEur)
-                          ? <span className="font-semibold text-[#205a44]">Totale ordine · {commercialRowAmount(item.rowFacts?.totalEur)}</span> : null}
-                        {item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt))
-                          ? <span>Scadenza · {formatHubDate(item.rowFacts.dueAt)}</span> : null}
-                      </div>
-                    ) : null}
-                  </div>
-                  <div className="col-span-2 flex min-w-0 items-center justify-between gap-2 border-t border-[#edf3ee] pt-1 text-right sm:col-span-1 sm:min-w-[104px] sm:max-w-[180px] sm:flex-col sm:items-end sm:gap-1 sm:border-0 sm:pt-0">
-                    <span className="max-w-full truncate rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold leading-4 text-[var(--brand-deep)]" title={item.status}>{item.status}</span>
-                    <div className="flex items-center gap-2">
-                      {item.at ? <time className="text-[10px] tabular-nums text-[var(--text-secondary)]">{formatHubDate(item.at)}</time> : null}
-                      <span aria-hidden="true" className="text-[11px] font-semibold text-[var(--brand-primary)]">Apri →</span>
-                    </div>
-                  </div>
-                </Link>
+              {groupCommercialRows(filtered).map((entry) => entry.type === "single" ? renderRow(entry.item) : (
+                <details key={entry.id} data-testid="commercial-row-group" open={entry.items.some((item) => item.key === active?.key)}
+                  className="group/rows">
+                  <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-2 px-3 py-2 text-sm hover:bg-[#f3f8f5] sm:px-4">
+                    <span className="min-w-0 truncate font-semibold text-[var(--brand-deep)]">
+                      {entry.items.length} × {itemType(entry.items[0])} · {entry.items[0].title}
+                    </span>
+                    <span className="shrink-0 text-xs text-[var(--text-secondary)]">
+                      {entry.items[0].at ? formatHubDate(entry.items[0].at) : ""} · mostra/nascondi
+                    </span>
+                  </summary>
+                  <div className="divide-y divide-[var(--border)] border-t border-[var(--border)]">{entry.items.map(renderRow)}</div>
+                </details>
               ))}
             </div>
           ) : (
