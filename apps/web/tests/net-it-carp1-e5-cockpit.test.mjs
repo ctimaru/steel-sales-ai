@@ -8,10 +8,16 @@ const bridge=readFileSync(new URL("../../../supabase/migrations/20261108180241_n
 const access=readFileSync(new URL("../../../supabase/migrations/20261108183857_net_it_carp1_e5_admin_cockpit_reader.sql",import.meta.url),"utf8");
 const capabilities=readFileSync(new URL("../../../supabase/migrations/20261108184239_net_it_carp1_e5_cockpit_capability_evidence.sql",import.meta.url),"utf8");
 const aliasMigration=readFileSync(new URL("../../../supabase/migrations/20261109082733_net_it_carp1_e7_alias_links_admin_status.sql",import.meta.url),"utf8");
+const unified=readFileSync(new URL("../../../supabase/migrations/20261109122600_net_it_carp1_e8c_unified_admin_snapshot.sql",import.meta.url),"utf8");
 
 test("Growth100 cockpit is compact, read-only, source-linked, and restricted to Platform superadmin",()=>{
  assert.match(page,/requirePlatformSuperadmin\(\)/);
- assert.match(page,/netit_carp1_e5_admin_snapshot/);
+ assert.match(page,/netit_carp1_e8_admin_snapshot/);
+ assert.match(page,/Tutte coorti/);
+ assert.match(page,/provinceFrom/);
+ assert.match(page,/cohortFrom/);
+ assert.match(page,/research_area_to_verify/);
+ assert.match(page,/E8C/);
  assert.match(page,/safeNetworkWebsiteUrl\(url\)/);
  assert.match(page,/observed_capabilities/);
  assert.match(page,/company_source_url/);
@@ -47,6 +53,19 @@ test("Growth100 database reader guards private contact data and never changes pu
  assert.match(aliasMigration,/exact_domain_alias_linked/);
  assert.match(aliasMigration,/domain_alias_linked/);
  assert.match(aliasMigration,/vat_identity_review/);
+ assert.match(unified,/netit_carp1_e8_admin_snapshot_impl/);
+ assert.match(unified,/netit_carp1_e8_admin_snapshot/);
+ assert.match(unified,/auth\.uid\(\)/);
+ for(const permission of ["discovery.read","discovery.governance_review","network.privacy_governance_review"]){
+   assert.ok(unified.includes("require_platform_permission('"+permission+"')"));
+ }
+ assert.match(unified,/SECURITY DEFINER/);
+ assert.match(unified,/SECURITY INVOKER/);
+ assert.match(unified,/REVOKE ALL ON FUNCTION public\.netit_carp1_e8_admin_snapshot/);
+ assert.match(unified,/GRANT EXECUTE ON FUNCTION public\.netit_carp1_e8_admin_snapshot/);
+ assert.match(unified,/LIMIT p_limit OFFSET p_offset/);
+ assert.match(unified,/publications_performed/);
+ assert.doesNotMatch(unified,/(UPDATE|DELETE FROM|INSERT INTO)\s+public\.network_company_discovery_candidates/i);
  assert.match(aliasMigration,/WITH \(security_invoker=true\)/i);
  assert.doesNotMatch(access,/(insert\s+into|update\s+public\.network_companies|delete\s+from)\s+public\.network_companies/i);
 });
