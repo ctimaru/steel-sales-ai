@@ -147,34 +147,39 @@ export default async function CarpenterieGrowthPage({
   const pages = snapshot ? Math.max(1, Math.ceil(snapshot.selected_total / PAGE_SIZE)) : 1;
 
   return (
-    <main className="mx-auto w-full max-w-[1480px] space-y-3 px-3 py-3 sm:px-5 sm:py-5"
+    <main className="mx-auto w-full max-w-[1480px] space-y-2 px-2 py-2 sm:space-y-3 sm:px-5 sm:py-5"
       data-testid="net-it-carp1-e5-cockpit">
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2">
         <Link href="/platform/company-discovery"
           className="text-xs font-semibold text-[#175640] underline underline-offset-4">
           ← Discovery
         </Link>
-        <span className="rounded-full border border-[#d8e7dc] bg-white px-3 py-1 text-[11px] font-semibold text-[#507164]">
-          Solo Console Platform · Nessuna pubblicazione automatica
+        <span className="rounded-full border border-[#d8e7dc] bg-white px-2 py-1 text-[10px] font-semibold text-[#507164] sm:px-3 sm:text-[11px]">
+          <span className="sm:hidden">Console privata · Non pubblica</span>
+          <span className="hidden sm:inline">Solo Console Platform · Nessuna pubblicazione automatica</span>
         </span>
       </div>
 
-      <header className="rounded-2xl border border-[#d8e5dc] bg-white px-4 py-3 sm:px-5">
+      <header className="rounded-xl border border-[#d8e5dc] bg-white px-3 py-2 sm:rounded-2xl sm:px-5 sm:py-3">
         <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#207057]">
-          NET-IT-CARP1.E.5 · Growth 100
+          NET-IT-CARP1.E.7 · Growth 100
         </p>
-        <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
-          <h1 className="text-xl font-bold text-[#173f35] sm:text-2xl">
+        <div className="mt-0.5 flex flex-wrap items-center justify-between gap-1 sm:mt-1 sm:gap-2">
+          <h1 className="text-[18px] font-bold leading-6 text-[#173f35] sm:text-2xl">
             Carpenterie · dati e riconciliazione
           </h1>
           <Link href="/platform/company-discovery/contacts"
-            className="rounded-lg border border-[#bad4c4] bg-[#f6faf7] px-3 py-2 text-xs font-semibold text-[#175640]">
-            Canali pubblici: review separata →
+            className="rounded-lg border border-[#bad4c4] bg-[#f6faf7] px-2 py-1 text-[11px] font-semibold text-[#175640] sm:px-3 sm:py-2 sm:text-xs">
+            <span className="sm:hidden">Review canali pubblici →</span>
+            <span className="hidden sm:inline">Canali pubblici: review separata →</span>
           </Link>
         </div>
-        <p className="mt-1 text-xs leading-5 text-[#5a6c61]">
-          Fonte aziendale, email generica, telefono e capacità osservate. I record restano candidature
-          private: nessuna conferma delle certificazioni o dei rapporti di fornitura.
+        <p className="mt-1 text-[11px] leading-4 text-[#5a6c61] sm:text-xs sm:leading-5">
+          <span className="sm:hidden">Solo candidature private; recapiti e lavorazioni non verificati.</span>
+          <span className="hidden sm:inline">
+            Fonte aziendale, email generica, telefono e capacità osservate. I record restano candidature
+            private: nessuna conferma delle certificazioni o dei rapporti di fornitura.
+          </span>
         </p>
       </header>
 
@@ -185,7 +190,7 @@ export default async function CarpenterieGrowthPage({
         </p>
       ) : (
         <>
-          <section className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7"
+          <section className="grid grid-cols-4 gap-1 sm:grid-cols-4 sm:gap-2 lg:grid-cols-7"
             aria-label="KPI raccolta Carpenterie Growth100">
             {[
               ["In raccolta", snapshot.total],
@@ -196,17 +201,17 @@ export default async function CarpenterieGrowthPage({
               ["Alias collegati", snapshot.alias_linked],
               ["Nomi da allineare", snapshot.name_review],
             ].map(([label, value]) => (
-              <div key={label} className="rounded-xl border border-[#dce8df] bg-white px-3 py-2">
-                <div className="text-xl font-bold tabular-nums text-[#173f35]">{value}</div>
-                <div className="mt-0.5 text-[11px] font-medium text-[#61736a]">{label}</div>
+              <div key={label} className="min-w-0 rounded-lg border border-[#dce8df] bg-white px-1.5 py-1 sm:rounded-xl sm:px-3 sm:py-2">
+                <div className="text-base font-bold tabular-nums text-[#173f35] sm:text-xl">{value}</div>
+                <div className="mt-0.5 text-[9px] font-medium leading-3 text-[#61736a] sm:text-[11px] sm:leading-4">{label}</div>
               </div>
             ))}
           </section>
 
-          <section className="rounded-2xl border border-[#d9e5dc] bg-white p-3 sm:p-4"
+          <section className="rounded-xl border border-[#d9e5dc] bg-white p-2 sm:rounded-2xl sm:p-4"
             aria-label="Filtri riconciliazione">
-            <div className="flex flex-col gap-2 lg:flex-row lg:items-end lg:justify-between">
-              <div className="flex gap-1.5 overflow-x-auto pb-1">
+            <div className="flex flex-col gap-1.5 lg:flex-row lg:items-end lg:justify-between lg:gap-2">
+              <div className="flex min-w-0 gap-1.5 overflow-x-auto pb-1 lg:flex-wrap lg:overflow-visible lg:pb-0">
                 {STATES.map((option) => {
                   const active = state === option.key;
                   return (
@@ -232,7 +237,7 @@ export default async function CarpenterieGrowthPage({
                 </button>
               </form>
             </div>
-            <p className="mt-2 text-[11px] text-[#6c7e72]">
+            <p className="mt-1 text-[10px] leading-4 text-[#6c7e72] sm:mt-2 sm:text-[11px]">
               {snapshot.selected_total} risultati · {snapshot.aligned} allineate ·
               {" "}{snapshot.alias_linked} alias collegati ·
               {" "}{snapshot.research_missing} candidature principali senza doppione · {snapshot.collision} collisioni.
