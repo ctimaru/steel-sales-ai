@@ -200,7 +200,7 @@ export default async function CommercialHomePage({
       ) : (<>
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
         className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white " + cinematic.hero}>
-        <div className={"grid items-center gap-2 px-4 py-2 sm:px-5 lg:min-h-[78px] lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-3 lg:px-5 lg:py-2 " + cinematic.heroGrid}>
+        <div className={"grid items-center gap-2 px-4 py-2 sm:px-5 lg:min-h-[60px] lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-3 lg:px-5 lg:py-1.5 " + cinematic.heroGrid}>
           <div className="relative z-10 min-w-0">
             <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#add4bb]">
               <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9fe4b5]" />
@@ -209,7 +209,7 @@ export default async function CommercialHomePage({
             <h1 className={"mt-0.5 text-[clamp(1.2rem,1.6vw,1.5rem)] font-semibold leading-[1.12] tracking-[-0.025em] text-white " + cinematic.heroTitle}>
               Le tue trattative. <span className="hidden text-[#b4dec2] sm:inline">Un’unica visione.</span>
             </h1>
-            <p className="mt-0.5 text-[11px] leading-4 text-[#d2e7db]">
+            <p className="mt-0.5 text-[11px] leading-4 text-[#d2e7db] sm:hidden">
               Richieste, offerte e ordini in un unico spazio.
             </p>
           </div>

@@ -336,12 +336,12 @@ export async function CommercialUnifiedWorklist({
   );
 
   return (
-    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-3 " + cinematic.worklist}>
+    <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-2 " + cinematic.worklist}>
       <div data-testid="comm-cine9-workspace-heading"
-        className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-[#dce8df] bg-white px-3 py-1.5 sm:gap-x-4 sm:gap-y-1 sm:px-4 sm:py-2">
+        className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-[#dce8df] bg-white px-3 py-1.5 sm:gap-x-4 sm:gap-y-1 sm:px-4 sm:py-1.5">
         <div className="min-w-0">
-          <p className="hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-[#386b50] sm:block">Workspace commerciale / Deal cockpit</p>
-          <h2 id="commercial-worklist-title" className="mt-0.5 text-xl font-semibold leading-tight tracking-[-0.025em] text-[#123c2f]">
+          <p className="hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-[#386b50] 2xl:block">Workspace commerciale / Deal cockpit</p>
+          <h2 id="commercial-worklist-title" className="mt-0.5 text-lg font-semibold leading-tight tracking-[-0.025em] text-[#123c2f]">
             Le mie trattative
           </h2>
         </div>
