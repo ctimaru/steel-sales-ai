@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Rfqc1ChatComposer } from "@/components/rfqc1-chat-composer";
 import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
 import { Rfqc1OfferCard } from "@/components/rfqc1-offer-card";
+import { Rfqc1DraftSummary } from "@/components/rfqc1-draft-summary";
 import { useState } from "react";
 
 import type { Rfqc1TimelineItem } from "@/lib/rfqc1-timeline";
@@ -158,6 +159,10 @@ export function Rfqc1ChatWorkspace(props: Props) {
               {props.buyerMessage && <p className="rounded-lg border border-[#e0e7e2] px-3 py-2 text-xs text-[#455b4c]">{props.buyerMessage}</p>}
             </div>
           </div>
+
+          <Rfqc1DraftSummary status={props.status} dueAt={props.dueAt} canExecute={props.canExecute && !props.readOnlyByProfile}
+            lines={props.lines.map(line => ({ description: line.description, standard: line.standard, grade: line.grade, quantity: line.quantity }))}
+            suppliers={props.suppliers.map(item => ({ name: item.name, email: item.email }))} />
 
           <div role="tablist" aria-label="Trattative private per fornitore"
             className="flex gap-1.5 overflow-x-auto border-b border-[#e2eae5] bg-[#fbfcfb] px-3 py-3 sm:px-5">
