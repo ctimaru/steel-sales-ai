@@ -99,7 +99,7 @@ export default async function CompanyDiscoveryPage({
                 href="/platform/company-discovery/carpenterie"
                 className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
               >
-                Carpenterie · Growth 100
+                Carpenterie · Console unificata
               </Link>
             ) : null}
             <Link
