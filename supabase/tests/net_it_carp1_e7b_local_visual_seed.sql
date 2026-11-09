@@ -18,13 +18,13 @@ VALUES (:'netgrowth_auditor_user_id'::uuid,'platform_superadmin','active',
         'Disposable synthetic CI only: prove real GoTrue Platform protected cockpit');
 
 INSERT INTO public.network_company_discovery_runs(
- id,requested_by,country_code,seed_urls,source_reference,label,status,candidate_count
+ id,requested_by,country_code,seed_urls,source_reference,label,status,candidate_count,started_at,completed_at
 ) VALUES (
  '00000000-0000-0000-0000-000000007701',
  :'netgrowth_auditor_user_id'::uuid,
  'IT','["https://carp-qa-001.invalid/"]'::jsonb,'NET-IT-CARP1.D.CI-VISUAL-ONLY',
  'FICTIONAL E7B local visual acceptance, no actual company data',
- 'completed',100
+ 'completed',100,now()-interval '1 minute',now()
 );
 
 INSERT INTO public.network_company_discovery_candidates(
