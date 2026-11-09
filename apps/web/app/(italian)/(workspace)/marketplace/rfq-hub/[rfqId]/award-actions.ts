@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { officeWriteDenied } from "@/lib/office-profile-guard";
 import { createClient } from "@/lib/supabase/server";
 
 export type Rfqh7AwardAllocationInput = {
@@ -29,6 +30,8 @@ export async function confirmRfqAward(input: {
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
   if (!authData.user) return { ok: false, error: "Accedi per confermare l'award." };
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
 
   const allocations = input.allocations
     .map((item) => ({

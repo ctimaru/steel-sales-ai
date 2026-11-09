@@ -22,6 +22,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let viewerLabel = "demo@steel-sales-ai.local";
   let organizationName = "Demo Company";
   let organizationRole = "admin";
+  let businessRole: string | null = null;
   let notificationSnapshot: WorkspaceNotificationSnapshot | null = null;
   let notificationVerifiedAt: string | null = null;
   let organizationId: string | null = null;
@@ -39,6 +40,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
     viewerLabel = context.viewerLabel;
     organizationName = context.organizationName;
     organizationRole = context.role;
+    businessRole = context.businessRole;
     platformConsoleAccess = context.platformConsoleAccess;
     guidedSetupComplete = context.guidedSetupComplete;
 
@@ -68,6 +70,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       viewerLabel={viewerLabel}
       organizationName={organizationName}
       organizationRole={organizationRole}
+      businessRole={businessRole}
       demoMode={!configured}
       notificationSnapshot={notificationSnapshot}
       notificationVerifiedAt={notificationVerifiedAt}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Rfqc1ChatComposer } from "@/components/rfqc1-chat-composer";
+import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
 import { Rfqc1OfferCard } from "@/components/rfqc1-offer-card";
 import { useState } from "react";
 
@@ -46,6 +47,10 @@ type Props = {
   responseLabel: string;
   comparison: RfqComparisonData | null;
   canExecute: boolean;
+  /** Può aprire una nuova richiesta dalla chat (profilo con scrittura sugli acquisti). */
+  canStartRequest?: boolean;
+  /** Il profilo dell'utente consulta gli acquisti ma non li modifica. */
+  readOnlyByProfile?: boolean;
 };
 
 function number(value: number | string | null | undefined, digits = 2) {
@@ -94,6 +99,12 @@ export function Rfqc1ChatWorkspace(props: Props) {
           <Link href="/rfq-hub" className="rounded-lg bg-[#174b3d] px-2.5 py-2 text-xs font-semibold text-white">Hub</Link>
         </div>
       </div>
+
+      {props.canStartRequest ? (
+        <div className="border-b border-[#e3ebe5] bg-white p-2.5 lg:px-4" data-testid="rfqc1-new-request">
+          <CommercialAiCompanion canWrite />
+        </div>
+      ) : null}
 
       <div className="grid min-h-[620px] grid-cols-1 xl:grid-cols-[212px_minmax(0,1fr)_286px]">
         <aside id="rfqc1-campaign-list" aria-label="Elenco RFQ"
@@ -190,6 +201,15 @@ export function Rfqc1ChatWorkspace(props: Props) {
             )}
           </div>
           <div className="border-t border-[#dfe7e1] bg-white p-3 sm:px-5">
+            {supplier && props.readOnlyByProfile ? (
+              <p role="note" className="mb-2 rounded-lg bg-[#f3f7f5] px-3 py-2 text-xs text-[#4f6457]">
+                Il tuo profilo consulta gli acquisti. Per scrivere ai fornitori serve il profilo Ufficio acquisti, assegnato dalla Direzione Aziendale.
+              </p>
+            ) : supplier && !["launched", "collecting"].includes(props.status) ? (
+              <p role="note" className="mb-2 rounded-lg bg-[#f3f7f5] px-3 py-2 text-xs text-[#4f6457]">
+                La conversazione si apre quando la RFQ viene lanciata: finché è in bozza puoi preparare la richiesta e scegliere i fornitori.
+              </p>
+            ) : null}
             {supplier ? (
               <Rfqc1ChatComposer
                 key={supplier.id}

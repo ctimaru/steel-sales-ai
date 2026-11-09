@@ -6,6 +6,7 @@ import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { ProductBrand } from "@/components/product-brand";
 import { Input } from "@/components/ui/input";
 import { getCompanySetupState } from "@/lib/company-setup";
+import { businessRoleLabel as officeBusinessRoleLabel } from "@/lib/office-profiles";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 
@@ -110,10 +111,7 @@ function permissionLabel(role: string) {
 }
 
 function businessRoleLabel(role: string | null) {
-  if (role === "sales_director") return "Sales Director";
-  if (role === "salesperson") return "Commerciale";
-  if (role === "operations") return "Operations";
-  return "Non assegnato";
+  return officeBusinessRoleLabel(role);
 }
 
 function invitationStatusLabel(status: string, deliveryStatus: string) {
@@ -214,7 +212,7 @@ export default async function OnboardingPage({
             />
 
             <p className="mt-3 rounded-xl border border-[#dce2df] bg-[#f7f9f8] px-3 py-2 text-sm text-[#52615b]">
-              Permesso: <strong>{permissionLabel(membership.role)}</strong> · Ruolo commerciale:{" "}
+              Permesso: <strong>{permissionLabel(membership.role)}</strong> · Profilo (ufficio):{" "}
               <strong>{businessRoleLabel(membership.business_role)}</strong>
             </p>
 
@@ -483,11 +481,12 @@ export default async function OnboardingPage({
               </select>
             </label>
             <label className="block text-sm font-medium text-[#43524c]">
-              Ruolo commerciale
+              Profilo (ufficio)
               <select name="business_role" defaultValue="salesperson" className={select}>
                 <option value="">Non assegnato</option>
-                <option value="sales_director">Sales Director</option>
-                <option value="salesperson">Commerciale</option>
+                <option value="sales_director">Direzione commerciale</option>
+                <option value="salesperson">Ufficio commerciale</option>
+                <option value="purchasing">Ufficio acquisti</option>
                 <option value="operations">Operations</option>
               </select>
             </label>
@@ -560,15 +559,16 @@ export default async function OnboardingPage({
                               <form action={changeMemberBusinessRole} className="flex items-end gap-2">
                                 <input type="hidden" name="user_id" value={member.user_id} />
                                 <label className="min-w-0 flex-1 text-xs text-[#66736e]">
-                                  Ruolo commerciale
+                                  Profilo (ufficio)
                                   <select
                                     name="business_role"
                                     defaultValue={member.business_role ?? ""}
                                     className={select}
                                   >
                                     <option value="">Non assegnato</option>
-                                    <option value="sales_director">Sales Director</option>
-                                    <option value="salesperson">Commerciale</option>
+                                    <option value="sales_director">Direzione commerciale</option>
+                                    <option value="salesperson">Ufficio commerciale</option>
+                                    <option value="purchasing">Ufficio acquisti</option>
                                     <option value="operations">Operations</option>
                                   </select>
                                 </label>

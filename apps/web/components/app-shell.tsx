@@ -86,6 +86,7 @@ export function AppShell({
   viewerLabel,
   organizationName,
   organizationRole,
+  businessRole = null,
   demoMode,
   notificationSnapshot,
   notificationVerifiedAt,
@@ -100,6 +101,7 @@ export function AppShell({
   viewerLabel: string;
   organizationName: string;
   organizationRole: string;
+  businessRole?: string | null;
   demoMode: boolean;
   notificationSnapshot: WorkspaceNotificationSnapshot | null;
   notificationVerifiedAt: string | null;
@@ -192,7 +194,9 @@ export function AppShell({
       </header>
 
       <main id="main-content" tabIndex={-1} className="mvp-focus-shell mx-auto w-full max-w-[1500px] p-4 sm:p-6 lg:p-8">
-        <WorkspaceCommercialDirectorShell>{children}</WorkspaceCommercialDirectorShell>
+        <WorkspaceCommercialDirectorShell role={organizationRole} businessRole={businessRole}>
+          {children}
+        </WorkspaceCommercialDirectorShell>
       </main>
 
       <WorkspaceMobileBottomNavigation

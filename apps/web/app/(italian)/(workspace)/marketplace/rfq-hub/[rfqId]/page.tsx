@@ -33,7 +33,9 @@ import {
 } from "@/lib/rfqh9-po";
 import type { Rfqh13GovernanceState } from "@/lib/rfqh13-governance";
 import { appRoutes } from "@/lib/routes";
+import { canWriteOffice } from "@/lib/office-profiles";
 import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
 
@@ -154,9 +156,14 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         approvals: (approvalRows ?? governanceBase.approvals) as Rfqh13GovernanceState["approvals"],
       }
     : null;
+  // Ufficio acquisti scrive; l'Ufficio commerciale consulta (profili assegnati dalla Direzione).
+  // Applicato qui nell'interfaccia: la RLS e le azioni server non cambiano in questa PR.
+  const workspace = await getWorkspaceContext();
+  const purchasingWrite = canWriteOffice(workspace.role, workspace.businessRole, "purchasing");
   const canExecuteCritical =
-    governance?.current_user?.role === "owner" ||
-    campaign.owner_user_id === authData.user?.id;
+    purchasingWrite &&
+    (governance?.current_user?.role === "owner" ||
+      campaign.owner_user_id === authData.user?.id);
 
   const supplierRows = suppliers ?? [];
   const isPreparation = campaign.status === "draft" || campaign.status === "ready";
@@ -365,6 +372,8 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
         }))}
         responseLabel={currentResponses.label} comparison={comparisonData}
         canExecute={canExecuteCritical}
+        canStartRequest={purchasingWrite}
+        readOnlyByProfile={!purchasingWrite}
       />
       <details id="rfqc1-advanced" open={isPreparation || Boolean(awardSnapshot) || Boolean(poState?.purchase_orders?.length)} className="rounded-2xl border border-[#cddbd6] bg-white">
         <summary className="cursor-pointer px-4 py-4 text-sm font-bold text-[#214f3d]">

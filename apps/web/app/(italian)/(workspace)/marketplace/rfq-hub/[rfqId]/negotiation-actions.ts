@@ -12,6 +12,7 @@ import {
   type Rfqh6NegotiationKind,
   type Rfqh6SharedTarget,
 } from "@/lib/rfqh6-negotiation";
+import { officeWriteDenied } from "@/lib/office-profile-guard";
 import { createClient } from "@/lib/supabase/server";
 
 export type BuyerNegotiationMessageType =
@@ -305,6 +306,8 @@ export async function postBuyerRfqNegotiation(
   const user = authData.user;
 
   if (!user) return { ok: false, error: "Accedi per negoziare la RFQ." };
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
 
   const rfqId = input.rfqId.trim();
   const supplierId = input.supplierId.trim();
@@ -372,6 +375,8 @@ export async function sendBuyerNegotiationReminder(
   const user = authData.user;
 
   if (!user) return { ok: false, error: "Accedi per inviare il promemoria." };
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
 
   const { data, error } = await supabase.rpc("rfqh6_prepare_reminder", {
     p_thread_id: input.threadId.trim(),

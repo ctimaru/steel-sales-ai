@@ -18,14 +18,20 @@ const { commercialDirectorGroups, commercialDirectorAllItems, commercialDirector
   "data:text/javascript;base64," + Buffer.from(compiled).toString("base64")
 );
 
-test("COMM-SIMPLE2 exposes five compact groups while retaining canonical destinations", () => {
+test("OFFICE-PROFILES1 exposes Direzione aziendale with the two offices while retaining canonical destinations", () => {
   assert.deepEqual(commercialDirectorGroups.map(g => g.label), [
-    "Scrivania", "Trattative e RFQ", "Aziende", "Analisi", "Strumenti",
+    "Scrivania", "Direzione aziendale", "Analisi", "Strumenti",
   ]);
-  const primary = commercialDirectorGroups.flatMap(g => g.items);
+  const direction = commercialDirectorGroups.find(g => g.key === "direction");
+  assert.deepEqual(direction.sections.map(section => section.label), ["Ufficio commerciale", "Ufficio acquisti"]);
+  assert.deepEqual(direction.items.filter(item => item.adminOnly).map(item => item.label), ["Team e profili"],
+    "Only the profile management entry is reserved to the Direzione");
+  assert.ok(direction.sections.every(section => section.items.every(item => !item.adminOnly)),
+    "Each office stays visible to the other one");
+  const primary = commercialDirectorGroups.flatMap(g => [...g.items, ...(g.sections ?? []).flatMap(section => section.items)]);
   const items = commercialDirectorGroups.flatMap(commercialDirectorAllItems);
-  assert.equal(primary.length, 11, "Only 11 immediate destinations");
-  assert.equal(items.length, 19, "Less-used destinations remain under disclosure");
+  assert.equal(primary.length, 14, "Only 14 immediate destinations");
+  assert.equal(items.length, 20, "Less-used destinations remain under disclosure");
   assert.ok(commercialDirectorGroups.every(g => "moreItems" in g));
   assert.ok(!items.some(i => i.href.includes("#commercial-today")));
   assert.ok(!items.some(i => i.href.includes("?view=sent") || i.href.includes("?view=received")
@@ -64,7 +70,7 @@ test("COMM-NAV7 is lateral on desktop and disclosure-based on mobile; keeps role
   assert.match(shell, /<details/);
   assert.match(shell, /aria-current=\{current \? "page" : undefined\}/);
   assert.match(shell, /getWorkspaceNavigationContext\(pathname\)/);
-  assert.match(appShell, /<WorkspaceCommercialDirectorShell>\{children\}<\/WorkspaceCommercialDirectorShell>/);
+  assert.match(appShell, /<WorkspaceCommercialDirectorShell role=\{organizationRole\} businessRole=\{businessRole\}>/);
   assert.match(top, /if \(current === "home" \|\| current === "commercial"\) return null/);
   assert.match(appShell, /canWriteWorkspace\(role\)/);
   assert.doesNotMatch(shell + groups, /createAdminClient|service_role|autoDispatch|issuePurchaseOrder/);
