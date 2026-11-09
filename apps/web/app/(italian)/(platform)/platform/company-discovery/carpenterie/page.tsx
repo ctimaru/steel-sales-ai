@@ -11,7 +11,8 @@ const STATES = [
   { key: "all", label: "Tutte" },
   { key: "needs_contact", label: "Da arricchire" },
   { key: "research_seed_missing", label: "Solo candidature" },
-  { key: "name_reconciliation_needed", label: "Nomi da allineare" },
+  { key: "name_reconciliation_needed", label: "Da riconciliare" },
+  { key: "domain_alias_linked", label: "Alias collegati" },
   { key: "candidate_seed_aligned", label: "Allineate" },
   { key: "canonical_collision", label: "Collisioni" },
 ] as const;
@@ -26,6 +27,7 @@ type Row = {
   province: string | null;
   reconciliation_state: string;
   research_seed_name: string | null;
+  vat_identity_review: string | null;
   has_contact: boolean;
   email: string | null;
   phone: string | null;
@@ -44,6 +46,7 @@ type Snapshot = {
   phone_count: number;
   aligned: number;
   name_review: number;
+  alias_linked: number;
   research_missing: number;
   collision: number;
   selected_total: number;
@@ -68,7 +71,8 @@ const makeUrl = (state: State, q: string, page: number) => {
 const stateLabel = (state: string) => ({
   candidate_seed_aligned: "Allineata",
   name_reconciliation_needed: "Nome da allineare",
-  research_seed_missing: "Solo candidatura",
+  research_seed_missing: "Candidatura principale",
+  domain_alias_linked: "Alias collegato",
   canonical_collision: "Collisione",
 } as Record<string, string>)[state] ?? "Da esaminare";
 
@@ -181,7 +185,7 @@ export default async function CarpenterieGrowthPage({
         </p>
       ) : (
         <>
-          <section className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6"
+          <section className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7"
             aria-label="KPI raccolta Carpenterie Growth100">
             {[
               ["In raccolta", snapshot.total],
@@ -189,6 +193,7 @@ export default async function CarpenterieGrowthPage({
               ["Da arricchire", snapshot.total - snapshot.enriched],
               ["Email aziendali", snapshot.email_count],
               ["Telefoni aziendali", snapshot.phone_count],
+              ["Alias collegati", snapshot.alias_linked],
               ["Nomi da allineare", snapshot.name_review],
             ].map(([label, value]) => (
               <div key={label} className="rounded-xl border border-[#dce8df] bg-white px-3 py-2">
@@ -229,7 +234,8 @@ export default async function CarpenterieGrowthPage({
             </div>
             <p className="mt-2 text-[11px] text-[#6c7e72]">
               {snapshot.selected_total} risultati · {snapshot.aligned} allineate ·
-              {" "}{snapshot.research_missing} da collegare alla ricerca · {snapshot.collision} collisioni.
+              {" "}{snapshot.alias_linked} alias collegati ·
+              {" "}{snapshot.research_missing} candidature principali senza doppione · {snapshot.collision} collisioni.
               Nessun merge automatico.
             </p>
           </section>
@@ -276,15 +282,22 @@ export default async function CarpenterieGrowthPage({
                   </div>
                   <div>
                     <span className={"inline-flex rounded-full px-2 py-1 text-[10px] font-bold " +
-                      (item.reconciliation_state === "candidate_seed_aligned"
+                      (item.reconciliation_state === "candidate_seed_aligned" ||
+                        item.reconciliation_state === "domain_alias_linked"
                         ? "bg-[#e4f2e9] text-[#246343]"
                         : "bg-[#fdf0dc] text-[#86531e]")}>
                       {stateLabel(item.reconciliation_state)}
                     </span>
                     {item.research_seed_name &&
-                      item.reconciliation_state === "name_reconciliation_needed" ? (
+                      (item.reconciliation_state === "name_reconciliation_needed" ||
+                        item.reconciliation_state === "domain_alias_linked") ? (
                       <p className="mt-1 truncate text-[11px] text-[#687a6f]" title={item.research_seed_name}>
                         Ricerca: {item.research_seed_name}
+                      </p>
+                    ) : null}
+                    {item.vat_identity_review === "historical_sole_trader_entity_explained" ? (
+                      <p className="mt-1 text-[11px] font-medium text-[#805e32]">
+                        P.IVA storica distinta · verifica finale
                       </p>
                     ) : null}
                   </div>
