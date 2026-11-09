@@ -148,7 +148,7 @@ export default async function BuyerRfqHubPage() {
       <section aria-label="Riepilogo acquisti"
         data-testid="rfq-hub-compact-summary"
         className="grid min-w-0 grid-cols-2 gap-x-3 gap-y-1 rounded-xl border border-[var(--border)] bg-white px-2 py-1.5 sm:grid-cols-4">
-        <Tile label="Distinte salvate" number={countText(savedCount.count, savedCount.error)} foot="Snapshot aziendali visibili" href="#distinte" />
+        <Tile label="Distinte" number={countText(savedCount.count, savedCount.error)} foot="Snapshot aziendali visibili" href="#distinte" />
         <Tile label="Campagne RFQ" number={countText(campaignCount.count, campaignCount.error)} foot="Private e condivise" href="#campagne" />
         <Tile label="Offerte ricevute" number={countText(quoteCount.count, quoteCount.error)} foot="Revisioni attualmente inviate" href="#offerte"
           inactive={!quotes.error && quoteCount.count === 0} />
@@ -216,9 +216,9 @@ export default async function BuyerRfqHubPage() {
         </section>
 
         <div className="min-w-0 space-y-3">
-          <section id="distinte" aria-label="Distinte salvate" data-testid="rfq-hub-primary-distinte"
+          <section id="distinte" aria-label="Distinte" data-testid="rfq-hub-primary-distinte"
             className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white px-3 py-3 sm:px-4">
-            <BlockHeading title="Distinte salvate" href={appRoutes.rfqHub.savedDistinte} action="Archivio completo" />
+            <BlockHeading title="Distinte" href={appRoutes.rfqHub.savedDistinte} action="Archivio completo" />
             {saved.error ? (
               <p role="status" className="py-3 text-sm text-[var(--text-secondary)]">Archivio distinte non disponibile.</p>
             ) : recentSaved.length === 0 ? (
