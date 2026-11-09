@@ -23,7 +23,7 @@ test("RFQ-IA3 summarizes actual saved snapshots, campaigns, submitted quotes and
   for(const name of ["buyer_distintas","buyer_rfq_campaigns","buyer_rfq_quotes","buyer_purchase_order_drafts"]) {
     assert.ok(overview.includes('.from("' + name + '")'), name);
   }
-  assert.match(overview, /<Tile label="Distinte salvate"/);
+  assert.match(overview, /<Tile label="Distinte"/);
   assert.match(overview, /<Tile label="Campagne RFQ"/);
   assert.match(overview, /<Tile label="Offerte ricevute"/);
   assert.match(overview, /<Tile label="Purchase Order"/);
