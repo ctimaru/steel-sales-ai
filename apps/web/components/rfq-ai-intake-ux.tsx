@@ -1,5 +1,6 @@
 "use client";
 
+import { describeRfqChatQuestions } from "@/lib/rfq-chat-questions";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ChangeEvent, type ReactNode } from "react";
 import { consumeCommercialAiTextHandoff } from "@/lib/commercial-ai-intake-handoff";
@@ -125,8 +126,9 @@ export function RfqAiIntakeUx({
           onPreviewChange?.(response.result);
           if (focused) {
             const count = response.result.candidates.length;
+            const missing = describeRfqChatQuestions(response.result.candidates);
             appendConversationTurn("assistant", count
-              ? "Ho individuato " + count + (count === 1 ? " articolo. Verifica i dettagli qui sotto prima di aggiungerlo alla Distinta." : " articoli. Verifica i dettagli qui sotto prima di aggiungerli alla Distinta.")
+              ? "Ho individuato " + count + (count === 1 ? " articolo. Verifica i dettagli qui sotto prima di aggiungerlo alla Distinta." : " articoli. Verifica i dettagli qui sotto prima di aggiungerli alla Distinta.") + (missing ? " " + missing : "")
               : "Non ho trovato articoli sufficientemente identificati. Puoi integrare la richiesta e riprovare.", "result");
           }
         } else {
