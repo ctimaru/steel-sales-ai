@@ -67,6 +67,10 @@ try{
       await page.getByRole("heading",{name:"Carpenterie · dati e riconciliazione"}).waitFor();
       assert.equal(await page.getByTestId("net-it-carp1-e5-company").count(),40,
         "First page must show forty fictional companies");
+      const firstCompany=await page.getByTestId("net-it-carp1-e5-company").first().boundingBox();
+      const visibleHeight=width===1440?900:width===390?844:720;
+      assert.ok(firstCompany&&firstCompany.y<visibleHeight-24,
+        "First company must start within first viewport at "+width+"px: "+JSON.stringify(firstCompany));
       assert.match(await page.getByTestId("net-it-carp1-e5-cockpit").innerText(),/100 risultati|100 risultati/i);
       await assertNoOverflow(page,width,"all");
       await page.screenshot({
