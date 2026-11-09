@@ -41,6 +41,31 @@ function itemType(item: UnifiedCommercialItem) {
   return "Distinta salvata";
 }
 
+// Priorità a colpo d'occhio: stati che chiedono un'azione risaltano, gli esiti restano neutri.
+const actionStatuses = new Set(["nuova", "ricevuto", "bozza", "aperta", "in lavorazione"]);
+const doneStatuses = new Set(["rifiutata", "annullata", "scaduta", "chiusa", "completato"]);
+function statusTone(status: string) {
+  const key = status.trim().toLocaleLowerCase("it-IT");
+  if (actionStatuses.has(key)) return "action" as const;
+  if (doneStatuses.has(key)) return "done" as const;
+  return "neutral" as const;
+}
+const statusBadgeClass = {
+  action: "border-[#e2c27a] bg-[#fff4d6] text-[#6b4a07]",
+  neutral: "border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--brand-deep)]",
+  done: "border-[#dde3df] bg-[#f3f5f4] text-[#4f5f56]",
+} as const;
+const rowAccentClass = {
+  action: "border-l-[#d9a62e]",
+  neutral: "border-l-transparent",
+  done: "border-l-transparent",
+} as const;
+
+function groupLabel(item: UnifiedCommercialItem, type: string) {
+  const same = item.title.trim().toLocaleLowerCase("it-IT") === type.toLocaleLowerCase("it-IT");
+  return same ? type + " · cliente non indicato" : type + " · " + item.title;
+}
+
 function route(view: CommercialView, query: string, key: string, page: number, cursor?: string | null) {
   const href = cursor && isStreamView(view) ? mergedCommercialHref(view, query, cursor, key) :
     page > 1 ? commercialPageHref(view, query, page, key) : commercialHref(view, query, key);
@@ -271,7 +296,7 @@ export async function CommercialUnifiedWorklist({
         <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
           aria-current={item.key === active?.key ? "true" : undefined}
           className={"group grid min-h-[102px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-l-[3px] px-3 py-2 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] sm:min-h-[70px] sm:gap-x-3 sm:gap-y-0 sm:px-4 " +
-            (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : "border-l-transparent")}>
+            (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : rowAccentClass[statusTone(item.status)])}>
           <div className="col-span-2 min-w-0 space-y-0.5 sm:col-span-1" data-testid="commercial-smart-deal-card">
             <div className="flex min-w-0 items-center gap-1.5 text-[10px] leading-4">
               <span className="shrink-0 font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</span>
@@ -299,7 +324,7 @@ export async function CommercialUnifiedWorklist({
             ) : null}
           </div>
           <div className="col-span-2 flex min-w-0 items-center justify-between gap-2 border-t border-[#edf3ee] pt-1 text-right sm:col-span-1 sm:min-w-[104px] sm:max-w-[180px] sm:flex-col sm:items-end sm:gap-1 sm:border-0 sm:pt-0">
-            <span className="max-w-full truncate rounded-md border border-[var(--border)] bg-[var(--surface-secondary)] px-2 py-0.5 text-[11px] font-semibold leading-4 text-[var(--brand-deep)]" title={item.status}>{item.status}</span>
+            <span className={"max-w-full truncate rounded-md border px-2 py-0.5 text-[11px] font-semibold leading-4 " + statusBadgeClass[statusTone(item.status)]} title={item.status}>{item.status}</span>
             <div className="flex items-center gap-2">
               {item.at ? <time className="text-[10px] tabular-nums text-[var(--text-secondary)]">{formatHubDate(item.at)}</time> : null}
               <span aria-hidden="true" className="text-[11px] font-semibold text-[var(--brand-primary)]">Apri →</span>
@@ -355,19 +380,16 @@ export async function CommercialUnifiedWorklist({
           {view !== "all" ? <input type="hidden" name="view" value={view} /> : null}
           <label htmlFor="commercial-worklist-q" className="sr-only">Filtra le attività visibili</label>
           <input id="commercial-worklist-q" type="search" name="q" maxLength={80} defaultValue={query}
+            title={isStreamView(view)
+              ? "Il filtro qui cerca nelle intestazioni RFQ, offerte e ordini."
+              : "Qui filtri le attività visibili, non tutto l’archivio documentale."}
             placeholder={isStreamView(view) ? "Cerca titolo RFQ, stato o riferimento ordine..." : "Filtra azienda, articolo o stato..."}
             className="min-h-10 min-w-0 flex-1 rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
           <button className="app-secondary min-h-10 shrink-0 rounded-lg px-3 text-xs font-semibold" type="submit">Filtra</button>
         </form>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-[var(--text-secondary)]">
-        <span>{isStreamView(view)
-          ? "Il filtro qui cerca nelle intestazioni RFQ, offerte e ordini."
-          : "Qui filtri le attività visibili, non tutto l’archivio documentale."}</span>
         <Link href={commercialSearchHref(query)}
-          className="font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">
-          Cerca anche aziende, articoli, misure e norme nello storico →
+          className="inline-flex min-h-10 shrink-0 items-center px-1 text-xs font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">
+          Cerca nello storico →
         </Link>
       </div>
 
@@ -378,9 +400,13 @@ export async function CommercialUnifiedWorklist({
               {groupCommercialRows(filtered).map((entry) => entry.type === "single" ? renderRow(entry.item) : (
                 <details key={entry.id} data-testid="commercial-row-group" open={entry.items.some((item) => item.key === active?.key)}
                   className="group/rows">
-                  <summary className="flex min-h-12 cursor-pointer items-center justify-between gap-2 px-3 py-2 text-sm hover:bg-[#f3f8f5] sm:px-4">
-                    <span className="min-w-0 truncate font-semibold text-[var(--brand-deep)]">
-                      {entry.items.length} × {itemType(entry.items[0])} · {entry.items[0].title}
+                  <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-2 bg-[#f6faf7] px-3 py-2 text-sm hover:bg-[#eef6f1] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--brand-primary)] sm:px-4 [&::-webkit-details-marker]:hidden">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span aria-hidden="true" className="text-sm text-[#547666] transition group-open/rows:rotate-90">›</span>
+                      <span className="shrink-0 rounded-full bg-[#175640] px-2 py-0.5 text-[11px] font-bold tabular-nums text-white">{entry.items.length}</span>
+                      <span className="min-w-0 truncate font-semibold text-[var(--brand-deep)]">
+                        {groupLabel(entry.items[0], itemType(entry.items[0]))}
+                      </span>
                     </span>
                     <span className="shrink-0 text-xs text-[var(--text-secondary)]">
                       {entry.items[0].at ? formatHubDate(entry.items[0].at) : ""} · mostra/nascondi
