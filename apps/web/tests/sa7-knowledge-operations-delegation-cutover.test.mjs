@@ -50,7 +50,7 @@ test("SA7 exposes Knowledge Operations through knowledge.read_drafts", () => {
   );
   const cockpit = fs.readFileSync(new URL("../lib/platform-cockpit.ts", import.meta.url), "utf8");
   assert.match(cockpit, /sa7_knowledge_queue/);
-  assert.match(home, /Knowledge Operations/);
+  assert.match(home, /Contenuti da approvare/);
 });
 
 test("SA7 route and detail resolve the effective Knowledge capability set", () => {
