@@ -5,7 +5,9 @@ on:
     paths:
       - "apps/web/app/(italian)/(platform)/platform/company-discovery/carpenterie/**"
       - "apps/web/tests/net-it-carp1-e7b-chrome-visual.mjs"
+      - "apps/web/tests/net-it-carp1-e8c-chrome-visual.mjs"
       - "supabase/tests/net_it_carp1_e7b_local_visual_seed.sql"
+      - "supabase/tests/net_it_carp1_e8c_local_unified_visual_seed.sql"
       - "supabase/migrations/*net_it_carp1_e*.sql"
       - ".github/workflows/net-it-carp1-e7b-visual.yml"
   workflow_dispatch:
@@ -103,6 +105,26 @@ jobs:
         timeout-minutes: 12
         working-directory: apps/web
         run: node tests/net-it-carp1-e7b-chrome-visual.mjs
+      - name: Add 121 fictional E8 candidates after isolated Growth100 acceptance
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/netgrowth2c1-auditor-vars.sql" \
+            -f supabase/tests/net_it_carp1_e8c_local_unified_visual_seed.sql
+      - name: Real Chrome unified 221 company cockpit 1440 390 320
+        timeout-minutes: 12
+        working-directory: apps/web
+        run: node tests/net-it-carp1-e8c-chrome-visual.mjs
+      - name: Upload E8C unified 1440 390 320 synthetic screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-it-carp1-e8c-unified-221-visual
+          path: ${{ runner.temp }}/net-it-carp1-e8c-visual/*.png
+          if-no-files-found: warn
+          retention-days: 7
       - name: Upload 1440 390 320 synthetic screenshot evidence
         if: always()
         uses: actions/upload-artifact@v4
