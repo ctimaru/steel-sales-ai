@@ -35,6 +35,8 @@ test("Agent cannot approve new sources or impersonate original human reviewer",(
   assert.doesNotMatch(sql,/governance_status='approved_company_data'\s*,/);
   assert.match(sql,/executed_by_kind text NOT NULL DEFAULT 'delegated_agent'/);
   assert.match(sql,/reviewed_by=NULL,reviewed_at=now\(\)/);
+  assert.match(sql,/publication_actor_type='delegated_agent'/);
+  assert.match(sql,/publication_actor_type='platform' AND reviewed_by IS NOT NULL/);
   assert.match(sql,/asserted_by,\s*confidence,review_state/);
   assert.match(sql,/'platform_curated',NULL,0\.50,'accepted'/);
 });
