@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { publishScale15KReadyWave, setScale15KAgentDelegation } from "./actions";
+import { publishScale15KReadyWave, setScale15KAgentDelegation, setScale15KFactPolicy } from "./actions";
 
 const ROOT = "/platform/company-discovery/scale15k";
 
@@ -32,6 +32,23 @@ type SourceGroup = {
   pending_candidates: number;
   approved_company_data: number;
   distinct_domains: number;
+};
+
+type FactPolicy = {
+ contract: string;
+ enabled: boolean;
+ active: boolean;
+ expires_at: string | null;
+ daily_cap: number;
+ published_today: number;
+ published_total: number;
+};
+type AgentEvidenceStatus = {
+ contract: string;
+ reviewed: number;
+ identity_supported: number;
+ needs_human: number;
+ blocked: number;
 };
 
 type AgentDelegation = {
@@ -130,7 +147,7 @@ export default async function NetItScale15KPage({
   const limit = [50, 100, 250].includes(Number(params.limit))
     ? Number(params.limit) : 50;
   const supabase = await createClient();
-  const [{ data, error }, { data: readyData, error: readyError }, { data: agentData }] = await Promise.all([
+  const [{ data, error }, { data: readyData, error: readyError }, { data: agentData }, { data: factsData }, { data: aiData }] = await Promise.all([
     supabase.rpc("net_it_scale15k_readiness", {
       p_lane: lane, p_limit: limit, p_offset: offset,
     }),
@@ -138,7 +155,15 @@ export default async function NetItScale15KPage({
       p_lane: "ready", p_limit: 100, p_offset: 0,
     }),
     supabase.rpc("net_it_auto1_status"),
+    supabase.rpc("net_it_auto3_status"),
+    supabase.rpc("net_it_auto2_status"),
   ]);
+  const factPolicy = factsData &&
+    (factsData as FactPolicy).contract === "net-it-auto3-policy-v1"
+      ? (factsData as FactPolicy) : null;
+  const aiStatus = aiData &&
+    (aiData as AgentEvidenceStatus).contract === "net-it-auto2-status-v1"
+      ? (aiData as AgentEvidenceStatus) : null;
   const agent = agentData &&
     (agentData as AgentDelegation).contract === "net-it-auto1-delegation-v1"
     ? (agentData as AgentDelegation) : null;
@@ -283,6 +308,98 @@ export default async function NetItScale15KPage({
         <p className="mt-2 text-[11px] leading-5 text-[#697d6e]">
           La verifica automatica di nuove fonti richiederà prove separate e non sarà
           attivata con questa delega. Nessun controllo sulle fonti esistenti viene saltato.
+        </p>
+      </section>
+
+      <section className="rounded-2xl border border-[#bbddc8] bg-white p-3 sm:p-4"
+        aria-label="Verifica AI e delega pubblicazione aziendale autonoma">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#26714d]">
+              AUTO2 + AUTO3 · Super Intelligence Network
+            </p>
+            <h2 className="mt-1 text-base font-bold text-[#163f30]">
+              Verifica automatica dal sito ufficiale e pubblicazione dei soli fatti minimi
+            </h2>
+            <p className="mt-1 text-xs leading-5 text-[#617568]">
+              L'agente verifica nome, dominio e anomalie. Le schede dubbie restano sospese.
+              Solo una tua delega separata permette di pubblicare aziende societarie con
+              prove recenti e robuste, senza copiare contatti, testi, prodotti non verificati o marchi.
+              La presenza pubblica di una pagina non viene registrata come licenza.
+            </p>
+          </div>
+          <span className={`rounded-full border px-3 py-1 text-xs font-bold ${
+            factPolicy?.active ? "border-emerald-200 bg-emerald-50 text-emerald-800" :
+            "border-[#dae3df] bg-[#f3f5f4] text-[#56695e]"
+          }`}>
+            {factPolicy?.active ? "Autonomia attiva" : "Autonomia non attivata"}
+          </span>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[
+            ["Siti controllati",aiStatus?.reviewed ?? 0],
+            ["Identità sostenute",aiStatus?.identity_supported ?? 0],
+            ["Eccezioni",aiStatus?.needs_human ?? 0],
+            ["Pubblicate dall'agente",factPolicy?.published_total ?? 0],
+          ].map(([label,value]) => (
+            <div key={String(label)} className="rounded-lg border border-[#e1e9e4] bg-[#fafcfa] p-2.5">
+              <p className="text-[10px] font-medium text-[#617668]">{String(label)}</p>
+              <p className="text-lg font-bold tabular-nums text-[#176447]">{Number(value).toLocaleString("it-IT")}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] text-[#657569]">
+          Limite: {factPolicy?.daily_cap ?? "—"} al giorno ·
+          Pubblicate oggi: {factPolicy?.published_today ?? 0} ·
+          Scadenza: {factPolicy?.expires_at
+            ? new Date(factPolicy.expires_at).toLocaleDateString("it-IT",{timeZone:"Europe/Rome"})
+            : "—"}
+        </p>
+        {canDelegate && factPolicy ? (
+          factPolicy.active ? (
+            <form action={setScale15KFactPolicy} className="mt-3">
+              <input type="hidden" name="enabled" value="false" />
+              <button className="min-h-11 rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-bold text-rose-800" type="submit">
+                Revoca subito l'autonomia AI
+              </button>
+            </form>
+          ) : (
+            <form action={setScale15KFactPolicy} className="mt-3 grid gap-3 rounded-xl border border-[#d9e9dd] bg-[#fafdfa] p-3">
+              <input type="hidden" name="enabled" value="true" />
+              <label className="text-xs font-semibold text-[#355a44]">
+                Limite di pubblicazioni automatiche al giorno
+                <input type="number" name="daily_cap" min={1} max={300} defaultValue={100} required
+                  className="mt-1 block w-28 rounded-lg border border-[#c1d9c6] bg-white p-2.5" />
+              </label>
+              <label className="text-xs font-semibold text-[#355a44]">
+                Motivazione e regola aziendale (minimo 100 caratteri)
+                <textarea name="policy_note" required minLength={100} maxLength={2000} rows={3}
+                  placeholder="Autorizzo per 30 giorni la pubblicazione di soli fatti societari minimi rilevati da siti ufficiali HTTPS, con verifica recente di nome e dominio, senza contatti o testi copiati, esclusione dei duplicati, limiti giornalieri, registro macchina e revoca immediata."
+                  className="mt-1 w-full rounded-lg border border-[#c1d9c6] bg-white p-2.5" />
+              </label>
+              <label className="flex items-start gap-2 text-xs leading-5 text-[#355a44]">
+                <input type="checkbox" name="attested" required className="mt-0.5 h-4 w-4 accent-[#176447]" />
+                Autorizzo soltanto la pubblicazione dei fatti societari minimi comprovati.
+                Comprendo che il sito pubblico non implica licenza sui contenuti:
+                l'agente non copia contenuti protetti, non dichiara fonti legalmente approvate,
+                non usa la mia identità e sospende aziende o diritti dubbi.
+                Posso revocare subito questa delega di 30 giorni.
+              </label>
+              <div><button type="submit" className="min-h-11 rounded-lg bg-[#176447] px-4 py-2 text-xs font-bold text-white">
+                Autorizza la pubblicazione AI dei fatti essenziali
+              </button></div>
+            </form>
+          )
+        ) : (
+          <p className="mt-3 text-xs text-[#647768]">
+            {canDelegate
+              ? "La funzione AI autonoma non è ancora installata in produzione. Nessuna delega attiva."
+              : "La delega ai fatti aziendali è riservata al proprietario Platform."}
+          </p>
+        )}
+        <p className="mt-2 text-[11px] text-[#677c6d]">
+          Il verificatore gira ogni sei ore solo dopo l'attivazione del servizio Railway.
+          Le aziende che non superano i controlli restano private e non incrementano il contatore.
         </p>
       </section>
 
