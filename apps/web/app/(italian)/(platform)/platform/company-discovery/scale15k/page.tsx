@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { requirePlatformPermission } from "@/lib/platform-admin";
+import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
+import { publishScale15KReadyWave } from "./actions";
 
 const ROOT = "/platform/company-discovery/scale15k";
 
@@ -31,6 +32,16 @@ type SourceGroup = {
   pending_candidates: number;
   approved_company_data: number;
   distinct_domains: number;
+};
+
+type BatchPreview = {
+  contract?: string;
+  status?: string;
+  requested?: number;
+  eligible?: number;
+  blocked?: number;
+  published_now?: number;
+  manifest_fingerprint?: string;
 };
 
 type GrowthSnapshot = {
@@ -96,23 +107,48 @@ function CountCard({ value, label, hint }: { value: number; label: string; hint:
 export default async function NetItScale15KPage({
   searchParams,
 }: {
-  searchParams: Promise<{ lane?: string; offset?: string; limit?: string }>;
+  searchParams: Promise<{ lane?: string; offset?: string; limit?: string; message?: string; error?: string }>;
 }) {
   await requirePlatformPermission("discovery.governance_review");
   const params = await searchParams;
+  const access = await getPlatformAccessContext();
+  const canPublish = access?.permissions.includes("discovery.publish") ?? false;
   const lane: Lane = lanes.some((x) => x.key === params.lane)
     ? (params.lane as Lane) : "all";
   const offset = Math.max(0, Math.min(15000, Number.parseInt(params.offset ?? "0", 10) || 0));
   const limit = [50, 100, 250].includes(Number(params.limit))
     ? Number(params.limit) : 50;
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("net_it_scale15k_readiness", {
-    p_lane: lane,
-    p_limit: limit,
-    p_offset: offset,
-  });
+  const [{ data, error }, { data: readyData, error: readyError }] = await Promise.all([
+    supabase.rpc("net_it_scale15k_readiness", {
+      p_lane: lane, p_limit: limit, p_offset: offset,
+    }),
+    supabase.rpc("net_it_scale15k_readiness", {
+      p_lane: "ready", p_limit: 100, p_offset: 0,
+    }),
+  ]);
   const snap = !error && data && (data as GrowthSnapshot).contract === "net-it-scale15k-readiness-v1"
     ? (data as GrowthSnapshot) : null;
+  const readySnap = !readyError && readyData &&
+    (readyData as GrowthSnapshot).contract === "net-it-scale15k-readiness-v1"
+      ? (readyData as GrowthSnapshot) : null;
+  const readyCandidates = readySnap?.rows ?? [];
+  const readyIds = readyCandidates.map((company) => company.candidate_id);
+  const { data: batchData, error: batchError } =
+    canPublish && readyIds.length > 0
+      ? await supabase.rpc("net_it_scale15k_bulk_publish", {
+          p_candidate_ids: readyIds,
+          p_commit: false,
+        })
+      : { data: null, error: null };
+  const preview = !batchError && batchData &&
+    (batchData as BatchPreview).contract === "net-it-scale15k-bulk-publish-v1"
+      ? (batchData as BatchPreview) : null;
+  const canCommit = canPublish && readyIds.length > 0 &&
+    preview?.status === "ready_for_attested_commit" &&
+    preview.eligible === readyIds.length &&
+    typeof preview.manifest_fingerprint === "string" &&
+    /^[a-f0-9]{64}$/.test(preview.manifest_fingerprint);
   const published = snap?.canonical_published ?? 0;
   const goal = snap?.goal ?? 15000;
   const left = Math.max(0, goal - published);
@@ -129,7 +165,7 @@ export default async function NetItScale15KPage({
           ← Torna a Discovery
         </Link>
         <span className="rounded-full border border-[#d4e4d9] bg-white px-3 py-1 text-[11px] font-semibold text-[#476855]">
-          Vista Platform · sola lettura
+          Vista Platform · pubblicazione protetta
         </span>
       </div>
       <header className="rounded-2xl border border-[#d3e4d8] bg-white p-4 sm:p-5">
@@ -160,6 +196,17 @@ export default async function NetItScale15KPage({
         ) : null}
       </header>
 
+      {params.message ? (
+        <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
+          {params.message}
+        </p>
+      ) : null}
+      {params.error ? (
+        <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm font-semibold text-rose-800">
+          {params.error}
+        </p>
+      ) : null}
+
       {!snap ? (
         <section className="rounded-xl border border-amber-200 bg-white p-4 text-sm text-[#755522]" role="status">
           I dati della crescita Italia non sono ancora disponibili. La funzione protetta di lettura deve essere
@@ -177,6 +224,82 @@ export default async function NetItScale15KPage({
             <CountCard value={snap.discovery_all} label="Candidature raccolte" hint="Include schede con stato già concluso" />
             <CountCard value={snap.private_seed_unlinked_domains} label="Domini di ricerca da trasformare" hint="Non compaiono in Discovery o tra i profili" />
             <CountCard value={snap.published_missing_role} label="Profili online senza ruolo" hint="Da classificare senza creare nuovi duplicati" />
+          </section>
+
+          <section aria-label="Pubblica il prossimo lotto italiano"
+            className="space-y-3 rounded-2xl border border-[#b6dac4] bg-white p-3 sm:p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="text-base font-bold text-[#153f32]">
+                  Pubblica il prossimo gruppo di aziende approvate
+                </h2>
+                <p className="mt-1 text-xs leading-5 text-[#62776a]">
+                  Fino a 100 profili per conferma. Le fonti e le identità devono essere già approvate;
+                  duplicati e anomalie vengono respinti dal database. Nessuna pubblicazione parziale.
+                </p>
+              </div>
+              <span className="rounded-full border border-[#c4e0ce] bg-[#f0f8f2] px-3 py-1 text-xs font-bold text-[#196040]">
+                {readyIds.length} pronte nel prossimo gruppo
+              </span>
+            </div>
+            {readyCandidates.length > 0 ? (
+              <div className="max-h-56 space-y-1 overflow-y-auto rounded-lg border border-[#e2eee6] bg-[#f9fcfa] p-2">
+                {readyCandidates.map((company) => (
+                  <div key={company.candidate_id} className="flex flex-wrap justify-between gap-1 border-b border-[#e7efe9] px-2 py-1.5 text-xs last:border-b-0">
+                    <span className="font-semibold text-[#22523d]">{company.company_name}</span>
+                    <span className="text-[#688272]">{company.domain}</span>
+                    {safeHttps(company.source_url) ? (
+                      <a className="font-semibold text-[#176447] underline underline-offset-4"
+                        target="_blank" rel="noopener noreferrer"
+                        href={safeHttps(company.source_url) ?? undefined}>Verifica fonte ↗</a>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-lg border border-[#e0e8e1] bg-[#f9fcfa] p-3 text-xs text-[#627668]">
+                Nessun gruppo interamente idoneo: approva prima le fonti e le identità nella coda sottostante.
+              </p>
+            )}
+            {canCommit ? (
+              <form action={publishScale15KReadyWave} className="space-y-3 rounded-xl border border-[#cee4d3] bg-[#f7fbf8] p-3">
+                {readyIds.map((id) => (
+                  <input type="hidden" name="candidate_id" value={id} key={id} />
+                ))}
+                <input type="hidden" name="manifest_fingerprint"
+                  value={preview?.manifest_fingerprint ?? ""}/>
+                <p className="text-xs font-semibold text-[#206046]">
+                  Anteprima: {preview?.eligible} / {preview?.requested} ammissibili. Il catalogo verrà aggiornato
+                  soltanto dopo la conferma; il pubblicatore generale tornerà disattivato.
+                </p>
+                <label className="block text-xs font-semibold text-[#345b43]">
+                  Nota sul controllo svolto (obbligatoria)
+                  <textarea name="review_note" required minLength={80} maxLength={2000} rows={3}
+                    className="mt-1 w-full rounded-lg border border-[#c4d8ca] bg-white p-3 text-xs text-[#193f32] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176447]"
+                    placeholder="Indica le fonti approvate, l'identità delle aziende e il motivo del riuso dei soli dati aziendali essenziali." />
+                </label>
+                <label className="flex items-start gap-2 text-xs leading-5 text-[#345b43]">
+                  <input name="attested" type="checkbox" required
+                    className="mt-0.5 h-4 w-4 accent-[#176447]"/>
+                  Ho esaminato questo gruppo, i siti aziendali e le decisioni già registrate;
+                  autorizzo la pubblicazione dei soli profili minimi non verificati.
+                </label>
+                <button type="submit"
+                  className="min-h-11 rounded-lg bg-[#176447] px-4 py-2 text-xs font-bold text-white hover:bg-[#125238] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176447]">
+                  Pubblica {readyIds.length} aziende
+                </button>
+              </form>
+            ) : (
+              <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
+                {!canPublish
+                  ? "Per pubblicare serve il permesso Platform di pubblicazione."
+                  : readyIds.length === 0
+                  ? "Completa la revisione delle aziende ammissibili."
+                  : batchError || !preview
+                  ? "Il pubblicatore in serie non è ancora installato o accessibile: nessuna azienda modificata."
+                  : `Lotto bloccato: ${preview.blocked ?? readyIds.length} schede richiedono una verifica ulteriore.`}
+              </p>
+            )}
           </section>
 
           <section className="rounded-2xl border border-[#d7e6dc] bg-white p-3 sm:p-4"
