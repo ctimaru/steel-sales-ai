@@ -300,8 +300,8 @@ export async function CommercialUnifiedWorklist({
           <div className="col-span-2 min-w-0 space-y-0.5 sm:col-span-1 sm:flex sm:items-baseline sm:gap-3 sm:space-y-0" data-testid="commercial-smart-deal-card">
             <div className="flex min-w-0 items-center gap-1.5 text-[10px] leading-4 sm:w-[128px] sm:shrink-0">
               <span className="shrink-0 font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</span>
-              <span aria-hidden="true" className="text-[var(--text-secondary)] sm:hidden 2xl:inline">·</span>
-              <span className="min-w-0 truncate text-[var(--text-secondary)] sm:hidden 2xl:inline">{item.origin}</span>
+              <span aria-hidden="true" className="text-[var(--text-secondary)] sm:hidden">·</span>
+              <span className="min-w-0 truncate text-[var(--text-secondary)] sm:hidden">{item.origin}</span>
             </div>
             <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)] sm:line-clamp-1 sm:max-w-[40%] sm:shrink-0" title={item.title}>{item.title}</p>
             {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)] sm:hidden 2xl:block 2xl:min-w-0 2xl:max-w-[26%] 2xl:shrink">{item.subtitle}</p> : null}
