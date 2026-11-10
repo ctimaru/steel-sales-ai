@@ -19,6 +19,21 @@ BEGIN
  IF (SELECT count(*) FROM private.netit_releasebulk1_runtime WHERE singleton=true AND enabled=false)<>1 THEN
    RAISE EXCEPTION 'Publisher must be OFF immediately after migration';
  END IF;
+ IF to_regprocedure('public.net_it_pub1_review_queue()') IS NULL THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 first-five review queue migration missing';
+ END IF;
+ IF has_function_privilege('anon','public.net_it_pub1_review_queue()','EXECUTE') THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 review queue must be inaccessible to anon';
+ END IF;
+ IF NOT has_function_privilege('authenticated','public.net_it_pub1_review_queue()','EXECUTE') THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 review queue must be callable by authenticated Platform reviewer only';
+ END IF;
+ IF NOT EXISTS (
+   SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+   WHERE n.nspname='public' AND p.proname='net_it_pub1_review_queue' AND p.prosecdef
+ ) THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 queue must protect private data behind security definer';
+ END IF;
  IF has_function_privilege('anon','public.netit_facts1_signoff(boolean,text,text)','EXECUTE') THEN
    RAISE EXCEPTION 'anon must not be able to sign off FACTS1';
  END IF;
