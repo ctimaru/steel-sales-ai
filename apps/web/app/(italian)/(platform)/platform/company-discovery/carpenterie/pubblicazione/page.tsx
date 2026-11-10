@@ -128,8 +128,8 @@ export default async function NetItPub1ReviewPage({
             <h1 className="text-xl font-bold tracking-tight text-[#173e33] sm:text-2xl">Cinque carpenterie da pubblicare</h1>
             <p className="mt-1 max-w-3xl text-xs leading-5 text-[#53665c]">
               Verifica le tre raccolte di origine, poi approva soltanto i dati aziendali delle cinque schede.
-              Il profilo minimo mostrerà nome e sito, con stato non verificato e possibilità di rivendicazione.
-              La classificazione come carpenteria è un passaggio distinto, da verificare dopo la pubblicazione.
+              Il profilo mostrerà nome, sito e il ruolo industriale di terzista/carpenteria,
+              con fonte registrata e stato non verificato. L'azienda potrà rivendicarlo e arricchirlo.
             </p>
           </div>
           <div className="rounded-xl border border-[#c9ded2] bg-[#f5faf7] px-4 py-2 text-center">
@@ -371,12 +371,12 @@ export default async function NetItPub1ReviewPage({
               <p className="mt-2 text-xs text-[#86602b]">
                 {!releasePreview ? "Funzione di pubblicazione non ancora installata nel database." :
                   !canPublish ? "Non disponi del permesso Platform per pubblicare." :
-                  "L&apos;anteprima non è ancora pronta per la conferma."}
+                  "L'anteprima non è ancora pronta per la conferma."}
               </p>
             )}
             <p className="mt-2 text-[11px] leading-5 text-[#64766b]">
-              La classificazione industriale dettagliata e l&apos;arricchimento dei profili
-              restano interventi successivi. Non copiamo testi, immagini o recapiti personali.
+              La categoria terzista/carpenteria sarà registrata con la fonte, ma non attribuita
+              come certificazione dell'azienda. Restano esclusi testi copiati, immagini e recapiti personali.
             </p>
           </section>
         </>
