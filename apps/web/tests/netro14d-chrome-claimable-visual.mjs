@@ -192,11 +192,16 @@ try {
         await filtersCard.waitFor({state:"visible"});
       }
       const roleNav = filtersCard.getByRole("navigation", {name:"Ruolo nella filiera"});
-      assert.equal(await roleNav.locator("a").count(), 5, "All industrial roles stay reachable");
-      for (const roleName of ["Tutta la filiera", "Produttori", "Commercianti", "Terzisti", "Utilizzatori"]) {
-        const roleLink = roleNav.getByRole("link", {name:roleName, exact:true});
+      const roleAnchors = roleNav.locator("a");
+      const roleNames = ["Tutta la filiera", "Produttori", "Commercianti", "Terzisti", "Utilizzatori"];
+      assert.deepEqual((await roleAnchors.allTextContents()).map(value=>value.trim()),roleNames,
+        "All industrial roles must stay available in the intended order");
+      await screenshot(page,"network-filters-role-preflight-admin",width);
+      for (const [index,roleName] of roleNames.entries()) {
+        const roleLink = roleAnchors.nth(index);
+        await roleLink.waitFor({state:"visible",timeout:12000});
         const roleBox = await roleLink.boundingBox();
-        assert.ok(roleBox && roleBox.height >= 44, "Role target too small: "+roleName+"/"+width);
+        assert.ok(roleBox && roleBox.height >= 44, "Role target too small: "+roleName+"/"+width+": "+JSON.stringify(roleBox));
       }
       for (const label of ["Paese", "Regione", "Prodotti", "Lavorazioni e servizi", "Mercato"]) {
         const select = filtersCard.getByRole("combobox", {name:label, exact:true});
