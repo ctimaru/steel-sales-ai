@@ -25,11 +25,16 @@ SELECT pg_temp.auto2_assert(
 );
 
 -- Synthetic test run and candidates; NO approvals assigned.
+INSERT INTO auth.users(id,email,email_confirmed_at)
+VALUES('00000000-0000-0000-0000-000000017000'::uuid,
+       'net-it-auto2-ci@example.test',now())
+ON CONFLICT(id) DO NOTHING;
 SELECT gen_random_uuid() run_id \gset
 INSERT INTO public.network_company_discovery_runs(
- id,country_code,seed_urls,status,source_type,source_reference,label
+ id,requested_by,country_code,seed_urls,status,source_type,source_reference,label
 ) VALUES (
- :'run_id'::uuid,'IT','["https://it-auto2-fixture.example.test/"]'::jsonb,
+ :'run_id'::uuid,'00000000-0000-0000-0000-000000017000'::uuid,
+ 'IT','["https://it-auto2-fixture.example.test/"]'::jsonb,
  'queued','manual_url','NET-IT-AUTO2-CI','AUTO2 fixture source, unreviewed'
 );
 
