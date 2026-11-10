@@ -207,6 +207,16 @@ try {
             .map(element=>({label:element.getAttribute("aria-label"),...bounds(element)})),
         };
       });
+      // A dark green selected chip must never inherit a dark WebKit text fill.
+      const selectedForeground = await filtersCard.locator('nav[aria-label="Ruolo nella filiera"] a[aria-current="page"]')
+        .evaluate(element => {
+          const style=getComputedStyle(element);
+          return {color:style.color,textFill:style.webkitTextFillColor};
+        });
+      assert.equal(selectedForeground.color,"rgb(255, 255, 255)",
+        "Selected role must use high-contrast white text: "+JSON.stringify(selectedForeground));
+      assert.equal(selectedForeground.textFill,"rgb(255, 255, 255)",
+        "Selected role WebKit text fill must stay white: "+JSON.stringify(selectedForeground));
       const expectedRoles=["Tutta la filiera","Produttori","Commercianti","Terzisti","Utilizzatori"];
       assert.equal(layout.roles.length,5,"All industrial roles stay reachable: "+JSON.stringify(layout));
       for (const roleName of expectedRoles) {
