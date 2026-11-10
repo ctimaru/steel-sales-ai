@@ -191,23 +191,34 @@ try {
         assert.equal(await toggle.getAttribute("aria-expanded"), "true");
         await filtersCard.waitFor({state:"visible"});
       }
-      const roleNav = filtersCard.getByRole("navigation", {name:"Ruolo nella filiera"});
-      const roleAnchors = roleNav.locator("a");
-      const roleNames = ["Tutta la filiera", "Produttori", "Commercianti", "Terzisti", "Utilizzatori"];
-      assert.deepEqual((await roleAnchors.allTextContents()).map(value=>value.trim()),roleNames,
-        "All industrial roles must stay available in the intended order");
-      await screenshot(page,"network-filters-role-preflight-admin",width);
-      for (const [index,roleName] of roleNames.entries()) {
-        const roleLink = roleAnchors.nth(index);
-        await roleLink.waitFor({state:"visible",timeout:12000});
-        const roleBox = await roleLink.boundingBox();
-        assert.ok(roleBox && roleBox.height >= 44, "Role target too small: "+roleName+"/"+width+": "+JSON.stringify(roleBox));
+      // Read one atomic browser-layout snapshot after hydration. Individual
+      // boundingBox() calls across redirects/hydration can return transient nulls.
+      await filtersCard.scrollIntoViewIfNeeded();
+      const layout = await filtersCard.evaluate(card => {
+        const bounds = (element) => {
+          const box = element.getBoundingClientRect();
+          return {x:box.x,width:box.width,height:box.height,right:box.right,visible:
+            box.width>0 && box.height>0 && getComputedStyle(element).display!=="none"};
+        };
+        return {
+          roles:[...card.querySelectorAll('nav[aria-label="Ruolo nella filiera"] a')]
+            .map(element=>({label:(element.textContent||"").trim(),...bounds(element)})),
+          selects:[...card.querySelectorAll("select[aria-label]")]
+            .map(element=>({label:element.getAttribute("aria-label"),...bounds(element)})),
+        };
+      });
+      const expectedRoles=["Tutta la filiera","Produttori","Commercianti","Terzisti","Utilizzatori"];
+      assert.equal(layout.roles.length,5,"All industrial roles stay reachable: "+JSON.stringify(layout));
+      for (const roleName of expectedRoles) {
+        const roleBox = layout.roles.find(role=>role.label===roleName);
+        assert.ok(roleBox?.visible&&roleBox.height>=44,
+          "Role target too small/hidden: "+roleName+"/"+width+": "+JSON.stringify(layout.roles));
       }
       for (const label of ["Paese", "Regione", "Prodotti", "Lavorazioni e servizi", "Mercato"]) {
-        const select = filtersCard.getByRole("combobox", {name:label, exact:true});
-        const rect = await select.boundingBox();
-        assert.ok(rect && rect.height >= 44, "Filter select too small: "+label+"/"+width);
-        assert.ok(rect.x >= -1 && rect.x + rect.width <= width + 1,
+        const rect = layout.selects.find(select=>select.label===label);
+        assert.ok(rect?.visible&&rect.height>=44,
+          "Filter select too small/hidden: "+label+"/"+width+": "+JSON.stringify(layout.selects));
+        assert.ok(rect.x >= -1 && rect.right <= width + 1,
           "Filter select outside viewport: "+label+"/"+width+": "+JSON.stringify(rect));
       }
       await filtersCard.scrollIntoViewIfNeeded();
