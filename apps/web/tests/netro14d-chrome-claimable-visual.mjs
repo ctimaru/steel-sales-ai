@@ -146,6 +146,21 @@ try {
       const filtersCard = page.getByTestId("network-refined-filters");
       const drawer = page.getByTestId("network-filter-drawer");
       const toggle = drawer.getByRole("button", {name:/Affina i filtri/i});
+      // An App Router SSR shell can be attached before its visibility transition
+      // settles; wait for the map itself, not merely an attached filter card.
+      await europeMap.waitFor({state:"visible",timeout:45000}).catch(async error=>{
+        const state=await europeMap.evaluate(element=>{
+          const chain=[];
+          for(let el=element;el&&chain.length<8;el=el.parentElement){
+            const css=getComputedStyle(el);
+            chain.push({tag:el.tagName,testid:el.getAttribute("data-testid"),hidden:el.hidden,
+              display:css.display,visibility:css.visibility,opacity:css.opacity});
+          }
+          return chain;
+        }).catch(()=>[]);
+        console.log("NET-UX-TECH1 MAP VISIBILITY DIAGNOSTIC",JSON.stringify(state));
+        throw error;
+      });
       if (!(await europeMap.isVisible())) {
         // Synthetic-only diagnostics: investigate why a data-backed compact
         // directory fell back to the legacy view. Never print session secrets.
