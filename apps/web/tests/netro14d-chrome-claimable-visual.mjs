@@ -238,6 +238,37 @@ try {
       await noOverflow(page,"Filters-card-open/"+width);
       await screenshot(page,"network-filters-open-admin",width);
       assertions += 13;
+      // NET-UX-TECH1: open the real technical accordion at 1440/390/320 and
+      // verify each measurement field remains aligned and at least 44px high.
+      const specPanel=page.getByTestId("network-spec-panel");
+      await specPanel.getByTestId("network-spec-summary").click();
+      assert.equal(await specPanel.getAttribute("open"),"","Technical panel failed to open at "+width);
+      const specLayout=await specPanel.evaluate(panel=>{
+        const box=el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right};};
+        const fields=[...panel.querySelectorAll("input:not([type=hidden]),select")]
+          .map(el=>({name:el.name,...box(el)}));
+        const rows=["network-spec-diameter-row","network-spec-sides-row"].map(id=>
+          [...panel.querySelector('[data-testid="'+id+'"]').querySelectorAll("input")].map(box));
+        return {panel:box(panel),fields,rows,cta:box(panel.querySelector('button[type=submit]'))};
+      });
+      assert.equal(specLayout.fields.length,8,"All technical fields remain accessible");
+      for(const field of specLayout.fields.filter(f=>f.name!=="stock")){
+        assert.ok(field.h>=44,"Technical field below 44px: "+field.name+"/"+width);
+        assert.ok(field.x>=-1&&field.right<=width+1,"Technical field escaped viewport: "+field.name+"/"+width);
+        assert.ok(field.x>=specLayout.panel.x-1&&field.right<=specLayout.panel.right+1,
+          "Technical field escaped card: "+field.name+"/"+width);
+      }
+      for(const row of specLayout.rows){
+        assert.equal(row.length,2);
+        assert.ok(Math.abs(row[0].y-row[1].y)<2&&Math.abs(row[0].w-row[1].w)<2,
+          "Misaligned technical dimensions at "+width+": "+JSON.stringify(row));
+      }
+      assert.ok(specLayout.cta.h>=44&&Math.abs(specLayout.cta.w-(specLayout.panel.w-24))<5,
+        "Technical submit is not full width / 44px at "+width);
+      await noOverflow(page,"Technical-spec-open/"+width);
+      await specPanel.scrollIntoViewIfNeeded();
+      await screenshot(page,"network-technical-spec-open-admin",width);
+      assertions += 20;
       if (width !== 1440) {
         await toggle.click();
         assert.equal(await toggle.getAttribute("aria-expanded"), "false");
