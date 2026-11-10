@@ -245,7 +245,7 @@ export function NetworkCompactExperience({
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#28674e]">Network · ricerca</p>
                 <span className="inline-flex min-h-6 shrink-0 items-center rounded-full border border-[#c9ded0] bg-white/90 px-2.5 text-[10px] font-bold text-[#205941]">
-                  {activeFilterCount ? activeFilterCount + " attivi" : "Ricerca libera"}
+                  {activeFilterCount ? activeFilterCount + (activeFilterCount === 1 ? " attivo" : " attivi") : "Ricerca libera"}
                 </span>
               </div>
               <h2 className="mt-1 text-lg font-bold tracking-tight text-[#173f35]">Affina la ricerca</h2>
@@ -261,7 +261,7 @@ export function NetworkCompactExperience({
                   const selected=(filters.role||"")===item.key;
                   return <Link key={item.key||"all"} href={filterUrl(filters,{role:item.key||null,np:null},"#network-results")}
                     aria-current={selected?"page":undefined}
-                    className={"inline-flex min-h-10 min-w-0 items-center justify-center rounded-xl border px-2.5 py-2 text-center text-xs font-semibold leading-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
+                    className={"inline-flex min-h-11 min-w-0 items-center justify-center rounded-xl border px-2.5 py-2 text-center text-xs font-semibold leading-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
                       (!item.key?"col-span-2 ":"")+
                       (selected?"border-[#175640] bg-[#175640] text-white shadow-sm":"border-[#d3e3d9] bg-[#f5f9f6] text-[#20543e] hover:border-[#9fc6af] hover:bg-[#eaf4ed]")}>
                     {item.key?item.label:"Tutta la filiera"}
