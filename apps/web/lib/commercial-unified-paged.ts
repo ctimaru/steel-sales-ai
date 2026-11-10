@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 
 // The normalized inbound RPC currently pages 50 line-level records. Keep the
 // native page size until the RPC supports a stable entity-level cursor.
-export const COMMERCIAL_PAGE_SIZE = 30;
+export const COMMERCIAL_PAGE_SIZE = 10;
 const INBOUND_PAGE_SIZE = 50;
 export type CommercialPagedView = Extract<CommercialView, "received" | "sent" | "drafts">;
 

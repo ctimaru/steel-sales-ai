@@ -13,9 +13,9 @@ import { rfqCampaignStatusLabel, rfqOrderStatusLabel } from "@/lib/rfq-hub-overv
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
-export const STREAM_PAGE_SIZE = 30;
+export const STREAM_PAGE_SIZE = 10;
 const FETCH_PER_STREAM = STREAM_PAGE_SIZE + 1;
-// Compact history supports 200 pages / 6,000 activities without URL explosion.
+// Compact history supports 200 pages / 2,000 activities without URL explosion.
 const MAX_HISTORY = 200;
 export type CommercialFocus = "reply" | "waiting" | "due";
 export const commercialFocusLabels: Record<CommercialFocus, string> = {
