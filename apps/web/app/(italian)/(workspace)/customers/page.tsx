@@ -72,7 +72,7 @@ export default async function CustomersPage({
       ) : null}
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-[#4f6b5b]">
+        <p className={"text-sm text-[#4f6b5b]" + (query && directory.total === 0 ? " sr-only" : "")}>
           <span className="font-semibold text-[#143f30]">{directory.total}</span> {directory.total === 1 ? "azienda" : "aziende"}{query ? ` per “${query}”` : ""}
           {query ? <> · <Link href={appRoutes.commercial.companies} className="font-semibold text-[#175640] underline underline-offset-2">Azzera ricerca</Link></> : null}
         </p>
@@ -150,7 +150,7 @@ export default async function CustomersPage({
                 <span className="min-w-0 flex-1">
                   <span className="flex min-w-0 items-center gap-2">
                     <span className="truncate text-sm font-semibold text-[#143f30]">{company.name}</span>
-                    {company.company_type ? (
+                    {company.company_type && company.company_type.trim().toLowerCase() !== "other" ? (
                       <span className="shrink-0 rounded-full bg-[#eef5f0] px-2 py-0.5 text-[11px] font-semibold text-[#315e49]">{companyTypeLabel(company.company_type)}</span>
                     ) : null}
                   </span>
@@ -160,7 +160,7 @@ export default async function CustomersPage({
                     <span className="sr-only">{company.verified ? " · identità verificata" : ""}</span>
                   </span>
                 </span>
-                <span className="hidden shrink-0 items-center gap-4 text-right md:flex">
+                <span className="hidden shrink-0 items-center gap-4 border-r border-[#edf3ef] pr-5 text-right md:flex">
                   {([["RFQ", company.rfq_count], ["Offerte", company.offer_count], ["Ordini", company.order_count]] as const).map(([label, value]) => (
                     <span key={label} className="w-14">
                       <span className="block text-base font-bold tabular-nums text-[#0f3a2b]">{String(value)}</span>
@@ -168,9 +168,9 @@ export default async function CustomersPage({
                     </span>
                   ))}
                 </span>
-                <span className="shrink-0 text-right">
+                <span className="shrink-0 pl-1 text-right md:min-w-[132px]">
                   <span className="block text-xs tabular-nums text-[#5c7063]">{dateLabel(company.last_activity_at)}</span>
-                  <span className="block text-[11px] text-[#6b7d73]">{String(company.contact_count)} contatti · {String(company.message_count)} msg</span>
+                  <span className="block text-[11px] text-[#6b7d73]">{Number(company.contact_count) === 1 ? "1 contatto" : String(company.contact_count) + " contatti"} · {String(company.message_count)} msg</span>
                 </span>
                 <span aria-hidden="true" className="hidden text-[#9ab5a5] transition group-hover:translate-x-0.5 group-hover:text-[#175640] sm:inline">›</span>
               </Link>
