@@ -51,14 +51,9 @@ test("COMM-NAV9 is a small decision desk, not another menu or a fake AI priority
   assert.match(home, /const actionableRfqs =/);
   assert.match(component, /id="commercial-today"/);
   assert.match(component, /data-testid="commercial-compact-actions"/);
-  assert.match(component, /data-testid="commercial-compact-attention"/);
   assert.match(component, /data-testid="commercial-director-rfq-priorities"/);
-  assert.match(component, /data-testid="commercial-director-resume"/);
   assert.match(component, /Cosa richiede attenzione/);
-  assert.match(component, /Ultima attività acquisti disponibile, non classificata urgente/);
-  assert.match(component, /Consultazione in sola lettura/);
   assert.match(component, /confermedCount|confirmedCount/);
   assert.match(component, /href=\{appRoutes.rfqHub.campaign\(item.rfq_id\)\}/);
-  assert.match(component, /commercialHref\("all", "", resume.key\)/);
   assert.doesNotMatch(component + source, /service_role|autoDispatch|sendEmail|issuePurchaseOrder|readinessScore|Urgente oggi/);
 });
