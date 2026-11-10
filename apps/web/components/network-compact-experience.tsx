@@ -309,10 +309,13 @@ export function NetworkCompactExperience({
               {/* Auto-submit on change; keep a native submit for keyboard and no-JS users. */}
               <button type="submit" className="ui-action ui-action-secondary sr-only inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold focus:not-sr-only">Applica filtri</button>
             </form>
-            <div className="border-t border-[#e2ebe5] px-4 py-4">
-              <div className="mb-2 flex items-center gap-2">
+            <div className="border-t border-[#e2ebe5] px-4 py-4" data-testid="network-technical-filter-section">
+              <div className="mb-3 flex items-start gap-2">
                 <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#e5f1e9] text-[11px] font-bold text-[#175640]">4</span>
-                <h3 className="text-sm font-bold text-[#173f35]">Ricerca tecnica</h3>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-bold leading-5 text-[#173f35]">Ricerca tecnica</h3>
+                  <p className="mt-0.5 text-[11px] leading-4 text-[#587163]">Cerca aziende per caratteristiche del tubo.</p>
+                </div>
               </div>
               <NetworkSpecPanel filters={filters} accessMode={accessMode}/>
             </div>
