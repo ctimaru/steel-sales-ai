@@ -29,6 +29,7 @@ test("MAP1: European map is first in the sidebar, outside the mobile filter draw
   const drawer=ui.indexOf("<NetworkFilterDrawer activeCount=");
   const role=ui.indexOf('<nav aria-label="Ruolo nella filiera"'); // stable landmark after the map/drawer
   assert.ok(side>=0&&map>side&&drawer>map&&role>drawer);
+  assert.match(ui,/data-testid="network-refined-filters"/); // Filter card stays under the persistent map
   assert.equal((ui.match(/<NetworkEuropeanMap /g)||[]).length,1);
   assert.doesNotMatch(ui,/<details className="rounded-xl border[^\n]*network-compact-mobile-map/);
 });
