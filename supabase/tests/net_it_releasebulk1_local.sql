@@ -365,7 +365,57 @@ BEGIN
   END IF;
 END $facts1_accept$;
 
+-- NET-IT-PUB1: isolated PostgreSQL release preview must remain fail-closed
+-- until REAL source/candidate approvals; no production data in this fixture.
+SELECT set_config(
+  'request.jwt.claim.sub','5e5dfabe-f01d-4bca-89dc-61d031f80a01',true
+);
+DO $pub1_five$
+DECLARE
+  v_preview jsonb;
+  v_rejected boolean := false;
+BEGIN
+  v_preview := public.net_it_pub1_release(NULL,false,NULL,false);
+  IF (v_preview->>'status')<>'blocked'
+     OR (v_preview->>'requested')::integer<>5
+     OR (v_preview->>'eligible')::integer<>0
+     OR (v_preview->>'published_now')::integer<>0 THEN
+     RAISE EXCEPTION 'Unreviewed five-company batch was considered publishable: %',v_preview;
+  END IF;
+  BEGIN
+    PERFORM public.net_it_pub1_release(
+      v_preview->>'manifest_fingerprint',true,
+      'SYNTHETIC LOCAL-ONLY rejected attempt: five real official-source companies are not part of the disposable CI fixture and their governance has not been reviewed.',true
+    );
+  EXCEPTION WHEN invalid_parameter_value THEN v_rejected := true;
+  END;
+  IF NOT v_rejected THEN
+    RAISE EXCEPTION 'NET-IT-PUB1 committed unreviewed or absent companies';
+  END IF;
+END $pub1_five$;
+
 RESET ROLE;
+
+DO $pub1_production_guards$
+BEGIN
+ IF (SELECT enabled FROM private.net_pipeline1b2_settings WHERE singleton=true) THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 default-off minimal publisher was changed by failed commit';
+ END IF;
+ IF EXISTS(SELECT 1 FROM private.net_it_pub1_batch_ledger) THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 audit ledger must remain empty after denied commit';
+ END IF;
+ IF has_function_privilege('anon','public.net_it_pub1_release(text,boolean,text,boolean)','EXECUTE')
+    OR has_function_privilege('anon','private.net_it_pub1_release_impl(text,boolean,text,boolean)','EXECUTE') THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 anonymous execution privileges are unsafe';
+ END IF;
+ IF NOT EXISTS(
+   SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+   WHERE n.nspname='public' AND p.proname='net_it_pub1_release'
+     AND NOT p.prosecdef
+ ) THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 public facade must remain security invoker';
+ END IF;
+END $pub1_production_guards$;
 
 -- PostgreSQL audit inspection after dropping authenticated session role:
 -- user-facing RPC does not grant SELECT on this private table.
