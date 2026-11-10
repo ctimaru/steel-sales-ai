@@ -133,6 +133,49 @@ try {
       // DOM content alone can still show "Caricamento workspace…" immediately after navigation.
       await page.getByText(/ARTROM|Baurom/).first().waitFor({state:"visible",timeout:90000});
       assert.match(await page.locator("body").innerText(), /ARTROM|Baurom/);
+      // NET-UX-FILTERS1: real Chrome visual acceptance of the new filter card
+      // at 1440 / 390 / 320, with the map still visible outside the mobile drawer.
+      const europeMap = page.getByTestId("network-europe-persistent-map");
+      const filtersCard = page.getByTestId("network-refined-filters");
+      const drawer = page.getByTestId("network-filter-drawer");
+      const toggle = drawer.getByRole("button", {name:/Affina i filtri/i});
+      assert.equal(await europeMap.isVisible(), true, "Country map disappeared at "+width);
+      if (width === 1440) {
+        assert.equal(await filtersCard.isVisible(), true, "Desktop filter card must remain open");
+        assert.equal(await toggle.isVisible(), false, "Desktop drawer toggle must stay hidden");
+      } else {
+        assert.equal(await toggle.isVisible(), true, "Mobile filter toggle must be visible");
+        assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+        assert.equal(await filtersCard.isVisible(), false, "Mobile filters must start collapsed");
+        await toggle.click();
+        assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+        await filtersCard.waitFor({state:"visible"});
+      }
+      const roleNav = filtersCard.getByRole("navigation", {name:"Ruolo nella filiera"});
+      assert.equal(await roleNav.locator("a").count(), 5, "All industrial roles stay reachable");
+      for (const roleName of ["Tutta la filiera", "Produttori", "Commercianti", "Terzisti", "Utilizzatori"]) {
+        const roleLink = roleNav.getByRole("link", {name:roleName, exact:true});
+        const roleBox = await roleLink.boundingBox();
+        assert.ok(roleBox && roleBox.height >= 44, "Role target too small: "+roleName+"/"+width);
+      }
+      for (const label of ["Paese", "Regione", "Prodotti", "Lavorazioni e servizi", "Mercato"]) {
+        const select = filtersCard.getByRole("combobox", {name:label, exact:true});
+        const rect = await select.boundingBox();
+        assert.ok(rect && rect.height >= 44, "Filter select too small: "+label+"/"+width);
+        assert.ok(rect.x >= -1 && rect.x + rect.width <= width + 1,
+          "Filter select outside viewport: "+label+"/"+width+": "+JSON.stringify(rect));
+      }
+      await filtersCard.scrollIntoViewIfNeeded();
+      await noOverflow(page,"Filters-card-open/"+width);
+      await screenshot(page,"network-filters-open-admin",width);
+      assertions += 13;
+      if (width !== 1440) {
+        await toggle.click();
+        assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+        assert.equal(await filtersCard.isVisible(), false, "Mobile drawer failed to collapse");
+        await screenshot(page,"network-filters-closed-admin",width);
+        assertions += 2;
+      }
       await noOverflow(page,"Romania-directory/admin/"+width);
       await screenshot(page,"romania-directory-admin",width);
       assertions += 2;
