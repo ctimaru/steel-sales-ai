@@ -82,6 +82,13 @@ export default async function CompanyDiscoveryPage({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {permissions.includes("discovery.governance_review") ? (
+              <Link
+                href="/platform/company-discovery/carpenterie/pubblicazione"
+                className="platform-secondary inline-flex h-10 items-center rounded-xl border border-[#b6d4c3] bg-[#eef7f0] px-4 text-sm font-semibold text-[#15583d]">
+                Pubblica carpenterie · prime 5
+              </Link>
+            ) : null}
             <Link
               href="/platform/company-discovery/end-users"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
