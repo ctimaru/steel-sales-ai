@@ -143,6 +143,39 @@ BEGIN
           WHERE lower(trim(nc.website_domain))=lower(trim(s.canonical_domain))
         )
     ),
+    'source_groups',COALESCE(
+      (
+        SELECT pg_catalog.jsonb_agg(
+          pg_catalog.jsonb_build_object(
+            'run_id',g.id,
+            'source_label',g.label,
+            'source_type',g.source_type,
+            'source_governance',g.governance_status,
+            'terms_status',g.terms_status,
+            'rights_status',g.database_rights_status,
+            'pending_candidates',g.pending_candidates,
+            'approved_company_data',g.approved_company_data,
+            'distinct_domains',g.distinct_domains
+          ) ORDER BY g.pending_candidates DESC,g.id
+        )
+        FROM (
+          SELECT r.id,r.label,r.source_type,r.governance_status,
+                 r.terms_status,r.database_rights_status,
+                 count(*) AS pending_candidates,
+                 count(*) FILTER(
+                   WHERE dc.governance_status='approved_company_data'
+                 ) AS approved_company_data,
+                 count(DISTINCT lower(trim(dc.canonical_domain))) AS distinct_domains
+          FROM public.network_company_discovery_runs r
+          JOIN public.network_company_discovery_candidates dc ON dc.run_id=r.id
+          WHERE dc.country_code='IT' AND dc.review_status='pending_review'
+          GROUP BY r.id,r.label,r.source_type,r.governance_status,
+                   r.terms_status,r.database_rights_status
+          ORDER BY count(*) DESC,r.id
+          LIMIT 20
+        ) g
+      ),'[]'::jsonb
+    ),
     'pending',s.pending,'pending_distinct_domains',s.distinct_domains,
     'ready',s.ready,'review_source',s.review_source,
     'review_company',s.review_company,'duplicate',s.duplicate,'hold',s.hold,

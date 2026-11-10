@@ -21,6 +21,18 @@ type CompanyRow = {
   catalog_collision: boolean;
 };
 
+type SourceGroup = {
+  run_id: string;
+  source_label: string | null;
+  source_type: string;
+  source_governance: string;
+  terms_status: string;
+  rights_status: string;
+  pending_candidates: number;
+  approved_company_data: number;
+  distinct_domains: number;
+};
+
 type GrowthSnapshot = {
   contract: string;
   goal: number;
@@ -40,6 +52,7 @@ type GrowthSnapshot = {
   limit: number;
   offset: number;
   rows: CompanyRow[];
+  source_groups: SourceGroup[];
 };
 
 const lanes: { key: Lane; title: string }[] = [
@@ -164,6 +177,57 @@ export default async function NetItScale15KPage({
             <CountCard value={snap.discovery_all} label="Candidature raccolte" hint="Include schede con stato già concluso" />
             <CountCard value={snap.private_seed_unlinked_domains} label="Domini di ricerca da trasformare" hint="Non compaiono in Discovery o tra i profili" />
             <CountCard value={snap.published_missing_role} label="Profili online senza ruolo" hint="Da classificare senza creare nuovi duplicati" />
+          </section>
+
+          <section className="rounded-2xl border border-[#d7e6dc] bg-white p-3 sm:p-4"
+            aria-label="Raccolte da approvare con più aziende">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <div>
+                <h2 className="text-base font-bold text-[#173f35]">Fonti da lavorare in gruppo</h2>
+                <p className="text-[11px] leading-5 text-[#65796b]">
+                  Una verifica motivata della fonte può sbloccare molte candidature,
+                  ma l&apos;approvazione dell&apos;identità aziendale resta distinta.
+                </p>
+              </div>
+              <Link href="/platform/company-discovery/governance"
+                className="text-xs font-semibold text-[#176447] underline underline-offset-4">
+                Apri revisione fonti
+              </Link>
+            </div>
+            <div className="mt-2 overflow-x-auto">
+              <table className="w-full min-w-[540px] text-left text-xs">
+                <thead>
+                  <tr className="border-b border-[#dbe6df] text-[11px] text-[#607768]">
+                    <th scope="col" className="px-2 py-2">Raccolta</th>
+                    <th scope="col" className="px-2 py-2 text-right">Aziende in attesa</th>
+                    <th scope="col" className="px-2 py-2">Fonte</th>
+                    <th scope="col" className="px-2 py-2">Decisione dati</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {snap.source_groups.map((group) => (
+                    <tr key={group.run_id} className="border-b border-[#edf2ed]">
+                      <td className="px-2 py-2">
+                        <span className="font-semibold text-[#24533d]">{group.source_label ?? "Raccolta senza nome"}</span>
+                        <p className="text-[11px] text-[#718274]">
+                          {group.distinct_domains} domini distinti · {group.approved_company_data} schede revisionate
+                        </p>
+                      </td>
+                      <td className="px-2 py-2 text-right font-bold tabular-nums text-[#17543c]">
+                        {group.pending_candidates}
+                      </td>
+                      <td className="px-2 py-2 text-[#5e705f]">{group.source_type.replaceAll("_"," ")}</td>
+                      <td className="px-2 py-2 text-[#5e705f]">
+                        {group.source_governance}
+                        <p className="text-[11px] text-[#718274]">
+                          {group.terms_status} · {group.rights_status}
+                        </p>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
 
           <section className="space-y-2 rounded-2xl border border-[#d7e6dc] bg-white p-3 sm:p-4">

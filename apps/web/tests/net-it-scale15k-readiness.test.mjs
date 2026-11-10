@@ -17,9 +17,13 @@ test("Italian 15k dashboard counts canonical published only, without assuming pr
   assert.match(sql, /public\.network_company_discovery_candidates dc/);
   assert.match(sql, /public\.network_companies nc/);
   assert.match(sql, /'published_missing_role'/);
+  assert.match(sql, /'source_groups'/);
+  assert.match(sql, /count\(DISTINCT lower\(trim\(dc\.canonical_domain\)\)\)/);
   assert.match(page, /Obiettivo 15\.000 aziende/);
   assert.match(page, /canonical_published/);
   assert.match(page, /private_seed_unlinked_domains/);
+  assert.match(page, /Fonti da lavorare in gruppo/);
+  assert.match(page, /source_groups\.map/);
   assert.match(page, /published_missing_role/);
   assert.doesNotMatch(page, /278\s*\/\s*15\.000|14\.722/);
 });
