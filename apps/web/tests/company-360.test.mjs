@@ -33,7 +33,7 @@ test("customer surfaces state deterministic verified-link policy", () => {
 });
 
 test("Company 360 exposes commercial chain and provenance surfaces", () => {
-  for (const label of ["Contatti", "Conversazioni", "Messaggi", "RFQ", "Offerte", "Ordini"]) {
+  for (const label of ["Contatti", "conversazioni", "messaggi", "RFQ", "Offerte", "Ordini"]) {
     assert.match(detail, new RegExp(label));
   }
   assert.match(detail, /Prodotti e prezzi/);
