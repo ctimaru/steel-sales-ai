@@ -6,6 +6,9 @@ import { appRoutes } from "@/lib/routes";
 import { commercialSearchHref } from "@/lib/commercial-search-context";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
+import { loadCompanyNetworkLists } from "@/lib/companies-network-lists";
+import styles from "@/components/commercial-cinematic.module.css";
+
 import { loadCompanyActivationStatus, loadCompanyDirectory } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -30,15 +33,23 @@ function companyTypeLabel(value: string) {
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; lista?: string }>;
 }) {
   const params = await searchParams;
   const query = typeof params.q === "string" ? params.q.trim() : "";
-  const [directory, activation, context] = await Promise.all([
-    loadCompanyDirectory(query || undefined),
+  const list: "history" | "saved" | "connected" = params.lista === "salvate" ? "saved" : params.lista === "connesse" ? "connected" : "history";
+  const context = await getWorkspaceContext();
+  const [directory, activation, network] = await Promise.all([
+    loadCompanyDirectory(list === "history" ? query || undefined : undefined),
     loadCompanyActivationStatus(),
-    getWorkspaceContext(),
+    loadCompanyNetworkLists(context.organizationId, context.userId).catch(() => ({ saved: null, connected: null })),
   ]);
+  const listTabs = [
+    { key: "history", label: "Con storico", href: appRoutes.commercial.companies, count: directory.error ? undefined : directory.total },
+    { key: "saved", label: "Salvate", href: appRoutes.commercial.companies + "?lista=salvate", count: network.saved?.length },
+    { key: "connected", label: "Connesse", href: appRoutes.commercial.companies + "?lista=connesse", count: network.connected?.length },
+  ] as const;
+  const networkRows = list === "saved" ? network.saved : list === "connected" ? network.connected : null;
   const canWrite = canWriteWorkspace(context.role);
 
   return (
@@ -53,7 +64,6 @@ export default async function CustomersPage({
             Altro <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
           </summary>
           <div className="mt-1 flex min-w-[240px] flex-col gap-1 rounded-xl border border-[#d6e5db] bg-white p-2 text-sm font-semibold shadow-lg sm:absolute sm:right-0 sm:top-full sm:z-30">
-            <Link href={appRoutes.commercial.home + "?prospects=1#commercial-prospects"} className="rounded-lg px-3 py-2 text-[#254f3d] hover:bg-[#eef6f1]">Aziende da seguire</Link>
             <Link href={appRoutes.network.directory} className="rounded-lg px-3 py-2 text-[#254f3d] hover:bg-[#eef6f1]">Scopri aziende nel Network</Link>
             <Link href={commercialSearchHref(query, "companies")} className="rounded-lg px-3 py-2 text-[#254f3d] hover:bg-[#eef6f1]">Cerca nello storico aziende</Link>
           </div>
@@ -71,6 +81,70 @@ export default async function CustomersPage({
         </p>
       ) : null}
 
+      <nav aria-label="Liste di aziende" data-testid="companies-list-tabs" className="flex gap-1 overflow-x-auto">
+        {listTabs.map((item) => (
+          <Link key={item.key} href={item.href} aria-current={item.key === list ? "page" : undefined}
+            className={"inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
+              (item.key === list ? "bg-[#175640] " + styles.tabActive : "text-[#4f6b5b] hover:bg-[#e8f3ec] hover:text-[#143f30]")}>
+            {item.label}
+            {typeof item.count === "number" ? <span className="text-xs tabular-nums opacity-70">{item.count}</span> : null}
+          </Link>
+        ))}
+      </nav>
+
+      {list !== "history" ? (
+        <section aria-label={list === "saved" ? "Aziende salvate" : "Aziende connesse"} data-testid="companies-network-list" className="space-y-2">
+          <p className="px-1 text-xs text-[#5c7063]">
+            {list === "saved"
+              ? "Aziende del Network che hai salvato tu. La lista è personale: i colleghi non la vedono."
+              : "Aziende del Network con una connessione accettata."}
+          </p>
+          {networkRows === null ? (
+            <p role="status" className="rounded-2xl border border-[#ecd9a8] bg-[#fff8e6] px-4 py-3 text-sm text-[#6b4a07]">
+              Lista non disponibile in questo momento: verifica l’accesso al Network o riprova.
+            </p>
+          ) : networkRows.length === 0 ? (
+            <div className="rounded-2xl border border-[#d6e5db] bg-white px-5 py-8 text-center">
+              <p className="text-sm font-semibold text-[#143f30]">{list === "saved" ? "Nessuna azienda salvata" : "Nessuna connessione attiva"}</p>
+              <p className="mt-1 text-xs text-[#5c7063]">
+                {list === "saved"
+                  ? "Apri un’azienda nel Network e salvala per ritrovarla qui."
+                  : "Una connessione nasce quando un’azienda accetta la tua richiesta, o tu accetti la sua."}
+              </p>
+              <Link href={appRoutes.network.directory} className="mt-3 inline-flex min-h-10 items-center rounded-full border border-[#d6e5db] px-4 text-sm font-semibold text-[#175640] hover:bg-[#f2f8f4]">Cerca nel Network →</Link>
+            </div>
+          ) : (
+            <div className="divide-y divide-[#edf3ef] overflow-hidden rounded-2xl border border-[#d6e5db] bg-white">
+              {networkRows.map((row) => {
+                const body = (
+                  <>
+                    <span aria-hidden="true" className={"h-2.5 w-2.5 shrink-0 rounded-full " + (list === "connected" ? "bg-[#3d8a63]" : "bg-[#5b8def]")} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-[#143f30]">{row.name}</span>
+                      <span className="block truncate text-xs text-[#5c7063]">{row.detail}</span>
+                    </span>
+                    <span className="shrink-0 text-right text-xs text-[#5c7063]">
+                      <span className="block">{list === "saved" ? "Salvata" : "Connessa"}</span>
+                      <span className="block tabular-nums">{dateLabel(row.at)}</span>
+                    </span>
+                    <span aria-hidden="true" className={"hidden sm:inline " + (row.networkCompanyId ? "text-[#9ab5a5]" : "text-transparent")}>›</span>
+                  </>
+                );
+                const rowClass = "flex min-h-[64px] items-center gap-3 px-4 py-3 sm:px-5";
+                return row.networkCompanyId ? (
+                  <Link key={row.key} href={appRoutes.network.company(row.networkCompanyId)} data-testid="company-network-row"
+                    className={rowClass + " transition hover:bg-[#f5faf7]"}>{body}</Link>
+                ) : <div key={row.key} data-testid="company-network-row" className={rowClass}>{body}</div>;
+              })}
+            </div>
+          )}
+          <p className="px-1 text-xs text-[#5c7063]">
+            {list === "saved"
+              ? <Link href={appRoutes.network.saved} className="font-semibold text-[#175640] underline underline-offset-2">Gestisci le salvate nel Network →</Link>
+              : <Link href={appRoutes.network.connections} className="font-semibold text-[#175640] underline underline-offset-2">Gestisci connessioni e richieste →</Link>}
+          </p>
+        </section>
+      ) : (<>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className={"text-sm text-[#4f6b5b]" + (query && directory.total === 0 ? " sr-only" : "")}>
           <span className="font-semibold text-[#143f30]">{directory.total}</span> {directory.total === 1 ? "azienda" : "aziende"}{query ? ` per “${query}”` : ""}
@@ -178,6 +252,7 @@ export default async function CustomersPage({
           </div>
         </section>
       )}
+      </>)}
     </div>
   );
 }
