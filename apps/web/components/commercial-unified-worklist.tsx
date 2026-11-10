@@ -315,7 +315,7 @@ export async function CommercialUnifiedWorklist({
               <span className="min-w-0 truncate text-[var(--text-secondary)] sm:hidden">{item.origin}</span>
             </div>
             <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)] sm:line-clamp-1 sm:max-w-[40%] sm:shrink-0" title={item.title}>{item.title}</p>
-            {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)] sm:hidden 2xl:block 2xl:min-w-0 2xl:max-w-[26%] 2xl:shrink">{item.subtitle}</p> : null}
+            {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)] sm:hidden">{item.subtitle}</p> : null}
             {(item.rowFacts?.reference || item.rowFacts?.quantity ||
               (item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle) ||
               (item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title) ||
@@ -343,7 +343,7 @@ export async function CommercialUnifiedWorklist({
             <span className={"max-w-full truncate rounded-md border px-2 py-0.5 sm:w-[112px] sm:text-center text-[11px] font-semibold leading-4 " + statusBadgeClass[statusTone(item.status)]} title={item.status}>{item.status}</span>
             <div className="flex items-center gap-2 sm:w-[132px] sm:justify-end">
               {item.at ? <time className="text-[10px] tabular-nums text-[var(--text-secondary)]">{formatHubDate(item.at)}</time> : null}
-              <span aria-hidden="true" className="text-[11px] font-semibold text-[var(--brand-primary)]">Apri →</span>
+              <span className="sr-only">Apri</span>
             </div>
           </div>
         </Link>
@@ -353,12 +353,7 @@ export async function CommercialUnifiedWorklist({
     <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-2 " + cinematic.worklist}>
       <div data-testid="comm-cine9-workspace-heading"
         className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-[#dce8df] bg-white px-3 py-1.5 sm:gap-x-4 sm:gap-y-1 sm:px-4 sm:py-1">
-        <div className="min-w-0">
-          <p className="hidden text-[10px] font-semibold uppercase tracking-[0.12em] text-[#386b50] 2xl:block">Workspace commerciale / Deal cockpit</p>
-          <h2 id="commercial-worklist-title" className="mt-0.5 text-base font-semibold leading-tight tracking-[-0.025em] text-[#123c2f]">
-            Le mie trattative
-          </h2>
-        </div>
+        <h2 id="commercial-worklist-title" className="sr-only">Le mie trattative</h2>
         {view === "all" && focusCounts ? (
           <nav aria-label="Cosa fare adesso" data-testid="commercial-focus-counters" className="flex min-w-0 flex-wrap items-center gap-1.5">
             {(["reply", "waiting", "due"] as const).map((key) => {
@@ -379,7 +374,7 @@ export async function CommercialUnifiedWorklist({
             {focus ? <Link href={commercialHref("all", query)} className="px-1 text-xs font-semibold text-[#276147] underline-offset-2 hover:underline">Mostra tutte</Link> : null}
           </nav>
         ) : null}
-        <div className="shrink-0 rounded-full border border-[#c7dece] bg-[#f6faf7] px-3 py-1 text-xs font-semibold tabular-nums text-[#276147]">
+        <div className="sr-only shrink-0 rounded-full border border-[#c7dece] bg-[#f6faf7] px-3 py-1 text-xs font-semibold tabular-nums text-[#276147]">
           {data.partial && filtered.length === 0 ? "—" : data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} <span className="sm:hidden">attività</span><span className="hidden sm:inline">{data.partial ? "attività disponibili" : "attività in questa vista"}</span>
         </div>
       </div>
