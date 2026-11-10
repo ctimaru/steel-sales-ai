@@ -93,7 +93,7 @@ INSERT INTO public.network_company_discovery_candidates(
  'https://it-auto1-ci.example.test/',
  'NET IT AUTO1 LOCAL TEST COMPANY S.r.l.','IT','NETITAUTO1TEST',
  ARRAY['producer']::text[],ARRAY['tube_pipe_producer']::text[],
- '[]'::jsonb,
+ '[{"product":"steel_tube"}]'::jsonb,
  '[{"url":"https://it-auto1-ci.example.test/company","snippet":"Imaginary company in a local database only"}]'::jsonb,
  '["https://it-auto1-ci.example.test/company"]'::jsonb,
  '[]'::jsonb,0.95
