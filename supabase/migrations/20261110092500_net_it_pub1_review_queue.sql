@@ -76,7 +76,12 @@ BEGIN
 
   RETURN jsonb_build_object(
     'contract', 'net-it-pub1-review-v1',
-    'items', v_items
+    'items', v_items,
+    -- Visibility only. This flag is not modified by the review page.
+    'minimal_publisher_enabled', EXISTS (
+      SELECT 1 FROM private.net_pipeline1b2_settings
+      WHERE singleton=true AND enabled=true
+    )
   );
 END;
 $net_it_pub1$;
