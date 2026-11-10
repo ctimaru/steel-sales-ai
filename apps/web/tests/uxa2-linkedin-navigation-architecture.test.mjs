@@ -85,11 +85,7 @@ test("UXA2 makes Commerciale a first-class landing instead of a random child rou
   assert.match(nav, /href: appRoutes\.commercial\.home/);
   assert.match(nav, /href: appRoutes\.knowledge\.workspace/);
   assert.match(commercialHome, /Commerciale · Le tue trattative/);
-  assert.match(commercialHome, /Ricerca su dati già presenti/);
-  assert.match(commercialHome, /Product 360/);
-  assert.match(commercialHome, /Company 360/);
-  assert.match(commercialHome, /Prezzi & mercato/);
-  assert.match(commercialHome, /Opportunità commerciali/);
+  assert.match(commercialHome, /commercial-history-entry/); // COMM-DECLUTTER2: i blocchi informativi in fondo sono stati tolti
   assert.match(knowledgeHome, /SchoolWorkspaceFirstViewport/);
   assert.match(schoolViewport, /L’acciaio, spiegato bene/);
   assert.match(schoolViewport, /Calcola peso, barre e tonnellate/);
