@@ -8,6 +8,7 @@ on:
       - "apps/web/components/network-filter-drawer.tsx"
       - "apps/web/components/network-country-region-filters.tsx"
       - "apps/web/tests/netro14d-chrome-claimable-visual.mjs"
+      - "apps/web/app/**/network-visual-qa/**"
       - "apps/web/lib/network-compact-directory.ts"
   workflow_dispatch:
 
@@ -27,6 +28,7 @@ jobs:
       WORKER_URL: http://127.0.0.1:8001
       WORKER_STORAGE_MODE: supabase
       FLOW1_LOCAL_PROVIDER: "true"
+      NETWORK_VISUAL_FIXTURE: "true"
       COMPANY_DISCOVERY_ENABLED: "false"
       SEMANTIC_INDEX_ENABLED: "false"
       CRAWL_IT3_ENABLED: "false"
