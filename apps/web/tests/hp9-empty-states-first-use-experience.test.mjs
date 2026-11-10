@@ -45,7 +45,7 @@ test("HP9 separates first-use zero data from filtered zero results in Commercial
   assert.match(products, /Azzera ricerca/);
   assert.match(products, /Importa i primi documenti/);
   assert.match(customers, /query \? \(/);
-  assert.match(customers, /Risolvi identità aziendali/);
+  assert.match(customers, /Collega i contatti/);
   assert.match(customers, /Importa i primi documenti/);
   assert.match(explorer, /const hasFilters = Boolean/);
   assert.match(explorer, /Azzera filtri/);

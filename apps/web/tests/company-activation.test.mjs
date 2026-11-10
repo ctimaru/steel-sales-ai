@@ -38,8 +38,8 @@ test("identity confirmation immediately refreshes and opens Company 360", () => 
 test("customer surfaces expose the controlled unresolved identity count", () => {
   assert.match(customerActions, /p1_identity_confirmation_queue/);
   assert.match(customerActions, /unresolved_contacts/);
-  assert.match(customers, /identità aziendali da confermare/);
-  assert.match(customers, /Contact→Company esplicita/);
+  assert.match(customers, /contatti da collegare a un’azienda/);
+  assert.match(customers, /companies-identity-alert/);
   assert.match(customers, /appRoutes\.operations\.reviewIdentities/);
   assert.match(company360, /activation\.unresolvedContacts/);
   assert.match(company360, /identità in attesa di conferma/);
