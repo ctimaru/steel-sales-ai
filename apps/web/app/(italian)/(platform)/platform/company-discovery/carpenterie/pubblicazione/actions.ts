@@ -25,10 +25,11 @@ async function selectedQueue() {
     redirect(nextPath("error", "La revisione mirata non è ancora disponibile."));
   }
   const rows = (data as { items?: QueueRow[] }).items ?? [];
+  const minimalPublisherEnabled = (data as { minimal_publisher_enabled?: boolean }).minimal_publisher_enabled === true;
   if (!Array.isArray(rows) || rows.length !== 5) {
     redirect(nextPath("error", "Il lotto non contiene cinque aziende riconciliate."));
   }
-  return { supabase, rows };
+  return { supabase, rows, minimalPublisherEnabled };
 }
 
 export async function reviewNetItPub1Source(formData: FormData) {
@@ -70,7 +71,13 @@ export async function reviewNetItPub1Source(formData: FormData) {
 }
 
 export async function reviewNetItPub1Candidate(formData: FormData) {
-  const { supabase, rows } = await selectedQueue();
+  const { supabase, rows, minimalPublisherEnabled } = await selectedQueue();
+  if (formData.get("confirmed") !== "on") {
+    redirect(nextPath("error", "Conferma la pubblicazione dopo aver verificato la scheda."));
+  }
+  if (!minimalPublisherEnabled) {
+    redirect(nextPath("error", "Il pubblicatore minimale è ancora disattivato. Nessuna azienda è stata pubblicata."));
+  }
   const candidateId = String(formData.get("candidate_id") ?? "").trim();
   const decision = String(formData.get("decision") ?? "").trim();
   const personalDataDetected = formData.get("personal_data_detected") === "on";
