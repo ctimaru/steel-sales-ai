@@ -15,6 +15,7 @@ import type { CommercialOperationsTab } from "@/components/commercial-campaign-o
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
 import { includeSelectedCommercialCampaign, isCommercialPagedView, loadCommercialPagedData, parseCommercialPage } from "@/lib/commercial-unified-paged";
+import { withDealLabels } from "@/lib/commercial-deal-labels";
 import { isStreamView, loadCommercialFocusCounts, loadCommercialStreams, parseCommercialFocus } from "@/lib/commercial-unified-streams";
 import { listBuyerDistintaPublicDimensions, listPublicTubeDimensionPages } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
@@ -152,9 +153,12 @@ export default async function CommercialHomePage({
     .slice(0, 2);
   // Resolve a specifically selected RFQ with tenant RLS when it is older than
   // the first paginated Commerciale worklist page. Normal visits add no query.
-  const displayedUnified = view === "sent" && selected.startsWith("campaign:")
-    ? await includeSelectedCommercialCampaign(context.organizationId, selected, unified)
-    : unified;
+  const displayedUnified = await withDealLabels(
+    view === "sent" && selected.startsWith("campaign:")
+      ? await includeSelectedCommercialCampaign(context.organizationId, selected, unified)
+      : unified,
+    context.organizationId,
+  );
   const { recent, mode, operational } = commercial;
   // Procurement is a distinct tenant-owned lifecycle; never mix its active
   // counts with the total historical commercial RFQ count.
