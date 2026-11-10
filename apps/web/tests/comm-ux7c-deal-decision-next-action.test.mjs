@@ -57,7 +57,7 @@ test("COMM-UX7.C single decision dock keeps missing-information checklist and go
 
 test("COMM-UX7.C preserves worklist filter, selection and cursor, using existing RFQH owner checks", () => {
   assert.match(operations, /export function operationsHref/);
-  assert.match(operations, /mergedCommercialHref\(view, query, cursor, selected\)/);
+  assert.match(operations, /mergedCommercialHref\(view, query, cursor \?\? undefined, selected, focus\)/);
   assert.match(operations, /commercialPageHref\(view, query, page, selected\)/);
   assert.match(operations, /\+ "tab=" \+ tab \+ "#commercial-operations"/);
   assert.match(worklist, /operationTab && item.campaignId/);
