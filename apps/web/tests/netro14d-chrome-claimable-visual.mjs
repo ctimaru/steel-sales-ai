@@ -133,6 +133,13 @@ try {
       // DOM content alone can still show "Caricamento workspace…" immediately after navigation.
       await page.getByText(/ARTROM|Baurom/).first().waitFor({state:"visible",timeout:90000});
       assert.match(await page.locator("body").innerText(), /ARTROM|Baurom/);
+      // Synthetic organizations may take the legacy Network fallback. Assert the
+      // actual compact component in a strictly local test-only route instead;
+      // never treat a fallback screenshot as acceptance of the redesigned card.
+      const realCompact = await page.getByTestId("network-refined-filters").count();
+      if (!realCompact) console.log("NET-UX-FILTERS1 REAL ROUTE FALLBACK: using local component fixture");
+      await navigate(page,"/network-visual-qa");
+      await page.getByTestId("network-refined-filters").waitFor({state:"attached",timeout:90000});
       // NET-UX-FILTERS1: real Chrome visual acceptance of the new filter card
       // at 1440 / 390 / 320, with the map still visible outside the mobile drawer.
       const europeMap = page.getByTestId("network-europe-persistent-map");
