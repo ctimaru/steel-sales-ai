@@ -98,6 +98,36 @@ SELECT pg_temp.auto3_assert(
  'first-party AI evidence must be registered without human review'
 );
 
+-- Try to forge an agent publication while the Owner policy is enabled,
+-- but without an exact private AUTO3 attestation: PA1.5 MUST reject it.
+SAVEPOINT no_agent_attestation;
+INSERT INTO public.network_companies(
+ legal_name,country_code,website_url,website_domain,
+ publication_status,claimed_status,verification_status
+) VALUES (
+ 'AUTO3 Metalworking S.r.l.','IT','https://auto3-ci.example.test/',
+ 'auto3-ci.example.test','published','unclaimed','unverified'
+) RETURNING id AS fake_company_id \gset
+DO $reject_without_proof$
+BEGIN
+ UPDATE public.network_company_discovery_candidates
+ SET review_status='published',
+     publication_actor_type='delegated_agent',
+     promoted_company_id=:'fake_company_id'::uuid,
+     reviewed_at=now(),reviewed_by=NULL
+ WHERE id='00000000-0000-0000-0000-000000018002'::uuid;
+ RAISE EXCEPTION 'PA1.5 unexpectedly accepted a forged agent release';
+EXCEPTION WHEN SQLSTATE '42501' THEN
+ NULL;  -- expected: PA1.5 insists on exact attestation and evidence
+END
+$reject_without_proof$;
+ROLLBACK TO SAVEPOINT no_agent_attestation;
+SELECT pg_temp.auto3_assert(
+ (SELECT count(*) FROM public.network_companies
+   WHERE website_domain='auto3-ci.example.test')=0,
+ 'unattested synthetic company rollback must remove all possible duplicates'
+);
+
 SELECT private.net_it_auto3_release(10,true) AS preflight \gset
 SELECT pg_temp.auto3_assert(
  (:'preflight'::jsonb->>'ready')::integer=1
