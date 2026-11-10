@@ -106,6 +106,8 @@ export default async function Company360Page({
     deals: payload.rfqs.length + payload.offers.length + payload.orders.length,
     products: payload.product_activity.length,
   };
+  const rfqLineCount = new Map(payload.rfqs.map((rfq) => [rfq.rfq_id, rfq.lines.length] as const));
+  const conversationOf = (value: unknown) => typeof value === "string" && value ? value : null;
   const panel = "overflow-hidden rounded-2xl border border-[#d6e5db] bg-white";
   const empty = "px-5 py-8 text-center text-sm text-[#5c7063]";
 
@@ -173,12 +175,18 @@ export default async function Company360Page({
             <div className="divide-y divide-[#edf3ef]">
               {payload.timeline.map((event) => {
                 const conversation = event.provenance?.conversation_id ? String(event.provenance.conversation_id) : null;
+                // SCHEDA-AZIENDA2: se il titolo ripete il tipo ("RFQ" / "RFQ"), sotto mostriamo un dato utile.
+                const type = eventLabel(event.event_type);
+                const generic = event.title.trim().toLowerCase() === type.toLowerCase();
+                const rfqLines = event.event_type === "rfq" ? rfqLineCount.get(event.event_id) : undefined;
+                const meta = [generic ? "" : type, statusLabel(event.status),
+                  rfqLines === undefined ? "" : rfqLines === 1 ? "1 riga" : rfqLines + " righe"].filter(Boolean).join(" · ");
                 const body = (
                   <>
                     <span aria-hidden="true" className={"h-2.5 w-2.5 shrink-0 rounded-full " + (eventDot[event.event_type] ?? "bg-[#9fb3a8]")} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold text-[#143f30]">{event.title}</span>
-                      <span className="block truncate text-xs text-[#5c7063]">{eventLabel(event.event_type)} · {statusLabel(event.status)}</span>
+                      <span className="block truncate text-xs text-[#5c7063]">{meta}</span>
                     </span>
                     <time className="shrink-0 text-xs tabular-nums text-[#5c7063]">{dateLabel(event.event_at)}</time>
                     <span aria-hidden="true" className={"hidden sm:inline " + (conversation ? "text-[#9ab5a5]" : "text-transparent")}>›</span>
@@ -225,24 +233,35 @@ export default async function Company360Page({
         {tab === "deals" ? (
           <section aria-label="Richieste e ordini" className="grid gap-3 md:grid-cols-3">
             {([
-              ["RFQ", payload.rfqs.map((rfq) => ({ id: rfq.rfq_id, at: rfq.requested_at, status: rfq.status, extra: rfq.lines.length === 1 ? "1 riga" : `${rfq.lines.length} righe` }))],
-              ["Offerte", payload.offers.map((offer, index) => ({ id: String(offer.offer_id ?? index), at: typeof offer.offered_at === "string" ? offer.offered_at : null, status: offer.status, extra: "" }))],
-              ["Ordini", payload.orders.map((order, index) => ({ id: String(order.order_id ?? index), at: typeof order.ordered_at === "string" ? order.ordered_at : null, status: order.status, extra: "" }))],
+              ["RFQ", payload.rfqs.map((rfq) => ({ id: rfq.rfq_id, at: rfq.requested_at, status: rfq.status, extra: rfq.lines.length === 1 ? "1 riga" : `${rfq.lines.length} righe`, conversation: conversationOf(rfq.conversation_id) }))],
+              ["Offerte", payload.offers.map((offer, index) => ({ id: String(offer.offer_id ?? index), at: typeof offer.offered_at === "string" ? offer.offered_at : null, status: offer.status, extra: "", conversation: conversationOf(offer.conversation_id) }))],
+              ["Ordini", payload.orders.map((order, index) => ({ id: String(order.order_id ?? index), at: typeof order.ordered_at === "string" ? order.ordered_at : null, status: order.status, extra: "", conversation: conversationOf(order.conversation_id) }))],
             ] as const).map(([title, items]) => (
               <div key={title} className={panel}>
                 <h2 className="flex items-center justify-between border-b border-[#edf3ef] px-4 py-3 text-sm font-bold text-[#143f30]">
                   {title} <span className="text-xs font-semibold tabular-nums text-[#5c7063]">{items.length}</span>
                 </h2>
                 <div className="divide-y divide-[#edf3ef]">
-                  {items.slice(0, 10).map((item) => (
-                    <div key={item.id} className="flex items-center justify-between gap-2 px-4 py-2.5">
-                      <span className="min-w-0">
-                        <span className="block text-sm font-semibold text-[#143f30]">{statusLabel(item.status)}</span>
-                        {item.extra ? <span className="block text-xs text-[#5c7063]">{item.extra}</span> : null}
-                      </span>
-                      <time className="shrink-0 text-xs tabular-nums text-[#5c7063]">{dateLabel(item.at)}</time>
-                    </div>
-                  ))}
+                  {items.slice(0, 10).map((item) => {
+                    const body = (
+                      <>
+                        <span className="min-w-0">
+                          <span className="block text-sm font-semibold text-[#143f30]">{statusLabel(item.status)}</span>
+                          {item.extra ? <span className="block text-xs text-[#5c7063]">{item.extra}</span> : null}
+                        </span>
+                        <span className="flex shrink-0 items-center gap-2">
+                          <time className="text-xs tabular-nums text-[#5c7063]">{dateLabel(item.at)}</time>
+                          <span aria-hidden="true" className={item.conversation ? "text-[#9ab5a5]" : "text-transparent"}>›</span>
+                        </span>
+                      </>
+                    );
+                    const row = "flex items-center justify-between gap-2 px-4 py-2.5";
+                    return item.conversation ? (
+                      <Link key={item.id} href={appRoutes.commercial.conversation(item.conversation)}
+                        aria-label={title + " " + dateLabel(item.at) + ": apri conversazione"}
+                        className={row + " transition hover:bg-[#f5faf7]"}>{body}</Link>
+                    ) : <div key={item.id} className={row}>{body}</div>;
+                  })}
                 </div>
                 {items.length === 0 ? <p className="px-4 py-6 text-center text-sm text-[#5c7063]">Nessun elemento.</p> : null}
                 {items.length > 10 ? <p className="border-t border-[#edf3ef] px-4 py-2 text-xs text-[#5c7063]">Altri {items.length - 10} non mostrati.</p> : null}
