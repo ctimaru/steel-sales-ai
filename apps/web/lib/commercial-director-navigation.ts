@@ -62,7 +62,7 @@ export const commercialDirectorGroups: readonly CommercialDirectorGroup[] = [
         key: "purchasing",
         label: "Ufficio acquisti",
         items: [
-          { label: "Centro RFQ", href: appRoutes.rfqHub.home },
+          { label: "RFQ e conversazioni", href: appRoutes.rfqHub.home },
           { label: "Inbox e risposte", href: appRoutes.rfqHub.inbox },
           { label: "Fornitori RFQ", href: appRoutes.rfqHub.suppliers },
           { label: "Distinte", href: appRoutes.rfqHub.savedDistinte },
