@@ -91,7 +91,7 @@ export function Rfqc1ChatWorkspace(props: Props) {
     <section aria-label="RFQ come chat" data-testid="rfqc1-chat-workspace" className="rounded-[18px] border border-[#d3dfd8] bg-white shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e3ebe5] bg-[#f5faf7] px-3 py-2.5 sm:px-4">
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-bold uppercase tracking-[.08em] text-[#23624f]">Ufficio acquisti · RFQ privata</p>
+          <p className="text-[10px] font-bold uppercase tracking-[.08em] text-[#23624f]">Ufficio acquisti · Trattative RFQ</p>
           <h1 className="truncate text-lg font-bold text-[#19392f] sm:text-xl">{props.title}</h1>
           <p className="text-xs text-[#5a6c63]">
             {preparing ? "Bozza · nessun invio effettuato" : props.responseLabel + " risposte"}
