@@ -49,7 +49,13 @@ test("Source and candidate decisions require real platform permission and reuse 
   assert.match(actions, /pa1_5_review_discovery_candidate_governance/);
   assert.match(actions, /note\.length < 20/);
   assert.match(actions, /decision === "approved_company_data"/);
-  assert.doesNotMatch(actions, /netit_releasebulk1|net_pipeline1b2_publish_one|service_role|createAdminClient/);
+  assert.match(actions, /requirePlatformPermission\("discovery.publish"\)/);
+  assert.match(actions, /minimalPublisherEnabled/);
+  assert.match(actions, /formData.get\("confirmed"\)/);
+  assert.match(actions, /rpc\("net_pipeline1b2_publish_one"/);
+  assert.match(page, /action=\{publishNetItPub1Candidate\}/);
+  assert.match(sql, /minimal_publisher_enabled/);
+  assert.doesNotMatch(actions, /netit_releasebulk1|service_role|createAdminClient/);
 });
 
 test("Publisher definitions remain disabled and install no public company", () => {
