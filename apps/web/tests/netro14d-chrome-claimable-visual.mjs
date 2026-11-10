@@ -221,7 +221,10 @@ try {
         assert.ok(rect.x >= -1 && rect.right <= width + 1,
           "Filter select outside viewport: "+label+"/"+width+": "+JSON.stringify(rect));
       }
-      await filtersCard.scrollIntoViewIfNeeded();
+      // This panel has already been brought into view before the atomic layout
+      // snapshot. A second scroll can target a stale hydrated DOM node.
+      assert.equal(new URL(page.url()).pathname,"/network-visual-qa",
+        "Visual test must remain on the isolated compact component");
       await noOverflow(page,"Filters-card-open/"+width);
       await screenshot(page,"network-filters-open-admin",width);
       assertions += 13;
