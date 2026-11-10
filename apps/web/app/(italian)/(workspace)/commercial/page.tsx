@@ -14,7 +14,7 @@ import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
 import { includeSelectedCommercialCampaign, isCommercialPagedView, loadCommercialPagedData, parseCommercialPage } from "@/lib/commercial-unified-paged";
 import { withDealLabels } from "@/lib/commercial-deal-labels";
-import { isStreamView, loadCommercialFocusCounts, loadCommercialRequestSummary, loadCommercialStreams, parseCommercialFocus } from "@/lib/commercial-unified-streams";
+import { isStreamView, loadCommercialRequestSummary, loadCommercialStreams, parseCommercialFocus } from "@/lib/commercial-unified-streams";
 import { listBuyerDistintaPublicDimensions, listPublicTubeDimensionPages } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -56,7 +56,7 @@ export default async function CommercialHomePage({
   const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
   const composing = canWrite && params.compose === "1";
   const aiFocused = composing && params.method === "ai";
-  const [procurement, unified, catalogOptions, networkContext, calculatorReferences, focusCounts, requestSummary] = await Promise.all([
+  const [procurement, unified, catalogOptions, networkContext, calculatorReferences, requestSummary] = await Promise.all([
     canWrite
       ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
           .catch(() => ({ data: null, error: true }))
@@ -70,7 +70,6 @@ export default async function CommercialHomePage({
     // Explicit GET-only handoff; invalid/locked Network ids never trigger a profile read.
     getCommercialNetworkContext(context.organizationId, params.network),
     listPublicTubeDimensionPages(),
-    view === "all" ? loadCommercialFocusCounts(context.organizationId).catch(() => null) : Promise.resolve(null),
     aiFocused ? Promise.resolve(null) : loadCommercialRequestSummary(context.organizationId).catch(() => null),
   ]);
   const [prospect, possibleCompanies, inquiries] = networkContext
@@ -233,7 +232,6 @@ export default async function CommercialHomePage({
         canWrite={canWrite}
         tab={tab}
         focus={focus}
-        focusCounts={focusCounts}
       />
 
 

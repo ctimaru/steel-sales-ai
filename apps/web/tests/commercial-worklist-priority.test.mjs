@@ -6,17 +6,17 @@ const src = readFileSync(new URL("../components/commercial-unified-worklist.tsx"
 
 test("Commerciale: gli stati che chiedono azione risaltano sugli esiti", () => {
   assert.match(src, /actionStatuses = new Set\(\["nuova", "ricevuto", "bozza"/);
-  assert.match(src, /statusBadgeClass\[statusTone\(item\.status\)\]/);
-  assert.match(src, /rowAccentClass\[statusTone\(item\.status\)\]/);
+  assert.match(src, /statusDotClass\[tone\]/);
+  assert.match(src, /statusTextClass\[tone\]/);
 });
 
 test("Commerciale: i gruppi non ripetono il titolo quando il cliente manca", () => {
-  assert.match(src, /cliente non indicato/);
-  assert.match(src, /groupLabel\(entry\.items\[0\], itemType\(entry\.items\[0\]\)\)/);
+  assert.match(src, /sameAsType \? "" : type/);
+  assert.doesNotMatch(src, /groupCommercialRows|mostra\/nascondi/); // COMM-CLEAN-LIST1: elenco piatto
   assert.doesNotMatch(src, /entry\.items\.length\} × /);
 });
 
 test("Commerciale: la riga selezionata resta evidenziata e il gruppo che la contiene si apre", () => {
-  assert.match(src, /open=\{entry\.items\.some\(\(item\) => item\.key === active\?\.key\)\}/);
-  assert.match(src, /border-l-\[#175640\] bg-\[#edf6f0\]/);
+  assert.match(src, /\{filtered\.map\(renderRow\)\}/);
+  assert.match(src, /item\.key === active\?\.key \? "bg-\[#edf6f0\]"/);
 });

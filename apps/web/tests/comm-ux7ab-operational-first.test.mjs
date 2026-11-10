@@ -29,11 +29,8 @@ test("COMM-UX7.B renders only optional, workspace-authorized commercial facts", 
   assert.match(paged, /rowFacts: \{ dueAt: record\.due_at \?\? undefined \}/);
   assert.match(paged, /counterparty: row\.company \|\| undefined/);
   assert.match(paged, /rowFacts: \{ dueAt: campaign\.due_at \?\? undefined \}/);
-  assert.match(list, /data-testid="commercial-deal-row-facts"/);
+  assert.match(list, /item\.rowFacts\?\.quantity \?\? item\.rowFacts\?\.lines/);
   assert.match(list, /item\.rowFacts\?\.quantity/);
-  assert.match(list, /item\.rowFacts\?\.counterparty/);
-  assert.match(list, /item\.rowFacts\?\.material/);
-  assert.match(list, /commercialRowAmount\(item\.rowFacts\?\.totalEur\)/);
   assert.doesNotMatch(source + stream, /service_role|SUPABASE_SERVICE_ROLE_KEY|autoDispatch/);
 });
 test("COMM-UX7.B never fabricates negative, malformed or absent amounts", () => {
