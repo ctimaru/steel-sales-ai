@@ -200,29 +200,28 @@ export default async function CommercialHomePage({
       ) : (<>
       <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
         className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white " + cinematic.hero}>
-        <div className={"grid items-center gap-2 px-4 py-2 sm:px-5 lg:min-h-[60px] lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-3 lg:px-5 lg:py-1.5 " + cinematic.heroGrid}>
+        <div className={"grid items-center gap-1.5 px-4 py-1.5 sm:px-5 lg:min-h-[44px] lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-4 lg:px-5 lg:py-1 " + cinematic.heroGrid}>
           <div className="relative z-10 min-w-0">
-            <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.14em] text-[#add4bb]">
-              <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#9fe4b5]" />
-              Smart Steel Sales / Commerciale
+            <div className="flex min-w-0 items-baseline gap-3">
+              <h1 className={"text-[clamp(1.1rem,1.5vw,1.3rem)] font-semibold leading-[1.15] tracking-[-0.025em] text-white " + cinematic.heroTitle}>
+                Le tue trattative. <span className="hidden text-[#b4dec2] sm:inline">Un’unica visione.</span>
+              </h1>
+              <span className="hidden text-[10px] font-bold uppercase tracking-[0.14em] text-[#add4bb] xl:inline">
+                Smart Steel Sales / Commerciale
+              </span>
             </div>
-            <h1 className={"mt-0.5 text-[clamp(1.2rem,1.6vw,1.5rem)] font-semibold leading-[1.12] tracking-[-0.025em] text-white " + cinematic.heroTitle}>
-              Le tue trattative. <span className="hidden text-[#b4dec2] sm:inline">Un’unica visione.</span>
-            </h1>
             <p className="mt-0.5 text-[11px] leading-4 text-[#d2e7db] sm:hidden">
               Richieste, offerte e ordini in un unico spazio.
             </p>
           </div>
-          <div aria-label="Il tuo centro operativo" className={"relative z-10 hidden lg:block " + cinematic.heroMetrics}>
-            <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-[#a9d7bc]">Il tuo centro operativo · Storico commerciale</p>
-            <dl className="grid grid-cols-3 gap-2">
-              <div><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-lg font-semibold tabular-nums text-white">{historicalCount(operational.rfqs)}</dd></div>
-              <div><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-lg font-semibold tabular-nums text-white">{historicalCount(operational.offers)}</dd></div>
-              <div><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-lg font-semibold tabular-nums text-white">{historicalCount(operational.orders)}</dd></div>
+          <div aria-label="Il tuo centro operativo" className={"relative z-10 hidden lg:block " + cinematic.heroMetrics}
+            title={(mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Stato dello storico da verificare") + " · Workspace privato"}>
+            <p className="sr-only">Il tuo centro operativo · Storico commerciale</p>
+            <dl className="flex items-baseline gap-4">
+              <div className="flex items-baseline gap-1.5"><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-base font-semibold tabular-nums text-white">{historicalCount(operational.rfqs)}</dd></div>
+              <div className="flex items-baseline gap-1.5"><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-base font-semibold tabular-nums text-white">{historicalCount(operational.offers)}</dd></div>
+              <div className="flex items-baseline gap-1.5"><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-base font-semibold tabular-nums text-white">{historicalCount(operational.orders)}</dd></div>
             </dl>
-            <p className="mt-1 text-[10px] font-medium text-[#b8d8c6]">
-              {mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Stato dello storico da verificare"} · Workspace privato
-            </p>
           </div>
         </div>
       </section>
@@ -245,8 +244,8 @@ export default async function CommercialHomePage({
 
       <section id="commercial-tool-access" aria-label="Alternative alla chat e ricerca nello storico"
         data-testid="commercial-primary-quick-actions"
-        className="scroll-mt-28 rounded-xl border border-[#d6e5db] bg-white px-3 py-1.5 sm:px-3">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+        className="scroll-mt-28 rounded-xl border border-[#d6e5db] bg-white px-3 py-1 sm:px-3">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5" data-testid="commercial-alternative-methods">
             <span className="hidden text-[11px] font-semibold text-[#5a6f60] xl:inline">Strumenti</span>
             <CommercialCalculatorQuickAccess references={calculatorReferences} />
