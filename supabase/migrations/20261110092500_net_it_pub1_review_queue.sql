@@ -1,7 +1,7 @@
 -- NET-IT-PUB1: exact first-five review queue; read-only, permission-gated.
 -- No source or company is approved by installing this migration.
 -- Only Platform reviewers can see the selected first-party evidence.
-CREATE OR REPLACE FUNCTION public.net_it_pub1_review_queue()
+CREATE OR REPLACE FUNCTION private.net_it_pub1_review_queue_impl()
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE SECURITY DEFINER
@@ -80,6 +80,20 @@ BEGIN
   );
 END;
 $net_it_pub1$;
+
+-- The privileged reader stays private. The public API is SECURITY INVOKER,
+-- matching the Platform HP13 inventory and the existing guarded RPC pattern.
+REVOKE ALL ON FUNCTION private.net_it_pub1_review_queue_impl() FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION private.net_it_pub1_review_queue_impl() TO authenticated;
+
+CREATE OR REPLACE FUNCTION public.net_it_pub1_review_queue()
+RETURNS jsonb
+LANGUAGE sql
+SECURITY INVOKER
+SET search_path TO ''
+AS $net_it_pub1_facade$
+  SELECT private.net_it_pub1_review_queue_impl();
+$net_it_pub1_facade$;
 
 REVOKE ALL ON FUNCTION public.net_it_pub1_review_queue() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.net_it_pub1_review_queue() TO authenticated;
