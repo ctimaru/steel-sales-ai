@@ -12,7 +12,7 @@ test("COMM-UX6.A reduces the industrial hero and keeps AI accessible on small sc
   assert.match(css, /@media \(max-width: 640px\)/);
   assert.match(css, /\.heroTitle \{ font-size: clamp\(1\.25rem, 5vw, 1\.5rem\)/);
   assert.match(page, /Richieste, offerte e ordini in un unico spazio\./);
-  assert.match(page, /lg:min-h-\[78px\]/);
+  assert.match(page, /lg:min-h-\[60px\]/);
   assert.doesNotMatch(page, /lg:min-h-\[328px\]/);
   assert.match(page, /lg:grid-cols-\[minmax\(0,1fr\)_340px\]/);
   assert.match(ai, /lg:grid-cols-\[minmax\(0,0\.9fr\)_minmax\(0,1\.1fr\)\]/);

@@ -27,44 +27,44 @@ type NextStep = {
 const SIGNAL_NEXT_STEP: Record<PlatformCockpitKey, NextStep> = {
   registration_identity_conflicts: {
     href: "/platform/registrations",
-    title: "Conflitti d'identità",
+    title: "Aziende con identità da chiarire",
     detail: "Controlla i profili prima dell'attivazione.",
     actionPermission: "registrations.bridge_network",
   },
   registrations_activate: {
     href: "/platform/registrations?status=approved",
-    title: "Workspace da attivare",
-    detail: "Le approvazioni non attivano automaticamente l'azienda.",
+    title: "Aziende approvate da attivare",
+    detail: "Decidi se abilitare le aziende già approvate.",
     actionPermission: "registrations.activate",
   },
   registrations_review: {
     href: "/platform/registrations?status=pending_review",
-    title: "Registrazioni aziende",
-    detail: "Richieste in attesa di una decisione.",
+    title: "Nuove aziende da approvare",
+    detail: "Controlla le nuove registrazioni e scegli se approvarle.",
     actionPermission: "registrations.approve",
   },
   claims_proof_pending: {
     href: "/platform/company-claims",
-    title: "Company Claims",
-    detail: "Verifica le prove di proprietà dei profili.",
+    title: "Richieste di proprietà delle aziende",
+    detail: "Controlla chi chiede di gestire una scheda aziendale.",
     actionPermission: "claims.review_proof",
   },
   discovery_review: {
     href: "/platform/company-discovery?status=pending_review",
-    title: "Company Discovery",
-    detail: "Candidati da esaminare prima della pubblicazione nel Network.",
+    title: "Nuove aziende da controllare",
+    detail: "Le aziende trovate restano private fino ai controlli previsti.",
     actionPermission: "discovery.review",
   },
   network_identity_candidates: {
     href: "/platform/network-trust",
-    title: "Network Trust",
-    detail: "Possibili corrispondenze d'identità da verificare.",
+    title: "Possibili aziende duplicate",
+    detail: "Verifica i possibili duplicati prima di unirli.",
     actionPermission: "network_trust.identity_review",
   },
   knowledge_review: {
     href: "/platform/knowledge",
-    title: "Knowledge Operations",
-    detail: "Contenuti editoriali in revisione.",
+    title: "Contenuti da approvare",
+    detail: "Valuta i materiali pronti per la pubblicazione.",
     actionPermission: "knowledge.review",
   },
 };
@@ -110,7 +110,7 @@ function MetricCard({ signal }: { signal: PlatformCockpitSignal }) {
         {signal.status === "unavailable" ? (
           <p className="mt-1 text-xs text-amber-800">{PLATFORM_IA_QUEUE_POLICY.unavailableLabel}</p>
         ) : (
-          <p className="mt-1 text-xs text-[#66736e]">Dato aggregato della coda</p>
+          <p className="mt-1 text-xs text-[#66736e]">Attività registrate nel sistema</p>
         )}
       </div>
     </Link>
@@ -144,6 +144,8 @@ export default async function PlatformHomePage() {
       Boolean(item && item.status === "verified" && item.value !== null && item.value > 0)
     );
   const unavailable = cockpit.signals.filter((item) => item.status === "unavailable");
+  const highlightedPriorities = priorities.slice(0, 3);
+  const remainingPriorities = priorities.slice(3);
   const operationalGroups = PLATFORM_IA_AREAS.filter((group) => group.key !== "overview")
     .map((group) => ({
       key: group.key,
@@ -163,19 +165,49 @@ export default async function PlatformHomePage() {
   return (
     <FocusPage className="space-y-5 sm:space-y-6">
       <FocusHeader
-        eyebrow="Platform · Control Center"
-        title={context.is_platform_owner ? "Governance della piattaforma" : "Operazioni abilitate"}
+        eyebrow="SMART STEEL SALES · PANORAMICA"
+        title={context.is_platform_owner ? "La tua console" : "Le tue attività"}
         description={
           context.is_platform_owner
-            ? "Priorità e code operative di Smart Steel Sales. La gestione globale resta separata dai dati commerciali privati delle aziende."
-            : "Vedi soltanto le operazioni delegate al tuo ruolo. I dati commerciali privati delle aziende rimangono separati."
+            ? "Controlla cosa richiede la tua attenzione, quali risultati stiamo ottenendo e dove intervenire. I dati commerciali privati restano separati."
+            : "Qui trovi solo le attività che puoi consultare o gestire. I dati privati delle aziende restano protetti."
         }
         actions={
           <Link href="/platform/notifications" className="inline-flex min-h-10 items-center rounded-xl border border-[#dce2df] bg-white px-4 text-sm font-semibold text-[#1a5144] hover:bg-[#f2f7f4]">
-            Centro notifiche ↗
+            Notifiche ↗
           </Link>
         }
       />
+
+      {context.is_platform_owner ? (
+        <section aria-label="Accesso alle decisioni" className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#c8dcd0] bg-[#f4f9f5] p-4 sm:p-5">
+          <div>
+            <h2 className="text-base font-bold text-[#173f35]">Le mie decisioni</h2>
+            <p className="mt-1 text-xs leading-5 text-[#52675c]">Cosa valutare, perché conta e cosa consiglio. Solo attività confermate dal sistema.</p>
+          </div>
+          <Link href="/platform/decisions"
+            className="inline-flex min-h-10 items-center rounded-xl bg-[#175640] px-4 py-2 text-sm font-semibold text-white hover:bg-[#124a35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+            Apri le mie decisioni →
+          </Link>
+        </section>
+      ) : null}
+
+      {context.is_platform_owner ? (
+        <section aria-label="Guida rapida alla console" className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-2xl border border-[#dce2df] bg-[#f5f9f6] p-4">
+            <h2 className="text-sm font-bold text-[#173f35]">1. Cosa devo decidere?</h2>
+            <p className="mt-1 text-xs leading-5 text-[#52675c]">Le richieste che necessitano di un controllo sono qui sotto, in ordine di priorità.</p>
+          </div>
+          <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
+            <h2 className="text-sm font-bold text-[#173f35]">2. Come stiamo andando?</h2>
+            <p className="mt-1 text-xs leading-5 text-[#52675c]">I numeri provengono dalle attività reali del sistema, non da stime.</p>
+          </div>
+          <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
+            <h2 className="text-sm font-bold text-[#173f35]">3. Dove trovo il resto?</h2>
+            <p className="mt-1 text-xs leading-5 text-[#52675c]">Le sezioni operative e i dettagli tecnici rimangono accessibili più in basso.</p>
+          </div>
+        </section>
+      ) : null}
 
       {!hasAnyModule ? (
         <FirstUseEmptyState
@@ -191,7 +223,7 @@ export default async function PlatformHomePage() {
             <section aria-labelledby="platform-indicators">
               <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
                 <h2 id="platform-indicators" className="text-lg font-semibold text-[#1d2824]">
-                  Stato operativo
+                  Numeri da tenere d’occhio
                 </h2>
                 <p className="text-xs text-[#66736e]">
                   {cockpit.checkedAt
@@ -209,19 +241,19 @@ export default async function PlatformHomePage() {
             <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
               <div>
                 <h2 id="platform-attention" className="text-lg font-semibold text-[#1d2824]">
-                  Cosa richiede attenzione
+                  Cosa richiede il tuo intervento
                 </h2>
                 <p className="mt-1 text-xs text-[#66736e]">
-                  Code con attività operative, ordinate per priorità.
+                  Le attività sono ordinate per importanza. Apri solo quelle su cui vuoi intervenire.
                 </p>
               </div>
               <span className="text-xs text-[#66736e]">
-                {priorities.length} {priorities.length === 1 ? "coda aperta" : "code aperte"}
+                {priorities.length} {priorities.length === 1 ? "attività" : "attività"} da controllare
               </span>
             </div>
             {priorities.length > 0 ? (
               <ul className="divide-y divide-[#e7ece9]">
-                {priorities.map((signal) => {
+                {highlightedPriorities.map((signal) => {
                   const step = SIGNAL_NEXT_STEP[signal.key];
                   const canAct = !step.actionPermission ||
                     context.permissions.includes(step.actionPermission);
@@ -253,6 +285,26 @@ export default async function PlatformHomePage() {
                   : PLATFORM_IA_QUEUE_POLICY.emptyLabel}
               </p>
             )}
+            {remainingPriorities.length > 0 ? (
+              <details className="mt-3 border-t border-[#e7ece9] pt-3">
+                <summary className="cursor-pointer text-sm font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-[#1f6b5a]">
+                  Mostra altre {remainingPriorities.length} attività
+                </summary>
+                <ul className="mt-2 divide-y divide-[#e7ece9]">
+                  {remainingPriorities.map((signal) => {
+                    const step = SIGNAL_NEXT_STEP[signal.key];
+                    return (
+                      <li key={signal.key}>
+                        <Link href={step.href} className="flex min-h-12 items-center justify-between gap-3 rounded-lg px-2 py-2 text-sm hover:bg-[#f7faf8]">
+                          <span className="text-[#1d2824]">{step.title}</span>
+                          <span className="shrink-0 font-semibold tabular-nums text-[#175640]">{compactNumber(signal.value)} →</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </details>
+            ) : null}
             {unavailable.length > 0 ? (
               <div className="mt-3 border-t border-[#e7ece9] pt-3" role="status">
                 <p className="text-xs font-semibold text-amber-800">
@@ -268,10 +320,10 @@ export default async function PlatformHomePage() {
 
           <section aria-labelledby="platform-areas">
             <h2 id="platform-areas" className="text-lg font-semibold text-[#1d2824]">
-              Aree di gestione
+              Esplora la piattaforma
             </h2>
             <p className="mb-3 mt-1 text-xs text-[#66736e]">
-              Strumenti disponibili per il tuo ruolo.
+              Apri una sezione per vedere e gestire il lavoro di quell’area.
             </p>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {operationalGroups.map((group) => (

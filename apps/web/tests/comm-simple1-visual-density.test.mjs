@@ -11,7 +11,7 @@ const hub = read("../app/(italian)/(workspace)/marketplace/rfq-hub/page.tsx");
 
 test("COMM-SIMPLE1: Commerciale is work-first and fits a shorter header before the AI", () => {
   assert.match(commercial, /data-testid="comm-cine1-hero"/);
-  assert.match(commercial, /lg:min-h-\[78px\]/);
+  assert.match(commercial, /lg:min-h-\[60px\]/);
   assert.doesNotMatch(commercial, /lg:min-h-\[112px\]/);
   assert.match(styles, /\.heroTitle\s*\{[\s\S]*?max-width: none;/);
   const top = ["comm-cine1-hero", "<CommercialDirectorPriorityDesk", "comm-cine13-first-workspace",

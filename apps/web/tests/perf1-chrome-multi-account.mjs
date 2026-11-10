@@ -72,7 +72,7 @@ try {
     assert.ok(!/(Buongiorno|Buonasera), DEMO/.test(await pageText(anonPage)));
     await visit(anonPage, "/platform");
     await anonPage.waitForURL(u => u.pathname === "/login", { timeout: 35000 });
-    assert.ok(!(await pageText(anonPage)).includes("Governance della piattaforma"));
+    assert.ok(!(await pageText(anonPage)).includes("La tua console"));
   });
   await check("malformed authentication cookie never grants homepage access", async () => {
     await anon.addCookies([{
@@ -118,7 +118,7 @@ try {
     await check(p.id + " cannot open Platform Owner administration", async () => {
       await visit(page, "/platform");
       await page.waitForURL(u => u.pathname !== "/platform", { timeout: 60000 });
-      assert.ok(!(await pageText(page)).includes("Governance della piattaforma"));
+      assert.ok(!(await pageText(page)).includes("La tua console"));
     });
     await context.close();
   }
@@ -132,14 +132,14 @@ try {
   });
   await check("only Platform Owner reaches the governance console", async () => {
     await visit(ownerPage, "/platform");
-    await ownerPage.getByRole("heading", { name: "Governance della piattaforma" })
+    await ownerPage.getByRole("heading", { name: "La tua console" })
       .waitFor({ state: "visible", timeout: 60000 });
     assert.equal(new URL(ownerPage.url()).pathname, "/platform");
   });
   await check("PLR3 owner cockpit has reliable operational sections", async () => {
-    await ownerPage.getByRole("heading", { name: "Stato operativo" }).waitFor();
-    await ownerPage.getByRole("heading", { name: "Cosa richiede attenzione" }).waitFor();
-    await ownerPage.getByRole("heading", { name: "Aree di gestione" }).waitFor();
+    await ownerPage.getByRole("heading", { name: "Numeri da tenere d’occhio" }).waitFor();
+    await ownerPage.getByRole("heading", { name: "Cosa richiede il tuo intervento" }).waitFor();
+    await ownerPage.getByRole("heading", { name: "Esplora la piattaforma" }).waitFor();
     assert.equal(await ownerPage.locator("h1").count(), 1);
     assert.ok(!((await pageText(ownerPage)).includes("Application error")));
   });
@@ -162,7 +162,7 @@ try {
       }
       assert.ok(widths.scroll <= widths.client + 8,
         "PLR3 horizontal overflow " + width + "px: " + JSON.stringify(widths));
-      assert.equal(await ownerPage.getByRole("heading", { name: "Cosa richiede attenzione" }).count(), 1);
+      assert.equal(await ownerPage.getByRole("heading", { name: "Cosa richiede il tuo intervento" }).count(), 1);
     }
   });
   await check("PLR4 owner governance queues render permission-scoped navigation", async () => {

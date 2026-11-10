@@ -42,7 +42,7 @@ test("PLR3 distinguishes zero from missing, invalid and unavailable data", () =>
 });
 
 test("PLR3 preserves order, permission-gated links, explicit freshness and staff empty state", () => {
-  for (const label of ["Cosa richiede attenzione", "Stato operativo", "Aree di gestione", "Nessun modulo operativo ancora abilitato"]) {
+  for (const label of ["Cosa richiede il tuo intervento", "Numeri da tenere d’occhio", "Esplora la piattaforma", "Nessun modulo operativo ancora abilitato"]) {
     assert.ok(home.includes(label), label);
   }
   assert.match(home, /\/staff\/access/);

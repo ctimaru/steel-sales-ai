@@ -4,6 +4,8 @@ import Link from "next/link";
 import { Rfqc1ChatComposer } from "@/components/rfqc1-chat-composer";
 import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
 import { Rfqc1OfferCard } from "@/components/rfqc1-offer-card";
+import { Rfqc1SupplierSuggestions } from "@/components/rfqc1-supplier-suggestions";
+import { Rfqc1DraftSummary } from "@/components/rfqc1-draft-summary";
 import { useState } from "react";
 
 import type { Rfqc1TimelineItem } from "@/lib/rfqc1-timeline";
@@ -159,6 +161,14 @@ export function Rfqc1ChatWorkspace(props: Props) {
             </div>
           </div>
 
+          <Rfqc1SupplierSuggestions rfqId={props.rfqId} canAdd={Boolean(props.canStartRequest) && !props.readOnlyByProfile}
+            existingEmails={props.suppliers.map(item => item.email ?? "")}
+            existingNames={props.suppliers.map(item => item.name)} />
+
+          <Rfqc1DraftSummary status={props.status} dueAt={props.dueAt} canExecute={props.canExecute && !props.readOnlyByProfile}
+            lines={props.lines.map(line => ({ description: line.description, standard: line.standard, grade: line.grade, quantity: line.quantity }))}
+            suppliers={props.suppliers.map(item => ({ name: item.name, email: item.email }))} />
+
           <div role="tablist" aria-label="Trattative private per fornitore"
             className="flex gap-1.5 overflow-x-auto border-b border-[#e2eae5] bg-[#fbfcfb] px-3 py-3 sm:px-5">
             {props.suppliers.map(item => (
@@ -268,7 +278,7 @@ export function Rfqc1ChatWorkspace(props: Props) {
                     <p className="text-[11px] text-[#65786b]">Altre {props.comparison.lines.length - 6} righe nel confronto completo</p>}
                 </div>
               </section>
-              <p className="text-[11px] leading-5 text-[#6f7f73]">Il confronto completo, l'aggiudicazione RFQH7 e i PO rimangono disponibili nella gestione commerciale sottostante fino alla loro integrazione in P1.</p>
+              <p className="text-[11px] leading-5 text-[#6f7f73]">Il confronto completo, l'aggiudicazione e gli ordini di acquisto restano disponibili nella gestione sottostante.</p>
             </div>
           ) : (
             <p className="mt-3 rounded-xl bg-[#f5f7f5] p-3 text-xs text-[#4f6457]">In attesa di offerte confrontabili.</p>

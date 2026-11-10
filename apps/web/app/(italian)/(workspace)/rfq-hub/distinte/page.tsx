@@ -9,7 +9,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Distinte salvate · RFQ Hub", robots: privateNoIndexRobots };
+export const metadata = { title: "Distinte · RFQ Hub", robots: privateNoIndexRobots };
 
 const PAGE_SIZE = 25;
 function archiveUrl(query:string,mode:"active"|"archived",page=1) {
@@ -55,12 +55,12 @@ export default async function RfqSavedDistinteArchive({
     <div className="space-y-4 pb-10">
       <nav aria-label="Percorso RFQ Hub" className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]">
         <Link href={appRoutes.rfqHub.home} className="hover:underline">RFQ Hub</Link>
-        <span aria-hidden="true">/</span><span className="text-[var(--brand-deep)]">Distinte salvate</span>
+        <span aria-hidden="true">/</span><span className="text-[var(--brand-deep)]">Distinte</span>
       </nav>
       <header className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-strong)] bg-white p-4">
         <div>
           <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">Archivio aziendale · privato</p>
-          <h1 className="mt-1 text-xl font-extrabold text-[var(--brand-deep)]">Distinte salvate</h1>
+          <h1 className="mt-1 text-xl font-extrabold text-[var(--brand-deep)]">Distinte</h1>
           <p className="mt-1 text-xs text-[var(--text-secondary)]">
             Distinte private dell'azienda. Rinomina, duplica o archivia senza alterare articoli e RFQ.
           </p>
