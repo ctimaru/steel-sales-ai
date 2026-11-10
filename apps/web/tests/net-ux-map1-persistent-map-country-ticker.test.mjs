@@ -27,7 +27,7 @@ test("MAP1: European map is first in the sidebar, outside the mobile filter draw
   const side=ui.indexOf('data-testid="network-side-column"');
   const map=ui.indexOf('data-testid="network-europe-persistent-map"');
   const drawer=ui.indexOf("<NetworkFilterDrawer activeCount=");
-  const role=ui.indexOf('Ruolo nella filiera</p>');
+  const role=ui.indexOf('<nav aria-label="Ruolo nella filiera"'); // stable landmark after the map/drawer
   assert.ok(side>=0&&map>side&&drawer>map&&role>drawer);
   assert.equal((ui.match(/<NetworkEuropeanMap /g)||[]).length,1);
   assert.doesNotMatch(ui,/<details className="rounded-xl border[^\n]*network-compact-mobile-map/);
