@@ -53,7 +53,7 @@ def _normalize_full_legal_name(value: str) -> str:
     """Keep legal form: a brand alone is NOT proof of S.r.l./S.p.A."""
     value = unescape(value).casefold()
     for letters in ("srl", "spa", "snc", "sas"):
-        dotted = r"\b" + r"[.\s]*".join(letters) + r"[.\s]*\b"
+        dotted = r"\b" + r"[.\s]*".join(letters) + r"\.?(?![a-z0-9])"
         value = re.sub(dotted, letters, value)
     value = re.sub(r"[^a-z0-9à-ÿ]+", " ", value)
     return re.sub(r"\s+", " ", value).strip()
