@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS private.net_it_auto2_evidence (
   page_evidence_hash text,
   source_terms_url text,
   source_rights_state text NOT NULL DEFAULT 'unknown'
-    CHECK(source_rights_state IN ('unknown','restricts_reuse','human_approved')),
+    CHECK(source_rights_state IN ('unknown','restricts_reuse')),
   identity_confidence numeric NOT NULL DEFAULT 0
     CHECK(identity_confidence BETWEEN 0 AND 1),
   evidence jsonb NOT NULL DEFAULT '{}'::jsonb
@@ -115,7 +115,7 @@ BEGIN
     OR p_confidence NOT BETWEEN 0 AND 1
     OR p_reasons IS NULL OR cardinality(p_reasons)>20
     OR (p_hash IS NOT NULL AND p_hash !~ '^[a-f0-9]{64}$')
-    OR p_rights_state NOT IN ('unknown','restricts_reuse','human_approved') THEN
+    OR p_rights_state NOT IN ('unknown','restricts_reuse') THEN
    RAISE EXCEPTION 'Invalid bounded evidence payload' USING ERRCODE='22023';
  END IF;
  SELECT * INTO v_c FROM public.network_company_discovery_candidates
@@ -139,7 +139,7 @@ BEGIN
  -- unresolved legal identity even if the model or extractor reports success.
  IF v_collision OR cardinality(v_c.personal_data_fields)>0
       OR v_c.personal_data_detected
-      OR cardinality(v_c.quality_flags & ARRAY['historical_sole_trader_vat_context']::text[])>0
+      OR v_c.quality_flags && ARRAY['historical_sole_trader_vat_context']::text[]
       OR lower(coalesce(p_observed_domain,''))<>lower(v_c.canonical_domain)
       OR NOT coalesce(p_matched_name,false)
       OR coalesce(p_confidence,0)<0.90
@@ -160,7 +160,7 @@ BEGIN
   jsonb_build_object('candidate_original_name',left(v_c.legal_name,240),
     'candidate_original_domain',left(v_c.canonical_domain,250),
     'catalog_collision',v_collision,'run_governance',v_run.governance_status,
-    'rights_not_approved_by_agent',v_run.terms_status='not_checked' OR p_rights_state<>'human_approved',
+    'rights_not_approved_by_agent',true,
     'publication_authorized',false)
  ) RETURNING id INTO v_id;
  RETURN jsonb_build_object('contract','net-it-auto2-review-v1',
