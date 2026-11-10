@@ -207,8 +207,8 @@ export function NetworkCompactExperience({
   const listedLocationCount=directory.items.filter(company=>Boolean(company.location?.city||company.location?.region)).length;
   const savedIds=new Set(directory.savedIds??[]);
   const returnTo=filterUrl(filters,{np:directory.page>1?String(directory.page):null},"#network-results");
-  const activeFilterCount=[filters.role,filters.region,filters.product,filters.capability,filters.market,
-    filters.country&&filters.country!=="IT"?filters.country:null,specActive?"spec":null].filter(Boolean).length;
+  const activeFilterCount=[filters.q,filters.role,filters.region,filters.product,filters.capability,filters.market,
+    filters.steel,filters.country&&filters.country!=="IT"?filters.country:null,specActive?"spec":null].filter(Boolean).length;
   const fullMapHref=accessMode==="pro"?"/network?advanced=1#network-regional-map":"/network?map=1#network-regional-map";
   const pager=(position:"top"|"bottom")=><nav aria-label={position==="top"?"Pagine del Network":"Pagine del Network (fondo elenco)"}
     className="inline-flex items-center gap-2 text-xs text-[#52615b]" data-testid={"network-pagination-"+position}>
