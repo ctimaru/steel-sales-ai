@@ -21,7 +21,7 @@ test("COMM-TRUST1.C dashboard must never display failed history metrics as real 
 });
 
 test("COMM-TRUST1.C distinguishes unavailable, filtered, empty workspace and empty view", () => {
-  assert.match(worklist, /const emptyCause = data\.partial \? "unavailable" : query \? "filtered" : view === "all" \? "workspace" : "view"/);
+  assert.match(worklist, /const emptyCause = data\.partial \? "unavailable" : query \|\| focus \? "filtered" : view === "all" \? "workspace" : "view"/);
   assert.match(worklist, /Nessun risultato per questo filtro/);
   assert.match(worklist, /Impossibile verificare tutte le attività/);
   assert.match(worklist, /Nessuna richiesta cliente in questa vista/);

@@ -17,6 +17,20 @@ export const STREAM_PAGE_SIZE = 30;
 const FETCH_PER_STREAM = STREAM_PAGE_SIZE + 1;
 // Compact history supports 200 pages / 6,000 activities without URL explosion.
 const MAX_HISTORY = 200;
+export type CommercialFocus = "reply" | "waiting" | "due";
+export const commercialFocusLabels: Record<CommercialFocus, string> = {
+  reply: "Da rispondere", waiting: "In attesa", due: "In scadenza",
+};
+export function parseCommercialFocus(value: unknown): CommercialFocus | "" {
+  return value === "reply" || value === "waiting" || value === "due" ? value : "";
+}
+// Stati dei dati reali: cosa richiede una risposta, cosa attende altri, cosa scade.
+const OPEN_RFQ_STATUSES = ["new", "received", "open", "in_progress"];
+const OPEN_ORDER_STATUSES = ["new", "received"];
+const LIVE_CAMPAIGN_STATUSES = ["launched", "collecting"];
+const DUE_CAMPAIGN_STATUSES = ["ready", "launched", "collecting"];
+const DUE_WINDOW_DAYS = 7;
+const dueLimit = () => new Date(Date.now() + DUE_WINDOW_DAYS * 86_400_000).toISOString();
 type StreamId = "rfqs" | "offers" | "orders" | "campaigns" | "quotes" | "purchaseOrders" | "drafts";
 type StreamView = Extract<CommercialView, "all" | "offers" | "orders">;
 type Offsets = Record<StreamId, number>;
@@ -26,11 +40,16 @@ const streams: Record<StreamView, readonly StreamId[]> = {
   offers: ["offers", "quotes"],
   orders: ["orders", "purchaseOrders"],
 };
+const focusStreams: Record<CommercialFocus, readonly StreamId[]> = {
+  reply: ["rfqs", "orders"],
+  waiting: ["offers", "campaigns", "purchaseOrders"],
+  due: ["rfqs", "campaigns"],
+};
 const zero = (): Offsets => ({
   rfqs: 0, offers: 0, orders: 0, campaigns: 0, quotes: 0, purchaseOrders: 0, drafts: 0,
 });
 type OffsetVector = [number, number, number, number, number, number, number];
-type State = { v: 1; view: StreamView; query: string; page: number; offsets: Offsets; history: OffsetVector[] };
+type State = { v: 1; view: StreamView; query: string; focus?: CommercialFocus; page: number; offsets: Offsets; history: OffsetVector[] };
 
 const uuid = (v: unknown): v is string =>
   typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v);
@@ -61,8 +80,8 @@ function fromVector(vector: OffsetVector): Offsets {
 function encode(state: State): string {
   return Buffer.from(JSON.stringify(state), "utf8").toString("base64url");
 }
-function decode(value: string | undefined, view: StreamView, query: string): State {
-  const first: State = { v: 1, view, query, page: 1, offsets: zero(), history: [] };
+function decode(value: string | undefined, view: StreamView, query: string, focus: CommercialFocus | ""): State {
+  const first: State = { v: 1, view, query, ...(focus ? { focus } : {}), page: 1, offsets: zero(), history: [] };
   if (!value || value.length > 16000) return first;
   try {
     const parsed: unknown = JSON.parse(Buffer.from(value, "base64url").toString("utf8"));
@@ -70,6 +89,7 @@ function decode(value: string | undefined, view: StreamView, query: string): Sta
     const candidate = parsed as Partial<State>;
     if (
       candidate.v !== 1 || candidate.view !== view || candidate.query !== query ||
+      (candidate.focus ?? "") !== focus ||
       !Number.isSafeInteger(candidate.page) || !candidate.page ||
       candidate.page < 1 || candidate.page > MAX_HISTORY ||
       !validOffsets(candidate.offsets) ||
@@ -83,9 +103,10 @@ function decode(value: string | undefined, view: StreamView, query: string): Sta
     return first;
   }
 }
-export function mergedCommercialHref(view: StreamView, query: string, cursor?: string, selected?: string) {
+export function mergedCommercialHref(view: StreamView, query: string, cursor?: string, selected?: string, focus?: CommercialFocus | "") {
   const params = new URLSearchParams();
   if (view !== "all") params.set("view", view);
+  if (focus && view === "all") params.set("focus", focus);
   if (query.trim()) params.set("q", query.trim().slice(0, 80));
   if (cursor) params.set("cursor", cursor);
   if (selected) params.set("item", selected);
@@ -213,6 +234,7 @@ async function fetchSource(
   q: string,
   offset: number,
   withLines = true,
+  focus: CommercialFocus | "" = "",
 ): Promise<Loaded> {
   const from = offset, to = offset + FETCH_PER_STREAM - 1;
   // Authored select strings avoid dynamic SQL and never include private quote prices.
@@ -225,6 +247,8 @@ async function fetchSource(
     if (withLines) request = request.order("created_at", { referencedTable: "rfq_lines", ascending: true })
       .limit(ROW_LINES_FETCHED, { referencedTable: "rfq_lines" });
     if (q) request = request.ilike("status", "%" + q + "%");
+    if (focus === "reply") request = request.in("status", [...OPEN_RFQ_STATUSES]);
+    else if (focus === "due") request = request.in("status", [...OPEN_RFQ_STATUSES]).lte("due_at", dueLimit());
   } else if (source === "offers") {
     request = db.from("offers")
       .select("id,status,created_at,rfq_id,company:companies!offers_company_id_fkey(name)"+(withLines?",lines:offer_lines!offer_lines_offer_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
@@ -233,6 +257,7 @@ async function fetchSource(
     if (withLines) request = request.order("created_at", { referencedTable: "offer_lines", ascending: true })
       .limit(ROW_LINES_FETCHED, { referencedTable: "offer_lines" });
     if (q) request = request.ilike("status", "%" + q + "%");
+    if (focus === "waiting") request = request.eq("status", "sent");
   } else if (source === "orders") {
     request = db.from("orders")
       .select("id,status,created_at,rfq_id,customer_order_ref,company:companies!orders_company_id_fkey(name)"+(withLines?",lines:order_lines!order_lines_order_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
@@ -241,12 +266,15 @@ async function fetchSource(
     if (withLines) request = request.order("created_at", { referencedTable: "order_lines", ascending: true })
       .limit(ROW_LINES_FETCHED, { referencedTable: "order_lines" });
     if (q) request = request.ilike("status", "%" + q + "%");
+    if (focus === "reply") request = request.in("status", [...OPEN_ORDER_STATUSES]);
   } else if (source === "campaigns") {
     request = db.from("buyer_rfq_campaigns")
       .select("id,title,status,due_at,created_at", { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (q) request = request.or("title.ilike.%" + q + "%,status.ilike.%" + q + "%");
+    if (focus === "waiting") request = request.in("status", [...LIVE_CAMPAIGN_STATUSES]);
+    else if (focus === "due") request = request.in("status", [...DUE_CAMPAIGN_STATUSES]).lte("due_at", dueLimit());
   } else if (source === "quotes") {
     request = db.from("buyer_rfq_quotes")
       .select("id,rfq_id,revision_no,status,created_at,campaign:buyer_rfq_campaigns!buyer_rfq_quotes_rfq_id_fkey!inner(title)", { count: "exact" })
@@ -260,6 +288,7 @@ async function fetchSource(
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (q) request = request.or("po_draft_ref.ilike.%" + q + "%,supplier_name_snapshot.ilike.%" + q + "%");
+    if (focus === "waiting") request = request.eq("status", "issued");
   } else {
     request = db.from("buyer_distintas")
       .select("id,title,line_count,total_meters,total_tonnes,created_at", { count: "exact" })
@@ -271,7 +300,7 @@ async function fetchSource(
   // Le righe sono un arricchimento: se la lettura combinata fallisce, la lista
   // resta disponibile senza materiale/quantità invece di risultare non verificabile.
   if (result.error && withLines && (source === "rfqs" || source === "offers" || source === "orders")) {
-    return fetchSource(db, source, organizationId, q, offset, false);
+    return fetchSource(db, source, organizationId, q, offset, false, focus);
   }
   if (result.error) return { id: source, rows: [], total: null, error: true };
   const data = (result.data ?? []) as Row[];
@@ -281,19 +310,21 @@ async function fetchSource(
 // Deterministic k-way merge: each source returns only 31 rows, and we advance
 // its cursor by precisely the number consumed in the global first 30.
 export async function loadCommercialStreams({
-  organizationId, view, query, cursor,
+  organizationId, view, query, cursor, focus: requestedFocus = "",
 }: {
   organizationId: string;
   view: StreamView;
   query: string;
   cursor?: string;
+  focus?: CommercialFocus | "";
 }): Promise<UnifiedCommercialData> {
   const clean = safeQuery(query);
-  const state = decode(cursor, view, clean);
+  const focus = view === "all" ? requestedFocus : "";
+  const state = decode(cursor, view, clean, focus);
   const db = await createClient();
-  const selectedStreams = streams[view];
+  const selectedStreams = focus ? focusStreams[focus] : streams[view];
   const batches = await Promise.all(selectedStreams.map((source) =>
-    fetchSource(db, source, organizationId, clean, state.offsets[source])
+    fetchSource(db, source, organizationId, clean, state.offsets[source], true, focus)
       .catch((): Loaded => ({ id: source, rows: [], total: null, error: true }))
   ));
   const failures = batches.some((batch) => batch.error);
@@ -346,4 +377,24 @@ export async function loadCommercialStreams({
       previousCursor: prevCursor,
     },
   };
+}
+
+// Conteggi esatti (solo head count, nessuna riga letta) per i contatori d'azione.
+export type CommercialFocusCounts = Record<CommercialFocus, number>;
+export async function loadCommercialFocusCounts(organizationId: string): Promise<CommercialFocusCounts | null> {
+  const db = await createClient();
+  const limit = dueLimit();
+  const head = { count: "exact", head: true } as const;
+  const results = await Promise.all([
+    db.from("rfqs").select("id", head).eq("organization_id", organizationId).in("status", [...OPEN_RFQ_STATUSES]),
+    db.from("orders").select("id", head).eq("organization_id", organizationId).in("status", [...OPEN_ORDER_STATUSES]),
+    db.from("offers").select("id", head).eq("organization_id", organizationId).eq("status", "sent"),
+    db.from("buyer_rfq_campaigns").select("id", head).eq("organization_id", organizationId).in("status", [...LIVE_CAMPAIGN_STATUSES]),
+    db.from("buyer_purchase_order_drafts").select("id", head).eq("organization_id", organizationId).eq("status", "issued"),
+    db.from("rfqs").select("id", head).eq("organization_id", organizationId).in("status", [...OPEN_RFQ_STATUSES]).lte("due_at", limit),
+    db.from("buyer_rfq_campaigns").select("id", head).eq("organization_id", organizationId).in("status", [...DUE_CAMPAIGN_STATUSES]).lte("due_at", limit),
+  ]);
+  if (results.some((r) => r.error || r.count === null)) return null;
+  const n = (i: number) => results[i].count ?? 0;
+  return { reply: n(0) + n(1), waiting: n(2) + n(3) + n(4), due: n(5) + n(6) };
 }

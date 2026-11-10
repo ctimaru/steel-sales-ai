@@ -20,7 +20,7 @@ test("COMMERCIAL-UNIFY2C.2 composes all real entity sources, no normalized line 
   assert.match(stream, /STREAM_PAGE_SIZE = 30/);
   assert.match(stream, /FETCH_PER_STREAM = STREAM_PAGE_SIZE \+ 1/);
   assert.match(page, /isStreamView\(view\)/);
-  assert.match(page, /loadCommercialStreams\(\{ organizationId: context\.organizationId, view, query, cursor: params\.cursor \}\)/);
+  assert.match(page, /loadCommercialStreams\(\{ organizationId: context\.organizationId, view, query, cursor: params\.cursor, focus \}\)/);
 });
 
 test("COMMERCIAL-UNIFY2C.2 maintains strict RLS, scoped searches and fails closed", () => {
@@ -58,10 +58,10 @@ test("COMMERCIAL-UNIFY2C.2 validates navigation cursor without making it an auth
   assert.match(stream, /MAX_HISTORY = 200/);
   assert.match(stream, /fromVector\(state\.history\[state\.history\.length - 1\]\)/);
   assert.match(stream, /authorization/);
-  assert.match(list, /mergedCommercialHref\(view, query, data\.paging\.nextCursor \?\? undefined\)/);
-  assert.match(list, /mergedCommercialHref\(view, query, data\.paging\.previousCursor \?\? undefined\)/);
+  assert.match(list, /mergedCommercialHref\(view, query, data\.paging\.nextCursor \?\? undefined, undefined, focus\)/);
+  assert.match(list, /mergedCommercialHref\(view, query, data\.paging\.previousCursor \?\? undefined, undefined, focus\)/);
   assert.match(list, /cursor=\{data\.paging\?\.currentCursor\}/);
-  assert.match(operations, /cursor && isStreamView\(view\)/);
+  assert.match(operations, /\(cursor \|\| focus\) && isStreamView\(view\)/);
 });
 
 test("COMMERCIAL-UNIFY2C.2 keeps human-in-control mutations and deep links unchanged", () => {

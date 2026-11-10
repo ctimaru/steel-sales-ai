@@ -8,7 +8,10 @@ import { CommercialDealDecisionReadiness, CommercialDealIntelligence, loadCommer
 import { commercialDealNextStep, commercialDealOperationTab } from "@/lib/commercial-deal-next-step";
 
 import { getOperationalEntityData } from "@/lib/commercial-data";
-import { isStreamView, mergedCommercialHref } from "@/lib/commercial-unified-streams";
+import {
+  commercialFocusLabels, isStreamView, mergedCommercialHref,
+  type CommercialFocus, type CommercialFocusCounts,
+} from "@/lib/commercial-unified-streams";
 import { CommercialCampaignOperations, operationsHref, type CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import {
   commercialHref,
@@ -66,14 +69,14 @@ function groupLabel(item: UnifiedCommercialItem, type: string) {
   return same ? type + " · cliente non indicato" : type + " · " + item.title;
 }
 
-function route(view: CommercialView, query: string, key: string, page: number, cursor?: string | null) {
-  const href = cursor && isStreamView(view) ? mergedCommercialHref(view, query, cursor, key) :
+function route(view: CommercialView, query: string, key: string, page: number, cursor?: string | null, focus: CommercialFocus | "" = "") {
+  const href = (cursor || focus) && isStreamView(view) ? mergedCommercialHref(view, query, cursor ?? undefined, key, focus) :
     page > 1 ? commercialPageHref(view, query, page, key) : commercialHref(view, query, key);
   return href.replace("#commercial-worklist", "#commercial-detail");
 }
 
 async function SelectedDetail({
-  item, related, canWrite, tab, view, query, page, cursor,
+  item, related, canWrite, tab, view, query, page, cursor, focus = "",
 }: {
   item: UnifiedCommercialItem;
   related: UnifiedCommercialItem[];
@@ -83,6 +86,7 @@ async function SelectedDetail({
   query: string;
   page: number;
   cursor?: string | null;
+  focus?: CommercialFocus | "";
 }) {
   const inboundKind = item.kind === "inbound-rfq" ? "rfq" :
     item.kind === "inbound-offer" ? "offer" :
@@ -96,7 +100,7 @@ async function SelectedDetail({
   // into the already governed RFQ operations. Never build an action for a
   // missing/unreadable parent campaign.
   const actionHref = operationTab && item.campaignId
-    ? operationsHref(view, query, item.key, operationTab, page, cursor)
+    ? operationsHref(view, query, item.key, operationTab, page, cursor, focus)
     : item.href;
   return (
     <div className="space-y-4">
@@ -230,6 +234,7 @@ async function SelectedDetail({
           query={query}
           page={page}
           cursor={cursor}
+          focus={focus}
         />
       ) : null}
       <div className="flex flex-wrap gap-2 border-t border-[var(--border)] pt-3">
@@ -250,7 +255,7 @@ async function SelectedDetail({
 }
 
 export async function CommercialUnifiedWorklist({
-  data, selected, query, view, canWrite, tab, page,
+  data, selected, query, view, canWrite, tab, page, focus = "", focusCounts = null,
 }: {
   data: UnifiedCommercialData;
   selected: string;
@@ -259,6 +264,8 @@ export async function CommercialUnifiedWorklist({
   canWrite: boolean;
   tab: CommercialOperationsTab;
   page: number;
+  focus?: CommercialFocus | "";
+  focusCounts?: CommercialFocusCounts | null;
 }) {
   // Paged views have already been searched inside SQL/RPC.
   const filtered = data.paging ? data.items : filterCommercialItems(data.items, view, query);
@@ -270,7 +277,7 @@ export async function CommercialUnifiedWorklist({
   // COMM-TRUST1.C: an unavailable source is not an empty archive, and a
   // filtered empty page is not a first-use state. Derive the next action from
   // the visible query/view without guessing whether a backend was assigned.
-  const emptyCause = data.partial ? "unavailable" : query ? "filtered" : view === "all" ? "workspace" : "view";
+  const emptyCause = data.partial ? "unavailable" : query || focus ? "filtered" : view === "all" ? "workspace" : "view";
   const emptyTitle = emptyCause === "unavailable" ? "Impossibile verificare tutte le attività"
     : emptyCause === "filtered" ? "Nessun risultato per questo filtro"
     : emptyCause === "workspace" ? "Non ci sono ancora trattative da visualizzare"
@@ -293,7 +300,7 @@ export async function CommercialUnifiedWorklist({
         : { href: commercialHref("all"), label: "Mostra tutte le trattative" };
 
   const renderRow = (item: UnifiedCommercialItem) => (
-        <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor)}
+        <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor, focus)}
           aria-current={item.key === active?.key ? "true" : undefined}
           className={"group grid min-h-[84px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-l-[3px] px-3 py-2 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] sm:min-h-[44px] sm:gap-x-3 sm:gap-y-0 sm:px-4 sm:py-1.5 " +
             (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : rowAccentClass[statusTone(item.status)])}>
@@ -348,6 +355,26 @@ export async function CommercialUnifiedWorklist({
             Le mie trattative
           </h2>
         </div>
+        {view === "all" && focusCounts ? (
+          <nav aria-label="Cosa fare adesso" data-testid="commercial-focus-counters" className="flex min-w-0 flex-wrap items-center gap-1.5">
+            {(["reply", "waiting", "due"] as const).map((key) => {
+              const active = focus === key;
+              return (
+                <Link key={key} href={active ? commercialHref("all", query) : mergedCommercialHref("all", query, undefined, undefined, key)}
+                  aria-current={active ? "true" : undefined}
+                  data-testid={"commercial-focus-" + key}
+                  className={"inline-flex min-h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
+                    (active ? "border-[#175640] bg-[#175640] text-white"
+                      : key === "reply" && focusCounts[key] > 0 ? "border-[#e2c27a] bg-[#fff4d6] text-[#6b4a07] hover:bg-[#ffeec2]"
+                      : "border-[#c7dece] bg-[#f6faf7] text-[#1f4f3b] hover:bg-[#eaf4ee]")}>
+                  {commercialFocusLabels[key]}
+                  <span className="tabular-nums">{focusCounts[key]}</span>
+                </Link>
+              );
+            })}
+            {focus ? <Link href={commercialHref("all", query)} className="px-1 text-xs font-semibold text-[#276147] underline-offset-2 hover:underline">Mostra tutte</Link> : null}
+          </nav>
+        ) : null}
         <div className="shrink-0 rounded-full border border-[#c7dece] bg-[#f6faf7] px-3 py-1 text-xs font-semibold tabular-nums text-[#276147]">
           {data.partial && filtered.length === 0 ? "—" : data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} <span className="sm:hidden">attività</span><span className="hidden sm:inline">{data.partial ? "attività disponibili" : "attività in questa vista"}</span>
         </div>
@@ -383,6 +410,7 @@ export async function CommercialUnifiedWorklist({
         </nav>
         <form action={appRoutes.commercial.home} method="get" role="search" className="flex min-w-0 flex-1 gap-2">
           {view !== "all" ? <input type="hidden" name="view" value={view} /> : null}
+          {view === "all" && focus ? <input type="hidden" name="focus" value={focus} /> : null}
           <label htmlFor="commercial-worklist-q" className="sr-only">Filtra le attività visibili</label>
           <input id="commercial-worklist-q" type="search" name="q" maxLength={80} defaultValue={query}
             title={isStreamView(view)
@@ -434,11 +462,11 @@ export async function CommercialUnifiedWorklist({
           {data.paging && (data.paging.page > 1 || data.paging.hasNext) ? (
             <nav aria-label="Pagine attività commerciali" className="flex items-center justify-between gap-2 border-t border-[var(--border)] p-3">
               {data.paging.page > 1 ? (
-                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.previousCursor ?? undefined) : commercialPageHref(view, query, data.paging.page - 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">← Precedente</Link>
+                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.previousCursor ?? undefined, undefined, focus) : commercialPageHref(view, query, data.paging.page - 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">← Precedente</Link>
               ) : <span />}
               <span className="text-xs tabular-nums text-[var(--text-secondary)]">Pagina {data.paging.page}</span>
               {data.paging.hasNext ? (
-                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.nextCursor ?? undefined) : commercialPageHref(view, query, data.paging.page + 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">Successiva →</Link>
+                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.nextCursor ?? undefined, undefined, focus) : commercialPageHref(view, query, data.paging.page + 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">Successiva →</Link>
               ) : <span />}
             </nav>
           ) : null}
@@ -449,12 +477,12 @@ export async function CommercialUnifiedWorklist({
             className="scroll-mt-24 min-w-0 max-w-full rounded-[22px] border border-[#c9ded0] bg-white p-4 shadow-[0_22px_60px_-38px_rgba(4,46,32,0.55)] sm:scroll-mt-36 sm:p-5 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
             <div className="mb-4 flex items-center justify-between">
               <div><p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#4e7a60]">Workspace / Dettaglio</p><h3 className="mt-1 text-base font-semibold tracking-tight text-[#173f35]">Trattativa selezionata</h3></div>
-              <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging?.currentCursor ?? undefined) : commercialPageHref(view, query, page)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">
+              <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging?.currentCursor ?? undefined, undefined, focus) : commercialPageHref(view, query, page)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">
                 Chiudi <span aria-hidden="true" className="ml-1">×</span>
               </Link>
             </div>
             <div className="min-w-0 max-w-full overflow-x-auto">
-              <SelectedDetail item={active} related={related} canWrite={canWrite} tab={tab} view={view} query={query} page={data.paging?.page ?? page} cursor={data.paging?.currentCursor} />
+              <SelectedDetail item={active} related={related} canWrite={canWrite} tab={tab} view={view} query={query} page={data.paging?.page ?? page} cursor={data.paging?.currentCursor} focus={focus} />
             </div>
           </aside>
         ) : selected ? (

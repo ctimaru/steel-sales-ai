@@ -15,7 +15,7 @@ import type { CommercialOperationsTab } from "@/components/commercial-campaign-o
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
 import { includeSelectedCommercialCampaign, isCommercialPagedView, loadCommercialPagedData, parseCommercialPage } from "@/lib/commercial-unified-paged";
-import { isStreamView, loadCommercialStreams } from "@/lib/commercial-unified-streams";
+import { isStreamView, loadCommercialFocusCounts, loadCommercialStreams, parseCommercialFocus } from "@/lib/commercial-unified-streams";
 import { listBuyerDistintaPublicDimensions, listPublicTubeDimensionPages } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -95,7 +95,7 @@ const intelligenceGroups = [
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; network?: string; prospect?: string; prospects?: string }>;
+  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -111,13 +111,14 @@ export default async function CommercialHomePage({
   const allowedViews: CommercialView[] = ["all", "received", "sent", "offers", "orders", "drafts"];
   const view: CommercialView = allowedViews.includes(params.view as CommercialView) ? params.view as CommercialView : "all";
   const query = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
+  const focus = view === "all" ? parseCommercialFocus(params.focus) : "";
   const page = parseCommercialPage(params.page);
   const selected = typeof params.item === "string" ? params.item.slice(0, 90) : "";
   const allowedTabs: CommercialOperationsTab[] = ["compare", "negotiate", "award", "po"];
   const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
   const composing = canWrite && params.compose === "1";
   const aiFocused = composing && params.method === "ai";
-  const [commercial, procurement, unified, catalogOptions, networkContext, calculatorReferences] = await Promise.all([
+  const [commercial, procurement, unified, catalogOptions, networkContext, calculatorReferences, focusCounts] = await Promise.all([
     getDashboardData(),
     canWrite
       ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
@@ -126,12 +127,13 @@ export default async function CommercialHomePage({
     isCommercialPagedView(view)
       ? loadCommercialPagedData({ organizationId: context.organizationId, view, query, page })
       : isStreamView(view)
-        ? loadCommercialStreams({ organizationId: context.organizationId, view, query, cursor: params.cursor })
+        ? loadCommercialStreams({ organizationId: context.organizationId, view, query, cursor: params.cursor, focus })
         : loadUnifiedCommercialData(context.organizationId),
     composing ? listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions) : Promise.resolve(null),
     // Explicit GET-only handoff; invalid/locked Network ids never trigger a profile read.
     getCommercialNetworkContext(context.organizationId, params.network),
     listPublicTubeDimensionPages(),
+    view === "all" ? loadCommercialFocusCounts(context.organizationId).catch(() => null) : Promise.resolve(null),
   ]);
   const [prospect, possibleCompanies, inquiries] = networkContext
     ? await Promise.all([
@@ -316,6 +318,8 @@ export default async function CommercialHomePage({
         view={view}
         canWrite={canWrite}
         tab={tab}
+        focus={focus}
+        focusCounts={focusCounts}
       />
 
 
