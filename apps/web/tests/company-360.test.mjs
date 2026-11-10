@@ -26,7 +26,7 @@ test("Company 360 uses normalized read-model RPCs", () => {
 });
 
 test("customer surfaces state deterministic verified-link policy", () => {
-  assert.match(directory, /identità verificate/);
+  assert.match(directory, /identità verificata/);
   assert.match(detail, /Solo relazioni deterministiche e verificate/);
   assert.match(detail, /rapporto Contact→Company non viene confermato/);
   assert.doesNotMatch(detail, /dominio.*attribuit|infer.*dominio/i);
