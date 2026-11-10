@@ -40,5 +40,5 @@ test("la lista non legge né mostra testo libero delle email né prezzi", () => 
 test("gli ordini mostrano il riferimento del cliente, campo strutturato", () => {
   const streams = read("../lib/commercial-unified-streams.ts");
   assert.match(streams, /customer_order_ref,company:companies!orders_company_id_fkey\(name\)/);
-  assert.match(streams, /orderReference\(r\.customer_order_ref\)/);
+  assert.match(streams, /customerRef\(r\.customer_order_ref\)/);
 });

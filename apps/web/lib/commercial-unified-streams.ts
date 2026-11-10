@@ -138,13 +138,11 @@ export function inboundStatusLabel(value: unknown): string {
 }
 
 // Riferimento breve per distinguere righe simili (stessa data, stesso cliente).
-// Riferimento d'ordine del cliente (campo strutturato, non testo email).
-const orderReference = (value: unknown) => {
+const shortRef = (id: string) => id.slice(0, 8).toUpperCase();
+const customerRef = (value: unknown) => {
   const ref = typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
-  return ref ? " · rif. cliente " + (ref.length > 32 ? ref.slice(0, 31) + "…" : ref) : "";
+  return ref ? (ref.length > 24 ? ref.slice(0, 23) + "…" : ref) : undefined;
 };
-
-const inboundReference = (id: string) => " · rif. " + id.slice(0, 8).toUpperCase();
 
 function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
   return rows.filter((r) => uuid(r.id)).map((r) => {
@@ -175,11 +173,16 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
       source === "purchaseOrders" ? str(r.supplier_name_snapshot, str(campaignTitle, "Fornitore")) :
       source === "drafts" ? String(r.line_count ?? "—") + " righe · distinta privata" :
       source === "campaigns" ? "Campagna privata ai fornitori" :
-      source === "rfqs" ? "Richiesta commerciale ricevuta" + inboundReference(id) :
-      source === "offers" ? "Offerta commerciale inviata" + inboundReference(id) :
-      (customer ? "Ordine cliente" : "Ordine cliente · cliente non indicato") + orderReference(r.customer_order_ref) + inboundReference(id);
+      source === "rfqs" ? "Richiesta commerciale ricevuta" :
+      source === "offers" ? "Offerta commerciale inviata" :
+      customer ? "Ordine cliente" : "Ordine cliente · cliente non indicato";
     const rowFacts: CommercialRowFacts | undefined = source === "rfqs" || source === "offers" || source === "orders"
-      ? { counterparty: customer || undefined, ...summarizeRowLines(r.lines), dueAt: source === "rfqs" ? timestamp(r.due_at) ?? undefined : undefined }
+      ? {
+          counterparty: customer || undefined,
+          reference: shortRef(id),
+          rfqRef: source !== "rfqs" && uuid(r.rfq_id) ? shortRef(r.rfq_id as string) : undefined,
+          customerRef: source === "orders" ? customerRef(r.customer_order_ref) : undefined,
+          ...summarizeRowLines(r.lines), dueAt: source === "rfqs" ? timestamp(r.due_at) ?? undefined : undefined }
       : source === "purchaseOrders"
         ? { counterparty: str(r.supplier_name_snapshot, "") || undefined, totalEur: r.total_eur }
         : source === "drafts"
@@ -224,7 +227,7 @@ async function fetchSource(
     if (q) request = request.ilike("status", "%" + q + "%");
   } else if (source === "offers") {
     request = db.from("offers")
-      .select("id,status,created_at,company:companies!offers_company_id_fkey(name)"+(withLines?",lines:offer_lines!offer_lines_offer_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
+      .select("id,status,created_at,rfq_id,company:companies!offers_company_id_fkey(name)"+(withLines?",lines:offer_lines!offer_lines_offer_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (withLines) request = request.order("created_at", { referencedTable: "offer_lines", ascending: true })
@@ -232,7 +235,7 @@ async function fetchSource(
     if (q) request = request.ilike("status", "%" + q + "%");
   } else if (source === "orders") {
     request = db.from("orders")
-      .select("id,status,created_at,customer_order_ref,company:companies!orders_company_id_fkey(name)"+(withLines?",lines:order_lines!order_lines_order_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
+      .select("id,status,created_at,rfq_id,customer_order_ref,company:companies!orders_company_id_fkey(name)"+(withLines?",lines:order_lines!order_lines_order_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (withLines) request = request.order("created_at", { referencedTable: "order_lines", ascending: true })
