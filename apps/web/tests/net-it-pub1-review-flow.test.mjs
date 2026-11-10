@@ -91,6 +91,11 @@ test("First five are released via the EXISTING minimal publisher, atomically and
   assert.match(release, /LOCK TABLE public\.network_companies/);
   assert.match(release, /UPDATE private\.net_pipeline1b2_settings SET enabled=true/);
   assert.match(release, /public\.net_pipeline1b2_publish_one\(v_row\.id\)/);
+  assert.match(release, /INSERT INTO public\.network_data_assertions/);
+  assert.match(release, /INSERT INTO public\.network_company_role_assignments/);
+  assert.match(release, /role_confirmed_by_company',false/);
+  assert.match(release, /'processor_service_provider'/);
+  assert.match(release, /'fabricator'/);
   assert.match(release, /UPDATE private\.net_pipeline1b2_settings SET enabled=false/);
   assert.match(release, /SECURITY INVOKER/);
   assert.match(release, /REVOKE ALL ON FUNCTION public\.net_it_pub1_release/);
