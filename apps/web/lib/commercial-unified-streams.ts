@@ -179,7 +179,9 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
       source === "campaigns" ? id : null;
     const campaignTitle = title(r.campaign);
     const customer = name(r.company);
-    const headline = source === "rfqs" ? str(customer, "Richiesta cliente") :
+    const dealLabel = source === "rfqs" || source === "offers" || source === "orders" ? str(r.deal_label, "") : "";
+    const headline = dealLabel ? dealLabel :
+      source === "rfqs" ? str(customer, "Richiesta cliente") :
       source === "offers" ? str(customer, "Offerta commerciale") :
       source === "orders" ? str(customer, "Ordine cliente") :
       source === "campaigns" ? str(r.title, "Richiesta ai fornitori") :
@@ -201,6 +203,7 @@ function mapSource(source: StreamId, rows: Row[]): UnifiedCommercialItem[] {
       ? {
           counterparty: customer || undefined,
           reference: shortRef(id),
+          label: dealLabel || undefined,
           rfqRef: source !== "rfqs" && uuid(r.rfq_id) ? shortRef(r.rfq_id as string) : undefined,
           customerRef: source === "orders" ? customerRef(r.customer_order_ref) : undefined,
           ...summarizeRowLines(r.lines), dueAt: source === "rfqs" ? timestamp(r.due_at) ?? undefined : undefined }
@@ -241,31 +244,31 @@ async function fetchSource(
   let request;
   if (source === "rfqs") {
     request = db.from("rfqs")
-      .select("id,status,created_at,due_at,company:companies!rfqs_company_id_fkey(name)"+(withLines?",lines:rfq_lines!rfq_lines_rfq_id_fkey(requested_quantity,quantity_unit,created_at)":""), { count: "exact" })
+      .select("id,status,created_at,due_at,deal_label,company:companies!rfqs_company_id_fkey(name)"+(withLines?",lines:rfq_lines!rfq_lines_rfq_id_fkey(requested_quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (withLines) request = request.order("created_at", { referencedTable: "rfq_lines", ascending: true })
       .limit(ROW_LINES_FETCHED, { referencedTable: "rfq_lines" });
-    if (q) request = request.ilike("status", "%" + q + "%");
+    if (q) request = request.or("status.ilike.%" + q + "%,deal_label.ilike.%" + q + "%");
     if (focus === "reply") request = request.in("status", [...OPEN_RFQ_STATUSES]);
     else if (focus === "due") request = request.in("status", [...OPEN_RFQ_STATUSES]).lte("due_at", dueLimit());
   } else if (source === "offers") {
     request = db.from("offers")
-      .select("id,status,created_at,rfq_id,company:companies!offers_company_id_fkey(name)"+(withLines?",lines:offer_lines!offer_lines_offer_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
+      .select("id,status,created_at,rfq_id,deal_label,company:companies!offers_company_id_fkey(name)"+(withLines?",lines:offer_lines!offer_lines_offer_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (withLines) request = request.order("created_at", { referencedTable: "offer_lines", ascending: true })
       .limit(ROW_LINES_FETCHED, { referencedTable: "offer_lines" });
-    if (q) request = request.ilike("status", "%" + q + "%");
+    if (q) request = request.or("status.ilike.%" + q + "%,deal_label.ilike.%" + q + "%");
     if (focus === "waiting") request = request.eq("status", "sent");
   } else if (source === "orders") {
     request = db.from("orders")
-      .select("id,status,created_at,rfq_id,customer_order_ref,company:companies!orders_company_id_fkey(name)"+(withLines?",lines:order_lines!order_lines_order_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
+      .select("id,status,created_at,rfq_id,deal_label,customer_order_ref,company:companies!orders_company_id_fkey(name)"+(withLines?",lines:order_lines!order_lines_order_id_fkey(quantity,quantity_unit,created_at)":""), { count: "exact" })
       .eq("organization_id", organizationId).order("created_at", { ascending: false })
       .order("id", { ascending: false }).range(from, to);
     if (withLines) request = request.order("created_at", { referencedTable: "order_lines", ascending: true })
       .limit(ROW_LINES_FETCHED, { referencedTable: "order_lines" });
-    if (q) request = request.ilike("status", "%" + q + "%");
+    if (q) request = request.or("status.ilike.%" + q + "%,deal_label.ilike.%" + q + "%");
     if (focus === "reply") request = request.in("status", [...OPEN_ORDER_STATUSES]);
   } else if (source === "campaigns") {
     request = db.from("buyer_rfq_campaigns")

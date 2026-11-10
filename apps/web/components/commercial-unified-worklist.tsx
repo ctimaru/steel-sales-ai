@@ -12,6 +12,7 @@ import {
   commercialFocusLabels, isStreamView, mergedCommercialHref,
   type CommercialFocus, type CommercialFocusCounts,
 } from "@/lib/commercial-unified-streams";
+import { CommercialDealLabelForm } from "@/components/commercial-deal-label-form";
 import { CommercialCampaignOperations, operationsHref, type CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import {
   commercialHref,
@@ -109,6 +110,9 @@ async function SelectedDetail({
         <h3 className="mt-1 break-words text-lg font-bold text-[var(--brand-deep)]">{item.title}</h3>
         <p className="mt-1 text-sm text-[var(--text-secondary)]">{item.subtitle}</p>
       </div>
+      {canWrite && inboundKind ? (
+        <CommercialDealLabelForm kind={inboundKind} id={item.id} label={item.rowFacts?.label ?? ""} />
+      ) : null}
       <div data-testid="commercial-decision-dock" className="overflow-hidden rounded-xl border border-[#b5d7c3] bg-white">
         <CommercialDealDecisionReadiness facts={facts} kind={item.kind} canWrite={canWrite} />
       <section aria-labelledby="commercial-deal-next-step" data-testid="commercial-deal-next-step"

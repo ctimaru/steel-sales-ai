@@ -2,6 +2,7 @@
 export type CommercialRowFacts = {
   counterparty?: string;
   reference?: string;
+  label?: string;
   rfqRef?: string;
   customerRef?: string;
   material?: string;
