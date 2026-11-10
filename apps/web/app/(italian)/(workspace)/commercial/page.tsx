@@ -115,16 +115,23 @@ export default async function CommercialHomePage({
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
       {aiFocused ? (
         <header data-testid="commercial-rfq-ai-focused-header" aria-labelledby="commercial-rfq-ai-focused-heading"
-          className="flex flex-wrap items-center justify-between gap-2 px-1 py-1 sm:px-2">
-          <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#316451]">Commerciale / Nuova richiesta</p>
-            <h1 id="commercial-rfq-ai-focused-heading" className="mt-0.5 text-lg font-bold tracking-tight text-[#173f35] sm:text-xl">
-              Nuova distinta
-            </h1>
+          className={"relative " + cinematic.hero}>
+          <div className={"flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6 " + cinematic.heroGrid}>
+            <div className="flex min-w-0 items-center gap-3">
+              <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-lg text-white">✦</span>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#b4dec2]">Commerciale / Nuova richiesta</p>
+                <h1 id="commercial-rfq-ai-focused-heading" className="mt-0.5 text-lg font-bold tracking-tight text-white sm:text-xl">
+                  Crea una richiesta di offerta
+                </h1>
+                <p className="mt-0.5 text-xs text-[#d5eadc]">Descrivi i materiali, conferma gli articoli in distinta, poi crea la RFQ privata.</p>
+              </div>
+            </div>
+            <Link href={appRoutes.commercial.home}
+              className={"inline-flex min-h-10 items-center rounded-xl border border-white/40 bg-white/10 px-3 text-xs font-semibold text-white hover:bg-white/20 " + cinematic.heroAction}>
+              ← Torna alla scrivania
+            </Link>
           </div>
-          <Link href={appRoutes.commercial.home} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
-            ← Torna alla scrivania
-          </Link>
         </header>
       ) : (<>
       <h1 className="sr-only" data-testid="comm-cine1-hero">Commerciale · Le tue trattative</h1>

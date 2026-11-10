@@ -70,9 +70,17 @@ export function RfqAiIntakeUx({
     setPendingCorrection(null);
     onPreviewChange?.(null);
     setTextError("");
+    // COMM-RFQ-CREATE1: il clic "Analizza con l'AI" sulla scrivania è già l'invio esplicito;
+    // il testo trasferito viene analizzato una sola volta, senza un secondo clic.
+    void runTextAnalysis(draft);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workspace, mode]);
+  // Usata come onClick: non deve ricevere l'evento del clic come testo.
   async function analyzeText() {
-    const submitted = textDraft.trim();
+    return runTextAnalysis(textDraft);
+  }
+  async function runTextAnalysis(source: string) {
+    const submitted = source.trim();
     if (textPending || !workspace || submitted.length < 3) return;
     if (textResult && focused) {
       // The existing proposals remain mounted; only an explicit numbered

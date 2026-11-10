@@ -299,12 +299,12 @@ export async function CommercialUnifiedWorklist({
     const tone = statusTone(item.status);
     const sameAsType = item.title.trim().toLocaleLowerCase("it-IT") === type.toLocaleLowerCase("it-IT");
     const detail = item.rowFacts?.quantity ?? item.rowFacts?.lines ?? "";
-    const meta = [sameAsType ? "" : type, detail].filter(Boolean).join(" · ") || item.origin;
+    const reference = item.rowFacts?.reference ? "rif. " + item.rowFacts.reference : "";
+    const meta = [sameAsType ? "" : type, reference, detail].filter(Boolean).join(" · ") || item.origin;
     return (
       <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor, focus)}
         aria-current={item.key === active?.key ? "true" : undefined}
         data-testid="commercial-smart-deal-card"
-        title={item.rowFacts?.reference ? "rif. " + item.rowFacts.reference : undefined}
         className={"group flex min-h-[64px] items-center gap-3 px-4 py-2.5 transition hover:bg-[#f5faf7] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--brand-primary)] sm:px-5 " +
           (item.key === active?.key ? "bg-[#edf6f0]" : "")}>
         <span aria-hidden="true" className={"h-2.5 w-2.5 shrink-0 rounded-full " + statusDotClass[tone]} />
@@ -392,14 +392,16 @@ export async function CommercialUnifiedWorklist({
             </div>
           )}
           {data.paging && (data.paging.page > 1 || data.paging.hasNext) ? (
-            <nav aria-label="Pagine attività commerciali" className="flex items-center justify-between gap-2 border-t border-[var(--border)] p-3">
+            <nav aria-label="Pagine attività commerciali" data-testid="commercial-pager" className="flex items-center justify-between gap-2 border-t border-[#edf3ef] px-4 py-3 sm:px-5">
               {data.paging.page > 1 ? (
-                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.previousCursor ?? undefined, undefined, focus) : commercialPageHref(view, query, data.paging.page - 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">← Precedente</Link>
-              ) : <span />}
-              <span className="text-xs tabular-nums text-[var(--text-secondary)]">Pagina {data.paging.page}</span>
+                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.previousCursor ?? undefined, undefined, focus) : commercialPageHref(view, query, data.paging.page - 1)} className="inline-flex min-h-10 items-center rounded-full border border-[#d6e5db] bg-white px-4 text-sm font-semibold text-[#175640] transition hover:bg-[#eef6f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]">← Precedenti</Link>
+              ) : <span aria-hidden="true" className="inline-flex min-h-10 items-center rounded-full px-4 text-sm font-semibold text-[#b3c4ba]">← Precedenti</span>}
+              <span className="text-xs font-semibold tabular-nums text-[#5c7063]">
+                Pagina {data.paging.page}{data.paging.exact && data.paging.total !== null ? " di " + Math.max(1, Math.ceil(data.paging.total / data.paging.pageSize)) : ""}
+              </span>
               {data.paging.hasNext ? (
-                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.nextCursor ?? undefined, undefined, focus) : commercialPageHref(view, query, data.paging.page + 1)} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-xs font-semibold">Successiva →</Link>
-              ) : <span />}
+                <Link href={isStreamView(view) ? mergedCommercialHref(view, query, data.paging.nextCursor ?? undefined, undefined, focus) : commercialPageHref(view, query, data.paging.page + 1)} className="inline-flex min-h-10 items-center rounded-full border border-[#d6e5db] bg-white px-4 text-sm font-semibold text-[#175640] transition hover:bg-[#eef6f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]">Successive →</Link>
+              ) : <span aria-hidden="true" className="inline-flex min-h-10 items-center rounded-full px-4 text-sm font-semibold text-[#b3c4ba]">Successive →</span>}
             </nav>
           ) : null}
         </div>

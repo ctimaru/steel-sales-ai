@@ -48,7 +48,7 @@ export function CommercialRfqLivePreview({
           {savedId ? "Salvata" : "Bozza privata"}
         </span>
       </div>
-      <p className="mt-1 text-xs leading-5 text-[#53675b]">
+      <p className="sr-only">
         Qui vedi gli articoli proposti dall’AI e quelli che hai confermato. Restano separati fino alla tua approvazione.
       </p>
 
@@ -95,9 +95,9 @@ export function CommercialRfqLivePreview({
           </div>
           {approvedLines.length === 0 ? (
             <div className="mt-3 rounded-xl bg-[#f3f7f4] px-3 py-4 text-center">
-              <p className="text-sm font-semibold text-[#36584a]">Nessun articolo confermato</p>
+              <p className="text-sm font-semibold text-[#36584a]">Ancora nessun articolo</p>
               <p className="mt-1 text-xs leading-5 text-[#607467]">
-                Scrivi una richiesta, analizzala e approva i materiali. La distinta si aggiornerà qui.
+                Gli articoli che confermi dalla chat compaiono qui.
               </p>
             </div>
           ) : (
@@ -153,13 +153,18 @@ export function CommercialRfqLivePreview({
         {!allComplete && approvedLines.length > 0 ? (
           <p className="mt-2 text-xs text-[#875117]">I totali sono parziali. Correggi le righe prima di salvare.</p>
         ) : null}
+        {approvedLines.length === 0 ? (
+          <p data-testid="commercial-rfq-save-hint" className="mt-3 flex items-center gap-2 rounded-lg bg-[#f3f7f4] px-3 py-2 text-xs font-medium text-[#36584a]">
+            <span aria-hidden="true">🔒</span> Conferma almeno un articolo per salvare o creare la RFQ.
+          </p>
+        ) : null}
         <div className="mt-3 grid gap-2">
           <button type="button" onClick={onSave} disabled={!canSave || Boolean(savedId)}
-            className="min-h-11 rounded-lg bg-[#175640] px-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">
+            className="min-h-11 rounded-lg bg-[#175640] px-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:bg-[#e8eeea] disabled:text-[#7b8f83]">
             {savePending ? "Salvataggio…" : savedId ? "Distinta salvata ✓" : "Salva distinta privata"}
           </button>
           <button type="button" onClick={onCreateRfq} disabled={!canSave}
-            className="min-h-11 rounded-lg border border-[#175640] bg-white px-3 text-sm font-bold text-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
+            className="min-h-11 rounded-lg border border-[#175640] bg-white px-3 text-sm font-bold text-[#175640] disabled:cursor-not-allowed disabled:border-[#dbe4de] disabled:text-[#9aaba1]">
             {rfqPending ? "Creazione…" : "Crea RFQ privata →"}
           </button>
         </div>

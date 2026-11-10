@@ -36,7 +36,7 @@ test("UX2.B uses an actual chat transcript with the composer in the bottom, not 
 
 test("UX2.B the AI only interprets explicitly submitted individual text without uploading chat history", () => {
   assert.match(intake, /async function analyzeText\(\)/);
-  assert.match(intake, /const submitted = textDraft\.trim\(\)/);
+  assert.match(intake, /return runTextAnalysis\(textDraft\)/);
   assert.match(intake, /analyzeRfqAiFreeText\(submitted\)/);
   assert.match(intake, /if \(focused\) appendConversationTurn\("user", submitted\)/);
   assert.match(intake, /const count = response\.result\.candidates\.length/);
@@ -72,7 +72,7 @@ test("UX2.B preserves explicit save and RFQ governance and never exposes email s
   assert.match(builder, /<details hidden=\{focusAiIntake\}/);
   assert.match(builder, /onPreviewChange=\{setAiPreview\}/);
   assert.match(intake, /The focused Commerciale route renders a real conversational surface/);
-  assert.match(conversation, /nessuna RFQ viene salvata o inviata automaticamente/);
+  assert.match(conversation, /Invio per analizzare/); // COMM-RFQ-CREATE1: un solo avviso, accanto a Crea RFQ
 });
 
 test("UX2.B new and changed TSX parses without JSX syntax errors", () => {

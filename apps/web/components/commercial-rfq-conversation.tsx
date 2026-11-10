@@ -38,6 +38,8 @@ export function CommercialRfqConversation({
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => { setHydrated(true); }, []);
   const canSubmit = hydrated && value.trim().length >= 3 && !pending && mode === "text";
+  // Prima del primo messaggio la chat non occupa spazio vuoto: il campo resta sotto il saluto.
+  const started = turns.length > 0 || pending || Boolean(review) || Boolean(error);
 
   useEffect(() => {
     // Never scroll the page on initial mount, especially after a one-shot
@@ -58,7 +60,7 @@ export function CommercialRfqConversation({
   return (
     <section data-testid="commercial-rfq-gpt-conversation"
       aria-label="Conversazione per la creazione della distinta"
-      className="flex min-h-[min(48dvh,400px)] min-w-0 flex-col xl:min-h-[min(70dvh,670px)]">
+      className={"flex min-w-0 flex-col " + (started ? "min-h-[min(48dvh,400px)] xl:min-h-[min(70dvh,670px)]" : "")}>
       <div role="group" aria-label="Metodo di preparazione della distinta"
         data-testid="commercial-ai-focused-modes"
         className="mb-2 flex justify-end">
@@ -82,11 +84,11 @@ export function CommercialRfqConversation({
           <div role="log" aria-label="Messaggi della richiesta" aria-live="polite"
             aria-relevant="additions"
             data-testid="commercial-rfq-message-thread"
-            className="max-h-[min(53dvh,520px)] min-h-[min(22dvh,200px)] min-w-0 flex-1 space-y-4 overflow-y-auto px-1 pb-5 pt-2 xl:max-h-[min(65dvh,650px)] xl:min-h-[min(42dvh,370px)]">
+            className={"max-h-[min(53dvh,520px)] min-w-0 space-y-4 overflow-y-auto px-1 pt-2 xl:max-h-[min(65dvh,650px)] " + (started ? "min-h-[min(22dvh,200px)] flex-1 pb-5 xl:min-h-[min(42dvh,370px)]" : "pb-3")}>
             {turns.length === 0 ? (
               <div data-testid="commercial-rfq-conversation-intro"
                 className="flex items-start gap-3 pt-3">
-                <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#175640] text-xs font-bold text-white">S</span>
+                <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#175640] text-sm text-white">✦</span>
                 <div className="max-w-[94%] min-w-0">
                   <p className="text-[15px] font-bold text-[#173f35]">Come posso aiutarti con la richiesta?</p>
                   <p className="mt-1 text-sm leading-6 text-[#53695d]">
@@ -106,7 +108,7 @@ export function CommercialRfqConversation({
               <div key={turn.id} data-testid={turn.role === "user" ? "commercial-rfq-user-message" : "commercial-rfq-assistant-message"}
                 className={turn.role === "user" ? "flex justify-end" : "flex items-start gap-3"}>
                 {turn.role === "assistant" ? (
-                  <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-xs font-bold text-white">S</span>
+                  <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-sm text-white">✦</span>
                 ) : null}
                 <div className={turn.role === "user"
                   ? "max-w-[88%] whitespace-pre-wrap break-words rounded-2xl rounded-br-sm bg-[#eaf3ee] px-4 py-3 text-sm leading-6 text-[#173f35]"
@@ -118,7 +120,7 @@ export function CommercialRfqConversation({
 
             {pending ? (
               <div role="status" data-testid="commercial-rfq-thinking" className="flex items-center gap-3">
-                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-xs font-bold text-white">S</span>
+                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-sm text-white">✦</span>
                 <p className="text-sm text-[#52695b]">Sto analizzando le misure e i dati che hai scritto…</p>
               </div>
             ) : null}
@@ -138,7 +140,7 @@ export function CommercialRfqConversation({
             <div ref={chatEnd} aria-hidden="true" />
           </div>
 
-          <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 mt-auto border-t border-[#e0e9e2] bg-[#fbfdfb] pb-2 pt-3 md:bottom-3"
+          <div className={"sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 bg-[#fbfdfb] pb-2 md:bottom-3 " + (started ? "mt-auto border-t border-[#e0e9e2] pt-3" : "pt-1")}
             data-testid="commercial-rfq-sticky-composer">
             <label htmlFor="rfqai2-text-input" className="sr-only">Scrivi la richiesta o altri articoli</label>
             <div className="rounded-2xl border border-[#b8d2c4] bg-white p-2 shadow-[0_6px_22px_rgba(19,65,43,0.06)] focus-within:border-[#175640]">
@@ -167,7 +169,7 @@ export function CommercialRfqConversation({
                 ? "Puoi correggere una riga alla volta (es. riga 2: 20 barre). Nessuna correzione è approvata automaticamente."
                 : value.trim().length > 0 && value.trim().length < 12
                   ? "Puoi completare questa misura: ti chiederò forma, quantità o lunghezza senza inventarle."
-                  : "Invio esplicito all’AI · nessuna RFQ viene salvata o inviata automaticamente."}
+                  : "Invio per analizzare · Maiusc+Invio per andare a capo."}
             </p>
             <p className="sr-only">Invio per analizzare, Maiusc+Invio per andare a capo.</p>
           </div>

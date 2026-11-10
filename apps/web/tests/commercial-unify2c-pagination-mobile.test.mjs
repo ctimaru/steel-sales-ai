@@ -10,7 +10,7 @@ const worklist = read("../components/commercial-unified-worklist.tsx");
 const tabs = read("../components/commercial-campaign-operations.tsx");
 
 test("COMMERCIAL-UNIFY2C pages sent RFQs and saved draft lists inside SQL under tenant RLS", () => {
-  assert.match(query, /export const COMMERCIAL_PAGE_SIZE = 30/);
+  assert.match(query, /export const COMMERCIAL_PAGE_SIZE = 10/);
   assert.match(query, /isCommercialPagedView/);
   assert.match(query, /parseCommercialPage/);
   assert.match(query, /view === "sent"/);
