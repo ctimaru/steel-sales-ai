@@ -326,15 +326,17 @@ BEGIN
   INSERT INTO public.network_company_role_assignments(
     company_id,role_id,is_primary,source_assertion_id
   ) VALUES(v_company,v_role,true,v_assertion);
+  -- Insert the immutable machine/owner attestation BEFORE the candidate update,
+  -- so the PA1.5 publication guard can authenticate this precise exception.
+  INSERT INTO private.net_it_auto3_publications(
+    candidate_id,company_id,evidence_id,authorized_by
+  ) VALUES(v_candidate.id,v_company,v_evidence.id,v_policy.authorized_by);
   UPDATE public.network_company_discovery_candidates
   SET review_status='published',promoted_company_id=v_company,
       publication_actor_type='delegated_agent',
       reviewed_at=now(),reviewed_by=NULL,
       review_note='NET-IT-AUTO3: minimal factual profile published by agent under explicit Platform Owner policy; source rights remain not human-approved; evidence retained.'
   WHERE id=v_candidate.id;
-  INSERT INTO private.net_it_auto3_publications(
-    candidate_id,company_id,evidence_id,authorized_by
-  ) VALUES(v_candidate.id,v_company,v_evidence.id,v_policy.authorized_by);
   v_published:=v_published+1;
   v_results:=v_results||jsonb_build_array(
    jsonb_build_object('candidate_id',v_candidate.id,'company_id',v_company));
@@ -363,3 +365,129 @@ END
 $agent$;
 REVOKE ALL ON FUNCTION private.net_it_auto3_release(integer,boolean)
  FROM PUBLIC,anon,authenticated,service_role;
+
+-- PA1.5 remains the binding publication gate. Extend it with ONE narrow,
+-- evidence-backed exception instead of suppressing its trigger or falsely
+-- setting human governance fields. Human approval rules are unchanged.
+CREATE OR REPLACE FUNCTION private.pa1_5_discovery_publication_guard()
+RETURNS trigger LANGUAGE plpgsql SET search_path TO ''
+AS $auto3_pa15_guard$
+DECLARE
+  v_run public.network_company_discovery_runs%rowtype;
+  v_policy private.net_it_auto3_policy%rowtype;
+  v_pub private.net_it_auto3_publications%rowtype;
+  v_ev private.net_it_auto2_evidence%rowtype;
+  v_company public.network_companies%rowtype;
+  v_latest_evidence_id uuid;
+BEGIN
+  IF OLD.review_status='pending_review'
+    AND NEW.review_status IN ('published','enriched_existing') THEN
+
+    SELECT * INTO v_run FROM public.network_company_discovery_runs
+    WHERE id=NEW.run_id;
+
+    -- Existing human-reviewed governance route, left unchanged.
+    IF FOUND AND v_run.governance_status='approved'
+      AND v_run.terms_status IN ('allows_reuse','allows_limited_reuse')
+      AND v_run.database_rights_status IN ('low_risk','licensed')
+      AND v_run.personal_data_policy IN ('company_data_only','exclude_personal_data')
+      AND NEW.governance_status='approved_company_data'
+      AND NOT NEW.personal_data_detected
+      AND cardinality(NEW.personal_data_fields)=0 THEN
+      RETURN NEW;
+    END IF;
+
+    -- Distinct agent-facts route: NEVER human enrichment, never a browser
+    -- session, never an approved source or reviewer impersonation.
+    IF NEW.review_status<>'published'
+      OR NEW.publication_actor_type<>'delegated_agent'
+      OR OLD.publication_actor_type IS DISTINCT FROM 'platform'
+      OR OLD.review_status<>'pending_review'
+      OR NEW.reviewed_by IS NOT NULL
+      OR NEW.reviewed_at IS NULL
+      OR NEW.promoted_company_id IS NULL
+      OR NEW.governance_status<>'unreviewed'
+      OR NEW.governance_reviewed_by IS NOT NULL
+      OR NEW.governance_reviewed_at IS NOT NULL
+      OR OLD.governance_status<>'unreviewed'
+      OR session_user<>'postgres'
+      OR auth.uid() IS NOT NULL
+      OR NOT FOUND
+      OR v_run.governance_status<>'unreviewed'
+      OR v_run.governance_reviewed_by IS NOT NULL
+      OR v_run.terms_status NOT IN ('not_checked','unknown')
+      OR v_run.database_rights_status NOT IN ('not_assessed','unknown')
+      OR NEW.personal_data_detected
+      OR cardinality(NEW.personal_data_fields)>0
+      OR NEW.quality_flags
+        && ARRAY['legal_identity_not_verified','historical_sole_trader_vat_context']::text[]
+      OR NOT (NEW.quality_flags
+        <@ ARRAY['product_scope_not_verified','province_area_to_verify']::text[])
+      OR lower(NEW.legal_name) LIKE '% di %'
+      OR NEW.legal_name !~* '(s[.]?[[:space:]]*r[.]?[[:space:]]*l[.]?|s[.]?[[:space:]]*p[.]?[[:space:]]*a[.]?|s[.]?[[:space:]]*n[.]?[[:space:]]*c[.]?)'
+    THEN
+      RAISE EXCEPTION 'PA1.5 governance gate blocks publication/enrichment'
+        USING ERRCODE='42501',
+              DETAIL='Neither original human approvals nor verified delegated-agent facts were established';
+    END IF;
+
+    SELECT * INTO v_policy FROM private.net_it_auto3_policy WHERE singleton=true
+      FOR SHARE;
+    SELECT * INTO v_pub FROM private.net_it_auto3_publications
+      WHERE candidate_id=NEW.id AND company_id=NEW.promoted_company_id;
+    SELECT * INTO v_ev FROM private.net_it_auto2_evidence
+      WHERE id=v_pub.evidence_id AND candidate_id=NEW.id;
+    SELECT id INTO v_latest_evidence_id FROM private.net_it_auto2_evidence
+      WHERE candidate_id=NEW.id ORDER BY reviewed_at DESC,id DESC LIMIT 1;
+    SELECT * INTO v_company FROM public.network_companies
+      WHERE id=NEW.promoted_company_id;
+
+    IF v_policy.enabled IS DISTINCT FROM true
+      OR v_policy.authorized_by IS NULL
+      OR v_policy.expires_at IS NULL OR v_policy.expires_at<=now()
+      OR v_policy.policy<>'first_party_minimal_facts_only_v1'
+      OR v_pub.candidate_id IS NULL
+      OR v_pub.authorized_by IS DISTINCT FROM v_policy.authorized_by
+      OR v_pub.actor_type<>'delegated_agent'
+      OR v_ev.id IS NULL
+      OR v_ev.id IS DISTINCT FROM v_latest_evidence_id
+      OR v_ev.verdict<>'identity_supported'
+      OR v_ev.reviewer_version<>'net-it-auto2-firstparty-v1'
+      OR v_ev.reviewed_at<now()-interval '3 days'
+      OR v_ev.identity_confidence<0.94
+      OR v_ev.matched_company_name IS DISTINCT FROM true
+      OR v_ev.source_rights_state<>'unknown'
+      OR v_ev.page_evidence_hash !~ '^[a-f0-9]{64}$'
+      OR lower(v_ev.observed_domain) IS DISTINCT FROM lower(btrim(NEW.canonical_domain))
+      OR v_ev.source_run_id IS DISTINCT FROM NEW.run_id
+      OR v_company.id IS NULL
+      OR v_company.country_code<>'IT'
+      OR v_company.publication_status<>'published'
+      OR v_company.claimed_status<>'unclaimed'
+      OR v_company.verification_status<>'unverified'
+      OR lower(btrim(v_company.website_domain)) IS DISTINCT FROM lower(btrim(NEW.canonical_domain))
+      OR btrim(v_company.legal_name) IS DISTINCT FROM btrim(NEW.legal_name)
+      OR v_company.website_url IS DISTINCT FROM NEW.website_url
+      OR NEW.source_url !~* '^https://'
+      OR NEW.website_url !~* '^https://'
+      OR lower(split_part(split_part(NEW.source_url,'/',3),':',1))
+        NOT IN (lower(btrim(NEW.canonical_domain)),'www.'||lower(btrim(NEW.canonical_domain)))
+      OR lower(split_part(split_part(NEW.website_url,'/',3),':',1))
+        NOT IN (lower(btrim(NEW.canonical_domain)),'www.'||lower(btrim(NEW.canonical_domain)))
+      OR lower(split_part(split_part(v_ev.company_page_url,'/',3),':',1))
+        NOT IN (lower(btrim(NEW.canonical_domain)),'www.'||lower(btrim(NEW.canonical_domain)))
+      OR NOT EXISTS(
+        SELECT 1 FROM private.net_pipeline1b2_publication_ledger l
+        WHERE l.candidate_id=NEW.id AND l.company_id=NEW.promoted_company_id
+          AND l.classification='minimal_unverified'
+      )
+    THEN
+      RAISE EXCEPTION 'PA1.5 machine-evidence authorization incomplete'
+        USING ERRCODE='42501',
+              DETAIL='The exact owner-scoped, recent first-party evidence and minimal company record are mandatory';
+    END IF;
+  END IF;
+  RETURN NEW;
+END;
+$auto3_pa15_guard$;
+-- Trigger binding remains untouched; no broad GRANT or global gate disable.
