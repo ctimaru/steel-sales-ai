@@ -74,6 +74,7 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,onSelect,regi
       const [left,top,right,bottom]=shape.bounds;
       return <a key={shape.code} href={href}
         aria-label={"Cerca aziende in "+name}
+        title={name+" · Seleziona come filtro Paese"}
         aria-current={isCurrent?"location":undefined}
         data-country={shape.code}
         className="group cursor-pointer outline-none"
@@ -89,7 +90,6 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,onSelect,regi
         {tiny?<circle cx={(left+right)/2} cy={(top+bottom)/2} r={compact?8:5}
           fill={isCurrent?"#165b43":"#77ad91"} stroke="white"
           strokeWidth={2} vectorEffect="non-scaling-stroke"/>:null}
-        <title>{name} · Seleziona come filtro Paese</title>
       </a>;
     })}
     {!compact&&zoomCountry&&zoomCountry!=="IT"&&zoomCountry===selectedCountry?regionShapes.map(region=>{
@@ -98,6 +98,7 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,onSelect,regi
         data-nuts-region={region.code}
         aria-current={selectedRegion===region.code?"location":undefined}
         aria-label={"Filtra "+region.name+" · "+(count===undefined?"copertura geografica non disponibile":count+" aziende con sede pubblicata mappata")}
+        title={region.name+" · "+(count===undefined?"Copertura non disponibile":count+" sedi aziendali mappate")}
         className="group cursor-pointer outline-none"
         onClick={event=>{
           if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
@@ -107,7 +108,6 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,onSelect,regi
           fill={selectedRegion===region.code?"#155c43":count?"#87bda4":"#d4e7da"}
           stroke="#ffffff" strokeWidth={2} vectorEffect="non-scaling-stroke"
           className="transition-colors group-hover:fill-[#398766] group-focus-visible:fill-[#398766] group-focus-visible:stroke-[#9b621e]"/>
-        <title>{region.name} · {count===undefined?"Copertura non disponibile":count+" sedi aziendali mappate"}</title>
       </a>;
     }):null}
   </svg>;
