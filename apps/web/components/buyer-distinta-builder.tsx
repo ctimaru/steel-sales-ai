@@ -922,7 +922,8 @@ export function BuyerDistintaBuilder({
       inert={!draftReady && !restoreCandidate}
       aria-busy={!draftReady && !restoreCandidate}
       data-public-bill-mobile-compact={compactLanding ? "true" : undefined} className={`bd54-page ${styles.page} ${compactLanding ? styles.publicMobileLanding : ""} space-y-3 sm:space-y-4`} lang={uiLocale}>
-      <div className={focusAiIntake ? "flex items-center justify-end gap-2" : "flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2"} data-testid="buyer-private-language-switch">
+      {!focusAiIntake ? (
+      <div className={"flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2"} data-testid="buyer-private-language-switch">
         <p className={focusAiIntake ? "sr-only" : "min-w-0 text-xs font-semibold text-[var(--brand-deep)]"}>{focusAiIntake ? "Bozza RFQ · nessun invio" : t("RFQ privata · nessun invio automatico")}</p>
         <label className="flex shrink-0 items-center gap-2 text-xs font-bold text-[var(--brand-deep)]"><span className={focusAiIntake ? "sr-only" : ""}>{t("Scegli la lingua")}</span>
           <select aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}
@@ -931,6 +932,7 @@ export function BuyerDistintaBuilder({
           </select>
         </label>
       </div>
+      ) : null}
       {networkHandoff&&workspace&&!restoreCandidate?<aside aria-label="Articoli approvati dal Network"
         data-testid="network-reviewed-rfq-import"
         className="rounded-xl border border-[#b7d1c4] bg-[#f1faf4] p-3 sm:p-4">
@@ -1060,14 +1062,7 @@ export function BuyerDistintaBuilder({
         </button>
       </aside>
       ) : null}
-      {focusAiIntake && !restoreCandidate ? (
-        <button type="button" data-testid="commercial-ai-manual-tools-toggle"
-          aria-controls="commercial-rfq-manual-tools" aria-expanded={showManualTools}
-          onClick={() => setShowManualTools((open) => !open)}
-          className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg border border-[#b8d2c8] bg-white px-3 text-xs font-semibold text-[#175640]">
-          {showManualTools ? "Nascondi calcolatrice" : "Calcolatrice"} <span aria-hidden="true">{showManualTools ? "⌃" : "⌄"}</span>
-        </button>
-      ) : null}
+      {/* COMM-RFQ-CREATE2: nessuna calcolatrice separata nella pagina di creazione richiesta. */}
       <section id="commercial-rfq-manual-tools" hidden={focusAiIntake && !showManualTools} data-private-calculator-shell className={`rounded-2xl border border-[#d8e1dd] bg-white p-2.5 shadow-[0_12px_36px_rgba(18,61,52,0.045)] sm:p-3 ${styles.shell}`}>
         <div data-private-calculator-toolbar className={`mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#c6dccc] bg-[#f4faf7] px-2.5 py-1.5 ${styles.cartBar}`}>
           <div className="min-w-0">
