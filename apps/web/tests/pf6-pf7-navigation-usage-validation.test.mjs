@@ -35,7 +35,7 @@ test("PF6 aligns focused page hierarchy across the five macro-spaces", () => {
   assert.match(school, /SchoolWorkspaceFirstViewport locale="it"/);
   assert.match(schoolFirstViewport, /school-workspace-cine-heading/);
   assert.match(home, /<HomeFeed /); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
-  for (const source of [commercial, network, marketplace]) {
+  for (const source of [network, marketplace]) { // COMM-DECLUTTER2: Commerciale non ha più sezioni informative in fondo.
     assert.match(source, /FocusSectionHeader/);
   }
   assert.match(school, /<FocusPage compact/);

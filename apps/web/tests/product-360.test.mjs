@@ -48,7 +48,7 @@ test("product history is first-class sales navigation", () => {
   assert.match(shell, /href: appRoutes\.commercial\.analysis/);
   assert.match(shell, /label: "Analisi"/);
   assert.match(analysis, /href: appRoutes\.commercial\.products/);
-  assert.match(commercialHome, /Product 360/);
+  assert.doesNotMatch(commercialHome, /Storico e memoria privata/); // COMM-DECLUTTER2
 });
 
 

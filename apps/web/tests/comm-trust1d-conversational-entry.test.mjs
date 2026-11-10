@@ -44,8 +44,7 @@ test("COMM-TRUST1.D historical search never starts a new RFQ", () => {
   assert.match(page, /data-testid="commercial-history-entry"/);
   assert.match(page, /href=\{appRoutes\.commercial\.search\} data-testid="commercial-history-entry"/);
   assert.match(page, /Cerca nello storico/);
-  assert.match(page, /Ricerca su dati già presenti/);
-  assert.match(page, /action=\{appRoutes\.commercial\.search\}/);
+  assert.doesNotMatch(page, /Ricerca su dati già presenti/);
   assert.doesNotMatch(companion, /role="search"/);
   assert.match(worklist, /label: "Prepara con la chat"/);
   assert.match(worklist, /\?compose=1&method=ai#commercial-ai-intake/);

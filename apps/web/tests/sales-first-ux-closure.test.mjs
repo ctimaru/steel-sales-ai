@@ -16,7 +16,6 @@ test("PA2.33 mobile keeps secondary sales tools reachable without duplicating op
   assert.match(shell, /WorkspaceMobileBottomNavigation/);
   assert.match(shell, /WorkspaceProfileMenu/);
   assert.match(shell, /label: "Attività"/);
-  assert.match(commercial, /href: appRoutes\.commercial\.assistant/);
   assert.match(bell, /appRoutes\.operations\.alerts/);
   assert.match(navigation, /appRoutes\.company\.dataSources/);
   assert.doesNotMatch(dashboard, /appRoutes\.operations\.review/);

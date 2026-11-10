@@ -12,46 +12,15 @@ const ia = fs.readFileSync(
   "utf8",
 );
 
-test("PF2 keeps Commercial Memory search available below actionable work", () => {
-  assert.match(commercial, /Ricerca su dati già presenti/);
-  assert.match(commercial, /Prodotto, cliente, RFQ, offerta, ordine o prezzo/);
-  assert.match(commercial, /action=\{appRoutes\.commercial\.search\}/);
-  assert.match(commercial, /name="q"/);
-  assert.match(commercial, /type="search"/);
+test("PF2 keeps Commercial Memory search reachable without a footer block (COMM-DECLUTTER2)", () => {
+  assert.match(commercial, /action=\{appRoutes\.commercial\.search\}|appRoutes\.commercial\.search/);
+  assert.match(commercial, /data-testid="commercial-history-entry"/);
+  assert.doesNotMatch(commercial, /Ricerca su dati già presenti|Cosa contiene il workspace|Ultimi movimenti|getDashboardData/);
 });
 
-test("PF2 shows real workspace memory and recent commercial movement", () => {
-  assert.match(commercial, /getDashboardData/);
-  assert.match(commercial, /Cosa contiene il workspace/);
-  assert.match(commercial, /operational\.rfqs/);
-  assert.match(commercial, /operational\.offers/);
-  assert.match(commercial, /operational\.orders/);
-  assert.match(commercial, /RFQ acquisti attive/);
-  assert.match(commercial, /Ultimi movimenti/);
-  assert.match(commercial, /recent\.slice\(0, 5\)/);
-});
-
-test("PF2 keeps Product 360 Company 360 and Assistant as three primary drill-downs", () => {
-  assert.match(commercial, /Product 360/);
-  assert.match(commercial, /Company 360/);
-  assert.match(commercial, /AI privata/);
-  assert.match(commercial, /appRoutes\.commercial\.products/);
-  assert.match(commercial, /appRoutes\.commercial\.companies/);
-  assert.match(commercial, /appRoutes\.commercial\.assistant/);
-});
-
-test("PF2 groups intelligence by commercial goal instead of a flat seven-tool list", () => {
-  assert.match(commercial, /Prezzi & mercato/);
-  assert.match(commercial, /Opportunità commerciali/);
-  assert.match(commercial, /Relazioni/);
-  assert.match(commercial, /PriceIntelligence|priceIntelligence/);
-  assert.match(commercial, /marketIntelligence/);
-  assert.match(commercial, /reengagement/);
-  assert.match(commercial, /demand/);
-  assert.match(commercial, /conversion/);
-  assert.match(commercial, /crossThreadRelationships/);
-  assert.doesNotMatch(commercial, /Intelligence avanzata/);
-  assert.doesNotMatch(commercial, /7 strumenti/);
+test("PF2 no longer renders drill-down and intelligence blocks at the bottom of Commerciale (COMM-DECLUTTER2)", () => {
+  assert.doesNotMatch(commercial, /commercial-memory-panel|commercial-tools-panel/);
+  assert.doesNotMatch(commercial, /Tre modi per leggere la memoria|Analizza solo quando serve|Intelligence avanzata|7 strumenti/);
 });
 
 test("PF2 groups Explorer and specialist tools under task-based Analisi", () => {
@@ -62,7 +31,6 @@ test("PF2 groups Explorer and specialist tools under task-based Analisi", () => 
   assert.equal((commercialBlock.match(/contextKey:/g) || []).length, 3);
   assert.match(commercialBlock, /label: "Analisi"/);
   assert.doesNotMatch(commercialBlock, /label: "Explorer"|label: "Prezzi"|label: "Mercato"/);
-  assert.match(commercial, /appRoutes\.commercial\.explorer/);
   assert.match(ia, /commercial:intelligence:explorer/);
 });
 

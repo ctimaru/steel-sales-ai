@@ -13,11 +13,10 @@ test("COMM-NAV9.M places director decisions before AI and tools, then deals, wit
     'data-testid="comm-cine13-first-workspace"',
     'data-testid="commercial-primary-quick-actions"',
     "<CommercialUnifiedWorklist",
-    'id="commercial-memory-panel"',
-    'id="commercial-tools-panel"',
   ].map((needle) => page.indexOf(needle));
   assert.ok(positions.every((i) => i >= 0), "all primary and secondary sections exist");
   assert.ok(positions.every((pos, i) => i === 0 || positions[i - 1] < pos), "sections follow work-first order");
+  assert.doesNotMatch(page, /commercial-memory-panel|commercial-tools-panel/);
   assert.equal(page.split("<CommercialAiCompanion").length - 1, 1);
   assert.equal(page.split("<CommercialUnifiedWorklist").length - 1, 1);
   assert.equal(page.split("<CommercialCalculatorQuickAccess").length - 1, 1);

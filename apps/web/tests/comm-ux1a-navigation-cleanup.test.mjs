@@ -72,8 +72,8 @@ test("COMM-UX1A retains specialist engines without creating a second RFQ impleme
   assert.match(routes, /savedDistinte: "\/rfq-hub\/distinte"/);
   assert.match(commercial, /CommercialUnifiedWorklist/);
   assert.match(commercial, /BuyerDistintaBuilder/);
-  assert.match(commercial, /Storico e memoria privata/);
-  assert.match(commercial, /Strumenti e intelligence avanzata/);
+  // COMM-DECLUTTER2: i blocchi in fondo alla pagina sono stati tolti; i motori restano nel menu Analisi/Strumenti.
+  assert.doesNotMatch(commercial, /Storico e memoria privata|Strumenti e intelligence avanzata/);
   for (const name of [
     "priceIntelligence", "products", "marketIntelligence", "explorer",
     "demand", "reengagement", "conversion", "crossThreadRelationships",

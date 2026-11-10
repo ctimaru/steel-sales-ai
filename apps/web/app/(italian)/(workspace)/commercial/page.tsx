@@ -1,10 +1,7 @@
 import Link from "next/link";
 
-import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { PilotEvent } from "@/components/pilot-event";
-import { FocusPage, FocusSectionHeader } from "@/components/focus-ui";
-import { Badge } from "@/components/ui/badge";
-import { getDashboardData } from "@/lib/commercial-data";
+import { FocusPage } from "@/components/focus-ui";
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { CommercialCalculatorQuickAccess } from "@/components/commercial-calculator-quick-access";
 import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
@@ -32,67 +29,6 @@ import { appRoutes } from "@/lib/routes";
 
 export const dynamic = "force-dynamic";
 
-function roleLabel(role: string) {
-  if (role === "requested") return "RFQ";
-  if (role === "offered") return "Offerta";
-  if (role === "ordered") return "Ordine";
-  if (role === "delivered") return "Consegna";
-  return role;
-}
-
-const coreTools = [
-  {
-    href: appRoutes.commercial.products,
-    title: "Prodotti",
-    description: "Product 360 con richieste, offerte, ordini, prezzi ed evidenze.",
-    meta: "Product 360",
-  },
-  {
-    href: appRoutes.commercial.companies,
-    title: "Aziende",
-    description: "Company 360 con clienti, fornitori e storico delle relazioni private.",
-    meta: "Company 360",
-  },
-  {
-    href: appRoutes.commercial.assistant,
-    title: "Assistente",
-    description: "Interroga la memoria commerciale mantenendo fonti e provenienza.",
-    meta: "AI privata",
-  },
-  {
-    href: appRoutes.commercial.knowledgeExplorer,
-    title: "Memoria documentale",
-    description: "Ricerca riservata su documenti, offerte e ordini, con fonti e permessi aziendali.",
-    meta: "Memoria privata",
-  },
-] as const;
-
-const intelligenceGroups = [
-  {
-    title: "Prezzi & mercato",
-    description: "Capisci prezzi, variazioni e segnali dal tuo storico commerciale.",
-    links: [
-      ["Prezzi", appRoutes.commercial.priceIntelligence],
-      ["Mercato", appRoutes.commercial.marketIntelligence],
-      ["Explorer", appRoutes.commercial.explorer],
-    ],
-  },
-  {
-    title: "Opportunità commerciali",
-    description: "Trova domanda, account da riattivare e possibilità di conversione.",
-    links: [
-      ["Segnali di domanda", appRoutes.commercial.demand],
-      ["Riattivazione", appRoutes.commercial.reengagement],
-      ["Conversione", appRoutes.commercial.conversion],
-    ],
-  },
-  {
-    title: "Relazioni",
-    description: "Ricostruisci connessioni tra conversazioni, aziende e trattative.",
-    links: [["Relazioni cross-thread", appRoutes.commercial.crossThreadRelationships]],
-  },
-] as const;
-
 export default async function CommercialHomePage({
   searchParams,
 }: {
@@ -119,8 +55,7 @@ export default async function CommercialHomePage({
   const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
   const composing = canWrite && params.compose === "1";
   const aiFocused = composing && params.method === "ai";
-  const [commercial, procurement, unified, catalogOptions, networkContext, calculatorReferences, focusCounts] = await Promise.all([
-    getDashboardData(),
+  const [procurement, unified, catalogOptions, networkContext, calculatorReferences, focusCounts] = await Promise.all([
     canWrite
       ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
           .catch(() => ({ data: null, error: true }))
@@ -159,7 +94,6 @@ export default async function CommercialHomePage({
       : unified,
     context.organizationId,
   );
-  const { recent, mode, operational } = commercial;
   // Procurement is a distinct tenant-owned lifecycle; never mix its active
   // counts with the total historical commercial RFQ count.
   const procurementPayload = !procurement.error && procurement.data && typeof procurement.data === "object" && !Array.isArray(procurement.data)
@@ -175,18 +109,6 @@ export default async function CommercialHomePage({
     item.requires_action === true && typeof item.rfq_id === "string" &&
     /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.rfq_id)
   ).slice(0, 3);
-  // The dashboard metrics RPC can fail as well as return no rows. An unknown
-  // read must never be represented as a verified zero or an assignment diagnosis.
-  const historicalCount = (count: number) => mode === "awaiting_assignment" ? "—" : count;
-  const metricCards = [
-    { label: "Richieste nello storico", value: historicalCount(operational.rfqs) },
-    { label: "Offerte nello storico", value: historicalCount(operational.offers) },
-    { label: "Ordini nello storico", value: historicalCount(operational.orders) },
-    ...(typeof procurementPayload?.summary?.active_rfqs === "number"
-      ? [{ label: "RFQ acquisti attive", value: procurementPayload.summary.active_rfqs }]
-      : []),
-  ];
-
   return (
     <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
@@ -506,192 +428,6 @@ export default async function CommercialHomePage({
 
         </section>
       ) : null}
-
-      <details id="commercial-memory-panel" className="group scroll-mt-28 overflow-hidden rounded-[22px] border border-[#dce8df] bg-white p-4 sm:p-5">
-        <summary className="flex min-h-11 cursor-pointer select-none items-center text-base font-semibold text-[#175640] marker:text-[#175640]">
-          Storico e memoria privata · Apri ricerca avanzata
-        </summary>
-        <div className="space-y-4 pt-4">
-      <section className="rounded-2xl border border-[#b8d2c8] bg-[#edf5f2] p-4 sm:p-5">
-        <p className="app-kicker">Ricerca su dati già presenti · Nessuna distinta viene creata</p>
-        <h2 className="mt-2 text-lg font-semibold text-[#173f35] sm:text-xl">
-          Prodotto, cliente, RFQ, offerta, ordine o prezzo
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-[#52615b]">
-          Trova informazioni già archiviate usando una misura, una norma, un grado o il nome di un&apos;azienda. Per preparare una nuova distinta usa la chat in alto.
-        </p>
-
-        <form
-          action={appRoutes.commercial.search}
-          method="get"
-          className="mt-5 flex flex-col gap-2 sm:flex-row"
-        >
-          <label htmlFor="commercial-memory-search" className="sr-only">
-            Cerca nello storico commerciale già esistente
-          </label>
-          <input
-            id="commercial-memory-search"
-            name="q"
-            type="search"
-            placeholder="Es. S355J2H, EN 10219, 100x100x5, cliente..."
-            className="h-12 min-w-0 flex-1 rounded-xl border border-[#c9d9d3] bg-white px-4 text-sm text-[#1d2824] outline-none placeholder:text-[#5d6a65] focus:border-[#438d7a] focus:ring-4 focus:ring-[#dcebe6]"
-          />
-          <button
-            type="submit"
-            className="app-primary min-h-12 rounded-xl px-6 text-sm font-semibold"
-          >
-            Cerca nello storico
-          </button>
-        </form>
-      </section>
-
-      <section aria-labelledby="commercial-overview">
-        <FocusSectionHeader
-          eyebrow="Memoria disponibile"
-          title={<span id="commercial-overview">Cosa contiene il workspace</span>}
-          action={
-            <Link href={appRoutes.commercial.explorer} className="text-xs font-semibold text-[#173f35] hover:underline">
-              Esplora tutto →
-            </Link>
-          }
-        />
-
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {metricCards.map((item) => (
-            <div key={item.label} className="rounded-2xl border border-[#dce2df] bg-white p-4">
-              <p className="metric-number text-2xl font-semibold text-[#173f35]">{item.value}</p>
-              <p className="mt-1 text-xs font-semibold text-[#5d6a65]">{item.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section aria-labelledby="commercial-recent">
-        <FocusSectionHeader
-          eyebrow="Attività recente"
-          title={<span id="commercial-recent">Ultimi movimenti</span>}
-          action={
-            <Link href={appRoutes.commercial.search} className="text-xs font-semibold text-[#173f35] hover:underline">
-              Apri storico →
-            </Link>
-          }
-        />
-
-        {recent.length === 0 ? (
-          <FirstUseEmptyState
-            eyebrow={mode === "awaiting_assignment" ? "Storico non verificato" : "Memoria ancora vuota"}
-            title={mode === "awaiting_assignment" ? "Non possiamo confermare lo stato dello storico" : "Qui compariranno le ultime RFQ, offerte e ordini"}
-            description={mode === "awaiting_assignment"
-              ? "Il caricamento dei dati non è verificato: lo storico può essere da associare, non disponibile oppure vuoto. Nessun conteggio è considerato confermato."
-              : "Quando il workspace contiene dati commerciali, questa sezione mostra solo gli ultimi movimenti utili."}
-            primaryAction={{
-              href: appRoutes.commercial.search,
-              label: mode === "awaiting_assignment" ? "Controlla lo storico" : "Apri la ricerca",
-            }}
-            compact
-          />
-        ) : (
-          <div className="overflow-hidden rounded-2xl border border-[#dce2df] bg-white">
-            {recent.slice(0, 5).map((row, index) => (
-              <Link
-                key={row.id}
-                href={row.operationalHref ?? appRoutes.commercial.conversation(row.conversationId)}
-                className={[
-                  "flex flex-col gap-3 p-4 transition hover:bg-[#f8faf9] sm:flex-row sm:items-center sm:justify-between",
-                  index > 0 ? "border-t border-[#edf1ef]" : "",
-                ].join(" ")}
-              >
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone={row.role === "offered" ? "green" : row.role === "requested" ? "blue" : "violet"}>
-                      {roleLabel(row.role)}
-                    </Badge>
-                    <span className="text-xs text-[#5d6a65]">{row.date}</span>
-                  </div>
-                  <p className="mt-2 truncate text-sm font-semibold text-[#1d2824]">{row.product}</p>
-                  <p className="mt-1 line-clamp-1 text-xs text-[#5d6a65]">
-                    {row.grade} · {row.standard} · {row.company}
-                  </p>
-                </div>
-                <div className="shrink-0 text-left sm:text-right">
-                  <p className="text-sm font-semibold text-[#1d2824]">{row.price ?? "—"}</p>
-                  <p className="mt-1 text-xs text-[#5d6a65]">
-                    {Math.round(row.confidence * 100)}% affidabilità
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
-      </section>
-
-        </div>
-      </details>
-
-      <details id="commercial-tools-panel" className="group scroll-mt-28 overflow-hidden rounded-[22px] border border-[#dce8df] bg-white p-4 sm:p-5">
-        <summary className="flex min-h-11 cursor-pointer select-none items-center text-base font-semibold text-[#175640] marker:text-[#175640]">
-          Strumenti e intelligence avanzata · Apri
-        </summary>
-        <div className="space-y-4 pt-4">
-
-      <section aria-labelledby="commercial-tools">
-        <FocusSectionHeader
-          eyebrow="Approfondisci"
-          title={<span id="commercial-tools">Tre modi per leggere la memoria</span>}
-        />
-
-        <div className="grid gap-3 md:grid-cols-3">
-          {coreTools.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="group rounded-2xl border border-[#dce2df] bg-white p-5 transition hover:-translate-y-0.5 hover:border-[#b8d2c8] hover:shadow-sm"
-            >
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#5d6a65]">
-                {item.meta}
-              </p>
-              <div className="mt-2 flex items-start justify-between gap-3">
-                <h3 className="text-base font-semibold text-[#1d2824]">{item.title}</h3>
-                <span className="font-semibold text-[#173f35]" aria-hidden="true">
-                  →
-                </span>
-              </div>
-              <p className="mt-2 text-sm leading-6 text-[#5d6a65]">{item.description}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section aria-labelledby="commercial-intelligence">
-        <FocusSectionHeader
-          eyebrow="Intelligence"
-          title={<span id="commercial-intelligence">Analizza solo quando serve</span>}
-          description="Gli strumenti avanzati sono raggruppati per obiettivo commerciale, non per architettura interna."
-        />
-
-        <div className="grid gap-3 lg:grid-cols-3">
-          {intelligenceGroups.map((group) => (
-            <div key={group.title} className="rounded-2xl border border-[#dce2df] bg-white p-5">
-              <h3 className="text-base font-semibold text-[#1d2824]">{group.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-[#5d6a65]">{group.description}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {group.links.map(([label, href]) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className="inline-flex min-h-10 items-center rounded-xl border border-[#d7dfdb] bg-[#f8faf9] px-3 text-xs font-semibold text-[#173f35] transition hover:border-[#9db9af] hover:bg-[#edf5f2]"
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-        </div>
-      </details>
 
       <p className="px-2 pb-2 text-[11px] leading-5 text-[#647568]">
         Commerciale riunisce i tuoi flussi di lavoro, ma i confini dei dati restano distinti: la memoria privata, le RFQ buyer, il Network e il Marketplace non condividono automaticamente prezzi, contatti o documenti.

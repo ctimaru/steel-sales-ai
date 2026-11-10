@@ -79,7 +79,6 @@ test("HP10 gives Commerciale a real contextual home and complete intelligence en
     assert.ok(ia.includes(key), key);
   }
   assert.match(analysisHub, /appRoutes\.commercial\.crossThreadRelationships/);
-  assert.match(commercialHome, /Relazioni cross-thread/);
 });
 
 test("HP10 maps dynamic Network and Marketplace detail routes to their parent context", () => {

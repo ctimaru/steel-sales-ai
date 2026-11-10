@@ -12,7 +12,6 @@ test("COMM-UX6.A keeps one compact industrial hero and no duplicate jump navigat
   assert.doesNotMatch(page, /sm:min-h-\[290px\]|lg:min-h-\[328px\]/);
   assert.match(css, /home-cine2a2b-factory-desktop\.webp/);
   assert.match(css, /home-cine2a2b-factory-mobile\.webp/);
-  assert.match(page, /operational\.rfqs/);
   assert.doesNotMatch(page, /data-testid="commercial-cockpit-tabs"/);
   assert.doesNotMatch(page, />Vai a</);
 });
