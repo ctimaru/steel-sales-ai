@@ -127,12 +127,20 @@ export default async function BuyerRfqHubPage() {
           </p>
           <p className="sr-only">Distinte, richieste ai fornitori, offerte e ordini.</p>
         </div>
-        {canWrite ? (
-          <Link href={appRoutes.rfqHub.createDistinta}
-            className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-bold">
-            + Nuova distinta
-          </Link>
-        ) : <span className="text-xs font-semibold text-[var(--text-secondary)]">Consultazione</span>}
+        <div className="flex flex-wrap items-center gap-2">
+          {recentCampaigns.length > 0 ? (
+            <Link href={appRoutes.rfqHub.campaign(recentCampaigns[0].id)} data-testid="rfq-hub-quick-conversation"
+              className="inline-flex min-h-10 items-center rounded-lg border border-[#a8c8b6] bg-[#edf7f0] px-3 text-xs font-bold text-[#175640] hover:bg-[#dceee3]">
+              Apri ultima RFQ →
+            </Link>
+          ) : null}
+          {canWrite ? (
+            <Link href={appRoutes.rfqHub.createDistinta}
+              className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-bold">
+              + Nuova distinta
+            </Link>
+          ) : <span className="text-xs font-semibold text-[var(--text-secondary)]">Consultazione</span>}
+        </div>
       </header>
 
       {/* Keep Network's explicit, org-scoped supplier handoff unchanged. */}
@@ -186,7 +194,7 @@ export default async function BuyerRfqHubPage() {
       <div className="grid min-w-0 items-start gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)]">
         <section id="campagne" aria-label="Campagne RFQ" data-testid="rfq-hub-primary-campaigns"
           className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white px-3 py-3 sm:px-4">
-          <BlockHeading title="Campagne RFQ" />
+          <BlockHeading title="RFQ e conversazioni" />
           {campaigns.error ? (
             <p role="status" className="py-3 text-sm text-[var(--text-secondary)]">Elenco RFQ non disponibile.</p>
           ) : recentCampaigns.length === 0 ? (
@@ -205,7 +213,9 @@ export default async function BuyerRfqHubPage() {
                       {campaign.due_at ? " · Scadenza " + formatHubDate(campaign.due_at) : ""}
                     </p>
                   </div>
-                  <span aria-hidden="true" className="shrink-0 text-[var(--brand-primary)]">→</span>
+                  <span className="shrink-0 text-xs font-bold text-[var(--brand-primary)]">
+                    {["draft", "ready"].includes(campaign.status) ? "Completa RFQ" : "Apri chat"} →
+                  </span>
                 </Link>
               ))}
             </div>

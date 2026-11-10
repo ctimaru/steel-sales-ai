@@ -84,31 +84,49 @@ export function Rfqc1ChatWorkspace(props: Props) {
   const compared = props.comparison?.suppliers ?? [];
   const bestPrice = compared.find(item => item.is_best_full_price) ?? null;
   const bestDelivery = compared.find(item => item.is_best_lead_time) ?? null;
+  const preparing = props.status === "draft" || props.status === "ready";
+  const hasComparison = !preparing && Boolean(props.comparison);
 
   return (
-    <section aria-label="RFQ come chat" data-testid="rfqc1-chat-workspace" className="overflow-hidden rounded-[22px] border border-[#d3dfd8] bg-white shadow-sm">
-      <div className="flex items-center justify-between gap-3 border-b border-[#e3ebe5] bg-[#f5faf7] px-3 py-3 lg:px-4">
-        <div className="min-w-0">
-          <p className="text-[10px] font-extrabold uppercase tracking-[.12em] text-[#23624f]">RFQ Hub · Conversazioni private</p>
+    <section aria-label="RFQ come chat" data-testid="rfqc1-chat-workspace" className="rounded-[18px] border border-[#d3dfd8] bg-white shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e3ebe5] bg-[#f5faf7] px-3 py-2.5 sm:px-4">
+        <div className="min-w-0 flex-1">
+          <p className="text-[10px] font-bold uppercase tracking-[.08em] text-[#23624f]">Ufficio acquisti · RFQ privata</p>
           <h1 className="truncate text-lg font-bold text-[#19392f] sm:text-xl">{props.title}</h1>
-          <p className="text-xs text-[#5a6c63]">{props.responseLabel} risposte · {props.status} · Scadenza {date(props.dueAt)}</p>
+          <p className="text-xs text-[#5a6c63]">
+            {preparing ? "Bozza · nessun invio effettuato" : props.responseLabel + " risposte"}
+            {" · Scadenza " + date(props.dueAt)}
+          </p>
         </div>
-        <div className="flex shrink-0 gap-1.5">
+        <div className="flex flex-wrap items-center gap-1.5">
           <button type="button" aria-controls="rfqc1-campaign-list" aria-expanded={showList} onClick={() => setShowList(v => !v)}
             className="rounded-lg border border-[#bcd0c4] bg-white px-2.5 py-2 text-xs font-semibold text-[#214f3e] xl:hidden">RFQ</button>
-          <a href="#rfqc1-comparison"
-            className="rounded-lg border border-[#bcd0c4] bg-white px-2.5 py-2 text-xs font-semibold text-[#214f3e] xl:hidden">Confronto</a>
-          <Link href="/rfq-hub" className="rounded-lg bg-[#174b3d] px-2.5 py-2 text-xs font-semibold text-white">Hub</Link>
+          {hasComparison ? (
+            <a href="#rfqc1-comparison"
+              className="rounded-lg border border-[#bcd0c4] bg-white px-2.5 py-2 text-xs font-semibold text-[#214f3e] xl:hidden">Confronto</a>
+          ) : null}
+          <a href="#rfqc1-advanced" data-testid="rfqc1-advanced-action"
+            className="rounded-lg border border-[#bcd0c4] bg-white px-2.5 py-2 text-xs font-semibold text-[#214f3e]">
+            {preparing ? "Prepara invio" : "Gestione completa"}
+          </a>
+          <Link href="/rfq-hub" className="rounded-lg bg-[#174b3d] px-2.5 py-2 text-xs font-semibold text-white">Tutte le RFQ</Link>
         </div>
       </div>
 
       {props.canStartRequest ? (
-        <div className="border-b border-[#e3ebe5] bg-white p-2.5 lg:px-4" data-testid="rfqc1-new-request">
-          <CommercialAiCompanion canWrite />
-        </div>
+        <details data-testid="rfqc1-new-request" className="group border-b border-[#e3ebe5] bg-white">
+          <summary className="min-h-10 cursor-pointer list-none px-3 py-2.5 text-xs font-semibold text-[#175640] hover:bg-[#f5faf7] sm:px-4 [&::-webkit-details-marker]:hidden">
+            + Nuova RFQ con assistente AI <span aria-hidden="true" className="ml-1 inline-block transition group-open:rotate-180">▾</span>
+          </summary>
+          <div className="border-t border-[#e3ebe5] p-3 sm:px-4">
+            <CommercialAiCompanion canWrite />
+          </div>
+        </details>
       ) : null}
 
-      <div className="grid min-h-[620px] grid-cols-1 xl:grid-cols-[212px_minmax(0,1fr)_286px]">
+      <div className={"grid min-h-[480px] grid-cols-1 " + (hasComparison
+        ? "xl:grid-cols-[192px_minmax(0,1fr)_260px]"
+        : "xl:grid-cols-[192px_minmax(0,1fr)]")}>
         <aside id="rfqc1-campaign-list" aria-label="Elenco RFQ"
           className={(showList ? "block" : "hidden") + " border-b border-[#e2e9e5] bg-[#f6f9f7] p-2.5 xl:block xl:border-b-0 xl:border-r"}>
           <div className="mb-3 flex items-center justify-between px-2">
@@ -161,13 +179,22 @@ export function Rfqc1ChatWorkspace(props: Props) {
             </div>
           </div>
 
-          <Rfqc1SupplierSuggestions rfqId={props.rfqId} canAdd={Boolean(props.canStartRequest) && !props.readOnlyByProfile}
-            existingEmails={props.suppliers.map(item => item.email ?? "")}
-            existingNames={props.suppliers.map(item => item.name)} />
-
-          <Rfqc1DraftSummary status={props.status} dueAt={props.dueAt} canExecute={props.canExecute && !props.readOnlyByProfile}
-            lines={props.lines.map(line => ({ description: line.description, standard: line.standard, grade: line.grade, quantity: line.quantity }))}
-            suppliers={props.suppliers.map(item => ({ name: item.name, email: item.email }))} />
+          {preparing ? (
+            <>
+              <details data-testid="rfqc1-supplier-selection" open={props.suppliers.length === 0}
+                className="group border-b border-[#e2eae5]">
+                <summary className="min-h-10 cursor-pointer list-none bg-[#f9fcfa] px-3 py-2.5 text-xs font-semibold text-[#175640] hover:bg-[#edf6f0] sm:px-5 [&::-webkit-details-marker]:hidden">
+                  Scegli i fornitori · {props.suppliers.length} selezionati <span aria-hidden="true">▾</span>
+                </summary>
+                <Rfqc1SupplierSuggestions rfqId={props.rfqId} canAdd={Boolean(props.canStartRequest) && !props.readOnlyByProfile}
+                  existingEmails={props.suppliers.map(item => item.email ?? "")}
+                  existingNames={props.suppliers.map(item => item.name)} />
+              </details>
+              <Rfqc1DraftSummary status={props.status} dueAt={props.dueAt} canExecute={props.canExecute && !props.readOnlyByProfile}
+                lines={props.lines.map(line => ({ description: line.description, standard: line.standard, grade: line.grade, quantity: line.quantity }))}
+                suppliers={props.suppliers.map(item => ({ name: item.name, email: item.email }))} />
+            </>
+          ) : null}
 
           <div role="tablist" aria-label="Trattative private per fornitore"
             className="flex gap-1.5 overflow-x-auto border-b border-[#e2eae5] bg-[#fbfcfb] px-3 py-3 sm:px-5">
@@ -220,23 +247,30 @@ export function Rfqc1ChatWorkspace(props: Props) {
                 La conversazione si apre quando la RFQ viene lanciata: finché è in bozza puoi preparare la richiesta e scegliere i fornitori.
               </p>
             ) : null}
-            {supplier ? (
+            {supplier && preparing ? (
+              <p className="text-xs leading-5 text-[#526b5b]">
+                Completa la richiesta prima di scrivere ai fornitori.{" "}
+                <a href="#rfqc1-advanced" className="font-bold text-[#175640] underline underline-offset-2">Verifica e invia la RFQ</a>
+              </p>
+            ) : supplier && ["launched", "collecting"].includes(props.status) ? (
               <Rfqc1ChatComposer
                 key={supplier.id}
                 rfqId={props.rfqId}
                 supplierId={supplier.id}
                 supplierName={supplier.name}
                 lines={props.lines}
-                disabled={!props.canExecute || !["launched", "collecting"].includes(props.status) ||
+                disabled={!props.canExecute ||
                   ["draft", "queued", "declined", "delivery_error", "awarded", "expired"].includes(supplier.state)}
               />
+            ) : supplier ? (
+              <p className="text-xs leading-5 text-[#526b5b]">Questa RFQ non è in fase di trattativa. Consulta lo storico oppure apri la gestione completa.</p>
             ) : (
-              <p className="text-xs text-[#637569]">Seleziona almeno un fornitore nella gestione RFQ.</p>
+              <p className="text-xs text-[#637569]">Seleziona almeno un fornitore per preparare la RFQ.</p>
             )}
           </div>
         </div>
 
-        <aside id="rfqc1-comparison" aria-label="Confronto offerte"
+        {hasComparison ? (<aside id="rfqc1-comparison" aria-label="Confronto offerte"
           className="border-t border-[#dce6df] bg-white p-3 xl:border-l xl:border-t-0">
           <p className="text-[10px] font-bold uppercase tracking-[.1em] text-[#2c7656]">Confronto RFQH5</p>
           <h2 className="mt-1 text-sm font-bold text-[#1c4232]">Confronto offerte</h2>
@@ -283,7 +317,7 @@ export function Rfqc1ChatWorkspace(props: Props) {
           ) : (
             <p className="mt-3 rounded-xl bg-[#f5f7f5] p-3 text-xs text-[#4f6457]">In attesa di offerte confrontabili.</p>
           )}
-        </aside>
+        </aside>) : null}
       </div>
     </section>
   );
