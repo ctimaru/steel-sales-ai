@@ -120,6 +120,9 @@ SELECT public.pa1_5_review_discovery_candidate_governance(
  'SYNTHETIC CI only: I have checked this imaginary business record for unit testing.'
 );
 
+-- Direct table inspection is reserved to the local test admin. Real
+-- authenticated reviewers use audited RPCs, not SELECT on private candidates.
+RESET ROLE;
 SELECT pg_temp.scale15k_assert(
  (SELECT count(*) FROM public.network_company_discovery_candidates c
   WHERE c.id IN ('00000000-0000-0000-0000-000000015001'::uuid,
@@ -128,6 +131,10 @@ SELECT pg_temp.scale15k_assert(
   AND (private.net_pipeline1b2_eligibility(c.id)->>'eligible')::boolean)=2,
  'synthetic reviewers must qualify both imaginary candidates'
 );
+
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub',:'owner_id',true);
+SELECT set_config('request.jwt.claim.role','authenticated',true);
 
 SELECT public.net_it_scale15k_bulk_publish(
  ARRAY['00000000-0000-0000-0000-000000015001'::uuid,
