@@ -8,6 +8,52 @@
 -- time. The dedicated executor is accessible only from Postgres maintenance,
 -- not browser clients, anon, authenticated, or service_role.
 
+-- Preserve the legacy integrity rule while distinguishing a delegated automated
+-- publication from a human reviewer. NEVER populate reviewed_by with the Owner
+-- simply to pass the old non-null check: that would falsify attribution.
+ALTER TABLE public.network_company_discovery_candidates
+  ADD COLUMN IF NOT EXISTS publication_actor_type text NOT NULL DEFAULT 'platform'
+  CHECK (publication_actor_type IN ('platform','delegated_agent'));
+
+ALTER TABLE public.network_company_discovery_candidates
+  DROP CONSTRAINT IF EXISTS network_company_discovery_candidates_review_integrity_check;
+ALTER TABLE public.network_company_discovery_candidates
+  ADD CONSTRAINT network_company_discovery_candidates_review_integrity_check CHECK (
+    (review_status='pending_review'
+      AND reviewed_by IS NULL AND reviewed_at IS NULL AND promoted_company_id IS NULL)
+    OR (review_status='published' AND reviewed_at IS NOT NULL
+      AND promoted_company_id IS NOT NULL
+      AND (
+        (publication_actor_type='platform' AND reviewed_by IS NOT NULL)
+        OR (publication_actor_type='delegated_agent' AND reviewed_by IS NULL)
+      ))
+    OR (review_status IN ('rejected','duplicate_existing','enriched_existing')
+      AND reviewed_by IS NOT NULL AND reviewed_at IS NOT NULL
+      AND promoted_company_id IS NULL AND publication_actor_type='platform')
+  );
+
+-- Authenticated browser roles cannot claim that a human action was performed by
+-- the delegated agent. Only the Postgres maintenance executor can set this mark.
+CREATE OR REPLACE FUNCTION private.net_it_auto1_guard_origin()
+RETURNS trigger LANGUAGE plpgsql SET search_path TO ''
+AS $origin$
+BEGIN
+  IF NEW.publication_actor_type='delegated_agent'
+    AND (TG_OP='INSERT' OR OLD.publication_actor_type IS DISTINCT FROM 'delegated_agent')
+    AND session_user<>'postgres' THEN
+    RAISE EXCEPTION 'Delegated-agent origin reserved for maintenance publisher'
+      USING ERRCODE='42501';
+  END IF;
+  RETURN NEW;
+END
+$origin$;
+DROP TRIGGER IF EXISTS net_it_auto1_origin_guard
+  ON public.network_company_discovery_candidates;
+CREATE TRIGGER net_it_auto1_origin_guard
+BEFORE INSERT OR UPDATE OF publication_actor_type
+ON public.network_company_discovery_candidates
+FOR EACH ROW EXECUTE FUNCTION private.net_it_auto1_guard_origin();
+
 CREATE TABLE IF NOT EXISTS private.net_it_auto1_delegation (
   singleton boolean PRIMARY KEY DEFAULT true CHECK (singleton),
   enabled boolean NOT NULL DEFAULT false,
@@ -361,6 +407,7 @@ BEGIN
 
     UPDATE public.network_company_discovery_candidates
       SET review_status='published',promoted_company_id=v_company_id,
+          publication_actor_type='delegated_agent',
           reviewed_by=NULL,reviewed_at=now(),
           review_note='NET-IT-AUTO1: automated publication under revocable Platform owner delegation; source and identity previously approved by human reviewers.'
     WHERE id=v_candidate.id;
