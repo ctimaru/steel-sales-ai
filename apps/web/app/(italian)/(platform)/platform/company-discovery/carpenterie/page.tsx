@@ -168,6 +168,10 @@ export default async function CarpenterieGrowthPage({
           <h1 className="text-[18px] font-bold leading-6 text-[#173f35] sm:text-2xl">
             Carpenterie · dati e riconciliazione
           </h1>
+          <Link href="/platform/company-discovery/carpenterie/pubblicazione"
+            className="rounded-lg bg-[#176447] px-3 py-2 text-[11px] font-bold text-white hover:bg-[#11543b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176447] sm:text-xs">
+            Prime 5 da pubblicare →
+          </Link>
           <Link href="/platform/company-discovery/contacts"
             className="rounded-lg border border-[#bad4c4] bg-[#f6faf7] px-2 py-1 text-[11px] font-semibold text-[#175640] sm:px-3 sm:py-2 sm:text-xs">
             <span className="sm:hidden">Review canali pubblici →</span>
