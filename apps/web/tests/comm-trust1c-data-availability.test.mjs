@@ -12,12 +12,9 @@ const explorer = read("../components/commercial-explorer.tsx");
 test("COMM-TRUST1.C dashboard must never display failed history metrics as real zero", () => {
   assert.match(data, /if \(metricError \|\| !metricRows\?\.length\)/,
     "Existing dashboard contract can return awaiting_assignment when metrics RPC fails");
-  assert.match(page, /const historicalCount = \(count: number\) => mode === "awaiting_assignment" \? "—" : count/);
-  assert.match(page, /historicalCount\(operational\.rfqs\)/);
-  assert.match(page, /historicalCount\(operational\.offers\)/);
-  assert.match(page, /historicalCount\(operational\.orders\)/);
+  // COMM-DECLUTTER2: la pagina non mostra più i totali storici, quindi nessuno zero può essere inventato.
+  assert.doesNotMatch(page, /historicalCount|operational\.rfqs/);
   assert.doesNotMatch(page, /Dati in attesa di associazione/);
-  assert.match(page, /Non possiamo confermare lo stato dello storico/);
 });
 
 test("COMM-TRUST1.C distinguishes unavailable, filtered, empty workspace and empty view", () => {

@@ -39,7 +39,7 @@ test("COMMERCIAL-UNIFY1 puts workflow, live buyer actions and Network entry befo
   assert.match(commercial, /data-testid="comm-cine13-first-workspace"/);
   assert.match(commercial, /<CommercialDirectorPriorityDesk/);
   assert.match(priorities, /Cosa richiede attenzione/);
-  assert.ok(commercial.indexOf("<CommercialDirectorPriorityDesk") < commercial.indexOf("Ricerca su dati già presenti"));
+  assert.doesNotMatch(commercial, /Ricerca su dati già presenti/);
   assert.match(commercial, /rfqh10_procurement_inbox/);
   assert.match(commercial, /item\.requires_action === true/);
   assert.match(priorities, /!procurementAvailable/);
@@ -53,5 +53,4 @@ test("COMMERCIAL-UNIFY1 puts workflow, live buyer actions and Network entry befo
 test("COMMERCIAL-UNIFY1 does not promote the private buyer target or review QA as commercial priorities", () => {
   assert.doesNotMatch(commercial, /metrics\.reviewFlags|Target buyer/);
   assert.match(commercial, /non condividono automaticamente prezzi, contatti o documenti/);
-  assert.match(commercial, /typeof procurementPayload\?\.summary\?\.active_rfqs === "number"/);
 });

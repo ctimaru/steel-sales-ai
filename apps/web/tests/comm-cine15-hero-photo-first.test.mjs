@@ -18,9 +18,8 @@ test("COMM-CINE15 foregrounds the existing industrial photo instead of masking i
 });
 
 test("COMM-CINE15 retains grounded KPIs with semantic labels and distinct demo/live status", () => {
-  // I totali storici restano nei dati della pagina (sezione storico), non nella testata.
-  assert.match(page, /label: "Richieste nello storico", value: historicalCount\(operational\.rfqs\)/);
-  assert.match(page, /mode === "awaiting_assignment" \? "—" : count/);
+  // COMM-DECLUTTER2: nessun blocco storico/KPI in fondo alla pagina.
+  assert.doesNotMatch(page, /historicalCount|metricCards/);
   assert.match(page, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.match(ai, /onSubmit=\{startRequest\}/);
   assert.equal((page.match(/<CommercialUnifiedWorklist/g) || []).length, 1);
