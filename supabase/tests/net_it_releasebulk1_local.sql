@@ -394,6 +394,100 @@ BEGIN
   END IF;
 END $pub1_five$;
 
+-- SYNTHETIC HAPPY-PATH ACCEPTANCE: the five IDs exist only in the disposable
+-- local database and use made-up .invalid domains. Production company data is
+-- never inserted, copied or touched. Fixture setup uses local postgres role.
+RESET ROLE;
+INSERT INTO public.network_company_discovery_runs(
+  id,requested_by,country_code,seed_urls,status,source_type,source_reference,
+  label,governance_status,terms_status,database_rights_status,
+  personal_data_policy,governance_reviewed_by,governance_reviewed_at,governance_note
+)
+SELECT
+  ('5e5dfabe-f01d-4bca-89dc-61d031f80c0'||i)::uuid,
+  '5e5dfabe-f01d-4bca-89dc-61d031f80a01'::uuid,
+  'IT',
+  jsonb_build_array('https://netit-pub1-ci-'||i||'.invalid/'),
+  'completed','manual_url','SYNTHETIC LOCAL CI source only',
+  'NET-IT-PUB1 synthetic source '||i,
+  'approved','allows_reuse','low_risk','exclude_personal_data',
+  '5e5dfabe-f01d-4bca-89dc-61d031f80a01'::uuid,
+  now(),
+  'Synthetic local-only source review, not actual terms or rights clearance'
+FROM pg_catalog.generate_series(1,3) AS i;
+
+INSERT INTO public.network_company_discovery_candidates(
+  id,run_id,source_url,canonical_domain,website_url,
+  legal_name,country_code,role_keys,subtype_keys,
+  product_relations,evidence,source_urls,
+  enrichment_quality,governance_status,governance_reviewed_by,governance_reviewed_at
+)
+SELECT
+  CASE i
+    WHEN 1 THEN '3222c3fa-4a44-4b68-bb27-5fb04d52f6fc'::uuid
+    WHEN 2 THEN '28defb68-413d-47d7-93e0-3bbb95afa1cf'::uuid
+    WHEN 3 THEN '79960391-2660-4843-a0e3-f423130166c5'::uuid
+    WHEN 4 THEN '9d306e06-e62d-49f6-8b90-7ea088c741d9'::uuid
+    ELSE 'd6307036-2999-4c56-a5d6-801130e13bdd'::uuid
+  END,
+  ('5e5dfabe-f01d-4bca-89dc-61d031f80c0'||(1+((i-1)%3)))::uuid,
+  'https://netit-pub1-ci-'||i||'.invalid/about',
+  'netit-pub1-ci-'||i||'.invalid',
+  'https://netit-pub1-ci-'||i||'.invalid/',
+  'NETIT PUB1 CI FABRICATOR '||i||' S.r.l.',
+  'IT',
+  ARRAY['processor_service_provider']::text[],
+  ARRAY['fabricator']::text[],
+  jsonb_build_array(jsonb_build_object('sector','metal_fabrication')),
+  jsonb_build_array(jsonb_build_object(
+    'source_url','https://netit-pub1-ci-'||i||'.invalid/about',
+    'note','SYNTHETIC CI fixture without a real company'
+  )),
+  jsonb_build_array('https://netit-pub1-ci-'||i||'.invalid/about'),
+  jsonb_build_object(
+    'net_it_pub1_20261110',jsonb_build_object('synthetic',true),
+    'net_it_pub1_official_identity_evidence_20261110',
+      jsonb_build_object('synthetic',true)
+  ),
+  'approved_company_data',
+  '5e5dfabe-f01d-4bca-89dc-61d031f80a01'::uuid,
+  now()
+FROM pg_catalog.generate_series(1,5) AS i;
+
+SET ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub','5e5dfabe-f01d-4bca-89dc-61d031f80a01',true
+);
+DO $pub1_five_success$
+DECLARE
+  v_preview jsonb;
+  v_result jsonb;
+  v_note text :=
+    'SYNTHETIC LOCAL-ONLY test: five imaginary company identities and three fake source decisions. This validates atomic inserts, role provenance and original disabled publisher restoration without asserting real legal rights.';
+  v_denied boolean := false;
+BEGIN
+  v_preview := public.net_it_pub1_release(NULL,false,NULL,false);
+  IF v_preview->>'status'<>'ready_for_attested_commit'
+     OR (v_preview->>'eligible')::integer<>5 THEN
+    RAISE EXCEPTION 'SYNTHETIC approved preview not eligible: %',v_preview;
+  END IF;
+  BEGIN
+    PERFORM public.net_it_pub1_release(repeat('0',64),true,v_note,true);
+  EXCEPTION WHEN insufficient_privilege THEN
+    v_denied:=true;
+  END;
+  IF NOT v_denied THEN
+    RAISE EXCEPTION 'NET-IT-PUB1 accepted stale fingerprint';
+  END IF;
+  v_result := public.net_it_pub1_release(
+    v_preview->>'manifest_fingerprint',true,v_note,true
+  );
+  IF v_result->>'status'<>'published'
+     OR (v_result->>'published_count')::integer<>5 THEN
+    RAISE EXCEPTION 'NET-IT-PUB1 atomic five-company synthetic release failed: %',v_result;
+  END IF;
+END $pub1_five_success$;
+
 RESET ROLE;
 
 DO $pub1_production_guards$
@@ -401,8 +495,23 @@ BEGIN
  IF (SELECT enabled FROM private.net_pipeline1b2_settings WHERE singleton=true) THEN
    RAISE EXCEPTION 'NET-IT-PUB1 default-off minimal publisher was changed by failed commit';
  END IF;
- IF EXISTS(SELECT 1 FROM private.net_it_pub1_batch_ledger) THEN
-   RAISE EXCEPTION 'NET-IT-PUB1 audit ledger must remain empty after denied commit';
+ IF (SELECT count(*) FROM private.net_it_pub1_batch_ledger)<>1 THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 exactly one synthetic five-company audit entry expected';
+ END IF;
+ IF (SELECT count(*) FROM public.network_companies
+     WHERE website_domain LIKE 'netit-pub1-ci-%.invalid'
+       AND publication_status='published'
+       AND claimed_status='unclaimed' AND verification_status='unverified')<>5 THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 did not publish exactly five synthetic unverified profiles';
+ END IF;
+ IF (SELECT count(*) FROM public.network_company_role_assignments a
+     JOIN public.network_companies c ON c.id=a.company_id
+     JOIN public.network_company_roles r ON r.id=a.role_id
+     JOIN public.network_data_assertions s ON s.id=a.source_assertion_id
+     WHERE c.website_domain LIKE 'netit-pub1-ci-%.invalid'
+       AND r.canonical_key='processor_service_provider'
+       AND s.asserted_value->>'role_confirmed_by_company'='false')<>5 THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 five synthetic role assignments were not atomically saved';
  END IF;
  IF has_function_privilege('anon','public.net_it_pub1_release(text,boolean,text,boolean)','EXECUTE')
     OR has_function_privilege('anon','private.net_it_pub1_release_impl(text,boolean,text,boolean)','EXECUTE') THEN
