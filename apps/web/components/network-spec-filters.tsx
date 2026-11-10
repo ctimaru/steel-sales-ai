@@ -76,7 +76,7 @@ export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFil
           {field("wt","Spessore (mm)","3")}
         </div>
         <div className="mt-2 grid min-w-0 grid-cols-2 gap-2" data-testid="network-spec-sides-row">
-          {field("side","Lato 1 (mm)","100")}
+          {field("side","1° lato (mm)","100")}
           {field("side2","2° lato (mm)","50")}
         </div>
       </fieldset>
