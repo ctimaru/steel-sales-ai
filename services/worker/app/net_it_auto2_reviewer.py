@@ -99,11 +99,10 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
         return _finding(candidate, "needs_human", ["fetch_rejected_or_unavailable"])
 
-    texts = [
-        " ".join(str(x or "") for x in (
-            p.title, p.site_name, p.h1, p.text[:18000]
-        )) for p in pages
-    ]
+    # Title/H1/og:site_name may repeat an unverified brand, even when the
+    # actual company identity on the page is different. Require the full
+    # corporate name in first-party BODY text, not merely page metadata.
+    texts = [str(p.text[:18000]) for p in pages]
     matched = _name_evidenced(str(candidate.get("company_name") or ""), texts)
     if not matched:
         reasons.append("corporate_name_not_evidenced")
