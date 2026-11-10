@@ -263,7 +263,7 @@ export function NetworkCompactExperience({
                     aria-current={selected?"page":undefined}
                     className={"inline-flex min-h-11 min-w-0 items-center justify-center rounded-xl border px-2.5 py-2 text-center text-xs font-semibold leading-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
                       (!item.key?"col-span-2 ":"")+
-                      (selected?"border-[#175640] bg-[#175640] text-white shadow-sm":"border-[#d3e3d9] bg-[#f5f9f6] text-[#20543e] hover:border-[#9fc6af] hover:bg-[#eaf4ed]")}>
+                      (selected?"ui-action ui-action-primary shadow-sm":"border-[#d3e3d9] bg-[#f5f9f6] text-[#20543e] hover:border-[#9fc6af] hover:bg-[#eaf4ed]")}>
                     {item.key?item.label:"Tutta la filiera"}
                   </Link>;
                 })}
