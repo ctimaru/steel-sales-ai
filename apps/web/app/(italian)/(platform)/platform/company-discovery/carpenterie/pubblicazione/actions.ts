@@ -112,58 +112,61 @@ export async function reviewNetItPub1Candidate(formData: FormData) {
 }
 
 /**
- * Uses the existing, governed MINIMAL candidate publisher, never the
- * RELEASEBULK1 seed publisher (which deliberately rejects discovery matches).
- * The database's original publisher feature switch stays default OFF.
- * No administrative SQL override or automatic enablement is allowed here.
+ * One explicit Platform decision: the database atomically publishes five
+ * APPROVED candidates by using the EXISTING minimal publisher. The original
+ * feature switch is temporarily enabled only inside the same transaction
+ * and is restored to OFF before commit. No partial publication can occur.
  */
-export async function publishNetItPub1Candidate(formData: FormData) {
+export async function publishNetItPub1All(formData: FormData) {
   await requirePlatformPermission("discovery.publish");
   const { supabase, rows } = await selectedQueue();
-  const candidateId = String(formData.get("candidate_id") ?? "").trim();
-  const selected = rows.find((row) => row.candidate_id === candidateId) as
-    | (QueueRow & {
-        source_status?: string;
-        candidate_status?: string;
-        review_status?: string;
-        publisher_eligibility_reason?: string;
-        canonical_collision?: boolean;
-        personal_data_detected?: boolean;
-        already_published?: boolean;
-      })
-    | undefined;
-
-  if (
-    !selected ||
-    selected.source_status !== "approved" ||
-    selected.candidate_status !== "approved_company_data" ||
-    selected.review_status !== "pending_review" ||
-    selected.publisher_eligibility_reason !== "eligible_minimal_preview" ||
-    selected.canonical_collision ||
-    selected.personal_data_detected ||
-    selected.already_published
-  ) {
-    redirect(nextPath("error", "Questa carpenteria non è ancora pronta per la pubblicazione."));
+  const fingerprint = String(formData.get("manifest_fingerprint") ?? "").trim();
+  const note = String(formData.get("review_note") ?? "").trim();
+  const attested = formData.get("attested") === "on";
+  if (!attested || !/^[a-f0-9]{64}$/.test(fingerprint) || note.length < 80 || note.length > 2000) {
+    redirect(nextPath("error", "Conferma la revisione e inserisci una nota di 80–2000 caratteri."));
   }
 
-  // Feature OFF => the database refuses the operation, without any writes.
-  // Revalidation and success message happen only after an acknowledged commit.
-  const { data, error } = await supabase.rpc("net_pipeline1b2_publish_one", {
-    p_candidate_id: candidateId,
+  const eligible = rows.every((row) => {
+    const item = row as QueueRow & {
+      source_status?: string;
+      candidate_status?: string;
+      review_status?: string;
+      publisher_eligibility_reason?: string;
+      canonical_collision?: boolean;
+      personal_data_detected?: boolean;
+      already_published?: boolean;
+    };
+    return item.source_status === "approved" &&
+      item.candidate_status === "approved_company_data" &&
+      item.review_status === "pending_review" &&
+      item.publisher_eligibility_reason === "eligible_minimal_preview" &&
+      !item.canonical_collision && !item.personal_data_detected && !item.already_published;
+  });
+  if (!eligible) {
+    redirect(nextPath("error", "Le cinque schede non risultano tutte approvate e prive di duplicati."));
+  }
+
+  const { data, error } = await supabase.rpc("net_it_pub1_release", {
+    p_expected_fingerprint: fingerprint,
+    p_attested: true,
+    p_review_note: note,
+    p_commit: true,
   });
   if (error) {
     redirect(nextPath("error", safeErrorMessage(
-      error, "Pubblicazione non autorizzata o non disponibile: verifica l'attivazione protetta e i dati della scheda.",
+      error,
+      "Nessun profilo pubblicato. Controlla le approvazioni, il riepilogo e riprova dopo una nuova anteprima.",
     )));
   }
-  const result = data as { status?: string; company_id?: string } | null;
-  if (result?.status !== "published" || !result.company_id) {
-    redirect(nextPath("error", "Il database non ha confermato la pubblicazione di un nuovo profilo."));
+  const result = data as { status?: string; published_count?: number } | null;
+  if (result?.status !== "published" || result.published_count !== 5) {
+    redirect(nextPath("error", "Il database non ha confermato la pubblicazione atomica delle cinque schede."));
   }
 
   revalidatePath(ROUTE);
   revalidatePath("/platform/company-discovery/carpenterie");
   revalidatePath("/platform/company-discovery");
   revalidatePath("/network");
-  redirect(nextPath("message", "Profilo minimo pubblicato. Verifica la scheda nel Network."));
+  redirect(nextPath("message", "Cinque profili minimi pubblicati. Controlla le nuove schede nel Network."));
 }
