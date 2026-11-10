@@ -68,7 +68,7 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
             </p>
             <button type="submit" disabled={!ready || !request.trim()} data-testid="commercial-ai-first-cta"
               className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-[#175640] px-5 text-sm font-semibold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50">
-              Apri chat e anteprima →
+              Analizza con l’AI →
             </button>
           </div>
           {error ? <p role="alert" className="text-xs text-[#9d4e28]">{error}</p> : null}
