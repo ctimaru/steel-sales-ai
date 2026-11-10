@@ -113,6 +113,12 @@ export default async function CompanyDiscoveryPage({
               Mercati · fonti e revisione
             </Link>
             <Link
+              href="/platform/company-discovery/scale15k"
+              className="platform-secondary inline-flex h-10 items-center rounded-xl border border-[#b7d8c5] bg-[#edf7ef] px-4 text-sm font-bold text-[#15583e]"
+            >
+              Italia · Obiettivo 15.000
+            </Link>
+            <Link
               href="/platform/company-discovery/coverage"
               className="platform-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
