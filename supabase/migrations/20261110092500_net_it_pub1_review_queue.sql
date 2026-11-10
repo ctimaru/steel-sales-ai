@@ -38,8 +38,16 @@ BEGIN
         'canonical_domain', c.canonical_domain,
         'private_legal_name', c.legal_name,
         'proposed_public_name', c.enrichment_quality #>> '{net_it_pub1_20261110,public_name_observed}',
-        'identity_source', c.enrichment_quality #>> '{net_it_pub1_20261110,identity_source}',
-        'activity_source', c.enrichment_quality #>> '{net_it_pub1_20261110,activity_source}',
+        'identity_source', COALESCE(
+          c.enrichment_quality #>> '{net_it_pub1_official_identity_evidence_20261110,first_party_identity_url}',
+          c.enrichment_quality #>> '{net_it_pub1_20261110,identity_source}'
+        ),
+        'activity_source', COALESCE(
+          c.enrichment_quality #>> '{net_it_pub1_official_identity_evidence_20261110,activity_evidence_url}',
+          c.enrichment_quality #>> '{net_it_pub1_20261110,activity_source}'
+        ),
+        'first_party_name_observed',
+          c.enrichment_quality #>> '{net_it_pub1_official_identity_evidence_20261110,company_name_on_first_party}',
         'locality_unverified', c.enrichment_quality #>> '{net_it_pub1_20261110,locality_observed_unverified}',
         'source_rights_not_attested', COALESCE(
           (c.enrichment_quality #>> '{net_it_pub1_20261110,source_rights_not_attested}')::boolean,
