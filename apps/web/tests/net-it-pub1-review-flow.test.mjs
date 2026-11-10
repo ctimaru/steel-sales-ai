@@ -53,5 +53,8 @@ test("Publisher definitions remain disabled and install no public company", () =
   assert.match(migration, /netit_facts1_policy/);
   assert.match(migration, /enabled boolean NOT NULL DEFAULT false/);
   assert.match(migration, /VALUES \(true,false\) ON CONFLICT/);
-  assert.doesNotMatch(migration, /\bINSERT\s+INTO\s+public\.network_companies\b/i);
+  // Publication INSERT exists inside a guarded function, not as top-level migration DML.
+  assert.match(migration, /IF coalesce\(p_commit,false\) AND NOT EXISTS \(/);
+  assert.match(migration, /WHERE rt\.singleton=true AND rt\.enabled=true/);
+  assert.match(migration, /Publisher installed but public release not enabled/);
 });
