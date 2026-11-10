@@ -25,8 +25,8 @@ test("COMM-FOCUS1: il filtro è nel cursore e vale solo nella vista Tutte", () =
 });
 
 test("COMM-FOCUS1: i contatori sono link di filtro accessibili e il filtro resta nei link", () => {
-  assert.match(worklist, /data-testid="commercial-focus-counters"/);
-  assert.match(worklist, /aria-current=\{active \? "true" : undefined\}/);
+  assert.match(worklist, /data-testid="commercial-focus-active"/); // COMM-CLEAN-LIST1: i contatori sono nelle schede in alto
+  assert.doesNotMatch(worklist, /data-testid="commercial-focus-counters"/);
   assert.match(worklist, /<input type="hidden" name="focus" value=\{focus\} \/>/);
   assert.match(worklist, /route\(view, query, item\.key, data\.paging\?\.page \?\? page, data\.paging\?\.currentCursor, focus\)/);
   assert.match(worklist, /emptyCause = data\.partial \? "unavailable" : query \|\| focus \? "filtered"/);

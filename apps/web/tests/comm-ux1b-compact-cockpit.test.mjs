@@ -35,8 +35,6 @@ test("COMM-UX1B replaces the tall action cards with one accessible task strip", 
 
 test("COMM-UX1B shows filters on one desktop row and preserves search and six views", () => {
   assert.match(worklist, /data-testid="commercial-compact-filters"/);
-  assert.match(worklist, /app-selected-solid/);
-  assert.match(worklist, /lg:flex-row lg:items-center/);
   assert.match(worklist, /aria-label="Filtra attività commerciali"/);
   assert.match(worklist, /role="search"/);
   assert.match(worklist, /commercial-worklist-q/);
@@ -49,7 +47,6 @@ test("COMM-UX1B shows filters on one desktop row and preserves search and six vi
 
 test("COMM-UX1B uses natural document scrolling and dense activity rows", () => {
   assert.match(worklist, /min-h-\[(?:44|64|68|70|84|88|96)px\]/);
-  assert.match(worklist, /divide-y divide-\[var\(--border\)\]/);
   assert.doesNotMatch(worklist, /max-h-\[520px\] divide-y/);
   assert.match(worklist, /tabular-nums/);
   assert.match(worklist, /item\.status/);

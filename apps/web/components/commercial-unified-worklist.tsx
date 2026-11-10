@@ -1,7 +1,5 @@
 import Link from "next/link";
 import cinematic from "@/components/commercial-cinematic.module.css";
-import { groupCommercialRows } from "@/lib/commercial-row-groups";
-import { commercialRowAmount } from "@/lib/commercial-row-facts";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealQuickActions } from "@/components/commercial-deal-quick-actions";
 import { CommercialDealDecisionReadiness, CommercialDealIntelligence, loadCommercialDealFacts } from "@/components/commercial-deal-intelligence";
@@ -10,7 +8,7 @@ import { commercialDealNextStep, commercialDealOperationTab } from "@/lib/commer
 import { getOperationalEntityData } from "@/lib/commercial-data";
 import {
   commercialFocusLabels, isStreamView, mergedCommercialHref,
-  type CommercialFocus, type CommercialFocusCounts,
+  type CommercialFocus,
 } from "@/lib/commercial-unified-streams";
 import { CommercialDealLabelForm } from "@/components/commercial-deal-label-form";
 import { CommercialCampaignOperations, operationsHref, type CommercialOperationsTab } from "@/components/commercial-campaign-operations";
@@ -30,8 +28,6 @@ const views: ReadonlyArray<{ key: CommercialView; title: string }> = [
   { key: "all", title: "Tutte" },
   { key: "received", title: "Ricevute" },
   { key: "sent", title: "Inviate" },
-  { key: "offers", title: "Offerte" },
-  { key: "orders", title: "Ordini" },
   { key: "drafts", title: "Bozze" },
 ];
 
@@ -54,21 +50,16 @@ function statusTone(status: string) {
   if (doneStatuses.has(key)) return "done" as const;
   return "neutral" as const;
 }
-const statusBadgeClass = {
-  action: "border-[#e2c27a] bg-[#fff4d6] text-[#6b4a07]",
-  neutral: "border-[var(--border)] bg-[var(--surface-secondary)] text-[var(--brand-deep)]",
-  done: "border-[#dde3df] bg-[#f3f5f4] text-[#4f5f56]",
+const statusDotClass = {
+  action: "bg-[#d9a62e]",
+  neutral: "bg-[#3d8a63]",
+  done: "border border-[#9fb3a8] bg-transparent",
 } as const;
-const rowAccentClass = {
-  action: "border-l-[#d9a62e]",
-  neutral: "border-l-transparent",
-  done: "border-l-transparent",
+const statusTextClass = {
+  action: "text-[#8a5a00]",
+  neutral: "text-[#276147]",
+  done: "text-[#6b7d73]",
 } as const;
-
-function groupLabel(item: UnifiedCommercialItem, type: string) {
-  const same = item.title.trim().toLocaleLowerCase("it-IT") === type.toLocaleLowerCase("it-IT");
-  return same ? type + " · cliente non indicato" : type + " · " + item.title;
-}
 
 function route(view: CommercialView, query: string, key: string, page: number, cursor?: string | null, focus: CommercialFocus | "" = "") {
   const href = (cursor || focus) && isStreamView(view) ? mergedCommercialHref(view, query, cursor ?? undefined, key, focus) :
@@ -259,7 +250,7 @@ async function SelectedDetail({
 }
 
 export async function CommercialUnifiedWorklist({
-  data, selected, query, view, canWrite, tab, page, focus = "", focusCounts = null,
+  data, selected, query, view, canWrite, tab, page, focus = "",
 }: {
   data: UnifiedCommercialData;
   selected: string;
@@ -269,7 +260,6 @@ export async function CommercialUnifiedWorklist({
   tab: CommercialOperationsTab;
   page: number;
   focus?: CommercialFocus | "";
-  focusCounts?: CommercialFocusCounts | null;
 }) {
   // Paged views have already been searched inside SQL/RPC.
   const filtered = data.paging ? data.items : filterCommercialItems(data.items, view, query);
@@ -303,81 +293,44 @@ export async function CommercialUnifiedWorklist({
         ? { href: appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake", label: "Prepara con la chat" }
         : { href: commercialHref("all"), label: "Mostra tutte le trattative" };
 
-  const renderRow = (item: UnifiedCommercialItem) => (
-        <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor, focus)}
-          aria-current={item.key === active?.key ? "true" : undefined}
-          className={"group grid min-h-[84px] grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1 border-l-[3px] px-3 py-2 transition hover:bg-[#f3f8f5] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] sm:min-h-[44px] sm:gap-x-3 sm:gap-y-0 sm:px-4 sm:py-1.5 " +
-            (item.key === active?.key ? "border-l-[#175640] bg-[#edf6f0]" : rowAccentClass[statusTone(item.status)])}>
-          <div className="col-span-2 min-w-0 space-y-0.5 sm:col-span-1 sm:flex sm:items-baseline sm:gap-3 sm:space-y-0" data-testid="commercial-smart-deal-card">
-            <div className="flex min-w-0 items-center gap-1.5 text-[10px] leading-4 sm:w-[128px] sm:shrink-0">
-              <span className="shrink-0 font-bold uppercase tracking-wide text-[var(--brand-primary)]">{itemType(item)}</span>
-              <span aria-hidden="true" className="text-[var(--text-secondary)] sm:hidden">·</span>
-              <span className="min-w-0 truncate text-[var(--text-secondary)] sm:hidden">{item.origin}</span>
-            </div>
-            <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)] sm:line-clamp-1 sm:max-w-[40%] sm:shrink-0" title={item.title}>{item.title}</p>
-            {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)] sm:hidden">{item.subtitle}</p> : null}
-            {(item.rowFacts?.reference || item.rowFacts?.quantity ||
-              (item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle) ||
-              (item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title) ||
-              item.rowFacts?.lines ||
-              commercialRowAmount(item.rowFacts?.totalEur) ||
-              (item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt)))) ? (
-              <div data-testid="commercial-deal-row-facts" className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] leading-4 text-[#48685a] sm:min-w-0 sm:flex-1 sm:flex-nowrap sm:overflow-hidden sm:whitespace-nowrap">
-                {item.rowFacts?.reference ? <span className="shrink-0 font-mono text-[10.5px] text-[#2f5a47]" title="Riferimento interno">rif. {item.rowFacts.reference}</span> : null}
-                {item.rowFacts?.rfqRef ? <span className="shrink-0" title="Richiesta di origine">da RFQ {item.rowFacts.rfqRef}</span> : null}
-                {item.rowFacts?.customerRef ? <span className="max-w-full truncate" title={item.rowFacts.customerRef}>Ord. cliente · {item.rowFacts.customerRef}</span> : null}
-                {item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle
-                  ? <span className="max-w-full truncate" title={item.rowFacts.counterparty}>Azienda · {item.rowFacts.counterparty}</span> : null}
-                {item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title
-                  ? <span className="max-w-full truncate" title={item.rowFacts.material}>Materiale · {item.rowFacts.material}</span> : null}
-                {item.rowFacts?.lines ? <span>{item.rowFacts.lines}</span> : null}
-                {item.rowFacts?.quantity ? <span className="font-medium">Quantità · {item.rowFacts.quantity}</span> : null}
-                {commercialRowAmount(item.rowFacts?.totalEur)
-                  ? <span className="font-semibold text-[#205a44]">Totale ordine · {commercialRowAmount(item.rowFacts?.totalEur)}</span> : null}
-                {item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt))
-                  ? <span>Scadenza · {formatHubDate(item.rowFacts.dueAt)}</span> : null}
-              </div>
-            ) : null}
-          </div>
-          <div className="col-span-2 flex min-w-0 items-center justify-between gap-2 border-t border-[#edf3ee] pt-1 text-right sm:col-span-1 sm:max-w-[320px] sm:flex-row-reverse sm:justify-end sm:gap-3 sm:border-0 sm:pt-0">
-            <span className={"max-w-full truncate rounded-md border px-2 py-0.5 sm:w-[112px] sm:text-center text-[11px] font-semibold leading-4 " + statusBadgeClass[statusTone(item.status)]} title={item.status}>{item.status}</span>
-            <div className="flex items-center gap-2 sm:w-[132px] sm:justify-end">
-              {item.at ? <time className="text-[10px] tabular-nums text-[var(--text-secondary)]">{formatHubDate(item.at)}</time> : null}
-              <span className="sr-only">Apri</span>
-            </div>
-          </div>
-        </Link>
-  );
+  // COMM-CLEAN-LIST1: una riga = una trattativa. Due righe di testo, stato come pallino.
+  const renderRow = (item: UnifiedCommercialItem) => {
+    const type = itemType(item);
+    const tone = statusTone(item.status);
+    const sameAsType = item.title.trim().toLocaleLowerCase("it-IT") === type.toLocaleLowerCase("it-IT");
+    const detail = item.rowFacts?.quantity ?? item.rowFacts?.lines ?? "";
+    const meta = [sameAsType ? "" : type, detail].filter(Boolean).join(" · ") || item.origin;
+    return (
+      <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor, focus)}
+        aria-current={item.key === active?.key ? "true" : undefined}
+        data-testid="commercial-smart-deal-card"
+        title={item.rowFacts?.reference ? "rif. " + item.rowFacts.reference : undefined}
+        className={"group flex min-h-[64px] items-center gap-3 px-4 py-2.5 transition hover:bg-[#f5faf7] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--brand-primary)] sm:px-5 " +
+          (item.key === active?.key ? "bg-[#edf6f0]" : "")}>
+        <span aria-hidden="true" className={"h-2.5 w-2.5 shrink-0 rounded-full " + statusDotClass[tone]} />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-sm font-semibold text-[#143f30]">{item.title}</span>
+          <span className="block truncate text-xs text-[#5c7063]">{meta}</span>
+        </span>
+        <span className="flex shrink-0 flex-col items-end gap-0.5 text-right">
+          {item.at ? <time className="text-xs tabular-nums text-[#5c7063]">{formatHubDate(item.at)}</time> : null}
+          <span className={"text-xs font-semibold " + statusTextClass[tone]}>{item.status}</span>
+        </span>
+        <span className="sr-only">Apri</span>
+        <span aria-hidden="true" className="hidden text-[#9ab5a5] transition group-hover:translate-x-0.5 group-hover:text-[#175640] sm:inline">›</span>
+      </Link>
+    );
+  };
 
   return (
     <section id="commercial-worklist" aria-labelledby="commercial-worklist-title" data-testid="comm-cine2-deal-cockpit" className={"scroll-mt-28 space-y-2 " + cinematic.worklist}>
-      <div data-testid="comm-cine9-workspace-heading"
-        className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-xl border border-[#dce8df] bg-white px-3 py-1.5 sm:gap-x-4 sm:gap-y-1 sm:px-4 sm:py-1">
-        <h2 id="commercial-worklist-title" className="sr-only">Le mie trattative</h2>
-        {view === "all" && focusCounts ? (
-          <nav aria-label="Cosa fare adesso" data-testid="commercial-focus-counters" className="flex min-w-0 flex-wrap items-center gap-1.5">
-            {(["reply", "waiting", "due"] as const).map((key) => {
-              const active = focus === key;
-              return (
-                <Link key={key} href={active ? commercialHref("all", query) : mergedCommercialHref("all", query, undefined, undefined, key)}
-                  aria-current={active ? "true" : undefined}
-                  data-testid={"commercial-focus-" + key}
-                  className={"inline-flex min-h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
-                    (active ? "border-[#175640] bg-[#175640] text-white"
-                      : key === "reply" && focusCounts[key] > 0 ? "border-[#e2c27a] bg-[#fff4d6] text-[#6b4a07] hover:bg-[#ffeec2]"
-                      : "border-[#c7dece] bg-[#f6faf7] text-[#1f4f3b] hover:bg-[#eaf4ee]")}>
-                  {commercialFocusLabels[key]}
-                  <span className="tabular-nums">{focusCounts[key]}</span>
-                </Link>
-              );
-            })}
-            {focus ? <Link href={commercialHref("all", query)} className="px-1 text-xs font-semibold text-[#276147] underline-offset-2 hover:underline">Mostra tutte</Link> : null}
-          </nav>
-        ) : null}
-        <div className="sr-only shrink-0 rounded-full border border-[#c7dece] bg-[#f6faf7] px-3 py-1 text-xs font-semibold tabular-nums text-[#276147]">
-          {data.partial && filtered.length === 0 ? "—" : data.paging?.exact && data.paging.total !== null ? data.paging.total : filtered.length} <span className="sm:hidden">attività</span><span className="hidden sm:inline">{data.partial ? "attività disponibili" : "attività in questa vista"}</span>
-        </div>
-      </div>
+      <h2 id="commercial-worklist-title" className="sr-only">Le mie trattative</h2>
+      {focus ? (
+        <p data-testid="commercial-focus-active" className="flex flex-wrap items-center gap-2 px-1 text-xs text-[#315c49]">
+          Filtro attivo: <span className="font-semibold">{commercialFocusLabels[focus]}</span>
+          <Link href={commercialHref("all", query)} className="font-semibold text-[#175640] underline underline-offset-2">Rimuovi ×</Link>
+        </p>
+      ) : null}
 
       {data.partial ? (
         <p role="status" className="rounded-lg border border-[#dfc9a5] bg-[#fff9ed] px-3 py-2 text-xs text-[#795321]">
@@ -397,56 +350,36 @@ export async function CommercialUnifiedWorklist({
         </p>
       ) : null}
 
-      <div className="flex min-w-0 flex-col gap-2 rounded-2xl border border-[#e1eae4] bg-white p-2 shadow-[0_12px_36px_-32px_rgba(4,46,32,0.4)] lg:flex-row lg:items-center" data-testid="commercial-compact-filters">
-        <nav aria-label="Filtra attività commerciali" className="flex min-w-0 shrink-0 gap-0.5 overflow-x-auto rounded-xl bg-[#eef5f0] p-1">
+      <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-between" data-testid="commercial-compact-filters">
+        <nav aria-label="Filtra attività commerciali" className="flex min-w-0 shrink-0 gap-1 overflow-x-auto">
           {views.map(({ key, title }) => (
             <Link key={key} href={commercialHref(key, query)} aria-current={key === view ? "page" : undefined}
-              className={"inline-flex min-h-10 shrink-0 items-center rounded-md px-2.5 text-xs font-semibold transition " +
-                (key === view ? "app-selected-solid" : "text-[var(--text-secondary)] hover:bg-[var(--brand-primary-soft)] hover:text-[var(--brand-deep)]")}>
+              className={"inline-flex min-h-9 shrink-0 items-center rounded-full px-3.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)] " +
+                (key === view ? "bg-[#175640] text-white " + cinematic.tabActive : "text-[#4f6b5b] hover:bg-[#e8f3ec] hover:text-[#143f30]")}>
               {title}
             </Link>
           ))}
         </nav>
-        <form action={appRoutes.commercial.home} method="get" role="search" className="flex min-w-0 flex-1 gap-2">
+        <form action={appRoutes.commercial.home} method="get" role="search" className="relative min-w-0 sm:w-[300px]">
           {view !== "all" ? <input type="hidden" name="view" value={view} /> : null}
           {view === "all" && focus ? <input type="hidden" name="focus" value={focus} /> : null}
           <label htmlFor="commercial-worklist-q" className="sr-only">Filtra le attività visibili</label>
+          <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#7a9184]">⌕</span>
           <input id="commercial-worklist-q" type="search" name="q" maxLength={80} defaultValue={query}
             title={isStreamView(view)
               ? "Il filtro qui cerca nelle intestazioni RFQ, offerte e ordini."
               : "Qui filtri le attività visibili, non tutto l’archivio documentale."}
-            placeholder={isStreamView(view) ? "Cerca titolo RFQ, stato o riferimento ordine..." : "Filtra azienda, articolo o stato..."}
-            className="min-h-10 min-w-0 flex-1 rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
-          <button className="app-secondary min-h-10 shrink-0 rounded-lg px-3 text-xs font-semibold" type="submit">Filtra</button>
+            placeholder="Cerca…"
+            className="min-h-10 w-full min-w-0 rounded-full border border-[#d6e5db] bg-white pl-8 pr-4 text-sm text-[#143f30] placeholder:text-[#7a9184] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
+          <button className="sr-only" type="submit">Filtra</button>
         </form>
-        <Link href={commercialSearchHref(query)}
-          className="inline-flex min-h-10 shrink-0 items-center px-1 text-xs font-semibold text-[var(--brand-deep)] underline-offset-2 hover:underline">
-          Cerca nello storico →
-        </Link>
       </div>
 
       <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(380px,0.9fr)]" : "grid min-w-0 gap-4"} data-testid="comm-cine2-split-view">
         <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-[22px] border border-[#dce7e0] bg-white shadow-[0_18px_55px_-40px_rgba(4,46,32,0.50)]"}>
           {filtered.length ? (
-            <div className="divide-y divide-[var(--border)]">
-              {groupCommercialRows(filtered).map((entry) => entry.type === "single" ? renderRow(entry.item) : (
-                <details key={entry.id} data-testid="commercial-row-group" open={entry.items.some((item) => item.key === active?.key)}
-                  className="group/rows">
-                  <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-2 bg-[#f6faf7] px-3 py-2 text-sm hover:bg-[#eef6f1] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--brand-primary)] sm:px-4 [&::-webkit-details-marker]:hidden">
-                    <span className="flex min-w-0 items-center gap-2">
-                      <span aria-hidden="true" className="text-sm text-[#547666] transition group-open/rows:rotate-90">›</span>
-                      <span className="shrink-0 rounded-full bg-[#175640] px-2 py-0.5 text-[11px] font-bold tabular-nums text-white">{entry.items.length}</span>
-                      <span className="min-w-0 truncate font-semibold text-[var(--brand-deep)]">
-                        {groupLabel(entry.items[0], itemType(entry.items[0]))}
-                      </span>
-                    </span>
-                    <span className="shrink-0 text-xs text-[var(--text-secondary)]">
-                      {entry.items[0].at ? formatHubDate(entry.items[0].at) : ""} · mostra/nascondi
-                    </span>
-                  </summary>
-                  <div className="divide-y divide-[var(--border)] border-t border-[var(--border)]">{entry.items.map(renderRow)}</div>
-                </details>
-              ))}
+            <div className="divide-y divide-[#edf3ef]">
+              {filtered.map(renderRow)}
             </div>
           ) : (
             <div className="px-4 py-3 sm:px-5 sm:py-4" data-commercial-empty-state={emptyCause}>
