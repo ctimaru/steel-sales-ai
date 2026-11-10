@@ -11,6 +11,10 @@ const entrance = readFileSync(new URL("../app/(italian)/(platform)/platform/comp
 test("First-five review is precisely scoped, authenticated and read-only in SQL", () => {
   const domains = ["carpenteriamfn.it", "csmetalmeccanica.com", "guazzifratelli.it", "ntcgroupitalia.com", "carpenteriacosta.com"];
   for (const domain of domains) assert.ok(sql.includes("'" + domain + "'"), "Missing exact cohort: " + domain);
+  assert.match(sql, /CREATE OR REPLACE FUNCTION private\.net_it_pub1_review_queue_impl\(\)/);
+  assert.match(sql, /CREATE OR REPLACE FUNCTION public\.net_it_pub1_review_queue\(\)/);
+  assert.match(sql, /SECURITY DEFINER/);
+  assert.match(sql, /SECURITY INVOKER/);
   assert.match(sql, /auth\.uid\(\)/);
   assert.match(sql, /require_platform_permission\('discovery\.governance_review'\)/);
   assert.match(sql, /FROM public\.network_company_discovery_candidates c/);
