@@ -10,7 +10,7 @@ test("smart deal cards show title, counterpart context, status, date and accessi
   assert.match(src,/item\.subtitle/);
   assert.match(src,/item\.status/);
   assert.match(src,/formatHubDate\(item\.at\)/);
-  assert.match(src,/Apri →/);
+  assert.match(src,/<span className="sr-only">Apri<\/span>/);
   assert.match(src,/aria-current=\{item\.key === active\?\.key \? "true" : undefined\}/);
   assert.match(src,/href=\{route\(view, query, item\.key/);
   assert.match(src,/data-testid="commercial-list-pane"/);

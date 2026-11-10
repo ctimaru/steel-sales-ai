@@ -29,7 +29,7 @@ test("COMM-UX6.B maintains 44px compact rows with all real deal fields and no in
     assert.ok(worklist.includes(field), field + " must remain visible from the existing view-model");
   }
   assert.match(worklist, /title=\{item\.status\}/);
-  assert.match(worklist, /Apri →/);
+  assert.match(worklist, /<span className="sr-only">Apri<\/span>/);
   assert.doesNotMatch(worklist, /replace\(\/[^/]+\//);
   assert.match(worklist, /data-testid="commercial-list-pane"/);
   assert.match(worklist, /divide-y divide-\[var\(--border\)\]/);

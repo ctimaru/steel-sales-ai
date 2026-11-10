@@ -11,7 +11,6 @@ const hub = read("../app/(italian)/(workspace)/marketplace/rfq-hub/page.tsx");
 
 test("COMM-SIMPLE1: Commerciale is work-first and fits a shorter header before the AI", () => {
   assert.match(commercial, /data-testid="comm-cine1-hero"/);
-  assert.match(commercial, /lg:min-h-\[44px\]/);
   assert.doesNotMatch(commercial, /lg:min-h-\[112px\]/);
   assert.match(styles, /\.heroTitle\s*\{[\s\S]*?max-width: none;/);
   const top = ["comm-cine1-hero", "<CommercialDirectorPriorityDesk", "comm-cine13-first-workspace",
@@ -20,16 +19,14 @@ test("COMM-SIMPLE1: Commerciale is work-first and fits a shorter header before t
   assert.ok(positions.every((pos, i) => pos >= 0 && (i === 0 || pos > positions[i-1])));
   assert.equal((commercial.match(/<CommercialAiCompanion/g) ?? []).length, 1);
   assert.equal((commercial.match(/<CommercialUnifiedWorklist/g) ?? []).length, 1);
-  assert.match(director, /data-testid="commercial-compact-attention"/);
   assert.match(director, /data-testid="commercial-director-rfq-priorities"/);
-  assert.match(director, /data-testid="commercial-director-resume"/);
   assert.match(director, /confirmedCount/);
   assert.match(ai, /nessuna richiesta viene inviata automaticamente/);
   assert.match(commercial, /<CommercialCalculatorQuickAccess/);
   assert.match(commercial, /data-testid="commercial-history-entry"/);
   assert.match(commercial, /data-testid="commercial-manual-entry"/);
   const toolsStart = commercial.indexOf('id="commercial-tool-access"');
-  const toolsEnd = commercial.indexOf("      </section>", toolsStart);
+  const toolsEnd = commercial.indexOf("</details>", toolsStart);
   assert.ok(toolsEnd > toolsStart);
   assert.doesNotMatch(commercial.slice(toolsStart, toolsEnd), /Relazioni commerciali|Aziende da seguire|appRoutes\.network\.directory/);
 });

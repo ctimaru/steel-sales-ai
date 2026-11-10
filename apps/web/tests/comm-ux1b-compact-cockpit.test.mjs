@@ -15,23 +15,21 @@ test("COMM-UX1B uses opt-in compact layout without compressing other workspaces"
   assert.match(focus, /compact\s*\? "mt-0.5 text-xl/);
   assert.match(commercial, /<FocusPage compact /);
   assert.match(commercial, /data-testid="comm-cine1-hero"/);
-  assert.match(commercial, /Le tue trattative\./);
-  assert.match(commercial, /Un’unica visione\./);
-  assert.match(commercial, /Solo dati autorizzati|Dati live/);
+  assert.match(commercial, /Commerciale · Le tue trattative/);
 });
 
 test("COMM-UX1B replaces the tall action cards with one accessible task strip", () => {
   assert.match(commercial, /<CommercialDirectorPriorityDesk/);
   assert.match(commercial, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.match(priorities, /data-testid="commercial-compact-actions"/);
-  assert.match(priorities, /data-testid="commercial-compact-attention"/);
+  assert.match(priorities, /data-testid="commercial-director-rfq-priorities"/);
   assert.match(priorities, /aria-labelledby="commercial-today-heading"/);
-  assert.match(priorities, /Cosa richiede attenzione/);
+  assert.match(priorities, /Da verificare/);
   assert.match(priorities, /actionableRfqs\.slice\(0, 2\)/);
   assert.match(priorities, /appRoutes\.rfqHub\.inbox/);
-  assert.match(priorities, /!canWrite \? \(/);
-  assert.match(priorities, /Segnalazioni RFQ non disponibili/);
-  assert.match(priorities, /Consultazione in sola lettura/);
+  // COMM-DECLUTTER1: senza segnalazioni verificate l'avviso non occupa spazio.
+  assert.match(priorities, /!canWrite \|\| !procurementAvailable/);
+  assert.match(priorities, /nessuna segnalazione da verificare/);
   assert.doesNotMatch(commercial, /lg:grid-cols-\[1\.15fr_0\.85fr\]/);
 });
 

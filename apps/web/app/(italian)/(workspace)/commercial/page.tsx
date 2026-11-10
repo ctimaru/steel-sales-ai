@@ -204,33 +204,7 @@ export default async function CommercialHomePage({
           </Link>
         </header>
       ) : (<>
-      <section aria-label="Commerciale Smart Steel Sales" data-testid="comm-cine1-hero"
-        className={"relative isolate overflow-hidden border border-[#174437] bg-[#082f28] text-white " + cinematic.hero}>
-        <div className={"grid items-center gap-1.5 px-4 py-1.5 sm:px-5 lg:min-h-[44px] lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-4 lg:px-5 lg:py-1 " + cinematic.heroGrid}>
-          <div className="relative z-10 min-w-0">
-            <div className="flex min-w-0 items-baseline gap-3">
-              <h1 className={"text-[clamp(1.1rem,1.5vw,1.3rem)] font-semibold leading-[1.15] tracking-[-0.025em] text-white " + cinematic.heroTitle}>
-                Le tue trattative. <span className="hidden text-[#b4dec2] sm:inline">Un’unica visione.</span>
-              </h1>
-              <span className="hidden text-[10px] font-bold uppercase tracking-[0.14em] text-[#add4bb] xl:inline">
-                Smart Steel Sales / Commerciale
-              </span>
-            </div>
-            <p className="mt-0.5 text-[11px] leading-4 text-[#d2e7db] sm:hidden">
-              Richieste, offerte e ordini in un unico spazio.
-            </p>
-          </div>
-          <div aria-label="Il tuo centro operativo" className={"relative z-10 hidden lg:block " + cinematic.heroMetrics}
-            title={(mode === "live" ? "Dati live" : mode === "demo" ? "Modalità demo" : "Stato dello storico da verificare") + " · Workspace privato"}>
-            <p className="sr-only">Il tuo centro operativo · Storico commerciale</p>
-            <dl className="flex items-baseline gap-4">
-              <div className="flex items-baseline gap-1.5"><dt className="text-[10px] text-[#c6ddce]">Richieste</dt><dd className="text-base font-semibold tabular-nums text-white">{historicalCount(operational.rfqs)}</dd></div>
-              <div className="flex items-baseline gap-1.5"><dt className="text-[10px] text-[#c6ddce]">Offerte</dt><dd className="text-base font-semibold tabular-nums text-white">{historicalCount(operational.offers)}</dd></div>
-              <div className="flex items-baseline gap-1.5"><dt className="text-[10px] text-[#c6ddce]">Ordini</dt><dd className="text-base font-semibold tabular-nums text-white">{historicalCount(operational.orders)}</dd></div>
-            </dl>
-          </div>
-        </div>
-      </section>
+      <h1 className="sr-only" data-testid="comm-cine1-hero">Commerciale · Le tue trattative</h1>
 
       {/* COMM-NAV9.M: director decisions must precede tools on the mobile first
           viewport. The same DOM order on desktop preserves keyboard/screen-reader
@@ -244,16 +218,17 @@ export default async function CommercialHomePage({
         view={view}
       />
 
-      <div data-testid="comm-cine13-first-workspace" className="relative z-10 px-1 sm:px-2">
-        <CommercialAiCompanion canWrite={canWrite} />
-      </div>
-
-      <section id="commercial-tool-access" aria-label="Alternative alla chat e ricerca nello storico"
-        data-testid="commercial-primary-quick-actions"
-        className="scroll-mt-28 rounded-xl border border-[#d6e5db] bg-white px-3 py-1 sm:px-3">
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1.5" data-testid="commercial-alternative-methods">
-            <span className="hidden text-[11px] font-semibold text-[#5a6f60] xl:inline">Strumenti</span>
+      <div data-testid="comm-cine13-first-workspace" className="relative z-10 flex flex-col gap-2 px-1 sm:px-2 lg:flex-row lg:items-start">
+        <div className="min-w-0 flex-1">
+          <CommercialAiCompanion canWrite={canWrite} />
+        </div>
+        <details id="commercial-tool-access" data-testid="commercial-primary-quick-actions"
+          className="group relative shrink-0 scroll-mt-28 [&_summary::-webkit-details-marker]:hidden">
+          <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl border border-[#d6e5db] bg-white px-4 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]">
+            Strumenti <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
+          </summary>
+          <div className="mt-1 flex min-w-[260px] flex-col items-stretch gap-2 rounded-xl border border-[#d6e5db] bg-white p-3 shadow-lg lg:absolute lg:right-0 lg:top-full lg:z-30"
+            data-testid="commercial-alternative-methods">
             <CommercialCalculatorQuickAccess references={calculatorReferences} />
             {canWrite ? (
               <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
@@ -262,17 +237,14 @@ export default async function CommercialHomePage({
                 Compila manualmente →
               </Link>
             ) : null}
-          </div>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
             <Link href={appRoutes.commercial.search} data-testid="commercial-history-entry"
               aria-label="Cerca RFQ, offerte, ordini e aziende già presenti nello storico commerciale"
               className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] bg-[#f3f7f4] px-3 text-xs font-semibold text-[#254f3d] hover:bg-[#e4f0e8] focus-visible:outline-2 focus-visible:outline-offset-2">
               Cerca nello storico ↗
             </Link>
-
           </div>
-        </div>
-      </section>
+        </details>
+      </div>
 
       </>)}
 

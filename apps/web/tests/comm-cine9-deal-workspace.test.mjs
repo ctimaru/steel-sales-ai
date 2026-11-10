@@ -6,7 +6,7 @@ const source = readFileSync(new URL("../components/commercial-unified-worklist.t
 
 test("COMM-CINE9 upgrades the deal workspace without replacing real operational data", () => {
   assert.match(source, /comm-cine9-workspace-heading/);
-  assert.match(source, /Deal cockpit/);
+  assert.match(source, /id="commercial-worklist-title" className="sr-only"/);
   assert.match(source, /data\.paging\?\.exact/);
   assert.match(source, /filtered\.length/);
   assert.match(source, /commercial-compact-filters/);
