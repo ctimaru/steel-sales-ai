@@ -1,0 +1,50 @@
+{
+  "cohort": "NET-IT-USER1B-PILOT3-20261108",
+  "date_observed": "2026-11-08",
+  "evidence_scope": "first_party_factual_corporate_metadata_only",
+  "operator_identity_approved": false,
+  "operator_source_rights_approved": false,
+  "published_count": 0,
+  "notes": "Public source facts do not by themselves prove a content-reuse license. No website images, slogans, product descriptions, individual contacts or performance claims may be republished. This packet is a reviewer aid, not authorization.",
+  "companies": [
+    {
+      "legal_name_observed": "Lazzari Srl",
+      "domain": "lazzarisrl.it",
+      "vat_id_observed": "04215390750",
+      "legal_identity_url": "https://www.lazzarisrl.it/contatti/",
+      "technical_activity_url": "https://www.lazzarisrl.it/chi-siamo-lazzari/",
+      "observed_activity": "Production of urban furniture and road signage, with internal metalworking",
+      "rights_evidence_url": null,
+      "rights_decision": null,
+      "rights_review_note": null,
+      "operational_label": "end_user_proposed",
+      "operator_attested": false
+    },
+    {
+      "legal_name_observed": "Retissima Srl",
+      "domain": "retissima.it",
+      "vat_id_observed": "03738230139",
+      "legal_identity_url": "https://www.retissima.it/contatti-2/",
+      "technical_activity_url": "https://www.retissima.it/azienda/",
+      "observed_activity": "Production, installation and distribution of fencing and metal structures",
+      "rights_evidence_url": null,
+      "rights_decision": null,
+      "rights_review_note": null,
+      "operational_label": "end_user_proposed",
+      "operator_attested": false
+    },
+    {
+      "legal_name_observed": "Sottile Srl",
+      "domain": "sottileserre.com",
+      "vat_id_observed": "00391480407",
+      "legal_identity_url": "https://sottileserre.com/serre/serra-in-ferro-zincato/",
+      "technical_activity_url": "https://sottileserre.com/serre/serra-in-ferro-zincato/",
+      "observed_activity": "Greenhouse manufacturing with steel tube structure Ø27x2 mm",
+      "rights_evidence_url": null,
+      "rights_decision": null,
+      "rights_review_note": null,
+      "operational_label": "end_user_proposed",
+      "operator_attested": false
+    }
+  ]
+}

@@ -153,6 +153,8 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/company-discovery", module: "discovery" },
   { path: "/platform/company-discovery/bulk", module: "discovery" },
   { path: "/platform/company-discovery/bulk-import", module: "discovery" },
+  { path: "/platform/company-discovery/carpenterie", module: "discovery" },
+  { path: "/platform/company-discovery/carpenterie/pubblicazione", module: "discovery" },
   { path: "/platform/company-discovery/contacts", module: "discovery" },
   { path: "/platform/company-discovery/coverage", module: "discovery" },
   { path: "/platform/company-discovery/end-users", module: "discovery" },

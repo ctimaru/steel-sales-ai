@@ -1,0 +1,76 @@
+{
+  "workstream": "NET-IT-CARP1.E.2",
+  "date": "2026-11-08",
+  "status": "review_packet_only_not_submittable",
+  "batch": "NET-IT-CARP1-F-FIRSTPARTY-W2-20261108",
+  "wave": "NET-IT-CARP1-E2-FACTS-PILOT3-20261108",
+  "publication_mode_proposed": "factual_metadata_only_reviewed",
+  "legal_signoff_status": "pending",
+  "legal_policy_review_url": null,
+  "platform_signoff_status": "pending",
+  "rights_verified": false,
+  "publisher_installed_in_production": false,
+  "published_in_this_workstream": 0,
+  "notes": "No copyright license is assumed. Legal counsel reviews source methods, database rights, company legal identity, sole-trader exclusions, contact/privacy minimisation and opt-out; only a real authenticated Platform reviewer may record the approval. User cannot submit this manifest while rights data remain null and seed names do not match. Ferrinox is a documented exact-name homonym with another S.r.l. in Resana; reviewer must pin VAT and source domain before any canonical insert.",
+  "items": [
+    {
+      "seed_id": "b0fd60ba-a028-4fcb-8eae-658718bf8736",
+      "domain": "bandinicantarelli.com",
+      "role": "processor_service_provider",
+      "legal_name": "Bandini e Cantarelli S.r.l.",
+      "identity_evidence_url": "https://www.bandinicantarelli.com/dove-siamo-e-contatti.html",
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    },
+    {
+      "seed_id": "933a0ee5-a5fc-428c-850c-cab8198557e5",
+      "domain": "ferrinoxsrl.it",
+      "role": "processor_service_provider",
+      "legal_name": "Ferrinox S.r.l.",
+      "identity_evidence_url": "https://www.ferrinoxsrl.it/",
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    },
+    {
+      "seed_id": "5e4d16fb-ce2f-426d-aef2-7d070d55e780",
+      "domain": "presmetalspa.it",
+      "role": "processor_service_provider",
+      "legal_name": "Pres Metal S.p.A.",
+      "identity_evidence_url": "https://www.presmetalspa.it/it/contatti",
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    }
+  ],
+  "identity_reconciliation": [
+    {
+      "domain": "bandinicantarelli.com",
+      "seed_display_name": "Bandini Cantarelli",
+      "expected_legal_name": "Bandini e Cantarelli S.r.l.",
+      "vat_observed": "00148980345",
+      "legal_name_reconciled": false
+    },
+    {
+      "domain": "ferrinoxsrl.it",
+      "seed_display_name": "Ferrinox",
+      "expected_legal_name": "Ferrinox S.r.l.",
+      "vat_observed": "01706870340",
+      "legal_name_reconciled": false,
+      "homonym_review_required": true,
+      "identity_collision_note": "Fidenza (PR), VAT 01706870340 is different from Ferrinox S.r.l. at ferrinox.it in Resana (TV), VAT 01341740288. Same normalized corporate name, separate declared tax IDs. Never merge these on name alone; manual reviewer must confirm domain-to-VAT before publication.",
+      "comparison_source_urls": [
+        "https://www.ferrinoxsrl.it/it/contatti",
+        "https://ferrinox.it/contatti"
+      ]
+    },
+    {
+      "domain": "presmetalspa.it",
+      "seed_display_name": "Pres Metal",
+      "expected_legal_name": "PRES METAL S.p.A.",
+      "vat_observed": "00871340238",
+      "legal_name_reconciled": false
+    }
+  ]
+}
