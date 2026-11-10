@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
 import { createClient } from "@/lib/supabase/server";
-import { publishNetItPub1Candidate, reviewNetItPub1Candidate, reviewNetItPub1Source } from "./actions";
+import { publishNetItPub1All, reviewNetItPub1Candidate, reviewNetItPub1Source } from "./actions";
 
 type ReviewRow = {
   candidate_id: string;
@@ -32,6 +32,14 @@ type ReviewRow = {
 };
 
 type ReviewQueue = { contract: string; items: ReviewRow[]; minimal_publisher_enabled?: boolean };
+type ReleasePreview = {
+  status?: string;
+  requested?: number;
+  eligible?: number;
+  blocked?: number;
+  manifest_fingerprint?: string;
+  published_now?: number;
+};
 
 const selectClass =
   "min-h-10 w-full rounded-lg border border-[#cbdcd2] bg-white px-2.5 py-2 text-xs text-[#173f35] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#167657]";
@@ -73,9 +81,15 @@ export default async function NetItPub1ReviewPage({
   const canPublish = access?.permissions.includes("discovery.publish") ?? false;
   const params = await searchParams;
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("net_it_pub1_review_queue");
-  const payload = data as ReviewQueue | null;
-  const rows = !error && payload?.contract === "net-it-pub1-review-v1" &&
+  const [queueResult, releaseResult] = await Promise.all([
+    supabase.rpc("net_it_pub1_review_queue"),
+    supabase.rpc("net_it_pub1_release", { p_commit: false }),
+  ]);
+  const payload = queueResult.data as ReviewQueue | null;
+  const releasePreview = !releaseResult.error
+    ? (releaseResult.data as ReleasePreview | null)
+    : null;
+  const rows = !queueResult.error && payload?.contract === "net-it-pub1-review-v1" &&
     Array.isArray(payload.items) && payload.items.length === 5
       ? payload.items : null;
   const sources = rows ? Array.from(
@@ -88,7 +102,11 @@ export default async function NetItPub1ReviewPage({
       !row.canonical_collision,
   ).length ?? 0;
   const published = rows?.filter((row) => row.already_published).length ?? 0;
-  const minimalPublisherEnabled = payload?.minimal_publisher_enabled === true;
+  const canRelease = canPublish && rows !== null && published === 0 &&
+    releasePreview?.status === "ready_for_attested_commit" &&
+    releasePreview?.requested === 5 && releasePreview?.eligible === 5 &&
+    typeof releasePreview?.manifest_fingerprint === "string" &&
+    /^[a-f0-9]{64}$/.test(releasePreview.manifest_fingerprint);
 
   return (
     <main className="mx-auto w-full max-w-[1460px] space-y-3 px-2 py-3 sm:px-5 sm:py-5"
@@ -121,8 +139,9 @@ export default async function NetItPub1ReviewPage({
           </div>
         </div>
         <p className="mt-2 text-xs font-medium text-[#8b5714]">
-          Pubblicatore minimale: {minimalPublisherEnabled ? "abilitato con controllo dei permessi" : "disattivato"}.
-          La semplice revisione non pubblica alcuna azienda.
+          Il pubblicatore originale rimane disattivato. Solo la conferma finale di un amministratore
+          autorizzato può eseguire la pubblicazione atomica delle cinque schede.
+          La semplice revisione non pubblica aziende.
         </p>
       </header>
 
@@ -268,23 +287,10 @@ export default async function NetItPub1ReviewPage({
                           <p className="text-xs font-semibold text-[#176447]">
                             Dati aziendali approvati. Esito pubblicatore: {row.publisher_eligibility_reason ?? "da verificare"}.
                           </p>
-                          {canPublish && minimalPublisherEnabled && row.publisher_eligibility_reason === "eligible_minimal_preview" ? (
-                            <form action={publishNetItPub1Candidate} className="flex flex-wrap items-center gap-3">
-                              <input type="hidden" name="candidate_id" value={row.candidate_id} />
-                              <label className="flex items-center gap-2 text-[11px] text-[#3b5f4d]">
-                                <input required type="checkbox" name="confirmed" className="h-4 w-4 accent-[#176447]"/>
-                                Ho verificato identità, fonte e nome pubblicato
-                              </label>
-                              <button type="submit" className={buttonClass}>Pubblica profilo minimo</button>
-                            </form>
-                          ) : (
-                            <p className="text-xs text-[#86602b]">
-                              {!minimalPublisherEnabled
-                                ? "Pubblicatore ancora disattivato: attendere il rilascio autorizzato."
-                                : !canPublish ? "Non disponi del permesso di pubblicazione."
-                                : "Completare la verifica tecnica prima di pubblicare."}
-                            </p>
-                          )}
+                          <p className="text-xs text-[#51735d]">
+                            Questa scheda entra nel lotto di cinque quando tutte le fonti e
+                            tutte le identità sono approvate. Non viene pubblicata separatamente.
+                          </p>
                         </div>
                       ) : (
                         <form action={reviewNetItPub1Candidate}
@@ -319,10 +325,59 @@ export default async function NetItPub1ReviewPage({
               })}
             </div>
           </section>
-          <section className="rounded-xl border border-[#d7e6dc] bg-[#f7faf7] p-3 text-xs leading-5 text-[#466253]">
-            <strong className="text-[#173f35]">Dopo la revisione:</strong> anteprima di pubblicazione,
-            controllo dei duplicati aggiornato, autorizzazione Platform e verifica dei cinque profili pubblici.
-            Nessun testo del sito, contatto personale o qualifica «azienda verificata» verrà copiato automaticamente.
+          <section aria-label="Pubblicazione finale delle cinque aziende"
+            className="rounded-xl border border-[#b8d8c4] bg-white p-4 sm:p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-base font-bold text-[#173f35]">3. Pubblica le cinque aziende insieme</h2>
+              <ReviewStatus done={canRelease || published === 5}
+                title={published === 5 ? "Lotto già pubblicato" :
+                  canRelease ? "Anteprima pronta" : "Attende approvazioni"} />
+            </div>
+            <p className="mt-1 text-xs leading-5 text-[#53685a]">
+              L&apos;operazione usa il pubblicatore minimale già presente nel Network.
+              Se una sola scheda è incompleta, non pubblica nessuna azienda.
+              I cinque nuovi profili saranno non rivendicati e non verificati.
+            </p>
+            <p className="mt-2 text-xs font-semibold text-[#2b5942]">
+              Anteprima: {releasePreview?.eligible ?? 0} su {releasePreview?.requested ?? 5} ammissibili.
+              {releasePreview?.status === "blocked" ? " Completa prima le approvazioni." : ""}
+            </p>
+            {canRelease ? (
+              <form action={publishNetItPub1All} className="mt-3 space-y-2">
+                <input type="hidden" name="manifest_fingerprint"
+                  value={releasePreview?.manifest_fingerprint ?? ""}/>
+                <label className="block text-xs font-semibold text-[#3b5f4d]">
+                  Nota finale della revisione
+                  <textarea name="review_note" required minLength={80} maxLength={2000} rows={3}
+                    className={inputClass + " mt-1 resize-y"}
+                    placeholder="Descrivi quali fonti e denominazioni sono state approvate e perché sono pubblicabili solo dati aziendali essenziali."/>
+                </label>
+                <label className="flex items-start gap-2 text-xs leading-5 text-[#3c5e4b]">
+                  <input type="checkbox" name="attested" required
+                    className="mt-1 h-4 w-4 accent-[#176447]"/>
+                  Ho controllato le cinque identità, le decisioni sulle fonti,
+                  l&apos;assenza di dati personali da pubblicare e l&apos;anteprima del lotto.
+                </label>
+                <button type="submit" className={buttonClass}>
+                  Pubblica 5 profili minimi
+                </button>
+              </form>
+            ) : published === 5 ? (
+              <p className="mt-2 text-sm font-semibold text-[#176447]">
+                Tutti i cinque candidati risultano collegati a profili pubblici.
+                <Link href="/network" className="ml-2 underline underline-offset-4">Apri il Network</Link>
+              </p>
+            ) : (
+              <p className="mt-2 text-xs text-[#86602b]">
+                {!releasePreview ? "Funzione di pubblicazione non ancora installata nel database." :
+                  !canPublish ? "Non disponi del permesso Platform per pubblicare." :
+                  "L&apos;anteprima non è ancora pronta per la conferma."}
+              </p>
+            )}
+            <p className="mt-2 text-[11px] leading-5 text-[#64766b]">
+              La classificazione industriale dettagliata e l&apos;arricchimento dei profili
+              restano interventi successivi. Non copiamo testi, immagini o recapiti personali.
+            </p>
           </section>
         </>
       )}
