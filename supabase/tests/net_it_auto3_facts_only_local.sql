@@ -113,7 +113,8 @@ BEGIN
  UPDATE public.network_company_discovery_candidates
  SET review_status='published',
      publication_actor_type='delegated_agent',
-     promoted_company_id=:'fake_company_id'::uuid,
+     promoted_company_id=(SELECT id FROM public.network_companies
+       WHERE website_domain='auto3-ci.example.test' LIMIT 1),
      reviewed_at=now(),reviewed_by=NULL
  WHERE id='00000000-0000-0000-0000-000000018002'::uuid;
  RAISE EXCEPTION 'PA1.5 unexpectedly accepted a forged agent release';
