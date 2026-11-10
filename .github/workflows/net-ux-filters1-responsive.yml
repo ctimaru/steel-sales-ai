@@ -5,6 +5,8 @@ on:
     paths:
       - ".github/workflows/net-ux-filters1-responsive.yml"
       - "apps/web/components/network-compact-experience.tsx"
+      - "apps/web/components/network-spec-filters.tsx"
+      - "apps/web/tests/network-spec-panel-layout.test.mjs"
       - "apps/web/components/network-filter-drawer.tsx"
       - "apps/web/components/network-country-region-filters.tsx"
       - "apps/web/tests/netro14d-chrome-claimable-visual.mjs"
