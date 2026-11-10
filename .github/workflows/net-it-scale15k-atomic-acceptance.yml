@@ -1,0 +1,62 @@
+name: NET-IT-SCALE15K Atomic Publisher Acceptance
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/20261110124000_net_it_scale15k_readiness_console.sql'
+      - 'supabase/migrations/20261110134500_net_it_scale15k_bulk_publisher.sql'
+      - 'supabase/tests/net_it_scale15k_atomic_local.sql'
+      - 'apps/web/app/(italian)/(platform)/platform/company-discovery/scale15k/**'
+      - 'apps/web/tests/net-it-scale15k-readiness.test.mjs'
+      - 'apps/web/tests/net-it-scale15k-bulk-publisher.test.mjs'
+      - '.github/workflows/net-it-scale15k-atomic-acceptance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  atomic-local:
+    name: PostgreSQL real-JWT preview, denied commit and atomic two-company publication
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check 15k Platform UI, read-only queue and atomic-publisher contracts
+        run: |
+          node --test apps/web/tests/net-it-scale15k-readiness.test.mjs \
+            apps/web/tests/net-it-scale15k-bulk-publisher.test.mjs
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.118.0
+      - name: Inject CI-only historical migrations
+        run: |
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Start disposable local database and replay all migrations
+        run: |
+          set -euo pipefail
+          if ! supabase start > "$RUNNER_TEMP/netit-scale15k-start.log" 2>&1; then
+            grep -E -i 'error|failed|timeout|docker' "$RUNNER_TEMP/netit-scale15k-start.log" | tail -n 30 || true
+            exit 1
+          fi
+          if ! supabase db reset --local > "$RUNNER_TEMP/netit-scale15k-reset.log" 2>&1; then
+            grep -E -i 'error|failed|migration' "$RUNNER_TEMP/netit-scale15k-reset.log" | tail -n 30 || true
+            exit 1
+          fi
+      - name: Test real Platform role, governed sources, stale fingerprint and all-or-nothing publication
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql -X --host 127.0.0.1 --port 54322 --username postgres \
+            --dbname postgres --set ON_ERROR_STOP=1 \
+            --file supabase/tests/net_it_scale15k_atomic_local.sql
+      - name: Destroy all disposable test data
+        if: always()
+        run: |
+          supabase stop --no-backup >/dev/null 2>&1 || true
+          rm -f "$RUNNER_TEMP/netit-scale15k-start.log" "$RUNNER_TEMP/netit-scale15k-reset.log"
