@@ -11,6 +11,9 @@ on:
       - 'supabase/tests/net_it_auto1_delegation_local.sql'
       - 'apps/web/tests/net-it-auto1-delegation.test.mjs'
       - 'supabase/migrations/20261110174000_net_it_auto2_first_party_review_queue.sql'
+      - 'supabase/migrations/20261110183000_net_it_auto3_facts_only_release.sql'
+      - 'supabase/tests/net_it_auto3_facts_only_local.sql'
+      - 'apps/web/tests/net-it-auto3-factual-policy.test.mjs'
       - 'supabase/tests/net_it_auto2_evidence_local.sql'
       - 'services/worker/app/net_it_auto2_reviewer.py'
       - 'services/worker/tests/test_net_it_auto2_reviewer.py'
@@ -36,7 +39,8 @@ jobs:
         run: |
           node --test apps/web/tests/net-it-scale15k-readiness.test.mjs \
             apps/web/tests/net-it-scale15k-bulk-publisher.test.mjs \
-            apps/web/tests/net-it-auto1-delegation.test.mjs
+            apps/web/tests/net-it-auto1-delegation.test.mjs \
+            apps/web/tests/net-it-auto3-factual-policy.test.mjs
       - uses: supabase/setup-cli@v1
         with:
           version: 2.118.0
@@ -69,6 +73,9 @@ jobs:
           psql -X --host 127.0.0.1 --port 54322 --username postgres \
             --dbname postgres --set ON_ERROR_STOP=1 \
             --file supabase/tests/net_it_auto1_delegation_local.sql
+          psql -X --host 127.0.0.1 --port 54322 --username postgres \
+            --dbname postgres --set ON_ERROR_STOP=1 \
+            --file supabase/tests/net_it_auto3_facts_only_local.sql
       - name: Destroy all disposable test data
         if: always()
         run: |
