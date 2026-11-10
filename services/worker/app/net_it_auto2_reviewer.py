@@ -49,13 +49,26 @@ def _normalize_name(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
 
 
+def _normalize_full_legal_name(value: str) -> str:
+    """Keep legal form: a brand alone is NOT proof of S.r.l./S.p.A."""
+    value = unescape(value).casefold()
+    for letters in ("srl", "spa", "snc", "sas"):
+        dotted = r"\b" + r"[.\s]*".join(letters) + r"[.\s]*\b"
+        value = re.sub(dotted, letters, value)
+    value = re.sub(r"[^a-z0-9à-ÿ]+", " ", value)
+    return re.sub(r"\s+", " ", value).strip()
+
+
 def _name_evidenced(name: str, page_texts: list[str]) -> bool:
-    normalized = _normalize_name(name)
-    # Do not auto-classify a single very short word as a verified legal entity.
+    normalized = _normalize_full_legal_name(name)
+    # A corporate suffix on the candidate must ALSO appear on the first-party
+    # body text. A brand-only title or partial token match is not enough.
     if len(normalized) < 8:
         return False
     for page in page_texts:
-        if normalized in _normalize_name(page):
+        text = _normalize_full_legal_name(page)
+        if re.search(r"(?<![a-z0-9à-ÿ])" + re.escape(normalized)
+                     + r"(?![a-z0-9à-ÿ])", text):
             return True
     return False
 
