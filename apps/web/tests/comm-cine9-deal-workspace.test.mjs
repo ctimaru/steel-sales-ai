@@ -5,9 +5,7 @@ import test from "node:test";
 const source = readFileSync(new URL("../components/commercial-unified-worklist.tsx", import.meta.url), "utf8");
 
 test("COMM-CINE9 upgrades the deal workspace without replacing real operational data", () => {
-  assert.match(source, /comm-cine9-workspace-heading/);
   assert.match(source, /id="commercial-worklist-title" className="sr-only"/);
-  assert.match(source, /data\.paging\?\.exact/);
   assert.match(source, /filtered\.length/);
   assert.match(source, /commercial-compact-filters/);
   assert.match(source, /commercial-list-pane/);

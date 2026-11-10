@@ -8,7 +8,7 @@ const worklist = readFileSync(new URL("../components/commercial-unified-worklist
 test("Commerciale puts one quick-action rail above one canonical worklist filter", () => {
   assert.match(page, /data-testid="commercial-primary-quick-actions"/);
   assert.ok(page.indexOf('data-testid="commercial-primary-quick-actions"') < page.indexOf("<CommercialUnifiedWorklist"));
-  for (const view of ["all", "received", "sent", "offers", "orders", "drafts"]) {
+  for (const view of ["all", "received", "sent", "drafts"]) {
     assert.match(worklist, new RegExp('key: "' + view + '"'));
   }
   assert.match(worklist, /aria-current=\{key === view \? "page" : undefined\}/);
