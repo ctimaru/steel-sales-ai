@@ -33,9 +33,9 @@ test("COMM-TRUST1.D exposes manual and calculator only as alternatives", () => {
   assert.match(page, /data-testid="commercial-alternative-methods"/);
   assert.match(page, /data-testid="commercial-manual-entry"/);
   assert.match(page, /\?compose=1#commercial-compose/);
-  assert.match(page, /Compila manualmente/);
+  assert.match(page, /Crea dalla distinta/);
   assert.doesNotMatch(page + companion, /\+ Nuova richiesta/);
-  assert.doesNotMatch(companion, /Compila manualmente/);
+  assert.doesNotMatch(companion, /Crea dalla distinta/);
   assert.match(css, /data-testid="commercial-alternative-methods"/);
   assert.match(page, /<CommercialDirectorPriorityDesk/);
 });

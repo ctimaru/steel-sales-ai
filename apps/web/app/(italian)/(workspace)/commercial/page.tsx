@@ -6,6 +6,7 @@ import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { CommercialCalculatorQuickAccess } from "@/components/commercial-calculator-quick-access";
 import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
 import cinematic from "@/components/commercial-cinematic.module.css";
+import { CommercialRequestSummary } from "@/components/commercial-request-summary";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
 import { CommercialDirectorPriorityDesk } from "@/components/commercial-director-priority-desk";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
@@ -13,7 +14,7 @@ import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
 import { includeSelectedCommercialCampaign, isCommercialPagedView, loadCommercialPagedData, parseCommercialPage } from "@/lib/commercial-unified-paged";
 import { withDealLabels } from "@/lib/commercial-deal-labels";
-import { isStreamView, loadCommercialFocusCounts, loadCommercialStreams, parseCommercialFocus } from "@/lib/commercial-unified-streams";
+import { isStreamView, loadCommercialFocusCounts, loadCommercialRequestSummary, loadCommercialStreams, parseCommercialFocus } from "@/lib/commercial-unified-streams";
 import { listBuyerDistintaPublicDimensions, listPublicTubeDimensionPages } from "@/lib/public-knowledge";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
@@ -55,7 +56,7 @@ export default async function CommercialHomePage({
   const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
   const composing = canWrite && params.compose === "1";
   const aiFocused = composing && params.method === "ai";
-  const [procurement, unified, catalogOptions, networkContext, calculatorReferences, focusCounts] = await Promise.all([
+  const [procurement, unified, catalogOptions, networkContext, calculatorReferences, focusCounts, requestSummary] = await Promise.all([
     canWrite
       ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
           .catch(() => ({ data: null, error: true }))
@@ -70,6 +71,7 @@ export default async function CommercialHomePage({
     getCommercialNetworkContext(context.organizationId, params.network),
     listPublicTubeDimensionPages(),
     view === "all" ? loadCommercialFocusCounts(context.organizationId).catch(() => null) : Promise.resolve(null),
+    aiFocused ? Promise.resolve(null) : loadCommercialRequestSummary(context.organizationId).catch(() => null),
   ]);
   const [prospect, possibleCompanies, inquiries] = networkContext
     ? await Promise.all([
@@ -140,25 +142,39 @@ export default async function CommercialHomePage({
         view={view}
       />
 
-      <div data-testid="comm-cine13-first-workspace" className="relative z-10 flex flex-col gap-2 px-1 sm:px-2 lg:flex-row lg:items-start">
-        <div className="min-w-0 flex-1">
-          <CommercialAiCompanion canWrite={canWrite} />
-        </div>
-        <details id="commercial-tool-access" data-testid="commercial-primary-quick-actions"
-          className="group relative shrink-0 scroll-mt-28 [&_summary::-webkit-details-marker]:hidden">
-          <summary className="inline-flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-xl border border-[#d6e5db] bg-white px-4 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]">
-            Strumenti <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
-          </summary>
-          <div className="mt-1 flex min-w-[260px] flex-col items-stretch gap-2 rounded-xl border border-[#d6e5db] bg-white p-3 shadow-lg lg:absolute lg:right-0 lg:top-full lg:z-30"
-            data-testid="commercial-alternative-methods">
-            <CommercialCalculatorQuickAccess references={calculatorReferences} />
+      <section data-testid="comm-cine13-first-workspace" aria-labelledby="commercial-create-heading"
+        className={"relative z-10 " + cinematic.hero}>
+        <div className={"grid gap-5 p-5 sm:p-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-8 lg:p-8 " + cinematic.heroGrid}>
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#b4dec2]">Nuova richiesta</p>
+            <h2 id="commercial-create-heading"
+              className={"mt-2 text-[clamp(1.6rem,2.6vw,2.35rem)] font-bold leading-[1.05] tracking-[-0.035em] text-white " + cinematic.heroTitle}>
+              Crea una richiesta di offerta
+            </h2>
+            <p className="mt-3 max-w-md text-sm leading-6 text-[#d5eadc]">
+              Scrivi cosa ti serve e l’assistente prepara la distinta, oppure compilala tu riga per riga. Nulla parte senza la tua conferma.
+            </p>
             {canWrite ? (
               <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
                 data-testid="commercial-manual-entry"
-                className="inline-flex min-h-10 items-center rounded-lg border border-[#a8cbb5] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2">
-                Compila manualmente →
+                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/40 bg-white/10 px-4 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                <span aria-hidden="true">▤</span> Crea dalla distinta →
               </Link>
             ) : null}
+          </div>
+          <CommercialAiCompanion canWrite={canWrite} />
+        </div>
+      </section>
+
+      <CommercialRequestSummary view={view} counts={requestSummary} tools={
+        <details id="commercial-tool-access" data-testid="commercial-primary-quick-actions"
+          className="group relative shrink-0 scroll-mt-28 [&_summary::-webkit-details-marker]:hidden">
+          <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-lg border border-[#d6e5db] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]">
+            Strumenti <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
+          </summary>
+          <div className="mt-1 flex min-w-[260px] flex-col items-stretch gap-2 rounded-xl border border-[#d6e5db] bg-white p-3 shadow-lg sm:absolute sm:right-0 sm:top-full sm:z-30"
+            data-testid="commercial-alternative-methods">
+            <CommercialCalculatorQuickAccess references={calculatorReferences} />
             <Link href={appRoutes.commercial.search} data-testid="commercial-history-entry"
               aria-label="Cerca RFQ, offerte, ordini e aziende già presenti nello storico commerciale"
               className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] bg-[#f3f7f4] px-3 text-xs font-semibold text-[#254f3d] hover:bg-[#e4f0e8] focus-visible:outline-2 focus-visible:outline-offset-2">
@@ -166,7 +182,7 @@ export default async function CommercialHomePage({
             </Link>
           </div>
         </details>
-      </div>
+      } />
 
       </>)}
 

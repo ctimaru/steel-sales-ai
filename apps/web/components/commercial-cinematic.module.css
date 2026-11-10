@@ -6,7 +6,7 @@
   isolation: isolate;
   overflow: hidden;
   background: #082f28;
-  border-radius: 15px;
+  border-radius: 24px;
 }
 .hero::before {
   content: "";
@@ -148,7 +148,7 @@
 }
 
 @media (min-width: 1024px) {
-  .heroGrid { grid-template-columns: minmax(0,1fr) auto; }
+  .heroGrid { grid-template-columns: minmax(0,0.85fr) minmax(0,1.15fr); }
 }
 @media (max-width: 1023px) {
   .hero::before { background-position: center, 63% center; }
