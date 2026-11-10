@@ -305,13 +305,16 @@ export async function CommercialUnifiedWorklist({
             </div>
             <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--brand-deep)] sm:line-clamp-1 sm:max-w-[40%] sm:shrink-0" title={item.title}>{item.title}</p>
             {item.subtitle ? <p className="truncate text-xs leading-4 text-[var(--text-secondary)] sm:hidden 2xl:block 2xl:min-w-0 2xl:max-w-[26%] 2xl:shrink">{item.subtitle}</p> : null}
-            {(item.rowFacts?.quantity ||
+            {(item.rowFacts?.reference || item.rowFacts?.quantity ||
               (item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle) ||
               (item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title) ||
               item.rowFacts?.lines ||
               commercialRowAmount(item.rowFacts?.totalEur) ||
               (item.rowFacts?.dueAt && !item.subtitle.toLocaleLowerCase("it-IT").includes("scadenza") && Number.isFinite(Date.parse(item.rowFacts.dueAt)))) ? (
               <div data-testid="commercial-deal-row-facts" className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] leading-4 text-[#48685a] sm:min-w-0 sm:flex-1 sm:flex-nowrap sm:overflow-hidden sm:whitespace-nowrap">
+                {item.rowFacts?.reference ? <span className="shrink-0 font-mono text-[10.5px] text-[#2f5a47]" title="Riferimento interno">rif. {item.rowFacts.reference}</span> : null}
+                {item.rowFacts?.rfqRef ? <span className="shrink-0" title="Richiesta di origine">da RFQ {item.rowFacts.rfqRef}</span> : null}
+                {item.rowFacts?.customerRef ? <span className="max-w-full truncate" title={item.rowFacts.customerRef}>Ord. cliente · {item.rowFacts.customerRef}</span> : null}
                 {item.rowFacts?.counterparty && item.rowFacts.counterparty !== item.title && item.rowFacts.counterparty !== item.subtitle
                   ? <span className="max-w-full truncate" title={item.rowFacts.counterparty}>Azienda · {item.rowFacts.counterparty}</span> : null}
                 {item.rowFacts?.material && item.rowFacts.material !== item.subtitle && item.rowFacts.material !== item.title

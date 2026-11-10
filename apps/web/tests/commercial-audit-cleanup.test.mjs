@@ -24,7 +24,7 @@ test("COMM-AUDIT1: la chat RFQ non mostra sigle interne di progetto", () => {
 });
 
 test("COMM-AUDIT1: le righe in ingresso hanno un riferimento breve per distinguerle", () => {
-  assert.match(read("lib/commercial-unified-streams.ts"), /inboundReference\(id\)/);
+  assert.match(read("lib/commercial-unified-streams.ts"), /reference: shortRef\(id\)/);
 });
 
 test("COMM-AUDIT1: le superfici dell'app usano il nome Distinte", () => {
