@@ -113,7 +113,7 @@ async function viewportCheck(page, { width, height, role }) {
     const cta = companion.getByTestId("commercial-ai-first-cta");
     assert.equal(await cta.count(), 1);
     assert.equal(await cta.isDisabled(), true);
-    assert.match(await cta.innerText(), /Apri chat e anteprima/);
+    assert.match(await cta.innerText(), /Analizza con l’AI/);
   }
   if (width === 1440 && canWrite) {
     const launch = page.getByRole("button", { name: "Calcolatrice pesi" });

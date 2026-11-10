@@ -16,7 +16,7 @@ test("COMM-TRUST1.D has exactly one primary chat entry into the canonical Distin
   assert.equal((page.match(/<CommercialAiCompanion/g) ?? []).length, 1);
   assert.equal((page.match(/<BuyerDistintaBuilder/g) ?? []).length, 1);
   assert.match(companion, /Descrivi i tubi che ti servono/);
-  assert.match(companion, /Apri chat e anteprima/);
+  assert.match(companion, /Analizza con l’AI/);
   assert.match(companion, /data-testid="commercial-ai-first-cta"/);
   assert.match(companion, /sessionStorage\.setItem\("sss:commercial-ai-intake-handoff", value\)/);
   assert.match(companion, /\?compose=1&method=ai#commercial-ai-intake/);

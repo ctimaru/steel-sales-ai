@@ -922,8 +922,8 @@ export function BuyerDistintaBuilder({
       inert={!draftReady && !restoreCandidate}
       aria-busy={!draftReady && !restoreCandidate}
       data-public-bill-mobile-compact={compactLanding ? "true" : undefined} className={`bd54-page ${styles.page} ${compactLanding ? styles.publicMobileLanding : ""} space-y-3 sm:space-y-4`} lang={uiLocale}>
-      <div className={focusAiIntake ? "flex items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-1" : "flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2"} data-testid="buyer-private-language-switch">
-        <p className="min-w-0 text-xs font-semibold text-[var(--brand-deep)]">{focusAiIntake ? "Bozza RFQ · nessun invio" : t("RFQ privata · nessun invio automatico")}</p>
+      <div className={focusAiIntake ? "flex items-center justify-end gap-2" : "flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2"} data-testid="buyer-private-language-switch">
+        <p className={focusAiIntake ? "sr-only" : "min-w-0 text-xs font-semibold text-[var(--brand-deep)]"}>{focusAiIntake ? "Bozza RFQ · nessun invio" : t("RFQ privata · nessun invio automatico")}</p>
         <label className="flex shrink-0 items-center gap-2 text-xs font-bold text-[var(--brand-deep)]"><span className={focusAiIntake ? "sr-only" : ""}>{t("Scegli la lingua")}</span>
           <select aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}
             className="min-h-11 rounded-lg border border-[var(--border-strong)] bg-white px-2 text-sm text-[var(--brand-deep)]">

@@ -3,7 +3,8 @@
 const HANDOFF_KEY = "sss:commercial-ai-intake-handoff";
 
 /** One-time local transfer into the authenticated RFQ editor.
- * Does not infer geometry, persist a draft on the server, or trigger AI execution.
+ * Does not infer geometry or persist a draft on the server. The receiving editor
+ * analyses the text once, because the user already clicked "Analizza con l'AI".
  */
 export function consumeCommercialAiTextHandoff(maxChars: number): string | null {
   if (typeof window === "undefined") return null;

@@ -9,7 +9,7 @@ test("COMM-CINE10 provides a single integrated AI companion", () => {
   assert.match(page, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.equal((page.match(/commercial-ai-first-heading/g) ?? []).length, 0);
   assert.match(component, /Descrivi i tubi che ti servono/);
-  assert.match(component, /Apri chat e anteprima/);
+  assert.match(component, /Analizza con l’AI/);
   assert.match(component, /data-testid="commercial-ai-first"/);
   assert.match(component, /data-testid="commercial-ai-first-cta"/);
 });
