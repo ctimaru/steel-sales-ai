@@ -8,6 +8,7 @@ on:
       - 'supabase/tests/net_it_releasebulk1_local.sql'
       - 'supabase/migrations/20261110090000_net_it_releasebulk1_guarded_default_off.sql'
       - 'supabase/migrations/20261110092500_net_it_pub1_review_queue.sql'
+      - 'supabase/migrations/20261110103500_net_it_pub1_atomic_minimal_release.sql'
       - 'apps/web/app/(italian)/(platform)/platform/company-discovery/carpenterie/pubblicazione/**'
       - 'apps/web/tests/net-it-pub1-review-flow.test.mjs'
       - '.github/workflows/netit-releasebulk1-isolated.yml'
