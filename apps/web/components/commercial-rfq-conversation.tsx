@@ -61,21 +61,28 @@ export function CommercialRfqConversation({
     <section data-testid="commercial-rfq-gpt-conversation"
       aria-label="Conversazione per la creazione della distinta"
       className={"flex min-w-0 flex-col " + (started ? "min-h-[min(48dvh,400px)] xl:min-h-[min(70dvh,670px)]" : "")}>
+      {/* COMM-RFQ-CREATE2: un interruttore tra i due modi di compilare la stessa distinta. */}
       <div role="group" aria-label="Metodo di preparazione della distinta"
         data-testid="commercial-ai-focused-modes"
-        className="mb-2 flex justify-end">
-        <button type="button" aria-pressed={mode === "manual"}
-          disabled={!hydrated || pending}
-          onClick={() => onModeChange(mode === "manual" ? "text" : "manual")}
-          className="min-h-10 rounded-lg px-2 text-xs font-semibold text-[#175640] underline underline-offset-4 disabled:opacity-50">
-          {mode === "manual" ? "Torna alla conversazione" : "Compila manualmente"}
-        </button>
+        className="mb-3 inline-flex w-fit gap-1 self-start rounded-full border border-[#d6e5db] bg-[#f1f7f3] p-1">
+        {([["text", "✦ Compila con AI"], ["manual", "▤ Compila manualmente"]] as const).map(([key, label]) => {
+          const active = mode === key;
+          return (
+            <button key={key} type="button" aria-pressed={active}
+              disabled={!hydrated || pending}
+              onClick={() => { if (!active) onModeChange(key); }}
+              className={"min-h-9 rounded-full px-4 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:opacity-50 " +
+                (active ? "bg-white text-[#143f30] shadow-[0_2px_8px_rgba(19,65,43,0.12)]" : "text-[#4f6b5b] hover:text-[#143f30]")}>
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {mode === "manual" ? (
         <section aria-label="Configuratore manuale" className="min-w-0 space-y-3">
-          <p className="rounded-lg bg-[#eef5f0] px-3 py-2 text-xs text-[#36584b]">
-            Configura un articolo manualmente. Torna alla conversazione per analizzare altri materiali.
+          <p className="text-xs text-[#36584b]">
+            Configura un articolo alla volta. Passa a “Compila con AI” per scrivere più materiali insieme.
           </p>
           {manualTools}
         </section>
