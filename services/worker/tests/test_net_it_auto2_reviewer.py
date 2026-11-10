@@ -35,6 +35,12 @@ class FirstPartyReviewTest(unittest.TestCase):
         self.assertFalse(_name_evidenced("Carpenteria Test S.r.l.",
                  ["Altra Carpenteria Industriale S.r.l."]))
         self.assertFalse(_name_evidenced("AB",["AB costruzioni"]))
+    def test_brand_without_legal_form_cannot_verify_srl(self):
+        self.assertFalse(_name_evidenced("Carpenteria Test S.r.l.",
+                         ["Carpenteria Test costruzioni e lavorazioni industriali"]))
+        self.assertTrue(_name_evidenced("Carpenteria Test S.r.l.",
+                         ["Carpenteria Test SRL costruzioni e lavorazioni industriali"]))
+
     def test_url_domain_is_canonical_and_https(self):
         self.assertEqual(_validate_official_website(row())[1],"carpenteriatest.it")
         with self.assertRaises(ValueError):
