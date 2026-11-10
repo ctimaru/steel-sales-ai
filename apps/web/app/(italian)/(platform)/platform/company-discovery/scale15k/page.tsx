@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { publishScale15KReadyWave } from "./actions";
+import { publishScale15KReadyWave, setScale15KAgentDelegation } from "./actions";
 
 const ROOT = "/platform/company-discovery/scale15k";
 
@@ -32,6 +32,16 @@ type SourceGroup = {
   pending_candidates: number;
   approved_company_data: number;
   distinct_domains: number;
+};
+
+type AgentDelegation = {
+  contract: string;
+  enabled: boolean;
+  active: boolean;
+  expires_at: string | null;
+  daily_cap: number;
+  published_today: number;
+  published_all: number;
 };
 
 type BatchPreview = {
@@ -113,20 +123,25 @@ export default async function NetItScale15KPage({
   const params = await searchParams;
   const access = await getPlatformAccessContext();
   const canPublish = access?.permissions.includes("discovery.publish") ?? false;
+  const canDelegate = access?.is_platform_owner === true;
   const lane: Lane = lanes.some((x) => x.key === params.lane)
     ? (params.lane as Lane) : "all";
   const offset = Math.max(0, Math.min(15000, Number.parseInt(params.offset ?? "0", 10) || 0));
   const limit = [50, 100, 250].includes(Number(params.limit))
     ? Number(params.limit) : 50;
   const supabase = await createClient();
-  const [{ data, error }, { data: readyData, error: readyError }] = await Promise.all([
+  const [{ data, error }, { data: readyData, error: readyError }, { data: agentData }] = await Promise.all([
     supabase.rpc("net_it_scale15k_readiness", {
       p_lane: lane, p_limit: limit, p_offset: offset,
     }),
     supabase.rpc("net_it_scale15k_readiness", {
       p_lane: "ready", p_limit: 100, p_offset: 0,
     }),
+    supabase.rpc("net_it_auto1_status"),
   ]);
+  const agent = agentData &&
+    (agentData as AgentDelegation).contract === "net-it-auto1-delegation-v1"
+    ? (agentData as AgentDelegation) : null;
   const snap = !error && data && (data as GrowthSnapshot).contract === "net-it-scale15k-readiness-v1"
     ? (data as GrowthSnapshot) : null;
   const readySnap = !readyError && readyData &&
@@ -195,6 +210,81 @@ export default async function NetItScale15KPage({
           </div>
         ) : null}
       </header>
+
+      <section className="rounded-2xl border border-[#b9dac8] bg-white p-3 sm:p-4"
+        aria-label="Delega revocabile all'agente Network Italia">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#277458]">
+              Pubblicazioni continue · NET-IT-AUTO1
+            </p>
+            <h2 className="mt-1 text-base font-bold text-[#173f35]">Autorizza una volta, senza ripetere ogni conferma</h2>
+            <p className="mt-1 text-xs leading-5 text-[#627668]">
+              L'agente può pubblicare in serie solo aziende italiane con <strong>fonte e identità già approvate</strong>.
+              Nessuna fonte sconosciuta viene dichiarata approvata, nessun dato personale o descrizione viene copiato.
+              Ogni inserimento è registrato come azione automatica, distinto dalle tue decisioni.
+            </p>
+          </div>
+          <span className={`rounded-full border px-3 py-1 text-xs font-bold ${
+            agent?.active ? "border-emerald-200 bg-emerald-50 text-emerald-800" :
+            "border-[#d9e2dc] bg-[#f3f5f4] text-[#51685b]"
+          }`}>
+            {agent?.active ? "Delega attiva" : "Delega disattivata"}
+          </span>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-[#48624f]">
+          <span>Oggi: <strong className="tabular-nums">{agent?.published_today ?? 0}</strong> pubblicate dall'agente</span>
+          <span>Limite giornaliero: <strong className="tabular-nums">{agent?.daily_cap ?? "—"}</strong></span>
+          <span>Scadenza: <strong>{agent?.expires_at ? new Date(agent.expires_at).toLocaleDateString("it-IT", { timeZone:"Europe/Rome" }) : "—"}</strong></span>
+        </div>
+        {canDelegate && agent ? (
+          agent.active ? (
+            <form className="mt-3" action={setScale15KAgentDelegation}>
+              <input type="hidden" name="enabled" value="false" />
+              <button type="submit" className="min-h-11 rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-bold text-rose-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                Revoca subito la delega
+              </button>
+            </form>
+          ) : (
+            <form action={setScale15KAgentDelegation}
+              className="mt-3 grid gap-3 rounded-xl border border-[#cfe5d6] bg-[#f9fcfa] p-3">
+              <input type="hidden" name="enabled" value="true" />
+              <label className="text-xs font-semibold text-[#345b43]">
+                Aziende massime pubblicabili dall'agente al giorno (1–500)
+                <input name="daily_cap" type="number" min={1} max={500} defaultValue={150} required
+                  className="mt-1 block w-32 rounded-lg border border-[#bfd8c7] bg-white p-2.5 text-xs text-[#173f35]" />
+              </label>
+              <label className="text-xs font-semibold text-[#345b43]">
+                Motivazione della delega (obbligatoria, minimo 80 caratteri)
+                <textarea name="policy_note" required minLength={80} maxLength={2000} rows={3}
+                  placeholder="Autorizzo per 30 giorni la pubblicazione automatica di profili minimi italiani soltanto quando fonte e identità sono già state approvate, con registrazione separata dell'agente, un limite giornaliero e revoca immediata."
+                  className="mt-1 w-full rounded-lg border border-[#bfd8c7] bg-white p-3 text-xs text-[#173f35]" />
+              </label>
+              <label className="flex items-start gap-2 text-xs leading-5 text-[#345b43]">
+                <input type="checkbox" name="attested" required className="mt-0.5 h-4 w-4 accent-[#176447]" />
+                Autorizzo per 30 giorni solo l'esecuzione automatica delle pubblicazioni
+                precedentemente approvate; capisco che fonti e identità dubbie restano sospese,
+                che l'agente non usa la mia identità e che posso revocare subito.
+              </label>
+              <div>
+                <button type="submit" className="min-h-11 rounded-lg bg-[#176447] px-4 py-2 text-xs font-bold text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2">
+                  Attiva delega per 30 giorni
+                </button>
+              </div>
+            </form>
+          )
+        ) : (
+          <p className="mt-3 rounded-lg border border-[#dee8e0] bg-[#f7faf8] p-3 text-xs text-[#627668]">
+            {canDelegate
+              ? "La funzione di delega deve ancora essere installata. Nessuna autorizzazione è stata attivata."
+              : "Solo il proprietario Platform può attivare o revocare questa delega."}
+          </p>
+        )}
+        <p className="mt-2 text-[11px] leading-5 text-[#697d6e]">
+          La verifica automatica di nuove fonti richiederà prove separate e non sarà
+          attivata con questa delega. Nessun controllo sulle fonti esistenti viene saltato.
+        </p>
+      </section>
 
       {params.message ? (
         <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm font-semibold text-emerald-800">
