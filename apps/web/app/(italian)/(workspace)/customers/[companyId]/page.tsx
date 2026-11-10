@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { PilotEvent } from "@/components/pilot-event";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
+import styles from "@/components/commercial-cinematic.module.css";
 import { appRoutes } from "@/lib/routes";
 
 import { loadCompany360, loadCompanyActivationStatus } from "../actions";
@@ -34,12 +33,44 @@ function eventLabel(type: string) {
   return type;
 }
 
+const statusLabels: Record<string, string> = {
+  new: "Nuova", open: "Aperta", in_progress: "In corso", received: "Ricevuto", sent: "Inviata",
+  draft: "Bozza", accepted: "Accettata", rejected: "Rifiutata", closed: "Chiusa", confirmed: "Confermato",
+  cancelled: "Annullato", expired: "Scaduta", quoted: "Offerta inviata",
+};
+function statusLabel(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return "—";
+  return statusLabels[value.trim().toLowerCase()] ?? value;
+}
+
+const companyTypeLabels: Record<string, string> = {
+  customer: "Cliente", client: "Cliente", buyer: "Cliente",
+  supplier: "Fornitore", vendor: "Fornitore", mill: "Produttore", producer: "Produttore",
+  distributor: "Distributore", trader: "Trader", service_center: "Centro servizi",
+  both: "Cliente e fornitore",
+};
+
+const tabs = [
+  { key: "activity", label: "Attività" },
+  { key: "contacts", label: "Contatti" },
+  { key: "deals", label: "Richieste e ordini" },
+  { key: "products", label: "Prodotti e prezzi" },
+] as const;
+type CompanyTab = typeof tabs[number]["key"];
+
+const eventDot: Record<string, string> = {
+  order: "bg-[#3d8a63]", offer: "bg-[#5b8def]", rfq: "bg-[#d9a62e]", message: "bg-[#9fb3a8]",
+};
+
 export default async function Company360Page({
-  params,
+  params, searchParams,
 }: {
   params: Promise<{ companyId: string }>;
+  searchParams?: Promise<{ tab?: string }>;
 }) {
   const { companyId } = await params;
+  const requestedTab = (await searchParams)?.tab;
+  const tab: CompanyTab = tabs.some((item) => item.key === requestedTab) ? requestedTab as CompanyTab : "activity";
   const [result, activation] = await Promise.all([
     loadCompany360(companyId),
     loadCompanyActivationStatus(),
@@ -47,7 +78,7 @@ export default async function Company360Page({
 
   if (result.error) {
     return (
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-5xl">
         <div className="rounded-2xl border border-rose-200 bg-rose-50 p-5 text-sm text-rose-800">
           {result.error}
         </div>
@@ -57,9 +88,9 @@ export default async function Company360Page({
 
   if (!result.found || !result.data) {
     return (
-      <div className="mx-auto max-w-7xl space-y-4">
-        <p className="text-sm text-slate-600">Azienda non trovata nel workspace.</p>
-        <Link href={appRoutes.commercial.companies} className="text-sm font-semibold text-indigo-600">← Torna a Clienti / aziende</Link>
+      <div className="mx-auto max-w-5xl space-y-4">
+        <p className="text-sm text-[#4f6b5b]">Azienda non trovata nel workspace.</p>
+        <Link href={appRoutes.commercial.companies} className="text-sm font-semibold text-[#175640] underline underline-offset-2">← Torna ad Aziende</Link>
       </div>
     );
   }
@@ -67,296 +98,236 @@ export default async function Company360Page({
   const payload = result.data;
   const company = payload.company;
   const summary = payload.summary;
+  const typeLabel = company.company_type ? companyTypeLabels[company.company_type.trim().toLowerCase()] : undefined;
+  const tabHref = (key: CompanyTab) => appRoutes.commercial.company(companyId) + (key === "activity" ? "" : "?tab=" + key);
+  const tabCount: Record<CompanyTab, number> = {
+    activity: payload.timeline.length,
+    contacts: payload.contacts.length,
+    deals: payload.rfqs.length + payload.offers.length + payload.orders.length,
+    products: payload.product_activity.length,
+  };
+  const panel = "overflow-hidden rounded-2xl border border-[#d6e5db] bg-white";
+  const empty = "px-5 py-8 text-center text-sm text-[#5c7063]";
 
   return (
     <>
       <PilotEvent eventName="company_viewed" entityType="company" entityId={companyId} metadata={{ surface: "company_360" }} />
-      <div className="mx-auto max-w-7xl space-y-7">
-      <div>
-        <Link href={appRoutes.commercial.companies} className="text-xs font-semibold text-indigo-600">← Clienti / aziende</Link>
-        <div className="mt-3 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
-          <div>
-            <div className="flex flex-wrap gap-2">
-              {company.verified ? <Badge tone="green">Identità verificata</Badge> : <Badge tone="amber">Identità da verificare</Badge>}
-              {company.company_type ? <Badge tone="neutral">{company.company_type}</Badge> : null}
-              {company.country ? <Badge tone="neutral">{company.country}</Badge> : null}
-            </div>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-950">{company.name}</h1>
-            <p className="mt-2 text-sm text-slate-500">
-              {company.vat_number ? `P.IVA ${company.vat_number}` : "P.IVA non disponibile"}
-              {company.website ? <> · <span>{company.website}</span></> : null}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Read model</p>
-            <p className="mt-1 text-sm font-semibold text-slate-900">Company 360 normalizzato</p>
-            <p className="mt-1 text-xs text-slate-500">Solo relazioni deterministiche e verificate</p>
-          </div>
-        </div>
-      </div>
+      <div className="mx-auto max-w-5xl space-y-4" data-testid="company-clean-page">
+        <Link href={appRoutes.commercial.companies} className="inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] hover:underline">← Aziende</Link>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        {[
-          ["Contatti", summary.contacts],
-          ["Conversazioni", summary.conversations],
-          ["Messaggi", summary.messages],
-          ["RFQ", summary.rfqs],
-          ["Offerte", summary.offers],
-          ["Ordini", summary.orders],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-2xl font-semibold text-slate-950">{String(value)}</p>
-            <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">{label}</p>
-          </div>
-        ))}
-      </section>
-
-      {summary.contacts === 0 && company.verified ? (
-        <Card className="border-amber-200 bg-amber-50">
-          <CardContent className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-            <div>
-              <p className="text-sm font-semibold text-amber-950">Company verificata, ma nessun Contact ancora confermato</p>
-              <p className="mt-1 text-sm text-amber-800">
-                Le attività non vengono attribuite a questa Company finché il rapporto Contact→Company non viene confermato.
-                {activation.unresolvedContacts > 0
-                  ? ` Nel workspace ci sono ${activation.unresolvedContacts} identità in attesa di conferma.`
-                  : ""}
+        <header className="rounded-[22px] bg-[#0b2f25] px-5 py-5 text-white sm:px-7 sm:py-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] text-[#b4dec2]">
+                <span className="inline-flex items-center gap-1.5">
+                  <span aria-hidden="true" className={"h-2 w-2 rounded-full " + (company.verified ? "bg-[#7fd6a4]" : "bg-[#f0c75e]")} />
+                  {company.verified ? "Identità verificata" : "Identità da verificare"}
+                </span>
+                {typeLabel ? <span>· {typeLabel}</span> : null}
+                {company.country ? <span>· {company.country}</span> : null}
+              </p>
+              <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{company.name}</h1>
+              <p className="mt-1 text-sm text-[#d5eadc]">
+                {company.vat_number ? `P.IVA ${company.vat_number}` : "P.IVA non disponibile"}
+                {company.website ? <> · <span>{company.website}</span></> : null}
               </p>
             </div>
-            <Link
-              href={appRoutes.operations.reviewIdentities}
-              className="shrink-0 rounded-lg bg-amber-900 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-800"
-            >
-              Apri identità aziendali
+            <dl className="flex shrink-0 gap-5 text-right">
+              {([["RFQ", summary.rfqs], ["Offerte", summary.offers], ["Ordini", summary.orders]] as const).map(([label, value]) => (
+                <div key={label}>
+                  <dd className="text-3xl font-bold leading-none tabular-nums">{String(value)}</dd>
+                  <dt className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-[#b4dec2]">{label}</dt>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <p className="mt-4 border-t border-white/15 pt-3 text-xs text-[#d5eadc]">
+            {summary.contacts === 1 ? "1 contatto" : `${summary.contacts} contatti`} · {summary.conversations} conversazioni · {summary.messages} messaggi
+          </p>
+        </header>
+
+        {summary.contacts === 0 && company.verified ? (
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-[#ecd9a8] bg-[#fff8e6] px-4 py-2.5 text-sm text-[#6b4a07]">
+            <span className="font-semibold">Nessun contatto collegato</span>
+            <span>
+              Le attività compaiono qui solo dopo aver collegato un contatto a questa azienda.
+              {activation.unresolvedContacts > 0 ? ` Ci sono ${activation.unresolvedContacts} contatti in attesa.` : ""}
+            </span>
+            <Link href={appRoutes.operations.reviewIdentities} className="font-semibold underline underline-offset-2">Collega ora →</Link>
+          </p>
+        ) : null}
+
+        <nav aria-label="Sezioni dell’azienda" className="flex gap-1 overflow-x-auto" data-testid="company-tabs">
+          {tabs.map((item) => (
+            <Link key={item.key} href={tabHref(item.key)} aria-current={item.key === tab ? "page" : undefined} scroll={false}
+              className={"inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
+                (item.key === tab ? "bg-[#175640] " + styles.tabActive : "text-[#4f6b5b] hover:bg-[#e8f3ec] hover:text-[#143f30]")}>
+              {item.label}
+              <span className="text-xs tabular-nums opacity-70">{tabCount[item.key]}</span>
             </Link>
-          </CardContent>
-        </Card>
-      ) : null}
+          ))}
+        </nav>
 
-      <section className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <h2 className="text-lg font-semibold text-slate-950">Identità e contatti</h2>
-          <div className="mt-4 space-y-3">
-            {payload.verifications.map((verification) => (
-              <div key={verification.verification_id} className="rounded-2xl bg-emerald-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">Identità verificata</p>
-                <p className="mt-1 text-sm font-semibold text-emerald-950">{verification.identity_value}</p>
-                <p className="mt-1 text-xs text-emerald-700">
-                  {verification.identity_type} · {verification.verification_basis} · {dateLabel(verification.verified_at)}
-                </p>
-              </div>
-            ))}
-            {payload.verifications.length === 0 ? (
-              <p className="text-sm text-slate-500">Nessuna identità business verificata.</p>
-            ) : null}
-          </div>
+        {tab === "activity" ? (
+          <section aria-label="Attività" className={panel}>
+            <div className="divide-y divide-[#edf3ef]">
+              {payload.timeline.map((event) => {
+                const conversation = event.provenance?.conversation_id ? String(event.provenance.conversation_id) : null;
+                const body = (
+                  <>
+                    <span aria-hidden="true" className={"h-2.5 w-2.5 shrink-0 rounded-full " + (eventDot[event.event_type] ?? "bg-[#9fb3a8]")} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-[#143f30]">{event.title}</span>
+                      <span className="block truncate text-xs text-[#5c7063]">{eventLabel(event.event_type)} · {statusLabel(event.status)}</span>
+                    </span>
+                    <time className="shrink-0 text-xs tabular-nums text-[#5c7063]">{dateLabel(event.event_at)}</time>
+                    <span aria-hidden="true" className={"hidden sm:inline " + (conversation ? "text-[#9ab5a5]" : "text-transparent")}>›</span>
+                  </>
+                );
+                const row = "flex min-h-[60px] items-center gap-3 px-4 py-2.5 sm:px-5";
+                return conversation ? (
+                  <Link key={`${event.event_type}-${event.event_id}`} href={appRoutes.commercial.conversation(conversation)}
+                    aria-label={event.title + ": apri conversazione"} className={row + " transition hover:bg-[#f5faf7]"}>{body}</Link>
+                ) : (
+                  <div key={`${event.event_type}-${event.event_id}`} className={row}>{body}</div>
+                );
+              })}
+            </div>
+            {payload.timeline.length === 0 ? <p className={empty}>Nessuna attività collegata a questa azienda.</p> : null}
+          </section>
+        ) : null}
 
-          <div className="my-5 border-t border-slate-100" />
-
-          <div className="space-y-3">
-            {payload.contacts.map((contact) => (
-              <div key={contact.contact_id} className="rounded-2xl border border-slate-200 p-4">
-                <p className="text-sm font-semibold text-slate-950">{contact.full_name}</p>
-                <p className="mt-1 text-xs text-slate-500">{contact.email ?? "Email non disponibile"}</p>
-                <p className="mt-2 text-xs text-slate-400">
-                  {contact.role ?? "Ruolo non specificato"} · {contact.message_count} messaggi · {contact.rfq_count} RFQ
-                </p>
-              </div>
-            ))}
-            {payload.contacts.length === 0 ? (
-              <p className="text-sm text-slate-500">Nessun contatto verificato collegato.</p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">Timeline commerciale</h2>
-              <p className="mt-1 text-xs text-slate-500">
-                Messaggi, RFQ, offerte e ordini attribuiti a questa Company tramite link normalizzati.
+        {tab === "contacts" ? (
+          <section aria-label="Contatti" className={panel}>
+            <div className="divide-y divide-[#edf3ef]">
+              {payload.contacts.map((contact) => (
+                <div key={contact.contact_id} className="flex min-h-[60px] items-center gap-3 px-4 py-2.5 sm:px-5">
+                  <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e3f3ea] text-sm font-bold text-[#175640]">
+                    {(contact.full_name ?? "?").trim().charAt(0).toUpperCase()}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-[#143f30]">{contact.full_name}</span>
+                    <span className="block truncate text-xs text-[#5c7063]">{[contact.role, contact.email].filter(Boolean).join(" · ") || "Email non disponibile"}</span>
+                  </span>
+                  <span className="shrink-0 text-right text-xs text-[#5c7063]">{contact.message_count} messaggi · {contact.rfq_count} RFQ</span>
+                </div>
+              ))}
+            </div>
+            {payload.contacts.length === 0 ? <p className={empty}>Nessun contatto collegato.</p> : null}
+            {payload.verifications.length > 0 ? (
+              <p className="border-t border-[#edf3ef] px-5 py-3 text-xs text-[#5c7063]">
+                Identità verificata il {dateLabel(payload.verifications[0].verified_at)} tramite {payload.verifications[0].identity_value}.
               </p>
-            </div>
-            <Badge tone="neutral">{payload.timeline.length} eventi</Badge>
-          </div>
-
-          <div className="mt-5 space-y-3">
-            {payload.timeline.map((event) => (
-              <div
-                key={`${event.event_type}-${event.event_id}`}
-                className="grid gap-3 rounded-2xl border border-slate-200 p-4 md:grid-cols-[110px_1fr_auto] md:items-start"
-              >
-                <div>
-                  <Badge tone={event.event_type === "order" ? "green" : event.event_type === "offer" ? "neutral" : "amber"}>
-                    {eventLabel(event.event_type)}
-                  </Badge>
-                  <p className="mt-2 text-xs text-slate-400">{dateLabel(event.event_at)}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-900">{event.title}</p>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Stato: {event.status ?? "—"}
-                    {event.source_message_id ? " · fonte messaggio collegata" : ""}
-                  </p>
-                </div>
-                <div className="flex flex-col items-start gap-1 text-xs">
-                  {event.provenance?.conversation_id ? (
-                    <Link
-                      href={appRoutes.commercial.conversation(String(event.provenance.conversation_id))}
-                      className="font-semibold text-indigo-600 hover:text-indigo-800"
-                    >
-                      Apri conversazione →
-                    </Link>
-                  ) : null}
-                  <span className="text-slate-400">Provenienza normalizzata</span>
-                </div>
-              </div>
-            ))}
-            {payload.timeline.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
-                Nessuna attività normalizzata collegata a questa Company.
-              </div>
             ) : null}
-          </div>
-        </div>
-      </section>
+          </section>
+        ) : null}
 
-      <section className="grid gap-5 xl:grid-cols-2">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">Prodotti collegati</h2>
-              <p className="mt-1 text-xs text-slate-500">Aggregati da RFQ, offerte e ordini normalizzati.</p>
-            </div>
-            <Badge tone="neutral">{summary.products} prodotti</Badge>
-          </div>
-
-          <div className="mt-4 space-y-3">
-            {payload.product_activity.map((product) => (
-              <div key={product.canonical_product_key ?? product.canonical_product_id ?? product.last_raw_spec_text ?? "product"} className="rounded-2xl border border-slate-200 p-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-slate-950">
-                      {[product.last_grade, product.last_standard].filter(Boolean).join(" · ") || "Prodotto steel"}
-                    </p>
-                    <p className="mt-1 max-w-xl text-xs text-slate-500">
-                      {product.last_raw_spec_text ?? product.canonical_product_key ?? "Specifiche non disponibili"}
-                    </p>
-                  </div>
-                  {product.canonical_product_id ? (
-                    <Link href={appRoutes.commercial.product(product.canonical_product_id)} className="text-xs font-semibold text-indigo-600">
-                      Product 360 →
-                    </Link>
-                  ) : null}
+        {tab === "deals" ? (
+          <section aria-label="Richieste e ordini" className="grid gap-3 md:grid-cols-3">
+            {([
+              ["RFQ", payload.rfqs.map((rfq) => ({ id: rfq.rfq_id, at: rfq.requested_at, status: rfq.status, extra: rfq.lines.length === 1 ? "1 riga" : `${rfq.lines.length} righe` }))],
+              ["Offerte", payload.offers.map((offer, index) => ({ id: String(offer.offer_id ?? index), at: typeof offer.offered_at === "string" ? offer.offered_at : null, status: offer.status, extra: "" }))],
+              ["Ordini", payload.orders.map((order, index) => ({ id: String(order.order_id ?? index), at: typeof order.ordered_at === "string" ? order.ordered_at : null, status: order.status, extra: "" }))],
+            ] as const).map(([title, items]) => (
+              <div key={title} className={panel}>
+                <h2 className="flex items-center justify-between border-b border-[#edf3ef] px-4 py-3 text-sm font-bold text-[#143f30]">
+                  {title} <span className="text-xs font-semibold tabular-nums text-[#5c7063]">{items.length}</span>
+                </h2>
+                <div className="divide-y divide-[#edf3ef]">
+                  {items.slice(0, 10).map((item) => (
+                    <div key={item.id} className="flex items-center justify-between gap-2 px-4 py-2.5">
+                      <span className="min-w-0">
+                        <span className="block text-sm font-semibold text-[#143f30]">{statusLabel(item.status)}</span>
+                        {item.extra ? <span className="block text-xs text-[#5c7063]">{item.extra}</span> : null}
+                      </span>
+                      <time className="shrink-0 text-xs tabular-nums text-[#5c7063]">{dateLabel(item.at)}</time>
+                    </div>
+                  ))}
                 </div>
-                <div className="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
-                  <span>{product.rfq_count} RFQ</span>
-                  <span>{product.offer_count} offerte</span>
-                  <span>{product.order_count} ordini</span>
-                  <span>Ultima attività {dateLabel(product.last_activity_at)}</span>
+                {items.length === 0 ? <p className="px-4 py-6 text-center text-sm text-[#5c7063]">Nessun elemento.</p> : null}
+                {items.length > 10 ? <p className="border-t border-[#edf3ef] px-4 py-2 text-xs text-[#5c7063]">Altri {items.length - 10} non mostrati.</p> : null}
+              </div>
+            ))}
+          </section>
+        ) : null}
+
+        {tab === "products" ? (
+          <div className="space-y-3">
+            <section aria-label="Prodotti" className={panel}>
+              <h2 className="flex items-center justify-between border-b border-[#edf3ef] px-4 py-3 text-sm font-bold text-[#143f30] sm:px-5">
+                Prodotti <span className="text-xs font-semibold tabular-nums text-[#5c7063]">{summary.products}</span>
+              </h2>
+              <div className="divide-y divide-[#edf3ef]">
+                {payload.product_activity.map((product) => {
+                  const body = (
+                    <>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold text-[#143f30]">
+                          {[product.last_grade, product.last_standard].filter(Boolean).join(" · ") || "Prodotto"}
+                        </span>
+                        <span className="block truncate text-xs text-[#5c7063]">
+                          {product.last_raw_spec_text ?? product.canonical_product_key ?? "Specifiche non disponibili"}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-right text-xs text-[#5c7063]">
+                        <span className="block">{product.rfq_count} RFQ · {product.offer_count} offerte · {product.order_count} ordini</span>
+                        <span className="block tabular-nums">{dateLabel(product.last_activity_at)}</span>
+                      </span>
+                    </>
+                  );
+                  const key = product.canonical_product_key ?? product.canonical_product_id ?? product.last_raw_spec_text ?? "product";
+                  const row = "flex min-h-[60px] items-center gap-3 px-4 py-2.5 sm:px-5";
+                  return product.canonical_product_id ? (
+                    <Link key={key} href={appRoutes.commercial.product(product.canonical_product_id)} className={row + " transition hover:bg-[#f5faf7]"}>{body}</Link>
+                  ) : <div key={key} className={row}>{body}</div>;
+                })}
+              </div>
+              {payload.product_activity.length === 0 ? <p className={empty}>Nessun prodotto collegato.</p> : null}
+            </section>
+
+            <section aria-label="Prezzi osservati" className={panel}>
+              <h2 className="flex items-center justify-between border-b border-[#edf3ef] px-4 py-3 text-sm font-bold text-[#143f30] sm:px-5">
+                Prezzi osservati <span className="text-xs font-semibold tabular-nums text-[#5c7063]">{summary.priced_lines}</span>
+              </h2>
+              {payload.price_activity.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full min-w-[520px] text-left text-sm">
+                    <thead className="text-[11px] uppercase tracking-wide text-[#6b7d73]">
+                      <tr>
+                        <th className="px-4 py-2 font-semibold sm:px-5">Data</th>
+                        <th className="font-semibold">Tipo</th>
+                        <th className="font-semibold">Prezzo</th>
+                        <th className="font-semibold">Quantità</th>
+                        <th className="pr-4 font-semibold">Fonte</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#edf3ef]">
+                      {payload.price_activity.map((price) => (
+                        <tr key={`${price.activity_type}-${price.business_id}-${price.source_observation_id ?? "line"}`}>
+                          <td className="px-4 py-2.5 tabular-nums text-[#5c7063] sm:px-5">{dateLabel(price.event_at)}</td>
+                          <td className="text-[#5c7063]">{eventLabel(price.activity_type)}</td>
+                          <td className="font-semibold tabular-nums text-[#143f30]">{priceLabel(price.price_value, price.currency, price.price_unit)}</td>
+                          <td className="tabular-nums text-[#5c7063]">
+                            {price.quantity !== null ? `${numberLabel(price.quantity)} ${price.quantity_unit ?? ""}` : "—"}
+                          </td>
+                          <td className="pr-4">
+                            {price.source_observation_id ? (
+                              <Link href={`/evidence/${price.source_observation_id}`} target="_blank" className="text-xs font-semibold text-[#175640] underline underline-offset-2">
+                                Documento ↗
+                              </Link>
+                            ) : (
+                              <span className="text-xs text-[#6b7d73]">—</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              </div>
-            ))}
-            {payload.product_activity.length === 0 ? (
-              <p className="text-sm text-slate-500">Nessuna attività prodotto collegata.</p>
-            ) : null}
+              ) : <p className={empty}>Nessun prezzo collegato.</p>}
+            </section>
           </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-          <div className="flex items-end justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-950">Prezzi osservati</h2>
-              <p className="mt-1 text-xs text-slate-500">Solo righe normalizzate con prezzo esplicito.</p>
-            </div>
-            <Badge tone="neutral">{summary.priced_lines} righe</Badge>
-          </div>
-
-          <div className="mt-4 overflow-x-auto">
-            <table className="w-full min-w-[520px] text-left text-sm">
-              <thead className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-400">
-                <tr>
-                  <th className="py-2">Data</th>
-                  <th>Tipo</th>
-                  <th>Prezzo</th>
-                  <th>Quantità</th>
-                  <th>Fonte</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {payload.price_activity.map((price) => (
-                  <tr key={`${price.activity_type}-${price.business_id}-${price.source_observation_id ?? "line"}`}>
-                    <td className="py-3 text-slate-600">{dateLabel(price.event_at)}</td>
-                    <td className="text-slate-600">{eventLabel(price.activity_type)}</td>
-                    <td className="font-semibold text-slate-950">{priceLabel(price.price_value, price.currency, price.price_unit)}</td>
-                    <td className="text-slate-600">
-                      {price.quantity !== null ? `${numberLabel(price.quantity)} ${price.quantity_unit ?? ""}` : "—"}
-                    </td>
-                    <td>
-                      {price.source_observation_id ? (
-                        <Link href={`/evidence/${price.source_observation_id}`} target="_blank" className="text-xs font-semibold text-indigo-600">
-                          Evidenza ↗
-                        </Link>
-                      ) : (
-                        <span className="text-xs text-slate-400">Normalizzato</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {payload.price_activity.length === 0 ? (
-              <p className="mt-4 text-sm text-slate-500">Nessun prezzo normalizzato collegato.</p>
-            ) : null}
-          </div>
-        </div>
-      </section>
-
-      <section className="grid gap-5 xl:grid-cols-3">
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-base font-semibold text-slate-950">RFQ</h2>
-          <p className="mt-1 text-xs text-slate-500">{payload.rfqs.length} richieste collegate</p>
-          <div className="mt-4 space-y-2">
-            {payload.rfqs.slice(0, 5).map((rfq) => (
-              <div key={rfq.rfq_id} className="rounded-xl bg-slate-50 p-3">
-                <p className="text-sm font-semibold text-slate-900">{dateLabel(rfq.requested_at)} · {rfq.status}</p>
-                <p className="mt-1 text-xs text-slate-500">{rfq.lines.length} righe · priorità {rfq.priority}</p>
-              </div>
-            ))}
-            {payload.rfqs.length === 0 ? <p className="text-sm text-slate-500">Nessuna RFQ.</p> : null}
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-base font-semibold text-slate-950">Offerte</h2>
-          <p className="mt-1 text-xs text-slate-500">{payload.offers.length} offerte collegate</p>
-          <div className="mt-4 space-y-2">
-            {payload.offers.slice(0, 5).map((offer, index) => (
-              <div key={String(offer.offer_id ?? index)} className="rounded-xl bg-slate-50 p-3">
-                <p className="text-sm font-semibold text-slate-900">
-                  {dateLabel(typeof offer.offered_at === "string" ? offer.offered_at : null)} · {String(offer.status ?? "—")}
-                </p>
-              </div>
-            ))}
-            {payload.offers.length === 0 ? <p className="text-sm text-slate-500">Nessuna offerta normalizzata.</p> : null}
-          </div>
-        </div>
-
-        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-          <h2 className="text-base font-semibold text-slate-950">Ordini</h2>
-          <p className="mt-1 text-xs text-slate-500">{payload.orders.length} ordini collegati</p>
-          <div className="mt-4 space-y-2">
-            {payload.orders.slice(0, 5).map((order, index) => (
-              <div key={String(order.order_id ?? index)} className="rounded-xl bg-slate-50 p-3">
-                <p className="text-sm font-semibold text-slate-900">
-                  {dateLabel(typeof order.ordered_at === "string" ? order.ordered_at : null)} · {String(order.status ?? "—")}
-                </p>
-              </div>
-            ))}
-            {payload.orders.length === 0 ? <p className="text-sm text-slate-500">Nessun ordine normalizzato.</p> : null}
-          </div>
-        </div>
-      </section>
+        ) : null}
       </div>
     </>
   );

@@ -42,7 +42,7 @@ test("customer surfaces expose the controlled unresolved identity count", () => 
   assert.match(customers, /companies-identity-alert/);
   assert.match(customers, /appRoutes\.operations\.reviewIdentities/);
   assert.match(company360, /activation\.unresolvedContacts/);
-  assert.match(company360, /identità in attesa di conferma/);
+  assert.match(company360, /contatti in attesa/);
 });
 
 test("global search only opens Company 360 from explicit company_id metadata", () => {
