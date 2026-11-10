@@ -181,13 +181,15 @@ BEGIN
 
  -- Shared lock with human publisher and AUTO1 to prevent duplicate releases.
  PERFORM pg_catalog.pg_advisory_xact_lock(810021,20262);
+ LOCK TABLE public.network_companies IN SHARE ROW EXCLUSIVE MODE;
  SELECT * INTO v_policy FROM private.net_it_auto3_policy
   WHERE singleton=true FOR UPDATE;
  SELECT count(*) INTO v_daily FROM private.net_it_auto3_publications
  WHERE (published_at AT TIME ZONE 'Europe/Rome')::date
     = (now() AT TIME ZONE 'Europe/Rome')::date;
 
- IF NOT coalesce(v_policy.enabled,false) OR v_policy.expires_at<=now() THEN
+ IF NOT coalesce(v_policy.enabled,false) OR v_policy.expires_at IS NULL
+    OR v_policy.expires_at<=now() THEN
   RETURN jsonb_build_object('contract','net-it-auto3-release-v1',
     'status','delegation_disabled','published',0,'daily_published',v_daily);
  END IF;
@@ -208,6 +210,8 @@ BEGIN
   WHERE c.country_code='IT' AND c.review_status='pending_review'
     AND c.governance_status='unreviewed'
     AND r.governance_status='unreviewed'
+    AND r.terms_status IN ('not_checked','unknown')
+    AND r.database_rights_status IN ('not_assessed','unknown')
     AND c.source_url ~* '^https://'
     AND c.website_url ~* '^https://'
     AND e.verdict='identity_supported'
@@ -224,6 +228,7 @@ BEGIN
     AND cardinality(c.personal_data_fields)=0
     AND c.match_company_id IS NULL AND c.promoted_company_id IS NULL
     AND c.match_signals='[]'::jsonb
+    AND lower(c.legal_name) NOT LIKE '% di %'
     AND c.legal_name ~* '(s[.]?[[:space:]]*r[.]?[[:space:]]*l[.]?|s[.]?[[:space:]]*p[.]?[[:space:]]*a[.]?|s[.]?[[:space:]]*n[.]?[[:space:]]*c[.]?)'
     AND NOT EXISTS (
       SELECT 1 FROM public.network_companies n
@@ -258,10 +263,14 @@ BEGIN
        NOT IN (lower(btrim(v_candidate.canonical_domain)),'www.'||lower(btrim(v_candidate.canonical_domain)))
      OR lower(split_part(split_part(v_candidate.website_url,'/',3),':',1))
        NOT IN (lower(btrim(v_candidate.canonical_domain)),'www.'||lower(btrim(v_candidate.canonical_domain)))
+     OR lower(v_candidate.legal_name) LIKE '% di %'
      OR v_candidate.review_status<>'pending_review'
      OR v_candidate.governance_status<>'unreviewed'
      OR EXISTS(SELECT 1 FROM public.network_company_discovery_runs r
-        WHERE r.id=v_candidate.run_id AND r.governance_status<>'unreviewed')
+        WHERE r.id=v_candidate.run_id
+        AND (r.governance_status<>'unreviewed'
+          OR r.terms_status NOT IN ('not_checked','unknown')
+          OR r.database_rights_status NOT IN ('not_assessed','unknown')) )
      OR v_candidate.quality_flags && ARRAY['legal_identity_not_verified','historical_sole_trader_vat_context']::text[]
      OR v_candidate.personal_data_detected
      OR cardinality(v_candidate.personal_data_fields)>0
