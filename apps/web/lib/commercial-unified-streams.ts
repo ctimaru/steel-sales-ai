@@ -401,3 +401,29 @@ export async function loadCommercialFocusCounts(organizationId: string): Promise
   const n = (i: number) => results[i].count ?? 0;
   return { reply: n(0) + n(1), waiting: n(2) + n(3) + n(4), due: n(5) + n(6) };
 }
+
+// COMM-RFQ-FIRST1: riepilogo "Richieste inviate / ricevute" con contatori esatti.
+// Solo conteggi; se una lettura fallisce il riepilogo resta sconosciuto (mai zero inventato).
+export type CommercialRequestSummaryCounts = {
+  sent: { total: number; open: number; due: number };
+  received: { total: number; open: number; due: number };
+};
+export async function loadCommercialRequestSummary(organizationId: string): Promise<CommercialRequestSummaryCounts | null> {
+  const db = await createClient();
+  const limit = dueLimit();
+  const head = { count: "exact", head: true } as const;
+  const results = await Promise.all([
+    db.from("buyer_rfq_campaigns").select("id", head).eq("organization_id", organizationId),
+    db.from("buyer_rfq_campaigns").select("id", head).eq("organization_id", organizationId).in("status", [...LIVE_CAMPAIGN_STATUSES]),
+    db.from("buyer_rfq_campaigns").select("id", head).eq("organization_id", organizationId).in("status", [...DUE_CAMPAIGN_STATUSES]).lte("due_at", limit),
+    db.from("rfqs").select("id", head).eq("organization_id", organizationId),
+    db.from("rfqs").select("id", head).eq("organization_id", organizationId).in("status", [...OPEN_RFQ_STATUSES]),
+    db.from("rfqs").select("id", head).eq("organization_id", organizationId).in("status", [...OPEN_RFQ_STATUSES]).lte("due_at", limit),
+  ]);
+  if (results.some((r) => r.error || r.count === null)) return null;
+  const n = (i: number) => results[i].count ?? 0;
+  return {
+    sent: { total: n(0), open: n(1), due: n(2) },
+    received: { total: n(3), open: n(4), due: n(5) },
+  };
+}

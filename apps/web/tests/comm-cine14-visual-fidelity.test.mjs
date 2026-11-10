@@ -14,8 +14,9 @@ test("COMM-CINE14 uses existing local industrial posters for both desktop and mo
   assert.match(styles, /url\("\/home-cine2a2b-factory-mobile\.webp"\)/);
   assert.match(styles, /@media \(max-width: 640px\)/);
   assert.doesNotMatch(styles, /https?:\/\//);
-  // COMM-DECLUTTER1: la testata con foto non è più nella pagina; gli stili restano disponibili.
-  assert.doesNotMatch(page, /cinematic\.hero/);
+  // COMM-RFQ-FIRST1: la foto industriale fa da sfondo a "Crea una richiesta di offerta".
+  assert.match(page, /cinematic\.hero/);
+  assert.match(page, /Crea una richiesta di offerta/);
 });
 
 test("COMM-CINE14 standardizes real workspace surfaces without adding sections or changing permissions", () => {

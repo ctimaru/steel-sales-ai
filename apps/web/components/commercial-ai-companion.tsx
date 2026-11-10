@@ -42,47 +42,45 @@ export function CommercialAiCompanion({ canWrite }: { canWrite: boolean }) {
 
   return (
     <section aria-labelledby="commercial-ai-first-heading" data-testid="commercial-ai-first"
-      className={"relative overflow-hidden rounded-[20px] border border-[#d7e8dd] bg-white p-2 sm:px-3 sm:py-1.5 " + cinematic.companion}>
-      <div className="grid min-w-0 gap-2 lg:grid-cols-[minmax(0,0.6fr)_minmax(0,1.4fr)] lg:items-center lg:gap-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <div aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#174f3a] text-lg text-white">✦</div>
-          <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#3e7957] lg:sr-only">Prepara una distinta · Assistente AI</p>
-            <h2 id="commercial-ai-first-heading"
-              className={"mt-0.5 text-[clamp(1rem,1.2vw,1.1rem)] font-semibold leading-[1.16] tracking-[-0.035em] text-[#143f30] " + cinematic.companionTitle}>
-              Descrivi i tubi che ti servono
-            </h2>
-            <p className="mt-0.5 text-xs leading-4 text-[#5c7063] lg:sr-only">
+      className={"relative min-w-0 overflow-hidden rounded-[20px] border border-white/60 bg-white p-4 sm:p-5 " + cinematic.companion}>
+      <div className="flex min-w-0 items-center gap-3">
+        <div aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#174f3a] text-lg text-white">✦</div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.13em] text-[#3e7957]">Con l’assistente AI</p>
+          <h3 id="commercial-ai-first-heading"
+            className={"text-base font-semibold leading-tight tracking-[-0.02em] text-[#143f30] " + cinematic.companionTitle}>
+            Descrivi i tubi che ti servono
+          </h3>
+        </div>
+      </div>
+      {canWrite ? (
+        <form onSubmit={startRequest} data-testid="comm-cine11-prompt" aria-label="Prepara una nuova distinta nella chat"
+          className={"mt-3 min-w-0 space-y-2 " + cinematic.companionForm}>
+          <label htmlFor="commercial-ai-companion-input" className="sr-only">Descrivi il materiale</label>
+          <textarea id="commercial-ai-companion-input" value={request} disabled={!ready} maxLength={12000} rows={3}
+            onChange={(event) => setRequest(event.target.value)}
+            onKeyDown={onComposerKeyDown}
+            placeholder="Es. 40 tubi quadri 100×100×5, S355J2H, EN 10219, lunghi 6 m…"
+            className="block min-h-[84px] w-full min-w-0 resize-y rounded-xl border border-[#b8d6c3] bg-white px-3 py-2.5 text-sm leading-5 text-[#143f30] placeholder:text-[#72877a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="min-w-0 flex-1 text-[11px] leading-4 text-[#5c7063]">
               La chat prepara la Distinta; nessuna richiesta viene inviata automaticamente.
             </p>
+            <button type="submit" disabled={!ready || !request.trim()} data-testid="commercial-ai-first-cta"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-[#175640] px-5 text-sm font-semibold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50">
+              Apri chat e anteprima →
+            </button>
           </div>
-        </div>
-        {canWrite ? (
-          <form onSubmit={startRequest} data-testid="comm-cine11-prompt" aria-label="Prepara una nuova distinta nella chat"
-            className={"min-w-0 space-y-1.5 " + cinematic.companionForm}>
-            <label htmlFor="commercial-ai-companion-input" className="sr-only">Descrivi il materiale</label>
-            <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-stretch">
-              <textarea id="commercial-ai-companion-input" value={request} disabled={!ready} maxLength={12000} rows={1}
-                onChange={(event) => setRequest(event.target.value)}
-                onKeyDown={onComposerKeyDown}
-                placeholder="Es. 40 tubi quadri 100×100×5, S355J2H, EN 10219, lunghi 6 m…"
-                className="min-h-10 min-w-0 flex-1 resize-y rounded-xl border border-[#b8d6c3] bg-white px-3 py-2 text-sm leading-5 text-[#143f30] placeholder:text-[#72877a] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
-              <button type="submit" disabled={!ready || !request.trim()} data-testid="commercial-ai-first-cta"
-                className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] px-4 text-xs font-semibold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50 sm:max-w-[198px]">
-                Apri chat e anteprima →
-              </button>
-            </div>
-            {error ? <p role="alert" className="text-xs text-[#9d4e28]">{error}</p> : null}
-            <p className="sr-only">
-              Invio per continuare · Maiusc+Invio per andare a capo · Conferma prima di inviare.
-            </p>
-          </form>
-        ) : (
-          <p className="text-xs leading-5 text-[#5c7063]">
-            Consultazione in sola lettura. Puoi cercare nello storico e consultare le trattative, senza preparare o inviare richieste.
+          {error ? <p role="alert" className="text-xs text-[#9d4e28]">{error}</p> : null}
+          <p className="sr-only">
+            Invio per continuare · Maiusc+Invio per andare a capo · Conferma prima di inviare.
           </p>
-        )}
-      </div>
+        </form>
+      ) : (
+        <p className="mt-3 text-xs leading-5 text-[#5c7063]">
+          Consultazione in sola lettura. Puoi cercare nello storico e consultare le trattative, senza preparare o inviare richieste.
+        </p>
+      )}
     </section>
   );
 }
