@@ -21,6 +21,7 @@ type ReviewRow = {
   canonical_domain: string;
   private_legal_name: string;
   proposed_public_name: string | null;
+  first_party_name_observed: string | null;
   identity_source: string | null;
   activity_source: string | null;
   locality_unverified: string | null;
@@ -239,6 +240,9 @@ export default async function NetItPub1ReviewPage({
                     <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
                       <EvidenceLink url={row.identity_source} label="Identità sul sito aziendale"/>
                       <EvidenceLink url={row.activity_source} label="Attività produttiva"/>
+                      {row.first_party_name_observed && row.first_party_name_observed !== row.proposed_public_name ? (
+                        <span className="text-[11px] text-[#5b6a60]">Nome sul sito: {row.first_party_name_observed}</span>
+                      ) : null}
                       {row.proposed_public_name !== row.private_legal_name ? (
                         <span className="text-[11px] text-[#98622b]">
                           Denominazione nel database: {row.private_legal_name}
