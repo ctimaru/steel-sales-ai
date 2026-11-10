@@ -90,3 +90,49 @@ export async function publishScale15KReadyWave(formData: FormData) {
   redirect(resultPath("message",
     `Pubblicazione confermata: ${ids.length} aziende italiane aggiunte al Network. Verifica il catalogo pubblico.`));
 }
+
+/**
+ * NET-IT-AUTO1: one-time, revocable Platform-owner grant for automated
+ * publication of companies already reviewed by real source+candidate reviewers.
+ * Not a grant to invent or bypass source review; no action occurs by enabling.
+ */
+export async function setScale15KAgentDelegation(formData: FormData) {
+  await requirePlatformPermission("platform.settings.manage");
+  await requirePlatformPermission("discovery.publish");
+  const supabase = await createClient();
+  const { data: access, error: accessError } = await supabase.rpc("platform_access_context");
+  if (accessError || !(access as { is_platform_owner?: boolean } | null)?.is_platform_owner) {
+    redirect(resultPath("error", "Solo il proprietario Platform può autorizzare o revocare l'agente."));
+  }
+
+  const enabled = formData.get("enabled") === "true";
+  const attested = formData.get("attested") === "on";
+  const note = String(formData.get("policy_note") ?? "").trim();
+  const cap = Number(formData.get("daily_cap") ?? "150");
+  if (enabled && (
+    !attested || !Number.isInteger(cap) || cap < 1 || cap > 500 ||
+    note.length < 80 || note.length > 2000
+  )) {
+    redirect(resultPath("error",
+      "Delega non attivata: conferma i limiti, indica 1–500 aziende al giorno e una nota di almeno 80 caratteri."));
+  }
+
+  const { data, error } = await supabase.rpc("net_it_auto1_set_delegation", {
+    p_enabled: enabled,
+    p_daily_cap: enabled ? cap : 150,
+    p_valid_days: 30,
+    p_attested: enabled ? attested : false,
+    p_note: enabled ? note : null,
+  });
+  const result = data as { contract?: string; enabled?: boolean } | null;
+  if (error || result?.contract !== "net-it-auto1-delegation-v1" ||
+      result.enabled !== enabled) {
+    redirect(resultPath("error",
+      "Delega non aggiornata: verifica permessi e installazione del controllo agente."));
+  }
+  revalidatePath(ROOT);
+  redirect(resultPath("message",
+    enabled
+      ? "Delega attivata per 30 giorni: l'agente potrà pubblicare solo aziende già approvate, entro il limite giornaliero."
+      : "Delega revocata. Nessun altro lotto automatico è autorizzato."));
+}
