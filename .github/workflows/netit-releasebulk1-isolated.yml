@@ -6,6 +6,10 @@ on:
     paths:
       - 'services/worker/sql/net_it_releasebulk1_proposed.sql'
       - 'supabase/tests/net_it_releasebulk1_local.sql'
+      - 'supabase/migrations/20261110090000_net_it_releasebulk1_guarded_default_off.sql'
+      - 'supabase/migrations/20261110092500_net_it_pub1_review_queue.sql'
+      - 'apps/web/app/(italian)/(platform)/platform/company-discovery/carpenterie/pubblicazione/**'
+      - 'apps/web/tests/net-it-pub1-review-flow.test.mjs'
       - '.github/workflows/netit-releasebulk1-isolated.yml'
   workflow_dispatch:
 
@@ -21,6 +25,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: NET-IT-PUB1 targeted Platform review UI and SQL guard contract
+        run: node --test apps/web/tests/net-it-pub1-review-flow.test.mjs
       - uses: supabase/setup-cli@v1
         with:
           version: 2.118.0
