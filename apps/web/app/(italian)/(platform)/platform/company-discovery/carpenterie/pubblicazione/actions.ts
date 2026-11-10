@@ -103,3 +103,60 @@ export async function reviewNetItPub1Candidate(formData: FormData) {
   revalidatePath("/platform/company-discovery/governance");
   redirect(nextPath("message", "Decisione sulla scheda registrata."));
 }
+
+/**
+ * Uses the existing, governed MINIMAL candidate publisher, never the
+ * RELEASEBULK1 seed publisher (which deliberately rejects discovery matches).
+ * The database's original publisher feature switch stays default OFF.
+ * No administrative SQL override or automatic enablement is allowed here.
+ */
+export async function publishNetItPub1Candidate(formData: FormData) {
+  await requirePlatformPermission("discovery.publish");
+  const { supabase, rows } = await selectedQueue();
+  const candidateId = String(formData.get("candidate_id") ?? "").trim();
+  const selected = rows.find((row) => row.candidate_id === candidateId) as
+    | (QueueRow & {
+        source_status?: string;
+        candidate_status?: string;
+        review_status?: string;
+        publisher_eligibility_reason?: string;
+        canonical_collision?: boolean;
+        personal_data_detected?: boolean;
+        already_published?: boolean;
+      })
+    | undefined;
+
+  if (
+    !selected ||
+    selected.source_status !== "approved" ||
+    selected.candidate_status !== "approved_company_data" ||
+    selected.review_status !== "pending_review" ||
+    selected.publisher_eligibility_reason !== "eligible_minimal_preview" ||
+    selected.canonical_collision ||
+    selected.personal_data_detected ||
+    selected.already_published
+  ) {
+    redirect(nextPath("error", "Questa carpenteria non è ancora pronta per la pubblicazione."));
+  }
+
+  // Feature OFF => the database refuses the operation, without any writes.
+  // Revalidation and success message happen only after an acknowledged commit.
+  const { data, error } = await supabase.rpc("net_pipeline1b2_publish_one", {
+    p_candidate_id: candidateId,
+  });
+  if (error) {
+    redirect(nextPath("error", safeErrorMessage(
+      error, "Pubblicazione non autorizzata o non disponibile: verifica l'attivazione protetta e i dati della scheda.",
+    )));
+  }
+  const result = data as { status?: string; company_id?: string } | null;
+  if (result?.status !== "published" || !result.company_id) {
+    redirect(nextPath("error", "Il database non ha confermato la pubblicazione di un nuovo profilo."));
+  }
+
+  revalidatePath(ROUTE);
+  revalidatePath("/platform/company-discovery/carpenterie");
+  revalidatePath("/platform/company-discovery");
+  revalidatePath("/network");
+  redirect(nextPath("message", "Profilo minimo pubblicato. Verifica la scheda nel Network."));
+}
