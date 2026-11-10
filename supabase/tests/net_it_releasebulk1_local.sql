@@ -400,7 +400,7 @@ END $pub1_five$;
 RESET ROLE;
 INSERT INTO public.network_company_discovery_runs(
   id,requested_by,country_code,seed_urls,status,source_type,source_reference,
-  label,governance_status,terms_status,database_rights_status,
+  label,started_at,completed_at,governance_status,terms_status,database_rights_status,
   personal_data_policy,governance_reviewed_by,governance_reviewed_at,governance_note
 )
 SELECT
@@ -410,6 +410,7 @@ SELECT
   jsonb_build_array('https://netit-pub1-ci-'||i||'.invalid/'),
   'completed','manual_url','SYNTHETIC LOCAL CI source only',
   'NET-IT-PUB1 synthetic source '||i,
+  now()-interval '2 minutes',now()-interval '1 minute',
   'approved','allows_reuse','low_risk','exclude_personal_data',
   '5e5dfabe-f01d-4bca-89dc-61d031f80a01'::uuid,
   now(),
