@@ -136,3 +136,40 @@ export async function setScale15KAgentDelegation(formData: FormData) {
       ? "Delega attivata per 30 giorni: l'agente potrà pubblicare solo aziende già approvate, entro il limite giornaliero."
       : "Delega revocata. Nessun altro lotto automatico è autorizzato."));
 }
+
+/** NET-IT-AUTO3: separate, explicit Owner authorization for narrow first-party
+ * factual company publication. This is NOT a declaration of source license,
+ * and never modifies a human source-governance decision. */
+export async function setScale15KFactPolicy(formData: FormData) {
+  await requirePlatformPermission("platform.settings.manage");
+  await requirePlatformPermission("discovery.publish");
+  const supabase = await createClient();
+  const { data: access, error: accessError } = await supabase.rpc("platform_access_context");
+  if (accessError || !(access as { is_platform_owner?: boolean } | null)?.is_platform_owner) {
+    redirect(resultPath("error", "Solo il proprietario Platform può autorizzare o revocare la pubblicazione automatica dei fatti aziendali."));
+  }
+  const enabled = formData.get("enabled") === "true";
+  const attested = formData.get("attested") === "on";
+  const note = String(formData.get("policy_note") ?? "").trim();
+  const cap = Number(formData.get("daily_cap") ?? 100);
+  if (enabled && (!attested || !Number.isInteger(cap) || cap < 1 || cap > 300 ||
+      note.length < 100 || note.length > 2000)) {
+    redirect(resultPath("error",
+      "Delega non concessa: seleziona 1–300 al giorno, motivazione da almeno 100 caratteri e conferma delle condizioni."));
+  }
+  const { data, error } = await supabase.rpc("net_it_auto3_set_policy", {
+    p_enabled: enabled, p_daily_cap: enabled ? cap : 100,
+    p_valid_days: 30, p_attested: enabled ? attested : false,
+    p_note: enabled ? note : null,
+  });
+  const result = data as { contract?: string; enabled?: boolean } | null;
+  if (error || result?.contract !== "net-it-auto3-policy-v1" ||
+      result.enabled !== enabled) {
+    redirect(resultPath("error",
+      "Delega fatti aziendali non modificata: controlla i permessi Platform e l'installazione del motore."));
+  }
+  revalidatePath(ROOT);
+  redirect(resultPath("message",enabled
+    ? "Delega fatti aziendali attiva per 30 giorni. Solo verifiche recenti del sito ufficiale, quota giornaliera e audit macchina."
+    : "Delega fatti aziendali revocata: il motore automatico non potrà effettuare nuovi lotti."));
+}
