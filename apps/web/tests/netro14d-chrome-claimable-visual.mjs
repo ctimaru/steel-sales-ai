@@ -146,6 +146,39 @@ try {
       const filtersCard = page.getByTestId("network-refined-filters");
       const drawer = page.getByTestId("network-filter-drawer");
       const toggle = drawer.getByRole("button", {name:/Affina i filtri/i});
+      if (!(await europeMap.isVisible())) {
+        // Synthetic-only diagnostics: investigate why a data-backed compact
+        // directory fell back to the legacy view. Never print session secrets.
+        const pageState = await page.evaluate(() => ({
+          headings: [...document.querySelectorAll("h1,h2")].slice(0,8).map(el=>el.textContent?.trim().slice(0,90)),
+          compact: Boolean(document.querySelector('[data-testid="network-compact-experience"]')),
+          map: Boolean(document.querySelector('[data-testid="network-europe-persistent-map"]')),
+          filterCard: Boolean(document.querySelector('[data-testid="network-refined-filters"]')),
+          pathname: location.pathname,
+        }));
+        const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+        let rpcDiagnostics = {error:"local diagnostic unavailable"};
+        if (anonKey) {
+          const viewerClient = createClient(dbUrl, anonKey, {auth:{persistSession:false,autoRefreshToken:false}});
+          const auth = await viewerClient.auth.signInWithPassword({email:admin.email,password:admin.password});
+          if (auth.error) rpcDiagnostics={authError:auth.error.code||auth.error.message};
+          else {
+            const access = await viewerClient.rpc("pa1_3_network_access_state",{p_organization_id:admin.org});
+            const browse = await viewerClient.rpc("netlaunch4b_browse_page",{
+              p_organization_id:admin.org,p_access:"pro",p_source:"published",
+              p_query:null,p_role:null,p_region:null,p_persona:null,p_page:1,p_limit:18,
+            });
+            rpcDiagnostics={
+              accessError:access.error?{code:access.error.code,message:access.error.message}:null,
+              entitled:access.data?.can_access_network??null,
+              browseError:browse.error?{code:browse.error.code,message:browse.error.message}:null,
+              browseContract:browse.data?.contract??null,
+              browseCount:browse.data?.total??null,
+            };
+          }
+        }
+        console.log("NET-UX-FILTERS1 SYNTHETIC DIAGNOSTIC",JSON.stringify({width,pageState,rpcDiagnostics}));
+      }
       assert.equal(await europeMap.isVisible(), true, "Country map disappeared at "+width);
       if (width === 1440) {
         assert.equal(await filtersCard.isVisible(), true, "Desktop filter card must remain open");
