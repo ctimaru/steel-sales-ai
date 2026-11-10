@@ -305,7 +305,7 @@ BEGIN
   ) VALUES (
     v_candidate.id,v_company,v_candidate.source_url,
     lower(btrim(v_candidate.canonical_domain)),
-    'agent_first_party_minimal_facts_unverified',NULL
+    'minimal_unverified',NULL
   );
   INSERT INTO public.network_data_assertions(
     entity_type,entity_id,field_path,asserted_value,
