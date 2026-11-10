@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { requirePlatformPermission } from "@/lib/platform-admin";
+import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
 import { createClient } from "@/lib/supabase/server";
-import { reviewNetItPub1Candidate, reviewNetItPub1Source } from "./actions";
+import { publishNetItPub1Candidate, reviewNetItPub1Candidate, reviewNetItPub1Source } from "./actions";
 
 type ReviewRow = {
   candidate_id: string;
@@ -31,7 +31,7 @@ type ReviewRow = {
   canonical_collision: boolean;
 };
 
-type ReviewQueue = { contract: string; items: ReviewRow[] };
+type ReviewQueue = { contract: string; items: ReviewRow[]; minimal_publisher_enabled?: boolean };
 
 const selectClass =
   "min-h-10 w-full rounded-lg border border-[#cbdcd2] bg-white px-2.5 py-2 text-xs text-[#173f35] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#167657]";
@@ -69,6 +69,8 @@ export default async function NetItPub1ReviewPage({
 }) {
   // No service-role shortcuts: this page only reads through the real user's JWT.
   await requirePlatformPermission("discovery.governance_review");
+  const access = await getPlatformAccessContext();
+  const canPublish = access?.permissions.includes("discovery.publish") ?? false;
   const params = await searchParams;
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("net_it_pub1_review_queue");
@@ -85,6 +87,8 @@ export default async function NetItPub1ReviewPage({
       row.publisher_eligibility_reason === "eligible_minimal_preview" &&
       !row.canonical_collision,
   ).length ?? 0;
+  const published = rows?.filter((row) => row.already_published).length ?? 0;
+  const minimalPublisherEnabled = payload?.minimal_publisher_enabled === true;
 
   return (
     <main className="mx-auto w-full max-w-[1460px] space-y-3 px-2 py-3 sm:px-5 sm:py-5"
@@ -106,16 +110,19 @@ export default async function NetItPub1ReviewPage({
             <h1 className="text-xl font-bold tracking-tight text-[#173e33] sm:text-2xl">Cinque carpenterie da pubblicare</h1>
             <p className="mt-1 max-w-3xl text-xs leading-5 text-[#53665c]">
               Verifica le tre raccolte di origine, poi approva soltanto i dati aziendali delle cinque schede.
-              Il profilo pubblico conterrà nome, sito, categoria e azione «Rivendica».
+              Il profilo minimo mostrerà nome e sito, con stato non verificato e possibilità di rivendicazione.
+              La classificazione come carpenteria è un passaggio distinto, da verificare dopo la pubblicazione.
             </p>
           </div>
           <div className="rounded-xl border border-[#c9ded2] bg-[#f5faf7] px-4 py-2 text-center">
-            <p className="text-2xl font-bold tabular-nums text-[#175840]">{approved} / 5</p>
-            <p className="text-[11px] text-[#456b58]">Pronte alla verifica finale</p>
+            <p className="text-2xl font-bold tabular-nums text-[#175840]">{published} / 5</p>
+            <p className="text-[11px] text-[#456b58]">Profili pubblicati</p>
+            <p className="text-[11px] text-[#456b58]">{approved} pronti alla pubblicazione</p>
           </div>
         </div>
         <p className="mt-2 text-xs font-medium text-[#8b5714]">
-          Il pubblicatore è ancora disattivato: le approvazioni qui registrate non pubblicano aziende.
+          Pubblicatore minimale: {minimalPublisherEnabled ? "abilitato con controllo dei permessi" : "disattivato"}.
+          La semplice revisione non pubblica alcuna azienda.
         </p>
       </header>
 
@@ -257,9 +264,28 @@ export default async function NetItPub1ReviewPage({
                       ) : row.canonical_collision ? (
                         <p className="text-xs font-semibold text-rose-700">Identità da riconciliare prima di qualunque pubblicazione.</p>
                       ) : companyApproved ? (
-                        <p className="text-xs font-semibold text-[#176447]">
-                          Dati aziendali approvati. Esito pubblicatore: {row.publisher_eligibility_reason ?? "da verificare"}.
-                        </p>
+                        <div className="space-y-2">
+                          <p className="text-xs font-semibold text-[#176447]">
+                            Dati aziendali approvati. Esito pubblicatore: {row.publisher_eligibility_reason ?? "da verificare"}.
+                          </p>
+                          {canPublish && minimalPublisherEnabled && row.publisher_eligibility_reason === "eligible_minimal_preview" ? (
+                            <form action={publishNetItPub1Candidate} className="flex flex-wrap items-center gap-3">
+                              <input type="hidden" name="candidate_id" value={row.candidate_id} />
+                              <label className="flex items-center gap-2 text-[11px] text-[#3b5f4d]">
+                                <input required type="checkbox" name="confirmed" className="h-4 w-4 accent-[#176447]"/>
+                                Ho verificato identità, fonte e nome pubblicato
+                              </label>
+                              <button type="submit" className={buttonClass}>Pubblica profilo minimo</button>
+                            </form>
+                          ) : (
+                            <p className="text-xs text-[#86602b]">
+                              {!minimalPublisherEnabled
+                                ? "Pubblicatore ancora disattivato: attendere il rilascio autorizzato."
+                                : !canPublish ? "Non disponi del permesso di pubblicazione."
+                                : "Completare la verifica tecnica prima di pubblicare."}
+                            </p>
+                          )}
+                        </div>
                       ) : (
                         <form action={reviewNetItPub1Candidate}
                           className="grid gap-2 md:grid-cols-[minmax(170px,1fr)_minmax(250px,1.5fr)_auto] md:items-end">
