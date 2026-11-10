@@ -37,6 +37,9 @@ DECLARE
   v_eligible integer := 0;
   v_fingerprint text;
   v_result jsonb;
+  v_role_id uuid;
+  v_assertion_id uuid;
+  v_company_id uuid;
   v_company_ids uuid[] := '{}'::uuid[];
   v_row record;
   v_original_enabled boolean;
@@ -159,9 +162,16 @@ BEGIN
   -- MVCC: the switch to ON remains uncommitted and invisible to other sessions.
   -- No other session can exploit the temporary state; it is restored to OFF
   -- BEFORE this transaction commits, even on successful publication.
+  -- Role assignment is part of the same atomic release, never a separate
+  -- post-publication write that could leave five unclassified profiles.
+  SELECT id INTO STRICT v_role_id
+    FROM public.network_company_roles
+    WHERE canonical_key='processor_service_provider'
+      AND status='active' AND searchable=true;
+
   UPDATE private.net_pipeline1b2_settings SET enabled=true WHERE singleton=true;
   FOR v_row IN
-    SELECT c.id,c.canonical_domain
+    SELECT c.id,c.canonical_domain,c.source_url
     FROM public.network_company_discovery_candidates c
     WHERE c.id=ANY(v_ids)
     ORDER BY c.canonical_domain
@@ -172,9 +182,30 @@ BEGIN
       RAISE EXCEPTION 'Atomic publication failed for %, all inserts rolled back',
         v_row.canonical_domain USING ERRCODE='22023';
     END IF;
-    v_company_ids := pg_catalog.array_append(
-      v_company_ids,(v_result->>'company_id')::uuid
-    );
+    v_company_id := (v_result->>'company_id')::uuid;
+    -- Curated evidence is still UNVERIFIED by the enterprise itself. No
+    -- copied descriptions, personal contacts, certifications or tube claims.
+    INSERT INTO public.network_data_assertions(
+      entity_type,entity_id,field_path,asserted_value,
+      source_type,source_reference,ownership_type,asserted_by,
+      confidence,review_state
+    ) VALUES (
+      'company',v_company_id,'net_it_pub1_fabricator_role',
+      pg_catalog.jsonb_build_object(
+        'role_key','processor_service_provider',
+        'subtype_key_proposed','fabricator',
+        'source_url',v_row.source_url,
+        'role_confirmed_by_company',false,
+        'company_verified',false,
+        'tube_procurement_confirmed',false
+      ),'public_web',v_row.source_url,'platform_curated',v_actor,
+      0.50,'accepted'
+    ) RETURNING id INTO v_assertion_id;
+    INSERT INTO public.network_company_role_assignments(
+      company_id,role_id,is_primary,source_assertion_id
+    ) VALUES (v_company_id,v_role_id,true,v_assertion_id);
+
+    v_company_ids := pg_catalog.array_append(v_company_ids,v_company_id);
   END LOOP;
   UPDATE private.net_pipeline1b2_settings SET enabled=false WHERE singleton=true;
 
@@ -191,7 +222,9 @@ BEGIN
   RETURN pg_catalog.jsonb_build_object(
     'status','published','wave','NET-IT-PUB1-FIRST5-20261110',
     'published_count',5,'company_ids',to_jsonb(v_company_ids),
-    'verified_companies',0,'claimed_companies',0
+    'verified_companies',0,'claimed_companies',0,
+    'classified_as','processor_service_provider',
+    'subtype_evidence','fabricator_unverified'
   );
 END;
 $pub1$;
