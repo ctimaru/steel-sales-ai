@@ -31,9 +31,9 @@ export function NetworkCountryRegionFilters({
     params.delete("np");params.delete("province");params.delete("city");
     router.replace("/network?"+params.toString()+"#network-results",{scroll:false});
   };
-  const inputStyle="h-10 w-full min-w-0 rounded-lg border border-[#b7cfc2] bg-white px-2.5 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:border-[#d7e3dc] disabled:bg-[#eef2ef] disabled:text-[#53635b]";
+  const inputStyle="h-11 w-full min-w-0 rounded-xl border border-[#b7cfc2] bg-white px-3 text-sm font-medium text-[#173f35] outline-none transition-colors focus-visible:border-[#175640] focus-visible:ring-2 focus-visible:ring-[#d6e9dc] disabled:cursor-not-allowed disabled:border-[#d7e3dc] disabled:bg-[#eef2ef] disabled:text-[#53635b]";
   return <>
-    <label className="flex min-w-0 flex-col gap-1">
+    <label className="flex min-w-0 flex-col gap-1.5">
       <span className="text-[11px] font-semibold text-[#315d4a]">Paese</span>
       <select name="country" aria-label="Paese" value={selectedCountry}
         onChange={event=>{setSelectedCountry(event.target.value);setSelectedRegion("");navigateGeo(event.target.value,"");}}
@@ -46,7 +46,7 @@ export function NetworkCountryRegionFilters({
         </optgroup>
       </select>
     </label>
-    <label className="flex min-w-0 flex-col gap-1">
+    <label className="flex min-w-0 flex-col gap-1.5">
       <span className="text-[11px] font-semibold text-[#315d4a]">Regione</span>
       <select name="region" aria-label="Regione" aria-describedby="network-region-country-hint"
         value={selectedRegion} disabled={!canSelectRegion}
