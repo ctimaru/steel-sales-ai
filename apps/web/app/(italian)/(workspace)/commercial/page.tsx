@@ -157,7 +157,7 @@ export default async function CommercialHomePage({
             {canWrite ? (
               <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
                 data-testid="commercial-manual-entry"
-                className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/40 bg-white/10 px-4 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                className={"mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/50 bg-white/15 px-4 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white " + cinematic.heroAction}>
                 <span aria-hidden="true">▤</span> Crea dalla distinta →
               </Link>
             ) : null}

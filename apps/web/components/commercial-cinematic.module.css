@@ -35,6 +35,8 @@
   position: relative;
   z-index: 2;
 }
+/* Il reset globale `a { color: inherit }` vince sulle utility: il colore va dichiarato qui. */
+.heroAction, .heroAction:hover { color: #ffffff; }
 .heroTitle {
   max-width: none;
   text-wrap: normal;
