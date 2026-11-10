@@ -77,7 +77,7 @@ export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFil
         </div>
         <div className="mt-2 grid min-w-0 grid-cols-2 gap-2" data-testid="network-spec-sides-row">
           {field("side","Lato 1 (mm)","100")}
-          {field("side2","Lato 2 (mm)","50")}
+          {field("side2","2° lato (mm)","50")}
         </div>
       </fieldset>
       <label className="flex min-h-11 min-w-0 items-center gap-2.5 rounded-xl border border-[#e0eae3] bg-[#f6faf7] px-2.5 py-2 text-[11px] font-semibold leading-4 text-[#315d4a]">
@@ -91,7 +91,7 @@ export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFil
       </div>
       <p role="note" className="text-[11px] leading-[1.5] text-[#526b5e]">
         {locked?"Ricerca per norma, grado e misure disponibile nel Network Pro.":
-          "Confronta lo scope tecnico dei profili. Quantità e lunghezze di taglio vanno nella richiesta d’offerta."}
+          "Confronto con lo scope tecnico pubblicato nei profili. Quantità e lunghezze di taglio si indicano nella richiesta d'offerta."}
       </p>
     </form>
   </details>;
