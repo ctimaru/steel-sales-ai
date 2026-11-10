@@ -295,10 +295,8 @@ try {
             "Local clarification must not invent AI candidates or send a request");
           assert.equal(await textField.inputValue(), "100x100x5",
             "Keep shorthand text available for the buyer to complete it");
-          await page.getByTestId("commercial-ai-manual-tools-toggle").click();
-          await manualShell.waitFor({ state: "visible" });
-          assert.ok(await manualShell.getByText("Articoli in distinta", { exact: true }).isVisible(),
-            "Manual calculator remains accessible without leaving the workflow");
+          // COMM-RFQ-CREATE2: la calcolatrice separata non è più nella pagina di creazione richiesta.
+          assert.equal(await page.getByTestId("commercial-ai-manual-tools-toggle").count(), 0);
           if (width !== 320) {
             await page.goto(base + "/commercial?compose=1", { waitUntil: "domcontentloaded", timeout: 90000 });
             await page.locator("#commercial-rfq-manual-tools").waitFor({ state: "visible", timeout: 60000 });
