@@ -61,7 +61,7 @@ test("COMM-UX7.C preserves worklist filter, selection and cursor, using existing
   assert.match(operations, /commercialPageHref\(view, query, page, selected\)/);
   assert.match(operations, /\+ "tab=" \+ tab \+ "#commercial-operations"/);
   assert.match(worklist, /operationTab && item.campaignId/);
-  assert.match(worklist, /operationsHref\(view, query, item.key, operationTab, page, cursor\)/);
+  assert.match(worklist, /operationsHref\(view, query, item.key, operationTab, page, cursor, focus\)/);
   assert.match(operations, /canExecuteCritical = canWrite && !governanceError/);
   assert.match(operations, /\.eq\("organization_id", context.organizationId\)/);
   assert.doesNotMatch(source + worklist, /autoDispatch|service_role|SUPABASE_SERVICE_ROLE_KEY/);
