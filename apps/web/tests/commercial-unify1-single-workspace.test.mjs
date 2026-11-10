@@ -35,15 +35,14 @@ test("COMMERCIAL-UNIFY1 retains deep links but resolves private procurement with
 });
 
 test("COMMERCIAL-UNIFY1 puts workflow, live buyer actions and Network entry before historical drilldowns", () => {
-  assert.match(commercial, /Le tue trattative\./);
-  assert.match(commercial, /Un’unica visione\./);
+  assert.match(commercial, /Commerciale · Le tue trattative/);
   assert.match(commercial, /data-testid="comm-cine13-first-workspace"/);
   assert.match(commercial, /<CommercialDirectorPriorityDesk/);
   assert.match(priorities, /Cosa richiede attenzione/);
   assert.ok(commercial.indexOf("<CommercialDirectorPriorityDesk") < commercial.indexOf("Ricerca su dati già presenti"));
   assert.match(commercial, /rfqh10_procurement_inbox/);
   assert.match(commercial, /item\.requires_action === true/);
-  assert.match(priorities, /Segnalazioni RFQ non disponibili/);
+  assert.match(priorities, /!procurementAvailable/);
   assert.match(commercial, /\?compose=1&method=ai#commercial-ai-intake/);
   assert.match(commercial, /appRoutes\.commercial\.home/);
   assert.match(commercial, /appRoutes\.network\.directory/);

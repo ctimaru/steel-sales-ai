@@ -22,8 +22,8 @@ test("COMM-CINE11 transfers only explicitly submitted free text into the existin
 
 test("COMM-CINE12 keeps attention but removes the duplicate activity action bar", () => {
   assert.match(page, /<CommercialDirectorPriorityDesk/);
-  assert.match(priorities, /data-testid="commercial-compact-attention"/);
-  assert.match(priorities, /Cosa richiede attenzione/);
+  assert.match(priorities, /data-testid="commercial-director-rfq-priorities"/);
+  assert.match(priorities, /Da verificare/);
   assert.match(priorities, /id="commercial-today-heading"/);
   assert.doesNotMatch(page, /Che cosa vuoi fare oggi\?/);
   assert.match(page, /<CommercialAiCompanion canWrite=\{canWrite\}/);
