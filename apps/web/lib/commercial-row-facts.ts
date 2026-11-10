@@ -1,6 +1,9 @@
 /** COMM-UX7.B: display only numeric, tenant-authorized commercial facts. */
 export type CommercialRowFacts = {
   counterparty?: string;
+  reference?: string;
+  rfqRef?: string;
+  customerRef?: string;
   material?: string;
   lines?: string;
   quantity?: string;
