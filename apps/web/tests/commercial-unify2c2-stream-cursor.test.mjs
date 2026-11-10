@@ -17,7 +17,7 @@ test("COMMERCIAL-UNIFY2C.2 composes all real entity sources, no normalized line 
   assert.match(stream, /["']all["']|all: ids/);
   assert.match(stream, /offers: \["offers", "quotes"\]/);
   assert.match(stream, /orders: \["orders", "purchaseOrders"\]/);
-  assert.match(stream, /STREAM_PAGE_SIZE = 30/);
+  assert.match(stream, /STREAM_PAGE_SIZE = 10/);
   assert.match(stream, /FETCH_PER_STREAM = STREAM_PAGE_SIZE \+ 1/);
   assert.match(page, /isStreamView\(view\)/);
   assert.match(page, /loadCommercialStreams\(\{ organizationId: context\.organizationId, view, query, cursor: params\.cursor, focus \}\)/);
