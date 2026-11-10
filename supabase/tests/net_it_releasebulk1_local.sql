@@ -28,11 +28,20 @@ BEGIN
  IF NOT has_function_privilege('authenticated','public.net_it_pub1_review_queue()','EXECUTE') THEN
    RAISE EXCEPTION 'NET-IT-PUB1 review queue must be callable by authenticated Platform reviewer only';
  END IF;
- IF NOT EXISTS (
+ IF EXISTS (
    SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
    WHERE n.nspname='public' AND p.proname='net_it_pub1_review_queue' AND p.prosecdef
  ) THEN
-   RAISE EXCEPTION 'NET-IT-PUB1 queue must protect private data behind security definer';
+   RAISE EXCEPTION 'NET-IT-PUB1 facade must be SECURITY INVOKER';
+ END IF;
+ IF NOT EXISTS (
+   SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+   WHERE n.nspname='private' AND p.proname='net_it_pub1_review_queue_impl' AND p.prosecdef
+ ) THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 implementation must protect private data with SECURITY DEFINER';
+ END IF;
+ IF has_function_privilege('anon','private.net_it_pub1_review_queue_impl()','EXECUTE') THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 private implementation must deny anonymous users';
  END IF;
  IF has_function_privilege('anon','public.netit_facts1_signoff(boolean,text,text)','EXECUTE') THEN
    RAISE EXCEPTION 'anon must not be able to sign off FACTS1';
