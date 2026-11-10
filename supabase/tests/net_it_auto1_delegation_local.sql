@@ -134,6 +134,14 @@ SELECT pg_temp.auto1_assert(
  'minimal company must be unclaimed and unverified'
 );
 SELECT pg_temp.auto1_assert(
+ (SELECT count(*) FROM public.network_company_discovery_candidates
+  WHERE id='00000000-0000-0000-0000-000000016001'::uuid
+    AND publication_actor_type='delegated_agent'
+    AND reviewed_by IS NULL
+    AND review_status='published')=1,
+ 'the explicit agent origin must not impersonate a human reviewer'
+);
+SELECT pg_temp.auto1_assert(
  (SELECT count(*) FROM private.net_it_auto1_publications p
   WHERE p.candidate_id='00000000-0000-0000-0000-000000016001'::uuid
     AND p.executed_by_kind='delegated_agent'
