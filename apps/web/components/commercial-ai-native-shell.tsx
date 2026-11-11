@@ -233,21 +233,21 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
             data-testid="commercial-ai-native-thread"
             className="min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 py-4 sm:px-8 sm:py-8">
             {turns.length === 0 ? (
-              <div className="mx-auto flex w-full max-w-[760px] flex-col items-start pt-6 sm:pt-12 lg:pt-[7vh]" data-testid="commercial-ai-native-intro">
+              <div className="mx-auto flex w-full max-w-[760px] flex-col items-start pt-2 sm:pt-10 lg:pt-[7vh]" data-testid="commercial-ai-native-intro">
                 <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[#387452]">Smart Steel AI</span>
                 <h2 className="mt-3 text-[clamp(1.8rem,3.4vw,2.6rem)] font-semibold leading-tight tracking-[-0.04em] text-[#173f35]">
                   Di cosa hai bisogno?
                 </h2>
                 <p className="mt-3 max-w-xl text-sm leading-6 text-[#526a5c]">
-                  Cerca aziende, chiarisci una norma o prepara i materiali per una richiesta di offerta. Parti da una domanda.
+                  Cerca aziende, chiarisci una norma o prepara una Distinta.
                 </p>
-                <div className="mt-7 flex w-full flex-wrap gap-2">
+                <div className="mt-4 flex w-full flex-wrap gap-2 sm:mt-7">
                   {shortcuts.map((shortcut, index) => (
                     <button type="button" key={shortcut} onClick={() => chooseShortcut(shortcut)}
                       aria-label={shortcut}
-                      className="inline-flex min-h-11 items-center rounded-full border border-[#d5e4da] bg-[#fafcfb] px-4 py-2.5 text-left text-xs font-semibold leading-5 text-[#315a43] hover:border-[#8bb7a0] hover:bg-[#f0f8f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                      className="inline-flex min-h-10 items-center rounded-full border border-[#d5e4da] bg-[#fafcfb] px-3.5 py-2 text-left text-xs font-semibold leading-5 text-[#315a43] hover:border-[#8bb7a0] hover:bg-[#f0f8f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
                       <span aria-hidden="true" className="mr-2 text-[#59866d]">{index === 0 ? "⌕" : index === 1 ? "▤" : "◎"}</span>
-                      {index === 0 ? "Cerca produttori" : index === 1 ? "Prepara una Distinta" : "Chiedi una norma"}
+                      {index === 0 ? "Cerca produttori" : index === 1 ? "Prepara distinta" : "Chiedi una norma"}
                     </button>
                   ))}
                 </div>
@@ -325,7 +325,8 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
             </form>
             {handoffError ? <p role="alert" className="mx-auto mt-2 max-w-[740px] text-xs text-[#974621]">{handoffError} <Link className="underline" href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}>Apri Distinta</Link></p> : null}
             <p className="mx-auto mt-1 max-w-[800px] text-center text-[10px] leading-4 text-[#829187]">
-              Le risposte possono richiedere verifica; cronologia solo in questa scheda, nessuna memoria persistente o invio automatico.
+              <span className="sm:hidden">Risposte da verificare · Nessun invio automatico.</span>
+              <span className="hidden sm:inline">Le risposte possono richiedere verifica; cronologia solo in questa scheda, nessuna memoria persistente o invio automatico.</span>
             </p>
           </div>
         </div>
