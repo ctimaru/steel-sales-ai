@@ -37,8 +37,8 @@ test("NET-PROFILE-UX1.A: actions are real, gated and precede optional detail pan
   assert.match(free,/status==="available"&&canConnect/);
   assert.ok(free.includes("Connetti →"),"Free connection label is present");
   assert.match(free,/provisional\?"unavailable"/);
-  assert.match(free,/non è possibile inviare richieste/);
-  assert.ok(free.indexOf('aria-label="Connessione aziendale"') < free.indexOf('aria-label="Informazioni aziendali con fonte"'));
+  assert.doesNotMatch(free,/non è possibile inviare richieste/);
+  assert.ok(free.indexOf('actions={') < free.indexOf('data-testid="network-profile-free-evidence"'));
 });
 
 test("NET-PROFILE-UX1.A: provenance remains accessible without visual clutter or fake availability",()=>{
