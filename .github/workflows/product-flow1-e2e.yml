@@ -43,6 +43,13 @@ on:
 permissions:
   contents: read
 
+
+# Cancel only superseded revisions of the SAME PR; never interrupt main,
+# workflow_dispatch, scheduled jobs, or a different pull request.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   search-to-response:
     name: Real Worker and Chrome / desktop and mobile / local mail transport
