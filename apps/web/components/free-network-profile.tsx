@@ -77,7 +77,7 @@ export async function FreeNetworkProfileView({
               ) : (
                 <p className="text-xs leading-5 text-[#52615b]">
                   {status===undefined?"Disponibilità delle connessioni temporaneamente non verificabile.":
-                    provisional?"L'azienda non è ancora attiva: non è possibile inviare richieste sulla piattaforma.":
+                    provisional?"Questa azienda non è ancora attiva sulla piattaforma: non è possibile inviare richieste.":
                     !canConnect?"Per connetterti serve un ruolo commerciale abilitato.":
                     "Questa azienda non può ricevere richieste sulla piattaforma. Usa il sito ufficiale se disponibile."}
                 </p>
@@ -93,8 +93,13 @@ export async function FreeNetworkProfileView({
           <summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda? Rivendica il profilo</summary>
           <div className="mt-3 space-y-3">
             <NetworkActivationHelp mode={provisional?"discovered":"published"}/>
-            <NetworkActivationCta mode={provisional?"discovered":"published"} companyId={companyId}
-              companyName={profile.company.legal_name} source="network_profile"/>
+            {provisional ? (
+              <NetworkActivationCta mode="discovered" companyId={companyId}
+                companyName={profile.company.legal_name} source="network_profile"/>
+            ) : (
+              <NetworkActivationCta mode="published" companyId={companyId}
+                companyName={profile.company.legal_name} source="network_profile"/>
+            )}
           </div>
         </details>
       ) : null}
