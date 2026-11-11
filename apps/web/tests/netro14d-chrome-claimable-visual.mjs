@@ -327,6 +327,7 @@ try {
       await sparseHero.evaluate((node)=>window.scrollTo({top:Math.max(0,node.getBoundingClientRect().top+window.scrollY-148),behavior:"auto"}));
       await noOverflow(page,"Company-sparse-hero/"+width);
       await screenshot(page,"network-company-profile-ux2-sparse-admin",width);
+      await compactCard.screenshot({path:path.join(out,"network-company-profile-ux3-compact-card-"+width+".png"),animations:"disabled"});
       assertions+=9;
       // NET-PROFILE-UX1.B: inspect the *real* production components with
       // synthetic stock. /network-visual-qa is hard-gated to localhost development.
