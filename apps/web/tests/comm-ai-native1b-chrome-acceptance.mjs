@@ -36,6 +36,14 @@ try {
         const shell = page.getByTestId("commercial-ai-native-shell");
         await shell.waitFor({ state: "visible", timeout: 60000 });
         assert.ok(await shell.getByRole("heading", { name: "Smart Steel Intelligence" }).isVisible());
+        // CLEAN1: no second Commerciale navigation beside or above the chat.
+        const oldDesktop = page.getByTestId("commercial-director-sidebar");
+        const oldMobile = page.getByTestId("commercial-director-mobile");
+        if (width >= 1280) {
+          assert.equal(await oldDesktop.isVisible(), false, "Old desktop director sidebar must be hidden on AI home");
+        } else {
+          assert.equal(await oldMobile.isVisible(), false, "Duplicate mobile Commerciale navigation must be hidden");
+        }
         assert.equal(await page.getByTestId("comm-cine13-first-workspace").count(), 0);
         assert.ok(await shell.getByTestId("commercial-ai-native-legacy").isVisible());
         const input = shell.getByLabel("Domanda o richiesta commerciale");
@@ -57,6 +65,10 @@ try {
             "Composer must remain fully visible ABOVE mobile dock: " +
             JSON.stringify({ composerBottom: Math.round(composerBox.y + composerBox.height), dockTop: Math.round(dockBox.y) }));
         }
+        const composerOnEmpty = await shell.getByTestId("commercial-ai-native-form").boundingBox();
+        const thirdPrompt = await shell.getByRole("button", { name: "Qual è la differenza tra EN 10219 ed EN 10210?" }).boundingBox();
+        assert.ok(composerOnEmpty && thirdPrompt && thirdPrompt.y + thirdPrompt.height <= composerOnEmpty.y - 3,
+          "All 3 examples must fit above the composer even at 320px");
         const widths = await page.evaluate(() => ({
           visible: document.documentElement.clientWidth,
           document: document.documentElement.scrollWidth,
