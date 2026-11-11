@@ -117,10 +117,18 @@ function assessProduct(product: ScopeProduct, req: IndustryRequest): ScopeAssess
   }
   const grade = req.entities.grade;
   if (grade) {
-    const found = (product.grades ?? []).find(x => gradeMatches(grade, x.designation));
+    const known = product.grades ?? [];
+    const sameGrade = known.filter(x => gradeMatches(grade, x.designation));
+    // Grade evidence must belong to the requested standard; a record for
+    // another norm cannot prove EN 10219 compatibility.
+    const found = standard
+      ? sameGrade.find(x => x.standard_code && clean(x.standard_code) === clean(standard))
+      : sameGrade[0];
     if (found) add("Acciaio " + found.designation, found);
-    else if ((product.grades ?? []).length) return { mismatch: true, reasons: [], missing: [] };
-    else missing.push("grado");
+    else if (known.length && (!sameGrade.length ||
+      sameGrade.every(x => x.standard_code && clean(x.standard_code) !== clean(standard ?? ""))))
+      return { mismatch: true, reasons: [], missing: [] };
+    else missing.push("grado associato alla norma");
   }
   const dimensions = product.dimensions ?? [];
   for (const [target, field, label] of [
