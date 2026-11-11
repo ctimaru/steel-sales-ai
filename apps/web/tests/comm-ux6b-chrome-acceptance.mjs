@@ -254,7 +254,11 @@ try {
           } else {
             await page.getByRole("tab", { name: /Distinta/ }).click();
             await page.getByTestId("commercial-rfq-preview-pane").waitFor({ state: "visible" });
-            assert.match(await page.getByTestId("commercial-rfq-live-preview").innerText(), /Nessun articolo confermato/);
+            // The latest private bill preview displays a canonical empty-state
+            // message; AI suggestions are separate from approved lines.
+            assert.match(await page.getByTestId("commercial-rfq-live-preview").innerText(), /Ancora nessun articolo/);
+            assert.equal(await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem").count(), 0,
+              "Chat proposals must not auto-approve any Distinta line");
             await page.screenshot({
               path: path.join(dir, "rfq-ai-preview-" + width + "px.png"),
               fullPage: false, animations: "disabled"
