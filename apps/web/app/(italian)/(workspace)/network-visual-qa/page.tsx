@@ -112,7 +112,14 @@ export default async function NetworkVisualQaPage(){
           actions={<a href="#attivita" className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white">Esplora attività ↗</a>}
         />
         <div data-testid="network-profile-sparse-fixture" className="pt-2">
-          <NetworkProfileOverview name="DEMO Azienda in acquisizione" countryCode="RO" />
+          <NetworkProfileOverview
+            name="DEMO Acciai S.p.A."
+            countryCode="IT"
+            primaryRole="Commerciante"
+            roles={["Commerciante"]}
+            website="https://example.org"
+            actions={<a href="#contatti" className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#cbded0] bg-white px-4 text-sm font-semibold text-[#23553c]">Esplora i contatti</a>}
+          />
         </div>
         <NetworkProfileInventory items={stockVisualFixture} />
         <NetworkInventoryManager
