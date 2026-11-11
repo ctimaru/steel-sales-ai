@@ -113,6 +113,9 @@ def main():
         text = (WORKFLOWS / target).read_text()
         assert "  schedule:" in text, f"{target} must retain full nightly testing"
         assert "cancel-in-progress: ${{ github.event_name == 'pull_request' }}" in text
+        assert "github.run_id" in text, f"{target} must use a unique run group outside PRs"
+    for critical in ["p0-required-gate.yml", "demotest2-3-chrome-auth.yml", "net-ux-filters1-responsive.yml"]:
+        assert "github.run_id" in (WORKFLOWS / critical).read_text(), critical + " must not group unrelated scheduled/manual runs"
     assert "*) full=true ;;" in (WORKFLOWS / perf).read_text(), "Unknown shared path must fall back to full visual CI"
     print("CI-LEAN1 critical routing/security invariants passed")
 

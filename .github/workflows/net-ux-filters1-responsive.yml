@@ -28,7 +28,7 @@ permissions:
 # Cancel only superseded revisions of the SAME PR; never interrupt main,
 # workflow_dispatch, scheduled jobs, or a different pull request.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
