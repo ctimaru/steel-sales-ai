@@ -23,12 +23,11 @@ test("NET-CONN3 list: only SQL 'unavailable', only for roles that can act, never
   assert.match(ui,/<DisabledConnect name=\{name\} emailReachable=\{emailReachable\}\/>/);
 });
 
-test("NET-CONN3 profile: disabled Connetti next to the active slot, hidden on your own company",()=>{
-  assert.match(profile,/data-testid="network-profile-connect-disabled"/);
-  assert.match(profile,/!inquiryEligible && canInteract && inquiryReason !== "self_inquiry"/);
-  const active=profile.indexOf('href={"/network/" + profile.company.id + "/connect"}');
-  const disabled=profile.indexOf('data-testid="network-profile-connect-disabled"');
-  const note=profile.indexOf("Connessione nella piattaforma non disponibile");
-  assert.ok(active>0&&disabled>active&&note>disabled,"unavailable state replaces the inactive connection action");
-  assert.match(overview,/Visita il sito/);
+test("NET-CONN3 profile: only eligible recipients get an active connection action",()=>{
+  assert.match(profile,/inquiryEligible && canInteract/);
+  assert.match(profile,/getInquiryEligibility\(organizationId, profile.company.id\)/);
+  assert.match(profile,/inquiryReason !== "self_inquiry"|inquiryEligible && canInteract/);
+  assert.doesNotMatch(profile,/data-testid="network-profile-connect-disabled"/);
+  assert.doesNotMatch(profile,/Connessione nella piattaforma non disponibile/);
+  assert.match(overview,/Visita il sito aziendale/);
 });

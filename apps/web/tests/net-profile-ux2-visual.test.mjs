@@ -24,8 +24,8 @@ test("NET-PROFILE-UX2: one clear company identity and first-screen sales actions
     assert.match(source,/<NetworkProfileTopBar\s*\/>/);
     assert.match(source,/<NetworkProfileOverview/);
     assert.match(source,/aria-label="Naviga la scheda"/);
-    assert.match(source,/href="#attivita"/);
-    assert.match(source,/href="#contatti"/);
+    assert.match(source,/publishedInventory.length|inventory.length/);
+    assert.match(source,/href="#stock"/);
   }
 });
 test("NET-PROFILE-UX2: sparse companies never gain invented activity or availability",() => {
@@ -46,10 +46,23 @@ test("NET-PROFILE-UX2: review real UI components at 1440, 390 and 320 for full a
   assert.match(fixture,/NODE_ENV!=="development"/);
   assert.match(fixture,/NETWORK_VISUAL_FIXTURE!=="true"/);
   assert.match(fixture,/DEMO Tubi Strutturali/);
-  assert.match(fixture,/DEMO Azienda in acquisizione/);
+  assert.match(fixture,/DEMO Acciai S.p.A./);
   assert.match(fixture,/<NetworkProfileOverview/);
   assert.match(chrome,/network-company-profile-ux2-full-admin/);
   assert.match(chrome,/network-company-profile-ux2-sparse-admin/);
   assert.ok(chrome.includes('await noOverflow(page,"Company-commercial-hero/"+width)'));
   assert.ok(chrome.includes('await noOverflow(page,"Company-sparse-hero/"+width)'));
+});
+
+test("NET-PROFILE-UX3: sparse company is a compact directory profile with primary real contact",() => {
+  assert.match(overview,/const hasPublishedActivities = Boolean/);
+  assert.match(overview,/if \(!hasPublishedActivities\)/);
+  assert.match(overview,/data-profile-density="compact"/);
+  assert.match(overview,/Visita il sito aziendale/);
+  assert.match(overview,/Prodotti e specializzazioni non ancora pubblicati/);
+  assert.match(pro,/An unavailable connection is not an action/);
+  assert.doesNotMatch(pro,/Connessione nella piattaforma non disponibile/);
+  assert.doesNotMatch(free,/Disponibilità delle connessioni temporaneamente non verificabile/);
+  assert.match(chrome,/compactRect.height/);
+  assert.match(chrome,/network-company-profile-ux2-sparse-admin/);
 });

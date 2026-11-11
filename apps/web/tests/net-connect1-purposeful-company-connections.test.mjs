@@ -52,7 +52,8 @@ test("NET-CONNECT1: recipient must be real and reachable, no fake delivery for p
  assert.match(profile,/inquiryEligible && canInteract/);
  assert.match(profile,/>\n\s*Connetti\n\s*<\/Link>/); // NET-UX LOT1: CTA renamed
  assert.match(free,/status==="available"&&canConnect/);
- assert.match(free,/Questa azienda non è ancora attiva sulla piattaforma: non è possibile inviare richieste/);
+  assert.match(free,/provisional\?"unavailable"/);
+  assert.doesNotMatch(free,/Questa azienda non è ancora attiva sulla piattaforma/);
  assert.match(db,/private\.netux11_require_active_company/);
  assert.match(db,/private\.p4_submit_inquiry_impl/);
  assert.doesNotMatch(compose,/service_role|email\.send\(/);
