@@ -33,7 +33,7 @@ const producer = {
 const scope = {
   key:"tubes_pipes",relationship_type:"produces",facility_id:null,
   standards:[claim({code:"EN 10219"})],
-  grades:[claim({designation:"S355J2H"})],
+  grades:[claim({designation:"S355J2H",standard_code:"EN 10219"})],
   dimensions:[
     claim({dimension_type:"outer_diameter",min_mm:400,max_mm:700}),
     claim({dimension_type:"wall_thickness",min_mm:4,max_mm:20}),
@@ -73,6 +73,12 @@ test("D only calls documented a supported product AND matching standard/grade/OD
   assert.equal(rankIndustryCompany(producer,complete,[
     {...scope,grades:[claim({designation:"S235JRH"})]},
   ]),null,"Wrong grade must be excluded");
+  assert.equal(rankIndustryCompany(producer,complete,[
+    {...scope,grades:[claim({designation:"S355J2H",standard_code:"EN 10210"})]},
+  ]),null,"A grade asserted under EN 10210 cannot prove EN 10219");
+  assert.equal(rankIndustryCompany(producer,complete,[
+    {...scope,grades:[claim({designation:"S355J2H"})]},
+  ]).match,"potential","Missing grade-standard link is not complete evidence");
 });
 
 test("D partial match remains potential; Ø608 with missing norm/thickness is never confirmed", () => {
