@@ -320,16 +320,16 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/product-flow1-chrome-journey.mjs
-      - name: COMM-UX6.A — Authenticated first viewport 1440/390/320 and AI to private Distinta
+      - name: COMM-AI-NATIVE1.B — AI-first shell buyer/viewer, 1440/390/320
         working-directory: apps/web
         timeout-minutes: 12
-        run: node tests/comm-ux6a-chrome-acceptance.mjs
-      - name: COMM-UX6.A — Retain synthetic visual evidence (no production users)
+        run: node tests/comm-ai-native1b-chrome-acceptance.mjs
+      - name: COMM-AI-NATIVE1.B — Retain synthetic shell-only screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: comm-ux6a-synthetic-visual-evidence
-          path: ${{ runner.temp }}/comm-ux6a-visual-evidence/*.png
+          name: comm-ai-native1b-synthetic-visual
+          path: ${{ runner.temp }}/comm-ai-native1b-visual/*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: CALC-DIST3 real buyer named save, Commerciale archive, company RLS, no RFQ dispatch
@@ -357,6 +357,20 @@ jobs:
         with:
           name: comm-ux6b-synthetic-worklist-visual-qa
           path: ${{ runner.temp }}/comm-ux6b-safe-screenshots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      # Regression after RFQ extraction: reuse same local synthetic account
+      # only after all AI quota-sensitive RFQ tests have completed.
+      - name: COMM-UX6.A — Authenticated first viewport 1440/390/320 and AI to private Distinta
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/comm-ux6a-chrome-acceptance.mjs
+      - name: COMM-UX6.A — Retain synthetic visual evidence (no production users)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comm-ux6a-synthetic-visual-evidence
+          path: ${{ runner.temp }}/comm-ux6a-visual-evidence/*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: ONBOARDING-QA3.B — GoTrue resend, invite, invalid token and multi-session suspension

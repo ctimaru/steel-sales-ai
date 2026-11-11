@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { appRoutes } from "@/lib/routes";
 import { CalculatorRegionSwitch } from "@/components/calculator-region-switch";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
@@ -116,9 +117,10 @@ export function CommercialCalculatorQuickAccess({ references }: { references: Pu
         Distinte →
       </Link>
       <span className="hidden text-[11px] text-[#61736a] xl:inline">Calcola → salva → scegli i fornitori</span>
-      {/* First mount stays alive after close: all unsaved inputs, named bill,
-          per-line edits and in-memory private prices survive reopening. */}
-      {hasOpened ? (
+      {/* Portal to document.body escapes the stacked Strumenti disclosure so
+          fixed header/menu cannot intercept modal controls. Keep mounted
+          after close: unsaved inputs and private prices survive reopening. */}
+      {hasOpened ? createPortal(
         <div data-commercial-calculator-overlay aria-hidden={!open} inert={!open}
           className={open ? "fixed inset-0 z-[80] bg-[#08291e]/70 p-2 sm:p-4" : "hidden"}
           onMouseDown={(event) => { if (event.target === event.currentTarget) closeCalculator(); }}>
@@ -140,7 +142,8 @@ export function CommercialCalculatorQuickAccess({ references }: { references: Pu
               <CalculatorRegionSwitch locale="it" initialRegion="eu" references={references} active={open} />
             </div>
           </section>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </section>
   );

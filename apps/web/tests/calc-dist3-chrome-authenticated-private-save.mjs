@@ -112,6 +112,7 @@ try {
       assert.equal(deliveries.length,0,"Private save must not send suppliers");
 
       await page.goto(URL_ROOT+"/commercial",{waitUntil:"domcontentloaded",timeout:60000});
+      await page.getByTestId("commercial-primary-quick-actions").locator("summary").click();
       const entry=page.locator("[data-commercial-saved-distinte-entry]");
       await entry.waitFor({timeout:60000});
       assert.equal(await entry.getAttribute("href"),"/rfq-hub/distinte");

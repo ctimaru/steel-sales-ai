@@ -5,6 +5,7 @@ import { FocusPage } from "@/components/focus-ui";
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { CommercialCalculatorQuickAccess } from "@/components/commercial-calculator-quick-access";
 import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
+import { CommercialAiNativeShell } from "@/components/commercial-ai-native-shell";
 import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialRequestSummary } from "@/components/commercial-request-summary";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
@@ -33,11 +34,28 @@ export const dynamic = "force-dynamic";
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string }>;
+  searchParams: Promise<{ experience?: string; view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
   const canWrite = canWriteWorkspace(context.role);
+  // COMM-AI-NATIVE1.B: opt-in preview, then deploy-controlled default.
+  // All explicit legacy deeplinks remain on the proven operational cockpit.
+  const legacyRouteRequested =
+    params.compose === "1" || params.view !== undefined || params.item !== undefined ||
+    params.q !== undefined || params.page !== undefined || params.cursor !== undefined ||
+    params.tab !== undefined || params.focus !== undefined || params.network !== undefined ||
+    params.prospect !== undefined || params.prospects === "1";
+  const aiNativeEnabled = params.experience === "ai" ||
+    (process.env.COMM_AI_NATIVE_UI_ENABLED === "1" && params.experience !== "classic");
+  if (aiNativeEnabled && !legacyRouteRequested) {
+    return (
+      <FocusPage compact className="max-w-[1480px]">
+        <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_ai_native_preview" }} />
+        <CommercialAiNativeShell canWrite={canWrite} />
+      </FocusPage>
+    );
+  }
   const networkAvailable = isNetworkFrontendEnabled();
   const showProspects = networkAvailable && params.prospects === "1";
   const prospectAccess = showProspects
