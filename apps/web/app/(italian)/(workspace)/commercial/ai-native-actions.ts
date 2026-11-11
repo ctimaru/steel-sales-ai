@@ -116,7 +116,8 @@ export async function commercialAiNativeResponse(
   const routed = routeCommercialAiIntent(question);
   const canWrite = canWriteWorkspace(context.role);
   if (routed.intent === "industry_search") {
-    if (!acquireSlot(context.organizationId + ":" + context.userId))
+    // Public Network lookups must not exhaust the separate AI Gateway quota.
+    if (!acquireSlot("industry:" + context.organizationId + ":" + context.userId))
       return { ok: false, error: "Troppe ricerche ravvicinate. Riprova più tardi." };
     return industryAnswer(question, routed, context.organizationId);
   }
