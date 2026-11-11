@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getPlatformAccessContext, requirePlatformPermission } from "@/lib/platform-admin";
-import { publishScale15KReadyWave, setScale15KAgentDelegation, setScale15KFactPolicy } from "./actions";
+import { publishScale15KReadyWave, setScale15KAgentDelegation, setScale15KFactPolicy, setSeed1Policy, addSeed1Source } from "./actions";
 
 const ROOT = "/platform/company-discovery/scale15k";
 
@@ -59,6 +59,21 @@ type AgentDelegation = {
   daily_cap: number;
   published_today: number;
   published_all: number;
+};
+
+type Seed1Status = {
+  contract: string;
+  enabled: boolean;
+  active: boolean;
+  expires_at: string | null;
+  daily_crawl_cap: number;
+  index_sources: number;
+  domains_total: number;
+  domains_waiting: number;
+  visited_today: number;
+  candidates_total: number;
+  no_candidate_total: number;
+  failed_total: number;
 };
 
 type BatchPreview = {
@@ -147,7 +162,7 @@ export default async function NetItScale15KPage({
   const limit = [50, 100, 250].includes(Number(params.limit))
     ? Number(params.limit) : 50;
   const supabase = await createClient();
-  const [{ data, error }, { data: readyData, error: readyError }, { data: agentData }, { data: factsData }, { data: aiData }] = await Promise.all([
+  const [{ data, error }, { data: readyData, error: readyError }, { data: agentData }, { data: factsData }, { data: aiData }, { data: seed1Data }] = await Promise.all([
     supabase.rpc("net_it_scale15k_readiness", {
       p_lane: lane, p_limit: limit, p_offset: offset,
     }),
@@ -157,7 +172,11 @@ export default async function NetItScale15KPage({
     supabase.rpc("net_it_auto1_status"),
     supabase.rpc("net_it_auto3_status"),
     supabase.rpc("net_it_auto2_status"),
+    supabase.rpc("net_it_seed1_status"),
   ]);
+  const seed1 = seed1Data &&
+    (seed1Data as Seed1Status).contract === "net-it-seed1-status-v1"
+      ? (seed1Data as Seed1Status) : null;
   const factPolicy = factsData &&
     (factsData as FactPolicy).contract === "net-it-auto3-policy-v1"
       ? (factsData as FactPolicy) : null;
@@ -401,6 +420,126 @@ export default async function NetItScale15KPage({
           Il verificatore gira ogni sei ore solo dopo l'attivazione del servizio Railway.
           Le aziende che non superano i controlli restano private e non incrementano il contatore.
         </p>
+      </section>
+
+      <section className="rounded-2xl border border-[#b9dac8] bg-white p-3 sm:p-4"
+        aria-label="Cercatore di siti e pagine indice — NET-IT-SEED1">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-bold uppercase tracking-widest text-[#277458]">
+              Nuove aziende · NET-IT-SEED1
+            </p>
+            <h2 className="mt-1 text-base font-bold text-[#173f35]">Trova nuovi siti aziendali italiani, non solo quelli già in coda</h2>
+            <p className="mt-1 text-xs leading-5 text-[#627668]">
+              Legge solo pagine indice che tu registri (soci di associazioni, espositori di fiere, elenchi di
+              certificati) e conserva solo il dominio aziendale in uscita: nessun nome, descrizione o contatto
+              viene copiato da quelle pagine. Ogni sito trovato viene poi visitato dal crawler esistente e,
+              se descrive un'azienda italiana del settore, resta in coda come candidatura privata — non pubblicata.
+            </p>
+          </div>
+          <span className={`rounded-full border px-3 py-1 text-xs font-bold ${
+            seed1?.active ? "border-emerald-200 bg-emerald-50 text-emerald-800" :
+            "border-[#d9e2dc] bg-[#f3f5f4] text-[#51685b]"
+          }`}>
+            {seed1?.active ? "Cercatore attivo" : "Cercatore disattivato"}
+          </span>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[
+            ["Pagine indice registrate", seed1?.index_sources ?? 0],
+            ["Domini in coda", seed1?.domains_waiting ?? 0],
+            ["Visitati oggi", seed1?.visited_today ?? 0],
+            ["Candidature trovate", seed1?.candidates_total ?? 0],
+          ].map(([label, value]) => (
+            <div key={String(label)} className="rounded-lg border border-[#e1e9e4] bg-[#fafcfa] p-2.5">
+              <p className="text-[10px] font-medium text-[#617668]">{String(label)}</p>
+              <p className="text-lg font-bold tabular-nums text-[#176447]">{Number(value).toLocaleString("it-IT")}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 text-[11px] text-[#657569]">
+          Limite: {seed1?.daily_crawl_cap ?? "—"} siti al giorno ·
+          Non ammissibili o irraggiungibili: {seed1?.no_candidate_total ?? 0} + {seed1?.failed_total ?? 0} ·
+          Scadenza: {seed1?.expires_at
+            ? new Date(seed1.expires_at).toLocaleDateString("it-IT", { timeZone: "Europe/Rome" })
+            : "—"}
+        </p>
+        {canDelegate && seed1 ? (
+          seed1.active ? (
+            <form action={setSeed1Policy} className="mt-3">
+              <input type="hidden" name="enabled" value="false" />
+              <button className="min-h-11 rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-bold text-rose-800" type="submit">
+                Revoca subito il cercatore
+              </button>
+            </form>
+          ) : (
+            <form action={setSeed1Policy} className="mt-3 grid gap-3 rounded-xl border border-[#d9e9dd] bg-[#fafdfa] p-3">
+              <input type="hidden" name="enabled" value="true" />
+              <label className="text-xs font-semibold text-[#355a44]">
+                Siti massimi visitati al giorno (1–5000)
+                <input type="number" name="daily_crawl_cap" min={1} max={5000} defaultValue={1000} required
+                  className="mt-1 block w-28 rounded-lg border border-[#c1d9c6] bg-white p-2.5" />
+              </label>
+              <label className="text-xs font-semibold text-[#355a44]">
+                Motivazione (minimo 80 caratteri)
+                <textarea name="policy_note" required minLength={80} maxLength={2000} rows={3}
+                  placeholder="Autorizzo per 30 giorni la lettura di pagine indice che registro io stesso, solo per trovare domini aziendali italiani in uscita, senza copiare nomi o contatti dalla pagina indice, con limite giornaliero e revoca immediata. Nessuna pubblicazione automatica è concessa da questa delega."
+                  className="mt-1 w-full rounded-lg border border-[#c1d9c6] bg-white p-2.5" />
+              </label>
+              <label className="flex items-start gap-2 text-xs leading-5 text-[#355a44]">
+                <input type="checkbox" name="attested" required className="mt-0.5 h-4 w-4 accent-[#176447]" />
+                Autorizzo soltanto la ricerca di nuovi domini aziendali italiani dalle pagine indice che registro,
+                e la loro visita con il crawler protetto esistente. Capisco che questa delega non pubblica nulla:
+                resta un passaggio separato dei publisher umano, AUTO1 o AUTO3. Posso revocare subito.
+              </label>
+              <div><button type="submit" className="min-h-11 rounded-lg bg-[#176447] px-4 py-2 text-xs font-bold text-white">
+                Attiva il cercatore per 30 giorni
+              </button></div>
+            </form>
+          )
+        ) : (
+          <p className="mt-3 text-xs text-[#647768]">
+            {canDelegate
+              ? "Il cercatore di siti non è ancora installato in produzione. Nessuna autorizzazione attiva."
+              : "L'attivazione del cercatore è riservata al proprietario Platform."}
+          </p>
+        )}
+        <form action={addSeed1Source} className="mt-4 grid gap-3 rounded-xl border border-[#e1e9e4] bg-[#fafcfa] p-3 sm:grid-cols-2">
+          <label className="text-xs font-semibold text-[#355a44] sm:col-span-2">
+            Indirizzo della pagina indice (https, es. elenco soci di un'associazione o espositori di una fiera)
+            <input type="url" name="source_url" required pattern="https://.*" maxLength={2000}
+              placeholder="https://www.esempio-associazione.it/elenco-soci"
+              className="mt-1 block w-full rounded-lg border border-[#c1d9c6] bg-white p-2.5 text-xs" />
+          </label>
+          <label className="text-xs font-semibold text-[#355a44]">
+            Tipo di fonte
+            <select name="source_kind" required defaultValue="association"
+              className="mt-1 block w-full rounded-lg border border-[#c1d9c6] bg-white p-2.5 text-xs">
+              <option value="association">Associazione di categoria</option>
+              <option value="trade_fair">Fiera di settore</option>
+              <option value="certification_list">Elenco certificazioni</option>
+              <option value="consortium">Consorzio</option>
+              <option value="public_register">Registro pubblico</option>
+              <option value="other">Altro</option>
+            </select>
+          </label>
+          <label className="text-xs font-semibold text-[#355a44]">
+            Limite link da leggere su questa pagina (1–1000)
+            <input type="number" name="max_links" min={1} max={1000} defaultValue={300} required
+              className="mt-1 block w-full rounded-lg border border-[#c1d9c6] bg-white p-2.5 text-xs" />
+          </label>
+          <label className="text-xs font-semibold text-[#355a44] sm:col-span-2">
+            Etichetta interna (facoltativa)
+            <input type="text" name="label" maxLength={255}
+              placeholder="Es. Federacciai — elenco associati"
+              className="mt-1 block w-full rounded-lg border border-[#c1d9c6] bg-white p-2.5 text-xs" />
+          </label>
+          <div className="sm:col-span-2">
+            <button type="submit" className="min-h-11 rounded-lg border border-[#176447] bg-white px-4 py-2 text-xs font-bold text-[#176447]">
+              Registra pagina indice
+            </button>
+          </div>
+        </form>
       </section>
 
       {params.message ? (
