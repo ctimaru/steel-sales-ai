@@ -232,7 +232,7 @@ export default async function CommercialHomePage({
                Assistente AI · prepara distinta
              </Link>
            ) : null}
-           <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
+           <Link href={appRoutes.commercial.home + "?experience=classic#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
           </div>
           ) : <h2 id="commercial-compose-heading" className="sr-only">Nuova distinta conversazionale</h2>}
           <BuyerDistintaBuilder
