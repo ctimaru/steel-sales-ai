@@ -67,35 +67,27 @@ export async function FreeNetworkProfileView({
           services={evidenceServices}
           website={website}
           actions={
-            <section aria-label="Connessione aziendale" className="space-y-2">
-              {status==="available"&&canConnect ? (
-                <Link href={"/network/"+companyId+"/connect"}
-                  className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold">
-                  Connetti →
-                </Link>
-              ) : status==="pending" ? (
-                <Link className="block text-sm font-semibold text-[#176647] underline" href="/network/connections?box=sent">Richiesta inviata · In attesa di risposta</Link>
-              ) : status==="connected" ? (
-                <Link className="block text-sm font-semibold text-[#176647] underline" href="/network/connections?box=connected">Connessione attiva · Apri connessioni</Link>
-              ) : (
-                <p className="text-xs leading-5 text-[#52615b]">
-                  {status===undefined?"Disponibilità delle connessioni temporaneamente non verificabile.":
-                    provisional?"Questa azienda non è ancora attiva sulla piattaforma: non è possibile inviare richieste.":
-                    !canConnect?"Per connetterti serve un ruolo commerciale abilitato.":
-                    "Questa azienda non può ricevere richieste sulla piattaforma. Usa il sito ufficiale se disponibile."}
-                </p>
-              )}
-              <p className="text-[11px] leading-5 text-[#607167]">La connessione richiede un'azienda attiva; visualizzare una scheda non crea rapporti commerciali.</p>
-            </section>
+            status==="available"&&canConnect ? (
+              <Link href={"/network/"+companyId+"/connect"}
+                className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold">
+                Connetti →
+              </Link>
+            ) : status==="pending" ? (
+              <Link className="inline-flex min-h-11 items-center text-sm font-semibold text-[#176647] underline"
+                href="/network/connections?box=sent">Richiesta inviata · In attesa di risposta</Link>
+            ) : status==="connected" ? (
+              <Link className="inline-flex min-h-11 items-center text-sm font-semibold text-[#176647] underline"
+                href="/network/connections?box=connected">Connessione attiva · Apri connessioni</Link>
+            ) : null
           }
         />
       </div>
-      <nav aria-label="Naviga la scheda" className="flex flex-wrap items-center gap-2 text-xs" data-testid="network-company-section-nav">
-        <a href="#attivita" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Attività</a>
-        <a href="#contatti" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Contatti</a>
-        {inventory.length ? <a href="#stock" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Stock dichiarato</a> : null}
-      </nav>
-      <div className="mt-4"><NetworkProfileInventory items={inventory} /></div>
+      {inventory.length ? (
+        <nav aria-label="Naviga la scheda" className="flex flex-wrap gap-2 text-xs" data-testid="network-company-section-nav">
+          <a href="#stock" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Vedi stock dichiarato</a>
+        </nav>
+      ) : null}
+      {inventory.length ? <div className="mt-4"><NetworkProfileInventory items={inventory} /></div> : null}
 
       {(provisional || isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status)) ? (
         <details className="mt-4 rounded-2xl border border-[#dce6e0] bg-white p-4 text-sm">
