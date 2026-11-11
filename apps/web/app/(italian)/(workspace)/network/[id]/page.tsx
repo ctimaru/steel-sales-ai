@@ -347,15 +347,15 @@ export default async function NetworkCompanyProfilePage({
         phone={phoneContact?.phone}
         actions={
           <>
-            {organizationId && canWriteWorkspace(membershipRole) ? (
-              <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
-                returnTo={"/network/" + profile.company.id} />
-            ) : null}
             {inquiryEligible && canInteract ? (
               <Link href={"/network/" + profile.company.id + "/connect"}
                 className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold">
                 Connetti
               </Link>
+            ) : null}
+            {organizationId && canWriteWorkspace(membershipRole) ? (
+              <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
+                returnTo={"/network/" + profile.company.id} />
             ) : null}
             {!inquiryEligible && canInteract && inquiryReason !== "self_inquiry" ? (
               <span aria-disabled="true" data-testid="network-profile-connect-disabled"
