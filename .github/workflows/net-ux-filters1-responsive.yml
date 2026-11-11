@@ -4,6 +4,13 @@ on:
   pull_request:
     paths:
       - ".github/workflows/net-ux-filters1-responsive.yml"
+      # Network visual QA is owned by Network PRs, not a Commerciale FLOW1 run.
+      - "apps/web/app/**/network/**"
+      - "apps/web/components/network-*"
+      - "apps/web/components/public-network-*"
+      - "apps/web/lib/network-*"
+      - "apps/web/tests/network-*"
+      - "apps/web/tests/netro14d-chrome-claimable-visual.mjs"
       - "apps/web/components/network-compact-experience.tsx"
       - "apps/web/components/network-spec-filters.tsx"
       - "apps/web/tests/network-spec-panel-layout.test.mjs"
