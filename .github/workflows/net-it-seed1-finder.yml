@@ -1,0 +1,111 @@
+name: "NET-IT-SEED1 — Hourly site finder and first-party staging"
+
+# Runs the NET-IT-SEED1 site finder without a dedicated server. Two bounded
+# steps: harvest (read index pages registered by a Platform Owner — association
+# member lists, trade-fair exhibitor lists, certification lists — and keep ONLY
+# the outbound company domains) and crawl (visit each discovered company's OWN
+# website with the existing robots/SSRF/size-protected crawler and stage a
+# PRIVATE pending candidate). Neither step publishes, approves or edits a
+# candidate; the database refuses every call unless the Platform Owner has
+# enabled the NET-IT-SEED1 policy, and enforces its own daily cap.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "harvest reads index pages for new domains; crawl visits domains already queued"
+        required: true
+        default: "crawl"
+        type: choice
+        options: ["harvest", "crawl"]
+      limit:
+        description: "harvest: index pages (1–20); crawl: websites (1–1000)"
+        required: true
+        default: "200"
+        type: choice
+        options: ["5", "20", "100", "200", "500", "1000"]
+      persist:
+        description: "Claim work and stage candidates (unchecked = read-only dry run)"
+        required: true
+        default: true
+        type: boolean
+  schedule:
+    # Harvest index pages once a day — sources refresh weekly at the soonest.
+    - cron: "22 3 * * *"
+    # Crawl discovered domains every hour, off the hour.
+    - cron: "52 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-it-seed1-finder
+  cancel-in-progress: false
+
+jobs:
+  find:
+    name: "Harvest index pages or crawl discovered company websites"
+    # Forks, pull requests and feature branches can never reach the database.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bounded worker dependencies
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Check secure runtime configuration
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Missing worker-only Supabase secrets; nothing run"
+            exit 1
+          fi
+      - name: Pick mode and limit for this run
+        id: pick
+        run: |
+          # A scheduled run is told its mode and a fixed, safe limit by the
+          # cron expression that triggered it; a manual run uses the inputs.
+          case "${{ github.event_name }}" in
+            schedule)
+              case "${{ github.event.schedule }}" in
+                "22 3 * * *") echo "mode=harvest" >> "$GITHUB_OUTPUT"; echo "limit=20" >> "$GITHUB_OUTPUT" ;;
+                "52 * * * *") echo "mode=crawl" >> "$GITHUB_OUTPUT"; echo "limit=200" >> "$GITHUB_OUTPUT" ;;
+                *) echo "::error::Unrecognized schedule"; exit 1 ;;
+              esac
+              echo "persist=true" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "mode=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
+              echo "limit=${{ inputs.limit }}" >> "$GITHUB_OUTPUT"
+              echo "persist=${{ inputs.persist }}" >> "$GITHUB_OUTPUT"
+              ;;
+          esac
+      - name: Run the site finder
+        working-directory: services/worker
+        env:
+          MODE: ${{ steps.pick.outputs.mode }}
+          LIMIT: ${{ steps.pick.outputs.limit }}
+          PERSIST: ${{ steps.pick.outputs.persist }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          case "$MODE" in harvest|crawl) ;; *) echo "::error::Invalid mode"; exit 1 ;; esac
+          case "$LIMIT" in 5|20|100|200|500|1000) ;; *) echo "::error::Invalid limit"; exit 1 ;; esac
+          if [ "$MODE" = "harvest" ] && [ "$LIMIT" -gt 20 ]; then
+            echo "::error::harvest accepts at most 20 index pages per run; pick 5 or 20"
+            exit 1
+          fi
+          if [ "$PERSIST" = "true" ]; then
+            python -m app.net_it_seed1_pipeline --mode "$MODE" --limit "$LIMIT" --persist
+          else
+            python -m app.net_it_seed1_pipeline --mode "$MODE" --limit "$LIMIT"
+          fi
