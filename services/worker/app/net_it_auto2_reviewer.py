@@ -15,18 +15,27 @@ import os
 import re
 from datetime import datetime, timezone
 from html import unescape
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit
 
 import httpx
 
 from .company_discovery import (
-    CompanyDiscoveryError, _fetch_page, _priority_links,
+    PRIORITY_PATH_HINTS, CompanyDiscoveryError, CrawledPage, _fetch_page,
     canonical_domain, canonicalize_seed_url,
 )
 
-VERSION = "net-it-auto2-firstparty-v1"
+# v2 (NET-IT-GROWTH1): reads legal/contact pages where Italian companies print
+# their ragione sociale and P.IVA, matches on the whole extracted page text,
+# and no longer treats the legacy "legal_identity_not_verified" flag as an
+# automatic exception: this first-party check IS the identity check it asks for.
+VERSION = "net-it-auto2-firstparty-v2"
 MAX_BATCH = 50
-MAX_PAGES = 3
+MAX_PAGES = 5
+# Pages where the company's own legal identity is usually printed.
+IDENTITY_PATH_HINTS = (
+    "contatt", "contact", "dove-siamo", "privacy", "note-legali", "legal",
+    "imprint", "impressum", "dati-societari", "informativa", "cookie",
+)
 CORPORATE_SUFFIX = re.compile(
     r"\b(?:S\.?\s*R\.?\s*L\.?|S\.?\s*P\.?\s*A\.?|S\.?\s*N\.?\s*C\.?|"
     r"S\.?\s*A\.?\s*S\.?|SRLS|SOCIETA|SOCIETÀ|LIMITED|LTD)\b", re.I
@@ -81,6 +90,31 @@ def _name_evidenced(name: str, page_texts: list[str]) -> bool:
     return False
 
 
+def _identity_links(home: CrawledPage, limit: int) -> list[str]:
+    """Same-domain links ranked: legal/contact pages first, then company pages."""
+    domain = canonical_domain(home.url)
+    seen: set[str] = {home.url}
+    ranked: list[tuple[int, int, str]] = []
+    for position, href in enumerate(home.links):
+        try:
+            url = canonicalize_seed_url(urljoin(home.url, href))
+        except CompanyDiscoveryError:
+            continue
+        if url in seen or canonical_domain(url) != domain:
+            continue
+        path = urlsplit(url).path.lower()
+        if any(h in path for h in IDENTITY_PATH_HINTS):
+            rank = 0
+        elif any(h in path for h in PRIORITY_PATH_HINTS):
+            rank = 1
+        else:
+            continue
+        seen.add(url)
+        ranked.append((rank, position, url))
+    ranked.sort()
+    return [url for _, _, url in ranked[:limit]]
+
+
 def _validate_official_website(candidate: dict) -> tuple[str, str]:
     source = canonicalize_seed_url(str(candidate["url"]))
     website = canonicalize_seed_url(str(candidate["website_url"]))
@@ -110,7 +144,7 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
         if not home:
             return _finding(candidate, "needs_human", ["robots_blocked_or_unavailable"])
         pages.append(home)
-        for link in _priority_links(home)[: MAX_PAGES - 1]:
+        for link in _identity_links(home, MAX_PAGES - 1):
             try:
                 page = await _fetch_page(client, link, source)
                 if page and canonical_domain(page.url) == domain:
@@ -123,14 +157,12 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     # Title/H1/og:site_name may repeat an unverified brand, even when the
     # actual company identity on the page is different. Require the full
     # corporate name in first-party BODY text, not merely page metadata.
-    texts = [str(p.text[:18000]) for p in pages]
+    texts = [str(p.text) for p in pages]
     matched = _name_evidenced(str(candidate.get("company_name") or ""), texts)
     if not matched:
         reasons.append("corporate_name_not_evidenced")
     if not _is_capital_company(str(candidate.get("company_name") or "")):
         reasons.append("legal_form_requires_human_review")
-    if "legal_identity_not_verified" in candidate.get("quality_flags", []):
-        reasons.append("existing_legal_identity_hold")
     if "historical_sole_trader_vat_context" in candidate.get("quality_flags", []):
         reasons.append("sole_trader_identity_exception")
     if not candidate.get("role_keys"):
