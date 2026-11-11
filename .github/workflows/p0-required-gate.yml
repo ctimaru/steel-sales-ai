@@ -102,6 +102,9 @@ jobs:
               sys.exit(1)
           print("Tracked secret guard passed")
 
+      - name: Verify domain-targeted CI routing and safe fallback
+        run: python3 .github/scripts/ci-lean1-validate.py
+
   frontend:
     name: frontend
     needs: classify
