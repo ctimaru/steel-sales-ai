@@ -6,6 +6,7 @@ import ts from "typescript";
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const page = read("../app/(italian)/(workspace)/commercial/page.tsx");
 const shell = read("../components/commercial-ai-native-shell.tsx");
+const directorNavigation = read("../lib/commercial-director-navigation.ts");
 const source = read("../lib/commercial-ai-native-ui.ts");
 const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
@@ -52,4 +53,12 @@ test("COMM-AI-NATIVE1.B/C keeps honest evidence labels and the authorized Distin
   assert.match(shell, /\.showModal\(\)/);
   assert.match(shell, /\.close\(\)/);
   assert.doesNotMatch(shell, /fetch\(|createBuyerRfqCampaign|sendBuyerDistinta|service_role|autoDispatch|localStorage/);
+});
+
+test("COMM-AI-NATIVE1.CLEAN2 preserves calculator and editor anchors on classic URLs", () => {
+  assert.match(directorNavigation, /Calcolatrice pesi.*experience=classic#commercial-tool-access/);
+  assert.match(page, /experience=classic#commercial-worklist.*Chiudi editor/);
+  assert.match(page, /params\.compose === "1"/);
+  assert.match(page, /params\.view !== undefined/);
+  assert.match(page, /params\.network !== undefined/);
 });
