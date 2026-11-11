@@ -58,6 +58,9 @@ async function viewportCheck(page, { width, height, role }) {
   assert.ok([h, c, t, a, w].every(Boolean), "All first viewport surfaces should render");
   assert.ok(h.y < a.y && a.y < c.y && c.y < t.y && t.y < w.y,
     "COMM-NAV9.M director priorities precede AI and tools in visual and DOM order");
+  // COMM-SIMPLE2: calculator/history/saved Distinte are secondary tools
+  // in a native details disclosure. Exercise it before asserting visibility.
+  await tools.locator("summary").click();
   assert.ok(await page.getByRole("button", { name: "Calcolatrice pesi" }).isVisible());
   // COMM-NAV9: a decision-first summary must remain compact, honest about
   // missing RFQ data and read-only for viewer roles.
@@ -258,6 +261,12 @@ try {
         }
         // Explicitly verify historical retrieval for both roles at all widths.
         // Retrieval must never silently start an RFQ or the AI composer.
+        // A navigation to a filtered view resets the disclosure; reopen the
+        // real "Strumenti" menu before following the history link.
+        const historyMenu = page.getByTestId("commercial-primary-quick-actions");
+        if (!(await historyMenu.evaluate(element => element.hasAttribute("open")))) {
+          await historyMenu.locator("summary").click();
+        }
         await page.getByTestId("commercial-history-entry").click();
         await page.waitForURL(u => u.pathname === "/commercial/search", { timeout: 90000 });
         assert.equal(new URL(page.url()).searchParams.get("compose"), null);
