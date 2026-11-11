@@ -50,6 +50,6 @@ test("NET-PROFILE-UX2: review real UI components at 1440, 390 and 320 for full a
   assert.match(fixture,/<NetworkProfileOverview/);
   assert.match(chrome,/network-company-profile-ux2-full-admin/);
   assert.match(chrome,/network-company-profile-ux2-sparse-admin/);
-  assert.match(chrome,/await noOverflow\(page,"Company-commercial-hero/"\+width\)/);
-  assert.match(chrome,/await noOverflow\(page,"Company-sparse-hero/"\+width\)/);
+  assert.ok(chrome.includes('await noOverflow(page,"Company-commercial-hero/"+width)'));
+  assert.ok(chrome.includes('await noOverflow(page,"Company-sparse-hero/"+width)'));
 });
