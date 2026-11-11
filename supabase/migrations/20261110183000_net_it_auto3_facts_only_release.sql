@@ -151,6 +151,11 @@ REVOKE ALL ON FUNCTION public.net_it_auto3_status()
  FROM PUBLIC,anon,authenticated,service_role;
 GRANT EXECUTE ON FUNCTION public.net_it_auto3_status() TO authenticated;
 
+-- Enrichment-only flags tolerated by the release query AND the PA1.5 guard:
+-- unverified product scope / province, and an uncertain crawler ROLE
+-- (multi-role, low margin). Founder decision 2026-11-11: publish with the
+-- crawler category marked unverified and correct it after publication.
+-- Identity flags and 'classification_insufficient_role_evidence' still block.
 -- Legal form gate (release query AND PA1.5 guard use the same pattern):
 -- only capital companies S.r.l./S.r.l.s./S.p.A., matched as a whole token.
 -- Partnerships (S.n.c./S.a.s.) routinely carry natural persons' names in the
@@ -228,7 +233,7 @@ BEGIN
     AND e.page_evidence_hash ~ '^[a-f0-9]{64}$'
     AND lower(split_part(split_part(e.company_page_url,'/',3),':',1))
       IN (lower(btrim(c.canonical_domain)),'www.'||lower(btrim(c.canonical_domain)))
-    AND c.quality_flags <@ ARRAY['product_scope_not_verified','province_area_to_verify']::text[]
+    AND c.quality_flags <@ ARRAY['product_scope_not_verified','province_area_to_verify','classification_multi_role','classification_low_margin']::text[]
     AND NOT c.personal_data_detected
     AND cardinality(c.personal_data_fields)=0
     AND c.match_company_id IS NULL AND c.promoted_company_id IS NULL
@@ -427,7 +432,7 @@ BEGIN
       OR NEW.quality_flags
         && ARRAY['legal_identity_not_verified','historical_sole_trader_vat_context']::text[]
       OR NOT (NEW.quality_flags
-        <@ ARRAY['product_scope_not_verified','province_area_to_verify']::text[])
+        <@ ARRAY['product_scope_not_verified','province_area_to_verify','classification_multi_role','classification_low_margin']::text[])
       OR lower(NEW.legal_name) LIKE '% di %'
       OR NEW.legal_name !~* '(^|[^[:alnum:]])(s[.]?[[:space:]]*r[.]?[[:space:]]*l[.]?([[:space:]]*s[.]?)?|s[.]?[[:space:]]*p[.]?[[:space:]]*a[.]?)([^[:alnum:]]|$)'
     THEN

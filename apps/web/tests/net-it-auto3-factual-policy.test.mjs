@@ -21,7 +21,11 @@ test("agent requires first-party evidence, keeps unknown reuse status explicit",
  assert.match(sql,/e\.reviewed_at>=now\(\)-interval '3 days'/);
  assert.match(sql,/e\.identity_confidence>=0\.94/);
  assert.match(sql,/e\.source_rights_state='unknown'/);
- assert.match(sql,/c\.quality_flags <@ ARRAY\['product_scope_not_verified','province_area_to_verify'\]/);
+ const tolerated=[...sql.matchAll(/quality_flags\s*<@ ARRAY\[([^\]]+)\]/g)].map(m=>m[1]);
+ assert.equal(tolerated.length,2);
+ assert.equal(tolerated[0],tolerated[1]);
+ assert.equal(tolerated[0],"'product_scope_not_verified','province_area_to_verify','classification_multi_role','classification_low_margin'");
+ assert.doesNotMatch(tolerated[0],/identity|insufficient_role_evidence|sole_trader/);
  assert.match(sql,/c\.legal_name ~\*/);
  assert.match(sql,/NOT c\.personal_data_detected/);
  assert.match(sql,/c\.source_url ~\* '\^https:\/\/'/);
