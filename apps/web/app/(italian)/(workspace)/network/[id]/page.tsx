@@ -416,6 +416,10 @@ export default async function NetworkCompanyProfilePage({
 
       <details data-testid="network-profile-technical-details" className="rounded-2xl border border-[#dce6e0] bg-white p-3 sm:p-4">
         <summary className="cursor-pointer px-2 py-1 text-sm font-semibold text-[#175640]">Approfondisci prodotti, capacità tecniche e fonti</summary>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs">
+          {profile.trust.claimed ? <span className="rounded-full bg-[#edf5f2] px-3 py-1 font-semibold text-[#175640]">Profilo rivendicato</span> : null}
+          {profile.trust.verified ? <span className="rounded-full bg-[#edf5f2] px-3 py-1 font-semibold text-[#175640]">Azienda verificata</span> : null}
+        </div>
         <div className="mt-4 space-y-5">
       <section className="rounded-3xl border border-[#d9e1dd] bg-[#f6f8f7] p-6 sm:p-7">
         <SectionHeader
