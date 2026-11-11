@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { NetworkSaveToggle } from "@/components/network-save-toggle";
-import { NetworkProfileOverview } from "@/components/network-profile-overview";
+import { NetworkProfileOverview, NetworkProfileTopBar } from "@/components/network-profile-overview";
 import { NetworkProfileInventory } from "@/components/network-profile-inventory";
 import { getPublishedNetworkInventory } from "@/lib/network-stock";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
@@ -310,7 +310,7 @@ export default async function NetworkCompanyProfilePage({
   );
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 pb-16">
+    <div className="mx-auto max-w-6xl space-y-5 pb-16 sm:space-y-6">
       <PilotEvent
         eventName="network_profile_viewed"
         entityType="network_company"
@@ -318,9 +318,7 @@ export default async function NetworkCompanyProfilePage({
         metadata={{ surface: "network_company_profile" }}
       />
 
-      <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1a5144]">
-        ← Torna alla ricerca
-      </Link>
+      <NetworkProfileTopBar />
 
       {error ? (
         <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">
@@ -349,15 +347,15 @@ export default async function NetworkCompanyProfilePage({
         phone={phoneContact?.phone}
         actions={
           <>
-            {organizationId && canWriteWorkspace(membershipRole) ? (
-              <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
-                returnTo={"/network/" + profile.company.id} />
-            ) : null}
             {inquiryEligible && canInteract ? (
               <Link href={"/network/" + profile.company.id + "/connect"}
                 className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold">
                 Connetti
               </Link>
+            ) : null}
+            {organizationId && canWriteWorkspace(membershipRole) ? (
+              <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
+                returnTo={"/network/" + profile.company.id} />
             ) : null}
             {!inquiryEligible && canInteract && inquiryReason !== "self_inquiry" ? (
               <span aria-disabled="true" data-testid="network-profile-connect-disabled"
@@ -372,6 +370,11 @@ export default async function NetworkCompanyProfilePage({
           </>
         }
       />
+      <nav aria-label="Naviga la scheda" className="flex flex-wrap items-center gap-2" data-testid="network-company-section-nav">
+        <a href="#attivita" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 text-xs font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Attività</a>
+        <a href="#contatti" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 text-xs font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Contatti</a>
+        {publishedInventory.length ? <a href="#stock" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 text-xs font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Stock dichiarato</a> : null}
+      </nav>
       <NetworkProfileInventory items={publishedInventory} />
 
       {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
@@ -418,8 +421,11 @@ export default async function NetworkCompanyProfilePage({
         </section>
       ) : null}
 
-      <details data-testid="network-profile-technical-details" className="rounded-2xl border border-[#dce6e0] bg-white p-3 sm:p-4">
-        <summary className="cursor-pointer px-2 py-1 text-sm font-semibold text-[#175640]">Approfondisci prodotti, capacità tecniche e fonti</summary>
+      <details data-testid="network-profile-technical-details" className="rounded-[24px] border border-[#d7e6db] bg-white p-3.5 shadow-[0_6px_24px_-22px_rgba(17,65,43,0.3)] sm:p-5">
+        <summary className="flex min-h-12 cursor-pointer list-item items-center rounded-xl px-2 py-2 text-sm font-semibold text-[#20533b] marker:text-[#286344] hover:bg-[#f4f8f5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#256646]">
+          Esplora dati tecnici, sedi e certificazioni
+          <span className="ml-2 text-xs font-normal text-[#65786c]">— Informazioni complete e fonti</span>
+        </summary>
         <div className="mt-4 flex flex-wrap gap-2 text-xs">
           {profile.trust.claimed ? <span className="rounded-full bg-[#edf5f2] px-3 py-1 font-semibold text-[#175640]">Profilo rivendicato</span> : null}
           {profile.trust.verified ? <span className="rounded-full bg-[#edf5f2] px-3 py-1 font-semibold text-[#175640]">Azienda verificata</span> : null}
