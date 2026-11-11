@@ -65,7 +65,7 @@ export function NetworkProfileOverview({
       <div className="bg-[linear-gradient(120deg,#f0f7f2_0%,#ffffff_68%)] px-4 pb-5 pt-5 sm:px-7 sm:pb-7 sm:pt-7 lg:px-9">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.15em] text-[#32654b]">
           <span className="h-1.5 w-1.5 rounded-full bg-[#287e55]" aria-hidden="true" />
-          Smart Steel Network
+          Network
           <span className="font-medium text-[#6d8375]">/ Scheda aziendale</span>
         </div>
         <div className="mt-4 flex min-w-0 items-start gap-3.5 sm:mt-5 sm:gap-5">
@@ -77,7 +77,7 @@ export function NetworkProfileOverview({
             {legalName && legalName !== name ? <p className="mt-1.5 break-words text-xs text-[#5a6c5f] sm:text-sm">{legalName}</p> : null}
             {location || countryCode ? (
               <p className="mt-2 flex flex-wrap items-center gap-1.5 text-xs font-medium text-[#526a5b] sm:text-sm">
-                <span aria-hidden="true" className="text-[#3f7656]">⌖</span>
+                <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#69937a]" />
                 {[location, countryCode && !location?.includes(countryCode) ? countryCode : null].filter(Boolean).join(" · ")}
               </p>
             ) : null}
