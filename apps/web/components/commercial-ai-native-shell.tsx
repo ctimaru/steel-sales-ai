@@ -5,8 +5,23 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { appRoutes } from "@/lib/routes";
 import { classifyCommercialAiNativeTopic, type CommercialAiNativeTopic } from "@/lib/commercial-ai-native-ui";
+import { commercialAiNativeResponse, type CommercialAiNativeHistoryTurn } from "@/app/(italian)/(workspace)/commercial/ai-native-actions";
+import type { CommercialAiIntent } from "@/lib/commercial-ai-native-intent";
 
-type Turn = { id: number; question: string; topic: CommercialAiNativeTopic };
+type Turn = {
+  id: number; question: string; topic: CommercialAiNativeTopic;
+  intent: CommercialAiIntent | null;
+  reply: string; followUp: string | null;
+  state: "pending" | "answered" | "error";
+  evidenceStatus: "not_connected" | "unverified" | "workflow" | null;
+  canPrepareDistinta: boolean;
+};
+function topicFromIntent(intent: CommercialAiIntent): CommercialAiNativeTopic {
+  if (intent === "industry_search") return "network";
+  if (intent === "technical_question") return "knowledge";
+  if (intent === "distinta_edit" || intent === "rfq_prepare") return "distinta";
+  return "general";
+}
 const MAX_CHARS = 12000;
 const shortcuts = [
   "Chi produce tubo S355 Ø608?",
@@ -16,22 +31,22 @@ const shortcuts = [
 const contextCopy: Record<CommercialAiNativeTopic, { heading: string; description: string; link: string; label: string }> = {
   general: {
     heading: "Il tuo spazio di lavoro",
-    description: "Scegli una richiesta. Gli strumenti industriali rimangono disponibili mentre costruiamo le risposte AI complete.",
+    description: "Fai una domanda liberamente. Le risposte AI sono orientative: nessuna scrittura o invio viene eseguito automaticamente.",
     link: appRoutes.rfqHub.savedDistinte, label: "Apri le Distinte",
   },
   network: {
     heading: "Ricerca produttori",
-    description: "In questa anteprima la ricerca AI delle capacità produttive non è ancora collegata. Usa il Network per verificare direttamente le schede aziendali.",
+    description: "Il riconoscimento delle ricerche è attivo. Il matching documentato delle capacità produttive arriverà nel passaggio D; nessun produttore è indicato come verificato senza fonte.",
     link: appRoutes.network.directory, label: "Esplora il Network",
   },
   distinta: {
     heading: "Distinta in preparazione",
-    description: "Il testo potrà essere trasferito alla chat Distinta esistente. Le righe proposte resteranno separate da quelle approvate.",
+    description: "Le richieste vengono riconosciute e trasferite solo su tua conferma alla Distinta canonica. Le proposte non vengono approvate automaticamente.",
     link: appRoutes.rfqHub.savedDistinte, label: "Le tue Distinte",
   },
   knowledge: {
     heading: "Conoscenza tecnica",
-    description: "Le risposte normative AI arriveranno con fonti e verifiche dedicate. La School resta disponibile per le schede e le guide pubblicate.",
+    description: "L’assistente può spiegare concetti generali, distinguendoli dalle norme verificate. Le fonti ufficiali e le schede della School restano necessarie per confermare requisiti tecnici.",
     link: appRoutes.knowledge.workspace, label: "Consulta la School",
   },
 };
@@ -69,14 +84,15 @@ function ContextContent({ topic }: { topic: CommercialAiNativeTopic }) {
 }
 
 /**
- * B is intentionally UI-only: no LLM call, no fake company matching, no
- * conversational persistence, no RFQ mutation. The single write-capable path
- * reuses the existing explicit Distinta AI intake in the same browser tab.
+ * C calls an authenticated read-only server action. Answers are transient and
+ * clearly labeled; the only write-capable path remains the explicit canonical
+ * Distinta handoff in this browser tab.
  */
 export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [draft, setDraft] = useState("");
+  const [busy, setBusy] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [activeTopic, setActiveTopic] = useState<CommercialAiNativeTopic>("general");
   const [handoffError, setHandoffError] = useState("");
@@ -87,17 +103,62 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
   const threadEnd = useRef<HTMLDivElement>(null);
 
   useEffect(() => setReady(true), []);
+  // Keep the most recent assistant reply visible after an async response,
+  // without moving the composer or resetting a reader's earlier history
+  // except when a new turn arrives or its pending state resolves.
+  const lastTurnState = turns.length ? turns[turns.length - 1].state : null;
+  useEffect(() => {
+    if (!lastTurnState) return;
+    const frame = requestAnimationFrame(() =>
+      threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" })
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [turns.length, lastTurnState]);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const question = draft.trim();
-    if (!ready || !question) return;
+    if (!ready || busy || !question) return;
     const topic = classifyCommercialAiNativeTopic(question);
-    setTurns((previous) => [...previous, { id: ++nextId.current, question, topic }]);
+    const id = ++nextId.current;
+    const history: CommercialAiNativeHistoryTurn[] = turns.slice(-3).flatMap((turn) =>
+      turn.state !== "answered" ? [] : [
+        { role: "user" as const, content: turn.question },
+        { role: "assistant" as const, content: turn.reply },
+      ]
+    );
+    setTurns((previous) => [...previous.slice(-24), {
+      id, question, topic, intent: null, reply: "", followUp: null,
+      state: "pending", evidenceStatus: null, canPrepareDistinta: false,
+    }]);
     setActiveTopic(topic);
+    setBusy(true);
     setDraft("");
     setHandoffError("");
     requestAnimationFrame(() => threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" }));
+    try {
+      const result = await commercialAiNativeResponse(question, history);
+      if (result.ok) {
+        const resolvedTopic = topicFromIntent(result.intent);
+        setActiveTopic(resolvedTopic);
+        setTurns((previous) => previous.map((turn) => turn.id === id ? {
+          ...turn, topic: resolvedTopic, intent: result.intent,
+          reply: result.answer, followUp: result.followUp,
+          evidenceStatus: result.evidenceStatus,
+          canPrepareDistinta: result.canPrepareDistinta, state: "answered",
+        } : turn));
+      } else {
+        setTurns((previous) => previous.map((turn) => turn.id === id ? {
+          ...turn, reply: result.error, state: "error",
+        } : turn));
+      }
+    } catch {
+      setTurns((previous) => previous.map((turn) => turn.id === id ? {
+        ...turn, reply: "Connessione AI non disponibile. Nessuna azione è stata eseguita; puoi riprovare.", state: "error",
+      } : turn));
+    } finally {
+      setBusy(false);
+    }
   }
 
   function startDistinta(text: string) {
@@ -128,7 +189,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
 
   return (
     <section data-testid="commercial-ai-native-shell" aria-label="Smart Steel Intelligence"
-      className="flex h-[calc(100dvh-14rem)] min-h-[360px] min-w-0 scroll-mt-20 flex-col overflow-hidden rounded-2xl border border-[#d5e3da] bg-white shadow-[0_14px_55px_-38px_rgba(13,63,41,0.3)] lg:h-auto lg:min-h-0 lg:rounded-[24px]">
+      className="flex h-[calc(100dvh-14rem)] min-h-[360px] min-w-0 scroll-mt-20 flex-col overflow-hidden rounded-2xl border border-[#d5e3da] bg-white shadow-[0_14px_55px_-38px_rgba(13,63,41,0.3)] lg:h-[min(80dvh,760px)] lg:min-h-[500px] lg:rounded-[24px]">
       <header className="flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#e2eae4] bg-[#fbfdfb] px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] text-xl text-white">✦</span>
@@ -150,8 +211,8 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
         </nav>
       </header>
 
-      <div className="grid min-h-0 min-w-0 flex-1 lg:flex-none lg:grid-cols-[minmax(0,1.7fr)_minmax(300px,1fr)]">
-        <div className="flex min-h-0 min-w-0 flex-col bg-white lg:min-h-[min(75dvh,740px)]">
+      <div className="grid min-h-0 min-w-0 flex-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(300px,1fr)]">
+        <div className="flex min-h-0 min-w-0 flex-col bg-white">
           <div role="log" aria-label="Messaggi della conversazione" aria-live="polite" aria-relevant="additions"
             data-testid="commercial-ai-native-thread"
             className="min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-4 sm:px-8 sm:py-9">
@@ -188,29 +249,36 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
                     <div className="flex min-w-0 items-start gap-3">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-white" aria-hidden="true">✦</span>
                       <div className="min-w-0 flex-1 rounded-2xl border border-[#e1eae4] bg-[#fbfdfb] p-3 sm:p-4">
-                        {turn.topic === "network" ? (
-                          <>
-                            <p className="text-sm leading-6 text-[#2a4b3a]">La ricerca conversazionale dei produttori non è ancora collegata. Puoi consultare le aziende nel Network: una scheda censita non dimostra la capacità sulla misura richiesta.</p>
-                            <Link href={appRoutes.network.directory} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">Apri ricerca Network ↗</Link>
-                          </>
-                        ) : turn.topic === "knowledge" ? (
-                          <>
-                            <p className="text-sm leading-6 text-[#2a4b3a]">Le risposte tecniche AI con fonti saranno disponibili nella fase successiva. Per ora puoi consultare le guide della School senza ricevere informazioni normative non verificate.</p>
-                            <Link href={appRoutes.knowledge.workspace} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">Apri School ↗</Link>
-                          </>
-                        ) : turn.topic === "distinta" && canWrite ? (
-                          <>
-                            <p className="text-sm leading-6 text-[#2a4b3a]">Posso passare questo testo al modulo Distinta già operativo. L’analisi AI proporrà articoli da verificare; nessun salvataggio o invio a fornitori sarà automatico.</p>
-                            <button type="button" onClick={() => startDistinta(turn.question)}
-                              data-testid="commercial-ai-native-open-distinta"
-                              className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#175640] px-4 text-sm font-semibold text-white hover:bg-[#104632]">
-                              Analizza nella chat Distinta ↗
-                            </button>
-                          </>
-                        ) : turn.topic === "distinta" ? (
-                          <p className="text-sm leading-6 text-[#2a4b3a]">Il tuo profilo è in sola lettura: puoi consultare le Distinte esistenti, ma non crearne o inviarne di nuove.</p>
+                        {turn.state === "pending" ? (
+                          <p role="status" className="text-sm leading-6 text-[#426852]">Sto interpretando la richiesta…</p>
                         ) : (
-                          <p className="text-sm leading-6 text-[#2a4b3a]">Questo è il nuovo spazio conversazionale in anteprima. L’assistente generale sarà attivato nelle prossime fasi; per ora puoi scegliere una Distinta, il Network o la School attraverso gli strumenti disponibili.</p>
+                          <>
+                            <p role={turn.state === "error" ? "alert" : undefined}
+                              className="whitespace-pre-wrap break-words text-sm leading-6 text-[#2a4b3a]">{turn.reply}</p>
+                            {turn.state === "answered" && turn.evidenceStatus === "unverified" ? (
+                              <p data-testid="commercial-ai-native-unverified"
+                                className="mt-2 text-xs leading-5 text-[#795a35]">Risposta AI orientativa · Nessuna fonte normativa verificata in questa risposta.</p>
+                            ) : null}
+                            {turn.state === "answered" && turn.evidenceStatus === "not_connected" ? (
+                              <p data-testid="commercial-ai-native-not-connected"
+                                className="mt-2 text-xs leading-5 text-[#795a35]">Ricerca documentata non ancora collegata · Nessuno stock o produttore confermato.</p>
+                            ) : null}
+                            {turn.followUp && turn.state === "answered" ? (
+                              <p className="mt-2 text-xs font-medium leading-5 text-[#426852]">{turn.followUp}</p>
+                            ) : null}
+                            {turn.canPrepareDistinta && canWrite && turn.state === "answered" ? (
+                              <button type="button" onClick={() => startDistinta(turn.question)}
+                                data-testid="commercial-ai-native-open-distinta"
+                                className="mt-3 inline-flex min-h-11 items-center rounded-xl bg-[#175640] px-4 text-sm font-semibold text-white hover:bg-[#104632]">
+                                Verifica nella chat Distinta ↗
+                              </button>
+                            ) : null}
+                            {turn.topic === "network" ? (
+                              <Link href={appRoutes.network.directory} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">Esplora Network ↗</Link>
+                            ) : turn.topic === "knowledge" ? (
+                              <Link href={appRoutes.knowledge.workspace} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">Consulta School ↗</Link>
+                            ) : null}
+                          </>
                         )}
                       </div>
                     </div>
@@ -228,12 +296,12 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
               <label htmlFor="commercial-ai-native-input" className="sr-only">Domanda o richiesta commerciale</label>
               <textarea id="commercial-ai-native-input" ref={composerRef} rows={2} maxLength={MAX_CHARS}
                 value={draft} onChange={(event) => setDraft(event.target.value)}
-                onKeyDown={keyDown} disabled={!ready}
+                onKeyDown={keyDown} disabled={!ready || busy}
                 placeholder="Chiedi qualcosa sui tubi, sui produttori o prepara una Distinta…"
                 className="min-h-14 max-h-40 w-full min-w-0 resize-y rounded-lg bg-white px-2 py-1.5 text-sm leading-6 text-[#183c2c] outline-none placeholder:text-[#7b9184] disabled:opacity-60" />
               <div className="flex items-center justify-between gap-3 px-1">
                 <p className="text-[11px] leading-4 text-[#698073]">Invio per continuare · Maiusc+Invio per andare a capo</p>
-                <button type="submit" disabled={!ready || !draft.trim()}
+                <button type="submit" disabled={!ready || busy || !draft.trim()}
                   data-testid="commercial-ai-native-submit"
                   className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-40">
                   Invia <span aria-hidden="true" className="ml-2">↑</span>
@@ -242,7 +310,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
             </form>
             {handoffError ? <p role="alert" className="mx-auto mt-2 max-w-[740px] text-xs text-[#974621]">{handoffError} <Link className="underline" href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}>Apri Distinta</Link></p> : null}
             <p className="sr-only lg:not-sr-only lg:mx-auto lg:mt-1 lg:max-w-[740px] lg:text-center lg:text-[10px] lg:leading-4 lg:text-[#71857a]">
-              Anteprima UI: nessuna risposta AI generalista o cronologia persistente. Il testo resta in questa schermata fino al trasferimento esplicito.
+              Anteprima AI: risposte orientative senza fonti verificate; cronologia solo in questa scheda, nessuna memoria persistente o invio automatico.
             </p>
           </div>
         </div>

@@ -1,5 +1,5 @@
 /**
- * COMM-AI-NATIVE1.B: local-only Chrome acceptance for the opt-in AI-first shell.
+ * COMM-AI-NATIVE1.B/C: local-only Chrome acceptance for the AI-first shell and authenticated intent/reply.
  * Synthetic buyer/viewer only; no LLM provider, emails or real user data.
  */
 import assert from "node:assert/strict";
@@ -74,16 +74,37 @@ try {
         }
         await input.fill("Chi produce tubo S355 Ø608?");
         await shell.getByTestId("commercial-ai-native-submit").click();
-        await shell.getByRole("link", { name: /Apri ricerca Network/ }).waitFor({ state: "visible" });
+        await shell.getByRole("link", { name: /Esplora Network/ }).waitFor({ state: "visible" });
+        const notConnected = shell.getByTestId("commercial-ai-native-not-connected");
+        await notConnected.first().waitFor({ state: "visible", timeout: 30000 });
+        assert.match(await shell.getByTestId("commercial-ai-native-turn").first().innerText(), /norma.*spessore/i);
         assert.equal(await shell.getByTestId("commercial-ai-native-open-distinta").count(), 0,
           "Producer question must never create a Distinta");
         await input.fill("Preparami 24 barre Ø608×10 EN 10219 S355J2H");
         await input.press("Enter");
         await shell.getByTestId("commercial-ai-native-turn").nth(1).waitFor({ state: "visible" });
         const start = shell.getByTestId("commercial-ai-native-open-distinta");
+        if (person.id === "buyer") {
+          await start.waitFor({ state: "visible", timeout: 30000 });
+        } else {
+          await shell.getByTestId("commercial-ai-native-turn").nth(1).getByText(/sola lettura|non è abilitato/).waitFor({ state: "visible", timeout: 30000 });
+        }
         assert.equal(await start.count(), person.id === "buyer" ? 1 : 0);
         assert.equal(await shell.getByTestId("commercial-ai-native-context-distinta").count(), 0,
           "Do not duplicate Distinta CTA in the context panel");
+        if (width >= 1024) {
+          // C: after multiple turns, the desktop composer stays in the viewport;
+          // content scrolls inside the thread instead of stretching the page.
+          const [composer, shellBox] = await Promise.all([
+            shell.getByTestId("commercial-ai-native-form").boundingBox(),
+            shell.boundingBox(),
+          ]);
+          assert.ok(composer && shellBox, "Missing desktop composer");
+          assert.ok(composer.y >= 0 && composer.y + composer.height < 900,
+            "Desktop composer must remain visible after multi-turn conversation");
+          assert.ok(shellBox.y + shellBox.height <= 900,
+            "Desktop chat must not stretch below 900px viewport");
+        }
         if (width < 1024) {
           const dock = await page.getByRole("navigation", { name: "Navigazione mobile principale" }).boundingBox();
           const composer = await shell.getByTestId("commercial-ai-native-form").boundingBox();
@@ -94,8 +115,23 @@ try {
           assert.ok(send.y >= 0 && send.y + send.height <= dock.y - 4,
             "Mobile send button is covered by the fixed dock after conversation");
         }
+        await input.fill("Qual è la differenza tra EN 10219 ed EN 10210?");
+        await shell.getByTestId("commercial-ai-native-submit").click();
+        await shell.getByTestId("commercial-ai-native-unverified").waitFor({ state: "visible", timeout: 30000 });
+        assert.match(await shell.getByTestId("commercial-ai-native-turn").last().innerText(), /EN 10219/i);
+        assert.equal(await shell.getByTestId("commercial-ai-native-open-distinta").count(), person.id === "buyer" ? 1 : 0);
+        assert.ok((await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)) <= 12,
+          "C follow-up must not create horizontal overflow");
         await page.screenshot({ path: path.join(screenshots, person.id + "-" + width + ".png"),
           animations: "disabled" });
+        if (width === 1440) {
+          await input.fill("Che cosa significa ASTM A500?");
+          await shell.getByTestId("commercial-ai-native-submit").click();
+          await shell.getByTestId("commercial-ai-native-turn").last().getByRole("alert").waitFor({ state: "visible", timeout: 30000 });
+          assert.match(await shell.getByTestId("commercial-ai-native-turn").last().innerText(), /non è disponibile|riprovare|non sono riuscito/i);
+          // Explicit user text remains visible even after the unavailable-provider fallback.
+          assert.ok(await shell.getByText("Che cosa significa ASTM A500?").isVisible());
+        }
         if (person.id === "buyer") {
           await start.click();
           await page.waitForURL(url => url.pathname === "/commercial" &&
