@@ -212,7 +212,8 @@ try {
 
           // COMM-RFQ-UX1: actual authenticated browser handoff. The text
           // must appear before the calculator without any implicit AI call.
-          await page.goto(base + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
+          // Preserve the old handoff contract explicitly through the classic rollback route.
+          await page.goto(base + "/commercial?experience=classic", { waitUntil: "domcontentloaded", timeout: 90000 });
           const input = page.getByLabel("Descrivi il materiale", { exact: true });
           await input.fill("40 tubi quadri 100x100x6 S355J2H EN 10219 da 12 m");
           await page.getByTestId("commercial-ai-first-cta").click();

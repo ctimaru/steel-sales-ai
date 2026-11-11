@@ -138,7 +138,16 @@ jobs:
           npm ci --prefix apps/web --no-audit --no-fund
           cd apps/web
           npm install --no-save --no-package-lock playwright@1.56.1
-          npx playwright install --with-deps chrome
+          # Ubuntu 24.04 GitHub-hosted runners include Google Chrome stable.
+          # Playwright uses channel: chrome; avoid redundant apt/browser downloads
+          # that can fail on temporary Ubuntu mirror DNS outages.
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+          elif command -v google-chrome-stable >/dev/null 2>&1; then
+            google-chrome-stable --version
+          else
+            npx playwright install --with-deps chrome
+          fi
       - name: RFQC1 synthetic supplier-isolation, status, card and composer contracts
         working-directory: apps/web
         run: node --test tests/rfqc1-*.test.mjs

@@ -33,7 +33,8 @@ export function commercialSearchHref(query = "", scope: CommercialSearchScope = 
   return "/commercial/search" + (search ? "?" + search : "");
 }
 export function operationalSearchHref(query = ""): string {
-  const params = new URLSearchParams();
+  // Empty historical searches must not navigate to the new AI home.
+  const params = new URLSearchParams({ view: "all" });
   const safeQuery = normalizeCommercialSearchQuery(query).slice(0, 80);
   if (safeQuery) params.set("q", safeQuery);
   return "/commercial" + (params.size ? "?" + params.toString() : "") + "#commercial-worklist";

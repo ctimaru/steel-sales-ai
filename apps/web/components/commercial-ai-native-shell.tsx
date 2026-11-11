@@ -60,24 +60,16 @@ function ContextContent({ topic }: { topic: CommercialAiNativeTopic }) {
         <h2 className="mt-1 text-lg font-semibold tracking-tight text-[#173f35]">{copy.heading}</h2>
         <p className="mt-2 text-sm leading-6 text-[#51675b]">{copy.description}</p>
       </div>
-      <div className="rounded-xl border border-[#dce8e0] bg-[#f8faf8] p-3">
-        <p className="text-xs font-semibold text-[#264d3b]">Nessuna azione automatica</p>
-        <p className="mt-1 text-xs leading-5 text-[#66786d]">
-          Le ricerche non confermano stock o disponibilità. Nessuna Distinta o RFQ viene creata senza una tua azione esplicita.
-        </p>
-      </div>
+
       <Link href={copy.link}
         className="flex min-h-11 items-center justify-between rounded-xl border border-[#c9dbcf] bg-white px-3 py-2.5 text-sm font-semibold text-[#175640] hover:bg-[#eff7f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
         {copy.label} <span aria-hidden="true">↗</span>
       </Link>
-      <div className="border-t border-[#e2ebe5] pt-4">
-        <p className="text-xs font-semibold text-[#315641]">Attività commerciali</p>
-        <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-          <Link href={appRoutes.commercial.home + "?experience=classic"}
-            className="rounded-lg border border-[#dce8e0] px-3 py-3 text-center font-medium text-[#315641] hover:bg-[#f3f8f4]">Scrivania</Link>
-          <Link href={appRoutes.rfqHub.home}
-            className="rounded-lg border border-[#dce8e0] px-3 py-3 text-center font-medium text-[#315641] hover:bg-[#f3f8f4]">Centro RFQ</Link>
-        </div>
+      <div className="grid grid-cols-2 gap-2 border-t border-[#e2ebe5] pt-3">
+        <Link href={appRoutes.rfqHub.home}
+          className="rounded-lg border border-[#dce8e0] px-3 py-3 text-center text-xs font-medium text-[#315641] hover:bg-[#f3f8f4]">Centro RFQ</Link>
+        <Link href={appRoutes.commercial.home + "?experience=classic"} data-testid="commercial-ai-native-legacy"
+          className="rounded-lg border border-[#dce8e0] px-3 py-3 text-center text-xs font-medium text-[#315641] hover:bg-[#f3f8f4]">Gestione completa</Link>
       </div>
     </div>
   );
@@ -177,6 +169,15 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
     composerRef.current?.focus();
   }
 
+  function newChat() {
+    if (busy) return;
+    setTurns([]);
+    setActiveTopic("general");
+    setDraft("");
+    setHandoffError("");
+    composerRef.current?.focus();
+  }
+
   function keyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
     event.preventDefault();
@@ -189,56 +190,68 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
 
   return (
     <section data-testid="commercial-ai-native-shell" aria-label="Smart Steel Intelligence"
-      className="flex h-[calc(100dvh-14rem)] min-h-[360px] min-w-0 scroll-mt-20 flex-col overflow-hidden rounded-2xl border border-[#d5e3da] bg-white shadow-[0_14px_55px_-38px_rgba(13,63,41,0.3)] lg:h-[min(80dvh,760px)] lg:min-h-[500px] lg:rounded-[24px]">
-      <header className="flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#e2eae4] bg-[#fbfdfb] px-4 py-3 sm:px-6">
+      className="flex h-[calc(100dvh-14rem)] min-h-[360px] min-w-0 scroll-mt-20 flex-col overflow-hidden rounded-2xl border border-[#d5e3da] bg-white shadow-[0_10px_40px_-34px_rgba(13,63,41,0.2)] lg:h-[min(82dvh,780px)] lg:min-h-[500px] lg:rounded-2xl">
+      <header className="flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-[#e2eae4] bg-white px-3 py-2.5 sm:px-6 sm:py-3">
         <div className="flex min-w-0 items-center gap-3">
-          <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] text-xl text-white">✦</span>
+          <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#175640] text-lg text-white">✦</span>
           <div className="min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#4c7961]">Commerciale</p>
-            <h1 className="truncate text-base font-semibold tracking-tight text-[#163b2c] sm:text-xl">Smart Steel Intelligence</h1>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#61816e]">Assistente industriale</p>
+            <h1 className="truncate text-sm font-semibold tracking-tight text-[#163b2c] sm:text-lg">Smart Steel Intelligence</h1>
           </div>
         </div>
-        <nav className="flex items-center gap-2" aria-label="Accesso alle attività commerciali">
+        <nav className="flex shrink-0 items-center gap-1 sm:gap-2" aria-label="Accesso alle attività commerciali">
+          {turns.length > 0 ? (
+            <button type="button" onClick={newChat} disabled={busy}
+              data-testid="commercial-ai-native-new-chat"
+              className="inline-flex min-h-10 items-center rounded-lg px-2.5 text-xs font-semibold text-[#175640] hover:bg-[#eff7f1] disabled:opacity-50">
+              <span aria-hidden="true">+</span><span className="hidden sm:inline"> Nuova chat</span><span className="sr-only sm:hidden">Nuova chat</span>
+            </button>
+          ) : null}
           <button type="button" ref={previewTrigger} onClick={openPreview}
             data-testid="commercial-ai-native-mobile-context"
-            className="inline-flex min-h-11 items-center rounded-xl border border-[#d1e2d6] px-3 text-xs font-semibold text-[#175640] lg:hidden">
-            Contesto
+            aria-label="Strumenti"
+            className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-[#d1e2d6] px-2.5 text-xs font-semibold text-[#175640] lg:hidden">
+            <span className="text-xl leading-none sm:hidden" aria-hidden="true">⋯</span>
+            <span className="hidden sm:inline">Strumenti</span>
           </button>
-          <Link href={appRoutes.commercial.home + "?experience=classic"} data-testid="commercial-ai-native-legacy"
-            className="inline-flex min-h-11 items-center rounded-xl border border-[#d1e2d6] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#eff7f1]">
-            Attività <span aria-hidden="true" className="ml-1">↗</span>
-          </Link>
+          <details data-testid="commercial-ai-native-desktop-context" className="group relative hidden lg:block">
+            <summary className="inline-flex min-h-10 cursor-pointer list-none items-center gap-1 rounded-lg border border-[#d1e2d6] px-3 text-xs font-semibold text-[#175640] hover:bg-[#eff7f1] [&::-webkit-details-marker]:hidden">
+              Strumenti <span aria-hidden="true" className="text-[10px]">▾</span>
+            </summary>
+            <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-[300px] rounded-xl border border-[#d1e2d6] bg-white p-4 shadow-lg">
+              <ContextContent topic={activeTopic}/>
+            </div>
+          </details>
         </nav>
       </header>
 
-      <div className="grid min-h-0 min-w-0 flex-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(300px,1fr)]">
-        <div className="flex min-h-0 min-w-0 flex-col bg-white">
+      <div className="flex min-h-0 min-w-0 flex-1">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
           <div role="log" aria-label="Messaggi della conversazione" aria-live="polite" aria-relevant="additions"
             data-testid="commercial-ai-native-thread"
-            className="min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-4 sm:px-8 sm:py-9">
+            className="min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 py-4 sm:px-8 sm:py-8">
             {turns.length === 0 ? (
-              <div className="mx-auto flex max-w-[680px] flex-col items-start pt-3 sm:pt-9" data-testid="commercial-ai-native-intro">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eaf4ee] text-2xl text-[#175640]" aria-hidden="true">✦</span>
-                <h2 className="mt-6 text-[clamp(1.5rem,3vw,2.25rem)] font-semibold leading-tight tracking-[-0.035em] text-[#173f35]">
-                  Di cosa hai bisogno oggi?
+              <div className="mx-auto flex w-full max-w-[760px] flex-col items-start pt-2 sm:pt-10 lg:pt-[7vh]" data-testid="commercial-ai-native-intro">
+                <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[#387452]">Smart Steel AI</span>
+                <h2 className="mt-3 text-[clamp(1.8rem,3.4vw,2.6rem)] font-semibold leading-tight tracking-[-0.04em] text-[#173f35]">
+                  Di cosa hai bisogno?
                 </h2>
-                <p className="mt-3 max-w-lg text-sm leading-6 text-[#506c5d]">
-                  Scrivi una domanda sull’acciaio, cerca un produttore oppure prepara una Distinta. Gli strumenti commerciali sono a portata di conversazione.
+                <p className="mt-3 max-w-xl text-sm leading-6 text-[#526a5c]">
+                  Cerca aziende, chiarisci una norma o prepara una Distinta.
                 </p>
-                <div className="mt-7 grid w-full gap-2 sm:grid-cols-3">
+                <div className="mt-4 flex w-full flex-wrap gap-2 sm:mt-7">
                   {shortcuts.map((shortcut, index) => (
                     <button type="button" key={shortcut} onClick={() => chooseShortcut(shortcut)}
-                      className="min-h-20 rounded-xl border border-[#d8e6dd] bg-[#fbfdfb] px-3 py-3 text-left text-xs font-medium leading-5 text-[#2c5640] hover:border-[#8bb7a0] hover:bg-[#f0f8f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-                      <span className="mb-1 block text-[10px] font-bold uppercase tracking-wide text-[#6a8877]">
-                        {index === 0 ? "Produttori" : index === 1 ? "Distinta" : "Norme"}
-                      </span>
-                      {shortcut}
+                      aria-label={shortcut}
+                      className="inline-flex min-h-10 items-center rounded-full border border-[#d5e4da] bg-[#fafcfb] px-3.5 py-2 text-left text-xs font-semibold leading-5 text-[#315a43] hover:border-[#8bb7a0] hover:bg-[#f0f8f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                      <span aria-hidden="true" className="mr-2 text-[#59866d]">{index === 0 ? "⌕" : index === 1 ? "▤" : "◎"}</span>
+                      {index === 0 ? "Cerca produttori" : index === 1 ? "Prepara distinta" : "Chiedi una norma"}
                     </button>
                   ))}
                 </div>
               </div>
             ) : (
-              <div className="mx-auto max-w-[740px] space-y-6">
+              <div className="mx-auto max-w-[800px] space-y-6">
                 {turns.map((turn) => (
                   <div key={turn.id} className="space-y-4" data-testid="commercial-ai-native-turn">
                     <div className="flex justify-end">
@@ -248,7 +261,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
                     </div>
                     <div className="flex min-w-0 items-start gap-3">
                       <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-white" aria-hidden="true">✦</span>
-                      <div className="min-w-0 flex-1 rounded-2xl border border-[#e1eae4] bg-[#fbfdfb] p-3 sm:p-4">
+                      <div className="min-w-0 flex-1 rounded-xl bg-white px-1 py-1 sm:px-3 sm:py-2">
                         {turn.state === "pending" ? (
                           <p role="status" className="text-sm leading-6 text-[#426852]">Sto interpretando la richiesta…</p>
                         ) : (
@@ -292,12 +305,12 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
           <div className="relative z-10 shrink-0 border-t border-[#e4ebe6] bg-white px-3 py-2 sm:px-6 sm:py-3 lg:sticky lg:bottom-0">
             <form onSubmit={submit} data-testid="commercial-ai-native-form"
               aria-label="Scrivi una richiesta per Smart Steel Intelligence"
-              className="mx-auto max-w-[740px] rounded-2xl border border-[#bdd5c6] bg-white p-2 shadow-[0_5px_20px_-14px_rgba(16,65,43,0.25)] focus-within:border-[#175640]">
+              className="mx-auto max-w-[800px] rounded-2xl border border-[#bdcfc2] bg-white p-2 shadow-[0_10px_25px_-18px_rgba(16,65,43,0.2)] focus-within:border-[#175640]">
               <label htmlFor="commercial-ai-native-input" className="sr-only">Domanda o richiesta commerciale</label>
               <textarea id="commercial-ai-native-input" ref={composerRef} rows={2} maxLength={MAX_CHARS}
                 value={draft} onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={keyDown} disabled={!ready || busy}
-                placeholder="Chiedi qualcosa sui tubi, sui produttori o prepara una Distinta…"
+                placeholder="Scrivi qui la tua domanda o richiesta…"
                 className="min-h-14 max-h-40 w-full min-w-0 resize-y rounded-lg bg-white px-2 py-1.5 text-sm leading-6 text-[#183c2c] outline-none placeholder:text-[#7b9184] disabled:opacity-60" />
               <div className="flex items-center justify-between gap-3 px-1">
                 <p className="text-[11px] leading-4 text-[#698073]">Invio per continuare · Maiusc+Invio per andare a capo</p>
@@ -309,16 +322,13 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
               </div>
             </form>
             {handoffError ? <p role="alert" className="mx-auto mt-2 max-w-[740px] text-xs text-[#974621]">{handoffError} <Link className="underline" href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}>Apri Distinta</Link></p> : null}
-            <p className="sr-only lg:not-sr-only lg:mx-auto lg:mt-1 lg:max-w-[740px] lg:text-center lg:text-[10px] lg:leading-4 lg:text-[#71857a]">
-              Anteprima AI: risposte orientative senza fonti verificate; cronologia solo in questa scheda, nessuna memoria persistente o invio automatico.
+            <p className="mx-auto mt-1 max-w-[800px] text-center text-[10px] leading-4 text-[#829187]">
+              <span className="sm:hidden">Risposte da verificare · Nessun invio automatico.</span>
+              <span className="hidden sm:inline">Le risposte possono richiedere verifica; cronologia solo in questa scheda, nessuna memoria persistente o invio automatico.</span>
             </p>
           </div>
         </div>
 
-        <aside data-testid="commercial-ai-native-desktop-context" aria-label="Pannello contestuale"
-          className="hidden min-w-0 border-l border-[#e1ebe4] bg-[#f9fcfa] px-5 py-7 lg:block">
-          <ContextContent topic={activeTopic}/>
-        </aside>
       </div>
 
       <dialog ref={previewDialog} onClose={() => previewTrigger.current?.focus()}
@@ -326,7 +336,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
         data-testid="commercial-ai-native-mobile-drawer"
         className="fixed inset-x-0 bottom-0 top-auto m-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t-2xl border border-[#cfdfd3] bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl backdrop:bg-[#07251b]/50 lg:hidden">
         <div className="mb-4 flex items-center justify-between gap-2">
-          <h2 id="commercial-ai-native-drawer-title" className="text-base font-semibold text-[#173f35]">Pannello contestuale</h2>
+          <h2 id="commercial-ai-native-drawer-title" className="text-base font-semibold text-[#173f35]">Strumenti</h2>
           <button type="button" onClick={() => previewDialog.current?.close()} aria-label="Chiudi pannello"
             className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#d4e2d8] text-lg text-[#175640]">×</button>
         </div>
