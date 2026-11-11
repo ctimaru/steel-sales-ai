@@ -5,6 +5,7 @@ import {readFileSync} from "node:fs";
 const read=path=>readFileSync(new URL(path,import.meta.url),"utf8");
 const ui=read("../components/network-compact-experience.tsx");
 const profile=read("../app/(italian)/(workspace)/network/[id]/page.tsx");
+const overview=read("../components/network-profile-overview.tsx");
 
 test("NET-CONN3 list: non-active companies show a disabled Connetti, never a link",()=>{
   assert.match(ui,/data-testid="network-row-connect-disabled"/);
@@ -27,6 +28,7 @@ test("NET-CONN3 profile: disabled Connetti next to the active slot, hidden on yo
   assert.match(profile,/!inquiryEligible && canInteract && inquiryReason !== "self_inquiry"/);
   const active=profile.indexOf('href={"/network/" + profile.company.id + "/connect"}');
   const disabled=profile.indexOf('data-testid="network-profile-connect-disabled"');
-  const website=profile.indexOf("Visita il sito");
-  assert.ok(active>0&&disabled>active&&website>disabled,"disabled button sits where the active one would");
+  const note=profile.indexOf("Connessione nella piattaforma non disponibile");
+  assert.ok(active>0&&disabled>active&&note>disabled,"unavailable state replaces the inactive connection action");
+  assert.match(overview,/Visita il sito/);
 });
