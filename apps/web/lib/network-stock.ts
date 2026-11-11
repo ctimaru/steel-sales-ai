@@ -61,7 +61,7 @@ export async function getPublishedNetworkInventory(
   });
   // During a protected release, the schema can safely lag behind the frontend.
   // Never replace missing published records with inferred stock from other modules.
-  if (error?.code === "PGRST202" || error?.code === "42883") return [];
+  if (error?.code === "PGRST202" || error?.code === "42883" || error?.code === "42501") return [];
   if (error) throw new Error("published_network_inventory_unavailable");
   return normalizeRows(data).filter((row) => row.company_id === companyId);
 }
