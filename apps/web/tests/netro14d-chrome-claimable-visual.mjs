@@ -309,7 +309,16 @@ try {
       assert.equal(await compactCard.getAttribute("data-profile-density"),"compact");
       assert.equal(await sparseHero.getByRole("heading",{name:"Cosa fa e cosa offre"}).count(),0,
         "Sparse company must not show an empty product section");
-      assert.equal(await sparseHero.getByRole("link",{name:/Visita il sito aziendale/}).count(),1);
+      const websiteCta=sparseHero.getByRole("link",{name:/Visita il sito aziendale/});
+      assert.equal(await websiteCta.count(),1);
+      const websiteColor=await websiteCta.evaluate(node=>({
+        color:getComputedStyle(node).color,
+        textFill:getComputedStyle(node).webkitTextFillColor,
+      }));
+      assert.equal(websiteColor.color,"rgb(255, 255, 255)",
+        "Primary website CTA must have white text over green at "+width);
+      assert.equal(websiteColor.textFill,"rgb(255, 255, 255)",
+        "Primary website CTA must not inherit dark WebKit text fill at "+width);
       assert.match(await sparseHero.innerText(),/Prodotti e specializzazioni non ancora pubblicati/);
       assert.doesNotMatch(await sparseHero.innerText(),/Connessione nella piattaforma non disponibile/);
       const compactRect=await compactCard.boundingBox();
