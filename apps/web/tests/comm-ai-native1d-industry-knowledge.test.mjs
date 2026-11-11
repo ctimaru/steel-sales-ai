@@ -89,6 +89,21 @@ test("D only calls documented a supported product AND matching standard/grade/OD
   ]).match,"potential","Missing grade-standard link is not complete evidence");
 });
 
+test("D never combines a grade from one product with dimensions from another", () => {
+  const complete = req("Chi produce tubo S355J2H Ø608x10 EN 10219?");
+  const standardOnly = {
+    ...scope, facility_id:"00000000-0000-4000-8000-000000000201",
+    grades:[], dimensions:[],
+  };
+  const dimensionsOnly = {
+    ...scope, facility_id:"00000000-0000-4000-8000-000000000202",
+    standards:[], grades:scope.grades, dimensions:scope.dimensions,
+  };
+  const match = rankIndustryCompany(producer, complete, [standardOnly, dimensionsOnly]);
+  assert.ok(match, "Candidate may remain visible as potential");
+  assert.equal(match.match, "potential", "No cross-product assembly of technical evidence");
+});
+
 test("D partial match remains potential; Ø608 with missing norm/thickness is never confirmed", () => {
   const missing=req("Chi produce tubo S355 Ø608?");
   assert.equal(rankIndustryCompany(producer,missing,[scope]).match,"potential");
