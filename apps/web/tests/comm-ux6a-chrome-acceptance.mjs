@@ -44,7 +44,12 @@ async function viewportCheck(page, { width, height, role }) {
   const tools = page.getByTestId("commercial-primary-quick-actions");
   const attention = page.getByTestId("commercial-compact-actions");
   const worklist = page.getByTestId("comm-cine2-deal-cockpit");
-  await hero.getByRole("heading", { level: 1 }).waitFor({ state: "visible", timeout: 60000 });
+  // COMM-AI-NATIVE1.B regression alignment: the legacy test ID is now
+  // attached to the h1 itself, not a wrapping section. A scoped getByRole
+  // searches its descendants and can never find the h1 inside itself.
+  await hero.waitFor({ state: "visible", timeout: 60000 });
+  assert.equal(await hero.evaluate(element => element.tagName), "H1",
+    "Legacy Commerciale heading remains accessible as a native h1");
   await tools.waitFor({ state: "visible" });
   await worklist.waitFor({ state: "attached" });
   const [h, c, t, a, w] = await Promise.all(
