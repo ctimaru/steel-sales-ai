@@ -1,0 +1,73 @@
+name: "NET-IT-AUTO2 — Hourly first-party identity review"
+
+# Runs the existing NET-IT-AUTO2 reviewer without a dedicated server: it visits
+# company-owned websites (robots/SSRF/size protected crawler) and records
+# PRIVATE machine evidence. It never publishes, approves or edits a candidate.
+# Publication stays behind the Platform Owner's NET-IT-AUTO3 policy.
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Company websites to review in this run (1–50)"
+        required: true
+        default: "50"
+        type: choice
+        options: ["5", "25", "50"]
+      persist:
+        description: "Record private evidence (unchecked = read-only dry run)"
+        required: true
+        default: true
+        type: boolean
+  schedule:
+    # Off the hour to avoid the busiest GitHub scheduling slot.
+    - cron: "17 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-it-auto2-reviewer
+  cancel-in-progress: false
+
+jobs:
+  review:
+    name: "Review up to 50 official company websites"
+    # Forks, pull requests and feature branches can never reach the database.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bounded worker dependencies
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Check secure runtime configuration
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Missing worker-only Supabase secrets; nothing reviewed"
+            exit 1
+          fi
+      - name: Review official websites and record private evidence
+        working-directory: services/worker
+        env:
+          LIMIT: ${{ inputs.limit || '50' }}
+          PERSIST: ${{ github.event_name == 'schedule' || inputs.persist }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          case "$LIMIT" in 5|25|50) ;; *) echo "::error::Invalid limit"; exit 1 ;; esac
+          if [ "$PERSIST" = "true" ]; then
+            python -m app.net_it_auto2_reviewer --limit "$LIMIT" --persist
+          else
+            python -m app.net_it_auto2_reviewer --limit "$LIMIT"
+          fi
