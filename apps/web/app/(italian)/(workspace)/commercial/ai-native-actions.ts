@@ -2,14 +2,16 @@
 
 import { randomUUID } from "node:crypto";
 import { canWriteWorkspace } from "@/lib/access-policy";
-import { routeCommercialAiIntent, type CommercialAiIntent } from "@/lib/commercial-ai-native-intent";
+import { routeCommercialAiIntent, type CommercialAiIntent, type CommercialAiIntentResult } from "@/lib/commercial-ai-native-intent";
+import { searchCommercialIndustryKnowledge } from "@/lib/commercial-industry-knowledge-server";
+import type { IndustryLookupResult } from "@/lib/commercial-industry-knowledge";
 import { readRfqAiGatewayOutput, rfqAiGatewayHttpFailure } from "@/lib/rfq-ai-gateway-protocol";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 /**
  * COMM-AI-NATIVE1.C: authenticated conversation, read-only by construction.
  * No arbitrary tool execution, SQL, tenant data, RFQ writes or dispatch.
- * Network evidence retrieval belongs to D; the canonical Distinta/RFQ
+ * D adds entitlement-guarded, published Network retrieval. Distinta/RFQ
  * workflows remain explicit behind the existing confirmed handoff.
  */
 export type CommercialAiNativeHistoryTurn = { role: "user" | "assistant"; content: string };
@@ -19,8 +21,9 @@ export type CommercialAiNativeActionResult =
       intent: CommercialAiIntent;
       answer: string;
       followUp: string | null;
-      evidenceStatus: "not_connected" | "unverified" | "workflow";
+      evidenceStatus: "not_connected" | "unverified" | "workflow" | "network";
       canPrepareDistinta: boolean;
+      industry?: IndustryLookupResult;
     }
   | { ok: false; error: string };
 
@@ -52,16 +55,6 @@ function validatedHistory(raw: unknown): CommercialAiNativeHistoryTurn[] {
 }
 
 function workflowAnswer(intent: CommercialAiIntent, canWrite: boolean, missing: string[]): CommercialAiNativeActionResult {
-  if (intent === "industry_search") {
-    return {
-      ok: true, intent,
-      answer: missing.length
-        ? "Per individuare produttori adatti mi servono ancora: " + missing.join(" e ") + ". La ricerca documentata delle capacità produttive sarà collegata al Network nella fase successiva; non posso ancora confermare chi fabbrica questa misura."
-        : "Ho riconosciuto una ricerca di operatori industriali. Il collegamento alle capacità documentate del Network non è ancora attivo: non posso indicare produttori o disponibilità senza prove verificabili.",
-      followUp: missing.length ? "Puoi indicarmi " + missing.join(" e ") + "?" : null,
-      evidenceStatus: "not_connected", canPrepareDistinta: false,
-    };
-  }
   if (intent === "distinta_edit" || intent === "rfq_prepare") {
     return {
       ok: true, intent,
@@ -76,6 +69,40 @@ function workflowAnswer(intent: CommercialAiIntent, canWrite: boolean, missing: 
   return { ok: true, intent: "unknown", answer: "Puoi specificare se vuoi cercare aziende, capire una norma o preparare una Distinta?", followUp: null, evidenceStatus: "not_connected", canPrepareDistinta: false };
 }
 
+async function industryAnswer(
+  question: string,
+  routed: CommercialAiIntentResult,
+  organizationId: string,
+): Promise<CommercialAiNativeActionResult> {
+  try {
+    const lookup = await searchCommercialIndustryKnowledge(
+      question, routed.entities, routed.missing, organizationId
+    );
+    const matches = lookup.companies.filter(company => company.match === "documented").length;
+    const answer = lookup.restricted
+      ? "La ricerca industriale approfondita richiede l’accesso Network del tuo spazio di lavoro. Non ho consultato schede o dati tecnici senza autorizzazione."
+      : lookup.companies.length
+        ? "Ho trovato " + lookup.companies.length + " operatori pertinenti nelle schede Network esaminate. " +
+          (matches ? matches + " presentano corrispondenze tecniche registrate nel Network; " : "Nessuna corrispondenza completa per la misura è documentata nelle schede esaminate; ") +
+          "gli altri sono candidati da verificare. La classificazione aziendale e gli intervalli dichiarati non confermano capacità effettiva, prezzi o disponibilità."
+        : "Non ho trovato operatori pertinenti nelle schede pubblicate che ho potuto esaminare. Questo non dimostra che non esistano produttori della misura richiesta.";
+    return {
+      ok: true, intent: "industry_search", answer,
+      followUp: routed.missing.length ? "Per affinare la verifica, indica " + routed.missing.join(" e ") + "." : null,
+      evidenceStatus: "network",
+      industry: lookup, canPrepareDistinta: false,
+    };
+  } catch {
+    // Never claim a successful search or reveal tenant identifiers on network error.
+    return {
+      ok: true, intent: "industry_search",
+      answer: "Non sono riuscito a consultare il Network in questo momento. Nessuna azienda, misura o disponibilità è stata confermata.",
+      followUp: routed.missing.length ? "Servono anche " + routed.missing.join(" e ") + "." : null,
+      evidenceStatus: "not_connected", canPrepareDistinta: false,
+    };
+  }
+}
+
 export async function commercialAiNativeResponse(
   input: string,
   history: CommercialAiNativeHistoryTurn[] = [],
@@ -88,7 +115,12 @@ export async function commercialAiNativeResponse(
   const question = input.trim();
   const routed = routeCommercialAiIntent(question);
   const canWrite = canWriteWorkspace(context.role);
-  if (routed.intent === "industry_search" || routed.intent === "distinta_edit" || routed.intent === "rfq_prepare") {
+  if (routed.intent === "industry_search") {
+    if (!acquireSlot(context.organizationId + ":" + context.userId))
+      return { ok: false, error: "Troppe ricerche ravvicinate. Riprova più tardi." };
+    return industryAnswer(question, routed, context.organizationId);
+  }
+  if (routed.intent === "distinta_edit" || routed.intent === "rfq_prepare") {
     return workflowAnswer(routed.intent, canWrite, routed.missing);
   }
 
@@ -163,7 +195,7 @@ export async function commercialAiNativeResponse(
        modelIntent === "distinta_edit" || modelIntent === "rfq_prepare" || modelIntent === "unknown")
       ? modelIntent : routed.intent;
     // LLM classification can only open a safe, read-only pathway.
-    if (intent === "industry_search") return workflowAnswer(intent, canWrite, routed.missing);
+    if (intent === "industry_search") return industryAnswer(question, routed, context.organizationId);
     if (intent === "distinta_edit" || intent === "rfq_prepare") return workflowAnswer(intent, canWrite, []);
     if (typeof output.answer !== "string" || output.answer.trim().length < 2 || output.answer.length > 2400)
       throw new Error("model_answer_invalid");
