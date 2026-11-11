@@ -70,7 +70,11 @@ BEGIN
      AND NOT EXISTS (
        SELECT 1 FROM private.net_it_auto2_evidence e
        WHERE e.candidate_id=c.id
-         AND e.reviewed_at>now()-interval '7 days')
+         -- AUTO3 accepts evidence for 3 days only: refresh supported
+         -- identities after 2 days so they never fall into a dead window;
+         -- exceptions are retried weekly.
+         AND e.reviewed_at>now()-CASE WHEN e.verdict='identity_supported'
+               THEN interval '2 days' ELSE interval '7 days' END)
    ORDER BY priority,c.created_at,c.id LIMIT p_max
   ) eligible;
   RETURN jsonb_build_object('contract','net-it-auto2-queue-v1',

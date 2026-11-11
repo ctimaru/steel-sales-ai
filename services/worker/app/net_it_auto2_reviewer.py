@@ -59,6 +59,14 @@ def _normalize_full_legal_name(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
 
 
+def _is_capital_company(name: str) -> bool:
+    """S.r.l./S.r.l.s./S.p.A. as a whole token. Partnerships (S.n.c./S.a.s.)
+    often embed natural persons' names and are left to human review; the same
+    rule is enforced again by the AUTO3 release query and the PA1.5 guard."""
+    tokens = _normalize_full_legal_name(name).split()
+    return any(token in ("srl", "spa", "srls") for token in tokens)
+
+
 def _name_evidenced(name: str, page_texts: list[str]) -> bool:
     normalized = _normalize_full_legal_name(name)
     # A corporate suffix on the candidate must ALSO appear on the first-party
@@ -119,6 +127,8 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     matched = _name_evidenced(str(candidate.get("company_name") or ""), texts)
     if not matched:
         reasons.append("corporate_name_not_evidenced")
+    if not _is_capital_company(str(candidate.get("company_name") or "")):
+        reasons.append("legal_form_requires_human_review")
     if "legal_identity_not_verified" in candidate.get("quality_flags", []):
         reasons.append("existing_legal_identity_hold")
     if "historical_sole_trader_vat_context" in candidate.get("quality_flags", []):

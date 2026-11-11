@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from app.net_it_auto2_reviewer import (
-    _name_evidenced,_validate_official_website,inspect_candidate,review_batch,
+    _is_capital_company,_name_evidenced,_validate_official_website,inspect_candidate,review_batch,
     MAX_BATCH,VERSION,
 )
 
@@ -40,6 +40,14 @@ class FirstPartyReviewTest(unittest.TestCase):
                          ["Carpenteria Test costruzioni e lavorazioni industriali"]))
         self.assertTrue(_name_evidenced("Carpenteria Test S.r.l.",
                          ["Carpenteria Test SRL costruzioni e lavorazioni industriali"]))
+
+    def test_only_capital_companies_as_whole_token(self):
+        for name in ("Carpenteria Test S.r.l.","Tubi Nord SPA","Officina Uno s.r.l.s.",
+                     "Acciai Due S. p. A."):
+            self.assertTrue(_is_capital_company(name),name)
+        for name in ("Officine Gasparini","Carpenteria Bianchi Simone & C. S.n.c.",
+                     "Valle S.a.s.","Spada Lavorazioni","Officina Casrl"):
+            self.assertFalse(_is_capital_company(name),name)
 
     def test_url_domain_is_canonical_and_https(self):
         self.assertEqual(_validate_official_website(row())[1],"carpenteriatest.it")
@@ -82,6 +90,14 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
             outcome=await inspect_candidate(None,row())
         self.assertEqual(outcome["p_verdict"],"blocked")
         self.assertEqual(outcome["p_rights_state"],"restricts_reuse")
+
+    async def test_partnership_with_person_name_stays_human_exception(self):
+        name="Carpenteria Bianchi Simone & C. S.n.c."
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                  new=AsyncMock(return_value=page(f"{name} lavorazioni"))):
+            outcome=await inspect_candidate(None,row(name=name))
+        self.assertEqual(outcome["p_verdict"],"needs_human")
+        self.assertIn("legal_form_requires_human_review",outcome["p_reasons"])
 
     async def test_robot_denial_fails_closed(self):
         with patch("app.net_it_auto2_reviewer._fetch_page",new=AsyncMock(return_value=None)):

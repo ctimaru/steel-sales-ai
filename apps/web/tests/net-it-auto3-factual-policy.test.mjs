@@ -45,3 +45,19 @@ test("only the owner can grant the second policy; action requires separate attes
  assert.match(actions,/net_it_auto3_set_policy/);
  assert.match(actions,/p_valid_days: 30/);
 });
+test("legal form gate: whole-token S.r.l./S.p.A. only, identical in query and guard",()=>{
+ const gate=[...sql.matchAll(/legal_name (?:!~\*|~\*) '([^']+)'/g)].map(m=>m[1]);
+ assert.equal(gate.length,2);
+ assert.equal(gate[0],gate[1]);
+ assert.doesNotMatch(gate[0],/n\[\.\]/);
+ const js=new RegExp(gate[0].replaceAll("[[:alnum:]]","[a-z0-9]").replaceAll("[^[:alnum:]]","[^a-z0-9]")
+   .replaceAll("[[:space:]]","\\s"),"i");
+ for(const ok of ["Carpenteria Test S.r.l.","Tubi Nord SPA","Officina Uno S.r.l.s.","Acciai Due S. p. A."])
+  assert.match(ok,js,ok);
+ for(const ko of ["Officine Gasparini","Carpenteria Bianchi Simone & C. S.n.c.","Valle S.a.s.","Spada Lavorazioni"])
+  assert.doesNotMatch(ko,js,ko);
+});
+test("supported identities are re-verified before the 3-day evidence window closes",()=>{
+ const q=file("../../../supabase/migrations/20261110174000_net_it_auto2_first_party_review_queue.sql");
+ assert.match(q,/WHEN e\.verdict='identity_supported'\s+THEN interval '2 days' ELSE interval '7 days'/);
+});

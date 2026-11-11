@@ -151,6 +151,11 @@ REVOKE ALL ON FUNCTION public.net_it_auto3_status()
  FROM PUBLIC,anon,authenticated,service_role;
 GRANT EXECUTE ON FUNCTION public.net_it_auto3_status() TO authenticated;
 
+-- Legal form gate (release query AND PA1.5 guard use the same pattern):
+-- only capital companies S.r.l./S.r.l.s./S.p.A., matched as a whole token.
+-- Partnerships (S.n.c./S.a.s.) routinely carry natural persons' names in the
+-- legal name and stay in the human exception queue; an unanchored match would
+-- also accept surnames such as "Gasparini" as if they were S.p.A.
 CREATE OR REPLACE FUNCTION private.net_it_auto3_release(
  p_max integer DEFAULT 50,p_dry_run boolean DEFAULT true
 ) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO ''
@@ -229,7 +234,7 @@ BEGIN
     AND c.match_company_id IS NULL AND c.promoted_company_id IS NULL
     AND c.match_signals='[]'::jsonb
     AND lower(c.legal_name) NOT LIKE '% di %'
-    AND c.legal_name ~* '(s[.]?[[:space:]]*r[.]?[[:space:]]*l[.]?|s[.]?[[:space:]]*p[.]?[[:space:]]*a[.]?|s[.]?[[:space:]]*n[.]?[[:space:]]*c[.]?)'
+    AND c.legal_name ~* '(^|[^[:alnum:]])(s[.]?[[:space:]]*r[.]?[[:space:]]*l[.]?([[:space:]]*s[.]?)?|s[.]?[[:space:]]*p[.]?[[:space:]]*a[.]?)([^[:alnum:]]|$)'
     AND NOT EXISTS (
       SELECT 1 FROM public.network_companies n
       WHERE lower(btrim(n.website_domain))=lower(btrim(c.canonical_domain))
@@ -424,7 +429,7 @@ BEGIN
       OR NOT (NEW.quality_flags
         <@ ARRAY['product_scope_not_verified','province_area_to_verify']::text[])
       OR lower(NEW.legal_name) LIKE '% di %'
-      OR NEW.legal_name !~* '(s[.]?[[:space:]]*r[.]?[[:space:]]*l[.]?|s[.]?[[:space:]]*p[.]?[[:space:]]*a[.]?|s[.]?[[:space:]]*n[.]?[[:space:]]*c[.]?)'
+      OR NEW.legal_name !~* '(^|[^[:alnum:]])(s[.]?[[:space:]]*r[.]?[[:space:]]*l[.]?([[:space:]]*s[.]?)?|s[.]?[[:space:]]*p[.]?[[:space:]]*a[.]?)([^[:alnum:]]|$)'
     THEN
       RAISE EXCEPTION 'PA1.5 governance gate blocks publication/enrichment'
         USING ERRCODE='42501',
