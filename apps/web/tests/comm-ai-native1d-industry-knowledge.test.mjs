@@ -65,6 +65,14 @@ test("D only calls documented a supported product AND matching standard/grade/OD
   assert.equal(matched.roleLabel,"Produttore censito");
   assert.equal(matched.reasons[0].provenance,"public_web");
   assert.equal(rankIndustryCompany(producer,complete,[
+    {
+      ...scope,
+      standards:scope.standards.map(c=>({...c,verification_status:"unverified"})),
+      grades:scope.grades.map(c=>({...c,verification_status:"unverified"})),
+      dimensions:scope.dimensions.map(c=>({...c,verification_status:"unverified"})),
+    },
+  ]).match,"potential","Unverified technical claims must never be labeled documented");
+  assert.equal(rankIndustryCompany(producer,complete,[
     {...scope,dimensions:[claim({dimension_type:"outer_diameter",min_mm:21.3,max_mm:219.1})]},
   ]),null,"Explicitly out-of-range producer must not be suggested");
   assert.equal(rankIndustryCompany(producer,complete,[
