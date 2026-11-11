@@ -320,6 +320,18 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 20
         run: node tests/product-flow1-chrome-journey.mjs
+      - name: COMM-AI-NATIVE1.B — AI-first shell buyer/viewer, 1440/390/320
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/comm-ai-native1b-chrome-acceptance.mjs
+      - name: COMM-AI-NATIVE1.B — Retain synthetic shell-only screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comm-ai-native1b-synthetic-visual
+          path: ${{ runner.temp }}/comm-ai-native1b-visual/*.png
+          if-no-files-found: ignore
+          retention-days: 7
       - name: COMM-UX6.A — Authenticated first viewport 1440/390/320 and AI to private Distinta
         working-directory: apps/web
         timeout-minutes: 12
