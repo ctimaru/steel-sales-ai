@@ -36,14 +36,7 @@ const contextCopy: Record<CommercialAiNativeTopic, { heading: string; descriptio
   },
 };
 
-function ContextContent({
-  topic, canWrite, question, onStartDistinta,
-}: {
-  topic: CommercialAiNativeTopic;
-  canWrite: boolean;
-  question: string;
-  onStartDistinta: (text: string) => void;
-}) {
+function ContextContent({ topic }: { topic: CommercialAiNativeTopic }) {
   const copy = contextCopy[topic];
   return (
     <div className="space-y-4" data-testid="commercial-ai-native-context-content">
@@ -58,13 +51,6 @@ function ContextContent({
           Le ricerche non confermano stock o disponibilità. Nessuna Distinta o RFQ viene creata senza una tua azione esplicita.
         </p>
       </div>
-      {topic === "distinta" && canWrite && question ? (
-        <button type="button" onClick={() => onStartDistinta(question)}
-          data-testid="commercial-ai-native-context-distinta"
-          className="flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-          Analizza nella chat Distinta
-        </button>
-      ) : null}
       <Link href={copy.link}
         className="flex min-h-11 items-center justify-between rounded-xl border border-[#c9dbcf] bg-white px-3 py-2.5 text-sm font-semibold text-[#175640] hover:bg-[#eff7f1] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
         {copy.label} <span aria-hidden="true">↗</span>
@@ -101,7 +87,6 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
   const threadEnd = useRef<HTMLDivElement>(null);
 
   useEffect(() => setReady(true), []);
-  const latestQuestion = [...turns].reverse().find((turn) => turn.topic === "distinta")?.question || "";
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -143,8 +128,8 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
 
   return (
     <section data-testid="commercial-ai-native-shell" aria-label="Smart Steel Intelligence"
-      className="min-w-0 overflow-hidden rounded-2xl border border-[#d5e3da] bg-white shadow-[0_14px_55px_-38px_rgba(13,63,41,0.3)] lg:rounded-[24px]">
-      <header className="flex min-w-0 flex-wrap items-center justify-between gap-3 border-b border-[#e2eae4] bg-[#fbfdfb] px-4 py-3 sm:px-6">
+      className="flex h-[calc(100dvh-10rem)] min-h-[420px] min-w-0 scroll-mt-20 flex-col overflow-hidden rounded-2xl border border-[#d5e3da] bg-white shadow-[0_14px_55px_-38px_rgba(13,63,41,0.3)] lg:h-auto lg:min-h-0 lg:rounded-[24px]">
+      <header className="flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#e2eae4] bg-[#fbfdfb] px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] text-xl text-white">✦</span>
           <div className="min-w-0">
@@ -165,11 +150,11 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
         </nav>
       </header>
 
-      <div className="grid min-w-0 lg:grid-cols-[minmax(0,1.7fr)_minmax(300px,1fr)]">
-        <div className="flex min-h-[min(75dvh,740px)] min-w-0 flex-col bg-white">
+      <div className="grid min-h-0 min-w-0 flex-1 lg:flex-none lg:grid-cols-[minmax(0,1.7fr)_minmax(300px,1fr)]">
+        <div className="flex min-h-0 min-w-0 flex-col bg-white lg:min-h-[min(75dvh,740px)]">
           <div role="log" aria-label="Messaggi della conversazione" aria-live="polite" aria-relevant="additions"
             data-testid="commercial-ai-native-thread"
-            className="min-w-0 flex-1 space-y-5 overflow-y-auto px-4 py-7 sm:px-8 sm:py-9">
+            className="min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-4 sm:px-8 sm:py-9">
             {turns.length === 0 ? (
               <div className="mx-auto flex max-w-[680px] flex-col items-start pt-3 sm:pt-9" data-testid="commercial-ai-native-intro">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eaf4ee] text-2xl text-[#175640]" aria-hidden="true">✦</span>
@@ -236,7 +221,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
             )}
           </div>
 
-          <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 border-t border-[#e4ebe6] bg-white px-3 py-3 sm:px-6 md:bottom-0">
+          <div className="relative z-10 shrink-0 border-t border-[#e4ebe6] bg-white px-3 py-2 sm:px-6 sm:py-3 lg:sticky lg:bottom-0">
             <form onSubmit={submit} data-testid="commercial-ai-native-form"
               aria-label="Scrivi una richiesta per Smart Steel Intelligence"
               className="mx-auto max-w-[740px] rounded-2xl border border-[#bdd5c6] bg-white p-2 shadow-[0_5px_20px_-14px_rgba(16,65,43,0.25)] focus-within:border-[#175640]">
@@ -256,7 +241,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
               </div>
             </form>
             {handoffError ? <p role="alert" className="mx-auto mt-2 max-w-[740px] text-xs text-[#974621]">{handoffError} <Link className="underline" href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}>Apri Distinta</Link></p> : null}
-            <p className="mx-auto mt-1 max-w-[740px] text-center text-[10px] leading-4 text-[#71857a]">
+            <p className="sr-only lg:not-sr-only lg:mx-auto lg:mt-1 lg:max-w-[740px] lg:text-center lg:text-[10px] lg:leading-4 lg:text-[#71857a]">
               Anteprima UI: nessuna risposta AI generalista o cronologia persistente. Il testo resta in questa schermata fino al trasferimento esplicito.
             </p>
           </div>
@@ -264,7 +249,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
 
         <aside data-testid="commercial-ai-native-desktop-context" aria-label="Pannello contestuale"
           className="hidden min-w-0 border-l border-[#e1ebe4] bg-[#f9fcfa] px-5 py-7 lg:block">
-          <ContextContent topic={activeTopic} canWrite={canWrite} question={latestQuestion} onStartDistinta={startDistinta}/>
+          <ContextContent topic={activeTopic}/>
         </aside>
       </div>
 
@@ -277,7 +262,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
           <button type="button" onClick={() => previewDialog.current?.close()} aria-label="Chiudi pannello"
             className="flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-[#d4e2d8] text-lg text-[#175640]">×</button>
         </div>
-        <ContextContent topic={activeTopic} canWrite={canWrite} question={latestQuestion} onStartDistinta={startDistinta}/>
+        <ContextContent topic={activeTopic}/>
       </dialog>
     </section>
   );

@@ -39,6 +39,20 @@ try {
         assert.ok(await shell.getByTestId("commercial-ai-native-legacy").isVisible());
         const input = shell.getByLabel("Domanda o richiesta commerciale");
         await input.waitFor({ state: "visible" });
+        if (width < 1024) {
+          const dock = page.getByRole("navigation", { name: "Navigazione mobile principale" });
+          const [dockBox, composerBox, headerBox] = await Promise.all([
+            dock.boundingBox(),
+            shell.getByTestId("commercial-ai-native-form").boundingBox(),
+            shell.getByRole("heading", { name: "Smart Steel Intelligence" }).boundingBox(),
+          ]);
+          assert.ok(dockBox && composerBox && headerBox, "Missing mobile layout elements");
+          assert.ok(headerBox.y >= 64 && headerBox.y < 320, "AI header must be below global sticky navigation");
+          assert.ok(composerBox.y >= 0 && composerBox.y + composerBox.height <= dockBox.y - 4,
+            "Composer must remain fully visible ABOVE mobile dock on first viewport");
+        }
+        await page.screenshot({ path: path.join(screenshots, person.id + "-" + width + "-empty.png"),
+          animations: "disabled" });
         const widths = await page.evaluate(() => ({
           visible: document.documentElement.clientWidth,
           document: document.documentElement.scrollWidth,
@@ -65,7 +79,19 @@ try {
         await shell.getByTestId("commercial-ai-native-turn").nth(1).waitFor({ state: "visible" });
         const start = shell.getByTestId("commercial-ai-native-open-distinta");
         assert.equal(await start.count(), person.id === "buyer" ? 1 : 0);
-        await shell.screenshot({ path: path.join(screenshots, person.id + "-" + width + ".png"),
+        assert.equal(await shell.getByTestId("commercial-ai-native-context-distinta").count(), 0,
+          "Do not duplicate Distinta CTA in the context panel");
+        if (width < 1024) {
+          const dock = await page.getByRole("navigation", { name: "Navigazione mobile principale" }).boundingBox();
+          const composer = await shell.getByTestId("commercial-ai-native-form").boundingBox();
+          const send = await shell.getByTestId("commercial-ai-native-submit").boundingBox();
+          assert.ok(dock && composer && send, "Missing mobile composer or dock");
+          assert.ok(composer.y >= 0 && composer.y + composer.height <= dock.y - 4,
+            "Mobile composer is covered by the fixed dock after conversation");
+          assert.ok(send.y >= 0 && send.y + send.height <= dock.y - 4,
+            "Mobile send button is covered by the fixed dock after conversation");
+        }
+        await page.screenshot({ path: path.join(screenshots, person.id + "-" + width + ".png"),
           animations: "disabled" });
         if (person.id === "buyer") {
           await start.click();
