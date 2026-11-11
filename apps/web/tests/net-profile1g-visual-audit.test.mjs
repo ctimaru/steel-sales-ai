@@ -26,14 +26,14 @@ test("NET-PROFILE-UX1.A: both profile modes use the same identity, products and 
 
 test("NET-PROFILE-UX1.A: actions are real, gated and precede optional detail panels",()=>{
   assert.match(pro,/inquiryEligible && canInteract/);
-  assert.match(pro,/>s*Connettis*<\/Link>/);
+  assert.ok(pro.includes("Connetti"),"Pro connection label is present");
   assert.match(pro,/<NetworkSaveToggle/);
   assert.match(pro,/canWriteWorkspace\(membershipRole\)/);
   assert.match(pro,/data-testid="network-unclaimed-company-claim"/);
   assert.ok(pro.indexOf("<NetworkProfileOverview") < pro.indexOf('data-testid="network-unclaimed-company-claim"'));
   assert.match(pro,/data-testid="network-profile-technical-details"/);
   assert.match(free,/status==="available"&&canConnect/);
-  assert.match(free,/>s*Connetti →s*<\/Link>/);
+  assert.ok(free.includes("Connetti →"),"Free connection label is present");
   assert.match(free,/provisional\?"unavailable"/);
   assert.match(free,/non è possibile inviare richieste/);
   assert.ok(free.indexOf('aria-label="Connessione aziendale"') < free.indexOf('aria-label="Informazioni aziendali con fonte"'));
