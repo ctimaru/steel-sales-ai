@@ -103,6 +103,17 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
   const threadEnd = useRef<HTMLDivElement>(null);
 
   useEffect(() => setReady(true), []);
+  // Keep the most recent assistant reply visible after an async response,
+  // without moving the composer or resetting a reader's earlier history
+  // except when a new turn arrives or its pending state resolves.
+  const lastTurnState = turns.length ? turns[turns.length - 1].state : null;
+  useEffect(() => {
+    if (!lastTurnState) return;
+    const frame = requestAnimationFrame(() =>
+      threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" })
+    );
+    return () => cancelAnimationFrame(frame);
+  }, [turns.length, lastTurnState]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
