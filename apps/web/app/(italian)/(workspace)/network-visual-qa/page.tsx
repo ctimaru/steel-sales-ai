@@ -1,6 +1,7 @@
 import {notFound} from "next/navigation";
 import {NetworkCompactExperience} from "@/components/network-compact-experience";
 import { NetworkProfileInventory } from "@/components/network-profile-inventory";
+import { NetworkProfileOverview, NetworkProfileTopBar } from "@/components/network-profile-overview";
 import { NetworkInventoryManager } from "@/components/network-inventory-manager";
 import type { NetworkInventoryItem } from "@/lib/network-stock";
 import {getWorkspaceContext} from "@/lib/workspace-context";
@@ -96,6 +97,23 @@ export default async function NetworkVisualQaPage(){
       />
       <div className="mx-auto max-w-6xl space-y-4 px-3 pb-10">
         <p className="text-xs font-semibold text-[#52665a]">Solo QA locale: aziende, stock e quantità sintetici</p>
+        <NetworkProfileTopBar />
+        <NetworkProfileOverview
+          name="DEMO Tubi Strutturali"
+          legalName="DEMO Tubi Strutturali S.r.l."
+          countryCode="IT"
+          location="Bergamo, Lombardia"
+          primaryRole="Produttore"
+          roles={["Produttore", "Trasformatore"]}
+          description="Produzione di tubi saldati e profilati cavi per carpenterie, strutture industriali e costruzioni meccaniche. Le informazioni di questa scheda sono esclusivamente sintetiche per test UI."
+          products={["Tubi tondi saldati", "Profilati cavi rettangolari", "Profilati cavi quadrati"]}
+          services={["Taglio a misura", "Lavorazioni meccaniche"]}
+          email="contatti@example.invalid"
+          actions={<a href="#attivita" className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white">Esplora attività ↗</a>}
+        />
+        <div data-testid="network-profile-sparse-fixture" className="pt-2">
+          <NetworkProfileOverview name="DEMO Azienda in acquisizione" countryCode="RO" />
+        </div>
         <NetworkProfileInventory items={stockVisualFixture} />
         <NetworkInventoryManager
           organizationId={organizationId}

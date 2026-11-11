@@ -4,8 +4,9 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
 from app.net_it_seed1_pipeline import (
-    MAX_LINKS_PER_SOURCE, SeedApi, crawl, harvest, inspect_site,
-    looks_italian, outbound_company_domains,
+    MAX_LINKS_PER_SOURCE, MAX_PROFILE_PAGES_PER_SOURCE, SeedApi, crawl, harvest,
+    inspect_site, looks_italian, outbound_company_domains, profile_links,
+    two_level_items,
 )
 
 SOURCE = "https://www.associazione-esempio.it/soci"
@@ -50,6 +51,33 @@ class OutboundDomainsTest(unittest.TestCase):
         self.assertTrue(looks_italian("acciaicinque.com", {"vat_id": "01234567890"}))
         self.assertFalse(looks_italian("stahlwerk.de", {"vat_id": "DE123456789"}))
         self.assertFalse(looks_italian("acciaicinque.com", {}))
+
+
+class ProfileLinksTest(unittest.TestCase):
+    def test_only_same_site_profiles_below_index_or_hinted(self):
+        found = profile_links(SOURCE, [
+            "/soci/carpenteria-uno",                 # below the index
+            "https://www.associazione-esempio.it/soci/tubi-due/",
+            "/soci/carpenteria-uno",                 # duplicate
+            "/espositori/acciai-tre",                # directory hint
+            "/soci?page=2",                          # query: pagination
+            "/soci/pagina/3",                        # pagination
+            "/soci/login",                           # not a profile
+            "/news/assemblea-2026",                  # unrelated page
+            "/chi-siamo",                            # unrelated page
+            "https://www.carpenteriauno.it/",        # external: level one, not here
+            "http://www.associazione-esempio.it/soci/x",  # not https
+        ], 300)
+        self.assertEqual(found, [
+            "https://www.associazione-esempio.it/soci/carpenteria-uno",
+            "https://www.associazione-esempio.it/soci/tubi-due/",
+            "https://www.associazione-esempio.it/espositori/acciai-tre",
+        ])
+
+    def test_profile_limit_is_bounded(self):
+        links = [f"/soci/azienda-{i}" for i in range(MAX_PROFILE_PAGES_PER_SOURCE + 40)]
+        self.assertEqual(len(profile_links(SOURCE, links, 5)), 5)
+        self.assertEqual(len(profile_links(SOURCE, links, 10**6)), MAX_PROFILE_PAGES_PER_SOURCE)
 
 
 class FakeApi:
@@ -130,6 +158,70 @@ class PipelineTest(unittest.IsolatedAsyncioTestCase):
             report = await crawl(api, None, limit=200, persist=True)
         self.assertEqual((report["visited"], report["candidates"], report["published"]), (1, 1, 0))
         self.assertIn("net_it_seed1_finish_batch", [c[0] for c in api.calls])
+
+
+class TwoLevelHarvestTest(unittest.IsolatedAsyncioTestCase):
+    def profiles(self):
+        base = "https://www.associazione-esempio.it/soci/"
+        sponsor = "https://www.sponsor-fiera.it/"
+        return {
+            SOURCE: page(SOURCE, [f"/soci/azienda-{i}" for i in range(6)]
+                         + ["https://www.facebook.com/assoc"]),
+            **{f"{base}azienda-{i}": page(f"{base}azienda-{i}",
+                [f"https://www.azienda{i}.it/", sponsor, "https://www.linkedin.com/x"],
+                text="Referente: Mario Rossi") for i in range(5)},
+            f"{base}azienda-5": page(f"{base}azienda-5", [sponsor]),   # only the sponsor
+        }
+
+    async def test_follows_profiles_keeps_company_site_drops_sponsor(self):
+        pages = self.profiles()
+        async def fake_fetch(client, url, base):
+            return pages.get(url)
+        with patch("app.net_it_seed1_pipeline._fetch_page", new=fake_fetch):
+            items, read = await two_level_items(None, SOURCE, pages[SOURCE].links, 300,
+                                                pause_seconds=0)
+        self.assertEqual(read, 6)
+        self.assertEqual([i["domain"] for i in items], [f"azienda{i}.it" for i in range(5)])
+        self.assertEqual(items[0]["evidence"],
+                         "https://www.associazione-esempio.it/soci/azienda-0")
+        self.assertNotIn("sponsor-fiera.it", str(items))
+        self.assertEqual(set(items[0]), {"domain", "url", "evidence"})
+
+    async def test_harvest_uses_two_levels_only_when_index_links_few_sites(self):
+        pages = self.profiles()
+        async def fake_fetch(client, url, base):
+            return pages.get(url)
+        api = FakeApi({
+            "net_it_seed1_claim_sources": {"contract": "net-it-seed1-sources-v1", "status": "ok",
+                "items": [{"id": "s1", "url": SOURCE, "max_links": 300}]},
+            "net_it_seed1_stage": {"contract": "net-it-seed1-stage-v1", "staged": 5,
+                "already_known": 0, "published": 0},
+        })
+        with patch("app.net_it_seed1_pipeline._fetch_page", new=fake_fetch), \
+             patch("app.net_it_seed1_pipeline.PROFILE_PAUSE_SECONDS", 0):
+            report = await harvest(api, None, max_sources=5, persist=True)
+        self.assertEqual((report["profiles_read"], report["links_found"], report["published"]),
+                         (6, 5, 0))
+        staged = dict(api.calls)["net_it_seed1_stage"]["p_items"]
+        self.assertEqual(len(staged), 5)
+        self.assertNotIn("Rossi", str(api.calls))
+
+        # An index that already links many websites directly is not crawled deeper.
+        direct = page(SOURCE, [f"https://www.diretta{i}.it/" for i in range(12)]
+                      + [f"/soci/azienda-{i}" for i in range(6)])
+        fetched = []
+        async def count_fetch(client, url, base):
+            fetched.append(url)
+            return direct
+        api2 = FakeApi({
+            "net_it_seed1_claim_sources": {"contract": "net-it-seed1-sources-v1", "status": "ok",
+                "items": [{"id": "s1", "url": SOURCE, "max_links": 300}]},
+            "net_it_seed1_stage": {"contract": "net-it-seed1-stage-v1", "staged": 12,
+                "already_known": 0, "published": 0},
+        })
+        with patch("app.net_it_seed1_pipeline._fetch_page", new=count_fetch):
+            report2 = await harvest(api2, None, max_sources=5, persist=True)
+        self.assertEqual((fetched, report2["profiles_read"]), ([SOURCE], 0))
 
 
 if __name__ == "__main__":

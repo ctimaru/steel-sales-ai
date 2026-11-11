@@ -58,7 +58,7 @@ class FirstPartyReviewTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             _validate_official_website(row(domain="linkedin.com"))
     def test_version_and_batch_caps(self):
-        self.assertTrue(VERSION.startswith("net-it-auto2"))
+        self.assertEqual(VERSION,"net-it-auto2-firstparty-v2")
         self.assertEqual(MAX_BATCH,50)
 
 
@@ -75,13 +75,56 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("p_approved",outcome)
         self.assertNotIn("p_commit",outcome)
 
-    async def test_unknown_legal_identity_stays_human_exception(self):
+    async def test_legacy_identity_hold_cleared_only_by_first_party_name(self):
+        # v2: the legacy flag asks for exactly this check; it is not a reason by itself.
         with patch("app.net_it_auto2_reviewer._fetch_page",
                   new=AsyncMock(return_value=page("Carpenteria Test S.r.l."))):
             outcome=await inspect_candidate(None,row(
                   quality_flags=["legal_identity_not_verified"]))
+        self.assertEqual(outcome["p_verdict"],"identity_supported")
+        self.assertEqual(outcome["p_reviewer_version"],"net-it-auto2-firstparty-v2")
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                  new=AsyncMock(return_value=page("Carpenteria Test costruzioni"))):
+            outcome=await inspect_candidate(None,row(
+                  quality_flags=["legal_identity_not_verified"]))
         self.assertEqual(outcome["p_verdict"],"needs_human")
-        self.assertIn("existing_legal_identity_hold",outcome["p_reasons"])
+        self.assertIn("corporate_name_not_evidenced",outcome["p_reasons"])
+
+    async def test_sole_trader_context_still_human_exception(self):
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                  new=AsyncMock(return_value=page("Carpenteria Test S.r.l."))):
+            outcome=await inspect_candidate(None,row(
+                  quality_flags=["legal_identity_not_verified","historical_sole_trader_vat_context"]))
+        self.assertEqual(outcome["p_verdict"],"needs_human")
+        self.assertIn("sole_trader_identity_exception",outcome["p_reasons"])
+
+    async def test_name_found_on_contact_page_not_home(self):
+        home=SimpleNamespace(url="https://carpenteriatest.it/",title="Home",site_name=None,h1=None,
+            text="Benvenuti, costruzioni metalliche.",
+            links=("/prodotti","/contatti","https://altro.it/privacy","/blog/news"))
+        contact=page("Carpenteria Test S.r.l. - P.IVA 01234567890",url="https://carpenteriatest.it/contatti")
+        prodotti=page("Tubi e lamiere",url="https://carpenteriatest.it/prodotti")
+        fetched=[]
+        async def fake_fetch(client,url,base):
+            fetched.append(url)
+            return {"https://carpenteriatest.it/chi-siamo":home,
+                    "https://carpenteriatest.it/contatti":contact,
+                    "https://carpenteriatest.it/prodotti":prodotti}.get(url)
+        with patch("app.net_it_auto2_reviewer._fetch_page",new=fake_fetch):
+            outcome=await inspect_candidate(None,row())
+        self.assertEqual(outcome["p_verdict"],"identity_supported")
+        # legal/contact page is read before product pages; other domains never.
+        self.assertEqual(fetched[1],"https://carpenteriatest.it/contatti")
+        self.assertNotIn("https://altro.it/privacy",fetched)
+        self.assertNotIn("https://carpenteriatest.it/blog/news",fetched)
+
+    async def test_footer_beyond_18000_chars_is_read(self):
+        text=("lavorazioni " * 1700)+" Carpenteria Test S.r.l. P.IVA 01234567890"
+        self.assertGreater(text.index("Carpenteria Test S.r.l."),18000)
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                  new=AsyncMock(return_value=page(text))):
+            outcome=await inspect_candidate(None,row())
+        self.assertEqual(outcome["p_verdict"],"identity_supported")
 
     async def test_explicit_reuse_restriction_blocks(self):
         with patch("app.net_it_auto2_reviewer._fetch_page",
