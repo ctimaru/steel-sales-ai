@@ -9,8 +9,8 @@ const draftButton = "inline-flex min-h-11 items-center justify-center rounded-xl
 const units = [["t", "Tonnellate"], ["kg", "Chilogrammi"], ["m", "Metri"], ["bars", "Barre"], ["pcs", "Pezzi"]] as const;
 const kinds = [["stock", "A magazzino"], ["incoming", "Prossimo arrivo"], ["production", "Produzione programmata"]] as const;
 
-function StockForm({ organizationId, companyId, item }: {
-  organizationId: string; companyId: string; item?: NetworkInventoryItem;
+function StockForm({ organizationId, companyId, item, canPublish }: {
+  organizationId: string; companyId: string; item?: NetworkInventoryItem; canPublish: boolean;
 }) {
   return (
     <form action={saveManagedNetworkInventory} className="grid min-w-0 gap-3 pt-3 sm:grid-cols-2 lg:grid-cols-4" data-testid="network-stock-form">
@@ -52,7 +52,7 @@ function StockForm({ organizationId, companyId, item }: {
       </label>
       <div className="flex flex-wrap items-end gap-2 sm:col-span-2 lg:col-span-4">
         <button type="submit" name="intent" value="draft" className={draftButton}>Salva bozza privata</button>
-        <button type="submit" name="intent" value="published" className={publishButton}>
+        <button type="submit" name="intent" value="published" disabled={!canPublish} className={publishButton+" disabled:cursor-not-allowed disabled:opacity-45"}>
           {item?.publication_status === "published" ? "Aggiorna pubblicazione" : "Pubblica nel Network"}
         </button>
         {item?.publication_status === "published" ? (
@@ -68,8 +68,8 @@ function StockForm({ organizationId, companyId, item }: {
   );
 }
 
-export function NetworkInventoryManager({ organizationId, companyId, inventory }: {
-  organizationId: string; companyId: string; inventory: ManagedNetworkInventory;
+export function NetworkInventoryManager({ organizationId, companyId, inventory, canPublish }: {
+  organizationId: string; companyId: string; inventory: ManagedNetworkInventory; canPublish: boolean;
 }) {
   const items=inventory.items;
   return (
@@ -84,6 +84,11 @@ export function NetworkInventoryManager({ organizationId, companyId, inventory }
           {items.filter((item)=>item.publication_status==="published").length} pubblicate · {items.filter((item)=>item.publication_status==="draft").length} bozze
         </span>
       </div>
+      {!canPublish && inventory.ready ? (
+        <p className="mt-3 rounded-xl border border-[#e6d6b1] bg-[#fffbef] px-3 py-2 text-xs leading-5 text-[#67552f]" data-testid="network-stock-publishing-wait">
+          Puoi preparare e aggiornare le bozze in privato. La pubblicazione sarà disponibile quando il profilo aziendale avrà completato la revisione nel Network.
+        </p>
+      ) : null}
       {!inventory.ready ? (
         <p className="mt-4 rounded-xl border border-[#e5c89a] bg-[#fffaf0] p-4 text-sm text-[#775523]">
           Gestione delle disponibilità in attivazione: lo schema dati deve essere installato prima di poter salvare o pubblicare.
@@ -92,7 +97,7 @@ export function NetworkInventoryManager({ organizationId, companyId, inventory }
         <>
           <details open={items.length===0} className="mt-4 rounded-2xl border border-[#d7e6da] bg-[#f7faf8] p-3 sm:p-4">
             <summary className="cursor-pointer text-sm font-semibold text-[#175640]">+ Aggiungi disponibilità o produzione programmata</summary>
-            <StockForm organizationId={organizationId} companyId={companyId} />
+            <StockForm organizationId={organizationId} companyId={companyId} canPublish={canPublish} />
           </details>
           {items.length ? <div className="mt-4 space-y-2">
             {items.map((item)=>(
@@ -109,7 +114,7 @@ export function NetworkInventoryManager({ organizationId, companyId, inventory }
                   </span>
                   {item.available_on?<span className="mt-1 block text-xs text-[#52665a]">Previsto: {networkInventoryDate(item.available_on)}</span>:null}
                 </summary>
-                <StockForm organizationId={organizationId} companyId={companyId} item={item} />
+                <StockForm organizationId={organizationId} companyId={companyId} item={item} canPublish={canPublish} />
               </details>
             ))}
           </div>:<p className="mt-4 text-sm text-[#607269]">Nessuna disponibilità inserita. Inizia da una bozza; puoi pubblicarla quando i dati sono confermati.</p>}
