@@ -231,7 +231,7 @@ try {
 
           if (width === 1440) {
             // Explicitly exercise the manual alternative, not merely its href.
-            await page.goto(base + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
+            await page.goto(base + "/commercial?experience=classic", { waitUntil: "domcontentloaded", timeout: 90000 });
             await page.getByTestId("commercial-manual-entry").click();
             await page.waitForURL(u => u.pathname === "/commercial" &&
               u.searchParams.get("compose") === "1" && u.searchParams.get("method") !== "ai", { timeout: 90000 });
