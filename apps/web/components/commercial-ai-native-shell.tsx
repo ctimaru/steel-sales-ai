@@ -95,19 +95,27 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
   const previewTrigger = useRef<HTMLButtonElement>(null);
   const previewDialog = useRef<HTMLDialogElement>(null);
   const threadEnd = useRef<HTMLDivElement>(null);
+  const latestTurnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setReady(true), []);
   // Keep the most recent assistant reply visible after an async response,
   // without moving the composer or resetting a reader's earlier history
   // except when a new turn arrives or its pending state resolves.
   const lastTurnState = turns.length ? turns[turns.length - 1].state : null;
+  const lastTurnIntent = turns.length ? turns[turns.length - 1].intent : null;
   useEffect(() => {
     if (!lastTurnState) return;
-    const frame = requestAnimationFrame(() =>
-      threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" })
-    );
+    const frame = requestAnimationFrame(() => {
+      if (lastTurnState === "answered" && lastTurnIntent === "industry_search") {
+        // A company response may contain six cards. Start at its question and
+        // summary instead of jumping below the evidence and source links.
+        latestTurnRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
+      } else {
+        threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" });
+      }
+    });
     return () => cancelAnimationFrame(frame);
-  }, [turns.length, lastTurnState]);
+  }, [turns.length, lastTurnState, lastTurnIntent]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -255,8 +263,9 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
               </div>
             ) : (
               <div className="mx-auto max-w-[800px] space-y-6">
-                {turns.map((turn) => (
-                  <div key={turn.id} className="space-y-4" data-testid="commercial-ai-native-turn">
+                {turns.map((turn, index) => (
+                  <div key={turn.id} ref={index === turns.length - 1 ? latestTurnRef : undefined}
+                    className="space-y-4" data-testid="commercial-ai-native-turn">
                     <div className="flex justify-end">
                       <p className="max-w-[90%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-[#eaf4ee] px-4 py-3 text-sm leading-6 text-[#173f35]">
                         {turn.question}
