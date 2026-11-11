@@ -5,7 +5,11 @@ Two bounded commands, meant to run on a schedule:
   harvest  Read index pages registered by Platform users (association member
            lists, trade-fair exhibitor lists, certification lists) and keep
            ONLY the outbound company domains. An index page is a pointer: no
-           names, descriptions or contacts are copied from it.
+           names, descriptions or contacts are copied from it. When the index
+           lists companies through its own profile pages instead of linking
+           their websites (most associations and fairs), it follows those
+           profile pages one level down and keeps the company website each one
+           links to (two-level harvest, NET-IT-GROWTH1).
   crawl    Visit each discovered company's OWN website with the existing
            robots-, SSRF-, redirect- and size-protected crawler, and stage a
            private pending candidate when the site describes a steel company.
@@ -37,6 +41,19 @@ MAX_BATCH = 100
 MAX_BATCHES_PER_RUN = 10
 CRAWL_CONCURRENCY = 6
 SCAN_LINKS_PER_PAGE = 5000
+# Two-level harvest: index page -> the index site's own profile pages -> the
+# company website. Only used when the index links few websites directly.
+TWO_LEVEL_THRESHOLD = 10
+MAX_PROFILE_PAGES_PER_SOURCE = 300
+PROFILE_PAUSE_SECONDS = 0.4
+# A website linked from many profiles is the index site's sponsor, partner or
+# footer, not the company of that profile.
+COMMON_LINK_SHARE = 0.2
+PROFILE_PATH_HINTS = (
+    "espositor", "exhibitor", "soci", "member", "associat", "aziend", "company",
+    "companies", "scheda", "profil", "catalog", "elenco", "directory", "partner",
+    "firma", "imprese", "aussteller",
+)
 
 # Hosts that are never a company's own website: social networks, platforms,
 # marketplaces, directories, maps, site builders, public bodies.
@@ -95,6 +112,84 @@ def outbound_company_domains(
         if len(found) >= limit:
             break
     return [{"domain": d, "url": u, "evidence": source_url} for d, u in found.items()]
+
+
+def profile_links(index_url: str, links: tuple[str, ...] | list[str],
+                  limit: int) -> list[str]:
+    """Same-site links that look like one company's profile on the index site.
+
+    A profile is either below the index path (/soci -> /soci/acme) or carries a
+    directory hint (espositori, members, scheda, ...). Pagination, search,
+    login and the index page itself are skipped.
+    """
+    limit = min(max(0, int(limit)), MAX_PROFILE_PAGES_PER_SOURCE)
+    try:
+        base = canonicalize_seed_url(index_url)
+        site = canonical_domain(base)
+    except (CompanyDiscoveryError, ValueError, TypeError):
+        return []
+    base_path = urlsplit(base).path.rstrip("/").lower()
+    found: list[str] = []
+    seen = {base}
+    for raw in list(links)[:SCAN_LINKS_PER_PAGE]:
+        try:
+            url = canonicalize_seed_url(urljoin(base, str(raw)))
+        except (CompanyDiscoveryError, ValueError, TypeError):
+            continue
+        parts = urlsplit(url)
+        if (parts.scheme != "https" or url in seen or parts.query
+                or canonical_domain(url) != site):
+            continue
+        path = parts.path.rstrip("/").lower()
+        if not path or re.search(r"/(?:page|pagina|p)/?\d+$|/(?:login|cerca|search|cart|carrello)(?:/|$)", path):
+            continue
+        below_index = bool(base_path) and path.startswith(base_path + "/")
+        hinted = any(h in path for h in PROFILE_PATH_HINTS) and path.count("/") >= 2
+        if not (below_index or hinted):
+            continue
+        seen.add(url)
+        found.append(url)
+        if len(found) >= limit:
+            break
+    return found
+
+
+async def two_level_items(web: httpx.AsyncClient, index_url: str,
+                          links: tuple[str, ...] | list[str], limit: int,
+                          *, pause_seconds: float = PROFILE_PAUSE_SECONDS,
+                          ) -> tuple[list[dict[str, str]], int]:
+    """(items, profiles_read): one company website per profile page.
+
+    Profiles are read one at a time with a pause, through the same robots-,
+    SSRF- and size-protected fetcher. Only the outbound domain is kept; the
+    evidence is the profile URL. Nothing from the profile text is copied.
+    """
+    per_profile: list[tuple[str, list[dict[str, str]]]] = []
+    for i, url in enumerate(profile_links(index_url, links, limit)):
+        if i:
+            await asyncio.sleep(pause_seconds)
+        try:
+            profile = await _fetch_page(web, url, index_url)
+        except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
+            continue
+        if profile is None or canonical_domain(profile.url) != canonical_domain(index_url):
+            continue
+        per_profile.append((profile.url, outbound_company_domains(profile.url, profile.links, 20)))
+    if not per_profile:
+        return [], 0
+    counts: dict[str, int] = {}
+    for _, outbound in per_profile:
+        for item in outbound:
+            counts[item["domain"]] = counts.get(item["domain"], 0) + 1
+    common = max(3, int(len(per_profile) * COMMON_LINK_SHARE) + 1)
+    items: dict[str, dict[str, str]] = {}
+    for profile_url, outbound in per_profile:
+        own = [o for o in outbound if counts[o["domain"]] < common]
+        if own and own[0]["domain"] not in items:
+            items[own[0]["domain"]] = {**own[0], "evidence": profile_url}
+        if len(items) >= limit:
+            break
+    return list(items.values()), len(per_profile)
 
 
 def looks_italian(domain: str, candidate: dict[str, object]) -> bool:
@@ -163,8 +258,8 @@ async def harvest(api: SeedApi, web: httpx.AsyncClient, *, max_sources: int,
     if claimed.get("contract") != "net-it-seed1-sources-v1":
         raise RuntimeError("unexpected sources contract")
     report = {"mode": "harvest", "status": str(claimed.get("status")), "sources": 0,
-              "links_found": 0, "staged": 0, "already_known": 0, "unreadable": 0,
-              "published": 0}
+              "links_found": 0, "profiles_read": 0, "staged": 0, "already_known": 0,
+              "unreadable": 0, "published": 0}
     for source in claimed.get("items") or []:
         report["sources"] += 1
         try:
@@ -175,7 +270,13 @@ async def harvest(api: SeedApi, web: httpx.AsyncClient, *, max_sources: int,
         if page is None:  # robots.txt refusal or unreachable: respect it.
             report["unreadable"] += 1
             continue
-        items = outbound_company_domains(page.url, page.links, int(source["max_links"]))
+        max_links = int(source["max_links"])
+        items = outbound_company_domains(page.url, page.links, max_links)
+        if len(items) < TWO_LEVEL_THRESHOLD:
+            deeper, profiles = await two_level_items(web, page.url, page.links, max_links)
+            report["profiles_read"] += profiles
+            known = {i["domain"] for i in items}
+            items += [i for i in deeper if i["domain"] not in known][: max(0, max_links - len(items))]
         report["links_found"] += len(items)
         if not items:
             continue
