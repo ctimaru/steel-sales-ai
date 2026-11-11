@@ -28,7 +28,7 @@ test("COMM-AI-NATIVE1.B treats company requests as read-only, never as RFQ extra
 
 test("COMM-AI-NATIVE1.B has a reversible UI-only entry and keeps all deep links", () => {
   assert.match(page, /params\.experience === "ai"/);
-  assert.match(page, /COMM_AI_NATIVE_UI_ENABLED/);
+  assert.match(page, /COMM_AI_NATIVE_UI_ENABLED !== "0"/);
   assert.match(page, /params\.experience !== "classic"/);
   assert.match(page, /const legacyRouteRequested/);
   assert.match(page, /<CommercialAiNativeShell canWrite=\{canWrite\}/);
@@ -36,6 +36,9 @@ test("COMM-AI-NATIVE1.B has a reversible UI-only entry and keeps all deep links"
   assert.match(page, /<CommercialUnifiedWorklist/);
   assert.match(shell, /\?experience=classic/);
   assert.match(shell, /appRoutes\.rfqHub\.home/);
+  assert.match(shell, /commercial-ai-native-new-chat/);
+  assert.match(shell, /Strumenti/);
+  assert.doesNotMatch(shell, /lg:grid-cols-\[minmax/);
 });
 
 test("COMM-AI-NATIVE1.B/C keeps honest evidence labels and the authorized Distinta path", () => {
