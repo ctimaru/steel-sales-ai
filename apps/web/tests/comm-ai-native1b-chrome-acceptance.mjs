@@ -31,7 +31,8 @@ try {
         await page.locator('input[name="password"]').fill(person.password);
         await page.getByRole("button", { name: "Accedi", exact: true }).click();
         await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
-        await page.goto(origin + "/commercial?experience=ai", { waitUntil: "domcontentloaded", timeout: 90000 });
+        await page.goto(origin + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
+        assert.equal(new URL(page.url()).searchParams.get("experience"), null, "AI-first must now be default");
         const shell = page.getByTestId("commercial-ai-native-shell");
         await shell.waitFor({ state: "visible", timeout: 60000 });
         assert.ok(await shell.getByRole("heading", { name: "Smart Steel Intelligence" }).isVisible());
