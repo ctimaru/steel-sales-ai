@@ -38,8 +38,9 @@ test("COMM-AI-NATIVE1.B has a reversible UI-only entry and keeps all deep links"
   assert.match(shell, /appRoutes\.rfqHub\.home/);
 });
 
-test("COMM-AI-NATIVE1.B UI is transparent about unsupported AI and preserves the authorized Distinta path", () => {
-  assert.match(shell, /nessuna risposta AI generalista o cronologia persistente/);
+test("COMM-AI-NATIVE1.B/C keeps honest evidence labels and the authorized Distinta path", () => {
+  assert.match(shell, /cronologia solo in questa scheda, nessuna memoria persistente/);
+  assert.match(shell, /commercialAiNativeResponse/);
   assert.match(shell, /sss:commercial-ai-intake-handoff/);
   assert.match(shell, /\?compose=1&method=ai#commercial-ai-intake/);
   assert.match(shell, /onClick=\{\(\) => startDistinta\(turn\.question\)\}/);
