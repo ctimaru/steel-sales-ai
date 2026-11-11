@@ -123,8 +123,16 @@ begin
     into v_items from (
       select id,company_id,kind,product_name,standard,grade,dimensions,
         quantity,unit,location,available_on,provenance,updated_at
-      from private.netprofile_ux1b_inventory
-      where company_id=p_company and publication_status='published'
+      from private.netprofile_ux1b_inventory i
+      where i.company_id=p_company and i.publication_status='published'
+        and exists (
+          select 1 from public.organization_network_company_links l
+          join public.network_company_claims cl
+            on cl.organization_id=l.organization_id
+           and cl.network_company_id=l.network_company_id and cl.status='approved'
+          where l.organization_id=i.organization_id
+            and l.network_company_id=i.company_id and l.link_status='active'
+        )
       order by kind,available_on,updated_at desc limit 80
     ) r;
   return v_items;
