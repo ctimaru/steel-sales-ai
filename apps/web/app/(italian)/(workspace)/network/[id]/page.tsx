@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { NetworkSaveToggle } from "@/components/network-save-toggle";
+import { NetworkProfileOverview } from "@/components/network-profile-overview";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import {networkNameIt} from "@/lib/network-taxonomy-it";
 import { notFound, redirect } from "next/navigation";
@@ -329,154 +330,64 @@ export default async function NetworkCompanyProfilePage({
         </div>
       ) : null}
 
-      <section className="overflow-hidden rounded-3xl border border-[#dfe7f1] bg-white shadow-sm">
-        <div className="border-b border-[#e8eef6] bg-gradient-to-r from-[#f6f8f7] to-white p-6 sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex min-w-0 gap-4 sm:gap-5">
-              {logoUrl ? (
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#dce7f5] bg-white p-2 sm:h-20 sm:w-20">
-                  <img
-                    src={logoUrl}
-                    alt={"Logo " + displayName}
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              ) : (
-                <CompanyMonogram name={displayName} />
-              )}
-              <div className="min-w-0">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">
-                  Profilo aziendale
-                </p>
-                <h1 className="mt-2 break-words text-2xl font-semibold tracking-tight text-[#173f35] sm:text-3xl">
-                  {displayName}
-                </h1>
-                {profile.company.trading_name ? (
-                  <p className="mt-1 text-sm text-[#52615b]">{profile.company.legal_name}</p>
-                ) : null}
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-[#d7dfdb] bg-white px-3 py-1 text-xs font-semibold text-[#52637a]">
-                    {profile.company.country_code}
-                  </span>
-                  {primaryRole ? (
-                    <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-xs font-semibold text-[#1a5144]">
-                      {networkNameIt(primaryRole.name)}
-                    </span>
-                  ) : null}
-                  {profile.trust.claimed ? (
-                    <span className="rounded-full bg-[#edf5f2] px-3 py-1 text-xs font-semibold text-[#1a5144]">
-                      Profilo rivendicato
-                    </span>
-                  ) : null}
-                  {profile.trust.verified ? (
-                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                      Azienda verificata
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-            </div>
+      <NetworkProfileOverview
+        name={displayName}
+        legalName={profile.company.legal_name}
+        countryCode={profile.company.country_code}
+        location={locationLabels[0] ?? null}
+        primaryRole={primaryRole ? networkNameIt(primaryRole.name) : null}
+        roles={profile.roles.map((role) => networkNameIt(role.name))}
+        description={profile.company.description}
+        products={productGroups.map((product) => networkNameIt(product.name))}
+        services={[...profile.subtypes.map((subtype) => networkNameIt(subtype.name)), ...capabilities.map((capability) => networkNameIt(capability.name))]}
+        logoUrl={logoUrl}
+        website={website}
+        email={emailContact?.email}
+        phone={phoneContact?.phone}
+        actions={
+          <>
+            {organizationId && canWriteWorkspace(membershipRole) ? (
+              <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
+                returnTo={"/network/" + profile.company.id} />
+            ) : null}
+            {inquiryEligible && canInteract ? (
+              <Link href={"/network/" + profile.company.id + "/connect"}
+                className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold">
+                Connetti
+              </Link>
+            ) : null}
+            {!inquiryEligible && canInteract && inquiryReason !== "self_inquiry" ? (
+              <span aria-disabled="true" data-testid="network-profile-connect-disabled"
+                className="block rounded-xl bg-[#f3f6f4] px-3 py-2 text-xs leading-5 text-[#52615b]">
+                Connessione nella piattaforma non disponibile: puoi usare i contatti pubblici.
+              </span>
+            ) : null}
+            {inquiryEligible && !canInteract ? (
+              <p className="text-xs leading-5 text-[#52615b]">Per connetterti serve un ruolo commerciale abilitato.</p>
+            ) : null}
+            <p className="text-[11px] leading-5 text-[#607167]">Salvare una scheda non invia richieste di connessione.</p>
+          </>
+        }
+      />
 
-            <div className="flex w-full min-w-0 flex-col gap-2 lg:w-56">
-              {/* NET-RO1.4.C: claim action is visible without opening a nested accordion.
-                  Account/affiliation proof and actual ownership approval remain server-gated. */}
-              {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
-                (!adminOrganizationId || !claimState || ["rejected","revoked"].includes(claimState.status)) ? (
-                <div className="w-full rounded-xl border border-[#c8ddd1] bg-[#f5faf7] px-3 py-3" data-testid="network-unclaimed-company-claim">
-                  <p className="mb-2 text-xs font-semibold text-[#175640]">Profilo non rivendicato</p>
-                  {adminOrganizationId ? (
-                    <NetworkActivationCta mode="published" companyId={profile.company.id}
-                      companyName={displayName} source="network_profile" compact />
-                  ) : (
-                    <Link
-                      href={"/register?company="+encodeURIComponent(displayName)+"&return_to="+encodeURIComponent("/network/"+profile.company.id+"/claim")+"#company-check"}
-                      className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#c8ddd1] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#eaf4ef]"
-                      data-testid="network-company-claim-registration"
-                    >
-                      Rivendica questa azienda
-                    </Link>
-                  )}
-                  <p className="mt-2 text-[11px] leading-5 text-[#52615b]">
-                    {adminOrganizationId
-                      ? "Per rappresentanti aziendali. La richiesta richiede la verifica dell'affiliazione."
-                      : "Per rivendicare il profilo, registrati come rappresentante aziendale. La gestione sarà abilitata solo dopo la verifica dell'affiliazione."}
-                  </p>
-                </div>
-              ) : null}
-
-              {inquiryEligible && canInteract ? (
-                <Link
-                  href={"/network/" + profile.company.id + "/connect"}
-                  className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold"
-                >
-                  Connetti
-                </Link>
-              ) : null}
-              {/* NET-CONN3: visible but disabled Connetti while the company is not active; never on your own company. */}
-              {!inquiryEligible && canInteract && inquiryReason !== "self_inquiry" ? (
-                <span role="button" aria-disabled="true" tabIndex={0} data-testid="network-profile-connect-disabled"
-                  aria-describedby="network-connect-unavailable" title="Connetti sarà disponibile quando l’azienda sarà attiva sulla piattaforma"
-                  className="inline-flex min-h-11 w-full cursor-not-allowed select-none items-center justify-center rounded-xl border border-[#d7e3dc] bg-[#f3f6f4] px-4 text-sm font-semibold text-[#52615b]">
-                  Connetti
-                </span>
-              ) : null}
-              {website ? (
-                <a
-                  href={website}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex h-10 items-center justify-center rounded-xl border border-[#d7dfdb] bg-white px-4 text-sm font-semibold text-[#43524c] transition hover:border-[#bcd0ed] hover:bg-[#f7faff] hover:text-[#1a5144]"
-                >
-                  Visita il sito
-                </a>
-              ) : null}
-
-              {organizationId && canWriteWorkspace(membershipRole) ? (
-                <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
-                  returnTo={"/network/" + profile.company.id} />
-              ) : null}
-              {inquiryEligible && !canInteract ? <p className="max-w-xs text-xs leading-5 text-[#52615b]">Per connetterti serve un ruolo commerciale abilitato.</p> :
-                !inquiryEligible && inquiryReason !== "self_inquiry" ? <p id="network-connect-unavailable" className="max-w-xs text-xs leading-5 text-[#52615b]">Potrai connetterti quando l&apos;azienda sarà attiva sulla piattaforma.</p> : null}
-              {/* NET-RO1.GROWTH9: visible field labels on every company profile.
-                  Only previously published, privacy-reviewed company channels are shown. */}
-              <div className="w-full rounded-xl border border-[#dce2df] bg-white px-3 py-2 text-xs" data-testid="network-profile-header-contact">
-                <p className="font-semibold text-[#52615b]">Contatti aziendali</p>
-                <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className="font-semibold text-[#52615b]">Email</span>
-                  {emailContact?.email ? (
-                    <a href={"mailto:" + emailContact.email} className="break-all font-semibold text-[#1a5144] underline underline-offset-2" data-testid="network-company-public-email">{emailContact.email}</a>
-                  ) : <span className="text-[#66776f]" data-testid="network-company-email-unavailable">Da integrare</span>}
-                </div>
-                <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                  <span className="font-semibold text-[#52615b]">Telefono</span>
-                  {phoneContact?.phone ? (
-                    <a href={"tel:" + phoneContact.phone.replace(/[^\d+]/g, "")} className="font-semibold text-[#1a5144] underline underline-offset-2" data-testid="network-company-public-phone">{phoneContact.phone}</a>
-                  ) : <span className="text-[#66776f]" data-testid="network-company-phone-unavailable">Da integrare</span>}
-                </div>
-                {!emailContact?.email || !phoneContact?.phone ? (
-                  <p className="mt-1 text-[11px] text-[#66776f]">I recapiti saranno aggiunti dopo verifica della fonte e revisione privacy.</p>
-                ) : null}
-              </div>
-
-            </div>
+      {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
+        (!adminOrganizationId || !claimState || ["rejected", "revoked"].includes(claimState.status)) ? (
+        <details className="rounded-2xl border border-[#dce6e0] bg-white px-4 py-3 text-sm" data-testid="network-unclaimed-company-claim">
+          <summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda? Rivendica il profilo</summary>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            {adminOrganizationId ? (
+              <NetworkActivationCta mode="published" companyId={profile.company.id}
+                companyName={displayName} source="network_profile" compact />
+            ) : (
+              <Link href={"/register?company=" + encodeURIComponent(displayName) +
+                "&return_to=" + encodeURIComponent("/network/" + profile.company.id + "/claim") + "#company-check"}
+                className="inline-flex min-h-10 items-center rounded-xl border border-[#c8ddd1] px-3 text-xs font-semibold text-[#175640]"
+                data-testid="network-company-claim-registration">Rivendica questa azienda</Link>
+            )}
+            <p className="text-xs leading-5 text-[#52615b]">L'affiliazione va verificata prima di gestire il profilo.</p>
           </div>
-
-          {profile.company.description ? (
-            <p className="mt-6 max-w-4xl text-sm leading-7 text-[#56677d]">
-              {profile.company.description}
-            </p>
-          ) : (
-            <p className="mt-6 text-sm text-[#52615b]">
-              Descrizione aziendale non ancora disponibile.
-            </p>
-          )}
-
-          <div className="mt-5">
-            <ProvenanceBadge kind={profile.company.provenance_kind} />
-          </div>
-        </div>
-
-      </section>
+        </details>
+      ) : null}
 
       {claimState && ["requested", "under_review"].includes(claimState.status) ? (
         <section className="rounded-2xl border border-[#d9e8e2] bg-[#edf5f2] p-4 text-sm text-[#43524c]">
@@ -503,6 +414,9 @@ export default async function NetworkCompanyProfilePage({
         </section>
       ) : null}
 
+      <details data-testid="network-profile-technical-details" className="rounded-2xl border border-[#dce6e0] bg-white p-3 sm:p-4">
+        <summary className="cursor-pointer px-2 py-1 text-sm font-semibold text-[#175640]">Approfondisci prodotti, capacità tecniche e fonti</summary>
+        <div className="mt-4 space-y-5">
       <section className="rounded-3xl border border-[#d9e1dd] bg-[#f6f8f7] p-6 sm:p-7">
         <SectionHeader
           eyebrow="In sintesi"
@@ -979,6 +893,8 @@ export default async function NetworkCompanyProfilePage({
           </section>
         </aside>
       </div>
+        </div>
+      </details>
     </div>
   );
 }
