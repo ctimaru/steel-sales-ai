@@ -79,13 +79,18 @@ async function industryAnswer(
       question, routed.entities, routed.missing, organizationId
     );
     const matches = lookup.companies.filter(company => company.match === "documented").length;
+    const hasTechnicalCriteria = Object.values(routed.entities).some(value => value !== null);
     const answer = lookup.restricted
       ? "La ricerca industriale approfondita richiede l’accesso Network del tuo spazio di lavoro. Non ho consultato schede o dati tecnici senza autorizzazione."
       : lookup.companies.length
         ? "Ho trovato " + lookup.companies.length + " operatori pertinenti nelle schede Network esaminate. " +
-          (matches ? matches + " presentano corrispondenze tecniche registrate nel Network; " : "Nessuna corrispondenza completa per la misura è documentata nelle schede esaminate; ") +
+          (hasTechnicalCriteria
+            ? matches
+              ? matches + " presentano corrispondenze tecniche registrate nel Network; "
+              : "Nessuna corrispondenza tecnica completa è documentata nelle schede esaminate; "
+            : "La categoria aziendale e il paese sono censiti, ma non hai ancora indicato una specifica tecnica; ") +
           "gli altri sono candidati da verificare. La classificazione aziendale e gli intervalli dichiarati non confermano capacità effettiva, prezzi o disponibilità."
-        : "Non ho trovato operatori pertinenti nelle schede pubblicate che ho potuto esaminare. Questo non dimostra che non esistano produttori della misura richiesta.";
+        : "Non ho trovato operatori pertinenti nelle schede pubblicate che ho potuto esaminare. La ricerca non è esaustiva e non dimostra l’assenza di altri fornitori.";
     return {
       ok: true, intent: "industry_search", answer,
       followUp: routed.missing.length ? "Per affinare la verifica, indica " + routed.missing.join(" e ") + "." : null,
