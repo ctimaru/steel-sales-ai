@@ -13,9 +13,9 @@ export function NetworkProfileTopBar() {
       <Link href="/network"
         className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-[#dbe6df] bg-white px-3.5 text-sm font-semibold text-[#205440] transition hover:border-[#a9c9b5] hover:bg-[#f2f8f4] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205440]">
         <span aria-hidden="true">←</span>
-        Torna alle aziende
+        <span className="sm:hidden">Network</span><span className="hidden sm:inline">Torna alle aziende</span>
       </Link>
-      <span className="text-xs font-medium text-[#667a6c]">Network <span aria-hidden="true">/</span> Profilo azienda</span>
+      <span className="hidden text-xs font-medium text-[#667a6c] sm:inline">Network <span aria-hidden="true">/</span> Profilo azienda</span>
     </nav>
   );
 }
@@ -68,32 +68,31 @@ export function NetworkProfileOverview({
           Network
           <span className="font-medium text-[#6d8375]">/ Scheda aziendale</span>
         </div>
-        <div className="mt-4 flex min-w-0 items-start gap-3.5 sm:mt-5 sm:gap-5">
-          <div className="flex h-[60px] w-[60px] shrink-0 items-center justify-center overflow-hidden rounded-[18px] border border-[#d6e4da] bg-white text-lg font-extrabold tracking-[-0.06em] text-[#16523a] shadow-sm sm:h-[82px] sm:w-[82px] sm:rounded-[22px] sm:text-2xl">
+        <div className="mt-4 grid min-w-0 grid-cols-[48px_minmax(0,1fr)] items-start gap-x-3 gap-y-2.5 sm:mt-5 sm:grid-cols-[82px_minmax(0,1fr)] sm:gap-x-5">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-[16px] border border-[#d6e4da] bg-white text-lg font-extrabold tracking-[-0.06em] text-[#16523a] shadow-sm sm:h-[82px] sm:w-[82px] sm:rounded-[22px] sm:text-2xl">
             {logoUrl ? <img src={logoUrl} alt={"Logo " + name} className="max-h-full max-w-full object-contain p-2" /> : <span aria-hidden="true">{initials}</span>}
           </div>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0">
             <h1 className="break-words text-xl font-semibold leading-[1.14] tracking-[-0.035em] text-[#163b2c] sm:text-[32px] lg:text-[38px]">{name}</h1>
             {legalName && legalName !== name ? <p className="mt-1.5 break-words text-xs text-[#5a6c5f] sm:text-sm">{legalName}</p> : null}
             {location || countryCode ? (
-              <p className="mt-2 flex flex-wrap items-center gap-1.5 text-xs font-medium text-[#526a5b] sm:text-sm">
-                <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#69937a]" />
+              <p className="mt-2 break-words text-xs font-medium text-[#526a5b] sm:text-sm">
                 {[location, countryCode && !location?.includes(countryCode) ? countryCode : null].filter(Boolean).join(" · ")}
               </p>
             ) : null}
-            {visibleRoles.length ? (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {visibleRoles.map((role, index) => (
-                  <span key={role} className={index === 0
-                    ? "inline-flex items-center rounded-full bg-[#dcece1] px-3 py-1 text-[11px] font-bold text-[#174d36]"
-                    : "inline-flex items-center rounded-full border border-[#d7e3d9] bg-white/80 px-3 py-1 text-[11px] font-semibold text-[#4b6555]"}>
-                    {role}
-                  </span>
-                ))}
-              </div>
-            ) : null}
-            {description ? <p className="mt-3 line-clamp-2 text-xs leading-5 text-[#43524c] sm:hidden">{description}</p> : null}
           </div>
+          {visibleRoles.length ? (
+            <div className="col-span-2 flex flex-wrap gap-1.5 sm:col-span-1 sm:col-start-2">
+              {visibleRoles.map((role,index) => (
+                <span key={role} className={index === 0
+                  ? "inline-flex items-center rounded-full bg-[#dcece1] px-3 py-1 text-[11px] font-bold text-[#174d36]"
+                  : "inline-flex items-center rounded-full border border-[#d7e3d9] bg-white/80 px-3 py-1 text-[11px] font-semibold text-[#4b6555]"}>
+                  {role}
+                </span>
+              ))}
+            </div>
+          ) : null}
+          {description ? <p className="col-span-2 mt-1 line-clamp-2 text-xs leading-5 text-[#43524c] sm:hidden">{description}</p> : null}
         </div>
       </div>
 
