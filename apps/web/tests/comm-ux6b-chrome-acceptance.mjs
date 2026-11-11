@@ -47,15 +47,21 @@ async function inspectList(page, width, persona) {
   await heading.waitFor({ state: "visible", timeout: 60000 });
   assert.equal(await page.getByText("Trattative e attività", { exact: true }).count(), 0,
     "Duplicate worklist sub-heading must not return");
-  const header = page.getByTestId("comm-cine9-workspace-heading");
+  // COMM-CLEAN-LIST1: the second visible heading was removed to keep one
+  // concise list. The semantic heading must remain for assistive tech.
+  const worklistHeading = page.locator("#commercial-worklist-title");
+  assert.equal(await worklistHeading.count(), 1);
+  assert.equal(await page.getByTestId("comm-cine9-workspace-heading").count(), 0);
+  const filters = page.getByTestId("commercial-compact-filters");
   const list = page.getByTestId("commercial-list-pane");
   await list.waitFor({ state: "visible", timeout: 60000 });
   const entries = list.locator("div.divide-y > a");
   await entries.first().waitFor({ state: "visible", timeout: 60000 });
   const count = await entries.count();
   assert.equal(count, 8, "Expected exactly eight local RFQ density entries, got " + count);
-  const headerRect = await header.boundingBox();
-  assert.ok(headerRect && headerRect.height <= 90, "Second header must remain compact: " + headerRect?.height);
+  const filtersRect = await filters.boundingBox();
+  assert.ok(filtersRect && filtersRect.height <= 125,
+    "Compact filters must not create a duplicate header: " + filtersRect?.height);
   let maxHeight = 0;
   for (let i = 0; i < count; i++) {
     const entry = entries.nth(i);
@@ -64,8 +70,8 @@ async function inspectList(page, width, persona) {
     assert.ok(dimensions.height >= 44 && dimensions.height <= (width === 1440 ? 86 : 148),
       "Deal row " + i + " is not compact at " + width + "px: " + dimensions.height);
     maxHeight = Math.max(maxHeight, dimensions.height);
-    const title = entry.locator('[data-testid="commercial-smart-deal-card"] p[title]');
-    assert.match(await title.getAttribute("title") ?? "", /COMMUX6B RFQ \d{2}/);
+    const title = entry.locator("span.truncate").first();
+    assert.match(await title.innerText(), /COMMUX6B RFQ \d{2}/);
     assert.match(await entry.innerText(), /RFQ ai fornitori/i);
     assert.match(await entry.innerText(), /Bozza/i);
     const destination = await entry.getAttribute("href") ?? "";
@@ -222,10 +228,15 @@ try {
           assert.ok(await composer.isVisible(), "The AI-focused route must render a sticky chat composer");
           assert.equal(await page.locator("[data-rfqai-original-request]").count(), 0,
             "The legacy form accordion must not appear in focused conversational mode");
-          assert.equal(await page.getByTestId("commercial-rfq-user-message").count(), 0,
-            "Opening the compose route must not implicitly submit text or call AI");
+          // The buyer explicitly clicked "Analizza con l'AI" on Commerciale.
+          // The focused conversation therefore receives one authenticated
+          // request, while no proposal may enter the approved Distinta by itself.
+          const userMessage = page.getByTestId("commercial-rfq-user-message").first();
+          await userMessage.waitFor({ state: "visible", timeout: 60000 });
+          assert.match(await userMessage.innerText(), /40 tubi quadri 100x100x6/);
           await assertNoOverflow(page, "AI-first Distinta " + width);
-          assert.equal(await textField.inputValue(), "40 tubi quadri 100x100x6 S355J2H EN 10219 da 12 m");
+          assert.match(await userMessage.innerText(), /S355J2H EN 10219 da 12 m/,
+            "Original handoff must remain in the authenticated conversation");
           assert.equal(await page.getByTestId("commercial-ai-first").count(), 0,
             "Full dashboard assistant must be hidden in AI-focused compose");
           assert.equal(await page.getByTestId("commercial-list-pane").count(), 0,
@@ -235,8 +246,8 @@ try {
           await workspace.waitFor({ state: "visible" });
           assert.equal(await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem").count(), 0,
             "No articles are imported before explicit AI analysis and human review");
-          assert.equal(await page.getByTestId("commercial-rfq-ai-proposals").count(), 0,
-            "AI proposals must remain empty until the explicit Analyze click");
+          // An explicit AI click on the home may already return review-only
+          // proposals; approved articles and outbound RFQ actions remain empty.
           if (width === 1440) {
             assert.ok(await page.getByTestId("commercial-rfq-conversation-pane").isVisible());
             assert.ok(await page.getByTestId("commercial-rfq-preview-pane").isVisible());
@@ -254,8 +265,10 @@ try {
             assert.equal(await page.getByRole("tab", { name: "Conversazione" }).getAttribute("aria-selected"), "true",
               "Keyboard ArrowLeft must restore the conversation");
             assert.ok(await page.getByTestId("commercial-rfq-conversation-pane").isVisible());
-            assert.equal(await textField.inputValue(), "40 tubi quadri 100x100x6 S355J2H EN 10219 da 12 m",
-              "Keyboard tab switching must not unmount the draft input");
+            assert.ok(await textField.isVisible(),
+              "Keyboard tab switching must restore the canonical composer");
+            assert.match(await userMessage.innerText(), /40 tubi quadri/,
+              "The original request must remain in the conversation");
             await page.getByRole("tab", { name: "Conversazione" }).press("End");
             assert.equal(await previewTab.getAttribute("aria-selected"), "true",
               "Keyboard End must select the Distinta preview");
@@ -266,7 +279,11 @@ try {
           const manualShell = page.locator("#commercial-rfq-manual-tools");
           assert.equal(await manualShell.isVisible(), false,
             "Calculator must initially be a secondary action");
-          const analyzeAction = page.getByRole("button", { name: "Analizza la richiesta con AI" });
+          const analyzeAction = composer.getByRole("button", {
+            name: /Analizza la richiesta con AI|Correggi proposta AI|Completa richiesta|Analisi in corso/
+          });
+          assert.equal(await analyzeAction.count(), 1,
+            "One primary action is present even after an explicit AI intake");
           assert.ok(await analyzeAction.isVisible());
           await page.locator("#commercial-ai-intake").scrollIntoViewIfNeeded();
           // A Playwright "visible" element can still sit below the viewport.
@@ -285,15 +302,25 @@ try {
           });
           // A bare shorthand must produce a safe clarification instead of
           // silently guessing a grade, norm, form or quantity from "100x100x5".
-          await textField.fill("100x100x5");
-          await page.getByRole("button", { name: "Completa richiesta" }).click();
-          assert.equal(await page.getByTestId("commercial-rfq-user-message").count(), 1);
-          assert.equal(await page.getByTestId("commercial-rfq-assistant-message").count(), 1);
-          assert.match(await page.getByTestId("commercial-rfq-assistant-message").last().innerText(),
+          // A new unsubmitted compose route is needed: the prior home click
+          // already started an AI review and its input is in correction mode.
+          await page.goto(base + "/commercial?compose=1&method=ai", {
+            waitUntil: "domcontentloaded", timeout: 90000
+          });
+          const shortChat = page.getByTestId("commercial-rfq-gpt-conversation");
+          const shortField = page.locator("#rfqai2-text-input");
+          await shortField.waitFor({ state: "visible", timeout: 60000 });
+          await shortField.fill("100x100x5");
+          await shortChat.getByRole("button", { name: "Completa richiesta" }).click();
+          await shortChat.getByTestId("commercial-rfq-user-message").first()
+            .waitFor({ state: "visible", timeout: 60000 });
+          assert.equal(await shortChat.getByTestId("commercial-rfq-user-message").count(), 1);
+          assert.equal(await shortChat.getByTestId("commercial-rfq-assistant-message").count(), 1);
+          assert.match(await shortChat.getByTestId("commercial-rfq-assistant-message").last().innerText(),
             /tipo di tubo, quantità e lunghezza/);
-          assert.equal(await page.getByTestId("commercial-rfq-ai-proposals").count(), 0,
-            "Local clarification must not invent AI candidates or send a request");
-          assert.equal(await textField.inputValue(), "100x100x5",
+          assert.equal(await shortChat.getByTestId("commercial-rfq-ai-proposals").count(), 0,
+            "A local clarification cannot invent AI candidates or dispatch an RFQ");
+          assert.equal(await shortField.inputValue(), "100x100x5",
             "Keep shorthand text available for the buyer to complete it");
           // COMM-RFQ-CREATE2: la calcolatrice separata non è più nella pagina di creazione richiesta.
           assert.equal(await page.getByTestId("commercial-ai-manual-tools-toggle").count(), 0);
