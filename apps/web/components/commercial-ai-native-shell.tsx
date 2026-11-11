@@ -191,7 +191,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
   return (
     <section data-testid="commercial-ai-native-shell" aria-label="Smart Steel Intelligence"
       className="flex h-[calc(100dvh-14rem)] min-h-[360px] min-w-0 scroll-mt-20 flex-col overflow-hidden rounded-2xl border border-[#d5e3da] bg-white shadow-[0_10px_40px_-34px_rgba(13,63,41,0.2)] lg:h-[min(82dvh,780px)] lg:min-h-[500px] lg:rounded-2xl">
-      <header className="flex min-w-0 shrink-0 items-center justify-between gap-2 border-b border-[#e2eae4] bg-white px-3 py-2.5 sm:px-6 sm:py-3">
+      <header className="flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-[#e2eae4] bg-white px-3 py-2.5 sm:px-6 sm:py-3">
         <div className="flex min-w-0 items-center gap-3">
           <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#175640] text-lg text-white">✦</span>
           <div className="min-w-0">
