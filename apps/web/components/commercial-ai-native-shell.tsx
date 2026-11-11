@@ -322,7 +322,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
                                             </ul>
                                           ) : (
                                             <p className="mt-2 text-xs leading-5 text-[#697e70]">
-                                              Ruolo e famiglia di prodotto censiti; dati dimensionali non confermati.
+                                              Ruolo aziendale censito; capacità tecnica specifica non documentata.
                                             </p>
                                           )}
                                           {company.missing.length ? (
