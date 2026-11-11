@@ -3112,3 +3112,18 @@ nav[aria-label="Categorie ricerca commerciale"] a:focus-visible {
   outline: 2px solid var(--steel-blue);
   outline-offset: 2px;
 }
+
+/* COMM-AI-NATIVE1.CLEAN1 — the conversation is the only Commerciale entry chrome.
+   Keep the director navigation for classic, filtered lists, active Distinte and RFQ
+   deep links; hide it only when the server actually renders the AI-native shell. */
+@supports selector(:has(*)) {
+  [data-testid="commercial-director-shell"]:has([data-testid="commercial-ai-native-shell"]) > div:first-child,
+  [data-testid="commercial-director-shell"]:has([data-testid="commercial-ai-native-shell"]) [data-testid="commercial-director-sidebar"] {
+    display: none !important;
+  }
+  @media (min-width: 1280px) {
+    [data-testid="commercial-director-shell"]:has([data-testid="commercial-ai-native-shell"]) > div:nth-child(2) {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+  }
+}
