@@ -60,7 +60,7 @@ export function NetworkProfileOverview({
         </div>
       </div>
       <div className="grid gap-4 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-6">
-        <section aria-label="Attività e prodotti" className="min-w-0 rounded-2xl border border-[#e1e9e4] bg-[#fbfcfb] p-4 sm:p-5">
+        <section aria-label="Attività e prodotti" className="order-2 min-w-0 rounded-2xl lg:order-1 border border-[#e1e9e4] bg-[#fbfcfb] p-4 sm:p-5">
           <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#52615b]">Attività e prodotti</p>
           <h2 className="mt-1 text-lg font-semibold text-[#173f35]">Cosa fa e cosa offre</h2>
           {description ? <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-[#43524c]">{description}</p> : null}
@@ -74,7 +74,7 @@ export function NetworkProfileOverview({
             <div className="mt-2 flex flex-wrap gap-2">{visibleServices.map((service) => <span key={service} className="rounded-lg border border-[#e1e7e3] bg-white px-2.5 py-1.5 text-xs text-[#43524c]">{service}</span>)}</div>
           </div> : null}
         </section>
-        <div className="min-w-0 space-y-3">
+        <div className="order-1 min-w-0 space-y-3 lg:order-2">
           {actions ? <section aria-label="Azioni commerciali" className="space-y-2 rounded-2xl border border-[#dce6e0] bg-white p-3 sm:p-4">
             <h2 className="text-sm font-semibold text-[#173f35]">Azioni commerciali</h2>
             {actions}
