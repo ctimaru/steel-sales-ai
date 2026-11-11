@@ -68,8 +68,8 @@ function ContextContent({ topic }: { topic: CommercialAiNativeTopic }) {
       <div className="grid grid-cols-2 gap-2 border-t border-[#e2ebe5] pt-3">
         <Link href={appRoutes.rfqHub.home}
           className="rounded-lg border border-[#dce8e0] px-3 py-3 text-center text-xs font-medium text-[#315641] hover:bg-[#f3f8f4]">Centro RFQ</Link>
-        <Link href={appRoutes.commercial.home + "?experience=classic"}
-          className="rounded-lg border border-[#dce8e0] px-3 py-3 text-center text-xs font-medium text-[#315641] hover:bg-[#f3f8f4]">Tutte le attività</Link>
+        <Link href={appRoutes.commercial.home + "?experience=classic"} data-testid="commercial-ai-native-legacy"
+          className="rounded-lg border border-[#dce8e0] px-3 py-3 text-center text-xs font-medium text-[#315641] hover:bg-[#f3f8f4]">Gestione completa</Link>
       </div>
     </div>
   );
@@ -204,13 +204,15 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
             <button type="button" onClick={newChat} disabled={busy}
               data-testid="commercial-ai-native-new-chat"
               className="inline-flex min-h-10 items-center rounded-lg px-2.5 text-xs font-semibold text-[#175640] hover:bg-[#eff7f1] disabled:opacity-50">
-              + Nuova chat
+              <span aria-hidden="true">+</span><span className="hidden sm:inline"> Nuova chat</span><span className="sr-only sm:hidden">Nuova chat</span>
             </button>
           ) : null}
           <button type="button" ref={previewTrigger} onClick={openPreview}
             data-testid="commercial-ai-native-mobile-context"
-            className="inline-flex min-h-10 items-center rounded-lg border border-[#d1e2d6] px-2.5 text-xs font-semibold text-[#175640] lg:hidden">
-            Strumenti
+            aria-label="Strumenti"
+            className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-[#d1e2d6] px-2.5 text-xs font-semibold text-[#175640] lg:hidden">
+            <span className="text-xl leading-none sm:hidden" aria-hidden="true">⋯</span>
+            <span className="hidden sm:inline">Strumenti</span>
           </button>
           <details data-testid="commercial-ai-native-desktop-context" className="group relative hidden lg:block">
             <summary className="inline-flex min-h-10 cursor-pointer list-none items-center gap-1 rounded-lg border border-[#d1e2d6] px-3 text-xs font-semibold text-[#175640] hover:bg-[#eff7f1] [&::-webkit-details-marker]:hidden">
@@ -220,10 +222,6 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
               <ContextContent topic={activeTopic}/>
             </div>
           </details>
-          <Link href={appRoutes.commercial.home + "?experience=classic"} data-testid="commercial-ai-native-legacy"
-            className="inline-flex min-h-10 items-center rounded-lg px-2.5 text-xs font-medium text-[#587267] hover:bg-[#eff7f1] hover:text-[#175640]">
-            Gestione
-          </Link>
         </nav>
       </header>
 
