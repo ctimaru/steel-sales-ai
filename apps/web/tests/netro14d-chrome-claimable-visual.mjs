@@ -304,8 +304,17 @@ try {
       await noOverflow(page,"Company-commercial-hero/"+width);
       await screenshot(page,"network-company-profile-ux2-full-admin",width);
       const sparseHero=page.getByTestId("network-profile-sparse-fixture");
-      assert.equal(await sparseHero.getByRole("heading",{name:"DEMO Azienda in acquisizione"}).count(),1);
-      assert.match(await sparseHero.innerText(),/Informazioni commerciali non ancora pubblicate/);
+      assert.equal(await sparseHero.getByRole("heading",{name:"DEMO Acciai S.p.A."}).count(),1);
+      const compactCard=sparseHero.getByTestId("network-profile-ux1a");
+      assert.equal(await compactCard.getAttribute("data-profile-density"),"compact");
+      assert.equal(await sparseHero.getByRole("heading",{name:"Cosa fa e cosa offre"}).count(),0,
+        "Sparse company must not show an empty product section");
+      assert.equal(await sparseHero.getByRole("link",{name:/Visita il sito aziendale/}).count(),1);
+      assert.match(await sparseHero.innerText(),/Prodotti e specializzazioni non ancora pubblicati/);
+      assert.doesNotMatch(await sparseHero.innerText(),/Connessione nella piattaforma non disponibile/);
+      const compactRect=await compactCard.boundingBox();
+      assert.ok(compactRect && compactRect.height<(width===1440?340:500),
+        "Sparse profile is still oversized at "+width+": "+JSON.stringify(compactRect));
       await sparseHero.evaluate((node)=>window.scrollTo({top:Math.max(0,node.getBoundingClientRect().top+window.scrollY-148),behavior:"auto"}));
       await noOverflow(page,"Company-sparse-hero/"+width);
       await screenshot(page,"network-company-profile-ux2-sparse-admin",width);
