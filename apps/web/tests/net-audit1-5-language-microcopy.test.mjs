@@ -32,9 +32,9 @@ test("NET-AUDIT1.5 list and profile show Italian taxonomy, keys untouched",()=>{
   assert.match(ui,/company\.products\.slice\(0,2\)\.map\(networkNameIt\)/);
   assert.match(ui,/capabilities\.slice\(0,2\)\.map\(networkNameIt\)/);
   assert.match(ui,/value=\{option\.canonical_key\}/);
-  assert.match(profile,/\{networkNameIt\(primaryRole\.name\)\}/);
-  assert.match(profile,/\{networkNameIt\(role\.name\)\}/);
-  assert.match(profile,/\{networkNameIt\(capability\.name\)\}<\/p>/);
+  assert.ok(profile.includes("primaryRole={primaryRole ? networkNameIt(primaryRole.name) : null}"));
+  assert.ok(profile.includes("roles={profile.roles.map((role) => networkNameIt(role.name))}"));
+  assert.ok(profile.includes("capabilities.map((capability) => networkNameIt(capability.name))"));
 });
 
 test("NET-AUDIT1.5 chat microcopy: opening examples, compact disclosure, real button name",()=>{
