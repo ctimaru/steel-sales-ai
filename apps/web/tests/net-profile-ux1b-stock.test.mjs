@@ -69,3 +69,13 @@ test("NET-PROFILE-UX1.B: only approved admins can draft, publish and archive", (
   assert.match(actions, /supabase\.rpc\("netprofile_ux1b_upsert"/);
   assert.match(migration, /approved company claim and active admin membership required/);
 });
+
+test("NET-PROFILE-UX1.B: ISO dates really pass the server-action validator", () => {
+  const expression = actions.match(/&& !\/(\^[^/]+\$)\/\.test\(date\)/);
+  assert.ok(expression, "find exact server action date regex, do not use a duplicate helper");
+  const validator = new RegExp(expression[1]);
+  assert.equal(validator.test("2026-12-01"), true, "future arrivals accept yyyy-mm-dd");
+  assert.equal(validator.test("2027-01-15"), true, "production dates accept yyyy-mm-dd");
+  assert.equal(validator.test("01/12/2026"), false, "localized date rejected");
+  assert.equal(validator.test("tomorrow"), false, "unparseable date rejected");
+});
