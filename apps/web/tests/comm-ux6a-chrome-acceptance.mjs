@@ -217,7 +217,15 @@ try {
           await page.waitForFunction(expected => document.querySelector("#rfqai2-text-input")?.value === expected, sample);
           assert.equal(await draft.inputValue(), sample);
           assert.equal(await page.evaluate(() => sessionStorage.getItem("sss:commercial-ai-intake-handoff")), null);
-          assert.equal(await page.getByRole("button", { name: "Analizza la richiesta con AI" }).count(), 1);
+          // COMM-RFQ-CREATE1: the home CTA explicitly starts the analysis,
+          // so the focused GPT-like conversation may already show proposals
+          // and change the submit button from Analizza to Correggi.
+          const conversation = page.getByTestId("commercial-rfq-gpt-conversation");
+          await conversation.waitFor({ state: "visible" });
+          await conversation.getByTestId("commercial-rfq-sticky-composer").waitFor({ state: "visible" });
+          await conversation.getByTestId("commercial-rfq-user-message").first().waitFor({ state: "visible" });
+          assert.equal(await conversation.getByTestId("commercial-rfq-sticky-composer").count(), 1,
+            "One canonical chat composer, not a duplicate AI analyzer");
           await page.screenshot({ path: path.join(screenshotsDir, `commercial-ai-to-private-distinta-${width}px.png`), fullPage: false, animations: "disabled" });
           console.log("COMM-TRUST1.D CHAT → PRIVATE DISTINTA PASS", width, "one-shot text, preview, no automatic analysis or dispatch");
 
