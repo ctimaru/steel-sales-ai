@@ -291,6 +291,29 @@ try {
         await screenshot(page,"network-filters-closed-admin",width);
         assertions += 2;
       }
+      // NET-PROFILE-UX1.B: inspect the *real* production components with
+      // synthetic stock. /network-visual-qa is hard-gated to localhost development.
+      const stockCard=page.getByTestId("network-profile-stock");
+      await stockCard.waitFor({state:"visible",timeout:45000});
+      assert.match(await stockCard.innerText(),/12,75/,"Stock quantity missing");
+      assert.match(await stockCard.innerText(),/Prossimi arrivi \/ produzioni/);
+      assert.match(await stockCard.innerText(),/2026/);
+      await stockCard.scrollIntoViewIfNeeded();
+      await noOverflow(page,"Published-stock/"+width);
+      await screenshot(page,"network-stock-published-admin",width);
+      const stockManager=page.getByTestId("network-stock-manager");
+      await stockManager.waitFor({state:"visible"});
+      assert.match(await stockManager.innerText(),/3 pubblicate/);
+      assert.match(await stockManager.innerText(),/1 bozze/);
+      const newStock=stockManager.locator("details").first();
+      await newStock.locator("summary").click();
+      assert.equal(await newStock.getByRole("button",{name:"Pubblica nel Network"}).count(),1);
+      assert.equal(await newStock.getByRole("button",{name:"Salva bozza privata"}).count(),1);
+      await stockManager.scrollIntoViewIfNeeded();
+      await noOverflow(page,"Stock-manager/"+width);
+      await screenshot(page,"network-stock-manager-admin",width);
+      assertions+=8;
+
       await noOverflow(page,"Romania-directory/admin/"+width);
       await screenshot(page,"romania-directory-admin",width);
       assertions += 2;

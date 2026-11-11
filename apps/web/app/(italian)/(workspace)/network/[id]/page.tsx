@@ -2,6 +2,8 @@ import Link from "next/link";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { NetworkSaveToggle } from "@/components/network-save-toggle";
 import { NetworkProfileOverview } from "@/components/network-profile-overview";
+import { NetworkProfileInventory } from "@/components/network-profile-inventory";
+import { getPublishedNetworkInventory } from "@/lib/network-stock";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import {networkNameIt} from "@/lib/network-taxonomy-it";
 import { notFound, redirect } from "next/navigation";
@@ -299,6 +301,7 @@ export default async function NetworkCompanyProfilePage({
     profile.facilities.flatMap((facility) => facility.capabilities),
     (item) => item.key,
   );
+  const publishedInventory = await getPublishedNetworkInventory(context.organizationId, profile.company.id);
   const locationLabels = uniqueBy(
     profile.facilities
       .map((facility) => [facility.city, facility.country_code].filter(Boolean).join(", "))
@@ -369,6 +372,7 @@ export default async function NetworkCompanyProfilePage({
           </>
         }
       />
+      <NetworkProfileInventory items={publishedInventory} />
 
       {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
         (!adminOrganizationId || !claimState || ["rejected", "revoked"].includes(claimState.status)) ? (
