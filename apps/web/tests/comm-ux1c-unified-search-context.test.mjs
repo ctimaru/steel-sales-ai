@@ -35,8 +35,8 @@ test("COMM-UX1C preserves query and scope in same-origin URLs only", () => {
   const url = helpers.commercialSearchHref(q, "products");
   assert.equal(url, "/commercial/search?q=P265GH+%C3%98+406%2C4+%26+6%2C3&scope=products");
   assert.equal(helpers.commercialSearchHref(), "/commercial/search");
-  assert.equal(helpers.operationalSearchHref("cliente € 120"), "/commercial?q=cliente+%E2%82%AC+120#commercial-worklist");
-  assert.equal(helpers.operationalSearchHref(), "/commercial#commercial-worklist");
+  assert.equal(helpers.operationalSearchHref("cliente € 120"), "/commercial?view=all&q=cliente+%E2%82%AC+120#commercial-worklist");
+  assert.equal(helpers.operationalSearchHref(), "/commercial?view=all#commercial-worklist");
   assert.equal(helpers.normalizeCommercialSearchQuery(" x ".repeat(500)).length, 160);
   assert.ok(!url.startsWith("/network"));
 });
