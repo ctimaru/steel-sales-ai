@@ -122,8 +122,8 @@ try {
         fullPage: false, animations: "disabled", caret: "initial",
       });
       console.log("COMM-SIMPLE1 VISUAL PASS", width, {
-        commercialHeroHeight: boxes[0].height,
-        worklistY: boxes[3].y,
+        commercialHeroHeight: creationBox.height,
+        worklistY: dealBox.y,
         rfqSummaryHeight: summaryBox.height,
       });
     } finally {
