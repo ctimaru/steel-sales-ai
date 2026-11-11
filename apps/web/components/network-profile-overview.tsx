@@ -57,6 +57,63 @@ export function NetworkProfileOverview({
   const visibleServices = Array.from(new Set(services.filter(Boolean))).slice(0, 6);
   const hasContacts = Boolean(email || phone || website);
   const hasCommercialDetails = Boolean(description || visibleProducts.length || visibleServices.length || visibleRoles.length);
+  // NET-PROFILE-UX3: a directory entry is not a catalogue. For companies
+  // without declared activity, products or services do not render a vacant
+  // two-column content section. The website is the useful first action.
+  const hasPublishedActivities = Boolean(description?.trim() || visibleProducts.length || visibleServices.length);
+
+  if (!hasPublishedActivities) {
+    return (
+      <article aria-label="Profilo aziendale" data-testid="network-profile-ux1a"
+        data-profile-density="compact"
+        className="min-w-0 overflow-hidden rounded-[24px] border border-[#d8e6dc] bg-white shadow-[0_14px_38px_-32px_rgba(15,65,40,0.38)]">
+        <div className="h-1 bg-[#1a6044]" aria-hidden="true" />
+        <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
+          <div id="attivita" className="min-w-0 px-4 py-5 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#466d52]">Azienda nel Network</p>
+            <div className="mt-4 flex min-w-0 items-start gap-3.5 sm:gap-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#d7e5db] bg-[#f3f8f4] text-lg font-extrabold tracking-tight text-[#155338] sm:h-[72px] sm:w-[72px] sm:text-[22px]">
+                {logoUrl ? <img src={logoUrl} alt={"Logo " + name} className="max-h-full max-w-full object-contain p-2" /> : <span aria-hidden="true">{initials}</span>}
+              </div>
+              <div className="min-w-0 flex-1">
+                <h1 className="break-words text-[26px] font-semibold leading-[1.13] tracking-[-0.035em] text-[#163d2a] sm:text-[34px]">{name}</h1>
+                {legalName && legalName !== name ? <p className="mt-1.5 break-words text-xs text-[#5d7062] sm:text-sm">{legalName}</p> : null}
+                {(location || countryCode) ? <p className="mt-2 text-sm font-medium text-[#5b705f]">{[location, countryCode && !location?.includes(countryCode) ? countryCode : null].filter(Boolean).join(" · ")}</p> : null}
+                {visibleRoles.length ? <div className="mt-3 flex flex-wrap gap-1.5">
+                  {visibleRoles.map((role,index)=><span key={role} className={index===0
+                    ? "rounded-full bg-[#e3f0e7] px-3 py-1 text-xs font-semibold text-[#1b5b3d]"
+                    : "rounded-full border border-[#dfe8e1] bg-white px-3 py-1 text-xs font-medium text-[#496954]"}>{role}</span>)}
+                </div> : null}
+              </div>
+            </div>
+            <p className="mt-5 max-w-[580px] border-t border-[#ebf0eb] pt-3 text-xs leading-5 text-[#637467]">
+              Prodotti e specializzazioni non ancora pubblicati nel Network.
+            </p>
+          </div>
+          <aside id="contatti" aria-label="Contatti aziendali" data-testid="network-profile-header-contact"
+            className="flex min-w-0 flex-col justify-center gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] px-4 py-4 sm:px-7 lg:border-l lg:border-t-0 lg:px-5 lg:py-6">
+            {hasContacts ? <section aria-label="Contatti disponibili" className="space-y-2">
+              {website ? <a href={website} target="_blank" rel="noopener noreferrer"
+                className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl bg-[#17553b] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#23684b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17553b]">
+                <span>Visita il sito aziendale</span><span aria-hidden="true">↗</span>
+              </a> : null}
+              {email ? <a data-testid="network-company-public-email" href={"mailto:" + email}
+                className="flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border border-[#d8e5db] bg-white px-3.5 py-2.5 text-sm font-semibold text-[#205c40]">
+                <span className="break-all">{email}</span><span aria-hidden="true">↗</span>
+              </a> : null}
+              {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\\d+]/g,"")}
+                className="flex min-h-11 items-center justify-between gap-2 rounded-xl border border-[#d8e5db] bg-white px-3.5 py-2.5 text-sm font-semibold text-[#205c40]">
+                <span>{phone}</span><span aria-hidden="true">↗</span>
+              </a> : null}
+            </section> : null}
+            {actions ? <section aria-label="Azioni commerciali"
+              className="space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11">{actions}</section> : null}
+            {!hasContacts && !actions ? <p className="text-xs leading-5 text-[#6a7b6e]">Nessun recapito pubblico disponibile.</p> : null}
+          </aside>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article aria-label="Profilo aziendale" data-testid="network-profile-ux1a"
