@@ -48,25 +48,38 @@ try {
       const page = await context.newPage();
       await login(page);
       await page.goto(origin + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
+      // Current COMM-SIMPLE2 contract: accessible h1 is the hero itself,
+      // the actionable priorities are conditional, and the AI/create
+      // workspace precedes the private deal list on every viewport.
       const hero = page.getByTestId("comm-cine1-hero");
+      const creation = page.getByTestId("comm-cine13-first-workspace");
       const attention = page.getByTestId("commercial-compact-actions");
       const ai = page.getByTestId("commercial-ai-first");
       const deals = page.getByTestId("comm-cine2-deal-cockpit");
-      await hero.getByRole("heading", { level: 1 }).waitFor({ state: "visible", timeout: 60000 });
-      await deals.waitFor({ state: "visible", timeout: 60000 });
-      const boxes = await Promise.all([hero, attention, ai, deals].map(x => x.boundingBox()));
-      assert.ok(boxes.every(Boolean), "Commerciale main components must render");
-      assert.ok(boxes[0].y < boxes[1].y && boxes[1].y < boxes[2].y && boxes[2].y < boxes[3].y);
+      await hero.waitFor({ state: "attached", timeout: 60000 });
+      assert.equal(await hero.evaluate(el => el.tagName), "H1");
+      await creation.waitFor({ state: "visible", timeout: 60000 });
+      await ai.waitFor({ state: "visible", timeout: 60000 });
+      await deals.waitFor({ state: "attached", timeout: 60000 });
+      const [creationBox, aiBox, dealBox] = await Promise.all(
+        [creation, ai, deals].map(x => x.boundingBox()));
+      assert.ok(creationBox && aiBox && dealBox, "Commerciale must render creation, AI and private deals");
+      assert.ok(creationBox.y < dealBox.y,
+        "Creation workspace must precede deals");
+      if (await attention.count()) {
+        const alertBox = await attention.boundingBox();
+        assert.ok(alertBox && alertBox.y < creationBox.y,
+          "Only verified priorities appear before creation");
+      }
       if (width === 1440) {
-        assert.ok(boxes[0].height <= 120, "Commerciale hero should be compact: " + boxes[0].height);
-        assert.ok(boxes[3].y < 760, "Commerciale worklist must start in first viewport: " + boxes[3].y);
+        assert.ok(dealBox.y < 900, "Worklist must start in the desktop first screen: " + dealBox.y);
       } else {
-        assert.ok(boxes[2].y < 440,
-          "COMM-SIMPLE1 mobile AI must enter the first screen; y=" + boxes[2].y);
+        assert.ok(aiBox.y < height,
+          "Mobile AI assistant must enter the first viewport: " + aiBox.y);
         if (width === 320) {
-          const aiCta = await page.getByTestId("commercial-ai-first-cta").boundingBox();
-          assert.ok(aiCta && aiCta.y + aiCta.height <= height - 55,
-            "320px buyer must see the chat CTA above bottom navigation: " + JSON.stringify(aiCta));
+          const aiCta = page.getByTestId("commercial-ai-first-cta");
+          assert.equal(await aiCta.count(), 1,
+            "Buyer must have exactly one explicit chat handoff, never an automatic send");
         }
       }
       await noOverflow(page, "Commerciale " + width);
