@@ -580,6 +580,54 @@ export async function archiveManagedPublicContact(formData: FormData) {
   redirect(managedProfilePath("message", "Contatto pubblico archiviato."));
 }
 
+/** UX1.B: strictly company-managed declarations; approval checked again in SQL. */
+export async function saveManagedNetworkInventory(formData: FormData) {
+  const context = await requireWorkspaceAdmin();
+  const companyId = textValue(formData, "network_company_id");
+  const itemId = textValue(formData, "item_id");
+  const kind = textValue(formData, "kind");
+  const product = textValue(formData, "product_name");
+  const unit = textValue(formData, "unit");
+  const quantityText = textValue(formData, "quantity").replace(",", ".");
+  const quantity = Number(quantityText);
+  const publicationStatus = textValue(formData, "intent") || "draft";
+  const date = textValue(formData, "available_on");
+  const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+  if (!uuid.test(companyId) || (itemId && !uuid.test(itemId)) ||
+      !["stock", "incoming", "production"].includes(kind) ||
+      !["draft", "published", "archived"].includes(publicationStatus) ||
+      !["t", "kg", "m", "bars", "pcs"].includes(unit) ||
+      product.length < 2 || product.length > 180 ||
+      !Number.isFinite(quantity) || quantity <= 0 || quantity > 1000000000 ||
+      (publicationStatus === "published" && kind !== "stock" && !/^\d{4}-\d{2}-\d{2}$/.test(date))) {
+    redirect(managedProfilePath("error", "Controlla prodotto, quantità e data prevista prima di salvare."));
+  }
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("netprofile_ux1b_upsert", {
+    p_organization_id: context.organizationId,
+    p_company_id: companyId,
+    p_item_id: itemId || null,
+    p_kind: kind,
+    p_product_name: product,
+    p_standard: textValue(formData, "standard") || null,
+    p_grade: textValue(formData, "grade") || null,
+    p_dimensions: textValue(formData, "dimensions") || null,
+    p_quantity: quantity,
+    p_unit: unit,
+    p_location: textValue(formData, "location") || null,
+    p_available_on: kind === "stock" || !date ? null : date,
+    p_publication_status: publicationStatus,
+  });
+  if (error) {
+    redirect(managedProfilePath("error",
+      safeErrorMessage(error, "Impossibile aggiornare la disponibilità. Verifica autorizzazioni e dati.")));
+  }
+  revalidateManagedProfile(companyId);
+  redirect(managedProfilePath("message", publicationStatus === "published"
+    ? "Disponibilità pubblicata nel Network."
+    : publicationStatus === "archived" ? "Disponibilità archiviata." : "Bozza privata salvata."));
+}
+
 
 async function activeOrganizationId() {
   await requireWorkspaceWriteRole();

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { DenseDisclosure } from "@/components/dense-ui";
+import { NetworkInventoryManager } from "@/components/network-inventory-manager";
+import { getManagedNetworkInventory } from "@/lib/network-stock";
 import { redirect } from "next/navigation";
 
 import {
@@ -210,9 +212,10 @@ export default async function ManagedNetworkProfilePage({
     );
   }
 
-  const [state, inquiryPreferences] = await Promise.all([
+  const [state, inquiryPreferences, inventory] = await Promise.all([
     getManagedNetworkProfileState(managed.network_company_id),
     getInquiryPreferences(managed.organization_id),
+    getManagedNetworkInventory(managed.organization_id, managed.network_company_id),
   ]);
 
   if (!state) redirect("/network?error=Profilo%20gestito%20non%20disponibile");
@@ -307,6 +310,7 @@ export default async function ManagedNetworkProfilePage({
             ["overview", "Overview"],
             ["positioning", "Tipologia"],
             ["products", "Prodotti"],
+            ["stock", "Stock / Arrivi"],
             ["facilities", "Sedi & capability"],
             ["markets", "Mercati"],
             ["certifications", "Certificazioni"],
@@ -323,6 +327,8 @@ export default async function ManagedNetworkProfilePage({
           ))}
         </div>
       </nav>
+
+      <NetworkInventoryManager organizationId={managed.organization_id} companyId={companyId} inventory={inventory} />
 
       <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader

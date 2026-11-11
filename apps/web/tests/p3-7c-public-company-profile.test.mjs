@@ -6,6 +6,7 @@ const page = fs.readFileSync(
   new URL("../app/(workspace)/network/[id]/page.tsx", import.meta.url),
   "utf8",
 );
+const overview = fs.readFileSync(new URL("../components/network-profile-overview.tsx", import.meta.url), "utf8");
 const network = fs.readFileSync(
   new URL("../lib/network.ts", import.meta.url),
   "utf8",
@@ -27,7 +28,7 @@ test("P3.7C consumes a dedicated safe public profile read model", () => {
 });
 
 test("P3.7C composes trust, provenance and industrial sections on the public profile", () => {
-  assert.match(page, /Profilo aziendale/);
+  assert.match(overview, /Profilo aziendale/);
   assert.match(page, /Profilo rivendicato/);
   assert.match(page, /Azienda verificata/);
   assert.match(page, /Ruolo nella filiera/);

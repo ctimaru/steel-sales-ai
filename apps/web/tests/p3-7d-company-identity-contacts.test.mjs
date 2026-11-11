@@ -18,6 +18,7 @@ const profile = fs.readFileSync(
   new URL("../app/(workspace)/network/[id]/page.tsx", import.meta.url),
   "utf8",
 );
+const overview = fs.readFileSync(new URL("../components/network-profile-overview.tsx", import.meta.url), "utf8");
 const network = fs.readFileSync(
   new URL("../lib/network.ts", import.meta.url),
   "utf8",
@@ -77,7 +78,7 @@ test("P3.7D public profile consumes real logo and safe public contact trust", ()
   assert.match(network, /getNetworkCompanyLogoUrl/);
   assert.match(network, /p3_7d_public_identity_contacts/);
   assert.match(profile, /logoUrl/);
-  assert.match(profile, /Logo /);
+  assert.match(overview, /Logo /);
   assert.match(profile, /contact\.provenance_kind/);
   assert.match(profile, /contact\.verification_status/);
   assert.match(profile, /Contatti pubblici/);
