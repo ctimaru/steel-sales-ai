@@ -698,14 +698,23 @@ def classify_company(
         "hollow section", "profilati cavi", "tubi quadri", "tubi rettangolari",
         "square tube", "rectangular tube",
     )
+    # NET-IT-GROWTH2 (founder decision 11/11/2026): the Network covers the whole
+    # steel supply chain. Metalworking companies (carpenterie metalliche, sheet
+    # metal, steel structures) qualify without mentioning tubes; the tube
+    # relationship is declared ONLY when the site actually names tubes.
+    steel_terms = (
+        "acciaio", "acciai", "steel", "inox", "metallic", "metalli", "lamiera",
+        "lamiere", "ferro", "siderurg", "carpenteria metallica",
+    )
     has_tube = _has_any(lowered, tube_terms)
-    if not has_tube:
+    has_steel = _has_any(lowered, steel_terms)
+    if not has_tube and not has_steel:
         return [], [], [], {
             "producer": 0.0,
             "trader_distributor": 0.0,
             "processor_service_provider": 0.0,
             "end_user": 0.0,
-        }, ["classification_no_tube_evidence"]
+        }, ["classification_no_steel_evidence"]
 
     producer_raw = _weighted_signal_score(lowered, (
         ("tubificio", 6.0),
@@ -723,6 +732,16 @@ def classify_company(
         ("welded pipe manufacturer", 7.0),
         ("seamless pipe manufacturer", 7.0),
         ("production of steel tubes", 6.0),
+        ("acciaieria", 6.0),
+        ("acciaierie", 6.0),
+        ("steel mill", 6.0),
+        ("steelworks", 6.0),
+        ("laminatoio", 5.0),
+        ("laminazione a caldo", 5.0),
+        ("ferriera", 5.0),
+        ("fonderia di acciaio", 5.0),
+        ("produzione di lamiere", 5.0),
+        ("produzione di profilati", 5.0),
         ("produzione", 0.5),
         ("manufacturing", 0.5),
     ))
@@ -739,6 +758,18 @@ def classify_company(
         ("pronta consegna", 2.0),
         ("commercializzazione", 2.0),
         ("wholesale", 2.0),
+        ("commercio acciai", 5.0),
+        ("commercio di acciai", 5.0),
+        ("commercio ferro", 5.0),
+        ("commercio di ferro", 5.0),
+        ("distribuzione acciai", 5.0),
+        ("distribuzione di acciai", 5.0),
+        ("distributore di acciai", 5.0),
+        ("prodotti siderurgici", 4.0),
+        ("steel distributor", 5.0),
+        ("steel stockholder", 6.0),
+        ("lamiere e profilati", 3.0),
+        ("travi e profilati", 3.0),
     ))
     processor_raw = _weighted_signal_score(lowered, (
         ("lavorazione tubi", 6.0),
@@ -756,6 +787,28 @@ def classify_company(
         ("fabrication", 2.5),
         ("saldatura", 1.0),
         ("welding", 1.0),
+        ("carpenteria metallica", 4.0),
+        ("carpenterie metalliche", 4.0),
+        ("carpenteria in ferro", 4.0),
+        ("carpenteria pesante", 4.0),
+        ("carpenteria leggera", 3.0),
+        ("strutture in acciaio", 4.0),
+        ("strutture metalliche", 3.0),
+        ("steel structures", 4.0),
+        ("structural steel", 4.0),
+        ("metal fabrication", 4.0),
+        ("steel fabrication", 4.0),
+        ("lavorazione lamiera", 4.0),
+        ("lavorazione lamiere", 4.0),
+        ("lavorazioni lamiera", 4.0),
+        ("lavorazioni lamiere", 4.0),
+        ("lavorazione della lamiera", 4.0),
+        ("sheet metal", 3.0),
+        ("taglio laser", 3.0),
+        ("piegatura lamiera", 3.0),
+        ("piegatura lamiere", 3.0),
+        ("taglio plasma", 3.0),
+        ("lavorazioni meccaniche", 1.5),
     ))
     end_user_raw = _weighted_signal_score(lowered, (
         ("costruzione macchine", 5.0),
@@ -792,7 +845,9 @@ def classify_company(
         )
         if raw_scores[role] >= role_thresholds[role]
     ]
-    if not roles and end_user_raw >= role_thresholds["end_user"]:
+    # Industrial users qualify only through tubes: a machine builder that never
+    # mentions tubes is not in the steel supply chain for this Network.
+    if not roles and has_tube and end_user_raw >= role_thresholds["end_user"]:
         roles.append("end_user")
 
     quality_flags: list[str] = []
@@ -805,7 +860,7 @@ def classify_company(
         quality_flags.append("classification_insufficient_role_evidence")
 
     subtypes: list[str] = []
-    if "producer" in roles:
+    if "producer" in roles and has_tube:
         subtypes.append("tube_pipe_producer")
     if "trader_distributor" in roles:
         if _has_any(lowered, (
@@ -839,10 +894,11 @@ def classify_company(
                 "processor_service_provider": "processes",
                 "end_user": "uses",
             }[role]
-            product_relations.append({
-                "key": "tubes_pipes",
-                "relationship_type": relation,
-            })
+            if has_tube:
+                product_relations.append({
+                    "key": "tubes_pipes",
+                    "relationship_type": relation,
+                })
             if _has_any(lowered, hollow_terms):
                 product_relations.append({
                     "key": "hollow_sections",
@@ -862,7 +918,7 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
     domain = canonical_domain(pages[0].url)
     combined = "\n".join(page.text for page in pages)
     roles, subtypes, product_relations, classification_scores, class_flags = classify_company(combined)
-    if not roles or not any(item["key"] == "tubes_pipes" for item in product_relations):
+    if not roles:
         return None
 
     legal_name, identity_quality, identity_flags = _candidate_identity(pages, domain)

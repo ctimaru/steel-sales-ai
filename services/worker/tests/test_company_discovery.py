@@ -414,3 +414,45 @@ def test_italian_facility_keeps_province_separate_from_region() -> None:
     assert facility["province_code"] == "MI"
     assert facility["region"] is None
     assert facility["source_url"] == pages[0].url
+
+
+# NET-IT-GROWTH2: whole steel supply chain, tubes declared only when named.
+def _site(text: str, url: str = "https://carpenteria-esempio.it/") -> list[CrawledPage]:
+    return [CrawledPage(url=url, title="Carpenteria Esempio S.r.l.",
+                        site_name="Carpenteria Esempio", meta_description=None,
+                        h1="Carpenteria Esempio", text=text, links=())]
+
+
+def test_metal_fabricator_without_tubes_is_a_candidate_without_tube_claim() -> None:
+    candidate = extract_candidate(_site(
+        "Carpenteria Esempio S.r.l. P.IVA 01234567890. Carpenteria metallica "
+        "pesante e leggera, strutture in acciaio, saldatura e montaggio."), "IT")
+    assert candidate is not None
+    assert candidate["role_keys"] == ["processor_service_provider"]
+    assert "fabricator" in candidate["subtype_keys"]
+    assert not any(p["key"] == "tubes_pipes" for p in candidate["product_relations"])
+
+
+def test_sheet_metal_and_steel_trader_qualify() -> None:
+    roles, _, products, _, _ = classify_company(
+        "Lavorazione lamiera: taglio laser e piegatura lamiere in acciaio inox.")
+    assert roles == ["processor_service_provider"] and products == []
+    roles, subtypes, products, _, _ = classify_company(
+        "Commercio acciai e prodotti siderurgici: travi e profilati, lamiere.")
+    assert roles == ["trader_distributor"] and products == []
+
+
+def test_tube_relation_kept_when_site_names_tubes() -> None:
+    roles, _, products, _, _ = classify_company(
+        "Carpenteria metallica e lavorazione tubi in acciaio.")
+    assert "processor_service_provider" in roles
+    assert {"key": "tubes_pipes", "relationship_type": "processes"} in products
+
+
+def test_wood_carpentry_and_non_tube_machine_builder_are_rejected() -> None:
+    roles, _, _, _, flags = classify_company(
+        "Carpenteria in legno, tetti e travi lamellari, saldatura di guaine.")
+    assert roles == [] and flags == ["classification_no_steel_evidence"]
+    roles, _, _, _, _ = classify_company(
+        "Costruzione macchine e impianti industriali in acciaio per OEM.")
+    assert "end_user" not in roles
