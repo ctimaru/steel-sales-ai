@@ -1,5 +1,5 @@
 import Link from "next/link";
-import {NetworkProfileOverview} from "@/components/network-profile-overview";
+import { NetworkProfileOverview, NetworkProfileTopBar } from "@/components/network-profile-overview";
 import { NetworkProfileInventory } from "@/components/network-profile-inventory";
 import { getPublishedNetworkInventory } from "@/lib/network-stock";
 import {getReviewedCompanyEvidence} from "@/lib/network-profile-evidence";
@@ -53,7 +53,7 @@ export async function FreeNetworkProfileView({
 
   return (
     <FocusPage className="max-w-6xl">
-      <Link href="/network" className="text-sm font-semibold text-[#175640] hover:underline">← Torna alla ricerca</Link>
+      <NetworkProfileTopBar />
       <div className="mt-4">
         <NetworkProfileOverview
           name={companyName}
@@ -90,6 +90,11 @@ export async function FreeNetworkProfileView({
           }
         />
       </div>
+      <nav aria-label="Naviga la scheda" className="flex flex-wrap items-center gap-2 text-xs" data-testid="network-company-section-nav">
+        <a href="#attivita" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Attività</a>
+        <a href="#contatti" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Contatti</a>
+        {inventory.length ? <a href="#stock" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Stock dichiarato</a> : null}
+      </nav>
       <div className="mt-4"><NetworkProfileInventory items={inventory} /></div>
 
       {(provisional || isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status)) ? (
