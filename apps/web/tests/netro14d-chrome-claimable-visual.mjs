@@ -291,6 +291,25 @@ try {
         await screenshot(page,"network-filters-closed-admin",width);
         assertions += 2;
       }
+      // NET-PROFILE-UX2: actual shared company layout in both content-rich and sparse states.
+      const companyHero=page.getByTestId("network-profile-ux1a").first();
+      await companyHero.waitFor({state:"visible",timeout:45000});
+      assert.equal(await companyHero.getByRole("heading",{name:"DEMO Tubi Strutturali"}).count(),1);
+      assert.equal(await companyHero.getByRole("heading",{name:"Cosa fa e cosa offre"}).count(),1);
+      assert.equal(await companyHero.getByRole("heading",{name:"Azioni commerciali"}).count(),1);
+      assert.equal(await companyHero.getByRole("heading",{name:"Contatti"}).count(),1);
+      const companyLinks=companyHero.getByRole("link");
+      assert.ok(await companyLinks.count()>=2);
+      await companyHero.scrollIntoViewIfNeeded();
+      await noOverflow(page,"Company-commercial-hero/"+width);
+      await screenshot(page,"network-company-profile-ux2-full-admin",width);
+      const sparseHero=page.getByTestId("network-profile-sparse-fixture");
+      assert.equal(await sparseHero.getByRole("heading",{name:"DEMO Azienda in acquisizione"}).count(),1);
+      assert.match(await sparseHero.innerText(),/Informazioni commerciali non ancora pubblicate/);
+      await sparseHero.scrollIntoViewIfNeeded();
+      await noOverflow(page,"Company-sparse-hero/"+width);
+      await screenshot(page,"network-company-profile-ux2-sparse-admin",width);
+      assertions+=9;
       // NET-PROFILE-UX1.B: inspect the *real* production components with
       // synthetic stock. /network-visual-qa is hard-gated to localhost development.
       const stockCard=page.getByTestId("network-profile-stock");
