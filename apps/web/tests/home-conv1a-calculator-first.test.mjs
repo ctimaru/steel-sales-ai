@@ -71,8 +71,8 @@ test("HOME-CONV1A is lightweight, readable and available at all breakpoints", ()
   assert.match(navCss, /color: #d2e9db !important/);
   assert.match(navCss, /:focus-visible/);
   assert.doesNotMatch(header, /framer-motion|three|gsap|<video|<canvas|<Script/);
-  assert.match(workflow, /apps\/web\/app\/\(italian\)\/\*\*/);
-  assert.match(workflow, /apps\/web\/app\/\(english\)\/\*\*/);
+  assert.match(workflow, /apps\/web\/app\/\(italian\)\/\(public\)\/\*\*/);
+  assert.match(workflow, /apps\/web\/app\/\(english\)\/en\/\*\*/);
   assert.match(read("./home-si5-chrome-visual-qa.mjs"), /HOME-CONV1A/);
   assert.match(read("./home-si5-chrome-visual-qa.mjs"), /Mobile quick tools must follow hero in normal flow/);
 });

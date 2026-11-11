@@ -14,7 +14,7 @@ permissions:
 # Cancel only superseded revisions of the SAME PR; never interrupt main,
 # workflow_dispatch, scheduled jobs, or a different pull request.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -101,6 +101,9 @@ jobs:
               print("Potential secret material found in tracked files:", *findings, sep="\n")
               sys.exit(1)
           print("Tracked secret guard passed")
+
+      - name: Verify domain-targeted CI routing and safe fallback
+        run: python3 .github/scripts/ci-lean1-validate.py
 
   frontend:
     name: frontend

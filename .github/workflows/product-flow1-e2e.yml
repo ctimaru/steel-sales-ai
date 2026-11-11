@@ -14,31 +14,74 @@ on:
       - "apps/web/tests/comm-ux6a-chrome-acceptance.mjs"
       - "apps/web/tests/product-flow1-*.cjs"
       - "apps/web/tests/demotest23-seed-auth.mjs"
-      - "apps/web/tests/netgrowth2c1-*.mjs"
-      - "apps/web/tests/netro14d-chrome-claimable-visual.mjs"
       - "apps/web/tests/rfqh14-2-prepare-portal.mjs"
-      - "apps/web/components/**"
-      - "apps/web/lib/**"
+      # RFQ and shared auth: unrelated Network/School components do not trigger FLOW1.
+      - "apps/web/components/commercial-*"
+      - "apps/web/components/buyer-*"
+      - "apps/web/components/rfq-*"
+      - "apps/web/components/workspace-*"
+      - "apps/web/components/app-shell.tsx"
+      - "apps/web/components/technical-cart-*"
+      - "apps/web/lib/commercial-*"
+      - "apps/web/lib/buyer-*"
+      - "apps/web/lib/rfq-*"
+      - "apps/web/lib/calculator-commercial-*"
+      - "apps/web/lib/ai-*"
+      - "apps/web/lib/steel-*"
+      - "apps/web/components/steel-intelligence*"
+      - "apps/web/app/api/**/ai/**"
+      - "apps/web/app/api/**/assistant/**"
+      - "apps/web/app/api/**/intelligence/**"
+      - "apps/web/middleware.ts"
+      - "apps/web/proxy.ts"
+      - "apps/web/lib/access-policy.ts"
+      - "apps/web/lib/workspace-*"
+      - "apps/web/lib/auth-*"
+      - "apps/web/lib/supabase-*"
       - "apps/web/app/**/commercial/**"
       - "apps/web/app/**/search/**"
       - "apps/web/app/**/distinta/**"
       - "apps/web/app/**/login/**"
       - "apps/web/app/**/rfq-hub/**"
       - "apps/web/app/**/rfq/respond/**"
-      - "apps/web/app/api/**"
+      - "apps/web/app/api/**/rfq/**"
+      - "apps/web/app/api/**/commercial/**"
+      - "apps/web/app/api/**/auth/**"
+      - "apps/web/app/api/**/supplier*/**"
+      - "apps/web/app/api/**/offer*/**"
+      - "apps/web/app/api/**/order*/**"
       - "apps/web/package.json"
       - "apps/web/package-lock.json"
-      - "services/worker/app/**"
-      - "services/worker/tests/**"
+      - "services/worker/app/rfq*"
+      - "services/worker/app/ai*"
+      - "services/worker/app/commercial*"
+      - "services/worker/app/*intelligence*"
+      - "services/worker/app/knowledge*"
+      - "services/worker/app/main.py"
+      - "services/worker/app/schema*"
+      - "services/worker/tests/test_rfq*"
+      - "services/worker/tests/test_ai*"
+      - "services/worker/tests/test_commercial*"
       - "services/worker/pyproject.toml"
       - "supabase/config.toml"
-      - "supabase/migrations/**"
+      - "supabase/migrations/*rfq*.sql"
+      - "supabase/migrations/*commercial*.sql"
+      - "supabase/migrations/*distinta*.sql"
+      - "supabase/migrations/*tenant*.sql"
+      - "supabase/migrations/*auth*.sql"
+      - "supabase/migrations/*role*.sql"
+      - "supabase/migrations/*organization*.sql"
+      - "supabase/migrations/*offer*.sql"
+      - "supabase/migrations/*order*.sql"
+      - "supabase/migrations/*procurement*.sql"
       - "supabase/ci/**"
       - "supabase/tests/product_flow1_local_search_seed.sql"
       - "supabase/tests/demotest2_3_chrome_seed.sql"
-      - "supabase/tests/netgrowth2c1_chrome_synthetic_seed.sql"
       - "supabase/tests/rfqh14_2_chrome_procurement_seed.sql"
   workflow_dispatch:
+  # Nightly full cross-domain coverage; PR runs focus on procurement.
+  schedule:
+    - cron: "17 2 * * *"
 
 permissions:
   contents: read
@@ -47,7 +90,7 @@ permissions:
 # Cancel only superseded revisions of the SAME PR; never interrupt main,
 # workflow_dispatch, scheduled jobs, or a different pull request.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -228,6 +271,7 @@ jobs:
           echo "Local Next.js startup failed; private logs are not published"
           exit 1
       - name: NET-GROWTH2C.1 — Create independent local GoTrue Platform auditor
+        if: github.event_name != 'pull_request'
         working-directory: apps/web
         shell: bash
         run: |
@@ -237,6 +281,7 @@ jobs:
             DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             node tests/netgrowth2c1-seed-platform-auditor.mjs
       - name: NET-GROWTH2C.1 — Seed 28 local-only identities and synthetic Platform auditor
+        if: github.event_name != 'pull_request'
         env:
           PGPASSWORD: postgres
         shell: bash
@@ -247,11 +292,12 @@ jobs:
             -f "$RUNNER_TEMP/netgrowth2c1-auditor-vars.sql" \
             -f supabase/tests/netgrowth2c1_chrome_synthetic_seed.sql
       - name: NET-GROWTH2C.1 — Authenticated Chrome desktop/mobile identity recovery acceptance
+        if: github.event_name != 'pull_request'
         working-directory: apps/web
         timeout-minutes: 8
         run: node tests/netgrowth2c1-chrome-visual-acceptance.mjs
       - name: NET-GROWTH2C.1 — Upload synthetic Platform identity cockpit screenshots
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: netgrowth2c1-synthetic-platform-visual
@@ -259,6 +305,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: ONBOARDING-UX1 — Chrome IT/EN 320/390/1440 and real synthetic GoTrue handoff
+        if: github.event_name != 'pull_request'
         working-directory: apps/web
         shell: bash
         timeout-minutes: 10
@@ -268,7 +315,7 @@ jobs:
           DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             node tests/onboarding-ux1-chrome-acceptance.mjs
       - name: ONBOARDING-UX1 — Retain public-only responsive screenshots
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: onboarding-ux1-mobile-public-visual
@@ -276,6 +323,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: ONBOARDING-UX2 Chrome signup-first IT/EN 320/390/1440 in isolated local Auth
+        if: github.event_name != 'pull_request'
         working-directory: apps/web
         run: node tests/onboarding-ux2-chrome-first-viewport.mjs
       - name: Upload ONBOARDING-UX2 public registration viewport screenshots
@@ -287,6 +335,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: ONBOARDING-QA3.A — Real GoTrue email to local Mailpit and cross-browser confirmation/recovery
+        if: github.event_name != 'pull_request'
         working-directory: apps/web
         shell: bash
         timeout-minutes: 10
@@ -381,6 +430,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: ONBOARDING-QA3.B — GoTrue resend, invite, invalid token and multi-session suspension
+        if: github.event_name != 'pull_request'
         working-directory: apps/web
         shell: bash
         timeout-minutes: 8
@@ -390,6 +440,7 @@ jobs:
           DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             node tests/onboarding-qa3b-local-lifecycle.mjs
       - name: ONBOARDING-QA3.B.2 — Worker HP8 invite to Mailpit, Chrome acceptance, revoke, expiry and tenant RLS
+        if: github.event_name != 'pull_request'
         working-directory: apps/web
         shell: bash
         timeout-minutes: 10
@@ -400,6 +451,7 @@ jobs:
             node tests/onboarding-qa3b2-hp8-real-invitations.mjs
       # NET-RO1.4.C.1: local-only authenticated visual evidence. No hosted DB writes.
       - name: NET-RO1.4.C.1 — Publish nine Romanian sources in disposable local CI only
+        if: github.event_name != 'pull_request'
         env:
           PGPASSWORD: postgres
         shell: bash
@@ -410,6 +462,7 @@ jobs:
             -v ON_ERROR_STOP=1 \
             -f supabase/tests/netro14d_chrome_claimable_local_seed.sql
       - name: NET-RO1.4.C.1 — Chrome Romania profiles and claim, admin/viewer 1440/390/320
+        if: github.event_name != 'pull_request'
         working-directory: apps/web
         shell: bash
         timeout-minutes: 10
@@ -419,7 +472,7 @@ jobs:
           DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             node tests/netro14d-chrome-claimable-visual.mjs
       - name: NET-RO1.4.C.1 — Upload disposable Romania profile screenshots
-        if: always()
+        if: always() && github.event_name != 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: netro14d-local-authenticated-visual

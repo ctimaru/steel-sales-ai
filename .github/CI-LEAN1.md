@@ -13,7 +13,7 @@ same workflow for the same pull-request number. This applies to:
 
 ```yaml
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 ```
 
@@ -32,3 +32,14 @@ gates, and explicit human approval. Do not make a critical test
 non-blocking merely by moving it out of a monolithic workflow.
 
 Project tracking: https://github.com/ctimaru/steel-sales-ai/issues/1273
+
+## CI-LEAN1.B/C — Scoped test execution and required routing
+
+- **Commerciale/RFQ**: FLOW1 PR tests now route only from relevant files, including AI services, authorization, Distinta and supplier response. Network Romania and onboarding checks run as part of the full nightly/manual integration workflow.
+- **Mobile**: PERF2.1 selects School, Calculator/Distinta and Home tests by changed paths. Unknown or shared paths fall back to the full responsive suite.
+- **Network**: NET-UX-FILTERS1 owns Network responsive tests and reacts to Network UI changes.
+- **Critical routing**: P0's existing required `tracked secret guard` executes `.github/scripts/ci-lean1-validate.py`. Auth, RLS and database unit/SQL coverage remain under P0.
+- **Nightly**: FLOW1 and PERF2.1 keep full cross-domain suites so selective PR routing does not permanently discard coverage.
+- **Caveat**: GitHub requires `required`, not every separate browser workflow. Domain-specific browser checks are reviewed during acceptance; future hardening can make a selected E2E mandatory without forcing the whole suite on unrelated PRs.
+
+Metrics baseline: P0 186 seconds, FLOW1 497 seconds, PERF2.1 464 seconds average (3 recent samples per workflow, some FLOW1 runs failed). Post-change savings must be measured from comparable PRs, not inferred from these figures.
