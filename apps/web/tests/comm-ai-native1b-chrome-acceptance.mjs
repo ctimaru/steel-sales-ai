@@ -92,6 +92,19 @@ try {
         assert.equal(await start.count(), person.id === "buyer" ? 1 : 0);
         assert.equal(await shell.getByTestId("commercial-ai-native-context-distinta").count(), 0,
           "Do not duplicate Distinta CTA in the context panel");
+        if (width >= 1024) {
+          // C: after multiple turns, the desktop composer stays in the viewport;
+          // content scrolls inside the thread instead of stretching the page.
+          const [composer, shellBox] = await Promise.all([
+            shell.getByTestId("commercial-ai-native-form").boundingBox(),
+            shell.boundingBox(),
+          ]);
+          assert.ok(composer && shellBox, "Missing desktop composer");
+          assert.ok(composer.y >= 0 && composer.y + composer.height < 900,
+            "Desktop composer must remain visible after multi-turn conversation");
+          assert.ok(shellBox.y + shellBox.height <= 900,
+            "Desktop chat must not stretch below 900px viewport");
+        }
         if (width < 1024) {
           const dock = await page.getByRole("navigation", { name: "Navigazione mobile principale" }).boundingBox();
           const composer = await shell.getByTestId("commercial-ai-native-form").boundingBox();
