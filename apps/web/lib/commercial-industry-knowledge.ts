@@ -173,7 +173,7 @@ export function rankIndustryCompany(
   ].filter(x => x !== null).length;
   const documented = Boolean(best && supplied > 0 && !request.missing.length &&
     best.reasons.length === supplied && best.reasons.every(r =>
-      r.provenance && r.provenance !== "unknown" && r.verification && r.verification !== "rejected"
+      r.provenance && r.provenance !== "unknown" && r.verification === "verified"
     ));
   const source = "/network/" + encodeURIComponent(company.id);
   return {
