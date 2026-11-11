@@ -39,6 +39,10 @@ try {
         assert.ok(await shell.getByTestId("commercial-ai-native-legacy").isVisible());
         const input = shell.getByLabel("Domanda o richiesta commerciale");
         await input.waitFor({ state: "visible" });
+        // Capture the REAL viewport before geometry assertions, including the
+        // global header, Commerciale's secondary mobile nav and the fixed dock.
+        await page.screenshot({ path: path.join(screenshots, person.id + "-" + width + "-empty.png"),
+          animations: "disabled" });
         if (width < 1024) {
           const dock = page.getByRole("navigation", { name: "Navigazione mobile principale" });
           const [dockBox, composerBox, headerBox] = await Promise.all([
@@ -49,10 +53,9 @@ try {
           assert.ok(dockBox && composerBox && headerBox, "Missing mobile layout elements");
           assert.ok(headerBox.y >= 64 && headerBox.y < 320, "AI header must be below global sticky navigation");
           assert.ok(composerBox.y >= 0 && composerBox.y + composerBox.height <= dockBox.y - 4,
-            "Composer must remain fully visible ABOVE mobile dock on first viewport");
+            "Composer must remain fully visible ABOVE mobile dock: " +
+            JSON.stringify({ composerBottom: Math.round(composerBox.y + composerBox.height), dockTop: Math.round(dockBox.y) }));
         }
-        await page.screenshot({ path: path.join(screenshots, person.id + "-" + width + "-empty.png"),
-          animations: "disabled" });
         const widths = await page.evaluate(() => ({
           visible: document.documentElement.clientWidth,
           document: document.documentElement.scrollWidth,
