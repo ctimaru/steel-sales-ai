@@ -300,13 +300,13 @@ try {
       assert.equal(await companyHero.getByRole("heading",{name:"Contatti"}).count(),1);
       const companyLinks=companyHero.getByRole("link");
       assert.ok(await companyLinks.count()>=2);
-      await companyHero.scrollIntoViewIfNeeded();
+      await companyHero.evaluate((node)=>window.scrollTo({top:Math.max(0,node.getBoundingClientRect().top+window.scrollY-148),behavior:"instant"}));
       await noOverflow(page,"Company-commercial-hero/"+width);
       await screenshot(page,"network-company-profile-ux2-full-admin",width);
       const sparseHero=page.getByTestId("network-profile-sparse-fixture");
       assert.equal(await sparseHero.getByRole("heading",{name:"DEMO Azienda in acquisizione"}).count(),1);
       assert.match(await sparseHero.innerText(),/Informazioni commerciali non ancora pubblicate/);
-      await sparseHero.scrollIntoViewIfNeeded();
+      await sparseHero.evaluate((node)=>window.scrollTo({top:Math.max(0,node.getBoundingClientRect().top+window.scrollY-148),behavior:"instant"}));
       await noOverflow(page,"Company-sparse-hero/"+width);
       await screenshot(page,"network-company-profile-ux2-sparse-admin",width);
       assertions+=9;
