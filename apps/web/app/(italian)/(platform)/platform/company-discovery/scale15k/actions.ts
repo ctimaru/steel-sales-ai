@@ -173,3 +173,72 @@ export async function setScale15KFactPolicy(formData: FormData) {
     ? "Delega fatti aziendali attiva per 30 giorni. Solo verifiche recenti del sito ufficiale, quota giornaliera e audit macchina."
     : "Delega fatti aziendali revocata: il motore automatico non potrà effettuare nuovi lotti."));
 }
+
+/** NET-IT-SEED1: owner authorization to keep discovering new Italian company
+ * websites from index pages (association/fair/certification lists), at a
+ * daily-capped rate. Finds domains and stages private PENDING candidates
+ * only — it never publishes and never marks a source as approved. */
+export async function setSeed1Policy(formData: FormData) {
+  await requirePlatformPermission("platform.settings.manage");
+  await requirePlatformPermission("discovery.run");
+  const supabase = await createClient();
+  const { data: access, error: accessError } = await supabase.rpc("platform_access_context");
+  if (accessError || !(access as { is_platform_owner?: boolean } | null)?.is_platform_owner) {
+    redirect(resultPath("error", "Solo il proprietario Platform può autorizzare o revocare il cercatore di siti."));
+  }
+  const enabled = formData.get("enabled") === "true";
+  const attested = formData.get("attested") === "on";
+  const note = String(formData.get("policy_note") ?? "").trim();
+  const cap = Number(formData.get("daily_crawl_cap") ?? 1000);
+  if (enabled && (!attested || !Number.isInteger(cap) || cap < 1 || cap > 5000 ||
+      note.length < 80 || note.length > 2000)) {
+    redirect(resultPath("error",
+      "Cercatore non attivato: seleziona 1–5000 siti al giorno e una motivazione di almeno 80 caratteri."));
+  }
+  const { data, error } = await supabase.rpc("net_it_seed1_set_policy", {
+    p_enabled: enabled, p_daily_crawl_cap: enabled ? cap : 1000,
+    p_valid_days: 30, p_attested: enabled ? attested : false,
+    p_note: enabled ? note : null,
+  });
+  const result = data as { contract?: string; enabled?: boolean } | null;
+  if (error || result?.contract !== "net-it-seed1-policy-v1" ||
+      result.enabled !== enabled) {
+    redirect(resultPath("error",
+      "Cercatore di siti non modificato: controlla i permessi Platform e l'installazione della funzione."));
+  }
+  revalidatePath(ROOT);
+  redirect(resultPath("message", enabled
+    ? "Cercatore di siti attivo per 30 giorni: trova solo domini aziendali italiani e li metterà in coda come candidature private, mai pubblicate automaticamente."
+    : "Cercatore di siti revocato: nessuna nuova pagina indice verrà letta."));
+}
+
+/** Registers one index page (association member list, trade-fair exhibitor
+ * list, certification list...) as a pointer source for NET-IT-SEED1. Only
+ * the outbound company domains found on it are ever kept. */
+export async function addSeed1Source(formData: FormData) {
+  await requirePlatformPermission("discovery.run");
+  const sourceUrl = String(formData.get("source_url") ?? "").trim();
+  const sourceKind = String(formData.get("source_kind") ?? "").trim();
+  const label = String(formData.get("label") ?? "").trim();
+  const maxLinks = Number(formData.get("max_links") ?? 300);
+  const kinds = ["association", "trade_fair", "certification_list", "consortium", "public_register", "other"];
+  if (!/^https:\/\/\S+$/.test(sourceUrl) || sourceUrl.length > 2000 ||
+      !kinds.includes(sourceKind) || !Number.isInteger(maxLinks) || maxLinks < 1 || maxLinks > 1000) {
+    redirect(resultPath("error",
+      "Pagina indice non aggiunta: serve un indirizzo https valido, un tipo di fonte e un limite di link tra 1 e 1000."));
+  }
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("net_it_seed1_add_source", {
+    p_source_url: sourceUrl, p_source_kind: sourceKind,
+    p_label: label || null, p_max_links: maxLinks,
+  });
+  const result = data as { contract?: string; created?: boolean } | null;
+  if (error || result?.contract !== "net-it-seed1-source-v1") {
+    redirect(resultPath("error",
+      "Pagina indice non registrata: controlla il permesso discovery.run e l'indirizzo inserito."));
+  }
+  revalidatePath(ROOT);
+  redirect(resultPath("message", result?.created
+    ? "Pagina indice registrata: verrà letta al prossimo giro del cercatore, solo per i domini aziendali in uscita."
+    : "Pagina indice già registrata: nessuna duplicazione creata."));
+}
