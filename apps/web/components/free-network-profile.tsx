@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {NetworkProfileOverview} from "@/components/network-profile-overview";
 import {getReviewedCompanyEvidence} from "@/lib/network-profile-evidence";
 import { notFound } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
@@ -34,87 +35,123 @@ export async function FreeNetworkProfileView({
   const provisional = profile.company.discovery_status==="unconfirmed";
   const status=provisional?"unavailable":(await getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null))?.get(companyId);
   const canConnect=canInteractWithNetwork((await getWorkspaceContext()).role);
+  const companyName=profile.company.trading_name || profile.company.legal_name;
+  const evidenceProducts=reviewedEvidence
+    .filter((entry)=>entry.field_key==="products")
+    .flatMap((entry)=>typeof entry.field_value==="string" ? [entry.field_value] :
+      Array.isArray(entry.field_value) ? entry.field_value.filter((value):value is string=>typeof value==="string") : []);
+  const evidenceServices=reviewedEvidence
+    .filter((entry)=>entry.field_key==="services")
+    .flatMap((entry)=>typeof entry.field_value==="string" ? [entry.field_value] :
+      Array.isArray(entry.field_value) ? entry.field_value.filter((value):value is string=>typeof value==="string") : []);
+  const firstLocation=profile.facilities
+    .map((facility)=>[facility.city,facility.region].filter(Boolean).join(" · "))
+    .find(Boolean) ?? null;
+
   return (
-    <FocusPage className="max-w-[960px]">
-      <Link href="/network" className="text-sm font-semibold text-[#173f35] underline">← Torna alla ricerca</Link>
-      <section className="mt-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
-        <div className="flex min-w-0 items-start gap-4 sm:gap-5">
-          <div aria-hidden="true" className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#dce2df] bg-[#edf5f2] text-xl font-bold text-[#173f35] sm:h-20 sm:w-20">
-            {(profile.company.trading_name || profile.company.legal_name).trim().slice(0,2).toUpperCase()}
+    <FocusPage className="max-w-6xl">
+      <Link href="/network" className="text-sm font-semibold text-[#175640] hover:underline">← Torna alla ricerca</Link>
+      <div className="mt-4">
+        <NetworkProfileOverview
+          name={companyName}
+          legalName={profile.company.legal_name}
+          countryCode={profile.company.country_code}
+          location={firstLocation}
+          primaryRole={profile.roles[0]?.name ?? null}
+          roles={profile.roles.map((role)=>role.name)}
+          description={profile.company.description}
+          products={[...profile.products,...evidenceProducts]}
+          services={evidenceServices}
+          website={website}
+          actions={
+            <section aria-label="Connessione aziendale" className="space-y-2">
+              {status==="available"&&canConnect ? (
+                <Link href={"/network/"+companyId+"/connect"}
+                  className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold">
+                  Connetti →
+                </Link>
+              ) : status==="pending" ? (
+                <Link className="block text-sm font-semibold text-[#176647] underline" href="/network/connections?box=sent">Richiesta inviata · In attesa di risposta</Link>
+              ) : status==="connected" ? (
+                <Link className="block text-sm font-semibold text-[#176647] underline" href="/network/connections?box=connected">Connessione attiva · Apri connessioni</Link>
+              ) : (
+                <p className="text-xs leading-5 text-[#52615b]">
+                  {status===undefined?"Disponibilità delle connessioni temporaneamente non verificabile.":
+                    provisional?"Questa azienda non è ancora attiva sulla piattaforma: non è possibile inviare richieste.":
+                    !canConnect?"Per connetterti serve un ruolo commerciale abilitato.":
+                    "Questa azienda non può ricevere richieste sulla piattaforma. Usa il sito ufficiale se disponibile."}
+                </p>
+              )}
+              <p className="text-[11px] leading-5 text-[#607167]">La connessione richiede un'azienda attiva; visualizzare una scheda non crea rapporti commerciali.</p>
+            </section>
+          }
+        />
+      </div>
+
+      {(provisional || isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status)) ? (
+        <details className="mt-4 rounded-2xl border border-[#dce6e0] bg-white p-4 text-sm">
+          <summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda? Rivendica il profilo</summary>
+          <div className="mt-3 space-y-3">
+            <NetworkActivationHelp mode={provisional?"discovered":"published"}/>
+            {provisional ? (
+              <NetworkActivationCta mode="discovered" companyId={companyId}
+                companyName={profile.company.legal_name} source="network_profile"/>
+            ) : (
+              <NetworkActivationCta mode="published" companyId={companyId}
+                companyName={profile.company.legal_name} source="network_profile"/>
+            )}
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#175640]">Profilo aziendale</p>
-            <h1 className="mt-2 break-words text-2xl font-semibold tracking-tight text-[#173f35] sm:text-3xl">{profile.company.trading_name || profile.company.legal_name}</h1>
-            <p className="mt-2 text-sm leading-6 text-[#52615b]">{profile.company.country_code} · {profile.roles.map((r) => r.name).join(" · ") || "Ruolo da completare"}{provisional ? " · Ruolo indicativo" : ""}</p>
-          </div>
-        </div>
-        <section aria-label="Connessione aziendale" className="mt-5 rounded-2xl border border-[#bcd7c8] bg-[#f1f8f3] p-4 sm:p-5">
-          <h2 className="text-base font-semibold text-[#173f35]">Entra in contatto con questa azienda</h2>
-          {status==="available"&&canConnect ? <Link href={"/network/"+companyId+"/connect"}
-            className="app-primary mt-3 inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold">Connetti →</Link>
-          : <p className="mt-2 text-sm leading-6 text-[#52615b]">
-            {status==="pending" ? <Link className="font-semibold text-[#176647] underline" href="/network/connections?box=sent">Richiesta inviata · In attesa di risposta →</Link> :
-             status==="connected" ? <Link className="font-semibold text-[#176647] underline" href="/network/connections?box=connected">Connessione attiva · Apri connessioni →</Link> :
-             status===undefined ? "Disponibilità delle connessioni temporaneamente non verificabile." :
-             provisional ? "Questa azienda non è ancora attiva sulla piattaforma: non è possibile inviare richieste." :
-             !canConnect ? "Per richiedere una connessione serve il ruolo di amministratore o collaboratore commerciale." :
-             "Questa azienda non può attualmente ricevere richieste sulla piattaforma."}
-          </p>}
-        </section>
-        {provisional ? <details className="mt-4 rounded-xl border border-[#dce2df] bg-[#f8fbf9] p-4 text-sm leading-6 text-[#52615b]"><summary className="cursor-pointer font-semibold text-[#175640]">Origine e attendibilità delle informazioni</summary><div className="mt-2">
-          Questo profilo nasce da una ricerca aziendale e non è ancora stato confermato dall'azienda. La presenza nel Network non implica rapporti commerciali, verifica della sede o acquisto di prodotti siderurgici.
-          {profile.finished_only ? " L'uso di tubi in acciaio non è documentato in modo esplicito." : ""}
-          <div className="mt-2 flex flex-wrap gap-4">
-            {source ? <a href={source} target="_blank" rel="noopener noreferrer" className="font-semibold underline">Vedi fonte aziendale ↗</a> : null}
-            {license ? <a href={license} target="_blank" rel="noopener noreferrer" className="font-semibold underline">Licenza e attribuzione dei dati ↗</a> : null}
-            <Link href="/company-data" className="font-semibold underline">Segnala una correzione o chiedi la rimozione →</Link>
-          </div>
-        </div></details> : null}
-        {reviewedEvidence.length>0 ? <section aria-label="Informazioni aziendali con fonte" className="mt-5 rounded-xl border border-[#d5e5da] bg-[#f8fbf9] p-4">
-          <h2 className="text-base font-semibold text-[#173f35]">Attività e competenze</h2>
-          <p className="mt-1 text-xs text-[#52615b]">Informazioni ricavate da fonti aziendali consultabili; non equivalgono a certificazione o adesione al Network.</p>
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">{reviewedEvidence.map((entry,index)=>{
-            const value=typeof entry.field_value==="string"?entry.field_value:Array.isArray(entry.field_value)?entry.field_value.filter((x):x is string=>typeof x==="string").join(" · "):"";
-            const url=safeNetworkWebsiteUrl(entry.evidence_url);
-            return value ? <li key={entry.field_key+"|"+entry.evidence_url+"|"+index} className="min-w-0 rounded-xl border border-[#dce2df] bg-white p-3 text-sm leading-6 text-[#43524c]">
-              <span className="block text-xs font-semibold capitalize text-[#175640]">{entry.field_key==="description"?"Attività":entry.field_key==="industry"?"Settori":entry.field_key==="products"?"Prodotti":entry.field_key==="services"?"Servizi":entry.field_key}</span>
-              {value}
-              {url?<a href={url} target="_blank" rel="noopener noreferrer" className="mt-2 block w-fit text-xs font-semibold text-[#176647] underline underline-offset-2">Fonte ↗</a>:null}
-            </li> : null;
-          })}</ul>
-        </section> : null}
-        {profile.company.description ? <p className="mt-5 max-w-3xl whitespace-pre-wrap text-sm leading-6 text-[#43524c]">{profile.company.description}</p> : null}
-        {website ? <a href={website} target="_blank" rel="noopener noreferrer" className="app-secondary mt-5 inline-flex min-h-10 items-center rounded-xl px-4 text-sm font-semibold">Visita sito aziendale</a> : null}
-        {(provisional || isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status)) ?
-          <details className="mt-4 border-t border-[#edf1ef] pt-4 text-xs text-[#52615b]">
-            <summary className="cursor-pointer font-semibold text-[#175640]">Rappresenti questa azienda?</summary>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
-              <NetworkActivationHelp mode={provisional?"discovered":"published"}/>
-              {provisional ? <NetworkActivationCta mode="discovered" companyId={companyId} companyName={profile.company.legal_name} source="network_profile"/> :
-               <NetworkActivationCta mode="published" companyId={companyId} companyName={profile.company.legal_name} source="network_profile"/>}
-            </div>
-          </details> : null}
-        {(profile.products.length>0 || profile.facilities.length>0) ? <div className="mt-7 grid gap-6 sm:grid-cols-2">
-          {profile.products.length>0 ? <div>
-            <h2 className="text-base font-semibold text-[#173f35]">Prodotti dichiarati</h2>
-            <p className="mt-2 text-sm leading-6 text-[#52615b]">{profile.products.join(" · ") || "Non ancora disponibili"}</p>
-          </div> : null}
-          {profile.facilities.length>0 ? <div>
-            <h2 className="text-base font-semibold text-[#173f35]">Sedi pubblicate</h2>
-            {profile.facilities.length ? (
-              <ul className="mt-2 space-y-2 text-sm text-[#52615b]">
-                {profile.facilities.map((f, index) => (
-                  <li key={index}>{[f.city, f.region, f.country_code].filter(Boolean).join(" · ")}</li>
-                ))}
+        </details>
+      ) : null}
+
+      {(reviewedEvidence.length>0 || provisional || profile.products.length>0 || profile.facilities.length>0) ? (
+        <details data-testid="network-profile-free-evidence" className="mt-4 rounded-2xl border border-[#dce6e0] bg-white p-4 sm:p-5">
+          <summary className="cursor-pointer text-sm font-semibold text-[#175640]">Approfondimenti, sedi e fonti aziendali</summary>
+          {reviewedEvidence.length>0 ? (
+            <section aria-label="Informazioni aziendali con fonte" className="mt-5">
+              <h2 className="text-base font-semibold text-[#173f35]">Attività e competenze documentate</h2>
+              <p className="mt-1 text-xs text-[#52615b]">Le fonti pubbliche non equivalgono a certificazione o adesione al Network.</p>
+              <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+                {reviewedEvidence.map((entry,index)=>{
+                  const value=typeof entry.field_value==="string" ? entry.field_value :
+                    Array.isArray(entry.field_value) ? entry.field_value.filter((item):item is string=>typeof item==="string").join(" · ") : "";
+                  const url=safeNetworkWebsiteUrl(entry.evidence_url);
+                  return value ? <li key={entry.field_key+"|"+entry.evidence_url+"|"+index} className="rounded-xl border border-[#dce6e0] bg-[#fbfcfb] p-3 text-sm leading-6 text-[#43524c]">
+                    <p className="text-xs font-semibold capitalize text-[#175640]">{entry.field_key==="description"?"Attività":entry.field_key==="industry"?"Settori":entry.field_key==="products"?"Prodotti":entry.field_key==="services"?"Servizi":entry.field_key}</p>
+                    {value}
+                    {url?<a href={url} target="_blank" rel="noopener noreferrer" className="mt-2 block text-xs font-semibold text-[#176647] underline">Fonte ↗</a>:null}
+                  </li>:null;
+                })}
               </ul>
-            ) : <p className="mt-2 text-sm text-[#52615b]">Località non ancora disponibili</p>}
-          </div> : null}
-        </div> : null}
-      </section>
-      <p className="mt-4 text-xs text-[#647269]">
-        Questo profilo include solo dati aziendali condivisibili. Contatti privati,
-        storico commerciale, offerte e prezzi restano esclusi. Le richieste di connessione possono essere inviate solo ad aziende attive e raggiungibili sulla piattaforma. I profili da confermare non ricevono inviti automatici.
-      </p>
+            </section>
+          ) : null}
+          {(profile.products.length>0 || profile.facilities.length>0) ? (
+            <div className="mt-5 grid gap-5 sm:grid-cols-2">
+              {profile.products.length>0 ? <section>
+                <h2 className="font-semibold text-[#173f35]">Prodotti dichiarati</h2>
+                <p className="mt-2 text-sm text-[#43524c]">{profile.products.join(" · ")}</p>
+              </section>:null}
+              {profile.facilities.length>0 ? <section>
+                <h2 className="font-semibold text-[#173f35]">Sedi pubblicate</h2>
+                <ul className="mt-2 space-y-1 text-sm text-[#43524c]">
+                  {profile.facilities.map((facility,index)=><li key={index}>{[facility.city,facility.region,facility.country_code].filter(Boolean).join(" · ") || "Località non ancora disponibili"}</li>)}
+                </ul>
+              </section>:null}
+            </div>
+          ) : null}
+          {provisional ? <section className="mt-5 border-t border-[#e3ebe5] pt-4 text-xs leading-5 text-[#52615b]">
+            <h2 className="font-semibold text-[#173f35]">Origine e attendibilità delle informazioni</h2>
+            <p className="mt-2">Profilo ricavato da ricerca aziendale, non ancora confermato dall'azienda. La presenza nel Network non documenta capacità di fornitura né acquisti.</p>
+            {profile.finished_only ? <p className="mt-2">L'utilizzo di tubi in acciaio non è documentato in modo esplicito.</p>:null}
+            <div className="mt-3 flex flex-wrap gap-4">
+              {source?<a href={source} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#176647] underline">Vedi fonte aziendale ↗</a>:null}
+              {license?<a href={license} target="_blank" rel="noopener noreferrer" className="font-semibold text-[#176647] underline">Licenza e attribuzione dati ↗</a>:null}
+              <Link href="/company-data" className="font-semibold text-[#176647] underline">Segnala una correzione o chiedi la rimozione</Link>
+            </div>
+          </section>:null}
+        </details>
+      ) : null}
+      <p className="mt-4 text-xs leading-5 text-[#647269]">Solo dati aziendali pubblicabili. Contatti privati, offerte, prezzi e memoria commerciale non sono mostrati.</p>
     </FocusPage>
   );
 }
