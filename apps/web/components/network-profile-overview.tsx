@@ -94,7 +94,7 @@ export function NetworkProfileOverview({
             className="flex min-w-0 flex-col justify-center gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] px-4 py-4 sm:px-7 lg:border-l lg:border-t-0 lg:px-5 lg:py-6">
             {hasContacts ? <section aria-label="Contatti disponibili" className="space-y-2">
               {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-                className="flex min-h-12 w-full items-center justify-between gap-3 rounded-xl bg-[#17553b] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[#23684b] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17553b]">
+                className="app-primary flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17553b]">
                 <span>Visita il sito aziendale</span><span aria-hidden="true">↗</span>
               </a> : null}
               {email ? <a data-testid="network-company-public-email" href={"mailto:" + email}
