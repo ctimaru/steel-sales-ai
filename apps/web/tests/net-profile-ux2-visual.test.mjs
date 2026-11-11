@@ -12,7 +12,7 @@ const chrome = read("./netro14d-chrome-claimable-visual.mjs");
 test("NET-PROFILE-UX2: one clear company identity and first-screen sales actions in Free and Pro",() => {
   assert.match(overview,/NetworkProfileTopBar/);
   assert.match(overview,/Torna alle aziende/);
-  assert.match(overview,/Smart Steel Network/);
+  assert.match(overview,/Scheda aziendale/);
   assert.match(overview,/data-testid="network-profile-ux1a"/);
   assert.match(overview,/aria-label="Attività e prodotti"/);
   assert.match(overview,/aria-label="Azioni commerciali"/);
