@@ -79,3 +79,21 @@ test("NET-PROFILE-UX1.B: ISO dates really pass the server-action validator", () 
   assert.equal(validator.test("01/12/2026"), false, "localized date rejected");
   assert.equal(validator.test("tomorrow"), false, "unparseable date rejected");
 });
+
+
+const draftGateMigration = read("../../../supabase/migrations/20261111150000_netprofile_ux1b_pending_review_drafts.sql");
+const draftGateSqlTest = read("../../../supabase/tests/netprofile_ux1b_pending_drafts.sql");
+
+test("NET-PROFILE-UX1.B2: reviewed company can draft but cannot publish", () => {
+  assert.match(draftGateMigration, /publication_status in \('published','pending_review'\)/);
+  assert.match(draftGateMigration, /m7_user_can_manage_network_company/);
+  assert.match(draftGateMigration, /if new\.publication_status='published' and not exists/);
+  assert.match(draftGateMigration, /c\.publication_status='published'/);
+  assert.match(draftGateMigration, /c\.archived_at is null/);
+  assert.match(draftGateMigration, /before insert or update on private\.netprofile_ux1b_inventory/);
+  assert.match(draftGateSqlTest, /Publication guard trigger must be enabled/);
+  assert.match(workflow, /netprofile_ux1b_pending_drafts\.sql/);
+  assert.match(manager, /disabled=\{!canPublish\}/);
+  assert.match(manager, /data-testid="network-stock-publishing-wait"/);
+  assert.match(manage, /canPublish=\{state\.company\.publication_status === "published"\}/);
+});

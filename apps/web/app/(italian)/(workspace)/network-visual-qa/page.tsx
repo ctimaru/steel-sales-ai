@@ -100,6 +100,7 @@ export default async function NetworkVisualQaPage(){
         <NetworkInventoryManager
           organizationId={organizationId}
           companyId={stockVisualFixture[0].company_id}
+          canPublish={true}
           inventory={{ready:true,items:[
             ...stockVisualFixture,
             {...stockVisualFixture[0],id:"00000000-0000-0000-0000-0000000000a4",

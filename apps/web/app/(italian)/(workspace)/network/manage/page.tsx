@@ -328,7 +328,7 @@ export default async function ManagedNetworkProfilePage({
         </div>
       </nav>
 
-      <NetworkInventoryManager organizationId={managed.organization_id} companyId={companyId} inventory={inventory} />
+      <NetworkInventoryManager organizationId={managed.organization_id} companyId={companyId} inventory={inventory} canPublish={state.company.publication_status === "published"} />
 
       <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
