@@ -15,7 +15,7 @@ on:
       - 'supabase/tests/net_it_auto3_facts_only_local.sql'
       - 'supabase/migrations/20261111170000_net_it_growth1_legacy_identity_clearance.sql'
       - 'supabase/tests/net_it_growth1_legacy_clearance_local.sql'
-      - 'apps/web/tests/net-it-growth1-legacy-clearance.test.mjs'
+      - 'supabase/tests/net-it-growth1-legacy-clearance.test.mjs'
       - 'apps/web/tests/net-it-auto3-factual-policy.test.mjs'
       - 'supabase/tests/net_it_auto2_evidence_local.sql'
       - 'services/worker/app/net_it_auto2_reviewer.py'
@@ -44,7 +44,7 @@ jobs:
             apps/web/tests/net-it-scale15k-bulk-publisher.test.mjs \
             apps/web/tests/net-it-auto1-delegation.test.mjs \
             apps/web/tests/net-it-auto3-factual-policy.test.mjs \
-            apps/web/tests/net-it-growth1-legacy-clearance.test.mjs
+            supabase/tests/net-it-growth1-legacy-clearance.test.mjs
       - uses: supabase/setup-cli@v1
         with:
           version: 2.118.0

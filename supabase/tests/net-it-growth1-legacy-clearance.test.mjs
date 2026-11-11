@@ -5,9 +5,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const file = (path) => fs.readFileSync(new URL(path, import.meta.url), "utf8");
-const base = file("../../../supabase/migrations/20261110183000_net_it_auto3_facts_only_release.sql");
-const sql = file("../../../supabase/migrations/20261111170000_net_it_growth1_legacy_identity_clearance.sql");
-const worker = file("../../../services/worker/app/net_it_auto2_reviewer.py");
+const base = file("../migrations/20261110183000_net_it_auto3_facts_only_release.sql");
+const sql = file("../migrations/20261111170000_net_it_growth1_legacy_identity_clearance.sql");
+const worker = file("../../services/worker/app/net_it_auto2_reviewer.py");
 
 test("release query: legacy hold requires v2 evidence, sole trader still blocked", () => {
   assert.match(sql, /'legal_identity_not_verified'\]::text\[\]\n\s+OR e\.reviewer_version='net-it-auto2-firstparty-v2'\)/);
