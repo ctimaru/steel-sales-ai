@@ -1,0 +1,13 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "services/worker/Dockerfile",
+    "watchPatterns": ["services/worker/**"]
+  },
+  "deploy": {
+    "startCommand": "python -m app.net_it_seed1_pipeline --mode crawl --limit 200 --persist",
+    "cronSchedule": "52 * * * *",
+    "restartPolicyType": "NEVER"
+  }
+}
