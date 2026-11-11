@@ -599,7 +599,7 @@ export async function saveManagedNetworkInventory(formData: FormData) {
       !["t", "kg", "m", "bars", "pcs"].includes(unit) ||
       product.length < 2 || product.length > 180 ||
       !Number.isFinite(quantity) || quantity <= 0 || quantity > 1000000000 ||
-      (publicationStatus === "published" && kind !== "stock" && !/^\\d{4}-\\d{2}-\\d{2}$/.test(date))) {
+      (publicationStatus === "published" && kind !== "stock" && !/^\d{4}-\d{2}-\d{2}$/.test(date))) {
     redirect(managedProfilePath("error", "Controlla prodotto, quantità e data prevista prima di salvare."));
   }
   const supabase = await createClient();
