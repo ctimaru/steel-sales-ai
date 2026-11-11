@@ -220,21 +220,6 @@ jobs:
           done
           echo "Local Next.js startup failed; private logs are not published"
           exit 1
-      # COMM-AI-NATIVE1.B: run legacy Commerciale first, after local seeded
-      # GoTrue/Worker/Next start, so baseline visual failures fail promptly
-      # instead of following the entire AI-RFQ and provider acceptance journey.
-      - name: COMM-UX6.A — Authenticated first viewport 1440/390/320 and AI to private Distinta
-        working-directory: apps/web
-        timeout-minutes: 12
-        run: node tests/comm-ux6a-chrome-acceptance.mjs
-      - name: COMM-UX6.A — Retain synthetic visual evidence (no production users)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: comm-ux6a-synthetic-visual-evidence
-          path: ${{ runner.temp }}/comm-ux6a-visual-evidence/*.png
-          if-no-files-found: ignore
-          retention-days: 7
       - name: NET-GROWTH2C.1 — Create independent local GoTrue Platform auditor
         working-directory: apps/web
         shell: bash
@@ -372,6 +357,20 @@ jobs:
         with:
           name: comm-ux6b-synthetic-worklist-visual-qa
           path: ${{ runner.temp }}/comm-ux6b-safe-screenshots/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      # Regression after RFQ extraction: reuse same local synthetic account
+      # only after all AI quota-sensitive RFQ tests have completed.
+      - name: COMM-UX6.A — Authenticated first viewport 1440/390/320 and AI to private Distinta
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: node tests/comm-ux6a-chrome-acceptance.mjs
+      - name: COMM-UX6.A — Retain synthetic visual evidence (no production users)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comm-ux6a-synthetic-visual-evidence
+          path: ${{ runner.temp }}/comm-ux6a-visual-evidence/*.png
           if-no-files-found: ignore
           retention-days: 7
       - name: ONBOARDING-QA3.B — GoTrue resend, invite, invalid token and multi-session suspension
