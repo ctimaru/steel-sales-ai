@@ -357,24 +357,15 @@ export default async function NetworkCompanyProfilePage({
               <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
                 returnTo={"/network/" + profile.company.id} />
             ) : null}
-            {!inquiryEligible && canInteract && inquiryReason !== "self_inquiry" ? (
-              <span aria-disabled="true" data-testid="network-profile-connect-disabled"
-                className="block rounded-xl bg-[#f3f6f4] px-3 py-2 text-xs leading-5 text-[#52615b]">
-                Connessione nella piattaforma non disponibile: puoi usare i contatti pubblici.
-              </span>
-            ) : null}
-            {inquiryEligible && !canInteract ? (
-              <p className="text-xs leading-5 text-[#52615b]">Per connetterti serve un ruolo commerciale abilitato.</p>
-            ) : null}
-            <p className="text-[11px] leading-5 text-[#607167]">Salvare una scheda non invia richieste di connessione.</p>
+            {/* An unavailable connection is not an action. Show only usable CTAs. */}
           </>
         }
       />
-      <nav aria-label="Naviga la scheda" className="flex flex-wrap items-center gap-2" data-testid="network-company-section-nav">
-        <a href="#attivita" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 text-xs font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Attività</a>
-        <a href="#contatti" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 text-xs font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Contatti</a>
-        {publishedInventory.length ? <a href="#stock" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 text-xs font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Stock dichiarato</a> : null}
-      </nav>
+      {publishedInventory.length ? (
+        <nav aria-label="Naviga la scheda" className="flex flex-wrap gap-2" data-testid="network-company-section-nav">
+          <a href="#stock" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 text-xs font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Vedi stock dichiarato</a>
+        </nav>
+      ) : null}
       <NetworkProfileInventory items={publishedInventory} />
 
       {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
