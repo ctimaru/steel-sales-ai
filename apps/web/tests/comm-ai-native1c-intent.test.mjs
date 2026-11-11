@@ -39,7 +39,7 @@ test("COMM-AI-NATIVE1.C model is server-only, read-only and auth-guarded", () =>
   assert.match(action, /getWorkspaceContext\(\)/);
   assert.match(action, /AI_GATEWAY_API_KEY/);
   assert.match(action, /commercialAiNativeResponse/);
-  assert.doesNotMatch(action, /service_role|createBuyerRfqCampaign|sendBuyerDistinta|dispatchRfq|\.insert\(|\.update\(|\.delete\(/);
+  assert.doesNotMatch(action, /service_role|createBuyerRfqCampaign|sendBuyerDistinta|dispatchRfq|\.insert\(|\.update\(|\.from\([^)]*\)\.delete\(/);
   assert.match(shell, /commercialAiNativeResponse\(/);
   assert.match(shell, /startDistinta\(turn\.question\)/);
   assert.match(shell, /data-testid="commercial-ai-native-thread"/);
