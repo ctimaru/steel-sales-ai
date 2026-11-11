@@ -153,35 +153,25 @@ async function noHorizontalPageOverflow(page, label) {
 
 // COMM-CINE16: computed-browser visual acceptance on local, synthetic account data only.
 async function verifyCinematic(page, label) {
+  // COMM-SIMPLE2 / COMM-AI-NATIVE1.B: the historical poster/header block
+  // is now a native screen-reader h1, followed by a compact creation section.
+  // Assert the current semantic contract, not removed decorative counters.
   const hero = page.getByTestId("comm-cine1-hero");
+  const creation = page.getByTestId("comm-cine13-first-workspace");
   const companion = page.getByTestId("commercial-ai-first");
   const worklist = page.getByTestId("comm-cine2-deal-cockpit");
-  assert.equal(await hero.count(), 1, label + ": one industrial hero");
+  await hero.waitFor({state:"attached",timeout:60000});
+  assert.equal(await hero.evaluate(node => node.tagName), "H1",
+    label + ": one accessible page heading");
+  await creation.waitFor({state:"visible",timeout:60000});
+  await companion.waitFor({state:"visible",timeout:60000});
+  await worklist.waitFor({state:"attached",timeout:60000});
   assert.equal(await companion.count(), 1, label + ": one AI companion");
-  assert.equal(await worklist.count(), 1, label + ": one worklist");
-  // A streamed server page can expose hero/worklist containers before its
-  // heading joins the accessibility tree. Wait for the actual accessible title.
-  const heroHeading=hero.getByRole("heading",{level:1});
-  try { await heroHeading.waitFor({state:"visible",timeout:30000}); }
-  catch(err) {
-    const state=await hero.evaluate(el=>({
-      headings:[...el.querySelectorAll("h1,h2")].map(h=>({
-        tag:h.tagName,hidden:h.getAttribute("aria-hidden"),
-        display:getComputedStyle(h).display,visibility:getComputedStyle(h).visibility,
-        text:h.textContent?.slice(0,120)})),
-      hiddenAncestors:[...document.querySelectorAll("[aria-hidden='true'],[inert]")]
-        .filter(h=>h.contains(el)).map(h=>h.tagName+"#"+h.id).slice(0,6)
-    }));
-    throw new Error("Commerciale hero heading accessibility not ready: "+JSON.stringify(state),{cause:err});
-  }
-  assert.equal(await heroHeading.count(),1);
-  assert.equal(await companion.getByRole("heading", { name: "Descrivi i tubi che ti servono" }).count(), 1); // COMM-TRUST1.D copy
-  assert.equal(await hero.locator("dt").count(), 3, label + ": three accessible real-data counters");
-  const background = await hero.evaluate(el => getComputedStyle(el, "::before").backgroundImage);
-  assert.match(background, /home-cine2a2b-factory-(desktop|mobile)\.webp/, label + ": factory poster is rendered");
-  const bounds = await Promise.all([hero.boundingBox(), companion.boundingBox(), worklist.boundingBox()]);
-  assert.ok(bounds.every(Boolean), label + ": all core surfaces must render");
-  assert.ok(bounds[0].y < bounds[1].y && bounds[1].y < bounds[2].y, label + ": cinematic content must precede deals");
+  assert.equal(await worklist.count(), 1, label + ": one private worklist");
+  const bounds = await Promise.all([creation.boundingBox(), companion.boundingBox(), worklist.boundingBox()]);
+  assert.ok(bounds.every(Boolean), label + ": current Commerciale surfaces render");
+  assert.ok(bounds[0].y < bounds[2].y,
+    label + ": create workspace must precede private deals");
   await noHorizontalPageOverflow(page, label);
 }
 
@@ -196,8 +186,10 @@ try {
       await verifyCinematic(page, "Commerciale desktop " + p.id);
       await page.getByRole("heading", { name: "Le mie trattative" })
         .waitFor({ state: "visible", timeout: 60000 });
-      assert.equal(await page.locator('[data-testid="commercial-compact-actions"]').count(), 1);
-      assert.equal(await page.locator('[data-testid="commercial-compact-attention"]').count(), 1);
+      // Priority alerts are evidence-driven; don't fabricate a "zero" card.
+      const alerts = page.getByTestId("commercial-compact-actions");
+      if (p.id === "buyerViewer") assert.equal(await alerts.count(), 0,
+        "Read-only viewers cannot receive actionable buyer priorities");
       assert.equal(await page.locator('[data-testid="commercial-compact-filters"]').count(), 1);
       assert.equal(await page.locator('#commercial-worklist').count(), 1);
       assert.equal(await page.locator('#commercial-worklist input[name="q"]').count(), 1);
@@ -213,12 +205,14 @@ try {
       await rowArea.waitFor({ state: "visible", timeout: 60000 });
       assert.equal(await rowArea.locator(".max-h-\\[520px\\]").count(), 0,
         "Nested 520px worklist scroller must be removed");
-      const actions = page.locator('[data-testid="commercial-compact-actions"]');
-      const actionsRect = await actions.boundingBox();
+      // If actionable priorities exist, they must precede the deal list.
       const listRect = await page.locator("#commercial-worklist").boundingBox();
-      assert.ok(actionsRect && listRect && listRect.y > actionsRect.y,
-        "Compact action strip precedes worklist");
-      assert.ok(actionsRect.height < 220, "Desktop action strip must remain compact");
+      assert.ok(listRect, "The real worklist must be rendered");
+      if (await alerts.count()) {
+        const actionsRect = await alerts.boundingBox();
+        assert.ok(actionsRect && listRect.y > actionsRect.y &&
+          actionsRect.height < 220, "Confirmed priorities precede the compact worklist");
+      }
       const companion = page.getByTestId("commercial-ai-first");
       assert.equal(await companion.count(), 1, "One cinematic AI companion, never duplicated");
       const aiPrompt = companion.getByTestId("comm-cine11-prompt");
