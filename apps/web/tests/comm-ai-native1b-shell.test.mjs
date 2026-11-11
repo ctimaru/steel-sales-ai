@@ -7,6 +7,15 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const page = read("../app/(italian)/(workspace)/commercial/page.tsx");
 const shell = read("../components/commercial-ai-native-shell.tsx");
 const directorNavigation = read("../lib/commercial-director-navigation.ts");
+const legacyWorklistLinks = read("../lib/commercial-unified-data.ts");
+const streamWorklistLinks = read("../lib/commercial-unified-streams.ts");
+const searchLinks = read("../lib/commercial-search-context.ts");
+const compiledSearch = ts.transpileModule(searchLinks, {
+  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+}).outputText;
+const { operationalSearchHref } = await import(
+  "data:text/javascript;base64," + Buffer.from(compiledSearch).toString("base64")
+);
 const source = read("../lib/commercial-ai-native-ui.ts");
 const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
@@ -61,4 +70,13 @@ test("COMM-AI-NATIVE1.CLEAN2 preserves calculator and editor anchors on classic 
   assert.match(page, /params\.compose === "1"/);
   assert.match(page, /params\.view !== undefined/);
   assert.match(page, /params\.network !== undefined/);
+});
+
+test("COMM-AI-NATIVE1.CLEAN2 keeps all-filter and empty historical links in the worklist", () => {
+  assert.match(legacyWorklistLinks, /params\.set\("view", view\);/);
+  assert.match(streamWorklistLinks, /params\.set\("view", view\);/);
+  assert.doesNotMatch(legacyWorklistLinks, /if \(view !== "all"\) params\.set\("view", view\)/);
+  assert.doesNotMatch(streamWorklistLinks, /if \(view !== "all"\) params\.set\("view", view\)/);
+  assert.equal(operationalSearchHref(), "/commercial?view=all#commercial-worklist");
+  assert.equal(operationalSearchHref("  S355  "), "/commercial?view=all&q=S355#commercial-worklist");
 });
