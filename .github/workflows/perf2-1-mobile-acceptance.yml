@@ -5,8 +5,11 @@ on:
     paths:
       - "apps/web/app/page.tsx"
       - "apps/web/app/site-document.tsx"
-      - "apps/web/app/(italian)/**"
-      - "apps/web/app/(english)/**"
+      # Public, School and calculator pages; Commerciale has RFQ/visual tests in FLOW1.
+      - "apps/web/app/(italian)/(public)/**"
+      - "apps/web/app/(italian)/(workspace)/school/**"
+      - "apps/web/app/(english)/en/**"
+      - "apps/web/app/(international-calculator)/**"
       - "apps/web/app/globals.css"
       - "apps/web/components/public-network-role-explorer.tsx"
       - "apps/web/components/public-cinematic-hero.module.css"
@@ -93,6 +96,8 @@ on:
       - "apps/web/components/product-analytics-dashboard.tsx"
       - ".github/workflows/perf2-1-mobile-acceptance.yml"
   workflow_dispatch:
+  schedule:
+    - cron: "43 2 * * *"
 
 permissions:
   contents: read
@@ -117,6 +122,34 @@ jobs:
       CI: "true"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Select affected responsive domains
+        id: impact
+        shell: bash
+        run: |
+          set -euo pipefail
+          school=false; calculator=false; home=false; full=false
+          if [[ "${{ github.event_name }}" != "pull_request" ]]; then
+            full=true
+          else
+            BASE="${{ github.event.pull_request.base.sha }}"
+            git diff --name-only "$BASE" "$GITHUB_SHA" > "$RUNNER_TEMP/ci-responsive-paths.txt"
+            while IFS= read -r file; do
+              case "$file" in
+                .github/workflows/perf2-1-mobile-acceptance.yml|apps/web/app/globals.css|apps/web/app/site-document.tsx|apps/web/package.json|apps/web/package-lock.json)
+                  full=true ;;
+                *school*|*knowledge*|*tutor*|*professor*) school=true ;;
+                *calc*|*distinta*|*hss*|*tube-weight*|*buyer-*|*bd[0-9]*) calculator=true ;;
+                *home*|*public-cinematic*|*public-network-role*|apps/web/app/page.tsx) home=true ;;
+                *) full=true ;; # Fail safe for unknown shared code.
+              esac
+            done < "$RUNNER_TEMP/ci-responsive-paths.txt"
+          fi
+          for key in school calculator home full; do
+            printf '%s=%s\n' "$key" "${!key}" >> "$GITHUB_OUTPUT"
+          done
+          echo "Responsive impact: school=$school calculator=$calculator home=$home full=$full"
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
@@ -144,17 +177,22 @@ jobs:
           tail -n 70 "$RUNNER_TEMP/perf21-next.log"
           exit 1
       - name: SCHOOL-UNIFY2B Complete Explorer filter localization Chrome (demo only)
+        if: steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/school-unify2b-chrome-explorer.mjs
       - name: SCHOOL-UNIFY2 Five private workspace languages Chrome UX (demo only)
+        if: steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/school-unify2-chrome-private.mjs
       - name: SCHOOL-UNIFY1 Five public School languages Chrome layout and SEO
+        if: steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/school-unify1-chrome-five-hubs.mjs
       - name: SCHOOL-GROWTH1E Chrome Scuola SEO / contrast / images (mobile and desktop)
+        if: steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/school-growth1e-chrome-acceptance.mjs
       - name: SCHOOL-UX4 international catalog Chrome visual acceptance
+        if: steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/school-ux4-chrome-local.mjs
       - name: Upload SCHOOL-UX4 public catalog screenshots
-        if: always()
+        if: ${{ always() && (steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: school-ux4-international-catalog-chrome
@@ -162,9 +200,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
       - name: SCHOOL-AI1 Professor public source-boundary & visual acceptance
+        if: steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/school-ai1-chrome-professor.mjs
       - name: Upload SCHOOL-AI1 Professor screenshots
-        if: always()
+        if: ${{ always() && (steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: school-ai1-professor-chrome
@@ -172,9 +211,10 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
       - name: SCHOOL-UX5 Chrome guided technical reading navigation
+        if: steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/school-ux5-chrome-reading.mjs
       - name: Upload SCHOOL-UX5 reading navigation screenshots
-        if: always()
+        if: ${{ always() && (steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: school-ux5-guided-reading-chrome
@@ -182,16 +222,22 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
       - name: CALC-CINE1A five-language cinematic calculator, real shapes and bill
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-cine1a-chrome-acceptance.mjs
       - name: CALC-UX4 five-language whole-bar quantity and Distinta integrity
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-ux4-chrome-quantity.mjs
       - name: CALC-UX5 20 production visual sign-off browser cases
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-ux5-chrome-visual-signoff.mjs
       - name: CALC-UX6 compact footer, persistent favorites and copy utilities
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-ux6-chrome-utilities.mjs
       - name: CALC-DIST1 shared drawer visual hierarchy, rows and RFQ integrity
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dist1-chrome-drawer.mjs
       - name: CALC-DIST2 5–10 line density, quick edits and RFQ guard
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dist2-chrome-multi-row.mjs
       - name: Upload CALC-DIST2 multi-row snapshots
         if: always()
@@ -234,9 +280,10 @@ jobs:
           if-no-files-found: error
           retention-days: 7
       - name: HOME-CALC-FLOAT1B bilingual floating tools functional acceptance
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/home-calc-float1b-chrome-acceptance.mjs
       - name: Upload HOME-CALC-FLOAT1B real tool screenshots
-        if: always()
+        if: ${{ always() && (steps.impact.outputs.home == 'true' || steps.impact.outputs.full == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: home-calc-float1b-acceptance
@@ -246,55 +293,79 @@ jobs:
       - name: Chrome keyboard / no-JS / lazy lookup / consent acceptance
         run: node tests/perf2-1-chrome-mobile.mjs
       - name: CALC-UX3 Chrome IT/EN 320–1440px contrast / focus / touch QA
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-ux3-chrome-mobile.mjs
       - name: BD11 Chrome calculator-first, one-click visible mixed-norm RFQ bill
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/bd11-chrome-quick-add.mjs
       - name: CALC-INT4.4B Chrome inline bill IT mobile/desktop, edit, session restore and privacy
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int4-4b-chrome-inline-distinta.mjs
       - name: CALC-DENSE1R-H Chrome mobile-first bill cockpit public and international landing
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dense1r-h-chrome-first-viewport.mjs
       - name: CALC-DENSE1R-G Chrome non-overlapping mobile privacy and revocation
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dense1r-g-chrome-privacy.mjs
       - name: CALC-DENSE1R-F Chrome private builder compact shared calculator layout
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dense1r-f-chrome-private.mjs
       - name: CALC-DENSE1R-E Chrome market bar and aligned measurement/result workspace
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dense1r-e-chrome-visual.mjs
       - name: CALC-DENSE1R-D Chrome compact autocomplete, zero layout shift, keyboard acceptance
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dense1r-d-chrome-discovery.mjs
       - name: CALC-DENSE1R-A Chrome one-screen calculator cockpit and screenshot evidence
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dense1r-a-chrome-cockpit.mjs
       - name: CALC-DENSE1R-B Chrome narrow bill, 48px tabular rows and actions
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dense1r-b-chrome-tabular-cart.mjs
       - name: CALC-DENSE1C Chrome compact cart quantities, fixed footer and restore
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-dense1c-chrome-quantity-grid.mjs
       - name: CALC-INT4.4C Chrome commercial buyer-only target opt-in and privacy
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int4-4c-chrome-private-target.mjs
       - name: CALC-INT4.4D Chrome guest RFQ handoff and buyer target consent
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int4-4d-chrome-guest-private-rfq.mjs
       - name: CALC-INT4.4D.1 Chrome focused Italian calculator and SEO disclosure
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int4-4d1-chrome-calculator-focus.mjs
       - name: CALC-INT3C Chrome US NPS Schedule to IT/EN RFQ bills
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int3c-chrome-us-rfq.mjs
       - name: CALC-INT4 Chrome cinematic EU/US switch and reduced-motion acceptance
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int4-chrome-cinematic-switch.mjs
       - name: CALC-INT3D Chrome AISC A500 HSS to IT/EN RFQ
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int3d-chrome-astm-hss.mjs
       - name: CALC-INT3D.2 Chrome Atlas HSS reference selection and RFQ provenance
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int3d2-chrome-hss-library.mjs
       - name: CALC-INT3D.3 Chrome mobile HSS search/filter and RFQ
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int3d3-chrome-hss-search.mjs
       - name: CALC-INT3E.1 Chrome DE FR ES multilingual calculator and SEO RFQ
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int3e1-chrome-localized-calculator.mjs
       - name: CALC-INT3E.2 Chrome DE FR ES USA localization and RFQ
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int3e2-chrome-usa-five-language.mjs
       - name: CALC-INT3E.5 Chrome DE/FR/ES + EN US mobile RFQ conversion acceptance
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/calc-int3e5-chrome-rfq-funnel.mjs
       - name: BD17 Chrome A/B CTA variants, consent gating and login handoff
+        if: steps.impact.outputs.calculator == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/bd17-chrome-cta-variants.mjs
       - name: HOME-SI5 Chrome visual / WCAG / SEO acceptance
+        if: steps.impact.outputs.home == 'true' || steps.impact.outputs.full == 'true'
         run: node tests/home-si5-chrome-visual-qa.mjs
       - name: Upload SCHOOL-UNIFY2B Explorer localization screenshots (demo only)
-        if: always()
+        if: ${{ always() && (steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: school-unify2b-explorer-localized-demo
@@ -302,7 +373,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: Upload SCHOOL-UNIFY2 private UX demo screenshots (no users or company data)
-        if: always()
+        if: ${{ always() && (steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: school-unify2-private-ux-demo
@@ -310,7 +381,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: Upload SCHOOL-UNIFY1 international public School screenshots
-        if: always()
+        if: ${{ always() && (steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: school-unify1-five-locales-qa
@@ -318,7 +389,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: Upload SCHOOL-GROWTH1E public screenshots and binary HTTP report
-        if: always()
+        if: ${{ always() && (steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true') }}
         uses: actions/upload-artifact@v4
         with:
           name: school-growth1e-chrome-local-qa
@@ -406,6 +477,7 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
       - name: Repeated mobile Lighthouse benchmark (diagnostic; not a score gate)
+        if: steps.impact.outputs.home == 'true' || steps.impact.outputs.full == 'true'
         timeout-minutes: 8
         shell: bash
         run: |
@@ -426,6 +498,7 @@ jobs:
             console.log("PERF2.1 LIGHTHOUSE NOTE: localhost CI and PSI production are not directly comparable");
           '
       - name: SCHOOL-GROWTH1E Mobile Lighthouse (diagnostic only)
+        if: steps.impact.outputs.school == 'true' || steps.impact.outputs.full == 'true'
         timeout-minutes: 3
         shell: bash
         run: |
