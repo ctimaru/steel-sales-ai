@@ -299,21 +299,32 @@ try {
         const profilePath="/network/"+co.id;
         await navigate(page,profilePath);
         await page.getByRole("heading",{level:1,name:co.legal_name}).waitFor({state:"visible",timeout:45000});
+        const overview=page.getByTestId("network-profile-ux1a");
+        await overview.waitFor({state:"visible",timeout:45000});
+        const actionsHeading=overview.getByRole("heading",{name:"Azioni commerciali"});
+        const activityHeading=overview.getByRole("heading",{name:"Cosa fa e cosa offre"});
+        const contactsHeading=overview.getByRole("heading",{name:"Contatti"});
+        assert.equal(await actionsHeading.count(),1,"Company actions must be visible");
+        assert.equal(await activityHeading.count(),1,"Company activity must be visible");
+        assert.equal(await contactsHeading.count(),1,"Public contacts must be visible");
+        const actionBox=await actionsHeading.boundingBox();
+        const activityBox=await activityHeading.boundingBox();
+        assert.ok(actionBox && actionBox.y < height,"Actions should be in first screen "+width+"/"+co.role);
+        if(width<1024) assert.ok(activityBox && actionBox.y < activityBox.y,
+          "Mobile must prioritize commercial actions before detailed activity "+width);
         const claim=page.getByTestId("network-unclaimed-company-claim");
         await claim.waitFor({state:"visible",timeout:45000});
-        assert.match(await claim.innerText(),/Profilo non rivendicato/);
+        assert.match(await claim.innerText(),/Rappresenti questa azienda/);
+        assert.equal(await claim.getAttribute("open"),null,"Claim details must start collapsed");
+        await noOverflow(page,co.role+"/admin/"+width);
+        await screenshot(page,"romania-"+co.role+"-admin",width);
+        await claim.locator("summary").click();
+        assert.equal(await claim.getAttribute("open"),"","Claim must be expandable");
         const link=claim.getByRole("link",{name:"Rivendica questa azienda"});
         assert.equal(await link.count(),1);
         assert.equal(new URL(await link.getAttribute("href"),base).pathname,profilePath+"/claim");
-        const claimRect=await claim.boundingBox();
-        const connectRect=await page.getByTestId("network-profile-connect-disabled").boundingBox().catch(()=>null);
-        assert.ok(claimRect && claimRect.y < height,
-          "Claim action must appear inside viewport at "+width+"/"+co.role+": "+JSON.stringify(claimRect));
-        if(connectRect) assert.ok(claimRect.y < connectRect.y,
-          "Claim CTA must precede disabled connection action for "+co.role);
-        await noOverflow(page,co.role+"/admin/"+width);
-        await screenshot(page,"romania-"+co.role+"-admin",width);
-        assertions+=7;
+        if(co.role==="producer") await screenshot(page,"romania-claim-disclosure-admin",width);
+        assertions+=11;
 
         if(co.role==="producer") {
           await navigate(page,profilePath+"/claim");
@@ -336,8 +347,13 @@ try {
       const company=companies[0];
       const profilePath="/network/"+company.id;
       await navigate(v.page,profilePath);
+      const overview=v.page.getByTestId("network-profile-ux1a");
+      await overview.waitFor({state:"visible"});
       const claim=v.page.getByTestId("network-unclaimed-company-claim");
       await claim.waitFor({state:"visible"});
+      assert.equal(await claim.getAttribute("open"),null,"Viewer claim starts collapsed");
+      await screenshot(v.page,"romania-producer-viewer",width);
+      await claim.locator("summary").click();
       const link=claim.getByRole("link",{name:"Rivendica questa azienda"});
       assert.equal(await link.count(),1);
       const next=new URL(await link.getAttribute("href"),base);
@@ -346,7 +362,7 @@ try {
       assert.equal(next.searchParams.get("return_to"),profilePath+"/claim");
       assert.equal(next.hash,"#company-check");
       await noOverflow(v.page,"producer/viewer/"+width);
-      await screenshot(v.page,"romania-producer-viewer",width);
+      await screenshot(v.page,"romania-producer-viewer-claim-expanded",width);
       // A viewer may not open the privileged claim form.
       await v.page.goto(base+profilePath+"/claim",{waitUntil:"domcontentloaded",timeout:90000});
       await v.page.waitForURL(u=>u.pathname!==profilePath+"/claim",{timeout:45000});
