@@ -196,7 +196,8 @@ export function filterCommercialItems(items: UnifiedCommercialItem[], view: Comm
 
 export function commercialHref(view: CommercialView, query = "", selected?: string) {
   const params = new URLSearchParams();
-  if (view !== "all") params.set("view", view);
+  // The AI home now owns bare /commercial: every worklist link needs an explicit view.
+  params.set("view", view);
   if (query.trim()) params.set("q", query.trim().slice(0, 80));
   if (selected) params.set("item", selected);
   const suffix = params.toString();

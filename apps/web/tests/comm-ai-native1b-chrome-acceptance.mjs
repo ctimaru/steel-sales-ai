@@ -31,12 +31,22 @@ try {
         await page.locator('input[name="password"]').fill(person.password);
         await page.getByRole("button", { name: "Accedi", exact: true }).click();
         await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
-        await page.goto(origin + "/commercial?experience=ai", { waitUntil: "domcontentloaded", timeout: 90000 });
+        await page.goto(origin + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
+        assert.equal(new URL(page.url()).searchParams.get("experience"), null, "AI-first must now be default");
         const shell = page.getByTestId("commercial-ai-native-shell");
         await shell.waitFor({ state: "visible", timeout: 60000 });
         assert.ok(await shell.getByRole("heading", { name: "Smart Steel Intelligence" }).isVisible());
+        // CLEAN1: no second Commerciale navigation beside or above the chat.
+        const oldDesktop = page.getByTestId("commercial-director-sidebar");
+        const oldMobile = page.getByTestId("commercial-director-mobile");
+        if (width >= 1280) {
+          assert.equal(await oldDesktop.isVisible(), false, "Old desktop director sidebar must be hidden on AI home");
+        } else {
+          assert.equal(await oldMobile.isVisible(), false, "Duplicate mobile Commerciale navigation must be hidden");
+        }
         assert.equal(await page.getByTestId("comm-cine13-first-workspace").count(), 0);
-        assert.ok(await shell.getByTestId("commercial-ai-native-legacy").isVisible());
+        assert.equal(await shell.getByTestId("commercial-ai-native-legacy").count(), 2,
+          "Classic management remains available in both responsive tools menus");
         const input = shell.getByLabel("Domanda o richiesta commerciale");
         await input.waitFor({ state: "visible" });
         // Capture the REAL viewport before geometry assertions, including the
@@ -56,6 +66,10 @@ try {
             "Composer must remain fully visible ABOVE mobile dock: " +
             JSON.stringify({ composerBottom: Math.round(composerBox.y + composerBox.height), dockTop: Math.round(dockBox.y) }));
         }
+        const composerOnEmpty = await shell.getByTestId("commercial-ai-native-form").boundingBox();
+        const thirdPrompt = await shell.getByRole("button", { name: "Qual è la differenza tra EN 10219 ed EN 10210?" }).boundingBox();
+        assert.ok(composerOnEmpty && thirdPrompt && thirdPrompt.y + thirdPrompt.height <= composerOnEmpty.y - 3,
+          "All 3 examples must fit above the composer even at 320px");
         const widths = await page.evaluate(() => ({
           visible: document.documentElement.clientWidth,
           document: document.documentElement.scrollWidth,
@@ -66,11 +80,22 @@ try {
           await button.click();
           const dialog = page.getByTestId("commercial-ai-native-mobile-drawer");
           await dialog.waitFor({ state: "visible" });
+          const classic = dialog.getByTestId("commercial-ai-native-legacy");
+          await classic.waitFor({ state: "visible" });
+          assert.equal(await classic.getAttribute("href"), "/commercial?experience=classic");
+          assert.equal(await dialog.getByRole("link", { name: "Centro RFQ" }).count(), 1);
           await page.keyboard.press("Escape");
           await dialog.waitFor({ state: "hidden" });
           assert.ok(await button.evaluate(node => node === document.activeElement), "Focus restore");
         } else {
-          assert.ok(await shell.getByTestId("commercial-ai-native-desktop-context").isVisible());
+          const tools = shell.getByTestId("commercial-ai-native-desktop-context");
+          assert.ok(await tools.isVisible());
+          await tools.locator("summary").click();
+          const classic = tools.getByTestId("commercial-ai-native-legacy");
+          await classic.waitFor({ state: "visible" });
+          assert.equal(await classic.getAttribute("href"), "/commercial?experience=classic");
+          assert.equal(await tools.getByRole("link", { name: "Centro RFQ" }).count(), 1);
+          await tools.locator("summary").click();
         }
         await input.fill("Chi produce tubo S355 Ø608?");
         await shell.getByTestId("commercial-ai-native-submit").click();
@@ -138,6 +163,13 @@ try {
             url.searchParams.get("compose") === "1" &&
             url.searchParams.get("method") === "ai", { timeout: 90000 });
           assert.equal(await page.getByTestId("commercial-ai-native-shell").count(), 0);
+        } else {
+          const reset = shell.getByTestId("commercial-ai-native-new-chat");
+          await reset.waitFor({ state: "visible" });
+          await reset.click();
+          assert.equal(await shell.getByTestId("commercial-ai-native-turn").count(), 0,
+            "New chat must clear the transient thread without database mutations");
+          assert.ok(await input.isVisible());
         }
         console.log("COMM-AI-NATIVE1.B CHROME PASS", person.id, width);
       } finally {

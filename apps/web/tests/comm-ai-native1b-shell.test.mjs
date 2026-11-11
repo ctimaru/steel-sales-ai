@@ -6,6 +6,16 @@ import ts from "typescript";
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const page = read("../app/(italian)/(workspace)/commercial/page.tsx");
 const shell = read("../components/commercial-ai-native-shell.tsx");
+const directorNavigation = read("../lib/commercial-director-navigation.ts");
+const legacyWorklistLinks = read("../lib/commercial-unified-data.ts");
+const streamWorklistLinks = read("../lib/commercial-unified-streams.ts");
+const searchLinks = read("../lib/commercial-search-context.ts");
+const compiledSearch = ts.transpileModule(searchLinks, {
+  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+}).outputText;
+const { operationalSearchHref } = await import(
+  "data:text/javascript;base64," + Buffer.from(compiledSearch).toString("base64")
+);
 const source = read("../lib/commercial-ai-native-ui.ts");
 const compiled = ts.transpileModule(source, {
   compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
@@ -28,7 +38,7 @@ test("COMM-AI-NATIVE1.B treats company requests as read-only, never as RFQ extra
 
 test("COMM-AI-NATIVE1.B has a reversible UI-only entry and keeps all deep links", () => {
   assert.match(page, /params\.experience === "ai"/);
-  assert.match(page, /COMM_AI_NATIVE_UI_ENABLED/);
+  assert.match(page, /COMM_AI_NATIVE_UI_ENABLED !== "0"/);
   assert.match(page, /params\.experience !== "classic"/);
   assert.match(page, /const legacyRouteRequested/);
   assert.match(page, /<CommercialAiNativeShell canWrite=\{canWrite\}/);
@@ -36,6 +46,9 @@ test("COMM-AI-NATIVE1.B has a reversible UI-only entry and keeps all deep links"
   assert.match(page, /<CommercialUnifiedWorklist/);
   assert.match(shell, /\?experience=classic/);
   assert.match(shell, /appRoutes\.rfqHub\.home/);
+  assert.match(shell, /commercial-ai-native-new-chat/);
+  assert.match(shell, /Strumenti/);
+  assert.doesNotMatch(shell, /lg:grid-cols-\[minmax/);
 });
 
 test("COMM-AI-NATIVE1.B/C keeps honest evidence labels and the authorized Distinta path", () => {
@@ -49,4 +62,24 @@ test("COMM-AI-NATIVE1.B/C keeps honest evidence labels and the authorized Distin
   assert.match(shell, /\.showModal\(\)/);
   assert.match(shell, /\.close\(\)/);
   assert.doesNotMatch(shell, /fetch\(|createBuyerRfqCampaign|sendBuyerDistinta|service_role|autoDispatch|localStorage/);
+});
+
+test("COMM-AI-NATIVE1.CLEAN2 preserves calculator and editor anchors on classic URLs", () => {
+  assert.match(directorNavigation, /Calcolatrice pesi.*experience=classic#commercial-tool-access/);
+  assert.match(page, /experience=classic#commercial-worklist.*Chiudi editor/);
+  assert.match(page, /params\.compose === "1"/);
+  assert.match(page, /params\.view !== undefined/);
+  assert.match(page, /params\.q !== undefined/);
+  assert.match(page, /params\.page !== undefined/);
+  assert.match(page, /params\.cursor !== undefined/);
+  assert.match(page, /params\.network !== undefined/);
+});
+
+test("COMM-AI-NATIVE1.CLEAN2 keeps all-filter and empty historical links in the worklist", () => {
+  assert.match(legacyWorklistLinks, /params\.set\("view", view\);/);
+  assert.match(streamWorklistLinks, /params\.set\("view", view\);/);
+  assert.doesNotMatch(legacyWorklistLinks, /if \(view !== "all"\) params\.set\("view", view\)/);
+  assert.doesNotMatch(streamWorklistLinks, /if \(view !== "all"\) params\.set\("view", view\)/);
+  assert.equal(operationalSearchHref(), "/commercial?view=all#commercial-worklist");
+  assert.equal(operationalSearchHref("  S355  "), "/commercial?view=all&q=S355#commercial-worklist");
 });

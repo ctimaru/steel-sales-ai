@@ -159,7 +159,15 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm install --no-save --no-package-lock playwright@1.56.1 lighthouse@12.6.0 @axe-core/playwright@4.10.2
-          npx playwright install --with-deps chrome
+          # Playwright and Lighthouse use Chrome already shipped with ubuntu-24.04.
+          # Avoid redundant apt downloads; retain a fallback for other images.
+          if command -v google-chrome >/dev/null 2>&1; then
+            google-chrome --version
+          elif command -v google-chrome-stable >/dev/null 2>&1; then
+            google-chrome-stable --version
+          else
+            npx playwright install --with-deps chrome
+          fi
       - name: Compile production Next.js with no external data
         run: npm run build
       - name: Start disposable local production server

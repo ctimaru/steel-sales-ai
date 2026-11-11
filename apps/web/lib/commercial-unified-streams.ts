@@ -105,7 +105,8 @@ function decode(value: string | undefined, view: StreamView, query: string, focu
 }
 export function mergedCommercialHref(view: StreamView, query: string, cursor?: string, selected?: string, focus?: CommercialFocus | "") {
   const params = new URLSearchParams();
-  if (view !== "all") params.set("view", view);
+  // Preserve the classic operational stream even when the all-filter is selected.
+  params.set("view", view);
   if (focus && view === "all") params.set("focus", focus);
   if (query.trim()) params.set("q", query.trim().slice(0, 80));
   if (cursor) params.set("cursor", cursor);
