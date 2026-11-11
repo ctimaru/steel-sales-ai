@@ -113,6 +113,18 @@ try {
           assert.ok(await shell.getByTestId("commercial-ai-native-industry-company").count() <= 6);
         }
         assert.match(await shell.getByTestId("commercial-ai-native-turn").first().innerText(), /norma.*spessore/i);
+        const industryQuestion = shell.getByTestId("commercial-ai-native-turn").first()
+          .getByText("Chi produce tubo S355 Ø608?");
+        const [industryQuestionBox, threadBox] = await Promise.all([
+          industryQuestion.boundingBox(),
+          shell.getByTestId("commercial-ai-native-thread").boundingBox(),
+        ]);
+        assert.ok(industryQuestionBox && threadBox &&
+          industryQuestionBox.y >= threadBox.y - 5 &&
+          industryQuestionBox.y <= threadBox.y + 90,
+          "Industry search must begin at the question and evidence summary, never auto-scroll past company cards");
+        await page.screenshot({ path: path.join(screenshots, person.id + "-" + width + "-industry.png"),
+          animations: "disabled" });
         assert.equal(await shell.getByTestId("commercial-ai-native-open-distinta").count(), 0,
           "Producer question must never create a Distinta");
         await input.fill("Preparami 24 barre Ø608×10 EN 10219 S355J2H");
