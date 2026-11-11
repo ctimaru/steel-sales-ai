@@ -40,7 +40,7 @@ test("COMM-RFQ-UX1 puts the text review before manual tools and hides the empty 
   assert.ok(builder.indexOf("<CommercialRfqWorkspace") < builder.indexOf("data-private-calculator-shell"));
   assert.match(builder, /\{!focusAiIntake \? \(/);
   assert.match(builder, /hidden=\{focusAiIntake && !showManualTools\}/);
-  assert.match(builder, /data-testid="commercial-ai-manual-tools-toggle"/);
+  assert.doesNotMatch(builder, /data-testid="commercial-ai-manual-tools-toggle"/); // COMM-RFQ-CREATE2: niente calcolatrice qui
   assert.match(intake, /data-testid="commercial-ai-focused-modes"/);
   assert.match(intake, /aria-pressed=\{mode === "manual"\}/);
   assert.match(intake, /Preferisci configurare manualmente/);

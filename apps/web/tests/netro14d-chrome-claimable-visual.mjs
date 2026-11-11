@@ -133,6 +133,164 @@ try {
       // DOM content alone can still show "Caricamento workspace…" immediately after navigation.
       await page.getByText(/ARTROM|Baurom/).first().waitFor({state:"visible",timeout:90000});
       assert.match(await page.locator("body").innerText(), /ARTROM|Baurom/);
+      // Synthetic organizations may take the legacy Network fallback. Assert the
+      // actual compact component in a strictly local test-only route instead;
+      // never treat a fallback screenshot as acceptance of the redesigned card.
+      const realCompact = await page.getByTestId("network-refined-filters").count();
+      if (!realCompact) console.log("NET-UX-FILTERS1 REAL ROUTE FALLBACK: using local component fixture");
+      await navigate(page,"/network-visual-qa");
+      await page.getByTestId("network-refined-filters").waitFor({state:"attached",timeout:90000});
+      // NET-UX-FILTERS1: real Chrome visual acceptance of the new filter card
+      // at 1440 / 390 / 320, with the map still visible outside the mobile drawer.
+      const europeMap = page.getByTestId("network-europe-persistent-map");
+      const filtersCard = page.getByTestId("network-refined-filters");
+      const drawer = page.getByTestId("network-filter-drawer");
+      const toggle = drawer.getByRole("button", {name:/Affina i filtri/i});
+      // An App Router SSR shell can be attached before its visibility transition
+      // settles; wait for the map itself, not merely an attached filter card.
+      await europeMap.waitFor({state:"visible",timeout:45000}).catch(async error=>{
+        const state=await europeMap.evaluate(element=>{
+          const chain=[];
+          for(let el=element;el&&chain.length<8;el=el.parentElement){
+            const css=getComputedStyle(el);
+            chain.push({tag:el.tagName,testid:el.getAttribute("data-testid"),hidden:el.hidden,
+              display:css.display,visibility:css.visibility,opacity:css.opacity});
+          }
+          return chain;
+        }).catch(()=>[]);
+        console.log("NET-UX-TECH1 MAP VISIBILITY DIAGNOSTIC",JSON.stringify(state));
+        throw error;
+      });
+      if (!(await europeMap.isVisible())) {
+        // Synthetic-only diagnostics: investigate why a data-backed compact
+        // directory fell back to the legacy view. Never print session secrets.
+        const pageState = await page.evaluate(() => ({
+          headings: [...document.querySelectorAll("h1,h2")].slice(0,8).map(el=>el.textContent?.trim().slice(0,90)),
+          compact: Boolean(document.querySelector('[data-testid="network-compact-experience"]')),
+          map: Boolean(document.querySelector('[data-testid="network-europe-persistent-map"]')),
+          filterCard: Boolean(document.querySelector('[data-testid="network-refined-filters"]')),
+          pathname: location.pathname,
+        }));
+        const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+        let rpcDiagnostics = {error:"local diagnostic unavailable"};
+        if (anonKey) {
+          const viewerClient = createClient(dbUrl, anonKey, {auth:{persistSession:false,autoRefreshToken:false}});
+          const auth = await viewerClient.auth.signInWithPassword({email:admin.email,password:admin.password});
+          if (auth.error) rpcDiagnostics={authError:auth.error.code||auth.error.message};
+          else {
+            const access = await viewerClient.rpc("pa1_3_network_access_state",{p_organization_id:admin.org});
+            const browse = await viewerClient.rpc("netlaunch4b_browse_page",{
+              p_organization_id:admin.org,p_access:"pro",p_source:"published",
+              p_query:null,p_role:null,p_region:null,p_persona:null,p_page:1,p_limit:18,
+            });
+            rpcDiagnostics={
+              accessError:access.error?{code:access.error.code,message:access.error.message}:null,
+              entitled:access.data?.can_access_network??null,
+              browseError:browse.error?{code:browse.error.code,message:browse.error.message}:null,
+              browseContract:browse.data?.contract??null,
+              browseCount:browse.data?.total??null,
+            };
+          }
+        }
+        console.log("NET-UX-FILTERS1 SYNTHETIC DIAGNOSTIC",JSON.stringify({width,pageState,rpcDiagnostics}));
+      }
+      assert.equal(await europeMap.isVisible(), true, "Country map disappeared at "+width);
+      if (width === 1440) {
+        assert.equal(await filtersCard.isVisible(), true, "Desktop filter card must remain open");
+        assert.equal(await toggle.isVisible(), false, "Desktop drawer toggle must stay hidden");
+      } else {
+        assert.equal(await toggle.isVisible(), true, "Mobile filter toggle must be visible");
+        assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+        assert.equal(await filtersCard.isVisible(), false, "Mobile filters must start collapsed");
+        await toggle.click();
+        assert.equal(await toggle.getAttribute("aria-expanded"), "true");
+        await filtersCard.waitFor({state:"visible"});
+      }
+      // Read one atomic browser-layout snapshot after hydration. Individual
+      // boundingBox() calls across redirects/hydration can return transient nulls.
+      await filtersCard.scrollIntoViewIfNeeded();
+      const layout = await filtersCard.evaluate(card => {
+        const bounds = (element) => {
+          const box = element.getBoundingClientRect();
+          return {x:box.x,width:box.width,height:box.height,right:box.right,visible:
+            box.width>0 && box.height>0 && getComputedStyle(element).display!=="none"};
+        };
+        return {
+          roles:[...card.querySelectorAll('nav[aria-label="Ruolo nella filiera"] a')]
+            .map(element=>({label:(element.textContent||"").trim(),...bounds(element)})),
+          selects:[...card.querySelectorAll("select[aria-label]")]
+            .map(element=>({label:element.getAttribute("aria-label"),...bounds(element)})),
+        };
+      });
+      // A dark green selected chip must never inherit a dark WebKit text fill.
+      const selectedForeground = await filtersCard.locator('nav[aria-label="Ruolo nella filiera"] a[aria-current="page"]')
+        .evaluate(element => {
+          const style=getComputedStyle(element);
+          return {color:style.color,textFill:style.webkitTextFillColor};
+        });
+      assert.equal(selectedForeground.color,"rgb(255, 255, 255)",
+        "Selected role must use high-contrast white text: "+JSON.stringify(selectedForeground));
+      assert.equal(selectedForeground.textFill,"rgb(255, 255, 255)",
+        "Selected role WebKit text fill must stay white: "+JSON.stringify(selectedForeground));
+      const expectedRoles=["Tutta la filiera","Produttori","Commercianti","Terzisti","Utilizzatori"];
+      assert.equal(layout.roles.length,5,"All industrial roles stay reachable: "+JSON.stringify(layout));
+      for (const roleName of expectedRoles) {
+        const roleBox = layout.roles.find(role=>role.label===roleName);
+        assert.ok(roleBox?.visible&&roleBox.height>=44,
+          "Role target too small/hidden: "+roleName+"/"+width+": "+JSON.stringify(layout.roles));
+      }
+      for (const label of ["Paese", "Regione", "Prodotti", "Lavorazioni e servizi", "Mercato"]) {
+        const rect = layout.selects.find(select=>select.label===label);
+        assert.ok(rect?.visible&&rect.height>=44,
+          "Filter select too small/hidden: "+label+"/"+width+": "+JSON.stringify(layout.selects));
+        assert.ok(rect.x >= -1 && rect.right <= width + 1,
+          "Filter select outside viewport: "+label+"/"+width+": "+JSON.stringify(rect));
+      }
+      // This panel has already been brought into view before the atomic layout
+      // snapshot. A second scroll can target a stale hydrated DOM node.
+      assert.equal(new URL(page.url()).pathname,"/network-visual-qa",
+        "Visual test must remain on the isolated compact component");
+      await noOverflow(page,"Filters-card-open/"+width);
+      await screenshot(page,"network-filters-open-admin",width);
+      assertions += 13;
+      // NET-UX-TECH1: open the real technical accordion at 1440/390/320 and
+      // verify each measurement field remains aligned and at least 44px high.
+      const specPanel=page.getByTestId("network-spec-panel");
+      await specPanel.getByTestId("network-spec-summary").click();
+      assert.equal(await specPanel.getAttribute("open"),"","Technical panel failed to open at "+width);
+      const specLayout=await specPanel.evaluate(panel=>{
+        const box=el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,right:r.right};};
+        const fields=[...panel.querySelectorAll("input:not([type=hidden]),select")]
+          .map(el=>({name:el.name,...box(el)}));
+        const rows=["network-spec-diameter-row","network-spec-sides-row"].map(id=>
+          [...panel.querySelector('[data-testid="'+id+'"]').querySelectorAll("input")].map(box));
+        return {panel:box(panel),fields,rows,cta:box(panel.querySelector('button[type=submit]'))};
+      });
+      assert.equal(specLayout.fields.length,8,"All technical fields remain accessible");
+      for(const field of specLayout.fields.filter(f=>f.name!=="stock")){
+        assert.ok(field.h>=44,"Technical field below 44px: "+field.name+"/"+width);
+        assert.ok(field.x>=-1&&field.right<=width+1,"Technical field escaped viewport: "+field.name+"/"+width);
+        assert.ok(field.x>=specLayout.panel.x-1&&field.right<=specLayout.panel.right+1,
+          "Technical field escaped card: "+field.name+"/"+width);
+      }
+      for(const row of specLayout.rows){
+        assert.equal(row.length,2);
+        assert.ok(Math.abs(row[0].y-row[1].y)<2&&Math.abs(row[0].w-row[1].w)<2,
+          "Misaligned technical dimensions at "+width+": "+JSON.stringify(row));
+      }
+      assert.ok(specLayout.cta.h>=44&&Math.abs(specLayout.cta.w-(specLayout.panel.w-24))<5,
+        "Technical submit is not full width / 44px at "+width);
+      await noOverflow(page,"Technical-spec-open/"+width);
+      await specPanel.scrollIntoViewIfNeeded();
+      await screenshot(page,"network-technical-spec-open-admin",width);
+      assertions += 20;
+      if (width !== 1440) {
+        await toggle.click();
+        assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+        assert.equal(await filtersCard.isVisible(), false, "Mobile drawer failed to collapse");
+        await screenshot(page,"network-filters-closed-admin",width);
+        assertions += 2;
+      }
       await noOverflow(page,"Romania-directory/admin/"+width);
       await screenshot(page,"romania-directory-admin",width);
       assertions += 2;

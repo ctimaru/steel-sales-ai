@@ -1,0 +1,153 @@
+name: NET-UX-FILTERS1 Chrome Responsive Acceptance
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/net-ux-filters1-responsive.yml"
+      - "apps/web/components/network-compact-experience.tsx"
+      - "apps/web/components/network-spec-filters.tsx"
+      - "apps/web/tests/network-spec-panel-layout.test.mjs"
+      - "apps/web/components/network-filter-drawer.tsx"
+      - "apps/web/components/network-country-region-filters.tsx"
+      - "apps/web/tests/netro14d-chrome-claimable-visual.mjs"
+      - "apps/web/app/**/network-visual-qa/**"
+      - "apps/web/lib/network-compact-directory.ts"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  network-visual:
+    name: Authenticated Chrome Network filters 1440 / 390 / 320
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CI: "true"
+      DEMOTEST23_WEB_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      WORKER_URL: http://127.0.0.1:8001
+      WORKER_STORAGE_MODE: supabase
+      FLOW1_LOCAL_PROVIDER: "true"
+      NETWORK_VISUAL_FIXTURE: "true"
+      COMPANY_DISCOVERY_ENABLED: "false"
+      SEMANTIC_INDEX_ENABLED: "false"
+      CRAWL_IT3_ENABLED: "false"
+      HF_TOKEN: ""
+      RESEND_API_KEY: network-visual-local-synthetic
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.122.1
+      - name: Install frontend and Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci --prefix apps/web --no-audit --no-fund
+          cd apps/web
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Prepare CI-only local database (never hosted)
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+          supabase start > "$RUNNER_TEMP/network-visual-supabase-start.log" 2>&1
+          supabase db reset --local > "$RUNNER_TEMP/network-visual-supabase-reset.log" 2>&1
+      - name: Export ephemeral local-only authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          test "$NEXT_PUBLIC_SUPABASE_URL" = "http://127.0.0.1:54321"
+          supabase status -o env > "$RUNNER_TEMP/demotest23-local.env"
+          source "$RUNNER_TEMP/demotest23-local.env"
+          test -n "$ANON_KEY"
+          test -n "$SERVICE_ROLE_KEY"
+          echo "::add-mask::$ANON_KEY"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+      - name: Create disposable local GoTrue accounts
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/demotest23-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            SUPABASE_URL=http://127.0.0.1:54321 \
+            node tests/demotest23-seed-auth.mjs
+      - name: Seed isolated tenants and Romanian Network entries
+        env:
+          PGPASSWORD: postgres
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$NEXT_PUBLIC_SUPABASE_URL" = "http://127.0.0.1:54321"
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            -f supabase/tests/demotest2_3_chrome_seed.sql \
+            -f supabase/tests/product_flow1_local_search_seed.sql
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f supabase/tests/netro14d_chrome_claimable_local_seed.sql
+      - name: Start local-only Next.js web UI
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          nohup setsid npm run dev -- --hostname 127.0.0.1 --port 3000 \
+            > "$RUNNER_TEMP/network-visual-next.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/network-visual-next.pid"
+          for attempt in $(seq 1 60); do
+            if curl --silent --fail --location --max-time 8 http://127.0.0.1:3000/login > /dev/null 2>&1; then
+              echo "Local Next.js ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Local Next.js startup failed"
+          exit 1
+      - name: Verify live rendered filters and capture 1440 / 390 / 320 screenshots
+        working-directory: apps/web
+        timeout-minutes: 12
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/demotest23-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            node tests/netro14d-chrome-claimable-visual.mjs
+      - name: Upload synthetic screenshots for visual acceptance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-ux-filters1-1440-390-320
+          path: ${{ runner.temp }}/netro14d-synthetic-visual/*.png
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Destroy disposable browser/database material
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/network-visual-next.pid" ]; then
+            pid="$(cat "$RUNNER_TEMP/network-visual-next.pid")"
+            if [[ "$pid" =~ ^[0-9]+$ ]]; then
+              kill -- "-$pid" 2>/dev/null || kill "$pid" 2>/dev/null || true
+            fi
+          fi
+          supabase stop --no-backup > /dev/null 2>&1 || true
+          rm -f "$RUNNER_TEMP/demotest23-local.env" "$RUNNER_TEMP/demotest23-personas.json" \
+            "$RUNNER_TEMP/demotest23-psql-vars.sql" \
+            "$RUNNER_TEMP/network-visual-next.log" "$RUNNER_TEMP/network-visual-next.pid" \
+            "$RUNNER_TEMP/network-visual-supabase-start.log" \
+            "$RUNNER_TEMP/network-visual-supabase-reset.log"

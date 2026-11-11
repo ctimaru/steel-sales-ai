@@ -59,7 +59,7 @@ test("COMPACT3.4 desktop header and rows use one column contract; mobile remains
   assert.match(page,/lg:grid-cols-\[minmax\(240px/); // NET-UX LOT1: Azienda · Ruolo · Località · Contatto
   assert.match(page,/grid-cols-\[minmax\(0,1fr\)_auto\]/);
   assert.match(page,/lg:grid-cols-\[280px_minmax\(0,1fr\)\]/); // NET-UX LOT1: filters in a left column
-  assert.match(page,/w-full min-w-0 rounded-lg border/);
+  assert.match(page,/h-11 w-full min-w-0 rounded-xl border/); // NET-UX-FILTERS1: 44px selects with rounded focus
   assert.match(page,/aria-label="Pagina successiva"/);
   assert.match(page,/min-h-10 w-full/);
 });
