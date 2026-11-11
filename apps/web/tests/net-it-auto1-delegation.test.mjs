@@ -1,0 +1,76 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+const read = (path) => fs.readFileSync(new URL(path, import.meta.url), "utf8");
+const sql=read("../../../supabase/migrations/20261110162000_net_it_auto1_delegated_publisher.sql");
+const ui=read("../app/(italian)/(platform)/platform/company-discovery/scale15k/page.tsx");
+const actions=read("../app/(italian)/(platform)/platform/company-discovery/scale15k/actions.ts");
+const workflow=read("../../../.github/workflows/net-it-scale15k-atomic-acceptance.yml");
+
+test("Automation is OFF until authentic Platform owner grants revocable permission",()=>{
+  assert.match(sql,/enabled boolean NOT NULL DEFAULT false/);
+  assert.match(sql,/VALUES \(true,false\) ON CONFLICT/);
+  assert.match(sql,/private\.is_platform_superadmin\(\)/);
+  assert.match(sql,/private\.has_platform_permission\('platform\.settings\.manage'\)/);
+  assert.match(sql,/private\.has_platform_permission\('discovery\.publish'\)/);
+  assert.match(sql,/v_owner uuid := auth\.uid\(\)/);
+  assert.match(sql,/p_attested IS DISTINCT FROM true/);
+  assert.match(sql,/p_valid_days NOT BETWEEN 1 AND 90/);
+  assert.match(sql,/p_daily_cap NOT BETWEEN 1 AND 500/);
+  assert.match(sql,/owner_revoked/);
+  assert.match(sql,/expires_at<=now\(\)/);
+});
+test("Agent cannot approve new sources or impersonate original human reviewer",()=>{
+  assert.match(sql,/scope text NOT NULL DEFAULT 'human_governed_minimal_it'/);
+  assert.match(sql,/c\.governance_status='approved_company_data'/);
+  assert.match(sql,/r\.governance_status='approved'/);
+  assert.match(sql,/r\.terms_status IN \('allows_reuse','allows_limited_reuse'\)/);
+  assert.match(sql,/r\.database_rights_status IN \('low_risk','licensed'\)/);
+  assert.match(sql,/c\.governance_reviewed_by IS NOT NULL/);
+  assert.match(sql,/r\.governance_reviewed_by IS NOT NULL/);
+  assert.match(sql,/NOT c\.personal_data_detected/);
+  assert.match(sql,/cardinality\(c\.quality_flags\)=0/);
+  assert.match(sql,/role\.status='active' AND role\.searchable=true/);
+  assert.doesNotMatch(sql,/UPDATE public\.network_company_discovery_runs/);
+  assert.doesNotMatch(sql,/governance_status='approved_company_data'\s*,/);
+  assert.match(sql,/executed_by_kind text NOT NULL DEFAULT 'delegated_agent'/);
+  assert.match(sql,/reviewed_by=NULL,reviewed_at=now\(\)/);
+  assert.match(sql,/publication_actor_type='delegated_agent'/);
+  assert.match(sql,/publication_actor_type='platform' AND reviewed_by IS NOT NULL/);
+  assert.match(sql,/asserted_by,\s*confidence,review_state/);
+  assert.match(sql,/'platform_curated',NULL,0\.50,'accepted'/);
+});
+test("Production executor is private, bounded, isolated from client and audited",()=>{
+  assert.match(sql,/session_user<>'postgres' OR auth\.uid\(\) IS NOT NULL/);
+  assert.match(sql,/REVOKE ALL ON FUNCTION private\.net_it_auto1_release\(integer,boolean\)/);
+  assert.match(sql,/FROM PUBLIC,anon,authenticated,service_role/);
+  assert.match(sql,/p_max NOT BETWEEN 1 AND 100/);
+  assert.match(sql,/v_policy\.daily_cap-v_daily/);
+  assert.match(sql,/pg_catalog\.pg_advisory_xact_lock\(810021,20262\)/);
+  assert.match(sql,/FOR UPDATE OF c SKIP LOCKED/);
+  assert.match(sql,/private\.net_pipeline1b2_publication_ledger/);
+  assert.match(sql,/private\.net_it_auto1_publications/);
+  assert.match(sql,/private\.net_it_auto1_events/);
+  assert.match(sql,/original_publisher_default_off/);
+  assert.match(sql,/ALTER TABLE private\.net_it_auto1_delegation ENABLE ROW LEVEL SECURITY/);
+});
+test("Owner can grant for 30 days or revoke from a compact Network console",()=>{
+  assert.match(ui,/setScale15KAgentDelegation/);
+  assert.match(ui,/Autorizza una volta, senza ripetere ogni conferma/);
+  assert.match(ui,/Delega disattivata/);
+  assert.match(ui,/Revoca subito la delega/);
+  assert.match(ui,/Attiva delega per 30 giorni/);
+  assert.match(ui,/name="daily_cap"/);
+  assert.match(ui,/name="policy_note"/);
+  assert.match(ui,/name="attested"/);
+  assert.match(ui,/canDelegate && agent/);
+  assert.match(actions,/requirePlatformPermission\("platform\.settings\.manage"\)/);
+  assert.match(actions,/is_platform_owner/);
+  assert.match(actions,/p_valid_days: 30/);
+  assert.match(actions,/net_it_auto1_set_delegation/);
+});
+test("Test suite exercises real Postgres JWT grant, minimal release and revocation in disposable DB",()=>{
+  assert.match(workflow,/supabase\/tests\/net_it_auto1_delegation_local\.sql/);
+  assert.match(workflow,/supabase\/migrations\/20261110162000_net_it_auto1_delegated_publisher\.sql/);
+  assert.match(workflow,/apps\/web\/tests\/net-it-auto1-delegation\.test\.mjs/);
+});
