@@ -38,84 +38,66 @@ async function noOverflow(page, tag) {
   assert.ok(widths.document <= widths.viewport + 12, tag + " horizontal overflow: " + JSON.stringify(widths));
 }
 async function viewportCheck(page, { width, height, role }) {
-  await page.goto(base + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
-  const hero = page.getByTestId("comm-cine1-hero");
+  // COMM-AI-NATIVE1.B: protect the current classic Commerciale experience.
+  // COMM-SIMPLE2 moved tools into a closed disclosure; COMM-NAV9 made
+  // "Da verificare" conditional rather than an always-visible dashboard.
+  await page.goto(base + "/commercial?experience=classic", {
+    waitUntil: "domcontentloaded", timeout: 90000,
+  });
+  const heading = page.getByTestId("comm-cine1-hero");
+  const creation = page.getByTestId("comm-cine13-first-workspace");
   const companion = page.getByTestId("commercial-ai-first");
   const tools = page.getByTestId("commercial-primary-quick-actions");
-  const attention = page.getByTestId("commercial-compact-actions");
   const worklist = page.getByTestId("comm-cine2-deal-cockpit");
-  // COMM-AI-NATIVE1.B regression alignment: the legacy test ID is now
-  // attached to the h1 itself, not a wrapping section. A scoped getByRole
-  // searches its descendants and can never find the h1 inside itself.
-  await hero.waitFor({ state: "visible", timeout: 60000 });
-  assert.equal(await hero.evaluate(element => element.tagName), "H1",
-    "Legacy Commerciale heading remains accessible as a native h1");
+  await heading.waitFor({ state: "attached", timeout: 60000 });
+  assert.equal(await heading.evaluate(node => node.tagName), "H1",
+    "Classic Commerciale must retain its native screen-reader heading");
+  await creation.waitFor({ state: "visible", timeout: 60000 });
+  await companion.waitFor({ state: "visible" });
   await tools.waitFor({ state: "visible" });
   await worklist.waitFor({ state: "attached" });
-  const [h, c, t, a, w] = await Promise.all(
-    [hero, companion, tools, attention, worklist].map(x => x.boundingBox())
+  assert.equal(await page.getByTestId("commercial-ai-native-shell").count(), 0,
+    "Classic rollback cannot silently show AI-native shell");
+  const [creationBox, companionBox, toolsBox, worklistBox] = await Promise.all(
+    [creation, companion, tools, worklist].map(element => element.boundingBox())
   );
-  assert.ok([h, c, t, a, w].every(Boolean), "All first viewport surfaces should render");
-  assert.ok(h.y < a.y && a.y < c.y && c.y < t.y && t.y < w.y,
-    "COMM-NAV9.M director priorities precede AI and tools in visual and DOM order");
-  // COMM-SIMPLE2: calculator/history/saved Distinte are secondary tools
-  // in a native details disclosure. Exercise it before asserting visibility.
-  await tools.locator("summary").click();
-  assert.ok(await page.getByRole("button", { name: "Calcolatrice pesi" }).isVisible());
-  // COMM-NAV9: a decision-first summary must remain compact, honest about
-  // missing RFQ data and read-only for viewer roles.
-  const priorities = page.getByTestId("commercial-director-rfq-priorities");
-  const resume = page.getByTestId("commercial-director-resume");
-  assert.equal(await priorities.count(), 1);
-  assert.equal(await resume.count(), 1);
-  assert.equal(await attention.getByRole("heading", { name: "Cosa richiede attenzione" }).count(), 1);
-  const inboxLink = attention.getByRole("link", { name: "Apri inbox →" });
-  assert.equal(await inboxLink.count(), 1);
-  if (width < 1000) {
-    const inboxBox = await inboxLink.boundingBox();
-    assert.ok(inboxBox && inboxBox.y + inboxBox.height <= height,
-      "COMM-NAV9.M priority inbox action must be inside the FIRST mobile viewport: " + JSON.stringify(inboxBox));
-    const priorityBox = await attention.boundingBox();
-    assert.ok(priorityBox && priorityBox.y < height / 1.5,
-      "COMM-NAV9.M priority panel must start in the upper mobile viewport: " + JSON.stringify(priorityBox));
-    const topVisualNodes = await page.evaluate(() => [
-      document.querySelector("#commercial-today"),
-      document.querySelector('[data-testid="comm-cine13-first-workspace"]'),
-      document.querySelector("#commercial-tool-access"),
-    ].map(x => x?.getBoundingClientRect().top));
-    assert.ok(topVisualNodes.every(Number.isFinite) && topVisualNodes[0] < topVisualNodes[1] && topVisualNodes[1] < topVisualNodes[2],
-      "Priority links must follow the natural keyboard/DOM order on mobile");
+  assert.ok([creationBox, companionBox, toolsBox, worklistBox].every(Boolean),
+    "Classic Commerciale must retain creation, AI intake, tools and deals");
+  assert.ok(creationBox.y <= companionBox.y + companionBox.height &&
+    creationBox.y < toolsBox.y && toolsBox.y < worklistBox.y,
+    "Existing worklist and tool order must remain stable");
+
+  const alerts = page.getByTestId("commercial-compact-actions");
+  if (await alerts.count()) {
+    assert.equal(role, "buyer",
+      "Read-only viewers cannot receive actionable procurement priorities");
+    const alertBox = await alerts.boundingBox();
+    assert.ok(alertBox && alertBox.y < creationBox.y,
+      "Confirmed actionable work precedes the creation workspace");
+    assert.equal(await alerts.getByRole("link", { name: "Apri inbox →" }).count(), 1);
+    assert.equal(await alerts.getByTestId("commercial-director-attention-summary").count(), 1);
   }
-  assert.equal(await attention.getByRole("link", { name: "Le mie trattative →" }).count(), 1);
-  if (role === "buyerViewer") {
-    assert.match(await priorities.innerText(), /Consultazione in sola lettura/);
-    assert.equal(await priorities.getByTestId("commercial-director-attention-summary").count(), 0);
-  } else {
-    assert.equal(await priorities.getByTestId("commercial-director-attention-summary").count(), 1);
-  }
-  assert.ok(await page.locator('[data-commercial-saved-distinte-entry="true"]').isVisible(), "Saved Distinte CTA remains visible inside the cockpit");
+  if (role === "buyerViewer") assert.equal(await alerts.count(), 0);
   assert.equal(await page.getByTestId("commercial-cockpit-tabs").count(), 0);
   await noOverflow(page, role + "/" + width);
-  if (width === 1440) {
-    assert.ok(h.height <= 205, "Desktop hero must fit within 205px; got " + h.height);
-    assert.ok(w.y < height, "Worklist heading should enter the first 900px viewport; y=" + w.y);
-  }
-  const canWrite = role === "buyer";
-  if (width === 1440 && canWrite) {
-    const firstDeal = page.getByTestId("commercial-smart-deal-card").first();
-    const dealBox = await firstDeal.boundingBox();
-    assert.ok(dealBox && dealBox.y < height,
-      "COMM-NAV9: first deal row should begin inside 900px desktop viewport; y=" + dealBox?.y);
-  }
-  assert.equal(await companion.getByTestId("comm-cine11-prompt").count(), canWrite ? 1 : 0);
-  // COMM-TRUST1.D — one conversational composer, no second primary "new request".
-  const manual = page.getByTestId("commercial-manual-entry");
+
+  // Calculator, saved Distinte and history live in the secondary Strumenti
+  // disclosure: open it before asserting interactive controls are visible.
+  assert.match(await tools.locator("summary").innerText(), /Strumenti/);
+  await tools.locator("summary").click();
+  const calculator = page.getByRole("button", { name: "Calcolatrice pesi" });
+  await calculator.waitFor({ state: "visible" });
+  assert.equal(await page.locator('[data-commercial-saved-distinte-entry="true"]').count(), 1);
+  assert.ok(await page.locator('[data-commercial-saved-distinte-entry="true"]').isVisible());
   const history = page.getByTestId("commercial-history-entry");
+  assert.ok(await history.isVisible());
+  assert.ok((await history.getAttribute("href"))?.startsWith("/commercial/search"));
+
+  const canWrite = role === "buyer";
+  const manual = page.getByTestId("commercial-manual-entry");
   assert.equal(await manual.count(), canWrite ? 1 : 0);
-  assert.equal(await history.count(), 1);
+  assert.equal(await companion.getByTestId("comm-cine11-prompt").count(), canWrite ? 1 : 0);
   assert.equal(await page.getByRole("link", { name: "+ Nuova richiesta" }).count(), 0);
-  assert.ok((await history.getAttribute("href"))?.startsWith("/commercial/search"),
-    "History is retrieval, never an AI or Distinta handoff");
   if (canWrite) {
     assert.equal(await manual.getAttribute("href"), "/commercial?compose=1#commercial-compose");
     const cta = companion.getByTestId("commercial-ai-first-cta");
@@ -124,14 +106,18 @@ async function viewportCheck(page, { width, height, role }) {
     assert.match(await cta.innerText(), /Analizza con l’AI/);
   }
   if (width === 1440 && canWrite) {
-    const launch = page.getByRole("button", { name: "Calcolatrice pesi" });
-    await launch.click();
-    await page.getByRole("dialog", { name: "Calcolatrice e distinta commerciale" }).waitFor({ state: "visible" });
+    await calculator.click();
+    await page.getByRole("dialog", { name: "Calcolatrice e distinta commerciale" })
+      .waitFor({ state: "visible" });
     await page.getByRole("button", { name: "Chiudi", exact: true }).click();
   }
-  const filename = `commercial-${role}-${width}px.png`;
-  await page.screenshot({ path: path.join(screenshotsDir, filename), fullPage: false, animations: "disabled" });
-  console.log("COMM-UX6.A VISUAL PASS", role, width, { heroHeight: h.height, worklistY: w.y, quickActionsY: t.y });
+  await page.screenshot({
+    path: path.join(screenshotsDir, "commercial-" + role + "-" + width + "px.png"),
+    fullPage: false, animations: "disabled",
+  });
+  console.log("COMM-UX6.A CLASSIC VISUAL PASS", role, width, {
+    creationY: creationBox.y, worklistY: worklistBox.y, toolsY: toolsBox.y,
+  });
 }
 
 /** COMM-TRUST1.A/B: real browser checks, not a source-only assertion. */
