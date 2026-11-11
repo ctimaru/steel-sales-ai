@@ -24,7 +24,7 @@ class OutboundDomainsTest(unittest.TestCase):
             "https://carpenteriauno.it/contatti",          # same company, once
             "/soci/pagina-2",                               # the index itself
             "https://eventi.associazione-esempio.it/",      # index subdomain
-            "http://tubidue.it/",                           # not https
+            "http://tubidue.it/",                           # http: kept, proposed as https
             "https://www.facebook.com/carpenteriauno",      # platform
             "https://it.linkedin.com/company/x",            # platform subdomain
             "https://www.paginegialle.it/x",                # directory
@@ -34,8 +34,9 @@ class OutboundDomainsTest(unittest.TestCase):
             "https://www.acciaicinque.com/it/",
         ], 300)
         self.assertEqual([i["domain"] for i in found],
-                         ["carpenteriauno.it", "acciaicinque.com"])
+                         ["carpenteriauno.it", "tubidue.it", "acciaicinque.com"])
         self.assertEqual(found[0]["url"], "https://www.carpenteriauno.it/")
+        self.assertEqual(found[1]["url"], "https://tubidue.it/")
         self.assertEqual({i["evidence"] for i in found}, {SOURCE})
         self.assertEqual(set(found[0]), {"domain", "url", "evidence"})
 
@@ -78,6 +79,32 @@ class ProfileLinksTest(unittest.TestCase):
         links = [f"/soci/azienda-{i}" for i in range(MAX_PROFILE_PAGES_PER_SOURCE + 40)]
         self.assertEqual(len(profile_links(SOURCE, links, 5)), 5)
         self.assertEqual(len(profile_links(SOURCE, links, 10**6)), MAX_PROFILE_PAGES_PER_SOURCE)
+
+
+class ProfilePatternTest(unittest.TestCase):
+    CATALOG = "https://www.fiera-esempio.it/portale/it/espositori?page=2"
+
+    def test_pattern_follows_query_profiles_beside_the_index(self):
+        links = [
+            "/portale/it/acme-srl?slug=acme-srl",
+            "https://www.fiera-esempio.it/portale/it/tubi-beta-spa?slug=tubi-beta-spa",
+            "/portale/it/espositori?page=3",          # pagination, no slug
+            "/portale/it/contatti",                   # navigation
+            "https://altro-sito.it/portale/it/x?slug=x",  # other site
+            "http://www.fiera-esempio.it/portale/it/gamma?slug=gamma",  # not https
+        ]
+        found = profile_links(self.CATALOG, links, 300, r"^/portale/it/[^/?]+\?slug=")
+        self.assertEqual(found, [
+            "https://www.fiera-esempio.it/portale/it/acme-srl?slug=acme-srl",
+            "https://www.fiera-esempio.it/portale/it/tubi-beta-spa?slug=tubi-beta-spa",
+        ])
+        # Without the pattern the generic heuristic follows none of them.
+        self.assertEqual(profile_links(self.CATALOG, links, 300), [])
+
+    def test_invalid_pattern_falls_back_to_heuristic(self):
+        links = ["/soci/carpenteria-uno", "/soci/acme?slug=acme"]
+        self.assertEqual(profile_links(SOURCE, links, 300, "([unclosed"),
+                         ["https://www.associazione-esempio.it/soci/carpenteria-uno"])
 
 
 class FakeApi:
@@ -222,6 +249,38 @@ class TwoLevelHarvestTest(unittest.IsolatedAsyncioTestCase):
         with patch("app.net_it_seed1_pipeline._fetch_page", new=count_fetch):
             report2 = await harvest(api2, None, max_sources=5, persist=True)
         self.assertEqual((fetched, report2["profiles_read"]), ([SOURCE], 0))
+
+
+class PatternHarvestTest(unittest.IsolatedAsyncioTestCase):
+    async def test_pattern_source_stages_only_profile_websites(self):
+        catalog = "https://www.fiera-esempio.it/portale/it/espositori?page=1"
+        base = "https://www.fiera-esempio.it/portale/it/"
+        pages = {
+            catalog: page(catalog, ["https://www.banner-sponsor.it/"]
+                          + [f"/portale/it/espositore-{i}?slug=espositore-{i}" for i in range(4)]),
+            **{f"{base}espositore-{i}?slug=espositore-{i}": page(
+                f"{base}espositore-{i}?slug=espositore-{i}",
+                [f"http://www.espositore{i}.it", "https://www.meccanicanews.com/x"])
+               for i in range(4)},
+        }
+        async def fake_fetch(client, url, base_url):
+            return pages.get(url)
+        api = FakeApi({
+            "net_it_seed1_claim_sources": {"contract": "net-it-seed1-sources-v1", "status": "ok",
+                "items": [{"id": "s1", "url": catalog, "max_links": 300,
+                           "profile_pattern": r"^/portale/it/[^/?]+\?slug="}]},
+            "net_it_seed1_stage": {"contract": "net-it-seed1-stage-v1", "staged": 4,
+                "already_known": 0, "published": 0},
+        })
+        with patch("app.net_it_seed1_pipeline._fetch_page", new=fake_fetch), \
+             patch("app.net_it_seed1_pipeline.PROFILE_PAUSE_SECONDS", 0):
+            report = await harvest(api, None, max_sources=5, persist=True)
+        staged = dict(api.calls)["net_it_seed1_stage"]["p_items"]
+        self.assertEqual([i["domain"] for i in staged], [f"espositore{i}.it" for i in range(4)])
+        self.assertTrue(all(i["url"].startswith("https://") for i in staged))
+        self.assertNotIn("banner-sponsor.it", str(staged))
+        self.assertNotIn("meccanicanews.com", str(staged))
+        self.assertEqual(report["profiles_read"], 4)
 
 
 if __name__ == "__main__":

@@ -84,10 +84,12 @@ def _blocked(domain: str) -> bool:
 def outbound_company_domains(
     source_url: str, links: tuple[str, ...] | list[str], limit: int,
 ) -> list[dict[str, str]]:
-    """Unique outbound https domains seen on an index page, in page order.
+    """Unique outbound company domains seen on an index page, in page order.
 
-    The index page's own domain, social/platform/directory hosts and anything
-    that is not a plain public https website are dropped.
+    Directories and fair catalogues often still link company sites as http://;
+    those are accepted and always proposed as https:// (the crawler and the
+    database only ever visit https). The index page's own domain,
+    social/platform/directory hosts, credentials and custom ports are dropped.
     """
     limit = min(max(1, int(limit)), MAX_LINKS_PER_SOURCE)
     source_domain = canonical_domain(source_url)
@@ -98,7 +100,8 @@ def outbound_company_domains(
         except (CompanyDiscoveryError, ValueError, TypeError):
             continue
         parts = urlsplit(url)
-        if parts.scheme != "https" or parts.username or parts.password or parts.port:
+        if (parts.scheme not in ("http", "https") or parts.username
+                or parts.password or parts.port):
             continue
         try:
             domain = canonical_domain(url)
@@ -114,15 +117,28 @@ def outbound_company_domains(
     return [{"domain": d, "url": u, "evidence": source_url} for d, u in found.items()]
 
 
+def _profile_regex(pattern: object) -> re.Pattern[str] | None:
+    """Per-source profile pattern from the database; invalid ones are ignored."""
+    if not isinstance(pattern, str) or not 3 <= len(pattern) <= 200:
+        return None
+    try:
+        return re.compile(pattern)
+    except re.error:
+        return None
+
+
 def profile_links(index_url: str, links: tuple[str, ...] | list[str],
-                  limit: int) -> list[str]:
+                  limit: int, pattern: object = None) -> list[str]:
     """Same-site links that look like one company's profile on the index site.
 
-    A profile is either below the index path (/soci -> /soci/acme) or carries a
-    directory hint (espositori, members, scheda, ...). Pagination, search,
-    login and the index page itself are skipped.
+    With a per-source pattern, a profile is a same-site https link whose
+    path (plus ?query, if any) matches it. Without one, a profile is either
+    below the index path (/soci -> /soci/acme) or carries a directory hint
+    (espositori, members, scheda, ...), and links with a query are skipped.
+    Pagination, search, login and the index page itself are always skipped.
     """
     limit = min(max(0, int(limit)), MAX_PROFILE_PAGES_PER_SOURCE)
+    regex = _profile_regex(pattern)
     try:
         base = canonicalize_seed_url(index_url)
         site = canonical_domain(base)
@@ -137,8 +153,18 @@ def profile_links(index_url: str, links: tuple[str, ...] | list[str],
         except (CompanyDiscoveryError, ValueError, TypeError):
             continue
         parts = urlsplit(url)
-        if (parts.scheme != "https" or url in seen or parts.query
+        if (parts.scheme != "https" or url in seen
                 or canonical_domain(url) != site):
+            continue
+        if regex is not None:
+            target = parts.path + (f"?{parts.query}" if parts.query else "")
+            if regex.search(target):
+                seen.add(url)
+                found.append(url)
+                if len(found) >= limit:
+                    break
+            continue
+        if parts.query:
             continue
         path = parts.path.rstrip("/").lower()
         if not path or re.search(r"/(?:page|pagina|p)/?\d+$|/(?:login|cerca|search|cart|carrello)(?:/|$)", path):
@@ -157,6 +183,7 @@ def profile_links(index_url: str, links: tuple[str, ...] | list[str],
 async def two_level_items(web: httpx.AsyncClient, index_url: str,
                           links: tuple[str, ...] | list[str], limit: int,
                           *, pause_seconds: float = PROFILE_PAUSE_SECONDS,
+                          pattern: object = None,
                           ) -> tuple[list[dict[str, str]], int]:
     """(items, profiles_read): one company website per profile page.
 
@@ -165,7 +192,7 @@ async def two_level_items(web: httpx.AsyncClient, index_url: str,
     evidence is the profile URL. Nothing from the profile text is copied.
     """
     per_profile: list[tuple[str, list[dict[str, str]]]] = []
-    for i, url in enumerate(profile_links(index_url, links, limit)):
+    for i, url in enumerate(profile_links(index_url, links, limit, pattern)):
         if i:
             await asyncio.sleep(pause_seconds)
         try:
@@ -271,9 +298,19 @@ async def harvest(api: SeedApi, web: httpx.AsyncClient, *, max_sources: int,
             report["unreadable"] += 1
             continue
         max_links = int(source["max_links"])
+        pattern = source.get("profile_pattern")
         items = outbound_company_domains(page.url, page.links, max_links)
-        if len(items) < TWO_LEVEL_THRESHOLD:
-            deeper, profiles = await two_level_items(web, page.url, page.links, max_links)
+        if pattern:
+            # A declared profile pattern means the catalogue lists companies only
+            # through its profiles; direct links on the index are banners/partners.
+            items, profiles = await two_level_items(
+                web, page.url, page.links, max_links,
+                pause_seconds=PROFILE_PAUSE_SECONDS, pattern=pattern)
+            report["profiles_read"] += profiles
+        elif len(items) < TWO_LEVEL_THRESHOLD:
+            deeper, profiles = await two_level_items(
+                web, page.url, page.links, max_links,
+                pause_seconds=PROFILE_PAUSE_SECONDS)
             report["profiles_read"] += profiles
             known = {i["domain"] for i in items}
             items += [i for i in deeper if i["domain"] not in known][: max(0, max_links - len(items))]
