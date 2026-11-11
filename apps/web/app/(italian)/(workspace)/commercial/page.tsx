@@ -39,19 +39,20 @@ export default async function CommercialHomePage({
   const params = await searchParams;
   const context = await getWorkspaceContext();
   const canWrite = canWriteWorkspace(context.role);
-  // COMM-AI-NATIVE1.B: opt-in preview, then deploy-controlled default.
-  // All explicit legacy deeplinks remain on the proven operational cockpit.
+  // COMM-AI-NATIVE1.CLEAN1: AI-first is the default Commerciale landing.
+  // Explicit classic and all operational deep links preserve the established workbench.
+  // COMM_AI_NATIVE_UI_ENABLED=0 remains an emergency rollback switch.
   const legacyRouteRequested =
     params.compose === "1" || params.view !== undefined || params.item !== undefined ||
     params.q !== undefined || params.page !== undefined || params.cursor !== undefined ||
     params.tab !== undefined || params.focus !== undefined || params.network !== undefined ||
     params.prospect !== undefined || params.prospects === "1";
   const aiNativeEnabled = params.experience === "ai" ||
-    (process.env.COMM_AI_NATIVE_UI_ENABLED === "1" && params.experience !== "classic");
+    (params.experience !== "classic" && process.env.COMM_AI_NATIVE_UI_ENABLED !== "0");
   if (aiNativeEnabled && !legacyRouteRequested) {
     return (
       <FocusPage compact className="max-w-[1480px]">
-        <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_ai_native_preview" }} />
+        <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_ai_native" }} />
         <CommercialAiNativeShell canWrite={canWrite} />
       </FocusPage>
     );
