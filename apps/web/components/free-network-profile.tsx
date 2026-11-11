@@ -1,5 +1,7 @@
 import Link from "next/link";
 import {NetworkProfileOverview} from "@/components/network-profile-overview";
+import { NetworkProfileInventory } from "@/components/network-profile-inventory";
+import { getPublishedNetworkInventory } from "@/lib/network-stock";
 import {getReviewedCompanyEvidence} from "@/lib/network-profile-evidence";
 import { notFound } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
@@ -35,6 +37,7 @@ export async function FreeNetworkProfileView({
   const provisional = profile.company.discovery_status==="unconfirmed";
   const status=provisional?"unavailable":(await getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null))?.get(companyId);
   const canConnect=canInteractWithNetwork((await getWorkspaceContext()).role);
+  const inventory = provisional ? [] : await getPublishedNetworkInventory(organizationId, companyId);
   const companyName=profile.company.trading_name || profile.company.legal_name;
   const evidenceProducts=reviewedEvidence
     .filter((entry)=>entry.field_key==="products")
@@ -87,6 +90,7 @@ export async function FreeNetworkProfileView({
           }
         />
       </div>
+      <div className="mt-4"><NetworkProfileInventory items={inventory} /></div>
 
       {(provisional || isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status)) ? (
         <details className="mt-4 rounded-2xl border border-[#dce6e0] bg-white p-4 text-sm">
