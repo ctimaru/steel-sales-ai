@@ -7,13 +7,15 @@ import { appRoutes } from "@/lib/routes";
 import { classifyCommercialAiNativeTopic, type CommercialAiNativeTopic } from "@/lib/commercial-ai-native-ui";
 import { commercialAiNativeResponse, type CommercialAiNativeHistoryTurn } from "@/app/(italian)/(workspace)/commercial/ai-native-actions";
 import type { CommercialAiIntent } from "@/lib/commercial-ai-native-intent";
+import type { IndustryLookupResult } from "@/lib/commercial-industry-knowledge";
 
 type Turn = {
   id: number; question: string; topic: CommercialAiNativeTopic;
   intent: CommercialAiIntent | null;
   reply: string; followUp: string | null;
   state: "pending" | "answered" | "error";
-  evidenceStatus: "not_connected" | "unverified" | "workflow" | null;
+  evidenceStatus: "not_connected" | "unverified" | "workflow" | "network" | null;
+  industry: IndustryLookupResult | null;
   canPrepareDistinta: boolean;
 };
 function topicFromIntent(intent: CommercialAiIntent): CommercialAiNativeTopic {
@@ -36,7 +38,7 @@ const contextCopy: Record<CommercialAiNativeTopic, { heading: string; descriptio
   },
   network: {
     heading: "Ricerca produttori",
-    description: "Il riconoscimento delle ricerche è attivo. Il matching documentato delle capacità produttive arriverà nel passaggio D; nessun produttore è indicato come verificato senza fonte.",
+    description: "Cerca aziende del Network pubblicato: separiamo ruoli censiti, caratteristiche documentate e dati da confermare. Nessuna ricerca prova stock o capacità effettiva.",
     link: appRoutes.network.directory, label: "Esplora il Network",
   },
   distinta: {
@@ -93,19 +95,27 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
   const previewTrigger = useRef<HTMLButtonElement>(null);
   const previewDialog = useRef<HTMLDialogElement>(null);
   const threadEnd = useRef<HTMLDivElement>(null);
+  const latestTurnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setReady(true), []);
   // Keep the most recent assistant reply visible after an async response,
   // without moving the composer or resetting a reader's earlier history
   // except when a new turn arrives or its pending state resolves.
   const lastTurnState = turns.length ? turns[turns.length - 1].state : null;
+  const lastTurnIntent = turns.length ? turns[turns.length - 1].intent : null;
   useEffect(() => {
     if (!lastTurnState) return;
-    const frame = requestAnimationFrame(() =>
-      threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" })
-    );
+    const frame = requestAnimationFrame(() => {
+      if (lastTurnState === "answered" && lastTurnIntent === "industry_search") {
+        // A company response may contain six cards. Start at its question and
+        // summary instead of jumping below the evidence and source links.
+        latestTurnRef.current?.scrollIntoView({ block: "start", behavior: "auto" });
+      } else {
+        threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" });
+      }
+    });
     return () => cancelAnimationFrame(frame);
-  }, [turns.length, lastTurnState]);
+  }, [turns.length, lastTurnState, lastTurnIntent]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,7 +131,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
     );
     setTurns((previous) => [...previous.slice(-24), {
       id, question, topic, intent: null, reply: "", followUp: null,
-      state: "pending", evidenceStatus: null, canPrepareDistinta: false,
+      state: "pending", evidenceStatus: null, industry: null, canPrepareDistinta: false,
     }]);
     setActiveTopic(topic);
     setBusy(true);
@@ -137,6 +147,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
           ...turn, topic: resolvedTopic, intent: result.intent,
           reply: result.answer, followUp: result.followUp,
           evidenceStatus: result.evidenceStatus,
+          industry: result.industry ?? null,
           canPrepareDistinta: result.canPrepareDistinta, state: "answered",
         } : turn));
       } else {
@@ -252,8 +263,9 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
               </div>
             ) : (
               <div className="mx-auto max-w-[800px] space-y-6">
-                {turns.map((turn) => (
-                  <div key={turn.id} className="space-y-4" data-testid="commercial-ai-native-turn">
+                {turns.map((turn, index) => (
+                  <div key={turn.id} ref={index === turns.length - 1 ? latestTurnRef : undefined}
+                    className="space-y-4" data-testid="commercial-ai-native-turn">
                     <div className="flex justify-end">
                       <p className="max-w-[90%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md bg-[#eaf4ee] px-4 py-3 text-sm leading-6 text-[#173f35]">
                         {turn.question}
@@ -274,7 +286,83 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
                             ) : null}
                             {turn.state === "answered" && turn.evidenceStatus === "not_connected" ? (
                               <p data-testid="commercial-ai-native-not-connected"
-                                className="mt-2 text-xs leading-5 text-[#795a35]">Ricerca documentata non ancora collegata · Nessuno stock o produttore confermato.</p>
+                                className="mt-2 text-xs leading-5 text-[#795a35]">Network temporaneamente non raggiungibile · Nessuna azienda o disponibilità confermata.</p>
+                            ) : null}
+                            {turn.state === "answered" && turn.evidenceStatus === "network" && turn.industry ? (
+                              <section data-testid="commercial-ai-native-industry-results" aria-label="Risultati ricerca industriale"
+                                className="mt-4 space-y-3">
+                                {turn.industry.restricted ? (
+                                  <p data-testid="commercial-ai-native-industry-access-locked"
+                                    className="rounded-xl border border-[#d5e2d9] bg-[#f7faf8] p-3 text-xs leading-5 text-[#536a5c]">
+                                    Accesso Network necessario · I dettagli tecnici e le schede riservate non sono stati consultati.
+                                  </p>
+                                ) : (
+                                  <>
+                                    <p className="text-xs font-semibold text-[#416a51]">
+                                      {turn.industry.companies.length} schede da approfondire · {turn.industry.examined} operatori esaminati
+                                    </p>
+                                    <div className="grid gap-2 md:grid-cols-2">
+                                      {turn.industry.companies.map(company => (
+                                        <article key={company.id} data-testid="commercial-ai-native-industry-company"
+                                          className="min-w-0 rounded-xl border border-[#dce7df] bg-[#fbfdfb] p-3">
+                                          <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <p className="min-w-0 break-words text-sm font-semibold text-[#184332]">{company.name}</p>
+                                            <span className="text-[10px] font-semibold text-[#60786b]">{company.country}</span>
+                                          </div>
+                                          <p className="mt-1 text-xs text-[#587366]">{company.roleLabel}</p>
+                                          <p className="mt-2 text-xs font-semibold text-[#2d6648]">
+                                            {company.match === "documented"
+                                              ? "Caratteristiche registrate · da confermare"
+                                              : "Possibile operatore · specifica non dimostrata"}
+                                          </p>
+                                          {company.reasons.length > 0 ? (
+                                            <ul className="mt-2 space-y-1 text-xs leading-5 text-[#3e5b49]">
+                                              {company.reasons.map((reason, i) => (
+                                                <li key={i} className="break-words">
+                                                  • {reason.label}
+                                                  <span className="block text-[10px] text-[#6d8174]">
+                                                    {reason.provenance === "platform_verified" ? "Fonte: verificata dalla piattaforma" :
+                                                      reason.provenance === "company_declared" ? "Fonte: dichiarata dall’azienda" :
+                                                      reason.provenance === "public_web" ? "Fonte: web pubblico" : "Fonte: scheda Network"}
+                                                    {reason.verification !== "verified" ? " · non verificata" : ""}
+                                                  </span>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          ) : (
+                                            <p className="mt-2 text-xs leading-5 text-[#697e70]">
+                                              Ruolo aziendale censito; capacità tecnica specifica non documentata.
+                                            </p>
+                                          )}
+                                          {company.missing.length ? (
+                                            <p className="mt-2 text-[11px] leading-5 text-[#86633d]">
+                                              Da chiarire: {company.missing.join(", ")}.
+                                            </p>
+                                          ) : null}
+                                          <Link href={company.sourceUrl}
+                                            className="mt-3 inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
+                                            Apri la scheda Network ↗
+                                          </Link>
+                                        </article>
+                                      ))}
+                                    </div>
+                                    {turn.industry.limited ? (
+                                      <p className="text-[11px] leading-5 text-[#697d71]">
+                                        Risultati parziali: la ricerca non esamina ancora l’intero Network.
+                                      </p>
+                                    ) : null}
+                                    {turn.industry.technicalScopeUnavailable ? (
+                                      <p className="text-[11px] leading-5 text-[#86633d]">
+                                        Alcuni dati tecnici non erano accessibili: nessun abbinamento mancante è stato presunto.
+                                      </p>
+                                    ) : null}
+                                    <p className="text-[11px] leading-5 text-[#697d71]">
+                                      Fonte: schede pubblicate del Network · Data delle singole affermazioni non disponibile ·
+                                      Nessuna conferma di produzione, giacenza o disponibilità corrente.
+                                    </p>
+                                  </>
+                                )}
+                              </section>
                             ) : null}
                             {turn.followUp && turn.state === "answered" ? (
                               <p className="mt-2 text-xs font-medium leading-5 text-[#426852]">{turn.followUp}</p>

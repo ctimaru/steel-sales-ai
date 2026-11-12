@@ -100,9 +100,31 @@ try {
         await input.fill("Chi produce tubo S355 Ø608?");
         await shell.getByTestId("commercial-ai-native-submit").click();
         await shell.getByRole("link", { name: /Esplora Network/ }).waitFor({ state: "visible" });
-        const notConnected = shell.getByTestId("commercial-ai-native-not-connected");
-        await notConnected.first().waitFor({ state: "visible", timeout: 30000 });
+        // D: read-only Network lookup replaces the phase C not-connected placeholder.
+        const evidence = shell.getByTestId("commercial-ai-native-industry-results");
+        await evidence.first().waitFor({ state: "visible", timeout: 30000 });
+        assert.equal(await shell.getByTestId("commercial-ai-native-not-connected").count(), 0);
+        assert.equal(await shell.getByTestId("commercial-ai-native-open-distinta").count(), 0);
+        // Entitlement-locked viewers receive no detailed company cards, but do
+        // receive an honest locked state with the normal Network entrypoint.
+        if (await shell.getByTestId("commercial-ai-native-industry-access-locked").count()) {
+          assert.equal(await shell.getByTestId("commercial-ai-native-industry-company").count(), 0);
+        } else {
+          assert.ok(await shell.getByTestId("commercial-ai-native-industry-company").count() <= 6);
+        }
         assert.match(await shell.getByTestId("commercial-ai-native-turn").first().innerText(), /norma.*spessore/i);
+        const industryQuestion = shell.getByTestId("commercial-ai-native-turn").first()
+          .getByText("Chi produce tubo S355 Ø608?");
+        const [industryQuestionBox, threadBox] = await Promise.all([
+          industryQuestion.boundingBox(),
+          shell.getByTestId("commercial-ai-native-thread").boundingBox(),
+        ]);
+        assert.ok(industryQuestionBox && threadBox &&
+          industryQuestionBox.y >= threadBox.y - 5 &&
+          industryQuestionBox.y <= threadBox.y + 90,
+          "Industry search must begin at the question and evidence summary, never auto-scroll past company cards");
+        await page.screenshot({ path: path.join(screenshots, person.id + "-" + width + "-industry.png"),
+          animations: "disabled" });
         assert.equal(await shell.getByTestId("commercial-ai-native-open-distinta").count(), 0,
           "Producer question must never create a Distinta");
         await input.fill("Preparami 24 barre Ø608×10 EN 10219 S355J2H");
