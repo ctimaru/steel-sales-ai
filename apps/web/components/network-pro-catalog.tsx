@@ -2,6 +2,7 @@
 
 import {useState,useTransition} from "react";
 import {startNetworkProCheckout} from "@/app/(italian)/(workspace)/network/pro/checkout-actions";
+import {openNetworkProCustomerPortal} from "@/app/(italian)/(workspace)/network/pro/portal-actions";
 import Link from "next/link";
 import {networkCountryName} from "@/lib/network-eu-countries";
 import type {NetworkProAccess,NetworkProCoverage} from "@/lib/network-pro-coverage";
@@ -16,9 +17,9 @@ import {
 
 const euro = new Intl.NumberFormat("it-IT", {style: "currency", currency: "EUR", maximumFractionDigits: 0});
 
-export function NetworkProCatalog({coverage,access,canCheckout,billingReady}:{
+export function NetworkProCatalog({coverage,access,canCheckout,billingReady,hasPaidSubscription}:{
   coverage:NetworkProCoverage|null;access:NetworkProAccess|null;
-  canCheckout:boolean;billingReady:boolean;
+  canCheckout:boolean;billingReady:boolean;hasPaidSubscription:boolean;
 }) {
   const [territory, setTerritory] = useState<NetworkProTerritory>("IT");
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
@@ -49,6 +50,18 @@ export function NetworkProCatalog({coverage,access,canCheckout,billingReady}:{
       }catch{
         setCheckoutError("Checkout temporaneamente non disponibile. Nessun addebito eseguito.");
       }
+    });
+  }
+
+  function openPortal(){
+    if(!canCheckout||!billingReady||isStarting)return;
+    setCheckoutError(null);
+    startTransition(async()=>{
+      try{
+        const response=await openNetworkProCustomerPortal();
+        if(response.status==="ready"){window.location.assign(response.url);return;}
+        setCheckoutError(response.message);
+      }catch{setCheckoutError("Portale abbonamenti temporaneamente indisponibile.");}
     });
   }
 
@@ -266,11 +279,17 @@ export function NetworkProCatalog({coverage,access,canCheckout,billingReady}:{
               </p>}
             </div>
             <button type="button" onClick={openCheckout}
-              disabled={!billingReady||!canCheckout||!coverage||selected.length===0||isStarting}
+              disabled={!billingReady||!canCheckout||!coverage||hasPaidSubscription||selected.length===0||isStarting}
               data-testid="netpro-f1-checkout"
               className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-3 text-sm font-semibold text-white hover:bg-[#124632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:bg-[#829a8d]">
               {isStarting?"Apertura pagamento sicuro…":"Abbonati e sblocca"}
             </button>
+            {hasPaidSubscription&&canCheckout?
+              <button type="button" onClick={openPortal} disabled={!billingReady||isStarting}
+                data-testid="netpro-f2-portal"
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#9bbda7] bg-white px-3 text-sm font-semibold text-[#175640] hover:bg-[#f2f8f4] disabled:opacity-50">
+                Gestisci il tuo abbonamento
+              </button>:null}
             {!canCheckout?<p className="mt-2 text-xs text-[#586f60]">
               Solo un amministratore aziendale può acquistare l’abbonamento.
             </p>:null}
