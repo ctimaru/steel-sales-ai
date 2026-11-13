@@ -43,7 +43,7 @@ export async function POST(request:NextRequest){
           const result=await reconcilePaidCheckout(intentId);
           // Stripe retries a non-2xx webhook. A paid subscription must not
           // be acknowledged until its automatic entitlement commit succeeds.
-          if(data.payment_status==="paid"&&result.status!=="active")
+          if(data.payment_status==="paid"&&result.status==="pending")
             throw new Error("paid_session_not_reconciled");
         }
         break;
