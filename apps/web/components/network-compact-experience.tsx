@@ -229,6 +229,9 @@ export function NetworkCompactExperience({
         <strong className="tabular-nums text-[#173f35]">{directory.published.toLocaleString("it-IT")}</strong> profili pubblicati
         {knownTotals?<> · <strong className="tabular-nums text-[#173f35]">{directory.discovered.toLocaleString("it-IT")}</strong> {directory.marketEvidence?"con settore da fonte":technicalOnly?"censite non filtrabili":"censite da fonti pubbliche"}</>:null}
       </p>
+      <Link href="/network/pro" className="inline-flex min-h-9 items-center justify-center rounded-xl border border-[#b2d1bb] bg-[#f0f8f2] px-3 text-xs font-bold text-[#175640] hover:bg-[#e3f1e7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+        Network PRO · Moduli e prezzi
+      </Link>
     </header>
     <NetworkCountryTicker organizationId={organizationId} accessMode={accessMode}/>
     <div data-testid="network-europe1d-one-screen-shell" className="grid items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">

@@ -44,6 +44,7 @@ export const appRoutes = {
 
   network: {
     directory: "/network",
+    pro: "/network/pro",
     start: "/network/start",
     connections: "/network/connections",
     company: (id: string) => `/network/${id}`,

@@ -72,6 +72,12 @@ export function NetworkAccessGate({
 
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
+                href={appRoutes.network.pro}
+                className={cn(actionClasses({ variant: "default" }), "min-h-11")}
+              >
+                Scopri moduli e prezzi
+              </Link>
+              <Link
                 href={appRoutes.company.profile}
                 className={cn(actionClasses({ variant: "default" }), "min-h-11")}
               >
