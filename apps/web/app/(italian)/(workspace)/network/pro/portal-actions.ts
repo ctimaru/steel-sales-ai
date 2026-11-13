@@ -24,7 +24,13 @@ export async function openNetworkProCustomerPortal():Promise<PortalResult>{
     if(error||!data?.stripe_customer_id)return {
       status:"unavailable",message:"Nessun abbonamento pagato disponibile.",
     };
+    const portalConfig=process.env.STRIPE_NETPRO_PORTAL_CONFIGURATION_ID;
+    // Portal configuration MUST disallow subscription plan changes until
+    // module/territory upgrade reconciliation is implemented and verified.
+    if(!portalConfig||!/^bpc_[A-Za-z0-9]{10,}$/.test(portalConfig))
+      throw new Error("portal_configuration_required");
     const params=new URLSearchParams();
+    params.set("configuration",portalConfig);
     params.set("customer",data.stripe_customer_id);
     params.set("return_url",origin+"/network/pro");
     const session=await stripeCall<{url:string}>("/billing_portal/sessions",{
