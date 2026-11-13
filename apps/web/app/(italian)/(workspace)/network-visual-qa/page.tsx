@@ -133,6 +133,7 @@ export default async function NetworkVisualQaPage(){
             primaryRole="Terzista"
             website="https://example.org"
             connectionsAvailable={true}
+            primaryConnectionAvailable={true}
             actions={<a href="#network-profile-sparse-action-fixture"
               className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold">Connetti</a>}
           />
