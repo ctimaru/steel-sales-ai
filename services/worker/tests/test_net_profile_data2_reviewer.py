@@ -124,6 +124,22 @@ class SourceReviewerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(finding["p_verdict"], "needs_review")
         self.assertIn("legal_company_name_not_found", finding["p_reason_codes"])
 
+    async def test_legal_name_on_official_homepage_can_support_product_page(self):
+        product = page("Vendiamo Tubi senza saldatura e Profilati cavi.")
+        home = page("Acciai Demo S.p.A. - sede e contatti ufficiali.",
+                    url="https://www.acciaidemo.it/")
+        with patch("app.net_profile_data2_reviewer._fetch_page",
+                   new=AsyncMock(side_effect=[product,home])) as fetch:
+            with patch("app.net_profile_data2_reviewer._ai_check",
+                       return_value={
+                         "supported":True,
+                         "quote":"Vendiamo Tubi senza saldatura e Profilati cavi."
+                       }):
+                finding=await review_candidate(None,candidate(),
+                                               token="dummy",model="verified-test-model")
+        self.assertEqual(finding["p_verdict"],"supported")
+        self.assertEqual(fetch.await_count,2)
+
     async def test_explicit_reuse_ban_blocks(self):
         finding = await self._review(text=CONTENT + " Vietato il riutilizzo dei dati.")
         self.assertEqual(finding["p_verdict"], "blocked")
