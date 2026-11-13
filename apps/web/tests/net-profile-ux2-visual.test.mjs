@@ -51,7 +51,7 @@ test("NET-PROFILE-UX5.A/B: sparse profiles stay compact even with provenance, wi
   assert.match(overview, /if \(hasContacts\)/);
   assert.match(overview, /if \(stockCount > 0 && stockContent\)/);
   assert.match(overview, /connectionsAvailable && actions/);
-  assert.match(overview, /if \(hasTechnicalDetails && detailsTargetId\)/);
+  assert.match(overview, /if \(hasTechnicalDetails \|\| hasWebSource/);
   assert.match(free, /provisional \? \[\] : await getPublishedNetworkInventory/);
   assert.match(free, /status==="available"&&canConnect/);
   assert.match(pro, /inquiryEligible && canInteract/);
@@ -78,4 +78,41 @@ test("NET-PROFILE-UX5.A/B: responsive acceptance covers sparse, actionable and p
   assert.match(chrome, /Company-commercial-hero/);
   assert.match(chrome, /Company-sparse-hero/);
   assert.match(chrome, /compactRect.height/);
+});
+
+test("NET-PROFILE-UX5.C: trust labels reflect distinct, evidenced claims", () => {
+  assert.match(overview, /export type NetworkIdentityTrust/);
+  assert.match(overview, /Identità da confermare/);
+  assert.match(overview, /Identità non verificata/);
+  assert.match(overview, /Profilo rivendicato/);
+  assert.match(overview, /Azienda verificata/);
+  assert.match(overview, /Fonte web disponibile/);
+  assert.match(overview, /Dati dichiarati dall’azienda/);
+  assert.match(overview, /Elementi verificati/);
+  assert.match(overview, /Nessuno di questi segnali garantisce capacità di/);
+  assert.match(overview, /title: "Fonti e attendibilità"/);
+  assert.doesNotMatch(overview, /title: "Dati e documenti"/);
+  assert.match(overview, /technicalTopics\.length \? "Apri dati tecnici pubblicati"/);
+  assert.match(free, /identityTrust=\{provisional \? "unconfirmed"/);
+  assert.match(free, /sourceUrl=\{source\}/);
+  assert.match(pro, /identityTrust=\{profile\.trust\.verified \? "verified"/);
+  assert.match(pro, /item\.provenance_kind === "company_declared"/);
+  assert.match(pro, /hasVerifiedFields=\{verifiedAssetCount > 0\}/);
+});
+
+test("NET-PROFILE-UX5.C: all cards open an in-place panel, with an explicit technical drill-down", () => {
+  assert.match(hub, /onClick=\{\(\) => setSelected\(section\.id\)\}/);
+  assert.match(hub, /data-testid="network-profile-open-details"/);
+  assert.match(hub, /onClick=\{\(\) => openTarget\(section\.targetId!\)\}/);
+  assert.match(hub, /target\.open = true/);
+  assert.match(hub, /summary\.focus/);
+  assert.match(hub, /sections\[0\]\.targetId/);
+  assert.doesNotMatch(hub, /onClick=\{\(\) => section\.targetId \? openTarget/);
+  assert.match(overview, /trustSourceUrl && trustSourceUrl !== website/);
+  assert.match(overview, /data-testid="network-profile-trust-panel"/);
+  assert.match(fixture, /network-profile-public-source-fixture/);
+  assert.match(fixture, /fixture-rich-technical-details/);
+  assert.match(fixture, /identityTrust="unconfirmed"/);
+  assert.match(chrome, /network-company-card-approfondimenti/);
+  assert.match(chrome, /network-profile-open-details/);
 });
