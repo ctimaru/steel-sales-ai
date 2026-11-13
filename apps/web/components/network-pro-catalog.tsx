@@ -1,6 +1,8 @@
 "use client";
 
-import {useState} from "react";
+import {useState,useTransition} from "react";
+import {startNetworkProCheckout} from "@/app/(italian)/(workspace)/network/pro/checkout-actions";
+import {openNetworkProCustomerPortal} from "@/app/(italian)/(workspace)/network/pro/portal-actions";
 import Link from "next/link";
 import {networkCountryName} from "@/lib/network-eu-countries";
 import type {NetworkProAccess,NetworkProCoverage} from "@/lib/network-pro-coverage";
@@ -15,17 +17,52 @@ import {
 
 const euro = new Intl.NumberFormat("it-IT", {style: "currency", currency: "EUR", maximumFractionDigits: 0});
 
-export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage|null;access:NetworkProAccess|null}) {
+export function NetworkProCatalog({coverage,access,canCheckout,billingReady,hasPaidSubscription}:{
+  coverage:NetworkProCoverage|null;access:NetworkProAccess|null;
+  canCheckout:boolean;billingReady:boolean;hasPaidSubscription:boolean;
+}) {
   const [territory, setTerritory] = useState<NetworkProTerritory>("IT");
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [selected, setSelected] = useState<NetworkProModuleKey[]>(["producers", "distributors"]);
+  const [isStarting,startTransition]=useTransition();
+  const [checkoutError,setCheckoutError]=useState<string|null>(null);
   const quote = networkProQuote(selected, territory, billing);
   const countries=coverage?.countries.filter(row=>territory==="EU"||row.countryCode==="IT")??[];
 
   function toggle(key: NetworkProModuleKey) {
+    setCheckoutError(null);
     setSelected((current) => current.includes(key)
       ? current.filter((entry) => entry !== key)
       : [...current, key]);
+  }
+
+  function openCheckout(){
+    if(!billingReady||!canCheckout||selected.length===0||isStarting||!coverage)return;
+    setCheckoutError(null);
+    startTransition(async()=>{
+      try{
+        const result=await startNetworkProCheckout({modules:selected,territory,interval:billing});
+        if(result.status==="ready"){
+          window.location.assign(result.url);
+          return;
+        }
+        setCheckoutError(result.message);
+      }catch{
+        setCheckoutError("Checkout temporaneamente non disponibile. Nessun addebito eseguito.");
+      }
+    });
+  }
+
+  function openPortal(){
+    if(!canCheckout||!billingReady||isStarting)return;
+    setCheckoutError(null);
+    startTransition(async()=>{
+      try{
+        const response=await openNetworkProCustomerPortal();
+        if(response.status==="ready"){window.location.assign(response.url);return;}
+        setCheckoutError(response.message);
+      }catch{setCheckoutError("Portale abbonamenti temporaneamente indisponibile.");}
+    });
   }
 
   return (
@@ -225,13 +262,42 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
               {quote.count > 1 ? <p className="mt-2 text-xs font-medium text-[#326e4d]">Sconto combinazione già applicato.</p> : null}
               {quote.count === 0 ? <p className="mt-3 text-xs text-[#926328]">Seleziona almeno un modulo per configurare l'offerta.</p> : null}
               <p className="mt-4 text-xs leading-5 text-[#52695a]">
-                Prezzi proposti, ancora da validare con i clienti pilota. Nessun ordine o pagamento viene creato da questa schermata.
+                {billingReady
+                  ? "Il prezzo esatto, l’IVA e le condizioni di rinnovo sono riepilogati su Stripe prima della conferma di pagamento. L’accesso si sblocca soltanto dopo il pagamento verificato."
+                  : "Prezzi proposti, ancora da validare con i clienti pilota. Nessun ordine o pagamento viene creato da questa schermata."}
               </p>
             </div>
             <div className="mt-4 rounded-xl border border-[#e1e9e3] bg-[#f4f8f5] p-3">
-              <p className="text-xs font-semibold text-[#244f3b]">Attivazioni non ancora aperte</p>
-              <p className="mt-1 text-xs leading-5 text-[#596e60]">Checkout, fatturazione e permessi self-service non sono disponibili. I diritti per categoria e Paese sono verificati nel database e assegnabili soltanto da un operatore autorizzato.</p>
+              <p className="text-xs font-semibold text-[#244f3b]">Abbonamento Network PRO</p>
+              <p className="mt-1 text-xs leading-5 text-[#596e60]">
+                Seleziona i moduli e paga online. Il sistema sblocca automaticamente
+                gli accessi acquistati solo dopo la conferma del pagamento.
+                Nessuna richiesta o approvazione manuale.
+              </p>
+              {!billingReady?<p className="mt-2 text-xs font-semibold text-[#745c2c]">
+                Checkout non ancora disponibile: configurazione Stripe e listino definitivo in preparazione.
+              </p>:<p className="mt-2 text-xs text-[#396a51]">
+                Prezzo definitivo, IVA e condizioni di rinnovo saranno mostrati nel checkout sicuro prima del pagamento.
+              </p>}
             </div>
+            <button type="button" onClick={openCheckout}
+              disabled={!billingReady||!canCheckout||!coverage||hasPaidSubscription||selected.length===0||isStarting}
+              data-testid="netpro-f1-checkout"
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-3 text-sm font-semibold text-white hover:bg-[#124632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:bg-[#829a8d]">
+              {isStarting?"Apertura pagamento sicuro…":"Abbonati e sblocca"}
+            </button>
+            {hasPaidSubscription&&canCheckout?
+              <button type="button" onClick={openPortal} disabled={!billingReady||isStarting}
+                data-testid="netpro-f2-portal"
+                className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#9bbda7] bg-white px-3 text-sm font-semibold text-[#175640] hover:bg-[#f2f8f4] disabled:opacity-50">
+                Gestisci il tuo abbonamento
+              </button>:null}
+            {!canCheckout?<p className="mt-2 text-xs text-[#586f60]">
+              Solo un amministratore aziendale può acquistare l’abbonamento.
+            </p>:null}
+            {checkoutError?<p role="alert" className="mt-2 rounded-lg border border-[#e1cba3] bg-[#fff9ef] p-3 text-xs text-[#765223]">
+              {checkoutError}
+            </p>:null}
             <Link href="/network" className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#b5d2bf] bg-white px-3 text-sm font-semibold text-[#205a3d] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
               Esplora il Network
             </Link>

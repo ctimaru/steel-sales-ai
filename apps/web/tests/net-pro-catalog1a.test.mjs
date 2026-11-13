@@ -43,7 +43,9 @@ test("NET-PRO-CATALOG1.A offers accessible responsive selection without fake che
   assert.match(ux, /aria-live="polite"/);
   assert.match(ux, /sm:grid-cols-2/);
   assert.match(ux, /lg:sticky lg:top-24/);
-  assert.match(ux, /Checkout, fatturazione e permessi/);
+  assert.match(ux, /Checkout non ancora disponibile: configurazione Stripe/);
+  assert.match(ux, /disabled=\{!billingReady\|\|!canCheckout\|\|!coverage\|\|hasPaidSubscription/);
+  assert.match(ux, /data-testid="netpro-f1-checkout"/);
   assert.doesNotMatch(ux, /stripe\.com\/|paymentIntent|grantEntitlement|<form[^>]*action=/i);
 });
 
