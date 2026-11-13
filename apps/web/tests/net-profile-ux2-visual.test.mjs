@@ -24,8 +24,8 @@ test("NET-PROFILE-UX4: one shared Company Hub with clickable cards and real pane
   assert.match(hub, /aria-pressed=\{current\}/);
   assert.match(hub, /setSelected\(section.id\)/);
   assert.match(hub, /role="region"/);
-  assert.match(hub, /grid-cols-2.*sm:grid-cols-3.*lg:grid-cols-\\[repeat\\(auto-fit/);
-  assert.match(overview, /const hubOrder = \\["connessioni", "attivita"/);
+  assert.ok(hub.includes("lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]"));
+  assert.ok(overview.includes('const hubOrder = ["connessioni", "attivita"'));
   assert.match(hub, /HTMLDetailsElement/);
   for (const source of [free, pro]) {
     assert.match(source, /<NetworkProfileTopBar\s*\/>/);
