@@ -60,11 +60,11 @@ begin
     raise exception 'Choose 1 to 4 Network PRO modules' using errcode='22023';
   end if;
 
-  select array_agg(distinct x order by x) into v_modules
-    from unnest(p_module_keys) as x;
+  select array_agg(distinct module_key order by module_key) into v_modules
+    from unnest(p_module_keys) as keys(module_key);
   if cardinality(v_modules) <> cardinality(p_module_keys)
-     or exists (select 1 from unnest(v_modules) as x
-                where x is null or x not in ('producers','distributors','end_users','processors')) then
+     or exists (select 1 from unnest(v_modules) as keys(module_key)
+                where module_key is null or module_key not in ('producers','distributors','end_users','processors')) then
     raise exception 'Invalid or duplicate Network PRO module' using errcode='22023';
   end if;
 
