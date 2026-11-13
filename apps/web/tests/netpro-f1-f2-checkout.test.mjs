@@ -129,7 +129,7 @@ test("NETPRO F1 requires complete 16-price Stripe checkout setup and cancel port
     for(const country of ["IT","EU"]){
       for(const period of ["monthly","annual"]){
         for(let count=1;count<=4;count++)
-          prices[country+":"+period+":"+count]="price_valid_testing_plan_"+country+period+count;
+          prices[country+":"+period+":"+count]="price_validTestingPlan"+country+period+count;
       }
     }
     Object.assign(process.env,{
