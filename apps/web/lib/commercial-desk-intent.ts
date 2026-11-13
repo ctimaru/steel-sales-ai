@@ -19,11 +19,11 @@ const ask = /(mostra|fammi vedere|fai vedere|vedere|quali|quante|quanti|elenca|f
 const notDesk = /(prepara|preparami|crea|creami|aggiungi|nuova richiesta|nuova distinta|chi\s+(produce|fabbrica|vende|fornisce)|produttor[ei]|trova\s+(aziend|fornitor)|differenz[ae]|che cosa significa|cosa significa|spiega)/iu;
 
 const filters: ReadonlyArray<{ test: RegExp; params: Record<string, string>; label: string; description: string }> = [
-  { test: /(in scadenza|scad(e|ono|ranno|enza|enze|ut[ae])|urgent[ei])/iu, params: { view: "all", focus: "due" },
+  { test: /(in scadenza|scad(e|ono|ranno|enza|enze|ut[ae])|urgent[ei])/iu, params: { focus: "due" },
     label: "In scadenza", description: "richieste dei clienti e RFQ ai fornitori ancora aperte che scadono entro 7 giorni" },
-  { test: /(da rispondere|devo rispondere|senza risposta|da evadere|devo fare|da fare|c['’]è da fare)/iu, params: { view: "all", focus: "reply" },
+  { test: /(da rispondere|devo rispondere|senza risposta|da evadere|devo fare|da fare|c['’]è da fare)/iu, params: { focus: "reply" },
     label: "Da rispondere", description: "richieste e ordini dei clienti ancora aperti" },
-  { test: /(in attesa|aspett)/iu, params: { view: "all", focus: "waiting" },
+  { test: /(in attesa|aspett)/iu, params: { focus: "waiting" },
     label: "In attesa", description: "offerte inviate, RFQ in raccolta e ordini emessi che aspettano una risposta" },
   { test: /(bozz[ae]|distint[ae])/iu, params: { view: "drafts" },
     label: "Bozze", description: "le distinte salvate" },
@@ -35,7 +35,7 @@ const filters: ReadonlyArray<{ test: RegExp; params: Record<string, string>; lab
     label: "Ricevute", description: "le richieste ricevute dai clienti" },
   { test: /(inviat[ae]|ai fornitori|\brfq\b|\brdo\b)/iu, params: { view: "sent" },
     label: "Inviate", description: "le richieste inviate ai fornitori" },
-  { test: /(tutt[eoi]|trattativ[ae]|attivit[aà]|richiest[ae])/iu, params: { view: "all" },
+  { test: /(tutt[eoi]|trattativ[ae]|attivit[aà]|richiest[ae])/iu, params: {},
     label: "Tutte", description: "tutte le trattative, senza filtri" },
 ];
 
@@ -48,7 +48,9 @@ export function commercialDeskIntent(input: string): CommercialDeskIntent | null
   const match = filters.find((filter) => filter.test.test(cleaned));
   if (!match) return null;
   return {
-    href: HOME + "?" + new URLSearchParams(match.params).toString(),
+    // I filtri «focus» valgono sulla vista predefinita: senza ?view il menu
+    // laterale resta su «Scrivania» invece di saltare a «Trattative».
+    href: HOME + (Object.keys(match.params).length ? "?" + new URLSearchParams(match.params).toString() : ""),
     label: match.label,
     description: match.description,
   };

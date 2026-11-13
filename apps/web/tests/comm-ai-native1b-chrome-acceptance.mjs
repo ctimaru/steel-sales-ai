@@ -185,6 +185,11 @@ try {
             "The conversation must survive the table filter navigation");
           assert.match(await shell.getByTestId("commercial-ai-native-turn").first().innerText(), /In scadenza/);
           assert.equal(await shell.getByTestId("commercial-ai-native-desk-filter").count(), 1);
+          if (width >= 1280) {
+            assert.equal(await page.getByTestId("commercial-director-sidebar")
+              .getByRole("link", { name: "Scrivania" }).getAttribute("aria-current"), "page",
+              "A chat filter must keep the sidebar on Scrivania");
+          }
           assert.ok((await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)) <= 12,
             "Desk filter must not create horizontal overflow");
         }

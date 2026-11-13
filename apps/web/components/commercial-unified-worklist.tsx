@@ -67,6 +67,13 @@ const groupLabelClass: Record<CommercialRowGroup, string> = {
   rest: "bg-[#f7f9f8] text-[#4f6b5b]",
 };
 
+// Un filtro rapido senza risultati è una buona notizia, non una ricerca fallita.
+const focusEmptyTitles: Record<CommercialFocus, string> = {
+  due: "Niente in scadenza nei prossimi 7 giorni",
+  reply: "Niente a cui rispondere adesso",
+  waiting: "Niente in attesa di risposta",
+};
+
 function route(view: CommercialView, query: string, key: string, page: number, cursor?: string | null, focus: CommercialFocus | "" = "") {
   const href = (cursor || focus) && isStreamView(view) ? mergedCommercialHref(view, query, cursor ?? undefined, key, focus) :
     page > 1 ? commercialPageHref(view, query, page, key) : commercialHref(view, query, key);
@@ -279,7 +286,7 @@ export async function CommercialUnifiedWorklist({
   // the visible query/view without guessing whether a backend was assigned.
   const emptyCause = data.partial ? "unavailable" : query || focus ? "filtered" : view === "all" ? "workspace" : "view";
   const emptyTitle = emptyCause === "unavailable" ? "Impossibile verificare tutte le attività"
-    : emptyCause === "filtered" ? "Nessun risultato per questo filtro"
+    : emptyCause === "filtered" ? (focus && !query ? focusEmptyTitles[focus] : "Nessun risultato per questo filtro")
     : emptyCause === "workspace" ? "Non ci sono ancora trattative da visualizzare"
     : view === "drafts" ? "Nessuna distinta salvata in questa vista"
     : view === "received" ? "Nessuna richiesta cliente in questa vista"
@@ -288,13 +295,15 @@ export async function CommercialUnifiedWorklist({
     : "Nessun ordine in questa vista";
   const emptyDescription = emptyCause === "unavailable"
     ? "Lo storico potrebbe essere incompleto o non associato: non possiamo confermare che sia vuoto. Consulta la ricerca per verificare i dati accessibili."
-    : emptyCause === "filtered" ? "La ricerca non trova attività nella vista selezionata. Rimuovi il filtro senza perdere la vista."
+    : emptyCause === "filtered" ? (focus && !query
+        ? "Nessuna trattativa aperta rientra in «" + commercialFocusLabels[focus] + "». Rimuovi il filtro per rivedere tutte le trattative."
+        : "La ricerca non trova attività nella vista selezionata. Rimuovi il filtro senza perdere la vista.")
     : emptyCause === "workspace" ? "Le attività autorizzate appariranno qui quando saranno disponibili."
     : "La vista è vuota; altre richieste, offerte o ordini potrebbero essere presenti nelle altre viste.";
   const emptyAction = emptyCause === "unavailable"
     ? { href: commercialSearchHref(query), label: "Controlla lo storico" }
     : emptyCause === "filtered"
-      ? { href: commercialHref(view), label: "Rimuovi filtro" }
+      ? { href: focus && !query ? appRoutes.commercial.home + "#commercial-worklist" : commercialHref(view), label: "Rimuovi filtro" }
       : (view === "drafts" || view === "all") && canWrite
         ? { href: appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake", label: "Prepara con la chat" }
         : { href: commercialHref("all"), label: "Mostra tutte le trattative" };
@@ -358,7 +367,7 @@ export async function CommercialUnifiedWorklist({
       {focus ? (
         <p data-testid="commercial-focus-active" className="flex flex-wrap items-center gap-2 px-1 text-xs text-[#315c49]">
           Filtro attivo: <span className="font-semibold">{commercialFocusLabels[focus]}</span>
-          <Link href={commercialHref("all", query)} className="font-semibold text-[#175640] underline underline-offset-2">Rimuovi ×</Link>
+          <Link href={query ? commercialHref("all", query) : appRoutes.commercial.home + "#commercial-worklist"} className="font-semibold text-[#175640] underline underline-offset-2">Rimuovi ×</Link>
         </p>
       ) : null}
 
