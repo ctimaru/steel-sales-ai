@@ -35,7 +35,8 @@ export type NetworkProDirectory={
 };
 export type NetworkProDirectoryResult=
   |{status:"ready";data:NetworkProDirectory}
-  |{status:"locked"|"unavailable";data:null};
+  |{status:"locked";data:null}
+  |{status:"unavailable";data:null};
 
 const modules=NETWORK_PRO_MODULES.map(module=>module.key);
 const known=new Set<string>(modules);
@@ -154,7 +155,8 @@ export async function getNetworkProScopedDirectory(args:{
       p_page:args.page??1,
       p_limit:18,
     });
-    if(error)return {status:error.code==="42501"?"locked":"unavailable",data:null};
+    if(error)return error.code==="42501"
+      ?{status:"locked",data:null}:{status:"unavailable",data:null};
     const parsed=parseNetworkProDirectory(data);
     if(!parsed||parsed.module!==args.module||parsed.country!==args.country)
       return {status:"unavailable",data:null};
