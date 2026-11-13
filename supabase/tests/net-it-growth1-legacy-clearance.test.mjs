@@ -40,7 +40,8 @@ test("migration only redefines the two functions it declares", () => {
 });
 
 test("worker v2 reads legal/contact pages and drops the legacy-hold reason", () => {
-  assert.match(worker, /VERSION = "net-it-auto2-firstparty-v2"/);
+  // v2 introduced this behaviour; v3 (S.n.c./S.a.s.) and v4 (identity correction) keep it.
+  assert.match(worker, /VERSION = "net-it-auto2-firstparty-v[2-9]"/);
   assert.match(worker, /IDENTITY_PATH_HINTS = \(/);
   assert.doesNotMatch(worker, /existing_legal_identity_hold/);
   assert.match(worker, /sole_trader_identity_exception/);
