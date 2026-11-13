@@ -38,7 +38,7 @@ _VAT_AFTER = re.compile(
     r"\s*[:.\-]?\s*(?:IT)?\s*(\d{11})(?!\d)",
     re.I,
 )
-_STOP_CHARS = "|•·©®™:;\"«»()[]{}<>\n\r\t"
+_STOP_CHARS = "|•·©®™:;\"«»()[]{}<>\n\r\t?!"
 _CONNECTORS = {"&", "e", "di", "de", "del", "della", "dei", "degli", "c.", "&c.", "f.lli", "fratelli"}
 _LEADING_NOISE = {"copyright", "tutti", "i", "diritti", "riservati", "all", "rights", "reserved",
                   "la", "il", "lo", "società", "societa", "azienda", "ditta", "ragione", "sociale"}
@@ -59,6 +59,9 @@ _BOILERPLATE = {
     "riservati", "rights", "reserved", "accetta", "accetto", "rifiuta", "impostazioni",
     "chiudi", "leggi", "scopri", "richiedi", "preventivo", "catalogo", "download", "faq",
     "careers", "english", "italiano",
+    # buttons and widgets flattened into the footer line
+    "info", "pulsante", "button", "clicca", "click", "vai", "torna", "top",
+    "apri", "chiudi", "invia", "scarica", "visita", "seguici", "condividi",
 }
 MAX_NAME_WORDS = 6
 _GENERIC = {
@@ -98,6 +101,9 @@ def _related(core: str, domain: str, first_guess: str) -> bool:
     label = _domain_label(domain)
     core_c = _compact(core)
     if len(core_c) >= 3 and label and (core_c in label or label in core_c):
+        return True
+    # Dotted acronym leading the domain, e.g. "M.G." on mg-srl.it.
+    if re.fullmatch(r"(?:[A-Za-z]\.){2,}", core.replace(" ", "")) and label.startswith(core_c):
         return True
     first = _compact(core.split()[0]) if core.split() else ""
     if len(first) >= 3 and first not in _GENERIC and first in label:
