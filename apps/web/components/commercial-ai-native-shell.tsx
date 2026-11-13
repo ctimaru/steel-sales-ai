@@ -7,6 +7,7 @@ import { appRoutes } from "@/lib/routes";
 import { classifyCommercialAiNativeTopic, type CommercialAiNativeTopic } from "@/lib/commercial-ai-native-ui";
 import { commercialAiNativeResponse, type CommercialAiNativeHistoryTurn } from "@/app/(italian)/(workspace)/commercial/ai-native-actions";
 import type { CommercialAiIntent } from "@/lib/commercial-ai-native-intent";
+import { commercialDeskIntent, type CommercialDeskIntent } from "@/lib/commercial-desk-intent";
 
 type Turn = {
   id: number; question: string; topic: CommercialAiNativeTopic;
@@ -15,6 +16,8 @@ type Turn = {
   state: "pending" | "answered" | "error";
   evidenceStatus: "not_connected" | "unverified" | "workflow" | null;
   canPrepareDistinta: boolean;
+  /** COMM-DESK-AI2: la domanda riguarda la scrivania; la tabella sotto è stata filtrata. */
+  desk?: CommercialDeskIntent;
 };
 function topicFromIntent(intent: CommercialAiIntent): CommercialAiNativeTopic {
   if (intent === "industry_search") return "network";
@@ -28,6 +31,8 @@ const shortcuts = [
   "Preparami 24 barre Ø608×10 EN 10219, S355J2H, lunghezza 12 m.",
   "Qual è la differenza tra EN 10219 ed EN 10210?",
 ];
+// Solo sulla scrivania: una domanda che filtra la tabella sotto.
+const deskShortcut = "Quali richieste scadono questa settimana?";
 const contextCopy: Record<CommercialAiNativeTopic, { heading: string; description: string; link: string; label: string }> = {
   general: {
     heading: "Il tuo spazio di lavoro",
@@ -122,10 +127,26 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
     event.preventDefault();
     const question = draft.trim();
     if (!ready || busy || !question) return;
-    const topic = classifyCommercialAiNativeTopic(question);
     const id = ++nextId.current;
+    // COMM-DESK-AI2: una domanda sulla propria scrivania filtra la tabella sotto.
+    // Nessuna chiamata AI e nessuna lettura qui: solo navigazione ai filtri esistenti.
+    const desk = compact ? commercialDeskIntent(question) : null;
+    if (desk) {
+      setTurns((previous) => [...previous.slice(-24), {
+        id, question, topic: "general", intent: null, followUp: null,
+        reply: "Ho filtrato la tabella qui sotto su «" + desk.label + "»: " + desk.description + ".",
+        state: "answered", evidenceStatus: null, canPrepareDistinta: false, desk,
+      }]);
+      setCollapsed(false);
+      setDraft("");
+      setHandoffError("");
+      router.push(desk.href, { scroll: false });
+      requestAnimationFrame(revealLatest);
+      return;
+    }
+    const topic = classifyCommercialAiNativeTopic(question);
     const history: CommercialAiNativeHistoryTurn[] = turns.slice(-3).flatMap((turn) =>
-      turn.state !== "answered" ? [] : [
+      turn.state !== "answered" || turn.desk ? [] : [
         { role: "user" as const, content: turn.question },
         { role: "assistant" as const, content: turn.reply },
       ]
@@ -320,6 +341,14 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
                                 Verifica nella chat Distinta ↗
                               </button>
                             ) : null}
+                            {turn.desk ? (
+                              <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1" data-testid="commercial-ai-native-desk-filter">
+                                <Link href={turn.desk.href + "#commercial-worklist"}
+                                  className="inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">Vai alla tabella ↓</Link>
+                                <Link href={appRoutes.commercial.home} scroll={false}
+                                  className="inline-flex min-h-11 items-center text-sm font-semibold text-[#52685b] underline underline-offset-4">Rimuovi filtro</Link>
+                              </p>
+                            ) : null}
                             {turn.topic === "network" ? (
                               <Link href={appRoutes.network.directory} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#175640] underline underline-offset-4">Esplora Network ↗</Link>
                             ) : turn.topic === "knowledge" ? (
@@ -348,7 +377,7 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
               <textarea id="commercial-ai-native-input" ref={composerRef} rows={compact ? 1 : 2} maxLength={MAX_CHARS}
                 value={draft} onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={keyDown} disabled={!ready || busy}
-                placeholder={compact ? "Di cosa hai bisogno? Cerca aziende, chiarisci una norma o prepara una Distinta…" : "Scrivi qui la tua domanda o richiesta…"}
+                placeholder={compact ? "Di cosa hai bisogno? Cerca aziende, chiarisci una norma, prepara una Distinta o filtra le trattative…" : "Scrivi qui la tua domanda o richiesta…"}
                 className={(compact ? "min-h-11 max-h-40 flex-1 py-2.5 " : "min-h-14 max-h-40 w-full py-1.5 ") +
                   "min-w-0 resize-y rounded-lg bg-white px-2 text-sm leading-6 text-[#183c2c] outline-none placeholder:text-[#7b9184] disabled:opacity-60"} />
               <div className={compact ? "flex shrink-0 items-center" : "flex items-center justify-between gap-3 px-1"}>
@@ -370,6 +399,13 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
                     {index === 0 ? "Cerca produttori" : index === 1 ? "Prepara distinta" : "Chiedi una norma"}
                   </button>
                 ))}
+                <button type="button" onClick={() => chooseShortcut(deskShortcut)}
+                  aria-label={deskShortcut} title={deskShortcut}
+                  data-testid="commercial-ai-native-desk-shortcut"
+                  className="inline-flex min-h-9 items-center rounded-full border border-[#d5e4da] bg-[#fafcfb] px-3 text-xs font-semibold text-[#315a43] hover:border-[#8bb7a0] hover:bg-[#f0f8f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                  <span aria-hidden="true" className="mr-1.5 text-[#59866d]">◷</span>
+                  Cosa scade
+                </button>
                 {canWrite ? (
                   <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
                     data-testid="commercial-ai-native-manual-entry"

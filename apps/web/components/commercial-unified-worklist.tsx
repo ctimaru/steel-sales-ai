@@ -399,11 +399,21 @@ export async function CommercialUnifiedWorklist({
             title={isStreamView(view)
               ? "Il filtro qui cerca nelle intestazioni RFQ, offerte e ordini."
               : "Qui filtri le attività visibili, non tutto l’archivio documentale."}
-            placeholder="Cerca…"
+            placeholder="Filtra queste trattative…"
             className="min-h-10 w-full min-w-0 rounded-full border border-[#d6e5db] bg-white pl-8 pr-4 text-sm text-[#143f30] placeholder:text-[#7a9184] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
           <button className="sr-only" type="submit">Filtra</button>
         </form>
       </div>
+
+      {query ? (
+        <p data-testid="commercial-filter-scope" className="flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-[#52685b]">
+          <span>Filtro «{query}» solo sulle trattative di questo elenco.</span>
+          <Link href={commercialSearchHref(query)} className="font-semibold text-[#175640] underline underline-offset-2">
+            Cerca «{query}» in tutto lo storico →
+          </Link>
+          <Link href={commercialHref(view)} className="font-semibold text-[#52685b] underline underline-offset-2">Rimuovi filtro</Link>
+        </p>
+      ) : null}
 
       <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(380px,0.9fr)]" : "grid min-w-0 gap-4"} data-testid="comm-cine2-split-view">
         <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-[22px] border border-[#dce7e0] bg-white shadow-[0_18px_55px_-40px_rgba(4,46,32,0.50)]"}>

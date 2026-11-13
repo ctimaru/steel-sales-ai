@@ -65,8 +65,10 @@ test("COMM-AI-NATIVE1.B/C keeps honest evidence labels and the authorized Distin
 });
 
 test("COMM-AI-NATIVE1.CLEAN2 preserves calculator and editor anchors on classic URLs", () => {
-  assert.match(directorNavigation, /Calcolatrice pesi.*experience=classic#commercial-tool-access/);
-  assert.match(page, /experience=classic#commercial-worklist.*Chiudi editor/);
+  // COMM-DESK-AI2: la scrivania è la pagina di default; i link non passano più dalla vista classica.
+  assert.match(directorNavigation, /Calcolatrice pesi.*\?tools=1#commercial-tool-access/);
+  assert.match(page, /appRoutes\.commercial\.home \+ "#commercial-worklist".*Chiudi editor/);
+  assert.match(page, /open=\{params\.tools === "1" \|\| undefined\}/);
   assert.match(page, /params\.compose === "1"/);
   assert.match(page, /params\.view !== undefined/);
   assert.match(page, /params\.q !== undefined/);
