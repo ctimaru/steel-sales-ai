@@ -18,6 +18,16 @@ create table if not exists private.netprofile_data2_reviews (
  recorded_at timestamptz not null default now(),
  unique(evidence_id, reviewer_version)
 );
+create or replace function private.netprofile_data2_immutable_guard()
+returns trigger language plpgsql set search_path to '' as $guard$
+begin
+ raise exception 'Machine-review audit is append-only' using errcode='42501';
+end $guard$;
+drop trigger if exists netprofile_data2_immutable on private.netprofile_data2_reviews;
+create trigger netprofile_data2_immutable
+before update or delete on private.netprofile_data2_reviews
+for each row execute function private.netprofile_data2_immutable_guard();
+
 create index if not exists netprofile_data2_reviews_company_idx
  on private.netprofile_data2_reviews (company_id, recorded_at desc);
 alter table private.netprofile_data2_reviews enable row level security;
