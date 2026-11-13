@@ -107,6 +107,11 @@ export default async function NetworkVisualQaPage(){
           roles={["Produttore", "Trasformatore"]}
           description="Produzione di tubi saldati e profilati cavi per carpenterie, strutture industriali e costruzioni meccaniche. Le informazioni di questa scheda sono esclusivamente sintetiche per test UI."
           evidenceSourceUrl="https://example.org/company/facts"
+          identityTrust="claimed"
+          hasCompanyDeclarations={true}
+          technicalTopics={["Tubi e profilati cavi", "Norme EN 10219"]}
+          hasTechnicalDetails={true}
+          detailsTargetId="fixture-rich-technical-details"
           products={["Tubi tondi saldati", "Profilati cavi rettangolari", "Profilati cavi quadrati"]}
           services={["Taglio a misura", "Lavorazioni meccaniche"]}
           email="contatti@example.invalid"
@@ -116,6 +121,20 @@ export default async function NetworkVisualQaPage(){
           primaryConnectionAvailable={true}
           actions={<a href="#attivita" className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white">Esplora attività ↗</a>}
         />
+        <details id="fixture-rich-technical-details" data-testid="fixture-rich-technical-details"
+          className="rounded-xl border border-[#dce6e0] p-3">
+          <summary>Dettagli tecnici pubblicati</summary>
+          <p className="mt-2 text-sm">Norme e prodotti della DEMO sintetica, non una disponibilità reale.</p>
+        </details>
+        <div data-testid="network-profile-public-source-fixture" className="pt-2">
+          <NetworkProfileOverview
+            name="DEMO Forniture da fonte web"
+            countryCode="IT"
+            description="Attività descritta da una fonte pubblica, da confermare con l'azienda."
+            sourceUrl="https://example.org/aziende/demo"
+            identityTrust="unverified"
+          />
+        </div>
         <div data-testid="network-profile-sparse-fixture" className="pt-2">
           <NetworkProfileOverview
             name="DEMO Acciai S.p.A."
@@ -143,6 +162,8 @@ export default async function NetworkVisualQaPage(){
             name="DEMO Profilo da fonte pubblica"
             countryCode="IT"
             website="https://example.org"
+            sourceUrl="https://example.org/fonte-demo"
+            identityTrust="unconfirmed"
             hasTechnicalDetails={true}
             detailsTargetId="fixture-provisional-evidence"
           />

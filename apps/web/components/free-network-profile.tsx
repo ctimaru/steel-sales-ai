@@ -67,6 +67,13 @@ export async function FreeNetworkProfileView({
           products={[...profile.products,...reviewedSummary.products]}
           services={reviewedSummary.services}
           evidenceSourceUrl={safeNetworkWebsiteUrl(reviewedSummary.evidenceSourceUrl)}
+          sourceUrl={source}
+          identityTrust={provisional ? "unconfirmed" : profile.company.verification_status==="verified" ? "verified" : profile.company.claimed_status==="claimed" ? "claimed" : "unverified"}
+          technicalTopics={[
+            profile.products.length ? "Prodotti pubblicati" : null,
+            profile.facilities.length ? "Sedi pubblicate" : null,
+            reviewedEvidence.length ? "Informazioni con fonte" : null,
+          ].filter((item): item is string => Boolean(item))}
           website={website}
           stockCount={inventory.length}
           stockContent={inventory.length ? <NetworkProfileInventory items={inventory} /> : undefined}

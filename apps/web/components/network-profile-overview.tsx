@@ -21,6 +21,34 @@ export function NetworkProfileTopBar() {
   );
 }
 
+/** NET-PROFILE-UX5.C — identity, source and field provenance stay separate.
+ * A sourced or claimed profile never implies a verified product or supplier. */
+export type NetworkIdentityTrust = "verified" | "claimed" | "unconfirmed" | "unverified";
+
+function NetworkProfileTrustSignals({
+  identityTrust, hasWebSource, hasCompanyDeclarations, hasVerifiedFields,
+}: {
+  identityTrust: NetworkIdentityTrust;
+  hasWebSource: boolean;
+  hasCompanyDeclarations: boolean;
+  hasVerifiedFields: boolean;
+}) {
+  const identity = identityTrust === "verified" ? "Azienda verificata"
+    : identityTrust === "claimed" ? "Profilo rivendicato"
+    : identityTrust === "unconfirmed" ? "Identità da confermare"
+    : "Identità non verificata";
+  return (
+    <div data-testid="network-profile-trust-signals"
+      className="flex min-w-0 flex-wrap items-center gap-1.5 text-xs">
+      <span data-testid="network-profile-identity-status"
+        className="rounded-full border border-[#d5e4da] bg-[#f3f8f4] px-2.5 py-1 font-semibold text-[#315941]">{identity}</span>
+      {hasWebSource ? <span className="rounded-full border border-[#dfe7e1] bg-white px-2.5 py-1 font-medium text-[#516b59]">Fonte web disponibile</span> : null}
+      {hasCompanyDeclarations ? <span className="rounded-full border border-[#dfe7e1] bg-white px-2.5 py-1 font-medium text-[#516b59]">Dati dichiarati dall’azienda</span> : null}
+      {hasVerifiedFields ? <span className="rounded-full border border-[#d5e4da] bg-[#ecf6ef] px-2.5 py-1 font-medium text-[#235942]">Elementi verificati</span> : null}
+    </div>
+  );
+}
+
 export function NetworkProfileOverview({
   name,
   legalName,
@@ -30,6 +58,11 @@ export function NetworkProfileOverview({
   roles = [],
   description,
   evidenceSourceUrl,
+  sourceUrl,
+  identityTrust = "unverified",
+  hasCompanyDeclarations = false,
+  hasVerifiedFields = false,
+  technicalTopics = [],
   products = [],
   services = [],
   website,
@@ -52,6 +85,11 @@ export function NetworkProfileOverview({
   roles?: string[];
   description?: string | null;
   evidenceSourceUrl?: string | null;
+  sourceUrl?: string | null;
+  identityTrust?: NetworkIdentityTrust;
+  hasCompanyDeclarations?: boolean;
+  hasVerifiedFields?: boolean;
+  technicalTopics?: string[];
   products?: string[];
   services?: string[];
   website?: string | null;
@@ -71,6 +109,8 @@ export function NetworkProfileOverview({
   const visibleProducts = Array.from(new Set(products.filter(Boolean))).slice(0, 8);
   const visibleServices = Array.from(new Set(services.filter(Boolean))).slice(0, 6);
   const hasContacts = Boolean(email || phone || website);
+  const trustSourceUrl = sourceUrl || evidenceSourceUrl;
+  const hasWebSource = Boolean(trustSourceUrl);
   // NET-PROFILE-UX3: a directory entry is not a catalogue. For companies
   // without declared activity, products or services do not render a vacant
   // two-column content section. The website is the useful first action.
@@ -102,9 +142,19 @@ export function NetworkProfileOverview({
                 </div> : null}
               </div>
             </div>
-            <p className="mt-5 max-w-[580px] border-t border-[#ebf0eb] pt-3 text-xs leading-5 text-[#637467]">
+            <p className="mt-4 max-w-[580px] border-t border-[#ebf0eb] pt-3 text-xs leading-5 text-[#637467]">
               Prodotti e specializzazioni non ancora pubblicati nel Network.
             </p>
+            <div className="mt-2.5 space-y-1.5">
+              <NetworkProfileTrustSignals identityTrust={identityTrust} hasWebSource={hasWebSource}
+                hasCompanyDeclarations={hasCompanyDeclarations} hasVerifiedFields={hasVerifiedFields} />
+              {trustSourceUrl && trustSourceUrl !== website ? (
+                <a href={trustSourceUrl} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex min-h-8 items-center text-xs font-semibold text-[#205b40] underline underline-offset-2">
+                  Apri fonte pubblica ↗
+                </a>
+              ) : null}
+            </div>
           </div>
           <aside id="contatti" aria-label="Contatti aziendali" data-testid="network-profile-header-contact"
             className="flex min-w-0 flex-col justify-center gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] px-4 py-4 sm:px-7 lg:border-l lg:border-t-0 lg:px-5 lg:py-6">
@@ -220,13 +270,49 @@ const sections: NetworkProfileHubSection[] = [];
     });
   }
 
-  if (hasTechnicalDetails && detailsTargetId) {
+  // Every card opens a panel first. The separate complete technical section
+  // stays available through an explicit second-stage action inside this panel.
+  if (hasTechnicalDetails || hasWebSource || identityTrust !== "unverified" || hasCompanyDeclarations || hasVerifiedFields) {
     sections.push({
       id: "approfondimenti",
-      title: "Dati e documenti",
-      summary: "Sedi, norme, fonti e certificazioni",
+      title: "Fonti e attendibilità",
+      summary: hasWebSource ? "Origine dei dati e fonte pubblica" : "Origine e stato delle informazioni",
       icon: "documents",
-      targetId: detailsTargetId,
+      targetId: hasTechnicalDetails ? detailsTargetId : undefined,
+      targetLabel: technicalTopics.length ? "Apri dati tecnici pubblicati" : "Apri fonti e approfondimenti",
+      content: (
+        <section aria-label="Fonti e attendibilità" data-testid="network-profile-trust-panel" className="min-w-0 space-y-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[#4b765b]">Trasparenza delle informazioni</p>
+            <h3 className="mt-1 text-lg font-semibold text-[#173f35]">Origine e attendibilità dei dati</h3>
+          </div>
+          <NetworkProfileTrustSignals identityTrust={identityTrust} hasWebSource={hasWebSource}
+            hasCompanyDeclarations={hasCompanyDeclarations} hasVerifiedFields={hasVerifiedFields} />
+          <p className="max-w-2xl text-sm leading-6 text-[#52665a]">
+            La rivendicazione conferma chi gestisce la scheda; la verifica riguarda l’identità
+            o singoli elementi documentati. Nessuno di questi segnali garantisce capacità di
+            fornitura, stock o certificazioni non pubblicate.
+          </p>
+          {trustSourceUrl ? (
+            <a href={trustSourceUrl} target="_blank" rel="noopener noreferrer"
+              className="inline-flex min-h-10 items-center rounded-xl border border-[#bfd8c6] bg-[#f6faf7] px-3.5 text-sm font-semibold text-[#205a3d] hover:bg-[#e8f3eb]">
+              Consulta la fonte pubblica ↗
+            </a>
+          ) : (
+            <p className="text-sm text-[#61776a]">Nessun collegamento a una fonte web pubblicato per questa scheda.</p>
+          )}
+          {technicalTopics.length ? (
+            <div className="border-t border-[#e4ece6] pt-3">
+              <p className="text-sm font-semibold text-[#234d35]">Informazioni presenti nel Network</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {technicalTopics.slice(0, 5).map((topic) => (
+                  <span key={topic} className="rounded-lg border border-[#dce8df] bg-[#f7faf8] px-2.5 py-1 text-xs font-medium text-[#486554]">{topic}</span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ),
     });
   }
 
@@ -261,6 +347,10 @@ const sections: NetworkProfileHubSection[] = [];
               </div>
             </div>
             {description ? <p className="mt-4 line-clamp-2 text-xs leading-5 text-[#52655a] sm:text-sm">{description}</p> : null}
+            <div className="mt-3">
+              <NetworkProfileTrustSignals identityTrust={identityTrust} hasWebSource={hasWebSource}
+                hasCompanyDeclarations={hasCompanyDeclarations} hasVerifiedFields={hasVerifiedFields} />
+            </div>
           </div>
           {(website || connectionsAvailable) ? <aside data-testid="network-profile-quick-actions"
             className="flex min-w-0 flex-col gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:self-stretch lg:border-l lg:border-t-0 lg:p-5">
