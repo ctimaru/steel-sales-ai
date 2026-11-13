@@ -114,7 +114,7 @@ export function NetworkProfileOverview({
                 className="flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border border-[#d8e5db] bg-white px-3.5 py-2.5 text-sm font-semibold text-[#205c40]">
                 <span className="break-all">{email}</span><span aria-hidden="true">↗</span>
               </a> : null}
-              {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\\d+]/g,"")}
+              {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\d+]/g,"")}
                 className="flex min-h-11 items-center justify-between gap-2 rounded-xl border border-[#d8e5db] bg-white px-3.5 py-2.5 text-sm font-semibold text-[#205c40]">
                 <span>{phone}</span><span aria-hidden="true">↗</span>
               </a> : null}
@@ -186,7 +186,7 @@ const sections: NetworkProfileHubSection[] = [];
               <span className="mb-1 block text-xs font-medium text-[#627466]">Email</span>
               <span className="block break-all">{email} ↗</span>
             </a> : null}
-            {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\\d+]/g, "")}
+            {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\d+]/g, "")}
               className="min-w-0 rounded-xl border border-[#dce6df] bg-[#fbfdfb] p-3 text-sm font-semibold text-[#205b40] hover:border-[#9ec2a9]">
               <span className="mb-1 block text-xs font-medium text-[#627466]">Telefono</span>
               <span>{phone} ↗</span>
