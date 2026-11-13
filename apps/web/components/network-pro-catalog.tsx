@@ -2,6 +2,8 @@
 
 import {useState} from "react";
 import Link from "next/link";
+import {networkCountryName} from "@/lib/network-eu-countries";
+import type {NetworkProAccess,NetworkProCoverage} from "@/lib/network-pro-coverage";
 
 import {
   NETWORK_PRO_ANNUAL_DISCOUNT_PERCENT,
@@ -13,11 +15,12 @@ import {
 
 const euro = new Intl.NumberFormat("it-IT", {style: "currency", currency: "EUR", maximumFractionDigits: 0});
 
-export function NetworkProCatalog() {
+export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage|null;access:NetworkProAccess|null}) {
   const [territory, setTerritory] = useState<NetworkProTerritory>("IT");
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [selected, setSelected] = useState<NetworkProModuleKey[]>(["producers", "distributors"]);
   const quote = networkProQuote(selected, territory, billing);
+  const countries=coverage?.countries.filter(row=>territory==="EU"||row.countryCode==="IT")??[];
 
   function toggle(key: NetworkProModuleKey) {
     setSelected((current) => current.includes(key)
@@ -41,8 +44,8 @@ export function NetworkProCatalog() {
           Le aziende che cerchi, in un unico Network.
         </h1>
         <p className="mt-2 max-w-[790px] text-sm leading-6 text-[#435b50]">
-          Scegli le categorie della filiera e il territorio. Puoi acquistare ogni modulo da solo
-          o combinarlo con gli altri. La ricerca AI utilizzerà i moduli attivati e le informazioni disponibili.
+          Scegli i moduli e il territorio per configurare una proposta commerciale.
+          Visualizza le aziende realmente pubblicate prima di valutare un futuro abbonamento.
         </p>
       </header>
 
@@ -50,7 +53,7 @@ export function NetworkProCatalog() {
         <section aria-labelledby="network-pro-modules-title" className="min-w-0 space-y-4">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">01 · Scegli i contenuti</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Moduli · Scegli i contenuti</p>
               <h2 id="network-pro-modules-title" className="mt-1 text-lg font-bold text-[#173f35]">Quattro moduli indipendenti</h2>
             </div>
             <span className="text-xs font-medium text-[#52665b]">{selected.length} di 4 selezionati</span>
@@ -79,10 +82,87 @@ export function NetworkProCatalog() {
                   <h3 className="mt-3 text-base font-bold text-[#173f35]">{module.title}</h3>
                   <p className="mt-2 text-xs leading-5 text-[#42574c]">{module.description}</p>
                   <p className="mt-3 text-[11px] font-semibold leading-4 text-[#386e53]">{module.audience}</p>
+                  <p className="mt-2 text-[11px] font-semibold text-[#425b4c]" data-testid={"netpro1b-license-"+module.key}>
+                    {access?(territory==="IT"?access.modules[module.key].italy:access.modules[module.key].europe)
+                      ? "Accesso PRO attivo" : "Accesso PRO non attivo":"Stato accesso non disponibile"}
+                  </p>
                 </button>
               );
             })}
           </div>
+          <section className="rounded-[20px] border border-[#c9dfd0] bg-white p-4 sm:p-5"
+            data-testid="netpro1b-coverage" aria-label="Copertura reale Network per modulo e Paese">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Copertura effettiva · dati pubblicati</p>
+                <h2 className="mt-1 text-base font-bold text-[#173f35]">Quante aziende ci sono realmente?</h2>
+              </div>
+              {coverage?<span className="text-[11px] text-[#607467]">Rilevazione {coverage.asOf.slice(0,10)}</span>:null}
+            </div>
+            <p className="mt-2 text-xs leading-5 text-[#536c5c]">
+              Solo schede pubblicate e ruoli documentati nel database. Le aziende preliminari
+              sono separate e non costituiscono copertura commerciale pronta. Una stessa azienda
+              può essere presente in più moduli.
+            </p>
+            {!coverage?
+              <p className="mt-4 rounded-xl border border-[#e5d4aa] bg-[#fffaf0] p-3 text-sm text-[#6b542c]" role="status">
+                Conteggi verificati temporaneamente non disponibili. Non mostriamo valori stimati.
+              </p>:
+              countries.length===0?
+                <p className="mt-4 rounded-xl bg-[#f2f5f3] p-3 text-sm text-[#516a59]">
+                  Nessuna azienda pubblicata rilevata in questo territorio.
+                </p>:
+                <div className="mt-4 grid gap-3">
+                  {countries.map(country=><article key={country.countryCode}
+                    className="rounded-xl border border-[#e0eae2] bg-[#f8fbf9] p-3"
+                    data-testid={"netpro1b-country-"+country.countryCode}>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h3 className="text-sm font-bold text-[#173f35]">
+                        {networkCountryName(country.countryCode)||country.countryCode}
+                      </h3>
+                      <span className="text-sm font-bold tabular-nums text-[#174d39]">
+                        {country.published.toLocaleString("it-IT")} pubblicate
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[11px] leading-5 text-[#596d60]">
+                      {country.classified.toLocaleString("it-IT")} classificate ·{" "}
+                      {country.unclassified.toLocaleString("it-IT")} senza ruolo ·{" "}
+                      {country.provisional.toLocaleString("it-IT")} preliminari
+                    </p>
+                    {selected.length===0?
+                      <p className="mt-2 text-xs text-[#66796d]">Seleziona almeno un modulo per vedere i relativi numeri.</p>:
+                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                        {NETWORK_PRO_MODULES.filter(module=>selected.includes(module.key)).map(module=>{
+                          const allowed=country.countryCode==="IT"
+                            ?access?.modules[module.key].italy
+                            :access?.modules[module.key].europe;
+                          const count=country.publishedModules[module.key];
+                          const sourced=country.provisionalModules[module.key];
+                          return <div key={module.key} className="rounded-lg border border-[#e2ebe4] bg-white p-2.5"
+                            data-testid={"netpro1b-module-"+country.countryCode+"-"+module.key}>
+                            <p className="text-[11px] font-semibold text-[#355b42]">{module.title}</p>
+                            <p className="mt-1 text-lg font-bold tabular-nums text-[#183d2d]">{count}</p>
+                            <p className="text-[11px] text-[#62766a]">{sourced} preliminari, non incluse</p>
+                            {allowed?
+                              <Link href={"/network/pro/explore?"+new URLSearchParams({module:module.key,country:country.countryCode})}
+                                className="mt-2 inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline"
+                                data-testid={"netpro1b-browse-"+country.countryCode+"-"+module.key}>
+                                Esplora con accesso attivo
+                              </Link>:
+                              <span className="mt-2 block text-[11px] font-medium text-[#7b806e]">
+                                {access?"Modulo non attivo":"Accesso da verificare"}
+                              </span>}
+                          </div>;
+                        })}
+                      </div>}
+                  </article>)}
+                </div>}
+            <p className="mt-3 text-[11px] leading-5 text-[#64776b]">
+              Europa non significa copertura completa di tutti i Paesi: mostriamo soltanto
+              quelli con dati effettivamente disponibili. Nessun Paese è dichiarato pronto
+              alla vendita sulla sola base di questi conteggi.
+            </p>
+          </section>
           <section className="rounded-[20px] border border-[#dce7df] bg-white p-4 sm:p-5" aria-label="Esempi di ricerche intelligenti">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Dalla directory all'intelligence</p>
             <h2 className="mt-1 text-base font-bold text-[#173f35]">L'AI parlerà il linguaggio dell'acciaio</h2>
@@ -99,9 +179,9 @@ export function NetworkProCatalog() {
           </section>
         </section>
 
-        <aside className="min-w-0 space-y-3 lg:sticky lg:top-24" aria-label="Configurazione e prezzi Network PRO">
+        <aside className="order-first min-w-0 space-y-3 lg:order-last lg:sticky lg:top-24" aria-label="Configurazione e prezzi Network PRO">
           <div className="rounded-[22px] border border-[#c6d9ce] bg-white p-4 shadow-[0_12px_30px_rgba(17,65,47,0.07)] sm:p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">02 · Territorio</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Territorio</p>
             <div className="mt-3 grid grid-cols-2 gap-2" role="group" aria-label="Copertura geografica">
               {([
                 {key: "IT", title: "Italia"},
@@ -118,7 +198,7 @@ export function NetworkProCatalog() {
             <p className="mt-2 text-xs leading-5 text-[#64776a]">
               {territory === "IT" ? "Aziende con copertura italiana." : "Paesi europei disponibili, Italia inclusa. Copertura effettiva per Paese da verificare."}
             </p>
-            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">03 · Abbonamento</p>
+            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Periodicità</p>
             <div className="mt-3 grid grid-cols-2 gap-2" role="group" aria-label="Periodicità abbonamento">
               {([
                 {key: "monthly", title: "Mensile"},
@@ -148,7 +228,7 @@ export function NetworkProCatalog() {
             </div>
             <div className="mt-4 rounded-xl border border-[#e1e9e3] bg-[#f4f8f5] p-3">
               <p className="text-xs font-semibold text-[#244f3b]">Attivazioni non ancora aperte</p>
-              <p className="mt-1 text-xs leading-5 text-[#596e60]">Checkout, fatturazione e permessi per singolo modulo saranno collegati nei prossimi sviluppi.</p>
+              <p className="mt-1 text-xs leading-5 text-[#596e60]">Checkout, fatturazione e permessi self-service non sono disponibili. I diritti per categoria e Paese sono verificati nel database e assegnabili soltanto da un operatore autorizzato.</p>
             </div>
             <Link href="/network" className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#b5d2bf] bg-white px-3 text-sm font-semibold text-[#205a3d] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
               Esplora il Network
