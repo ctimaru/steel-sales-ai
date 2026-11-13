@@ -79,8 +79,13 @@ function ContextContent({ topic }: { topic: CommercialAiNativeTopic }) {
  * C calls an authenticated read-only server action. Answers are transient and
  * clearly labeled; the only write-capable path remains the explicit canonical
  * Distinta handoff in this browser tab.
+ *
+ * COMM-DESK-AI1: `compact` docks the same conversation above the Commerciale
+ * desk. It has no fixed viewport height, no second "Strumenti" menu (the desk
+ * already has one) and grows only when a conversation exists, so counters and
+ * the deals table stay in the first viewport.
  */
-export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
+export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrite: boolean; compact?: boolean }) {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [draft, setDraft] = useState("");
@@ -88,6 +93,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [activeTopic, setActiveTopic] = useState<CommercialAiNativeTopic>("general");
   const [handoffError, setHandoffError] = useState("");
+  const [collapsed, setCollapsed] = useState(false);
   const nextId = useRef(0);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const previewTrigger = useRef<HTMLButtonElement>(null);
@@ -124,6 +130,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
       state: "pending", evidenceStatus: null, canPrepareDistinta: false,
     }]);
     setActiveTopic(topic);
+    setCollapsed(false);
     setBusy(true);
     setDraft("");
     setHandoffError("");
@@ -172,6 +179,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
   function newChat() {
     if (busy) return;
     setTurns([]);
+    setCollapsed(false);
     setActiveTopic("general");
     setDraft("");
     setHandoffError("");
@@ -190,13 +198,19 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
 
   return (
     <section data-testid="commercial-ai-native-shell" aria-label="Smart Steel Intelligence"
-      className="flex h-[calc(100dvh-14rem)] min-h-[360px] min-w-0 scroll-mt-20 flex-col overflow-hidden rounded-2xl border border-[#d5e3da] bg-white shadow-[0_10px_40px_-34px_rgba(13,63,41,0.2)] lg:h-[min(82dvh,780px)] lg:min-h-[500px] lg:rounded-2xl">
-      <header className="flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 border-b border-[#e2eae4] bg-white px-3 py-2.5 sm:px-6 sm:py-3">
+      data-layout={compact ? "desk" : "full"}
+      className={compact
+        ? "flex min-w-0 scroll-mt-20 flex-col overflow-hidden rounded-2xl border border-[#cfe0d5] bg-white shadow-[0_10px_40px_-34px_rgba(13,63,41,0.25)]"
+        : "flex h-[calc(100dvh-14rem)] min-h-[360px] min-w-0 scroll-mt-20 flex-col overflow-hidden rounded-2xl border border-[#d5e3da] bg-white shadow-[0_10px_40px_-34px_rgba(13,63,41,0.2)] lg:h-[min(82dvh,780px)] lg:min-h-[500px] lg:rounded-2xl"}>
+      <header className={"flex min-w-0 shrink-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 bg-white px-3 sm:px-6 " +
+        (compact ? "pt-2.5 sm:pt-3" : "border-b border-[#e2eae4] py-2.5 sm:py-3")}>
         <div className="flex min-w-0 items-center gap-3">
-          <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#175640] text-lg text-white">✦</span>
+          <span aria-hidden="true" className={"flex shrink-0 items-center justify-center rounded-xl bg-[#175640] text-white " + (compact ? "h-8 w-8 text-base" : "h-9 w-9 text-lg")}>✦</span>
           <div className="min-w-0">
             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#61816e]">Assistente industriale</p>
-            <h1 className="truncate text-sm font-semibold tracking-tight text-[#163b2c] sm:text-lg">Smart Steel Intelligence</h1>
+            {compact
+              ? <h2 className="truncate text-sm font-semibold tracking-tight text-[#163b2c] sm:text-base">Smart Steel Intelligence</h2>
+              : <h1 className="truncate text-sm font-semibold tracking-tight text-[#163b2c] sm:text-lg">Smart Steel Intelligence</h1>}
           </div>
         </div>
         <nav className="flex shrink-0 items-center gap-1 sm:gap-2" aria-label="Accesso alle attività commerciali">
@@ -207,6 +221,16 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
               <span aria-hidden="true">+</span><span className="hidden sm:inline"> Nuova chat</span><span className="sr-only sm:hidden">Nuova chat</span>
             </button>
           ) : null}
+          {compact && turns.length > 0 ? (
+            <button type="button" onClick={() => setCollapsed((value) => !value)}
+              aria-expanded={!collapsed} aria-controls="commercial-ai-native-thread"
+              data-testid="commercial-ai-native-collapse"
+              className="inline-flex min-h-10 items-center rounded-lg px-2.5 text-xs font-semibold text-[#175640] hover:bg-[#eff7f1]">
+              {collapsed ? "Mostra conversazione" : "Riduci"}
+              <span aria-hidden="true" className="ml-1 text-[10px]">{collapsed ? "▾" : "▴"}</span>
+            </button>
+          ) : null}
+          {compact ? null : (<>
           <button type="button" ref={previewTrigger} onClick={openPreview}
             data-testid="commercial-ai-native-mobile-context"
             aria-label="Strumenti"
@@ -222,15 +246,20 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
               <ContextContent topic={activeTopic}/>
             </div>
           </details>
+          </>)}
         </nav>
       </header>
 
       <div className="flex min-h-0 min-w-0 flex-1">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col bg-white">
           <div role="log" aria-label="Messaggi della conversazione" aria-live="polite" aria-relevant="additions"
+            id="commercial-ai-native-thread"
             data-testid="commercial-ai-native-thread"
-            className="min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 py-4 sm:px-8 sm:py-8">
-            {turns.length === 0 ? (
+            hidden={compact && (turns.length === 0 || collapsed)}
+            className={compact
+              ? "max-h-[min(46dvh,440px)] min-w-0 space-y-5 overflow-y-auto overscroll-contain border-b border-[#e4ebe6] px-3 py-4 sm:px-6"
+              : "min-h-0 min-w-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-3 py-4 sm:px-8 sm:py-8"}>
+            {compact && turns.length === 0 ? null : turns.length === 0 ? (
               <div className="mx-auto flex w-full max-w-[760px] flex-col items-start pt-2 sm:pt-10 lg:pt-[7vh]" data-testid="commercial-ai-native-intro">
                 <span className="text-xs font-semibold uppercase tracking-[0.15em] text-[#387452]">Smart Steel AI</span>
                 <h2 className="mt-3 text-[clamp(1.8rem,3.4vw,2.6rem)] font-semibold leading-tight tracking-[-0.04em] text-[#173f35]">
@@ -251,7 +280,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
                 </div>
               </div>
             ) : (
-              <div className="mx-auto max-w-[800px] space-y-6">
+              <div className={(compact ? "max-w-[920px]" : "mx-auto max-w-[800px]") + " space-y-6"}>
                 {turns.map((turn) => (
                   <div key={turn.id} className="space-y-4" data-testid="commercial-ai-native-turn">
                     <div className="flex justify-end">
@@ -302,18 +331,23 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
             )}
           </div>
 
-          <div className="relative z-10 shrink-0 border-t border-[#e4ebe6] bg-white px-3 py-2 sm:px-6 sm:py-3 lg:sticky lg:bottom-0">
+          <div className={compact
+            ? "shrink-0 bg-white px-3 pb-2 pt-2.5 sm:px-6 sm:pb-3"
+            : "relative z-10 shrink-0 border-t border-[#e4ebe6] bg-white px-3 py-2 sm:px-6 sm:py-3 lg:sticky lg:bottom-0"}>
             <form onSubmit={submit} data-testid="commercial-ai-native-form"
               aria-label="Scrivi una richiesta per Smart Steel Intelligence"
-              className="mx-auto max-w-[800px] rounded-2xl border border-[#bdcfc2] bg-white p-2 shadow-[0_10px_25px_-18px_rgba(16,65,43,0.2)] focus-within:border-[#175640]">
+              className={compact
+                ? "flex items-end gap-2 rounded-2xl border border-[#bdcfc2] bg-white p-1.5 shadow-[0_10px_25px_-18px_rgba(16,65,43,0.2)] focus-within:border-[#175640]"
+                : "mx-auto max-w-[800px] rounded-2xl border border-[#bdcfc2] bg-white p-2 shadow-[0_10px_25px_-18px_rgba(16,65,43,0.2)] focus-within:border-[#175640]"}>
               <label htmlFor="commercial-ai-native-input" className="sr-only">Domanda o richiesta commerciale</label>
-              <textarea id="commercial-ai-native-input" ref={composerRef} rows={2} maxLength={MAX_CHARS}
+              <textarea id="commercial-ai-native-input" ref={composerRef} rows={compact ? 1 : 2} maxLength={MAX_CHARS}
                 value={draft} onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={keyDown} disabled={!ready || busy}
-                placeholder="Scrivi qui la tua domanda o richiesta…"
-                className="min-h-14 max-h-40 w-full min-w-0 resize-y rounded-lg bg-white px-2 py-1.5 text-sm leading-6 text-[#183c2c] outline-none placeholder:text-[#7b9184] disabled:opacity-60" />
-              <div className="flex items-center justify-between gap-3 px-1">
-                <p className="text-[11px] leading-4 text-[#698073]">Invio per continuare · Maiusc+Invio per andare a capo</p>
+                placeholder={compact ? "Di cosa hai bisogno? Cerca aziende, chiarisci una norma o prepara una Distinta…" : "Scrivi qui la tua domanda o richiesta…"}
+                className={(compact ? "min-h-11 max-h-40 flex-1 py-2.5 " : "min-h-14 max-h-40 w-full py-1.5 ") +
+                  "min-w-0 resize-y rounded-lg bg-white px-2 text-sm leading-6 text-[#183c2c] outline-none placeholder:text-[#7b9184] disabled:opacity-60"} />
+              <div className={compact ? "flex shrink-0 items-center" : "flex items-center justify-between gap-3 px-1"}>
+                <p className={compact ? "sr-only" : "text-[11px] leading-4 text-[#698073]"}>Invio per continuare · Maiusc+Invio per andare a capo</p>
                 <button type="submit" disabled={!ready || busy || !draft.trim()}
                   data-testid="commercial-ai-native-submit"
                   className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-40">
@@ -321,8 +355,27 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
                 </button>
               </div>
             </form>
+            {compact ? (
+              <div className="mt-2 flex flex-wrap items-center gap-1.5" data-testid="commercial-ai-native-desk-shortcuts">
+                {shortcuts.map((shortcut, index) => (
+                  <button type="button" key={shortcut} onClick={() => chooseShortcut(shortcut)}
+                    aria-label={shortcut} title={shortcut}
+                    className="inline-flex min-h-9 items-center rounded-full border border-[#d5e4da] bg-[#fafcfb] px-3 text-xs font-semibold text-[#315a43] hover:border-[#8bb7a0] hover:bg-[#f0f8f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                    <span aria-hidden="true" className="mr-1.5 text-[#59866d]">{index === 0 ? "⌕" : index === 1 ? "▤" : "◎"}</span>
+                    {index === 0 ? "Cerca produttori" : index === 1 ? "Prepara distinta" : "Chiedi una norma"}
+                  </button>
+                ))}
+                {canWrite ? (
+                  <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
+                    data-testid="commercial-ai-native-manual-entry"
+                    className="inline-flex min-h-9 items-center rounded-full px-3 text-xs font-semibold text-[#175640] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] sm:ml-auto">
+                    Crea dalla distinta →
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
             {handoffError ? <p role="alert" className="mx-auto mt-2 max-w-[740px] text-xs text-[#974621]">{handoffError} <Link className="underline" href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}>Apri Distinta</Link></p> : null}
-            <p className="mx-auto mt-1 max-w-[800px] text-center text-[10px] leading-4 text-[#829187]">
+            <p className={(compact ? "mt-1.5 " : "mx-auto mt-1 max-w-[800px] text-center ") + "text-[10px] leading-4 text-[#829187]"}>
               <span className="sm:hidden">Risposte da verificare · Nessun invio automatico.</span>
               <span className="hidden sm:inline">Le risposte possono richiedere verifica; cronologia solo in questa scheda, nessuna memoria persistente o invio automatico.</span>
             </p>
@@ -331,6 +384,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
 
       </div>
 
+      {compact ? null : (
       <dialog ref={previewDialog} onClose={() => previewTrigger.current?.focus()}
         aria-labelledby="commercial-ai-native-drawer-title"
         data-testid="commercial-ai-native-mobile-drawer"
@@ -342,6 +396,7 @@ export function CommercialAiNativeShell({ canWrite }: { canWrite: boolean }) {
         </div>
         <ContextContent topic={activeTopic}/>
       </dialog>
+      )}
     </section>
   );
 }
