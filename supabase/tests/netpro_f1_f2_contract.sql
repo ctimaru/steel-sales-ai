@@ -43,7 +43,7 @@ begin
  if not exists (
    select 1 from pg_indexes where schemaname='public'
      and indexname='network_pro_checkout_intents_active_org'
-     and indexdef like '%status IN (%'
+     and indexdef like '%pending%' and indexdef like '%paid%'
  ) then
    raise exception 'NETPRO F1 one-active-subscription index missing';
  end if;
