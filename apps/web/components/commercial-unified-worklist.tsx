@@ -23,6 +23,10 @@ import {
 import { formatHubDate } from "@/lib/rfq-hub-overview";
 import { appRoutes } from "@/lib/routes";
 import { commercialSearchHref } from "@/lib/commercial-search-context";
+import {
+  commercialDueLabel, commercialRowGroup, commercialRowGroupLabels, commercialRowUrgency,
+  sortByCommercialUrgency, type CommercialRowGroup, type CommercialRowUrgency,
+} from "@/lib/commercial-row-urgency";
 
 const views: ReadonlyArray<{ key: CommercialView; title: string }> = [
   { key: "all", title: "Tutte" },
@@ -41,25 +45,27 @@ function itemType(item: UnifiedCommercialItem) {
   return "Distinta salvata";
 }
 
-// Priorità a colpo d'occhio: stati che chiedono un'azione risaltano, gli esiti restano neutri.
-const actionStatuses = new Set(["nuova", "ricevuto", "bozza", "aperta", "in lavorazione"]);
-const doneStatuses = new Set(["rifiutata", "annullata", "scaduta", "chiusa", "completato"]);
-function statusTone(status: string) {
-  const key = status.trim().toLocaleLowerCase("it-IT");
-  if (actionStatuses.has(key)) return "action" as const;
-  if (doneStatuses.has(key)) return "done" as const;
-  return "neutral" as const;
-}
-const statusDotClass = {
-  action: "bg-[#d9a62e]",
-  neutral: "bg-[#3d8a63]",
+// Priorità a colpo d'occhio: scadenze e risposte dovute risaltano, le bozze
+// proprie restano discrete, gli esiti neutri. La regola vive in commercial-row-urgency.
+const statusDotClass: Record<CommercialRowUrgency, string> = {
+  due: "bg-[#c2410c]",
+  reply: "bg-[#d9a62e]",
+  draft: "border-2 border-[#d9a62e] bg-transparent",
+  progress: "bg-[#3d8a63]",
   done: "border border-[#9fb3a8] bg-transparent",
-} as const;
-const statusTextClass = {
-  action: "text-[#8a5a00]",
-  neutral: "text-[#276147]",
+};
+const statusTextClass: Record<CommercialRowUrgency, string> = {
+  due: "text-[#9a3412]",
+  reply: "text-[#8a5a00]",
+  draft: "text-[#6f5a2a]",
+  progress: "text-[#276147]",
   done: "text-[#6b7d73]",
-} as const;
+};
+const groupLabelClass: Record<CommercialRowGroup, string> = {
+  now: "bg-[#fff8e6] text-[#6b4a07]",
+  complete: "bg-[#f7f9f8] text-[#4f6b5b]",
+  rest: "bg-[#f7f9f8] text-[#4f6b5b]",
+};
 
 function route(view: CommercialView, query: string, key: string, page: number, cursor?: string | null, focus: CommercialFocus | "" = "") {
   const href = (cursor || focus) && isStreamView(view) ? mergedCommercialHref(view, query, cursor ?? undefined, key, focus) :
@@ -293,14 +299,35 @@ export async function CommercialUnifiedWorklist({
         ? { href: appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake", label: "Prepara con la chat" }
         : { href: commercialHref("all"), label: "Mostra tutte le trattative" };
 
+  // COMM-DESK-AI1.B: dentro la pagina caricata, prima ciò che chiede un'azione.
+  // L'elenco resta piatto (una riga = una trattativa); le etichette di gruppo
+  // compaiono solo se la pagina contiene più di un gruppo.
+  const now = Date.now();
+  const urgencyOf = (item: UnifiedCommercialItem) => commercialRowUrgency(item.kind, item.status, item.rowFacts?.dueAt, now);
+  const ordered = sortByCommercialUrgency(filtered, urgencyOf);
+  const groupCounts = new Map<CommercialRowGroup, number>();
+  for (const item of ordered) {
+    const group = commercialRowGroup(urgencyOf(item));
+    groupCounts.set(group, (groupCounts.get(group) ?? 0) + 1);
+  }
+  const showGroups = groupCounts.size > 1;
+
   // COMM-CLEAN-LIST1: una riga = una trattativa. Due righe di testo, stato come pallino.
   const renderRow = (item: UnifiedCommercialItem) => {
     const type = itemType(item);
-    const tone = statusTone(item.status);
+    const tone = urgencyOf(item);
+    const facts = item.rowFacts;
     const sameAsType = item.title.trim().toLocaleLowerCase("it-IT") === type.toLocaleLowerCase("it-IT");
-    const detail = item.rowFacts?.quantity ?? item.rowFacts?.lines ?? "";
-    const reference = item.rowFacts?.reference ? "rif. " + item.rowFacts.reference : "";
-    const meta = [sameAsType ? "" : type, reference, detail].filter(Boolean).join(" · ") || item.origin;
+    // Con un'etichetta personalizzata nel titolo, la controparte scende nella riga di dettaglio.
+    const counterparty = facts?.counterparty && facts.counterparty.trim().toLocaleLowerCase("it-IT") !== item.title.trim().toLocaleLowerCase("it-IT")
+      ? facts.counterparty : "";
+    const reference = facts?.reference ? "rif. " + facts.reference : "";
+    const customerRef = facts?.customerRef ? "ord. cliente " + facts.customerRef : "";
+    const detail = item.rowFacts?.quantity && item.rowFacts?.lines && item.rowFacts.lines !== "1 riga"
+      ? item.rowFacts.lines + " · " + item.rowFacts.quantity
+      : item.rowFacts?.quantity ?? item.rowFacts?.lines ?? "";
+    const meta = [sameAsType ? "" : type, counterparty, customerRef, reference, detail].filter(Boolean).join(" · ") || item.origin;
+    const dueLabel = tone === "done" ? null : commercialDueLabel(facts?.dueAt, formatHubDate(facts?.dueAt), now);
     return (
       <Link key={item.key} href={route(view, query, item.key, data.paging?.page ?? page, data.paging?.currentCursor, focus)}
         aria-current={item.key === active?.key ? "true" : undefined}
@@ -313,7 +340,10 @@ export async function CommercialUnifiedWorklist({
           <span className="block truncate text-xs text-[#5c7063]">{meta}</span>
         </span>
         <span className="flex shrink-0 flex-col items-end gap-0.5 text-right">
-          {item.at ? <time className="text-xs tabular-nums text-[#5c7063]">{formatHubDate(item.at)}</time> : null}
+          {dueLabel ? (
+            <span data-testid="commercial-row-due"
+              className={"text-xs font-semibold tabular-nums " + (tone === "due" ? "text-[#9a3412]" : "text-[#5c7063]")}>{dueLabel}</span>
+          ) : item.at ? <time className="text-xs tabular-nums text-[#5c7063]">{formatHubDate(item.at)}</time> : null}
           <span className={"text-xs font-semibold " + statusTextClass[tone]}>{item.status}</span>
         </span>
         <span className="sr-only">Apri</span>
@@ -369,17 +399,38 @@ export async function CommercialUnifiedWorklist({
             title={isStreamView(view)
               ? "Il filtro qui cerca nelle intestazioni RFQ, offerte e ordini."
               : "Qui filtri le attività visibili, non tutto l’archivio documentale."}
-            placeholder="Cerca…"
+            placeholder="Filtra queste trattative…"
             className="min-h-10 w-full min-w-0 rounded-full border border-[#d6e5db] bg-white pl-8 pr-4 text-sm text-[#143f30] placeholder:text-[#7a9184] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]" />
           <button className="sr-only" type="submit">Filtra</button>
         </form>
       </div>
 
+      {query ? (
+        <p data-testid="commercial-filter-scope" className="flex flex-wrap items-center gap-x-3 gap-y-1 px-1 text-xs text-[#52685b]">
+          <span>Filtro «{query}» solo sulle trattative di questo elenco.</span>
+          <Link href={commercialSearchHref(query)} className="font-semibold text-[#175640] underline underline-offset-2">
+            Cerca «{query}» in tutto lo storico →
+          </Link>
+          <Link href={commercialHref(view)} className="font-semibold text-[#52685b] underline underline-offset-2">Rimuovi filtro</Link>
+        </p>
+      ) : null}
+
       <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] 2xl:grid-cols-[minmax(0,1.3fr)_minmax(380px,0.9fr)]" : "grid min-w-0 gap-4"} data-testid="comm-cine2-split-view">
         <div data-testid="commercial-list-pane" className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-[22px] border border-[#dce7e0] bg-white shadow-[0_18px_55px_-40px_rgba(4,46,32,0.50)]"}>
           {filtered.length ? (
-            <div className="divide-y divide-[#edf3ef]">
-              {filtered.map(renderRow)}
+            <div className="divide-y divide-[#edf3ef]" data-testid="commercial-urgency-list">
+              {ordered.map((item, index) => {
+                const group = commercialRowGroup(urgencyOf(item));
+                const first = showGroups && (index === 0 || commercialRowGroup(urgencyOf(ordered[index - 1])) !== group);
+                return first ? [
+                  <p key={"group:" + group} data-testid="commercial-urgency-group"
+                    className={"flex items-center justify-between px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] sm:px-5 " + groupLabelClass[group]}>
+                    <span>{commercialRowGroupLabels[group]}</span>
+                    <span className="tabular-nums">{groupCounts.get(group)}</span>
+                  </p>,
+                  renderRow(item),
+                ] : renderRow(item);
+              })}
             </div>
           ) : (
             <div className="px-4 py-3 sm:px-5 sm:py-4" data-commercial-empty-state={emptyCause}>

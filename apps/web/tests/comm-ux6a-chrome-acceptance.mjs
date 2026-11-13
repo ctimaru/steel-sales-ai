@@ -83,7 +83,7 @@ async function viewportCheck(page, { width, height, role }) {
 
   // Calculator, saved Distinte and history live in the secondary Strumenti
   // disclosure: open it before asserting interactive controls are visible.
-  assert.match(await tools.locator("summary").innerText(), /Strumenti/);
+  assert.match(await tools.locator("summary").innerText(), /Calcolatrice e storico/);
   await tools.locator("summary").click();
   const calculator = page.getByRole("button", { name: "Calcolatrice pesi" });
   await calculator.waitFor({ state: "visible" });
