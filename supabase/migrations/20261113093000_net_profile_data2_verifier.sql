@@ -101,9 +101,10 @@ create or replace function public.netprofile_data2_record(
  p_support_quote text,p_confidence numeric,p_reason_codes text[] default '{}'
 ) returns jsonb language plpgsql security definer set search_path to ''
 as $fn$
-declare v_e private.network_company_enrichment%rowtype;
-declare v_c public.network_companies%rowtype;
-declare v_accepted boolean := false;
+declare
+ v_e private.network_company_enrichment%rowtype;
+ v_c public.network_companies%rowtype;
+ v_accepted boolean := false;
 begin
  if (select auth.role()) is distinct from 'service_role' then
    raise exception 'Service role required' using errcode='42501';
