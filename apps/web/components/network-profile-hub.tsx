@@ -39,6 +39,13 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
   if (!sections.length) return null;
+  // One real section needs no navigation card: show its content immediately.
+  if (sections.length === 1 && sections[0].content !== undefined) {
+    return <section data-testid="network-company-single-panel" aria-label={sections[0].title}
+      className="min-w-0 rounded-[20px] border border-[#dce6df] bg-white p-4 sm:p-5">
+      {sections[0].content}
+    </section>;
+  }
 
   function openTarget(targetId: string) {
     const target = document.getElementById(targetId);
@@ -49,21 +56,16 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
 
   return (
     <section aria-label="Esplora le informazioni aziendali" data-testid="network-company-card-hub" data-ready={ready ? "true" : "false"}
-      className="min-w-0 space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#4e745b]">
-            Company Hub
-          </p>
-          <h2 className="mt-1 text-lg font-semibold tracking-tight text-[#173f35] sm:text-xl">
-            Esplora l'azienda
-          </h2>
-        </div>
-        <span className="text-xs text-[#607567]">Seleziona una card per i dettagli</span>
+      className="min-w-0 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-base font-semibold tracking-tight text-[#173f35] sm:text-lg">
+          Informazioni sull'azienda
+        </h2>
+        <span className="text-xs text-[#607567]">Scegli cosa esplorare</span>
       </div>
 
       <div aria-label="Naviga la scheda"
-        className="grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]"
+        className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]"
         data-testid="network-company-section-nav">
         {sections.map((section) => {
           const current = selected === section.id && section.content !== undefined;
@@ -72,18 +74,18 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
               aria-pressed={current}
               aria-controls={section.content !== undefined ? "company-hub-panel-" + section.id : undefined}
               onClick={() => section.targetId ? openTarget(section.targetId) : setSelected(section.id)}
-              className={"group flex min-h-[122px] min-w-0 flex-col items-start gap-2.5 rounded-[20px] border p-3 sm:min-h-[140px] sm:gap-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840] sm:p-4 " +
+              className={"group flex min-h-[104px] min-w-0 flex-col items-start gap-2 rounded-[18px] border p-3 sm:min-h-[116px] sm:gap-2.5 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840] sm:p-4 " +
                 (current
                   ? "border-[#356e4e] bg-[#eef7f0] shadow-[0_8px_26px_-20px_rgba(16,82,46,0.6)]"
                   : "border-[#dce7df] bg-white hover:border-[#a2c5aa] hover:bg-[#f7fbf8]")}
               data-testid={"network-company-card-" + section.id}>
-              <span className={"flex h-10 w-10 items-center justify-center rounded-xl " +
+              <span className={"flex h-9 w-9 items-center justify-center rounded-xl " +
                 (current ? "bg-[#dcefe1] text-[#17573c]" : "bg-[#f0f6f1] text-[#366a4a]")}>
                 <HubIcon kind={section.icon} />
               </span>
               <span className="flex w-full min-w-0 flex-1 flex-col">
                 <span className="break-words text-sm font-semibold leading-5 text-[#173f35]">{section.title}</span>
-                <span className="mt-1 break-words text-[11px] leading-4 text-[#63776a]">{section.summary}</span>
+                <span className="mt-1 break-words text-xs leading-4 text-[#63776a]">{section.summary}</span>
               </span>
               <span className="self-end text-[#427759]" aria-hidden="true">{current ? "↓" : "↗"}</span>
             </button>
