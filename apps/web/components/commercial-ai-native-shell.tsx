@@ -99,6 +99,13 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
   const previewTrigger = useRef<HTMLButtonElement>(null);
   const previewDialog = useRef<HTMLDialogElement>(null);
   const threadEnd = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  // Docked on the desk the page itself scrolls: after the thread grows, bring
+  // the composer back above the fixed mobile dock (scroll-margin on the form).
+  const revealLatest = () => {
+    threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" });
+    if (compact) formRef.current?.scrollIntoView({ block: "nearest", behavior: "auto" });
+  };
 
   useEffect(() => setReady(true), []);
   // Keep the most recent assistant reply visible after an async response,
@@ -107,9 +114,7 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
   const lastTurnState = turns.length ? turns[turns.length - 1].state : null;
   useEffect(() => {
     if (!lastTurnState) return;
-    const frame = requestAnimationFrame(() =>
-      threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" })
-    );
+    const frame = requestAnimationFrame(revealLatest);
     return () => cancelAnimationFrame(frame);
   }, [turns.length, lastTurnState]);
 
@@ -134,7 +139,7 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
     setBusy(true);
     setDraft("");
     setHandoffError("");
-    requestAnimationFrame(() => threadEnd.current?.scrollIntoView({ block: "nearest", behavior: "auto" }));
+    requestAnimationFrame(revealLatest);
     try {
       const result = await commercialAiNativeResponse(question, history);
       if (result.ok) {
@@ -334,10 +339,10 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
           <div className={compact
             ? "shrink-0 bg-white px-3 pb-2 pt-2.5 sm:px-6 sm:pb-3"
             : "relative z-10 shrink-0 border-t border-[#e4ebe6] bg-white px-3 py-2 sm:px-6 sm:py-3 lg:sticky lg:bottom-0"}>
-            <form onSubmit={submit} data-testid="commercial-ai-native-form"
+            <form onSubmit={submit} ref={formRef} data-testid="commercial-ai-native-form"
               aria-label="Scrivi una richiesta per Smart Steel Intelligence"
               className={compact
-                ? "flex items-end gap-2 rounded-2xl border border-[#bdcfc2] bg-white p-1.5 shadow-[0_10px_25px_-18px_rgba(16,65,43,0.2)] focus-within:border-[#175640]"
+                ? "flex scroll-mb-28 scroll-mt-24 items-end gap-2 rounded-2xl border border-[#bdcfc2] bg-white p-1.5 shadow-[0_10px_25px_-18px_rgba(16,65,43,0.2)] focus-within:border-[#175640]"
                 : "mx-auto max-w-[800px] rounded-2xl border border-[#bdcfc2] bg-white p-2 shadow-[0_10px_25px_-18px_rgba(16,65,43,0.2)] focus-within:border-[#175640]"}>
               <label htmlFor="commercial-ai-native-input" className="sr-only">Domanda o richiesta commerciale</label>
               <textarea id="commercial-ai-native-input" ref={composerRef} rows={compact ? 1 : 2} maxLength={MAX_CHARS}
