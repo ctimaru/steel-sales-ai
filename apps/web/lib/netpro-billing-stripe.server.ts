@@ -89,6 +89,33 @@ export async function verifiedStripePrice(id:string,interval:NetProBillingInterv
   return price;
 }
 
+/**
+ * A valid configuration ID alone is not enough: buyers must actually be able
+ * to update payment details, review invoices and cancel without an operator.
+ * Plan/price changes stay disabled until atomic replacements are supported.
+ */
+export async function verifyNetworkProPortalReady():Promise<void>{
+  const id=process.env.STRIPE_NETPRO_PORTAL_CONFIGURATION_ID||"";
+  if(!/^bpc_[A-Za-z0-9]{10,}$/.test(id))throw new Error("portal_not_configured");
+  const portal=await stripeCall<{
+    id:string;active:boolean;livemode:boolean;
+    features?:{
+      invoice_history?:{enabled:boolean};
+      payment_method_update?:{enabled:boolean};
+      subscription_cancel?:{enabled:boolean;mode:string};
+      subscription_update?:{enabled:boolean};
+    };
+  }>("/billing_portal/configurations/"+encodeURIComponent(id));
+  const expectedLive=process.env.STRIPE_SECRET_KEY?.startsWith("sk_live_")===true;
+  if(portal.id!==id||portal.active!==true||portal.livemode!==expectedLive||
+     portal.features?.invoice_history?.enabled!==true||
+     portal.features?.payment_method_update?.enabled!==true||
+     portal.features?.subscription_cancel?.enabled!==true||
+     portal.features?.subscription_cancel?.mode!=="at_period_end"||
+     portal.features?.subscription_update?.enabled!==false)
+    throw new Error("portal_requires_self_service_cancellation_and_restricted_plan_changes");
+}
+
 export function verifyStripeSignature(payload:string,header:string|null,secret:string,nowSeconds=Math.floor(Date.now()/1000)):boolean{
   if(!header||!secret.startsWith("whsec_"))return false;
   const entries=new Map(header.split(",").map(part=>part.trim().split("=",2) as [string,string]));
