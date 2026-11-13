@@ -69,7 +69,6 @@ export function NetworkProfileOverview({
   const visibleProducts = Array.from(new Set(products.filter(Boolean))).slice(0, 8);
   const visibleServices = Array.from(new Set(services.filter(Boolean))).slice(0, 6);
   const hasContacts = Boolean(email || phone || website);
-  const hasCommercialDetails = Boolean(description || visibleProducts.length || visibleServices.length || visibleRoles.length);
   // NET-PROFILE-UX3: a directory entry is not a catalogue. For companies
   // without declared activity, products or services do not render a vacant
   // two-column content section. The website is the useful first action.
