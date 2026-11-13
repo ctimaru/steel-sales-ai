@@ -163,8 +163,20 @@ async def review_candidate(client: httpx.AsyncClient, row: dict,
             return reason_result(row, "needs_review", "empty_public_source")
         if RESTRICTED_REUSE.search(content):
             return reason_result(row, "blocked", "reuse_restriction_detected")
-        # Evidence for the *legal entity*, not just an unverified brand.
-        if not _name_evidenced(str(row.get("company_name") or ""), [content]):
+        # A product page may omit the legal company name: check at most one
+        # additional official homepage, still under robots and DNS/SSRF guards.
+        # Brand-only mentions are not sufficient proof of the legal entity.
+        identity_texts = [content]
+        if not _name_evidenced(str(row.get("company_name") or ""), identity_texts):
+            home_url = canonicalize_seed_url(str(row["website_url"]))
+            if home_url != source:
+                home = await _fetch_page(client, home_url, home_url)
+                if home and canonical_domain(home.url) == domain:
+                    home_text = str(home.text or "")
+                    if RESTRICTED_REUSE.search(home_text):
+                        return reason_result(row, "blocked", "reuse_restriction_detected")
+                    identity_texts.append(home_text)
+        if not _name_evidenced(str(row.get("company_name") or ""), identity_texts):
             return reason_result(row, "needs_review", "legal_company_name_not_found")
         normalized = canonical_text(content)
         if any(canonical_text(value) not in normalized for value in values):
