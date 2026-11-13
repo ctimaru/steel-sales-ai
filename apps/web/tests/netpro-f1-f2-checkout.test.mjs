@@ -112,3 +112,51 @@ test("NETPRO F2 distinguishes retryable paid events from late canceled invoices"
   assert.match(reconcile,/if\(intent\.status==="expired"\|\|intent\.status==="canceled"\)\s*return \{status:"not_found"\}/);
   assert.match(reconcile,/if\(!intent\.stripe_checkout_session_id\)\s*return \{status:"pending"\}/);
 });
+
+
+test("NETPRO F1 requires complete 16-price Stripe checkout setup and cancel portal",async()=>{
+  const pureSource=stripe.replace(/^import "server-only";\s*/m,"");
+  const compiled=ts.transpileModule(pureSource,{
+    compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022},
+  }).outputText;
+  const billing=await import("data:text/javascript;base64,"+Buffer.from(compiled).toString("base64"));
+  const keys=["NETPRO_BILLING_ENABLED","STRIPE_SECRET_KEY","STRIPE_WEBHOOK_SECRET",
+    "SUPABASE_SERVICE_ROLE_KEY","STRIPE_NETPRO_PORTAL_CONFIGURATION_ID",
+    "NEXT_PUBLIC_SITE_URL","STRIPE_NETPRO_PRICE_IDS_JSON"];
+  const before=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
+  try{
+    const prices={};
+    for(const country of ["IT","EU"]){
+      for(const period of ["monthly","annual"]){
+        for(let count=1;count<=4;count++)
+          prices[country+":"+period+":"+count]="price_valid_testing_plan_"+country+period+count;
+      }
+    }
+    Object.assign(process.env,{
+      NETPRO_BILLING_ENABLED:"true",
+      STRIPE_SECRET_KEY:"sk_test_dummy_not_real",
+      STRIPE_WEBHOOK_SECRET:"whsec_testing_only",
+      SUPABASE_SERVICE_ROLE_KEY:"local-service-credential-not-real",
+      STRIPE_NETPRO_PORTAL_CONFIGURATION_ID:"bpc_testingportal123",
+      NEXT_PUBLIC_SITE_URL:"https://www.smartsteelsales.com",
+      STRIPE_NETPRO_PRICE_IDS_JSON:JSON.stringify(prices),
+    });
+    assert.equal(billing.netProBillingEnabled(),true);
+    assert.equal(billing.stripePriceId({territory:"IT",interval:"monthly",moduleCount:1}),
+      prices["IT:monthly:1"]);
+    delete prices["EU:annual:4"];
+    process.env.STRIPE_NETPRO_PRICE_IDS_JSON=JSON.stringify(prices);
+    assert.equal(billing.netProBillingEnabled(),false);
+    process.env.STRIPE_NETPRO_PRICE_IDS_JSON=JSON.stringify({...prices,["EU:annual:4"]:"price_repairedtesting"});
+    delete process.env.STRIPE_NETPRO_PORTAL_CONFIGURATION_ID;
+    assert.equal(billing.netProBillingEnabled(),false);
+    process.env.STRIPE_NETPRO_PORTAL_CONFIGURATION_ID="bpc_testingportal123";
+    process.env.NETPRO_BILLING_ENABLED="false";
+    assert.equal(billing.netProBillingEnabled(),false);
+  }finally{
+    for(const k of keys){
+      if(before[k]===undefined)delete process.env[k];
+      else process.env[k]=before[k];
+    }
+  }
+});
