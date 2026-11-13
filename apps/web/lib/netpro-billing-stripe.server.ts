@@ -9,10 +9,25 @@ export type NetProPriceSelection={
 export type StripeObject=Record<string,unknown>;
 
 export function netProBillingEnabled():boolean{
-  return process.env.NETPRO_BILLING_ENABLED==="true" &&
-    Boolean(process.env.STRIPE_SECRET_KEY) &&
-    Boolean(process.env.STRIPE_NETPRO_PRICE_IDS_JSON) &&
-    Boolean(process.env.STRIPE_WEBHOOK_SECRET);
+  // Checkout must not start unless the customer can also manage and cancel
+  // their subscription. A complete 16-price catalog avoids partial offerings.
+  if(process.env.NETPRO_BILLING_ENABLED!=="true"||
+     !/^sk_(test|live)_/.test(process.env.STRIPE_SECRET_KEY||"")||
+     !(process.env.STRIPE_WEBHOOK_SECRET||"").startsWith("whsec_")||
+     !process.env.SUPABASE_SERVICE_ROLE_KEY||
+     !/^bpc_[A-Za-z0-9]{10,}$/.test(process.env.STRIPE_NETPRO_PORTAL_CONFIGURATION_ID||"")||
+     !trustedBillingOrigin())return false;
+  try{
+    const priceMap=JSON.parse(process.env.STRIPE_NETPRO_PRICE_IDS_JSON||"{}") as Record<string,unknown>;
+    return (["IT","EU"] as const).every(area=>
+      (["monthly","annual"] as const).every(interval=>
+        ([1,2,3,4] as const).every(count=>
+          typeof priceMap[area+":"+interval+":"+count]==="string" &&
+          /^price_[A-Za-z0-9]{10,}$/.test(priceMap[area+":"+interval+":"+count] as string)
+        )
+      )
+    );
+  }catch{return false;}
 }
 
 export function stripePriceId(input:NetProPriceSelection):string|null{
