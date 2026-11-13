@@ -298,6 +298,9 @@ try {
       assert.equal(await companyHero.getByRole("heading",{name:"Cosa fa e cosa offre"}).count(),1);
       assert.equal(await companyHero.getByRole("heading",{name:"Azioni commerciali"}).count(),1);
       assert.equal(await companyHero.getByRole("heading",{name:"Contatti"}).count(),1);
+      const sourceEvidence=companyHero.getByTestId("network-company-source-attribution");
+      assert.match(await sourceEvidence.innerText(),/fonte pubblica/);
+      assert.equal(await sourceEvidence.getByRole("link",{name:/Consulta la fonte/}).count(),1);
       const companyLinks=companyHero.getByRole("link");
       assert.ok(await companyLinks.count()>=2);
       await companyHero.evaluate((node)=>window.scrollTo({top:Math.max(0,node.getBoundingClientRect().top+window.scrollY-148),behavior:"auto"}));
