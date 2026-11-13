@@ -3,6 +3,7 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
+from app.company_discovery import CompanyDiscoveryError
 from app.net_profile_data2_reviewer import (
     VERSION, claim_values, trusted_source, canonical_text,
     review_candidate, reason_result, _parse_model_output,
@@ -46,7 +47,7 @@ class GateTests(unittest.TestCase):
             {"evidence_url": "https://acciaidemo.it:8080/admin"},
         ):
             with self.subTest(overrides=overrides), self.assertRaises(
-                    (ValueError, KeyError, TypeError)):
+                    (ValueError, KeyError, TypeError, CompanyDiscoveryError)):
                 trusted_source(candidate(**overrides))
 
     def test_field_values_fail_closed(self):
