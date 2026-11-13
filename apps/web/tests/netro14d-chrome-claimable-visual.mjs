@@ -291,7 +291,7 @@ try {
         await screenshot(page,"network-filters-closed-admin",width);
         assertions += 2;
       }
-      // NET-PROFILE-UX4: exercise real shared card selection with synthetic data.
+      // NET-PROFILE-UX5.A/B: commercial hero first, then only real information cards.
       const companyHero=page.getByTestId("network-profile-ux1a").first();
       await companyHero.waitFor({state:"visible",timeout:45000});
       assert.equal(await companyHero.getByRole("heading",{name:"DEMO Tubi Strutturali"}).count(),1);
@@ -305,8 +305,11 @@ try {
       assert.equal(await sourceEvidence.getByRole("link",{name:/Consulta la fonte/}).count(),1);
       await companyHub.getByTestId("network-company-card-contatti").click();
       await companyHub.getByRole("heading",{name:"Contatti"}).waitFor({state:"visible",timeout:15000});
-      await companyHub.getByTestId("network-company-card-connessioni").click();
-      await companyHub.getByRole("heading",{name:"Azioni commerciali"}).waitFor({state:"visible",timeout:15000});
+      const commercialHeaderActions=companyHero.getByTestId("network-profile-quick-actions");
+      assert.equal(await commercialHeaderActions.count(),1,"Commercial actions must be in the hero");
+      assert.equal(await commercialHeaderActions.getByRole("link",{name:/Esplora attività/}).count(),1);
+      assert.equal(await companyHub.getByTestId("network-company-card-connessioni").count(),0,
+        "Commercial actions must not be duplicated as a navigation card");
       await companyHub.getByTestId("network-company-card-attivita").click();
       await companyHero.evaluate((node)=>window.scrollTo({top:Math.max(0,node.getBoundingClientRect().top+window.scrollY-148),behavior:"auto"}));
       await noOverflow(page,"Company-commercial-hero/"+width);
@@ -337,7 +340,24 @@ try {
       await noOverflow(page,"Company-sparse-hero/"+width);
       await screenshot(page,"network-company-profile-ux2-sparse-admin",width);
       await compactCard.screenshot({path:path.join(out,"network-company-profile-ux3-compact-card-"+width+".png"),animations:"disabled"});
-      assertions+=9;
+      const sparseAction=page.getByTestId("network-profile-sparse-action-fixture");
+      const sparseActionHero=sparseAction.getByTestId("network-profile-ux1a");
+      assert.equal(await sparseActionHero.getAttribute("data-profile-density"),"compact");
+      assert.equal(await sparseAction.getByTestId("network-company-card-hub").count(),0);
+      const actionHeader=sparseActionHero.getByTestId("network-profile-quick-actions");
+      assert.equal(await actionHeader.getByRole("link",{name:"Connetti"}).count(),1);
+      assert.equal(await actionHeader.getByRole("link",{name:/Visita il sito aziendale/}).count(),1,
+        "Website must not be repeated in extra cards");
+      const provisionalHero=page.getByTestId("network-profile-provisional-fixture").getByTestId("network-profile-ux1a");
+      assert.equal(await provisionalHero.getAttribute("data-profile-density"),"compact",
+        "Provenance alone must not force a full Company Hub");
+      assert.equal(await provisionalHero.getByTestId("network-company-card-hub").count(),0);
+      await noOverflow(page,"Sparse-action-and-provisional/"+width);
+      await sparseAction.scrollIntoViewIfNeeded();
+      await screenshot(page,"network-company-profile-ux5-sparse-actions",width);
+      await provisionalHero.scrollIntoViewIfNeeded();
+      await screenshot(page,"network-company-profile-ux5-provisional",width);
+      assertions+=16;
       // NET-PROFILE-UX1.B: inspect the *real* production components with
       // synthetic stock. /network-visual-qa is hard-gated to localhost development.
       const stockCard=page.getByTestId("network-profile-stock");
@@ -374,18 +394,11 @@ try {
         const cardHub=overview.getByTestId("network-company-card-hub");
         if(await cardHub.count()){
           await cardHub.locator("button:not([disabled])").first().waitFor({state:"visible",timeout:45000});
-          const actionsCard=cardHub.getByTestId("network-company-card-connessioni");
-          if(await actionsCard.count()){
-            const cardBox=await actionsCard.boundingBox();
-            const activityBox=await cardHub.getByTestId("network-company-card-attivita").boundingBox();
-            assert.ok(cardBox && activityBox && Math.abs(cardBox.y-activityBox.y)<8 && cardBox.x<activityBox.x,
-              "Connection card must lead the first card row "+width+"/"+co.role);
-            // On a 320px viewport, long legal names may need one short vertical
-            // scroll; don't mistake document length for a card-order regression.
-            if(width>=390)assert.ok(cardBox.y<height,
-              "Commercial connection card should be in first screen "+width+"/"+co.role);
-            await actionsCard.click();
-            await cardHub.getByRole("heading",{name:"Azioni commerciali"}).waitFor({state:"visible",timeout:15000});
+          assert.equal(await cardHub.getByTestId("network-company-card-connessioni").count(),0,
+            "Connections must be available in the header, not duplicated in the Hub");
+          if(await overview.getByTestId("network-profile-quick-actions").count()){
+            const actionsBox=await overview.getByTestId("network-profile-quick-actions").boundingBox();
+            assert.ok(actionsBox&&actionsBox.width>100,"Commercial actions not visible "+width+"/"+co.role);
           }
           const activityCard=cardHub.getByTestId("network-company-card-attivita");
           if(await activityCard.count()){
@@ -398,7 +411,12 @@ try {
             await cardHub.getByRole("heading",{name:"Contatti"}).waitFor({state:"visible",timeout:15000});
           }
         } else {
-          assert.equal(await overview.getAttribute("data-profile-density"),"compact");
+          const density=await overview.getAttribute("data-profile-density");
+          assert.ok(density==="compact"||density==="rich");
+          if(density==="rich"){
+            assert.equal(await overview.getByTestId("network-company-single-panel").count(),1,
+              "A single published information section should render without a card");
+          }
         }
         const claim=page.getByTestId("network-unclaimed-company-claim");
         await claim.waitFor({state:"visible",timeout:45000});
