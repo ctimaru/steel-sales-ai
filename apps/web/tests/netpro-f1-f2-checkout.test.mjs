@@ -40,7 +40,7 @@ test("NETPRO F1 browser has no direct checkout-intent storage or rights",()=>{
   assert.match(migration,/where status in \('pending','paid'\)/);
   assert.match(migration,/stripe_checkout_session_id text unique/);
   assert.match(view,/data-testid="netpro-f1-checkout"/);
-  assert.match(view,/!billingReady\|\|!canCheckout\|\|!coverage\|\|selected\.length===0\|\|isStarting/);
+  assert.match(view,/!billingReady\|\|!canCheckout\|\|!coverage\|\|hasPaidSubscription\|\|selected\.length===0\|\|isStarting/);
   assert.match(view,/Abbonati e sblocca/);
   assert.match(view,/Nessuna richiesta o approvazione manuale/);
 });
