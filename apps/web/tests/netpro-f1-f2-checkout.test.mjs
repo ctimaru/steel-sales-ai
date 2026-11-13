@@ -16,7 +16,7 @@ const migration=read("../../supabase/migrations/20261113180000_netpro_f1_checkou
 const paid=read("../../supabase/migrations/20261113180500_netpro_f2_paid_entitlements.sql");
 
 test("NETPRO F1 fail-closed: no checkout without provider and server-side price IDs",()=>{
-  assert.match(stripe,/NETPRO_BILLING_ENABLED==="true"/);
+  assert.match(stripe,/NETPRO_BILLING_ENABLED!=="true"/);
   assert.match(stripe,/STRIPE_SECRET_KEY/);
   assert.match(stripe,/STRIPE_NETPRO_PRICE_IDS_JSON/);
   assert.match(stripe,/STRIPE_WEBHOOK_SECRET/);
