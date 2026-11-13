@@ -355,8 +355,10 @@ try {
       await noOverflow(page,"Sparse-action-and-provisional/"+width);
       await sparseAction.scrollIntoViewIfNeeded();
       await screenshot(page,"network-company-profile-ux5-sparse-actions",width);
+      await sparseActionHero.screenshot({path:path.join(out,"network-company-profile-ux5-sparse-action-card-"+width+".png"),animations:"disabled"});
       await provisionalHero.scrollIntoViewIfNeeded();
       await screenshot(page,"network-company-profile-ux5-provisional",width);
+      await provisionalHero.screenshot({path:path.join(out,"network-company-profile-ux5-provisional-card-"+width+".png"),animations:"disabled"});
       assertions+=16;
       // NET-PROFILE-UX1.B: inspect the *real* production components with
       // synthetic stock. /network-visual-qa is hard-gated to localhost development.
