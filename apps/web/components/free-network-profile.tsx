@@ -71,6 +71,7 @@ export async function FreeNetworkProfileView({
           stockCount={inventory.length}
           stockContent={inventory.length ? <NetworkProfileInventory items={inventory} /> : undefined}
           connectionsAvailable={Boolean((status==="available"&&canConnect) || status==="pending" || status==="connected" || canSave)}
+          primaryConnectionAvailable={Boolean(status==="available"&&canConnect)}
           hasTechnicalDetails={Boolean(reviewedEvidence.length || provisional || profile.products.length || profile.facilities.length)}
           detailsTargetId="network-profile-free-evidence"
           actions={<>
