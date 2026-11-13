@@ -104,3 +104,20 @@ class BoilerplateBoundaryTest(unittest.TestCase):
     def test_too_many_words_is_rejected(self):
         self.assertIsNone(find_company_identity(
             ["Alfa Beta Gamma Delta Epsilon Zeta Eta Rossi S.r.l."], "rossi.it", "Rossi"))
+
+
+class ButtonWordsBoundaryTest(unittest.TestCase):
+    """Second v4 run (13 Nov 2026, 13:48): button/widget words and '?'."""
+
+    check = BoilerplateBoundaryTest.check
+
+    def test_info_link_before_name(self):
+        self.check("Info Metal Tech Srls P.IVA 01234567890", "metaltech.srl",
+                   "Metal Tech S.r.l.s.", "Metal Tech Srls")
+
+    def test_question_mark_repeats(self):
+        self.check("Chi è M.G. Srl? M.G. Srl", "mg-srl.it", "M.G. S.r.l.", "M.G. Srl")
+
+    def test_button_label_before_name(self):
+        self.check("Pulsante C.T.L. LAVORAZIONE LAMIERE srl", "ctllavorazionelamiere.it",
+                   "C.T.L. Lavorazione Lamiere", "C.T.L. LAVORAZIONE LAMIERE srl")
