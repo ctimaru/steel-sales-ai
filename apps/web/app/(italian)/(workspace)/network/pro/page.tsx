@@ -13,5 +13,5 @@ export default async function NetworkProCatalogPage() {
     getNetworkProCoverage(context.organizationId),
     getNetworkProAccess(context.organizationId),
   ]);
-  return <NetworkProCatalog coverage={coverage} access={access}/>;
+  return <NetworkProCatalog coverage={coverage} access={access} canRequestActivation={context.role==="admin" && context.onboardingStatus!=="suspended"}/>;
 }
