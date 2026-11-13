@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
+import {createHmac} from "node:crypto";
+import ts from "typescript";
 
 const read=(p)=>fs.readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const stripe=read("lib/netpro-billing-stripe.server.ts");
@@ -81,4 +83,32 @@ test("NETPRO F2 atomic, idempotent, service-only entitlement lifecycle",()=>{
   assert.match(success,/confirmNetworkProCheckout/);
   assert.match(success,/result\.status==="active"/);
   assert.doesNotMatch(success,/netpro1b_module_event|createClient/);
+});
+
+
+test("NETPRO F2 verifies actual Stripe HMAC, tampering, replay and invalid format",async()=>{
+  // Compile the real TypeScript verifier to isolated ESM; no network or provider key.
+  const pureSource=stripe.replace(/^import "server-only";\s*/m,"");
+  const compiled=ts.transpileModule(pureSource,{
+    compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022},
+  }).outputText;
+  const verifier=await import("data:text/javascript;base64,"+Buffer.from(compiled).toString("base64"));
+  const now=1900000000;
+  const body='{"id":"evt_test_valid","type":"invoice.paid"}';
+  const secret="whsec_only_a_local_test_secret";
+  const timestamp=String(now);
+  const sig=createHmac("sha256",secret).update(timestamp+"."+body).digest("hex");
+  const signature="t="+timestamp+",v1="+sig;
+  assert.equal(verifier.verifyStripeSignature(body,signature,secret,now),true);
+  assert.equal(verifier.verifyStripeSignature(body+" ",signature,secret,now),false);
+  assert.equal(verifier.verifyStripeSignature(body,signature,secret,now+301),false);
+  assert.equal(verifier.verifyStripeSignature(body,"t="+timestamp+",v1="+sig.slice(1),secret,now),false);
+  assert.equal(verifier.verifyStripeSignature(body,"v1="+sig,secret,now),false);
+  assert.equal(verifier.verifyStripeSignature(body,signature,"whsec_wrong_secret",now),false);
+});
+
+test("NETPRO F2 distinguishes retryable paid events from late canceled invoices",()=>{
+  assert.match(hook,/data\.payment_status==="paid"&&result\.status==="pending"/);
+  assert.match(reconcile,/if\(intent\.status==="expired"\|\|intent\.status==="canceled"\)\s*return \{status:"not_found"\}/);
+  assert.match(reconcile,/if\(!intent\.stripe_checkout_session_id\)\s*return \{status:"pending"\}/);
 });
