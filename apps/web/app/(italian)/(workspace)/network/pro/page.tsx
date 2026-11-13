@@ -1,4 +1,5 @@
 import {NetworkProCatalog} from "@/components/network-pro-catalog";
+import {netProBillingEnabled} from "@/lib/netpro-billing-stripe.server";
 import {getNetworkProCoverage,getNetworkProAccess} from "@/lib/network-pro-coverage";
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
@@ -13,5 +14,7 @@ export default async function NetworkProCatalogPage() {
     getNetworkProCoverage(context.organizationId),
     getNetworkProAccess(context.organizationId),
   ]);
-  return <NetworkProCatalog coverage={coverage} access={access}/>;
+  return <NetworkProCatalog coverage={coverage} access={access}
+    canCheckout={context.role==="admin"&&context.onboardingStatus!=="suspended"}
+    billingReady={netProBillingEnabled()}/>;
 }
