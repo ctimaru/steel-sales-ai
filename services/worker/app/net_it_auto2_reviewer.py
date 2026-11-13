@@ -23,6 +23,7 @@ from .company_discovery import (
     PRIORITY_PATH_HINTS, CompanyDiscoveryError, CrawledPage, _fetch_page,
     canonical_domain, canonicalize_seed_url,
 )
+from .net_it_identity_extract import find_company_identity
 
 # v2 (NET-IT-GROWTH1): reads legal/contact pages where Italian companies print
 # their ragione sociale and P.IVA, matches on the whole extracted page text,
@@ -31,7 +32,13 @@ from .company_discovery import (
 # v3 (NET-IT-GROWTH5, founder decision 13 Nov 2026): partnerships S.n.c. and
 # S.a.s. are admitted with the same full-name first-party check; sole traders
 # (no corporate legal form) still go to human review.
-VERSION = "net-it-auto2-firstparty-v3"
+# v4 (NET-IT-AUTO4, founder decision 13 Nov 2026, "no human review"): when the
+# crawler's name is a brand or a domain, the reviewer reads the company's own
+# ragione sociale (legal form included, usually next to the P.IVA) from the
+# official pages and proposes it as a correction. When no company name exists
+# on the site it says so ("no_company_name_on_site"); the database then
+# discards the candidate automatically instead of waiting for a human.
+VERSION = "net-it-auto2-firstparty-v4"
 MAX_BATCH = 50
 MAX_PAGES = 5
 # Pages where the company's own legal identity is usually printed.
@@ -165,11 +172,28 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     # actual company identity on the page is different. Require the full
     # corporate name in first-party BODY text, not merely page metadata.
     texts = [str(p.text) for p in pages]
-    matched = _name_evidenced(str(candidate.get("company_name") or ""), texts)
+    name = str(candidate.get("company_name") or "")
+    matched = _name_evidenced(name, texts)
+    correction = None
+    if not matched or not _is_capital_company(name):
+        # v4: the first guess is often a brand or the domain; use the company's
+        # own ragione sociale when the site prints one that belongs to it.
+        found = find_company_identity(texts, domain, name)
+        if found and _is_capital_company(found.legal_name) \
+                and _name_evidenced(found.legal_name, texts):
+            page_url = next((p.url for p in pages
+                             if _name_evidenced(found.legal_name, [str(p.text)])), pages[0].url)
+            correction = {"p_candidate_id": str(candidate["id"]),
+                          "p_legal_name": found.legal_name[:255],
+                          "p_vat_id": found.vat_id, "p_page_url": page_url,
+                          "p_reviewer_version": VERSION}
+            name, matched = found.legal_name, True
     if not matched:
         reasons.append("corporate_name_not_evidenced")
-    if not _is_capital_company(str(candidate.get("company_name") or "")):
+    if not _is_capital_company(name):
         reasons.append("legal_form_requires_human_review")
+    if not matched or not _is_capital_company(name):
+        reasons.append("no_company_name_on_site")
     if "historical_sole_trader_vat_context" in candidate.get("quality_flags", []):
         reasons.append("sole_trader_identity_exception")
     if not candidate.get("role_keys"):
@@ -187,13 +211,16 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
         "identity_supported" if matched and not reasons else "needs_human"
     )
     # Even identity_supported is NOT rights-approved / publishable.
-    return _finding(
+    finding = _finding(
         candidate,verdict,reasons,domain=domain,name_matched=matched,
-        observed_name=str(candidate.get("company_name") or "") if matched else None,
+        observed_name=name if matched else None,
         page_url=pages[0].url,page_hash=digest,
         confidence=0.94 if verdict == "identity_supported" else 0.4,
         rights="restricts_reuse" if restricted else "unknown",
     )
+    if correction and verdict == "identity_supported":
+        finding["_identity_correction"] = correction
+    return finding
 
 
 def _finding(candidate: dict, verdict: str, reasons: list[str],
@@ -262,6 +289,14 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
         written = 0
         if persist:
             for finding in findings:
+                correction = finding.pop("_identity_correction", None)
+                if correction:
+                    c = await client.post(
+                        f"{url}/rest/v1/rpc/net_it_auto2_correct_identity",
+                        headers=headers, json=correction)
+                    c.raise_for_status()
+                    if c.json().get("contract") != "net-it-auto2-identity-v1":
+                        raise RuntimeError("unexpected identity correction response")
                 r = await client.post(f"{url}/rest/v1/rpc/net_it_auto2_record",
                                       headers=headers,json=finding)
                 r.raise_for_status()
