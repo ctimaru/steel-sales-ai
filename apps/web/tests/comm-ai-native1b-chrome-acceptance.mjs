@@ -1,5 +1,6 @@
 /**
- * COMM-AI-NATIVE1.B/C: local-only Chrome acceptance for the AI-first shell and authenticated intent/reply.
+ * COMM-AI-NATIVE1.B/C + COMM-DESK-AI1: local-only Chrome acceptance for the AI chat docked
+ * on the Commerciale desk and its authenticated intent/reply.
  * Synthetic buyer/viewer only; no LLM provider, emails or real user data.
  */
 import assert from "node:assert/strict";
@@ -36,17 +37,33 @@ try {
         const shell = page.getByTestId("commercial-ai-native-shell");
         await shell.waitFor({ state: "visible", timeout: 60000 });
         assert.ok(await shell.getByRole("heading", { name: "Smart Steel Intelligence" }).isVisible());
-        // CLEAN1: no second Commerciale navigation beside or above the chat.
-        const oldDesktop = page.getByTestId("commercial-director-sidebar");
-        const oldMobile = page.getByTestId("commercial-director-mobile");
+        // COMM-DESK-AI1: the chat is docked on the desk. Navigation, counters and
+        // the private worklist are on the same page, not behind «Gestione completa».
+        assert.equal(await shell.getAttribute("data-layout"), "desk");
         if (width >= 1280) {
-          assert.equal(await oldDesktop.isVisible(), false, "Old desktop director sidebar must be hidden on AI home");
+          assert.equal(await page.getByTestId("commercial-director-sidebar").isVisible(), true,
+            "Desktop Commerciale sidebar must stay visible next to the docked chat");
         } else {
-          assert.equal(await oldMobile.isVisible(), false, "Duplicate mobile Commerciale navigation must be hidden");
+          assert.equal(await page.getByTestId("commercial-director-mobile").isVisible(), true,
+            "Mobile Commerciale sections must stay reachable above the docked chat");
         }
         assert.equal(await page.getByTestId("comm-cine13-first-workspace").count(), 0);
-        assert.equal(await shell.getByTestId("commercial-ai-native-legacy").count(), 2,
-          "Classic management remains available in both responsive tools menus");
+        assert.equal(await shell.getByTestId("commercial-ai-native-legacy").count(), 0,
+          "The desk is already on the page: no «Gestione completa» detour");
+        assert.equal(await shell.getByTestId("commercial-ai-native-mobile-context").count(), 0);
+        assert.equal(await shell.getByTestId("commercial-ai-native-desktop-context").count(), 0);
+        assert.equal(await page.getByTestId("commercial-request-summary").count(), 1);
+        const desk = page.getByTestId("comm-cine2-deal-cockpit");
+        assert.equal(await desk.count(), 1, "The deals table must coexist with the chat");
+        const [shellOnEmpty, deskBox] = await Promise.all([shell.boundingBox(), desk.boundingBox()]);
+        assert.ok(shellOnEmpty && deskBox && shellOnEmpty.y < deskBox.y, "Chat sits above the desk");
+        if (width === 1440) {
+          assert.ok(shellOnEmpty.height <= 240, "Empty docked chat must stay compact: " + Math.round(shellOnEmpty.height));
+          assert.ok(deskBox.y < 620, "Deals table must start in the first desktop viewport: " + Math.round(deskBox.y));
+        }
+        const manual = shell.getByTestId("commercial-ai-native-manual-entry");
+        assert.equal(await manual.count(), person.id === "buyer" ? 1 : 0);
+        if (person.id === "buyer") assert.equal(await manual.getAttribute("href"), "/commercial?compose=1#commercial-compose");
         const input = shell.getByLabel("Domanda o richiesta commerciale");
         await input.waitFor({ state: "visible" });
         // Capture the REAL viewport before geometry assertions, including the
@@ -61,42 +78,21 @@ try {
             shell.getByRole("heading", { name: "Smart Steel Intelligence" }).boundingBox(),
           ]);
           assert.ok(dockBox && composerBox && headerBox, "Missing mobile layout elements");
-          assert.ok(headerBox.y >= 64 && headerBox.y < 320, "AI header must be below global sticky navigation");
+          assert.ok(headerBox.y >= 64, "AI header must be below global sticky navigation");
           assert.ok(composerBox.y >= 0 && composerBox.y + composerBox.height <= dockBox.y - 4,
             "Composer must remain fully visible ABOVE mobile dock: " +
             JSON.stringify({ composerBottom: Math.round(composerBox.y + composerBox.height), dockTop: Math.round(dockBox.y) }));
         }
         const composerOnEmpty = await shell.getByTestId("commercial-ai-native-form").boundingBox();
         const thirdPrompt = await shell.getByRole("button", { name: "Qual è la differenza tra EN 10219 ed EN 10210?" }).boundingBox();
-        assert.ok(composerOnEmpty && thirdPrompt && thirdPrompt.y + thirdPrompt.height <= composerOnEmpty.y - 3,
-          "All 3 examples must fit above the composer even at 320px");
+        assert.ok(composerOnEmpty && thirdPrompt && thirdPrompt.y >= composerOnEmpty.y + composerOnEmpty.height - 1 &&
+          thirdPrompt.y + thirdPrompt.height <= 900 - (width < 1024 ? 72 : 0),
+          "All 3 examples must sit under the composer inside the first viewport, even at 320px");
         const widths = await page.evaluate(() => ({
           visible: document.documentElement.clientWidth,
           document: document.documentElement.scrollWidth,
         }));
         assert.ok(widths.document <= widths.visible + 12, "Overflow " + person.id + "/" + width);
-        if (width < 1024) {
-          const button = shell.getByTestId("commercial-ai-native-mobile-context");
-          await button.click();
-          const dialog = page.getByTestId("commercial-ai-native-mobile-drawer");
-          await dialog.waitFor({ state: "visible" });
-          const classic = dialog.getByTestId("commercial-ai-native-legacy");
-          await classic.waitFor({ state: "visible" });
-          assert.equal(await classic.getAttribute("href"), "/commercial?experience=classic");
-          assert.equal(await dialog.getByRole("link", { name: "Centro RFQ" }).count(), 1);
-          await page.keyboard.press("Escape");
-          await dialog.waitFor({ state: "hidden" });
-          assert.ok(await button.evaluate(node => node === document.activeElement), "Focus restore");
-        } else {
-          const tools = shell.getByTestId("commercial-ai-native-desktop-context");
-          assert.ok(await tools.isVisible());
-          await tools.locator("summary").click();
-          const classic = tools.getByTestId("commercial-ai-native-legacy");
-          await classic.waitFor({ state: "visible" });
-          assert.equal(await classic.getAttribute("href"), "/commercial?experience=classic");
-          assert.equal(await tools.getByRole("link", { name: "Centro RFQ" }).count(), 1);
-          await tools.locator("summary").click();
-        }
         await input.fill("Chi produce tubo S355 Ø608?");
         await shell.getByTestId("commercial-ai-native-submit").click();
         await shell.getByRole("link", { name: /Esplora Network/ }).waitFor({ state: "visible" });
@@ -129,6 +125,13 @@ try {
             "Desktop composer must remain visible after multi-turn conversation");
           assert.ok(shellBox.y + shellBox.height <= 900,
             "Desktop chat must not stretch below 900px viewport");
+          // The thread can be reduced without losing it, giving the desk back its space.
+          const collapse = shell.getByTestId("commercial-ai-native-collapse");
+          await collapse.click();
+          assert.equal(await shell.getByTestId("commercial-ai-native-thread").isVisible(), false);
+          assert.equal(await collapse.getAttribute("aria-expanded"), "false");
+          await collapse.click();
+          assert.equal(await shell.getByTestId("commercial-ai-native-turn").count(), 2);
         }
         if (width < 1024) {
           const dock = await page.getByRole("navigation", { name: "Navigazione mobile principale" }).boundingBox();

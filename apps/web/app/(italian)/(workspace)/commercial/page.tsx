@@ -49,14 +49,11 @@ export default async function CommercialHomePage({
     params.prospect !== undefined || params.prospects === "1";
   const aiNativeEnabled = params.experience === "ai" ||
     (params.experience !== "classic" && process.env.COMM_AI_NATIVE_UI_ENABLED !== "0");
-  if (aiNativeEnabled && !legacyRouteRequested) {
-    return (
-      <FocusPage compact className="max-w-[1480px]">
-        <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_ai_native" }} />
-        <CommercialAiNativeShell canWrite={canWrite} />
-      </FocusPage>
-    );
-  }
+  // COMM-DESK-AI1: la chat convive con la scrivania. L'assistente compatto
+  // sostituisce l'hero scuro sopra contatori e trattative; nulla resta dietro
+  // «Gestione completa». experience=classic e COMM_AI_NATIVE_UI_ENABLED=0
+  // riportano l'hero precedente senza altre differenze.
+  const aiDeskLanding = aiNativeEnabled && !legacyRouteRequested;
   const networkAvailable = isNetworkFrontendEnabled();
   const showProspects = networkAvailable && params.prospects === "1";
   const prospectAccess = showProspects
@@ -131,7 +128,7 @@ export default async function CommercialHomePage({
   ).slice(0, 3);
   return (
     <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
-      <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
+      <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: aiDeskLanding ? "commercial_ai_native" : "commercial_home" }} />
       {aiFocused ? (
         <header data-testid="commercial-rfq-ai-focused-header" aria-labelledby="commercial-rfq-ai-focused-heading"
           className={"relative " + cinematic.hero}>
@@ -167,6 +164,9 @@ export default async function CommercialHomePage({
         view={view}
       />
 
+      {aiNativeEnabled ? (
+        <CommercialAiNativeShell canWrite={canWrite} compact />
+      ) : (
       <section data-testid="comm-cine13-first-workspace" aria-labelledby="commercial-create-heading"
         className={"relative z-10 " + cinematic.hero}>
         <div className={"grid gap-5 p-5 sm:p-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-8 lg:p-8 " + cinematic.heroGrid}>
@@ -190,6 +190,7 @@ export default async function CommercialHomePage({
           <CommercialAiCompanion canWrite={canWrite} />
         </div>
       </section>
+      )}
 
       <CommercialRequestSummary view={view} counts={requestSummary} tools={
         <details id="commercial-tool-access" data-testid="commercial-primary-quick-actions"

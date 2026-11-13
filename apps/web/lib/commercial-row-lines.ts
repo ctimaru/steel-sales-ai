@@ -21,12 +21,36 @@ function quantityLabel(quantity: unknown, unit: unknown): string | null {
   return label ? formatted + " " + label : formatted;
 }
 
-/** Numero di righe (4+ se ce ne sono di più di quelle lette) e, solo se è una riga sola, la quantità. */
+function numeric(value: unknown): number | null {
+  const n = typeof value === "number" ? value : typeof value === "string" && value.trim() ? Number(value) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
+/**
+ * Numero di righe (4+ se ce ne sono di più di quelle lette) e quantità.
+ * La quantità compare con una riga sola, oppure come totale quando TUTTE le
+ * righe sono state lette, hanno la stessa unità e un numero valido. Mai un
+ * totale parziale (4+ righe) né una somma di unità diverse.
+ */
 export function summarizeRowLines(lines: unknown): { lines?: string; quantity?: string } {
   if (!Array.isArray(lines)) return {};
   const rows = lines.filter((line): line is Row => Boolean(line) && typeof line === "object");
   if (!rows.length) return {};
   const count = rows.length >= ROW_LINES_FETCHED ? ROW_LINES_FETCHED + "+ righe" : rows.length === 1 ? "1 riga" : rows.length + " righe";
-  const quantity = rows.length === 1 ? quantityLabel(rows[0].requested_quantity ?? rows[0].quantity, rows[0].quantity_unit) : null;
+  let quantity: string | null = null;
+  if (rows.length === 1) {
+    quantity = quantityLabel(rows[0].requested_quantity ?? rows[0].quantity, rows[0].quantity_unit);
+  } else if (rows.length < ROW_LINES_FETCHED) {
+    const unitOf = (row: Row) => {
+      const raw = typeof row.quantity_unit === "string" ? row.quantity_unit.trim().toLowerCase() : "";
+      return raw ? (unitLabels[raw] ?? raw) : "";
+    };
+    const unit = unitOf(rows[0]);
+    const amounts = rows.map((row) => numeric(row.requested_quantity ?? row.quantity));
+    if (unit && rows.every((row) => unitOf(row) === unit) && amounts.every((n) => n !== null)) {
+      const total = quantityLabel(amounts.reduce<number>((sum, n) => sum + (n ?? 0), 0), unit);
+      quantity = total ? "tot. " + total : null;
+    }
+  }
   return { lines: count, quantity: quantity ?? undefined };
 }
