@@ -261,6 +261,11 @@ async def review_batch(candidates: list[dict], *, pause_seconds: float = 0.3) ->
     return results
 
 
+# PostgREST answers 400 (22023 invalid parameter) when a database contract
+# refuses one finding; anything else (auth, server errors) still stops the run.
+REJECTED_STATUSES = frozenset({400})
+
+
 async def execute(*, limit: int = 25, persist: bool = False) -> dict:
     if limit not in range(1, MAX_BATCH + 1):
         raise ValueError("limit must be 1..50")
@@ -287,6 +292,7 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
 
         findings = await review_batch(candidates)
         written = 0
+        rejected = 0
         if persist:
             for finding in findings:
                 correction = finding.pop("_identity_correction", None)
@@ -294,11 +300,25 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                     c = await client.post(
                         f"{url}/rest/v1/rpc/net_it_auto2_correct_identity",
                         headers=headers, json=correction)
-                    c.raise_for_status()
-                    if c.json().get("contract") != "net-it-auto2-identity-v1":
-                        raise RuntimeError("unexpected identity correction response")
+                    if c.status_code in REJECTED_STATUSES:
+                        # The database refused the corrected name: never record
+                        # this candidate as supported under its old name.
+                        finding["p_verdict"] = "needs_human"
+                        finding["p_reasons"] = sorted(
+                            set(finding["p_reasons"]) | {"corporate_name_not_evidenced"})
+                        finding["p_confidence"] = 0.4
+                    else:
+                        c.raise_for_status()
+                        if c.json().get("contract") != "net-it-auto2-identity-v1":
+                            raise RuntimeError("unexpected identity correction response")
                 r = await client.post(f"{url}/rest/v1/rpc/net_it_auto2_record",
                                       headers=headers,json=finding)
+                if r.status_code in REJECTED_STATUSES:
+                    # One candidate refused by the database contract (e.g. the
+                    # page is not on the company-owned domain) must not stop
+                    # the whole run; it stays in the queue unrecorded.
+                    rejected += 1
+                    continue
                 r.raise_for_status()
                 result = r.json()
                 if result.get("contract") != "net-it-auto2-review-v1" or result.get("publication_count") != 0:
@@ -306,7 +326,7 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                 written += 1
         return {
             "mode":"evidence_recording" if persist else "dry_run",
-            "reviewed":len(findings),"recorded":written,
+            "reviewed":len(findings),"recorded":written,"rejected":rejected,
             "identity_supported":sum(f["p_verdict"]=="identity_supported" for f in findings),
             "exceptions":sum(f["p_verdict"]!="identity_supported" for f in findings),
             "published":0,
