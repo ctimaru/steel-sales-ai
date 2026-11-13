@@ -53,7 +53,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
         <section aria-labelledby="network-pro-modules-title" className="min-w-0 space-y-4">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">01 · Scegli i contenuti</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Moduli · Scegli i contenuti</p>
               <h2 id="network-pro-modules-title" className="mt-1 text-lg font-bold text-[#173f35]">Quattro moduli indipendenti</h2>
             </div>
             <span className="text-xs font-medium text-[#52665b]">{selected.length} di 4 selezionati</span>
@@ -179,9 +179,9 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
           </section>
         </section>
 
-        <aside className="min-w-0 space-y-3 lg:sticky lg:top-24" aria-label="Configurazione e prezzi Network PRO">
+        <aside className="order-first min-w-0 space-y-3 lg:order-last lg:sticky lg:top-24" aria-label="Configurazione e prezzi Network PRO">
           <div className="rounded-[22px] border border-[#c6d9ce] bg-white p-4 shadow-[0_12px_30px_rgba(17,65,47,0.07)] sm:p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">02 · Territorio</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Territorio</p>
             <div className="mt-3 grid grid-cols-2 gap-2" role="group" aria-label="Copertura geografica">
               {([
                 {key: "IT", title: "Italia"},
@@ -198,7 +198,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
             <p className="mt-2 text-xs leading-5 text-[#64776a]">
               {territory === "IT" ? "Aziende con copertura italiana." : "Paesi europei disponibili, Italia inclusa. Copertura effettiva per Paese da verificare."}
             </p>
-            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">03 · Abbonamento</p>
+            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Periodicità</p>
             <div className="mt-3 grid grid-cols-2 gap-2" role="group" aria-label="Periodicità abbonamento">
               {([
                 {key: "monthly", title: "Mensile"},
