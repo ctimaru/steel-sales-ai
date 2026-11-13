@@ -11,7 +11,7 @@ const chrome=read("./netro14d-chrome-claimable-visual.mjs");
 
 test("NET-PROFILE-DATA1: only accepted evidence RPC supplies source-backed Free and Pro facts",()=>{
   assert.match(evidence,/netprofile1d_profile_evidence/);
-  assert.match(evidence,/data\.contract!=="netprofile1d-evidence-v1"/);
+  assert.ok(evidence.includes('data?.contract!=="netprofile1d-evidence-v1"'));
   assert.match(evidence,/summarizeReviewedCompanyEvidence/);
   assert.match(evidence,/\["description","products","services"\]/);
   assert.match(evidence,/item\.evidence_url/);
