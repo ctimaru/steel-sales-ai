@@ -338,6 +338,7 @@ jobs:
             netaudit1_1_spec_search.sql \
             netcontact1_public_company_channels.sql \
             netprofile_ux1b_inventory.sql \
+            netprofile_data2_verifier.sql \
             netprofile_ux1b_pending_drafts.sql \
             rfqmail1_recipient_opt_out.sql \
             hp13_permissions_tenant_isolation.sql \
