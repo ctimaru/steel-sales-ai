@@ -1,9 +1,17 @@
 import {NetworkProCatalog} from "@/components/network-pro-catalog";
+import {getNetworkProCoverage,getNetworkProAccess} from "@/lib/network-pro-coverage";
+import {getWorkspaceContext} from "@/lib/workspace-context";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 import {redirect} from "next/navigation";
 
-export default function NetworkProCatalogPage() {
+export const dynamic="force-dynamic";
+
+export default async function NetworkProCatalogPage() {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
-  // Workspace layout authenticates the viewer; catalog is informational for Free and PRO.
-  return <NetworkProCatalog />;
+  const context=await getWorkspaceContext();
+  const [coverage,access]=await Promise.all([
+    getNetworkProCoverage(context.organizationId),
+    getNetworkProAccess(context.organizationId),
+  ]);
+  return <NetworkProCatalog coverage={coverage} access={access}/>;
 }
