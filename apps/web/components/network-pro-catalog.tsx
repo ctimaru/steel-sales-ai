@@ -101,7 +101,8 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
             </div>
             <p className="mt-2 text-xs leading-5 text-[#536c5c]">
               Solo schede pubblicate e ruoli registrati nel database. Le aziende preliminari
-              non sono incluse nei numeri. Le carpenterie classificate come terzisti sono nel modulo
+              non sono incluse nei numeri e non costituiscono copertura commerciale pronta.
+              Le carpenterie classificate come terzisti sono nel modulo
               lavorazioni: non diventano automaticamente utilizzatori finali o acquirenti di tubi.
               Un’azienda appare in più moduli solo quando ha più ruoli registrati.
             </p>
