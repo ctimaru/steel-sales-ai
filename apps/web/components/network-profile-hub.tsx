@@ -33,7 +33,8 @@ function HubIcon({ kind }: { kind: NetworkProfileHubSection["icon"] }) {
 
 export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSection[] }) {
   const [selected, setSelected] = useState(
-    sections.find((section) => section.content !== undefined)?.id ?? "",
+    sections.find((section) => section.id === "attivita" && section.content !== undefined)?.id
+    ?? sections.find((section) => section.content !== undefined)?.id ?? "",
   );
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
@@ -62,7 +63,7 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
       </div>
 
       <div aria-label="Naviga la scheda"
-        className="grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-5"
+        className="grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]"
         data-testid="network-company-section-nav">
         {sections.map((section) => {
           const current = selected === section.id && section.content !== undefined;
@@ -71,7 +72,7 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
               aria-pressed={current}
               aria-controls={section.content !== undefined ? "company-hub-panel-" + section.id : undefined}
               onClick={() => section.targetId ? openTarget(section.targetId) : setSelected(section.id)}
-              className={"group flex min-h-[140px] min-w-0 flex-col items-start gap-3 rounded-[20px] border p-3.5 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840] sm:p-4 " +
+              className={"group flex min-h-[122px] min-w-0 flex-col items-start gap-2.5 rounded-[20px] border p-3 sm:min-h-[140px] sm:gap-3 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840] sm:p-4 " +
                 (current
                   ? "border-[#356e4e] bg-[#eef7f0] shadow-[0_8px_26px_-20px_rgba(16,82,46,0.6)]"
                   : "border-[#dce7df] bg-white hover:border-[#a2c5aa] hover:bg-[#f7fbf8]")}
