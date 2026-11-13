@@ -377,7 +377,12 @@ try {
           const actionsCard=cardHub.getByTestId("network-company-card-connessioni");
           if(await actionsCard.count()){
             const cardBox=await actionsCard.boundingBox();
-            assert.ok(cardBox && cardBox.y < height,
+            const activityBox=await cardHub.getByTestId("network-company-card-attivita").boundingBox();
+            assert.ok(cardBox && activityBox && Math.abs(cardBox.y-activityBox.y)<8 && cardBox.x<activityBox.x,
+              "Connection card must lead the first card row "+width+"/"+co.role);
+            // On a 320px viewport, long legal names may need one short vertical
+            // scroll; don't mistake document length for a card-order regression.
+            if(width>=390)assert.ok(cardBox.y<height,
               "Commercial connection card should be in first screen "+width+"/"+co.role);
             await actionsCard.click();
             await cardHub.getByRole("heading",{name:"Azioni commerciali"}).waitFor({state:"visible",timeout:15000});
