@@ -187,6 +187,34 @@ class TwoLevelHarvestTest(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("sponsor-fiera.it", str(items))
         self.assertEqual(set(items[0]), {"domain", "url", "evidence"})
 
+    async def test_profile_pause_honours_robots_crawl_delay(self):
+        pages = self.profiles()
+        async def fake_fetch(client, url, base):
+            return pages.get(url)
+        sleeps = []
+        async def fake_sleep(seconds):
+            sleeps.append(seconds)
+        with patch("app.net_it_seed1_pipeline._fetch_page", new=fake_fetch), \
+             patch("app.net_it_seed1_pipeline.robots_crawl_delay",
+                   new=AsyncMock(return_value=10.0)), \
+             patch("app.net_it_seed1_pipeline.asyncio.sleep", new=fake_sleep):
+            await two_level_items(object(), SOURCE, pages[SOURCE].links, 300)
+        self.assertEqual(sleeps, [10.0] * 5)          # 6 profiles, pause between them
+        sleeps.clear()
+        with patch("app.net_it_seed1_pipeline._fetch_page", new=fake_fetch), \
+             patch("app.net_it_seed1_pipeline.robots_crawl_delay",
+                   new=AsyncMock(return_value=600.0)), \
+             patch("app.net_it_seed1_pipeline.asyncio.sleep", new=fake_sleep):
+            await two_level_items(object(), SOURCE, pages[SOURCE].links, 300)
+        self.assertEqual(set(sleeps), {20.0})         # capped, never below the ask's cap
+        sleeps.clear()
+        with patch("app.net_it_seed1_pipeline._fetch_page", new=fake_fetch), \
+             patch("app.net_it_seed1_pipeline.robots_crawl_delay",
+                   new=AsyncMock(return_value=0.0)), \
+             patch("app.net_it_seed1_pipeline.asyncio.sleep", new=fake_sleep):
+            await two_level_items(object(), SOURCE, pages[SOURCE].links, 300)
+        self.assertEqual(set(sleeps), {0.4})          # default politeness pause
+
     async def test_harvest_uses_two_levels_only_when_index_links_few_sites(self):
         pages = self.profiles()
         async def fake_fetch(client, url, base):
