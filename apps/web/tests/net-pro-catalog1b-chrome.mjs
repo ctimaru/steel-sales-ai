@@ -125,6 +125,13 @@ try{
       assert.equal(await rights.count(),1,"Active IT producer link missing");
       assert.equal(await page.getByTestId("netpro1b-browse-IT-distributors").count(),0,
         "Unpaid distributors must not display browse link");
+      if(width<1024){
+        const priceBox=await page.getByTestId("network-pro-price").boundingBox();
+        const moduleBox=await page.getByTestId("network-pro-module-producers").boundingBox();
+        assert.ok(priceBox&&moduleBox&&priceBox.y<moduleBox.y,
+          "Mobile must show configuration and live price before the module cards");
+        checks++;
+      }
       const overflow=await page.evaluate(()=>({
         viewport:document.documentElement.clientWidth,
         content:document.documentElement.scrollWidth,
