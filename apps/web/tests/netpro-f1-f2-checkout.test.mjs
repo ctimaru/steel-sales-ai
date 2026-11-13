@@ -27,6 +27,10 @@ test("NETPRO F1 fail-closed: no checkout without provider and server-side price 
   assert.match(checkout,/context\.role!=="admin"/);
   assert.match(checkout,/new Set\(input\.modules\)\.size!==input\.modules\.length/);
   assert.match(checkout,/stripePriceId/);
+  assert.match(checkout,/await verifyNetworkProPortalReady\(\)/);
+  assert.match(stripe,/portal\.features\?\.subscription_cancel\?\.enabled!==true/);
+  assert.match(stripe,/portal\.features\?\.subscription_update\?\.enabled!==false/);
+  assert.match(stripe,/portal\.features\?\.payment_method_update\?\.enabled!==true/);
   assert.match(checkout,/await verifiedStripePrice/);
   assert.match(checkout,/context\.organizationId/);
   assert.match(checkout,/stripe_checkout_session_id/);
