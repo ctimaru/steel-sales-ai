@@ -76,12 +76,12 @@ export function verifyStripeSignature(payload:string,header:string|null,secret:s
   const timestamp=Number(entries.get("t"));
   if(!Number.isSafeInteger(timestamp)||timestamp<=0||
      Math.abs(nowSeconds-timestamp)>300)return false;
-  const expected=createHmac("sha256",secret).update(timestamp+"."+payload).digest();
+  const expected=Uint8Array.from(createHmac("sha256",secret).update(timestamp+"."+payload).digest());
   const signatures=header.split(",").filter(x=>x.trim().startsWith("v1="));
   return signatures.some(item=>{
     const hex=item.trim().slice(3);
     if(!/^[0-9a-f]{64}$/i.test(hex))return false;
-    const received=Buffer.from(hex,"hex");
+    const received=Uint8Array.from(Buffer.from(hex,"hex"));
     return received.length===expected.length&&timingSafeEqual(received,expected);
   });
 }
