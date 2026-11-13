@@ -45,6 +45,8 @@ export async function stripeCall<T=StripeObject>(
     method:options?.method||"GET",
     headers:{
       Authorization:"Bearer "+key,
+      // Pin the invoice-line and subscription-item shapes used in F.2.
+      "Stripe-Version":"2025-06-30.basil",
       ...(options?.params?{"Content-Type":"application/x-www-form-urlencoded"}:{}),
       ...(options?.idempotencyKey?{"Idempotency-Key":options.idempotencyKey}:{}),
     },
@@ -60,11 +62,13 @@ export async function verifiedStripePrice(id:string,interval:NetProBillingInterv
   if(!/^price_[A-Za-z0-9]{10,}$/.test(id))throw new Error("invalid_price_id");
   const price=await stripeCall<{
     id:string;active:boolean;currency:string;unit_amount:number|null;
-    recurring?:{interval:string};type:string;
+    recurring?:{interval:string;interval_count?:number};type:string;
+    tax_behavior?:string|null;
   }>("/prices/"+encodeURIComponent(id));
   if(price.id!==id||price.active!==true||price.currency!=="eur"||
      !Number.isSafeInteger(price.unit_amount)|| (price.unit_amount??0)<=0 ||
-     price.type!=="recurring"||
+     price.type!=="recurring"||price.tax_behavior!=="exclusive"||
+     price.recurring?.interval_count!==1||
      price.recurring?.interval!==(interval==="monthly"?"month":"year"))
     throw new Error("stripe_price_not_approved");
   return price;
