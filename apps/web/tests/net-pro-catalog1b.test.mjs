@@ -44,7 +44,8 @@ test("B: coverage totals distinguish published multi-role companies and unconfir
   assert.match(sql,/private\.netfast_discovered_records/);
   assert.match(sql,/provisional_modules/);
   assert.match(sql,/jsonb_build_object\('contract','netpro1b-coverage-v1'/);
-  assert.match(sql,/perform private\.netux11_require_active_company\(p_organization_id\)/);
+  assert.match(sql,/No authorized organization for coverage/);
+  assert.match(sql,/o\.onboarding_status is distinct from 'suspended'/);
   assert.doesNotMatch(sql,/from public\.commercial_memory|public\.private_customer/i);
 });
 
