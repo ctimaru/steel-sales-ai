@@ -60,6 +60,11 @@ export async function FreeNetworkProfileView({
           services={reviewedSummary.services}
           evidenceSourceUrl={safeNetworkWebsiteUrl(reviewedSummary.evidenceSourceUrl)}
           website={website}
+          stockCount={inventory.length}
+          stockContent={inventory.length ? <NetworkProfileInventory items={inventory} /> : undefined}
+          connectionsAvailable={Boolean((status==="available"&&canConnect) || status==="pending" || status==="connected")}
+          hasTechnicalDetails={Boolean(reviewedEvidence.length || provisional || profile.products.length || profile.facilities.length)}
+          detailsTargetId="network-profile-free-evidence"
           actions={
             status==="available"&&canConnect ? (
               <Link href={"/network/"+companyId+"/connect"}
@@ -76,12 +81,6 @@ export async function FreeNetworkProfileView({
           }
         />
       </div>
-      {inventory.length ? (
-        <nav aria-label="Naviga la scheda" className="flex flex-wrap gap-2 text-xs" data-testid="network-company-section-nav">
-          <a href="#stock" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Vedi stock dichiarato</a>
-        </nav>
-      ) : null}
-      {inventory.length ? <div className="mt-4"><NetworkProfileInventory items={inventory} /></div> : null}
 
       {(provisional || isWorkspaceAdmin && ["unclaimed","revoked"].includes(profile.company.claimed_status)) ? (
         <details className="mt-4 rounded-2xl border border-[#dce6e0] bg-white p-4 text-sm">
@@ -100,7 +99,7 @@ export async function FreeNetworkProfileView({
       ) : null}
 
       {(reviewedEvidence.length>0 || provisional || profile.products.length>0 || profile.facilities.length>0) ? (
-        <details data-testid="network-profile-free-evidence" className="mt-4 rounded-2xl border border-[#dce6e0] bg-white p-4 sm:p-5">
+        <details id="network-profile-free-evidence" data-testid="network-profile-free-evidence" className="mt-4 rounded-2xl border border-[#dce6e0] bg-white p-4 sm:p-5">
           <summary className="cursor-pointer text-sm font-semibold text-[#175640]">Approfondimenti, sedi e fonti aziendali</summary>
           {reviewedEvidence.length>0 ? (
             <section aria-label="Informazioni aziendali con fonte" className="mt-5">

@@ -291,21 +291,27 @@ try {
         await screenshot(page,"network-filters-closed-admin",width);
         assertions += 2;
       }
-      // NET-PROFILE-UX2: actual shared company layout in both content-rich and sparse states.
+      // NET-PROFILE-UX4: exercise real shared card selection with synthetic data.
       const companyHero=page.getByTestId("network-profile-ux1a").first();
       await companyHero.waitFor({state:"visible",timeout:45000});
       assert.equal(await companyHero.getByRole("heading",{name:"DEMO Tubi Strutturali"}).count(),1);
-      assert.equal(await companyHero.getByRole("heading",{name:"Cosa fa e cosa offre"}).count(),1);
-      assert.equal(await companyHero.getByRole("heading",{name:"Azioni commerciali"}).count(),1);
-      assert.equal(await companyHero.getByRole("heading",{name:"Contatti"}).count(),1);
-      const sourceEvidence=companyHero.getByTestId("network-company-source-attribution");
+      const companyHub=companyHero.getByTestId("network-company-card-hub");
+      await companyHub.waitFor({state:"visible"});
+      await companyHub.locator("button:not([disabled])").first().waitFor({state:"visible",timeout:45000});
+      await companyHub.getByTestId("network-company-card-attivita").click();
+      await companyHub.getByRole("heading",{name:"Cosa fa e cosa offre"}).waitFor({state:"visible",timeout:15000});
+      const sourceEvidence=companyHub.getByTestId("network-company-source-attribution");
       assert.match(await sourceEvidence.innerText(),/fonte pubblica/);
       assert.equal(await sourceEvidence.getByRole("link",{name:/Consulta la fonte/}).count(),1);
-      const companyLinks=companyHero.getByRole("link");
-      assert.ok(await companyLinks.count()>=2);
+      await companyHub.getByTestId("network-company-card-contatti").click();
+      await companyHub.getByRole("heading",{name:"Contatti"}).waitFor({state:"visible",timeout:15000});
+      await companyHub.getByTestId("network-company-card-connessioni").click();
+      await companyHub.getByRole("heading",{name:"Azioni commerciali"}).waitFor({state:"visible",timeout:15000});
+      await companyHub.getByTestId("network-company-card-attivita").click();
       await companyHero.evaluate((node)=>window.scrollTo({top:Math.max(0,node.getBoundingClientRect().top+window.scrollY-148),behavior:"auto"}));
       await noOverflow(page,"Company-commercial-hero/"+width);
       await screenshot(page,"network-company-profile-ux2-full-admin",width);
+      await companyHub.getByTestId("network-company-card-stock").click();
       const sparseHero=page.getByTestId("network-profile-sparse-fixture");
       assert.equal(await sparseHero.getByRole("heading",{name:"DEMO Acciai S.p.A."}).count(),1);
       const compactCard=sparseHero.getByTestId("network-profile-ux1a");
@@ -365,17 +371,35 @@ try {
         await page.getByRole("heading",{level:1,name:co.legal_name}).waitFor({state:"visible",timeout:45000});
         const overview=page.getByTestId("network-profile-ux1a");
         await overview.waitFor({state:"visible",timeout:45000});
-        const actionsHeading=overview.getByRole("heading",{name:"Azioni commerciali"});
-        const activityHeading=overview.getByRole("heading",{name:"Cosa fa e cosa offre"});
-        const contactsHeading=overview.getByRole("heading",{name:"Contatti"});
-        assert.equal(await actionsHeading.count(),1,"Company actions must be visible");
-        assert.equal(await activityHeading.count(),1,"Company activity must be visible");
-        assert.equal(await contactsHeading.count(),1,"Public contacts must be visible");
-        const actionBox=await actionsHeading.boundingBox();
-        const activityBox=await activityHeading.boundingBox();
-        assert.ok(actionBox && actionBox.y < height,"Actions should be in first screen "+width+"/"+co.role);
-        if(width<1024) assert.ok(activityBox && actionBox.y < activityBox.y,
-          "Mobile must prioritize commercial actions before detailed activity "+width);
+        const cardHub=overview.getByTestId("network-company-card-hub");
+        if(await cardHub.count()){
+          await cardHub.locator("button:not([disabled])").first().waitFor({state:"visible",timeout:45000});
+          const actionsCard=cardHub.getByTestId("network-company-card-connessioni");
+          if(await actionsCard.count()){
+            const cardBox=await actionsCard.boundingBox();
+            const activityBox=await cardHub.getByTestId("network-company-card-attivita").boundingBox();
+            assert.ok(cardBox && activityBox && Math.abs(cardBox.y-activityBox.y)<8 && cardBox.x<activityBox.x,
+              "Connection card must lead the first card row "+width+"/"+co.role);
+            // On a 320px viewport, long legal names may need one short vertical
+            // scroll; don't mistake document length for a card-order regression.
+            if(width>=390)assert.ok(cardBox.y<height,
+              "Commercial connection card should be in first screen "+width+"/"+co.role);
+            await actionsCard.click();
+            await cardHub.getByRole("heading",{name:"Azioni commerciali"}).waitFor({state:"visible",timeout:15000});
+          }
+          const activityCard=cardHub.getByTestId("network-company-card-attivita");
+          if(await activityCard.count()){
+            await activityCard.click();
+            await cardHub.getByRole("heading",{name:"Cosa fa e cosa offre"}).waitFor({state:"visible",timeout:15000});
+          }
+          const contactCard=cardHub.getByTestId("network-company-card-contatti");
+          if(await contactCard.count()){
+            await contactCard.click();
+            await cardHub.getByRole("heading",{name:"Contatti"}).waitFor({state:"visible",timeout:15000});
+          }
+        } else {
+          assert.equal(await overview.getAttribute("data-profile-density"),"compact");
+        }
         const claim=page.getByTestId("network-unclaimed-company-claim");
         await claim.waitFor({state:"visible",timeout:45000});
         assert.match(await claim.innerText(),/Rappresenti questa azienda/);

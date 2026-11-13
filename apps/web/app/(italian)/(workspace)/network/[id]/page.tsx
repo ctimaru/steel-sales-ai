@@ -349,6 +349,11 @@ export default async function NetworkCompanyProfilePage({
         website={website}
         email={emailContact?.email}
         phone={phoneContact?.phone}
+        stockCount={publishedInventory.length}
+        stockContent={publishedInventory.length ? <NetworkProfileInventory items={publishedInventory} /> : undefined}
+        connectionsAvailable={Boolean((inquiryEligible && canInteract) || (organizationId && canWriteWorkspace(membershipRole)))}
+        hasTechnicalDetails={Boolean(profile.facilities.length || profile.markets.length || profile.certifications.length || productGroups.length || technicalStandards.length || technicalGrades.length)}
+        detailsTargetId="network-profile-technical-details"
         actions={
           <>
             {inquiryEligible && canInteract ? (
@@ -365,12 +370,6 @@ export default async function NetworkCompanyProfilePage({
           </>
         }
       />
-      {publishedInventory.length ? (
-        <nav aria-label="Naviga la scheda" className="flex flex-wrap gap-2" data-testid="network-company-section-nav">
-          <a href="#stock" className="inline-flex min-h-9 items-center rounded-full border border-[#d9e7dc] bg-white px-4 text-xs font-semibold text-[#285b42] hover:bg-[#f1f8f2]">Vedi stock dichiarato</a>
-        </nav>
-      ) : null}
-      <NetworkProfileInventory items={publishedInventory} />
 
       {["unclaimed", "revoked"].includes(profile.company.claimed_status) &&
         (!adminOrganizationId || !claimState || ["rejected", "revoked"].includes(claimState.status)) ? (
@@ -416,7 +415,7 @@ export default async function NetworkCompanyProfilePage({
         </section>
       ) : null}
 
-      <details data-testid="network-profile-technical-details" className="rounded-[24px] border border-[#d7e6db] bg-white p-3.5 shadow-[0_6px_24px_-22px_rgba(17,65,43,0.3)] sm:p-5">
+      <details id="network-profile-technical-details" data-testid="network-profile-technical-details" className="rounded-[24px] border border-[#d7e6db] bg-white p-3.5 shadow-[0_6px_24px_-22px_rgba(17,65,43,0.3)] sm:p-5">
         <summary className="flex min-h-12 cursor-pointer list-item items-center rounded-xl px-2 py-2 text-sm font-semibold text-[#20533b] marker:text-[#286344] hover:bg-[#f4f8f5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#256646]">
           Esplora dati tecnici, sedi e certificazioni
           <span className="ml-2 text-xs font-normal text-[#65786c]">— Informazioni complete e fonti</span>
