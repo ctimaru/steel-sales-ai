@@ -228,7 +228,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
             </div>
             <div className="mt-4 rounded-xl border border-[#e1e9e3] bg-[#f4f8f5] p-3">
               <p className="text-xs font-semibold text-[#244f3b]">Attivazioni non ancora aperte</p>
-              <p className="mt-1 text-xs leading-5 text-[#596e60]">I diritti per categoria e Paese sono verificati nel database e assegnabili soltanto da un operatore autorizzato. Checkout, fatturazione e acquisto self-service non sono disponibili.</p>
+              <p className="mt-1 text-xs leading-5 text-[#596e60]">Checkout, fatturazione e permessi self-service non sono disponibili. I diritti per categoria e Paese sono verificati nel database e assegnabili soltanto da un operatore autorizzato.</p>
             </div>
             <Link href="/network" className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#b5d2bf] bg-white px-3 text-sm font-semibold text-[#205a3d] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
               Esplora il Network
