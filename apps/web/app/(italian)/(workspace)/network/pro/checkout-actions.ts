@@ -6,7 +6,7 @@ import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 import {NETWORK_PRO_MODULES,networkProQuote,type NetworkProModuleKey,type NetworkProTerritory} from "@/lib/network-pro-catalog";
 import {
   netProBillingEnabled,stripePriceId,stripeCall,verifiedStripePrice,trustedBillingOrigin,
-  type NetProBillingInterval,
+  type NetProBillingInterval,verifyNetworkProPortalReady,
 } from "@/lib/netpro-billing-stripe.server";
 
 type CheckoutRequest={
@@ -49,6 +49,8 @@ export async function startNetworkProCheckout(input:CheckoutRequest):Promise<Che
     return {status:"unavailable",message:"Il listino di pagamento non è ancora configurato."};
 
   try{
+    // Never take a payment until self-service cancel/invoice/payment methods work.
+    await verifyNetworkProPortalReady();
     const verifiedPrice=await verifiedStripePrice(priceId,input.interval);
     // Billing must never silently charge a different amount than the on-page quote.
     // Stripe Tax calculates additional taxes in Stripe Checkout.
