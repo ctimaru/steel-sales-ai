@@ -3,7 +3,7 @@ import fs from "node:fs";
 import test from "node:test";
 
 const get=(path)=>fs.readFileSync(new URL("../"+path,import.meta.url),"utf8");
-const sql=get("../../../supabase/migrations/20261113104500_net_pro_catalog1b_scoped_access_coverage.sql");
+const sql=get("../../supabase/migrations/20261113104500_net_pro_catalog1b_scoped_access_coverage.sql");
 const parser=get("lib/network-pro-coverage.ts");
 const ui=get("components/network-pro-catalog.tsx");
 const catalogPage=get("app/(italian)/(workspace)/network/pro/page.tsx");
