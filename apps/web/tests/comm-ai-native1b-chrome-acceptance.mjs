@@ -173,6 +173,20 @@ try {
           assert.equal(await shell.getByTestId("commercial-ai-native-turn").count(), 0,
             "New chat must clear the transient thread without database mutations");
           assert.ok(await input.isVisible());
+          // COMM-DESK-AI2: a question about the user's own desk filters the table
+          // below without leaving the conversation and without an AI call.
+          await shell.getByTestId("commercial-ai-native-desk-shortcut").click();
+          assert.equal(await input.inputValue(), "Quali richieste scadono questa settimana?");
+          await input.press("Enter");
+          await page.waitForURL(url => url.pathname === "/commercial" &&
+            url.searchParams.get("focus") === "due", { timeout: 60000 });
+          await page.getByTestId("commercial-focus-active").waitFor({ state: "visible", timeout: 60000 });
+          assert.equal(await shell.getByTestId("commercial-ai-native-turn").count(), 1,
+            "The conversation must survive the table filter navigation");
+          assert.match(await shell.getByTestId("commercial-ai-native-turn").first().innerText(), /In scadenza/);
+          assert.equal(await shell.getByTestId("commercial-ai-native-desk-filter").count(), 1);
+          assert.ok((await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)) <= 12,
+            "Desk filter must not create horizontal overflow");
         }
         console.log("COMM-AI-NATIVE1.B CHROME PASS", person.id, width);
       } finally {

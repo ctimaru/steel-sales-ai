@@ -89,7 +89,7 @@ export const commercialDirectorGroups: readonly CommercialDirectorGroup[] = [
     label: "Strumenti",
     description: "Ricerca, AI e calcoli",
     items: [
-      { label: "Calcolatrice pesi", href: appRoutes.commercial.home + "?experience=classic#commercial-tool-access" },
+      { label: "Calcolatrice pesi", href: appRoutes.commercial.home + "?tools=1#commercial-tool-access" },
       { label: "Ricerca nello storico", href: appRoutes.commercial.search },
     ],
     moreItems: [

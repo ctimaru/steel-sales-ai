@@ -34,7 +34,7 @@ export const dynamic = "force-dynamic";
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ experience?: string; view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string }>;
+  searchParams: Promise<{ experience?: string; tools?: string; view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -194,9 +194,10 @@ export default async function CommercialHomePage({
 
       <CommercialRequestSummary view={view} counts={requestSummary} tools={
         <details id="commercial-tool-access" data-testid="commercial-primary-quick-actions"
+          open={params.tools === "1" || undefined}
           className="group relative shrink-0 scroll-mt-28 [&_summary::-webkit-details-marker]:hidden">
           <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-lg border border-[#d6e5db] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]">
-            Strumenti <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
+            Calcolatrice e storico <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
           </summary>
           <div className="mt-1 flex min-w-[260px] flex-col items-stretch gap-2 rounded-xl border border-[#d6e5db] bg-white p-3 shadow-lg sm:absolute sm:right-0 sm:top-full sm:z-30"
             data-testid="commercial-alternative-methods">
@@ -233,7 +234,7 @@ export default async function CommercialHomePage({
                Assistente AI · prepara distinta
              </Link>
            ) : null}
-           <Link href={appRoutes.commercial.home + "?experience=classic#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
+           <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
           </div>
           ) : <h2 id="commercial-compose-heading" className="sr-only">Nuova distinta conversazionale</h2>}
           <BuyerDistintaBuilder
