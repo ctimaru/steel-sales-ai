@@ -22,19 +22,19 @@ export const NETWORK_PRO_MODULES = [
   },
   {
     key: "end_users",
-    title: "Carpenterie e utilizzatori",
+    title: "Utilizzatori industriali",
     role: "end_user",
-    description: "Carpenterie, costruttori di macchinari, OEM, EPC e utilizzatori industriali.",
-    audience: "Per produttori e commercianti",
-    example: "Quali carpenterie lavorano tubolari strutturali?",
+    description: "OEM, costruttori di macchinari e aziende classificate come utilizzatori finali. Le carpenterie e i terzisti sono nel modulo lavorazioni.",
+    audience: "Per produttori e distributori di acciaio",
+    example: "Quali utilizzatori industriali sono presenti nel Network italiano?",
   },
   {
     key: "processors",
-    title: "Terzisti e lavorazioni",
+    title: "Carpenterie e lavorazioni",
     role: "processor_service_provider",
-    description: "Taglio, zincatura, saldatura, piegatura, verniciatura e lavorazioni specialistiche.",
+    description: "Carpenterie metalliche e terzisti: taglio, saldatura, piegatura, zincatura, verniciatura e lavorazioni specialistiche. Il ruolo non certifica l’uso di tubi specifici.",
     audience: "Per tutta la filiera",
-    example: "Trova aziende con taglio laser e zincatura in Lombardia.",
+    example: "Quali carpenterie e terzisti operano in Lombardia?",
   },
 ] as const;
 

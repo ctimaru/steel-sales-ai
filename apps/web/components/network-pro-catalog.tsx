@@ -100,9 +100,11 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
               {coverage?<span className="text-[11px] text-[#607467]">Rilevazione {coverage.asOf.slice(0,10)}</span>:null}
             </div>
             <p className="mt-2 text-xs leading-5 text-[#536c5c]">
-              Solo schede pubblicate e ruoli documentati nel database. Le aziende preliminari
-              sono separate e non costituiscono copertura commerciale pronta. Una stessa azienda
-              può essere presente in più moduli.
+              Solo schede pubblicate e ruoli registrati nel database. Le aziende preliminari
+              non sono incluse nei numeri e non costituiscono copertura commerciale pronta.
+              Le carpenterie classificate come terzisti sono nel modulo
+              lavorazioni: non diventano automaticamente utilizzatori finali o acquirenti di tubi.
+              Un’azienda appare in più moduli solo quando ha più ruoli registrati.
             </p>
             {!coverage?
               <p className="mt-4 rounded-xl border border-[#e5d4aa] bg-[#fffaf0] p-3 text-sm text-[#6b542c]" role="status">
