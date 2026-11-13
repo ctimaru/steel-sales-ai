@@ -239,7 +239,7 @@ const sections: NetworkProfileHubSection[] = [];
       className="min-w-0 space-y-4 sm:space-y-5">
       <header className="min-w-0 overflow-hidden rounded-[24px] border border-[#d9e5dc] bg-white shadow-[0_12px_32px_-26px_rgba(17,65,43,0.35)]">
         <div className="h-1.5 bg-[#1b5c40]" aria-hidden="true" />
-        <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_308px] lg:items-start">
+        <div className={"grid min-w-0 lg:items-start " + (website ? "lg:grid-cols-[minmax(0,1fr)_308px]" : "")}>
           <div className="min-w-0 p-4 sm:p-6 lg:p-7">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#4f745c]">Azienda nel Network</p>
             <div className="mt-3 flex min-w-0 items-start gap-3.5 sm:gap-5">
@@ -261,7 +261,7 @@ const sections: NetworkProfileHubSection[] = [];
             </div>
             {description ? <p className="mt-4 line-clamp-2 text-xs leading-5 text-[#52655a] sm:text-sm">{description}</p> : null}
           </div>
-          <aside className="min-w-0 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:border-l lg:border-t-0 lg:p-6">
+          {website ? <aside className="min-w-0 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:border-l lg:border-t-0 lg:p-6">
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#496b54]">Accesso rapido</p>
             {website ? <a href={website} target="_blank" rel="noopener noreferrer"
               className="app-primary mt-3 flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white">
@@ -270,7 +270,7 @@ const sections: NetworkProfileHubSection[] = [];
             <p className="mt-3 text-xs leading-5 text-[#687b6d]">
               Esplora prodotti, contatti e informazioni pubblicate selezionando le card.
             </p>
-          </aside>
+          </aside> : null}
         </div>
       </header>
 
