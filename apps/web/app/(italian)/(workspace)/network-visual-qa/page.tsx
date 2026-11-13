@@ -110,6 +110,9 @@ export default async function NetworkVisualQaPage(){
           products={["Tubi tondi saldati", "Profilati cavi rettangolari", "Profilati cavi quadrati"]}
           services={["Taglio a misura", "Lavorazioni meccaniche"]}
           email="contatti@example.invalid"
+          stockCount={stockVisualFixture.length}
+          stockContent={<NetworkProfileInventory items={stockVisualFixture} />}
+          connectionsAvailable={true}
           actions={<a href="#attivita" className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white">Esplora attività ↗</a>}
         />
         <div data-testid="network-profile-sparse-fixture" className="pt-2">
@@ -119,10 +122,10 @@ export default async function NetworkVisualQaPage(){
             primaryRole="Commerciante"
             roles={["Commerciante"]}
             website="https://example.org"
+            connectionsAvailable={true}
             actions={<a href="#contatti" className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#cbded0] bg-white px-4 text-sm font-semibold text-[#23553c]">Esplora i contatti</a>}
           />
         </div>
-        <NetworkProfileInventory items={stockVisualFixture} />
         <NetworkInventoryManager
           organizationId={organizationId}
           companyId={stockVisualFixture[0].company_id}
