@@ -234,6 +234,11 @@ const sections: NetworkProfileHubSection[] = [];
     });
   }
 
+  // Keep the commercial next step visible in the first row on mobile.
+  // Activity stays the default open panel, but connections become easy to find.
+  const hubOrder = ["connessioni", "attivita", "contatti", "stock", "approfondimenti"];
+  sections.sort((a, b) => hubOrder.indexOf(a.id) - hubOrder.indexOf(b.id));
+
   return (
     <article aria-label="Profilo aziendale" data-testid="network-profile-ux1a" data-profile-density="rich"
       className="min-w-0 space-y-4 sm:space-y-5">
