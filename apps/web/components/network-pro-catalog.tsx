@@ -262,7 +262,9 @@ export function NetworkProCatalog({coverage,access,canCheckout,billingReady,hasP
               {quote.count > 1 ? <p className="mt-2 text-xs font-medium text-[#326e4d]">Sconto combinazione già applicato.</p> : null}
               {quote.count === 0 ? <p className="mt-3 text-xs text-[#926328]">Seleziona almeno un modulo per configurare l'offerta.</p> : null}
               <p className="mt-4 text-xs leading-5 text-[#52695a]">
-                Prezzi proposti, ancora da validare con i clienti pilota. Nessun ordine o pagamento viene creato da questa schermata.
+                {billingReady
+                  ? "Il prezzo esatto, l’IVA e le condizioni di rinnovo sono riepilogati su Stripe prima della conferma di pagamento. L’accesso si sblocca soltanto dopo il pagamento verificato."
+                  : "Prezzi proposti, ancora da validare con i clienti pilota. Nessun ordine o pagamento viene creato da questa schermata."}
               </p>
             </div>
             <div className="mt-4 rounded-xl border border-[#e1e9e3] bg-[#f4f8f5] p-3">
