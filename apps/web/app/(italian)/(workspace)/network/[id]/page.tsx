@@ -305,6 +305,17 @@ export default async function NetworkCompanyProfilePage({
   const publishedInventory = await getPublishedNetworkInventory(context.organizationId, profile.company.id);
   const reviewedEvidence = await getReviewedCompanyEvidence(context.organizationId,profile.company.id,"pro").catch(()=>[]);
   const reviewedSummary = summarizeReviewedCompanyEvidence(reviewedEvidence);
+  const hasCompanyDeclarations = [
+    ...profile.products, ...profile.facilities, ...profile.subtypes,
+    ...profile.contacts, ...profile.markets, ...profile.certifications,
+  ].some((item) => item.provenance_kind === "company_declared");
+  const technicalTopics = [
+    productGroups.length ? "Prodotti e lavorazioni" : null,
+    profile.facilities.length ? "Sedi e stabilimenti" : null,
+    technicalStandards.length || technicalGrades.length ? "Norme e gradi" : null,
+    profile.certifications.length ? "Certificazioni pubblicate" : null,
+    profile.markets.length ? "Mercati e applicazioni" : null,
+  ].filter((item): item is string => Boolean(item));
   const locationLabels = uniqueBy(
     profile.facilities
       .map((facility) => [facility.city, facility.country_code].filter(Boolean).join(", "))
@@ -345,6 +356,10 @@ export default async function NetworkCompanyProfilePage({
         products={[...productGroups.map((product) => networkNameIt(product.name)), ...reviewedSummary.products]}
         services={[...profile.subtypes.map((subtype) => networkNameIt(subtype.name)), ...capabilities.map((capability) => networkNameIt(capability.name)), ...reviewedSummary.services]}
         evidenceSourceUrl={safeNetworkWebsiteUrl(reviewedSummary.evidenceSourceUrl)}
+        identityTrust={profile.trust.verified ? "verified" : profile.trust.claimed ? "claimed" : "unverified"}
+        hasCompanyDeclarations={hasCompanyDeclarations}
+        hasVerifiedFields={verifiedAssetCount > 0}
+        technicalTopics={technicalTopics}
         logoUrl={logoUrl}
         website={website}
         email={emailContact?.email}
