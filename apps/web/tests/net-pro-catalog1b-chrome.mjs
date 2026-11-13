@@ -70,6 +70,26 @@ const selfGrant=await authRpc(producer,"netpro1b_module_event",{
 });
 assert.equal(selfGrant.error?.code,"42501","Customer cannot grant their own PRO modules");
 
+// A historical, expired grant must never unlock a paid module, even when its
+// event is the most recent one. Insert directly only in the disposable CI DB
+// to simulate elapsed wall-clock time without sleeping/flaky timers.
+const expiredFixture=await service.from("organization_product_entitlement_events").insert({
+  organization_id:trader.org,
+  product_key:"network_pro_distributors_it",
+  event_type:"granted",source_kind:"pilot",source_reference:"netpro1b-ci-expiry",
+  idempotency_key:"netpro1b-ci-local-trader-expired-it",
+  effective_at:new Date(Date.now()-86_400_000).toISOString(),
+  expires_at:new Date(Date.now()-3_600_000).toISOString(),
+  actor_authority_type:"system",
+  metadata:{fixture:"netpro1b-disposable-expiry-check"},
+});
+assert.ifError(expiredFixture.error);
+const expiredAccess=await authRpc(trader,"netpro1b_scoped_directory",{
+  p_organization_id:trader.org,p_module:"distributors",p_country:"IT",
+  p_page:1,p_limit:18,
+});
+assert.equal(expiredAccess.error?.code,"42501","Expired module grant must not unlock access");
+
 const browser=await chromium.launch({channel:"chrome",headless:true});
 let checks=0;
 async function login(person,width){
@@ -150,6 +170,6 @@ try{
     p_page:1,p_limit:18,
   });
   assert.equal(afterRevoke.error?.code,"42501","Revocation must fail closed");
-  checks+=7;
+  checks+=8;
   console.log("NET-PRO-CATALOG1.B PASS:",checks,"checks, real local JWT + 1440/390/320");
 }finally{await browser.close();}
