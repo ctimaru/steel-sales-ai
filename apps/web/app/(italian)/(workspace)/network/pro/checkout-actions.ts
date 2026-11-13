@@ -3,7 +3,7 @@
 import {createClient as createServiceClient} from "@supabase/supabase-js";
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
-import {NETWORK_PRO_MODULES,type NetworkProModuleKey,type NetworkProTerritory} from "@/lib/network-pro-catalog";
+import {NETWORK_PRO_MODULES,networkProQuote,type NetworkProModuleKey,type NetworkProTerritory} from "@/lib/network-pro-catalog";
 import {
   netProBillingEnabled,stripePriceId,stripeCall,verifiedStripePrice,trustedBillingOrigin,
   type NetProBillingInterval,
@@ -49,7 +49,12 @@ export async function startNetworkProCheckout(input:CheckoutRequest):Promise<Che
     return {status:"unavailable",message:"Il listino di pagamento non è ancora configurato."};
 
   try{
-    await verifiedStripePrice(priceId,input.interval);
+    const verifiedPrice=await verifiedStripePrice(priceId,input.interval);
+    // Billing must never silently charge a different amount than the on-page quote.
+    // Stripe Tax calculates additional taxes in Stripe Checkout.
+    const publishedQuote=networkProQuote(input.modules,input.territory,input.interval);
+    if(verifiedPrice.unit_amount!==Math.round(publishedQuote.displayedTotal*100))
+      return {status:"unavailable",message:"Il listino non corrisponde al prezzo configurato. Nessun addebito eseguito."};
     const db=serviceDb();
     const modules=[...input.modules].sort();
     // The unique partial index rejects duplicate active/pending purchases per organization.
