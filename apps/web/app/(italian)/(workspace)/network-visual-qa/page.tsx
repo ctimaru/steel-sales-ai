@@ -122,9 +122,32 @@ export default async function NetworkVisualQaPage(){
             primaryRole="Commerciante"
             roles={["Commerciante"]}
             website="https://example.org"
-            connectionsAvailable={true}
-            actions={<a href="#contatti" className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#cbded0] bg-white px-4 text-sm font-semibold text-[#23553c]">Esplora i contatti</a>}
+            connectionsAvailable={false}
           />
+        </div>
+        <div data-testid="network-profile-sparse-action-fixture" className="pt-2">
+          <NetworkProfileOverview
+            name="DEMO Ferramenta Industriale"
+            countryCode="IT"
+            primaryRole="Terzista"
+            website="https://example.org"
+            connectionsAvailable={true}
+            actions={<a href="#network-profile-sparse-action-fixture"
+              className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold">Connetti</a>}
+          />
+        </div>
+        <div data-testid="network-profile-provisional-fixture" className="pt-2">
+          <NetworkProfileOverview
+            name="DEMO Profilo da fonte pubblica"
+            countryCode="IT"
+            website="https://example.org"
+            hasTechnicalDetails={true}
+            detailsTargetId="fixture-provisional-evidence"
+          />
+          <details id="fixture-provisional-evidence" className="mt-2 p-3">
+            <summary>Fonte pubblica e attendibilità</summary>
+            Identità non ancora confermata dall'azienda
+          </details>
         </div>
         <NetworkInventoryManager
           organizationId={organizationId}
