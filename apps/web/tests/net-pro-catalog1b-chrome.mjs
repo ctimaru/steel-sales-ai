@@ -133,7 +133,7 @@ try{
   }finally{await context.close();}
   // Legacy full-Network PRO buyer and viewer must retain existing full-scope access.
   const shared=await authRpc(buyerViewer,"netpro1b_scoped_directory",{
-    p_organization_id:producer.org,p_module:"producers",p_country:"IT",
+    p_organization_id:buyer.org,p_module:"producers",p_country:"IT",
     p_page:1,p_limit:18,
   });
   assert.ifError(shared.error);
@@ -143,7 +143,7 @@ try{
     ...event,p_event_type:"revoked",p_idempotency_key:"netpro1b-ci-local-revoke-producer-it",
   });
   assert.ifError(revoked.error);
-  const afterRevoke=await authRpc(buyer,"netpro1b_scoped_directory",{
+  const afterRevoke=await authRpc(producer,"netpro1b_scoped_directory",{
     p_organization_id:producer.org,p_module:"producers",p_country:"IT",
     p_page:1,p_limit:18,
   });
