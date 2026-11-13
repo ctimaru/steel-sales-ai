@@ -1,7 +1,7 @@
 "use server";
 
 import {getWorkspaceContext} from "@/lib/workspace-context";
-import {netProBillingEnabled,stripeCall,trustedBillingOrigin} from "@/lib/netpro-billing-stripe.server";
+import {netProBillingEnabled,stripeCall,trustedBillingOrigin,verifyNetworkProPortalReady} from "@/lib/netpro-billing-stripe.server";
 import {billingDb} from "@/lib/netpro-billing-reconcile.server";
 
 type PortalResult={status:"ready";url:string}|{status:"unavailable"|"forbidden";message:string};
@@ -24,6 +24,7 @@ export async function openNetworkProCustomerPortal():Promise<PortalResult>{
     if(error||!data?.stripe_customer_id)return {
       status:"unavailable",message:"Nessun abbonamento pagato disponibile.",
     };
+    await verifyNetworkProPortalReady();
     const portalConfig=process.env.STRIPE_NETPRO_PORTAL_CONFIGURATION_ID;
     // Portal configuration MUST disallow subscription plan changes until
     // module/territory upgrade reconciliation is implemented and verified.
