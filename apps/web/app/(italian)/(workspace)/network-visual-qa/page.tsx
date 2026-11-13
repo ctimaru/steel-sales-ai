@@ -113,6 +113,7 @@ export default async function NetworkVisualQaPage(){
           stockCount={stockVisualFixture.length}
           stockContent={<NetworkProfileInventory items={stockVisualFixture} />}
           connectionsAvailable={true}
+          primaryConnectionAvailable={true}
           actions={<a href="#attivita" className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white">Esplora attività ↗</a>}
         />
         <div data-testid="network-profile-sparse-fixture" className="pt-2">
