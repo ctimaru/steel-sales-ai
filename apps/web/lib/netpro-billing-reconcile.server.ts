@@ -74,10 +74,28 @@ export async function reconcilePaidCheckout(intentId:string):Promise<ReconcileRe
   const invoiceId=getId(subscription.latest_invoice,"in");
   if(!invoiceId)return {status:"pending"};
   const invoice=await stripeCall<StripeRecord>("/invoices/"+invoiceId);
+  // The paid invoice must explicitly belong to the SAME subscription, and
+  // its recurring line must cover this paid item's period. A paid but unrelated
+  // invoice, prorated credit or old billing cycle must never grant extra time.
+  const invoiceParent=asObject(invoice.parent);
+  const subscriptionDetails=asObject(invoiceParent?.subscription_details);
+  const linkedSubscription=getId(subscriptionDetails?.subscription,"sub")||
+    getId(invoice.subscription,"sub");
+  const invoiceLines=asObject(invoice.lines)?.data;
+  const matchingLine=Array.isArray(invoiceLines)
+    ? invoiceLines.map(asObject).find(line=>{
+        if(!line)return false;
+        const details=asObject(asObject(line.parent)?.subscription_item_details);
+        const price=getId(asObject(line.pricing)?.price_details?.price,"price")||
+          getId(line.price,"price");
+        return price===intent.stripe_price_id&&
+          getId(details?.subscription,"sub")===subscriptionId&&
+          Number(asObject(line.period)?.end)>=Number(periodEnd);
+      }):null;
   if(!stripeModeMatches([session,subscription,invoice])||
      invoice.id!==invoiceId||invoice.status!=="paid"||invoice.paid!==true||
      invoice.paid_out_of_band===true||invoice.collection_method!=="charge_automatically"||
-     invoice.currency!=="eur"||
+     invoice.currency!=="eur"||linkedSubscription!==subscriptionId||!matchingLine||
      typeof invoice.amount_paid!=="number"||invoice.amount_paid<=0||
      getId(invoice.customer,"cus")!==customerId){
     return {status:"pending"};
