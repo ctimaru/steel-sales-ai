@@ -38,12 +38,22 @@ export async function POST(request:NextRequest){
       case "checkout.session.async_payment_succeeded": {
         const sessionId=ref(data.id,"cs");
         const intentId=typeof data.client_reference_id==="string"?data.client_reference_id:null;
-        if(sessionId&&intentId)await reconcilePaidCheckout(intentId);
+        const metadata=data.metadata as {netpro_intent_id?:unknown}|undefined;
+        if(sessionId&&intentId&&metadata?.netpro_intent_id===intentId){
+          const result=await reconcilePaidCheckout(intentId);
+          // Stripe retries a non-2xx webhook. A paid subscription must not
+          // be acknowledged until its automatic entitlement commit succeeds.
+          if(data.payment_status==="paid"&&result.status!=="active")
+            throw new Error("paid_session_not_reconciled");
+        }
         break;
       }
       case "invoice.paid": {
         const id=invoiceSubscription(data);
-        if(id)await reconcileStripeSubscription(id);
+        if(id){
+          const result=await reconcileStripeSubscription(id);
+          if(result.status==="pending")throw new Error("paid_invoice_not_reconciled");
+        }
         break;
       }
       case "customer.subscription.deleted": {
