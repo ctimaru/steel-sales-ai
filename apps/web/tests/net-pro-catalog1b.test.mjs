@@ -55,7 +55,8 @@ test("B: coverage parser is fail closed on inconsistent counts and untrusted cou
   assert.match(parser,/publishedModules\[key\]>published/);
   assert.match(parser,/typeof obj\.legacy_full_network!=="boolean"/);
   assert.match(parser,/getNetworkProScopedDirectory/);
-  assert.match(parser,/status:error\.code==="42501"\?"locked":"unavailable"/);
+  assert.ok(parser.includes('if(error)return error.code==="42501"'));
+  assert.match(parser,/\?\{status:"locked",data:null\}:\{status:"unavailable",data:null\}/);
 });
 
 test("B: UI counts only source-backed rows and preserves Free/legacy PRO access",()=>{
