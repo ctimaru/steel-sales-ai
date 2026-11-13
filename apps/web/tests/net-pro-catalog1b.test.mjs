@@ -83,3 +83,11 @@ test("B: post-main-sync browser gate covers mobile pricing and expiry",()=>{
   assert.match(browser,/priceBox\.y<moduleBox\.y/);
   assert.match(browser,/1440,390,320/);
 });
+
+test("B: integration with newest main preserves public company-profile entry and existing PRO gate",()=>{
+  const profile=get("app/(italian)/(workspace)/network/[id]/page.tsx");
+  assert.match(profile,/NetworkProfileOverview/);
+  assert.match(profile,/FreeNetworkProfileView/);
+  assert.match(profile,/requireNetworkAccess/);
+  assert.doesNotMatch(profile,/netpro1b_scoped_directory/);
+});
