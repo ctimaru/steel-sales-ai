@@ -340,6 +340,7 @@ jobs:
             netprofile_ux1b_inventory.sql \
             netprofile_ux1b_pending_drafts.sql \
             rfqmail1_recipient_opt_out.sql \
+            netpro_f1_f2_contract.sql \
             hp13_permissions_tenant_isolation.sql \
             trader1d3b2_live_source_intelligence.sql \
             hp18_production_journey_acceptance.sql \
