@@ -113,6 +113,29 @@ async function visit(page,url){
   const response=await page.goto(base+url,{waitUntil:"domcontentloaded",timeout:90000});
   assert.equal(response?.status(),200,url+" status");
 }
+async function chooseTerritory(page, label, errors){
+  const button=page.getByRole("button",{name:label,exact:true});
+  for(let attempt=0;attempt<3;attempt++){
+    await button.click();
+    try {
+      await page.waitForFunction(
+        wanted=>Array.from(document.querySelectorAll("button[aria-pressed]"))
+          .some(el=>el.textContent?.trim()===wanted && el.getAttribute("aria-pressed")==="true"),
+        label,{timeout:5500}
+      );
+      return;
+    }catch(err){
+      if(attempt===2){
+        const snapshot=await page.evaluate(()=>Array.from(document.querySelectorAll("button[aria-pressed]"))
+          .filter(el=>["Italia","Europa"].includes(el.textContent?.trim()||""))
+          .map(el=>({text:el.textContent?.trim(),pressed:el.getAttribute("aria-pressed")})));
+        console.error("NET-PRO-CATALOG1.E territory hydration check",label,snapshot,errors);
+        throw err;
+      }
+    }
+  }
+}
+
 try{
   for(const width of [1440,390,320]){
     const {page,context,pageErrors}=await login(producer,width);
@@ -125,13 +148,13 @@ try{
       const inItaly=(await liveCount.innerText()).replace(/\s+/g," ").trim();
       assert.match(inItaly,/^\d+ profil[oi] pubblicat[oi] in Italia$/,
         "Module card must show actual Italian published coverage");
-      await page.getByRole("button",{name:"Europa",exact:true}).click();
+      await chooseTerritory(page,"Europa",pageErrors);
       await page.getByTestId("netpro1d-live-count-producers")
         .getByText(/nei Paesi europei censiti$/).waitFor({state:"visible",timeout:15000});
       const inEurope=(await liveCount.innerText()).replace(/\s+/g," ").trim();
       assert.match(inEurope,/^\d+ profil[oi] pubblicat[oi] nei Paesi europei censiti$/,
         "European module card must describe only catalogued countries");
-      await page.getByRole("button",{name:"Italia",exact:true}).click();
+      await chooseTerritory(page,"Italia",pageErrors);
       await page.getByTestId("netpro1d-live-count-producers")
         .getByText(/in Italia$/).waitFor({state:"visible",timeout:15000});
       assert.equal((await liveCount.innerText()).replace(/\s+/g," ").trim(),inItaly,
