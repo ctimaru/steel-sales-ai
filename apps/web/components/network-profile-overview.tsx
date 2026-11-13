@@ -87,12 +87,12 @@ export function NetworkProfileOverview({
         <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
           <div id="attivita" className="min-w-0 px-4 py-5 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#466d52]">Azienda nel Network</p>
-            <div className="mt-4 flex min-w-0 items-start gap-3.5 sm:gap-5">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#d7e5db] bg-[#f3f8f4] text-lg font-extrabold tracking-tight text-[#155338] sm:h-[72px] sm:w-[72px] sm:text-[22px]">
+            <div className="mt-4 flex min-w-0 items-start gap-2.5 sm:gap-5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#d7e5db] bg-[#f3f8f4] text-lg font-extrabold tracking-tight text-[#155338] sm:h-[72px] sm:w-[72px] sm:text-[22px]">
                 {logoUrl ? <img src={logoUrl} alt={"Logo " + name} className="max-h-full max-w-full object-contain p-2" /> : <span aria-hidden="true">{initials}</span>}
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="break-words text-[26px] font-semibold leading-[1.13] tracking-[-0.035em] text-[#163d2a] sm:text-[34px]">{name}</h1>
+                <h1 className="break-words text-[22px] font-semibold leading-[1.16] tracking-[-0.035em] text-[#163d2a] sm:text-[34px]">{name}</h1>
                 {legalName && legalName !== name ? <p className="mt-1.5 break-words text-xs text-[#5d7062] sm:text-sm">{legalName}</p> : null}
                 {(location || countryCode) ? <p className="mt-2 text-sm font-medium text-[#5b705f]">{[location, countryCode && !location?.includes(countryCode) ? countryCode : null].filter(Boolean).join(" · ")}</p> : null}
                 {visibleRoles.length ? <div className="mt-3 flex flex-wrap gap-1.5">
@@ -263,7 +263,7 @@ const sections: NetworkProfileHubSection[] = [];
             {description ? <p className="mt-4 line-clamp-2 text-xs leading-5 text-[#52655a] sm:text-sm">{description}</p> : null}
           </div>
           {(website || connectionsAvailable) ? <aside data-testid="network-profile-quick-actions"
-            className="flex min-w-0 flex-col gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:border-l lg:border-t-0 lg:p-5">
+            className="flex min-w-0 flex-col gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:self-stretch lg:border-l lg:border-t-0 lg:p-5">
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#496b54]">Azioni disponibili</p>
             {connectionsAvailable && actions ? <section aria-label="Azioni commerciali"
               className={"space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11 " +
