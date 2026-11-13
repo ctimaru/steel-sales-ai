@@ -49,8 +49,9 @@ begin
 
   if not exists(
     select 1 from public.organization_memberships m
+    join public.organizations o on o.id=m.organization_id
     where m.user_id=v_user and m.organization_id=p_organization_id
-      and m.status='active'
+      and m.status='active' and o.onboarding_status is distinct from 'suspended'
   ) then
     return false;
   end if;
@@ -193,8 +194,9 @@ begin
   end if;
   if not private.is_platform_superadmin() and not exists(
     select 1 from public.organization_memberships m
+    join public.organizations o on o.id=m.organization_id
     where m.user_id=(select auth.uid()) and m.organization_id=p_organization_id
-      and m.status='active'
+      and m.status='active' and o.onboarding_status is distinct from 'suspended'
   ) then
     raise exception 'No active membership for this company' using errcode='42501';
   end if;
@@ -225,8 +227,19 @@ returns jsonb language plpgsql stable security definer set search_path=''
 as $$
 declare v_rows jsonb;
 begin
-  if not private.is_platform_superadmin() then
-    perform private.netux11_require_active_company(p_organization_id);
+  -- Only aggregated published/source counts; no need to require the paid module
+  -- or a completed company claim. Require active tenant membership instead.
+  if (select auth.uid()) is null or
+     coalesce((select (auth.jwt()->>'is_anonymous')::boolean),false) then
+    raise exception 'Active authenticated company required' using errcode='42501';
+  end if;
+  if not private.is_platform_superadmin() and not exists(
+    select 1 from public.organization_memberships m
+    join public.organizations o on o.id=m.organization_id
+    where m.user_id=(select auth.uid()) and m.organization_id=p_organization_id
+      and m.status='active' and o.onboarding_status is distinct from 'suspended'
+  ) then
+    raise exception 'No authorized organization for coverage' using errcode='42501';
   end if;
 
   with published as (
