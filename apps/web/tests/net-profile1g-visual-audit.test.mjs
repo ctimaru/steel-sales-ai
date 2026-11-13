@@ -16,10 +16,10 @@ test("NET-PROFILE-UX1.A: both profile modes use the same identity, products and 
     assert.match(profile,/max-w-6xl/);
   }
   assert.match(overview,/Profilo aziendale/);
-  assert.match(overview,/break-words text-xl/);
-  assert.match(overview,/line-clamp-2 text-xs leading-5/);
-  assert.match(overview,/lg:items-start/);
-  assert.match(overview,/Cosa fa e cosa offre/);
+  assert.match(overview,/break-words text-\[30px\]/);
+  assert.match(overview,/max-w-3xl whitespace-pre-wrap text-sm/);
+  assert.match(overview,/sm:flex-row sm:items-start/);
+  assert.match(overview,/title: "Attività e prodotti"/);
   assert.match(overview,/aria-label="Attività e prodotti"/);
   assert.match(overview,/aria-label="Azioni commerciali"/);
   assert.match(overview,/aria-label="Contatti aziendali"/);

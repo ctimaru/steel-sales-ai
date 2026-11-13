@@ -29,5 +29,5 @@ test("NET-CONN3 profile: only eligible recipients get an active connection actio
   assert.match(profile,/inquiryReason !== "self_inquiry"|inquiryEligible && canInteract/);
   assert.doesNotMatch(profile,/data-testid="network-profile-connect-disabled"/);
   assert.doesNotMatch(profile,/Connessione nella piattaforma non disponibile/);
-  assert.match(overview,/Visita il sito aziendale/);
+  assert.match(overview,/Sito aziendale/);
 });
