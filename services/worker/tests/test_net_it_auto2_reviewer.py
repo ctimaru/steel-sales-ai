@@ -59,7 +59,7 @@ class FirstPartyReviewTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             _validate_official_website(row(domain="linkedin.com"))
     def test_version_and_batch_caps(self):
-        self.assertEqual(VERSION,"net-it-auto2-firstparty-v3")
+        self.assertEqual(VERSION,"net-it-auto2-firstparty-v4")
         self.assertEqual(MAX_BATCH,50)
 
 
@@ -83,7 +83,7 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
             outcome=await inspect_candidate(None,row(
                   quality_flags=["legal_identity_not_verified"]))
         self.assertEqual(outcome["p_verdict"],"identity_supported")
-        self.assertEqual(outcome["p_reviewer_version"],"net-it-auto2-firstparty-v3")
+        self.assertEqual(outcome["p_reviewer_version"],"net-it-auto2-firstparty-v4")
         with patch("app.net_it_auto2_reviewer._fetch_page",
                   new=AsyncMock(return_value=page("Carpenteria Test costruzioni"))):
             outcome=await inspect_candidate(None,row(
@@ -151,6 +151,27 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
             outcome=await inspect_candidate(None,row(name=name))
         self.assertEqual(outcome["p_verdict"],"needs_human")
         self.assertIn("corporate_name_not_evidenced",outcome["p_reasons"])
+
+    async def test_v4_corrects_brand_to_ragione_sociale_on_site(self):
+        footer = "Lavorazioni lamiera. © 2025 Mattiolo S.r.l. - P.IVA 01234567890"
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                  new=AsyncMock(return_value=page(footer, url="https://mattiolosrl.it/"))):
+            outcome=await inspect_candidate(None,row(name="mattiolosrl",domain="mattiolosrl.it"))
+        self.assertEqual(outcome["p_verdict"],"identity_supported")
+        self.assertEqual(outcome["p_observed_name"],"Mattiolo S.r.l.")
+        self.assertEqual(outcome["_identity_correction"]["p_legal_name"],"Mattiolo S.r.l.")
+        self.assertEqual(outcome["_identity_correction"]["p_vat_id"],"01234567890")
+        self.assertEqual(outcome["_identity_correction"]["p_reviewer_version"],
+                         "net-it-auto2-firstparty-v4")
+
+    async def test_v4_no_company_name_on_site_is_explicit(self):
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                  new=AsyncMock(return_value=page("Officina Emme lavori in ferro",
+                                                  url="https://officinaemme.it/"))):
+            outcome=await inspect_candidate(None,row(name="Officina Emme",domain="officinaemme.it"))
+        self.assertEqual(outcome["p_verdict"],"needs_human")
+        self.assertIn("no_company_name_on_site",outcome["p_reasons"])
+        self.assertNotIn("_identity_correction",outcome)
 
     async def test_sole_trader_stays_human_exception(self):
         name="Carpenteria Rossi Mario"
