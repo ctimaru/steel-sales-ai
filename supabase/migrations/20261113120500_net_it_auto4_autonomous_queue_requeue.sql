@@ -2,6 +2,9 @@
 -- Apply ONLY after the worker running net-it-auto2-firstparty-v4 is deployed.
 -- Body is the production definition from 20261113110500 (GROWTH5 2/2) with
 -- only the NET-IT-AUTO4 lines changed.
+-- APPLIED to production 13 Nov 2026 12:42 UTC on explicit founder instruction
+-- "applica la AUTO4 parte 2" (md5 verified); first full v4 run at 12:48 UTC
+-- reviewed 50/50 candidates.
 
 CREATE OR REPLACE FUNCTION private.net_it_auto2_queue(
   p_max integer DEFAULT 50
