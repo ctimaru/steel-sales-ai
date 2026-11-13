@@ -37,6 +37,7 @@ test("NET-PROFILE-UX5.A/B: one shared information Hub with commercial actions in
     assert.match(source, /stockCount=/);
     assert.match(source, /stockContent=/);
     assert.match(source, /connectionsAvailable=/);
+    assert.match(source, /primaryConnectionAvailable=/);
     assert.match(source, /detailsTargetId=/);
   }
 });
@@ -58,7 +59,8 @@ test("NET-PROFILE-UX5.A/B: sparse profiles stay compact even with provenance, wi
   assert.match(free, /<NetworkSaveToggle/);
   assert.match(free, /canSave=!provisional && canWriteWorkspace\(workspace.role\)/);
   assert.match(free, /getSavedNetworkCompanyIds/);
-  assert.match(overview, /connectionsAvailable\s+\? "flex min-h-11/);
+  assert.match(overview, /primaryConnectionAvailable\s+\? "flex min-h-11/);
+  assert.match(overview, /primaryConnectionAvailable \? "order-1" : "order-2"/);
   assert.doesNotMatch(overview, /Math.random|fake stock|placeholder phone|Da integrare/);
 });
 
