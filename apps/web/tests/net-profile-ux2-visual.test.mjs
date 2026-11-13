@@ -58,7 +58,7 @@ test("NET-PROFILE-UX5.A/B: sparse profiles stay compact even with provenance, wi
   assert.match(free, /<NetworkSaveToggle/);
   assert.match(free, /canSave=!provisional && canWriteWorkspace\(workspace.role\)/);
   assert.match(free, /getSavedNetworkCompanyIds/);
-  assert.match(overview, /connectionsAvailable \? "flex min-h-11/);
+  assert.match(overview, /connectionsAvailable\s+\? "flex min-h-11/);
   assert.doesNotMatch(overview, /Math.random|fake stock|placeholder phone|Da integrare/);
 });
 
