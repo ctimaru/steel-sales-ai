@@ -346,8 +346,8 @@ try {
       assert.equal(await sparseAction.getByTestId("network-company-card-hub").count(),0);
       const actionHeader=sparseActionHero.getByTestId("network-profile-quick-actions");
       assert.equal(await actionHeader.getByRole("link",{name:"Connetti"}).count(),1);
-      assert.equal(await actionHeader.getByRole("link",{name:/Visita il sito aziendale/}).count(),1,
-        "Website must not be repeated in extra cards");
+      assert.equal(await sparseActionHero.getByRole("link",{name:/Visita il sito aziendale/}).count(),1,
+        "Website must appear exactly once in the company header");
       const provisionalHero=page.getByTestId("network-profile-provisional-fixture").getByTestId("network-profile-ux1a");
       assert.equal(await provisionalHero.getAttribute("data-profile-density"),"compact",
         "Provenance alone must not force a full Company Hub");
