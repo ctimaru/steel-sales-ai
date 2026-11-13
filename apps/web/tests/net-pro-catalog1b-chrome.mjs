@@ -48,7 +48,9 @@ async function authRpc(person,name,args){
 }
 
 // Negative DB assertions: no cross-tenant, country, category, or self-grant.
-const cross=await authRpc(producer,"netpro1b_scoped_directory",{
+// Cross-tenant caller must be from ANOTHER organization; the producer is the grant owner.
+assert.notEqual(buyer.org,producer.org,"Test fixtures must be separate organizations");
+const cross=await authRpc(buyer,"netpro1b_scoped_directory",{
   p_organization_id:producer.org,p_module:"producers",p_country:"IT",
   p_page:1,p_limit:18,
 });
