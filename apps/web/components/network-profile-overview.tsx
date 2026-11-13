@@ -38,6 +38,7 @@ export function NetworkProfileOverview({
   logoUrl,
   actions,
   connectionsAvailable = false,
+  primaryConnectionAvailable = false,
   stockCount = 0,
   stockContent,
   hasTechnicalDetails = false,
@@ -59,6 +60,7 @@ export function NetworkProfileOverview({
   logoUrl?: string | null;
   actions?: ReactNode;
   connectionsAvailable?: boolean;
+  primaryConnectionAvailable?: boolean;
   stockCount?: number;
   stockContent?: ReactNode;
   hasTechnicalDetails?: boolean;
@@ -107,10 +109,12 @@ export function NetworkProfileOverview({
           <aside id="contatti" aria-label="Contatti aziendali" data-testid="network-profile-header-contact"
             className="flex min-w-0 flex-col justify-center gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] px-4 py-4 sm:px-7 lg:border-l lg:border-t-0 lg:px-5 lg:py-6">
             {connectionsAvailable && actions ? <section aria-label="Azioni commerciali" data-testid="network-profile-quick-actions"
-              className="space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11">{actions}</section> : null}
-            {hasContacts ? <section aria-label="Contatti disponibili" className="space-y-2">
+              className={"space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11 " +
+                (primaryConnectionAvailable ? "order-1" : "order-2")}>{actions}</section> : null}
+            {hasContacts ? <section aria-label="Contatti disponibili"
+              className={"space-y-2 " + (primaryConnectionAvailable ? "order-2" : "order-1")}>
               {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-                className={(connectionsAvailable
+                className={(primaryConnectionAvailable
                   ? "flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#cfe0d3] bg-white px-4 py-3 text-sm font-semibold text-[#1f5b40]"
                   : "app-primary flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold") +
                   " transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17553b]"}>
@@ -259,14 +263,16 @@ const sections: NetworkProfileHubSection[] = [];
             {description ? <p className="mt-4 line-clamp-2 text-xs leading-5 text-[#52655a] sm:text-sm">{description}</p> : null}
           </div>
           {(website || connectionsAvailable) ? <aside data-testid="network-profile-quick-actions"
-            className="min-w-0 space-y-3 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:border-l lg:border-t-0 lg:p-5">
+            className="flex min-w-0 flex-col gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:border-l lg:border-t-0 lg:p-5">
             <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#496b54]">Azioni disponibili</p>
             {connectionsAvailable && actions ? <section aria-label="Azioni commerciali"
-              className="space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11">{actions}</section> : null}
+              className={"space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11 " +
+                (primaryConnectionAvailable ? "order-1" : "order-2")}>{actions}</section> : null}
             {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-              className={(connectionsAvailable
+              className={(primaryConnectionAvailable
                 ? "flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#cfe0d3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1f5b40]"
-                : "app-primary flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white")}>
+                : "app-primary flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white") +
+                " " + (primaryConnectionAvailable ? "order-2" : "order-1")}>
               <span>Visita il sito aziendale</span><span aria-hidden="true">↗</span>
             </a> : null}
           </aside> : null}
