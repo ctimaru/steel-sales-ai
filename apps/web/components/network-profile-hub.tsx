@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 /**
  * NET-PROFILE-UX4 — Company Hub: shared Free/Pro navigation.
@@ -35,6 +35,8 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
   const [selected, setSelected] = useState(
     sections.find((section) => section.content !== undefined)?.id ?? "",
   );
+  const [ready, setReady] = useState(false);
+  useEffect(() => setReady(true), []);
   if (!sections.length) return null;
 
   function openTarget(targetId: string) {
@@ -45,7 +47,7 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
   }
 
   return (
-    <section aria-label="Esplora le informazioni aziendali" data-testid="network-company-card-hub"
+    <section aria-label="Esplora le informazioni aziendali" data-testid="network-company-card-hub" data-ready={ready ? "true" : "false"}
       className="min-w-0 space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
@@ -65,7 +67,7 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
         {sections.map((section) => {
           const current = selected === section.id && section.content !== undefined;
           return (
-            <button key={section.id} type="button"
+            <button key={section.id} type="button" disabled={!ready}
               aria-pressed={current}
               aria-controls={section.content !== undefined ? "company-hub-panel-" + section.id : undefined}
               onClick={() => section.targetId ? openTarget(section.targetId) : setSelected(section.id)}
