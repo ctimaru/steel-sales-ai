@@ -1,0 +1,152 @@
+/**
+ * NET-PRO-CATALOG1.B: synthetic-only end-to-end per-module, per-country access.
+ * Never points to production, never records payment, and never grants live access.
+ */
+import assert from "node:assert/strict";
+import {readFileSync,mkdirSync} from "node:fs";
+import path from "node:path";
+import {chromium} from "playwright";
+import {createClient} from "@supabase/supabase-js";
+
+assert.equal(process.env.DEMOTEST23_WEB_URL,"http://127.0.0.1:3000");
+assert.equal(process.env.NEXT_PUBLIC_SUPABASE_URL,"http://127.0.0.1:54321");
+assert.equal(process.env.FLOW1_LOCAL_PROVIDER,"true");
+assert.ok(process.env.RUNNER_TEMP);
+const base=process.env.DEMOTEST23_WEB_URL;
+const dbUrl=process.env.NEXT_PUBLIC_SUPABASE_URL;
+const serviceKey=process.env.DEMOTEST23_LOCAL_SERVICE_ROLE_KEY;
+assert.ok(serviceKey && serviceKey.length>20);
+const anonKey=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+assert.ok(anonKey);
+const people=JSON.parse(readFileSync(path.join(process.env.RUNNER_TEMP,"demotest23-personas.json"),"utf8"));
+const buyer=people.find(p=>p.id==="buyer");
+const buyerViewer=people.find(p=>p.id==="buyerViewer");
+const trader=people.find(p=>p.id==="trader");
+assert.ok(buyer&&buyerViewer&&trader);
+const out=path.join(process.env.RUNNER_TEMP,"netro14d-synthetic-visual");
+mkdirSync(out,{recursive:true});
+const service=createClient(dbUrl,serviceKey,{auth:{persistSession:false,autoRefreshToken:false}});
+const event={
+  p_organization_id:buyer.org,p_module:"producers",p_territory:"IT",
+  p_event_type:"granted",p_source_kind:"pilot",p_source_reference:"netpro1b-ci-only",
+  p_idempotency_key:"netpro1b-ci-local-buyers-producers-it",
+  p_expires_at:null,
+};
+const granted=await service.rpc("netpro1b_module_event",event);
+assert.ifError(granted.error);
+assert.equal(granted.data?.product_key,"network_pro_producers_it");
+const duplicate=await service.rpc("netpro1b_module_event",event);
+assert.ifError(duplicate.error);
+assert.equal(duplicate.data?.idempotent,true);
+
+async function authRpc(person,name,args){
+  const db=createClient(dbUrl,anonKey,{auth:{persistSession:false,autoRefreshToken:false}});
+  const signed=await db.auth.signInWithPassword({email:person.email,password:person.password});
+  assert.ifError(signed.error);
+  return db.rpc(name,args);
+}
+
+// Negative DB assertions: no cross-tenant, country, category, or self-grant.
+const cross=await authRpc(trader,"netpro1b_scoped_directory",{
+  p_organization_id:buyer.org,p_module:"producers",p_country:"IT",
+  p_page:1,p_limit:18,
+});
+assert.equal(cross.error?.code,"42501","Cross-tenant scope must be denied");
+const otherCountry=await authRpc(buyer,"netpro1b_scoped_directory",{
+  p_organization_id:buyer.org,p_module:"producers",p_country:"RO",
+  p_page:1,p_limit:18,
+});
+assert.equal(otherCountry.error?.code,"42501","Italy-only must not unlock Romania");
+const otherModule=await authRpc(buyer,"netpro1b_scoped_directory",{
+  p_organization_id:buyer.org,p_module:"distributors",p_country:"IT",
+  p_page:1,p_limit:18,
+});
+assert.equal(otherModule.error?.code,"42501","Producer grant must not unlock traders");
+const selfGrant=await authRpc(buyer,"netpro1b_module_event",{
+  ...event,p_module:"distributors",p_idempotency_key:"netpro1b-ci-forbidden-user-grant",
+});
+assert.equal(selfGrant.error?.code,"42501","Customer cannot grant their own PRO modules");
+
+const browser=await chromium.launch({channel:"chrome",headless:true});
+let checks=0;
+async function login(person,width){
+  const context=await browser.newContext({viewport:{width,height:width===1440?900:width===390?844:720},
+    locale:"it-IT",reducedMotion:"reduce",serviceWorkers:"block"});
+  await context.route("**/*",route=>{
+    const host=new URL(route.request().url()).hostname;
+    return (host==="127.0.0.1"||host==="localhost")?route.continue():route.abort();
+  });
+  const page=await context.newPage();
+  const pageErrors=[];
+  page.on("pageerror",e=>pageErrors.push(e.message));
+  await page.goto(base+"/login",{waitUntil:"domcontentloaded",timeout:90000});
+  await page.locator('input[name="email"]').fill(person.email);
+  await page.locator('input[name="password"]').fill(person.password);
+  await page.getByRole("button",{name:"Accedi",exact:true}).click();
+  await page.waitForURL(u=>u.pathname==="/dashboard",{timeout:90000});
+  return {page,context,pageErrors};
+}
+async function visit(page,url){
+  const response=await page.goto(base+url,{waitUntil:"domcontentloaded",timeout:90000});
+  assert.equal(response?.status(),200,url+" status");
+}
+try{
+  for(const width of [1440,390,320]){
+    const {page,context,pageErrors}=await login(buyer,width);
+    try{
+      await visit(page,"/network/pro");
+      await page.getByTestId("netpro1b-coverage").waitFor({state:"visible",timeout:90000});
+      await page.getByTestId("netpro1b-license-producers").getByText("Accesso PRO attivo").waitFor({state:"visible",timeout:90000});
+      await page.getByTestId("netpro1b-country-IT").waitFor({state:"visible",timeout:90000});
+      const rights=page.getByTestId("netpro1b-browse-IT-producers");
+      assert.equal(await rights.count(),1,"Active IT producer link missing");
+      assert.equal(await page.getByTestId("netpro1b-browse-IT-distributors").count(),0,
+        "Unpaid distributors must not display browse link");
+      const overflow=await page.evaluate(()=>({
+        viewport:document.documentElement.clientWidth,
+        content:document.documentElement.scrollWidth,
+      }));
+      assert.ok(overflow.content<=overflow.viewport+2,"Catalog overflow "+width+": "+JSON.stringify(overflow));
+      await page.screenshot({path:path.join(out,"net-pro-catalog1b-coverage-"+width+".png"),
+        fullPage:true,animations:"disabled"});
+      await rights.click();
+      await page.getByTestId("netpro1b-scoped-explore").waitFor({state:"visible",timeout:90000});
+      await page.getByRole("heading",{name:/Produttori · Italia/}).waitFor({state:"visible"});
+      await page.getByText("Aziende pubblicate",{exact:true}).waitFor({state:"visible"});
+      await page.screenshot({path:path.join(out,"net-pro-catalog1b-scoped-"+width+".png"),
+        fullPage:true,animations:"disabled"});
+      await visit(page,"/network/pro/explore?module=producers&country=RO");
+      await page.getByText("Modulo non attivo per questa azienda e questo Paese").waitFor({state:"visible"});
+      await visit(page,"/network/pro/explore?module=distributors&country=IT");
+      await page.getByText("Modulo non attivo per questa azienda e questo Paese").waitFor({state:"visible"});
+      assert.deepEqual(pageErrors,[],"Browser errors "+width);
+      checks+=8;
+    }finally{await context.close();}
+  }
+  const {page,context,pageErrors}=await login(trader,390);
+  try{
+    await visit(page,"/network/pro/explore?module=producers&country=IT");
+    await page.getByText("Modulo non attivo per questa azienda e questo Paese").waitFor({state:"visible"});
+    assert.deepEqual(pageErrors,[]);
+    checks+=2;
+  }finally{await context.close();}
+  // Viewer inside the same buyer company can read its license, no extra private RFQ access.
+  const shared=await authRpc(buyerViewer,"netpro1b_scoped_directory",{
+    p_organization_id:buyer.org,p_module:"producers",p_country:"IT",
+    p_page:1,p_limit:18,
+  });
+  assert.ifError(shared.error);
+  assert.equal(shared.data?.contract,"netpro1b-scoped-directory-v1");
+  // An explicit revocation must immediately remove access, without modifying legacy PRO.
+  const revoked=await service.rpc("netpro1b_module_event",{
+    ...event,p_event_type:"revoked",p_idempotency_key:"netpro1b-ci-local-revoke-producers-it",
+  });
+  assert.ifError(revoked.error);
+  const afterRevoke=await authRpc(buyer,"netpro1b_scoped_directory",{
+    p_organization_id:buyer.org,p_module:"producers",p_country:"IT",
+    p_page:1,p_limit:18,
+  });
+  assert.equal(afterRevoke.error?.code,"42501","Revocation must fail closed");
+  checks+=7;
+  console.log("NET-PRO-CATALOG1.B PASS:",checks,"checks, real local JWT + 1440/390/320");
+}finally{await browser.close();}
