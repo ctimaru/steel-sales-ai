@@ -147,6 +147,8 @@ jobs:
           DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             node tests/netro14d-chrome-claimable-visual.mjs
           node tests/net-pro-catalog1a-chrome.mjs
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            node tests/net-pro-catalog1b-chrome.mjs
       - name: Upload synthetic screenshots for visual acceptance
         if: always()
         uses: actions/upload-artifact@v4
