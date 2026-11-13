@@ -25,6 +25,7 @@ from .company_discovery import (
     CompanyDiscoveryError, _fetch_page, canonical_domain, canonicalize_seed_url,
 )
 from .net_it_auto2_reviewer import RESTRICTED_REUSE, _name_evidenced
+from .company_discovery import _redact_personal_channels
 from .supabase_credentials import get_supabase_admin_key, supabase_admin_headers
 
 VERSION = "net-profile-data2-v1"
@@ -35,7 +36,7 @@ MAX_CLAIMS = 8
 BANNED_CLAIMS = re.compile(
     r"(?:\bin[ -]?stock\b|\bdisponibil\w*|\bgiacenz\w*|\bmagazzin\w*|"
     r"\bprezz\w*|\bcertificat\w*|\btempi di consegna|\bconsegna immediata|"
-    r"\bproduzione attuale|\bpronta consegna|€|\\b(?:ASTM|EN[ -]?\\d{4}|API 5L)\\b)",
+    r"\bproduzione attuale|\bpronta consegna|€|\b(?:ASTM|EN[ -]?\d{4}|API 5L)\b)",
     re.I,
 )
 TRUSTED_FIELDS = {"description", "products", "services"}
@@ -127,7 +128,7 @@ def _ai_check(*, model: str, token: str, row: dict, text: str,
         "field": row["field_key"],
         "claims": values,
         "official_source_url": str(row["evidence_url"])[:500],
-        "untrusted_source_text": text[:MAX_PAGE_CHARS],
+        "untrusted_source_text": _redact_personal_channels(text[:MAX_PAGE_CHARS]),
     }, ensure_ascii=False)
     resp = client.chat_completion(
         model=model, messages=[
@@ -180,14 +181,16 @@ async def review_candidate(client: httpx.AsyncClient, row: dict,
             _ai_check, model=model, token=token, row=row,
             text=content, values=values,
         )
-    except (ValueError, KeyError, TypeError, RuntimeError, OSError):
+    except Exception:
+        # Never expose provider error bodies, which can include request text or secrets.
         return reason_result(row, "needs_review", "model_failed_or_invalid",
                              model=model, source_hash=digest)
 
     quote = verdict.get("quote")
     if (verdict.get("supported") is not True or not isinstance(quote, str)
         or not 12 <= len(quote) <= 400
-        or canonical_text(quote) not in normalized):
+        or canonical_text(quote) not in normalized
+        or _redact_personal_channels(quote) != quote):
         return reason_result(row, "needs_review", "ai_grounding_not_sufficient",
                              model=model, source_hash=digest)
     # A model may report "supported" for unrelated sentences; require the
