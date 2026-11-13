@@ -14,6 +14,7 @@ export type NetworkProfileHubSection = {
   icon: "products" | "contacts" | "connections" | "stock" | "documents";
   content?: ReactNode;
   targetId?: string;
+  targetLabel?: string;
 };
 
 function HubIcon({ kind }: { kind: NetworkProfileHubSection["icon"] }) {
@@ -38,20 +39,29 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
   );
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
+  function openTarget(targetId: string) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    if (target instanceof HTMLDetailsElement) target.open = true;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    const summary = target.querySelector("summary");
+    if (summary instanceof HTMLElement) summary.focus({ preventScroll: true });
+  }
+
   if (!sections.length) return null;
   // One real section needs no navigation card: show its content immediately.
   if (sections.length === 1 && sections[0].content !== undefined) {
     return <section data-testid="network-company-single-panel" aria-label={sections[0].title}
       className="min-w-0 rounded-[20px] border border-[#dce6df] bg-white p-4 sm:p-5">
       {sections[0].content}
+      {sections[0].targetId ? (
+        <button type="button" onClick={() => openTarget(sections[0].targetId!)}
+          data-testid="network-profile-open-details"
+          className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl border border-[#bfd8c6] bg-white px-4 text-sm font-semibold text-[#205a3d] hover:bg-[#f1f8f3]">
+          {sections[0].targetLabel || "Apri approfondimenti pubblicati"} <span aria-hidden="true" className="ml-2">↓</span>
+        </button>
+      ) : null}
     </section>;
-  }
-
-  function openTarget(targetId: string) {
-    const target = document.getElementById(targetId);
-    if (!target) return;
-    if (target instanceof HTMLDetailsElement) target.open = true;
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
   return (
@@ -73,7 +83,7 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
             <button key={section.id} type="button" disabled={!ready}
               aria-pressed={current}
               aria-controls={section.content !== undefined ? "company-hub-panel-" + section.id : undefined}
-              onClick={() => section.targetId ? openTarget(section.targetId) : setSelected(section.id)}
+              onClick={() => setSelected(section.id)}
               className={"group flex min-h-[104px] min-w-0 flex-col items-start gap-2 rounded-[18px] border p-3 sm:min-h-[116px] sm:gap-2.5 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840] sm:p-4 " +
                 (current
                   ? "border-[#356e4e] bg-[#eef7f0] shadow-[0_8px_26px_-20px_rgba(16,82,46,0.6)]"
@@ -101,6 +111,13 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
             ? "min-w-0 rounded-[22px] border border-[#dce6df] bg-white p-4 shadow-[0_10px_34px_-30px_rgba(11,53,34,0.25)] sm:p-6"
             : "hidden"}>
           {section.content}
+          {section.targetId ? (
+            <button type="button" onClick={() => openTarget(section.targetId!)}
+              data-testid="network-profile-open-details"
+              className="mt-4 inline-flex min-h-11 items-center justify-center rounded-xl border border-[#bfd8c6] bg-white px-4 text-sm font-semibold text-[#205a3d] hover:bg-[#f1f8f3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840]">
+              {section.targetLabel || "Apri approfondimenti pubblicati"} <span aria-hidden="true" className="ml-2">↓</span>
+            </button>
+          ) : null}
         </div>
       ))}
     </section>
