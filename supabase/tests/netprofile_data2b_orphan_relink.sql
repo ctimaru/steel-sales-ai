@@ -70,6 +70,15 @@ select pg_temp.data2b_assert(
   (public.netprofile_data2_relink_orphans(
     5,false,'00000000-0000-0000-0000-000000903002'::uuid)->>'count')='1',
   'dry-run locates eligible orphan');
+do $bounded$
+begin
+  begin
+    perform public.netprofile_data2_relink_orphans(
+      51,true,'00000000-0000-0000-0000-000000903002'::uuid);
+    raise exception 'Batch size above 50 must be refused';
+  exception when sqlstate '22023' then null;
+  end;
+end $bounded$;
 reset role;
 select pg_temp.data2b_assert(
   (select canonical_company_id is null and
