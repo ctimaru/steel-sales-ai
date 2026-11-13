@@ -203,6 +203,8 @@ try {
         assert.equal(await toggle.getAttribute("aria-expanded"), "false");
         assert.equal(await filtersCard.isVisible(), false, "Mobile filters must start collapsed");
         await toggle.click();
+        await page.locator('[data-testid="network-filter-drawer"] button[aria-expanded="true"]')
+          .waitFor({state:"visible",timeout:15000});
         assert.equal(await toggle.getAttribute("aria-expanded"), "true");
         await filtersCard.waitFor({state:"visible"});
       }
@@ -286,54 +288,85 @@ try {
       assertions += 20;
       if (width !== 1440) {
         await toggle.click();
+        await page.locator('[data-testid="network-filter-drawer"] button[aria-expanded="false"]')
+          .waitFor({state:"visible",timeout:15000});
         assert.equal(await toggle.getAttribute("aria-expanded"), "false");
         assert.equal(await filtersCard.isVisible(), false, "Mobile drawer failed to collapse");
         await screenshot(page,"network-filters-closed-admin",width);
         assertions += 2;
       }
-      // NET-PROFILE-UX5.A/B: commercial hero first, then only real information cards.
+      // NET-PROFILE-UX6: the founder's actual five-card company page,
+      // with one selected panel, honest empty states and clear navigation.
       const companyHero=page.getByTestId("network-profile-ux1a").first();
       await companyHero.waitFor({state:"visible",timeout:45000});
+      assert.equal(await companyHero.getAttribute("data-profile-layout"),"concept-five-cards");
       assert.equal(await companyHero.getByRole("heading",{name:"DEMO Tubi Strutturali"}).count(),1);
       const companyHub=companyHero.getByTestId("network-company-card-hub");
       await companyHub.waitFor({state:"visible"});
       await companyHub.locator("button:not([disabled])").first().waitFor({state:"visible",timeout:45000});
+      const cards=["attivita","stock","contatti","connessioni","approfondimenti"];
+      const labels=["Attività e prodotti","Stock e produzioni","Contatti e sedi","Connessioni","Documenti e fonti"];
+      assert.equal(await companyHub.getByTestId("network-company-section-nav").locator("button").count(),5);
+      for(let i=0;i<cards.length;i++){
+        assert.equal(await companyHub.getByTestId("network-company-card-"+cards[i]).count(),1);
+        assert.match(await companyHub.getByTestId("network-company-card-"+cards[i]).innerText(),
+          new RegExp(labels[i]));
+      }
       await companyHub.getByTestId("network-company-card-attivita").click();
-      await companyHub.getByRole("heading",{name:"Cosa fa e cosa offre"}).waitFor({state:"visible",timeout:15000});
+      await companyHub.getByRole("heading",{name:"Attività e prodotti"}).last().waitFor({state:"visible",timeout:15000});
       const sourceEvidence=companyHub.getByTestId("network-company-source-attribution");
       assert.match(await sourceEvidence.innerText(),/fonte pubblica/);
       assert.equal(await sourceEvidence.getByRole("link",{name:/Consulta la fonte/}).count(),1);
       await companyHub.getByTestId("network-company-card-contatti").click();
-      await companyHub.getByRole("heading",{name:"Contatti"}).waitFor({state:"visible",timeout:15000});
-      // UX5.C: sources behave like every other card. Only the explicit
-      // drill-down opens the separate detailed technical disclosure.
-      const technicalDisclosure=page.getByTestId("fixture-rich-technical-details");
-      assert.equal(await technicalDisclosure.getAttribute("open"),null);
+      await companyHub.getByTestId("network-company-panel-contatti").getByRole("heading",{name:"Contatti e sedi"}).waitFor({state:"visible"});
+      assert.equal(await companyHub.getByTestId("network-company-panel-attivita").isVisible(),false,
+        "Only one company area should be visible");
+      await companyHub.getByTestId("network-company-card-connessioni").click();
+      const commercialHeaderActions=companyHub.getByTestId("network-profile-quick-actions");
+      assert.equal(await commercialHeaderActions.count(),1);
+      assert.equal(await commercialHeaderActions.getByRole("link",{name:/Esplora attività/}).count(),1);
       await companyHub.getByTestId("network-company-card-approfondimenti").click();
       const trustPanel=companyHub.getByTestId("network-profile-trust-panel");
       await trustPanel.waitFor({state:"visible",timeout:15000});
       assert.match(await trustPanel.innerText(),/Fonte web disponibile/);
       assert.match(await trustPanel.innerText(),/Profilo rivendicato/);
       assert.match(await trustPanel.innerText(),/Dati dichiarati dall’azienda/);
-      assert.equal(await technicalDisclosure.getAttribute("open"),null,
-        "Clicking a Company Hub card must not silently jump into technical details");
+      const technicalDisclosure=page.getByTestId("fixture-rich-technical-details");
+      assert.equal(await technicalDisclosure.getAttribute("open"),null);
+      assert.equal(await technicalDisclosure.isVisible(),false,
+        "Old technical dossier must stay out of the initial concept page");
       const drillDown=companyHub.getByTestId("network-profile-open-details");
-      assert.equal(await drillDown.count(),1);
-      await trustPanel.scrollIntoViewIfNeeded();
-      await screenshot(page,"network-profile-ux5c-trust-panel",width);
       await drillDown.click();
-      assert.equal(await technicalDisclosure.getAttribute("open"),"",
-        "Technical disclosure must open from the explicit action");
-      const commercialHeaderActions=companyHero.getByTestId("network-profile-quick-actions");
-      assert.equal(await commercialHeaderActions.count(),1,"Commercial actions must be in the hero");
-      assert.equal(await commercialHeaderActions.getByRole("link",{name:/Esplora attività/}).count(),1);
-      assert.equal(await companyHub.getByTestId("network-company-card-connessioni").count(),0,
-        "Commercial actions must not be duplicated as a navigation card");
-      await companyHub.getByTestId("network-company-card-attivita").click();
-      await companyHero.evaluate((node)=>window.scrollTo({top:Math.max(0,node.getBoundingClientRect().top+window.scrollY-148),behavior:"auto"}));
-      await noOverflow(page,"Company-commercial-hero/"+width);
-      await screenshot(page,"network-company-profile-ux2-full-admin",width);
-      await companyHub.getByTestId("network-company-card-stock").click();
+      assert.equal(await technicalDisclosure.getAttribute("open"),"");
+      assert.equal(await technicalDisclosure.isVisible(),true,
+        "Explicit Documenti e fonti action must reveal the real dossier");
+      await companyHero.scrollIntoViewIfNeeded();
+      await noOverflow(page,"Company-five-cards-hero/"+width);
+      await screenshot(page,"network-company-profile-ux6-five-cards",width);
+
+      // Exact founder concept example is isolated under localhost-only QA.
+      const asg=page.getByTestId("network-profile-asg-concept-fixture");
+      const asgHub=asg.getByTestId("network-company-card-hub");
+      assert.equal(await asg.getByRole("heading",{name:"ASG S.p.A."}).count(),1);
+      assert.match(await asg.innerText(),/Commerciante di prodotti siderurgici/);
+      assert.equal(await asgHub.getByTestId("network-company-section-nav").locator("button").count(),5);
+      await asgHub.getByTestId("network-company-card-attivita").click();
+      assert.match(await asgHub.getByTestId("network-company-panel-attivita").innerText(),/Tubi senza saldatura/);
+      assert.match(await asgHub.getByTestId("network-company-panel-attivita").innerText(),/Tubi saldati longitudinali/);
+      await asg.scrollIntoViewIfNeeded();
+      await screenshot(page,"network-company-profile-ux6-asg-concept",width);
+      await asg.getByTestId("network-profile-ux1a").screenshot({
+        path:path.join(out,"network-company-profile-ux6-asg-full-card-"+width+".png"),
+        animations:"disabled",
+      });
+      await asgHub.getByTestId("network-company-card-stock").click();
+      assert.match(await asgHub.getByTestId("network-company-panel-stock").innerText(),/Nessuna disponibilità o produzione pubblicata/);
+      await asgHub.getByTestId("network-company-card-connessioni").click();
+      assert.match(await asgHub.getByTestId("network-company-panel-connessioni").innerText(),/Nessuna azione commerciale disponibile/);
+      await asgHub.getByTestId("network-company-card-approfondimenti").click();
+      assert.match(await asgHub.getByTestId("network-company-panel-approfondimenti").innerText(),/Identità non verificata/);
+      await noOverflow(page,"ASG-founder-concept/"+width);
+
       const publicSourceFixture=page.getByTestId("network-profile-public-source-fixture");
       const publicSourceHub=publicSourceFixture.getByTestId("network-company-card-hub");
       await publicSourceHub.getByTestId("network-company-card-approfondimenti").click();
@@ -341,60 +374,50 @@ try {
       await publicTrustPanel.waitFor({state:"visible",timeout:15000});
       assert.match(await publicTrustPanel.innerText(),/Identità non verificata/);
       assert.match(await publicTrustPanel.innerText(),/Fonte web disponibile/);
-      assert.equal(await publicSourceHub.getByTestId("network-profile-open-details").count(),0,
-        "A web source is not a technical dossier");
-      assert.equal(await publicSourceHub.getByText("Dati e documenti").count(),0);
+      assert.equal(await publicSourceHub.getByTestId("network-profile-open-details").count(),0);
       await publicTrustPanel.scrollIntoViewIfNeeded();
-      await screenshot(page,"network-profile-ux5c-public-source",width);
+      await screenshot(page,"network-profile-ux6-public-source",width);
+
       const sparseHero=page.getByTestId("network-profile-sparse-fixture");
       assert.equal(await sparseHero.getByRole("heading",{name:"DEMO Acciai S.p.A."}).count(),1);
       const compactCard=sparseHero.getByTestId("network-profile-ux1a");
       assert.equal(await compactCard.getAttribute("data-profile-density"),"compact");
-      assert.equal(await sparseHero.getByRole("heading",{name:"Cosa fa e cosa offre"}).count(),0,
-        "Sparse company must not show an empty product section");
-      const websiteCta=sparseHero.getByRole("link",{name:/Visita il sito aziendale/});
+      const sparseHub=sparseHero.getByTestId("network-company-card-hub");
+      assert.equal(await sparseHub.getByTestId("network-company-section-nav").locator("button").count(),5,
+        "Sparse entries must still show the same five cards as the founder's concept");
+      await sparseHub.getByTestId("network-company-card-attivita").click();
+      assert.match(await sparseHub.getByTestId("network-company-panel-attivita").innerText(),
+        /Prodotti e specializzazioni non ancora pubblicati/);
+      const websiteCta=sparseHero.getByRole("link",{name:/Sito aziendale/});
       assert.equal(await websiteCta.count(),1);
       const websiteColor=await websiteCta.evaluate(node=>({
         color:getComputedStyle(node).color,
         textFill:getComputedStyle(node).webkitTextFillColor,
       }));
-      assert.equal(websiteColor.color,"rgb(255, 255, 255)",
-        "Primary website CTA must have white text over green at "+width);
-      assert.equal(websiteColor.textFill,"rgb(255, 255, 255)",
-        "Primary website CTA must not inherit dark WebKit text fill at "+width);
-      assert.match(await sparseHero.innerText(),/Prodotti e specializzazioni non ancora pubblicati/);
-      assert.doesNotMatch(await sparseHero.innerText(),/Connessione nella piattaforma non disponibile/);
-      const compactRect=await compactCard.boundingBox();
-      assert.ok(compactRect && compactRect.height<(width===1440?340:500),
-        "Sparse profile is still oversized at "+width+": "+JSON.stringify(compactRect));
-      await sparseHero.evaluate((node)=>window.scrollTo({top:Math.max(0,node.getBoundingClientRect().top+window.scrollY-148),behavior:"auto"}));
+      assert.equal(websiteColor.color,"rgb(255, 255, 255)");
+      assert.equal(websiteColor.textFill,"rgb(255, 255, 255)");
+      await compactCard.scrollIntoViewIfNeeded();
       await noOverflow(page,"Company-sparse-hero/"+width);
-      await screenshot(page,"network-company-profile-ux2-sparse-admin",width);
-      await compactCard.screenshot({path:path.join(out,"network-company-profile-ux3-compact-card-"+width+".png"),animations:"disabled"});
+      await screenshot(page,"network-company-profile-ux6-sparse",width);
       const sparseAction=page.getByTestId("network-profile-sparse-action-fixture");
       const sparseActionHero=sparseAction.getByTestId("network-profile-ux1a");
-      assert.equal(await sparseActionHero.getAttribute("data-profile-density"),"compact");
-      assert.equal(await sparseAction.getByTestId("network-company-card-hub").count(),0);
-      const actionHeader=sparseActionHero.getByTestId("network-profile-quick-actions");
-      assert.equal(await actionHeader.getByRole("link",{name:"Connetti"}).count(),1);
-      assert.equal(await sparseActionHero.getByRole("link",{name:/Visita il sito aziendale/}).count(),1,
-        "Website must appear exactly once in the company header");
+      const sparseActionHub=sparseActionHero.getByTestId("network-company-card-hub");
+      await sparseActionHub.getByTestId("network-company-card-connessioni").click();
+      assert.equal(await sparseActionHub.getByRole("link",{name:"Connetti"}).count(),1);
+      assert.equal(await sparseActionHero.getByRole("link",{name:/Sito aziendale/}).count(),1);
       const provisionalHero=page.getByTestId("network-profile-provisional-fixture").getByTestId("network-profile-ux1a");
-      assert.equal(await provisionalHero.getAttribute("data-profile-density"),"compact",
-        "Provenance alone must not force a full Company Hub");
-      assert.equal(await provisionalHero.getByTestId("network-company-card-hub").count(),0);
-      assert.match(await provisionalHero.getByTestId("network-profile-trust-signals").innerText(),
-        /Identità da confermare/);
-      assert.match(await provisionalHero.getByTestId("network-profile-trust-signals").innerText(),
-        /Fonte web disponibile/);
+      const provisionalHub=provisionalHero.getByTestId("network-company-card-hub");
+      await provisionalHub.getByTestId("network-company-card-approfondimenti").click();
+      assert.match(await provisionalHub.getByTestId("network-profile-trust-panel").innerText(),/Identità da confermare/);
+      assert.match(await provisionalHub.getByTestId("network-profile-trust-panel").innerText(),/Fonte web disponibile/);
       await noOverflow(page,"Sparse-action-and-provisional/"+width);
       await sparseAction.scrollIntoViewIfNeeded();
-      await screenshot(page,"network-company-profile-ux5-sparse-actions",width);
-      await sparseActionHero.screenshot({path:path.join(out,"network-company-profile-ux5-sparse-action-card-"+width+".png"),animations:"disabled"});
+      await screenshot(page,"network-company-profile-ux6-sparse-actions",width);
       await provisionalHero.scrollIntoViewIfNeeded();
-      await screenshot(page,"network-company-profile-ux5-provisional",width);
-      await provisionalHero.screenshot({path:path.join(out,"network-company-profile-ux5-provisional-card-"+width+".png"),animations:"disabled"});
-      assertions+=16;
+      await screenshot(page,"network-company-profile-ux6-provisional",width);
+      assertions+=45;
+      // Restore selected stock panel for the existing inventory QA below.
+      await companyHub.getByTestId("network-company-card-stock").click();
       // NET-PROFILE-UX1.B: inspect the *real* production components with
       // synthetic stock. /network-visual-qa is hard-gated to localhost development.
       const stockCard=page.getByTestId("network-profile-stock");
@@ -431,28 +454,20 @@ try {
         const cardHub=overview.getByTestId("network-company-card-hub");
         if(await cardHub.count()){
           await cardHub.locator("button:not([disabled])").first().waitFor({state:"visible",timeout:45000});
-          assert.equal(await cardHub.getByTestId("network-company-card-connessioni").count(),0,
-            "Connections must be available in the header, not duplicated in the Hub");
-          if(await overview.getByTestId("network-profile-quick-actions").count()){
-            const actionsBox=await overview.getByTestId("network-profile-quick-actions").boundingBox();
-            assert.ok(actionsBox&&actionsBox.width>100,"Commercial actions not visible "+width+"/"+co.role);
-          }
+          assert.equal(await cardHub.getByTestId("network-company-card-connessioni").count(),1,
+            "The connection area must appear in the five-card company hub");
+          assert.equal(await cardHub.getByTestId("network-company-section-nav").locator("button").count(),5);
+          await cardHub.getByTestId("network-company-card-connessioni").click();
+          assert.match(await cardHub.getByTestId("network-company-panel-connessioni").innerText(),/Connessioni/);
           const activityCard=cardHub.getByTestId("network-company-card-attivita");
           if(await activityCard.count()){
             await activityCard.click();
-            await cardHub.getByRole("heading",{name:"Cosa fa e cosa offre"}).waitFor({state:"visible",timeout:15000});
+            await cardHub.getByTestId("network-company-panel-attivita").getByRole("heading",{name:"Attività e prodotti"}).waitFor({state:"visible",timeout:15000});
           }
           const contactCard=cardHub.getByTestId("network-company-card-contatti");
           if(await contactCard.count()){
             await contactCard.click();
-            await cardHub.getByRole("heading",{name:"Contatti"}).waitFor({state:"visible",timeout:15000});
-          }
-        } else {
-          const density=await overview.getAttribute("data-profile-density");
-          assert.ok(density==="compact"||density==="rich");
-          if(density==="rich"){
-            assert.equal(await overview.getByTestId("network-company-single-panel").count(),1,
-              "A single published information section should render without a card");
+            await cardHub.getByTestId("network-company-panel-contatti").getByRole("heading",{name:"Contatti e sedi"}).waitFor({state:"visible",timeout:15000});
           }
         }
         const claim=page.getByTestId("network-unclaimed-company-claim");
