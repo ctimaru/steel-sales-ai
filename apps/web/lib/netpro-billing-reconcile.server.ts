@@ -86,7 +86,7 @@ export async function reconcilePaidCheckout(intentId:string):Promise<ReconcileRe
     ? invoiceLines.map(asObject).find(line=>{
         if(!line)return false;
         const details=asObject(asObject(line.parent)?.subscription_item_details);
-        const price=getId(asObject(line.pricing)?.price_details?.price,"price")||
+        const price=getId(asObject(asObject(line.pricing)?.price_details)?.price,"price")||
           getId(line.price,"price");
         return price===intent.stripe_price_id&&
           getId(details?.subscription,"sub")===subscriptionId&&
