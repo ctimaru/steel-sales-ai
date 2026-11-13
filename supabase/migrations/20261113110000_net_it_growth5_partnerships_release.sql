@@ -1,5 +1,6 @@
 -- NET-IT-GROWTH5 (1/2) — Admit S.n.c. and S.a.s. on the agent facts route
--- (13 Nov 2026, founder decision: "Sì, ammetti S.n.c./S.a.s.").
+-- (13 Nov 2026, founder decision: "Sì, ammetti S.n.c./S.a.s."; applied on
+-- explicit founder instruction "applica la GROWTH5 parte 1").
 --
 -- AUTO3 and the PA1.5 guard accept evidence from AUTO2 reviewer v3, which admits
 -- the partnerships S.n.c./S.a.s. with the same first-party check: the FULL
