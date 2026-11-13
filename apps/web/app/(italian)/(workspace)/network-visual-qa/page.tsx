@@ -122,10 +122,23 @@ export default async function NetworkVisualQaPage(){
           actions={<a href="#attivita" className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white">Esplora attività ↗</a>}
         />
         <details id="fixture-rich-technical-details" data-testid="fixture-rich-technical-details"
-          className="rounded-xl border border-[#dce6e0] p-3">
+          className="hidden open:block rounded-xl border border-[#dce6e0] p-3">
           <summary>Dettagli tecnici pubblicati</summary>
           <p className="mt-2 text-sm">Norme e prodotti della DEMO sintetica, non una disponibilità reale.</p>
         </details>
+        <div data-testid="network-profile-asg-concept-fixture" className="space-y-2 pt-3">
+          <p className="text-[11px] font-bold uppercase tracking-wide text-[#376c4c]">PROPOSTA UX · DEMO</p>
+          <NetworkProfileOverview
+            name="ASG S.p.A."
+            countryCode="IT"
+            primaryRole="Commerciante di prodotti siderurgici"
+            description="Presentazione dimostrativa della struttura aziendale. Il sito reale mostrerà soltanto informazioni autorizzate e pubblicate."
+            products={["Tubi senza saldatura", "Tubi saldati longitudinali", "Tubi saldati elicoidali"]}
+            website="https://example.org"
+            sourceUrl="https://example.org/fonti"
+            identityTrust="unverified"
+          />
+        </div>
         <div data-testid="network-profile-public-source-fixture" className="pt-2">
           <NetworkProfileOverview
             name="DEMO Forniture da fonte web"
