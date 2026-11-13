@@ -43,7 +43,8 @@ test("NET-PRO-CATALOG1.A offers accessible responsive selection without fake che
   assert.match(ux, /aria-live="polite"/);
   assert.match(ux, /sm:grid-cols-2/);
   assert.match(ux, /lg:sticky lg:top-24/);
-  assert.doesNotMatch(ux, /checkout|stripe\.com\/|paymentIntent|grantEntitlement/i);
+  assert.match(ux, /Checkout, fatturazione e permessi/);
+  assert.doesNotMatch(ux, /stripe\.com\/|paymentIntent|grantEntitlement|<form[^>]*action=/i);
 });
 
 test("NET-PRO-CATALOG1.A remains inside authenticated Network, visible to Free and Pro", () => {
