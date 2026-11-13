@@ -121,6 +121,17 @@ try{
       await page.getByTestId("netpro1b-coverage").waitFor({state:"visible",timeout:90000});
       await page.getByTestId("netpro1b-license-producers").getByText("Accesso PRO attivo").waitFor({state:"visible",timeout:90000});
       await page.getByTestId("netpro1b-country-IT").waitFor({state:"visible",timeout:90000});
+      const liveCount=page.getByTestId("netpro1d-live-count-producers");
+      const inItaly=(await liveCount.innerText()).replace(/\\s+/g," ").trim();
+      assert.match(inItaly,/^\\d+ profil[oi] pubblicat[oi] in Italia$/,
+        "Module card must show actual Italian published coverage");
+      await page.getByRole("button",{name:"Europa",exact:true}).click();
+      const inEurope=(await liveCount.innerText()).replace(/\\s+/g," ").trim();
+      assert.match(inEurope,/^\\d+ profil[oi] pubblicat[oi] nei Paesi europei censiti$/,
+        "European module card must describe only catalogued countries");
+      await page.getByRole("button",{name:"Italia",exact:true}).click();
+      assert.equal((await liveCount.innerText()).replace(/\\s+/g," ").trim(),inItaly,
+        "Italian coverage must return after territory switch");
       const rights=page.getByTestId("netpro1b-browse-IT-producers");
       assert.equal(await rights.count(),1,"Active IT producer link missing");
       assert.equal(await page.getByTestId("netpro1b-browse-IT-distributors").count(),0,
