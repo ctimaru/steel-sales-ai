@@ -28,7 +28,10 @@ from .company_discovery import (
 # their ragione sociale and P.IVA, matches on the whole extracted page text,
 # and no longer treats the legacy "legal_identity_not_verified" flag as an
 # automatic exception: this first-party check IS the identity check it asks for.
-VERSION = "net-it-auto2-firstparty-v2"
+# v3 (NET-IT-GROWTH5, founder decision 13 Nov 2026): partnerships S.n.c. and
+# S.a.s. are admitted with the same full-name first-party check; sole traders
+# (no corporate legal form) still go to human review.
+VERSION = "net-it-auto2-firstparty-v3"
 MAX_BATCH = 50
 MAX_PAGES = 5
 # Pages where the company's own legal identity is usually printed.
@@ -68,12 +71,16 @@ def _normalize_full_legal_name(value: str) -> str:
     return re.sub(r"\s+", " ", value).strip()
 
 
+ADMITTED_LEGAL_FORMS = ("srl", "spa", "srls", "snc", "sas")
+
+
 def _is_capital_company(name: str) -> bool:
-    """S.r.l./S.r.l.s./S.p.A. as a whole token. Partnerships (S.n.c./S.a.s.)
-    often embed natural persons' names and are left to human review; the same
-    rule is enforced again by the AUTO3 release query and the PA1.5 guard."""
+    """An admitted company legal form as a whole token: S.r.l./S.r.l.s./S.p.A.
+    and, since v3, the partnerships S.n.c./S.a.s. Sole traders have no such
+    token and stay with human review; the same rule is enforced again by the
+    AUTO3 release query and the PA1.5 guard."""
     tokens = _normalize_full_legal_name(name).split()
-    return any(token in ("srl", "spa", "srls") for token in tokens)
+    return any(token in ADMITTED_LEGAL_FORMS for token in tokens)
 
 
 def _name_evidenced(name: str, page_texts: list[str]) -> bool:
