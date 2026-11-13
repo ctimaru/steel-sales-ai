@@ -50,3 +50,20 @@ test("NET-PRO-CATALOG1.E UI makes enquiry non-binding and shows success only aft
   assert.match(ui,/role="status" aria-live="polite"/);
   assert.match(catalog,/purchasable: false as const/);
 });
+
+test("NET-PRO-CATALOG1.E is idempotent and rejects duplicate or invalid module requests",()=>{
+  for(const guard of [
+    "cardinality(p_module_keys) not between 1 and 4",
+    "cardinality(v_modules) <> cardinality(p_module_keys)",
+    "array_position(module_keys,null) is null",
+    "request_status='requested'",
+    "create unique index network_pro_activation_requests_open_org",
+  ]){
+    assert.ok(migration.includes(guard),"Missing strict SQL rule: "+guard);
+  }
+  assert.match(migration,/module_keys\s*<@\s*array\[/);
+  assert.match(migration,/m\.status='active' and m\.role='admin'/);
+  assert.match(ui,/Copertura non disponibile: richiesta sospesa/);
+  assert.match(ui,/isSubmitting\?"Invio richiesta in corso/);
+  assert.doesNotMatch(migration,/\b(?:insert|update|delete)\s+(?:into|from)?\s*public\.organization_product_entitlement_events\b/i);
+});
