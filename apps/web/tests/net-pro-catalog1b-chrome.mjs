@@ -136,6 +136,51 @@ try{
         .getByText(/in Italia$/).waitFor({state:"visible",timeout:15000});
       assert.equal((await liveCount.innerText()).replace(/\s+/g," ").trim(),inItaly,
         "Italian coverage must return after territory switch");
+      // NET-PRO-CATALOG1.E: real local JWT, single non-binding admin enquiry;
+      // never touches production, billing, or the entitlement grant ledger.
+      if(width===1440){
+        const beforeEvents=await service.from("organization_product_entitlement_events")
+          .select("*",{head:true,count:"exact"}).eq("organization_id",producer.org);
+        assert.ifError(beforeEvents.error);
+        const requestButton=page.getByTestId("netpro1e-request");
+        assert.equal(await requestButton.isEnabled(),true,"Company admin should be allowed to request");
+        await requestButton.click();
+        await page.getByTestId("netpro1e-request-result")
+          .getByText(/Richiesta registrata per la valutazione commerciale/)
+          .waitFor({state:"visible",timeout:15000});
+        const saved=await service.from("network_pro_activation_requests")
+          .select("id,module_keys,territory,billing_period,request_status")
+          .eq("organization_id",producer.org).single();
+        assert.ifError(saved.error);
+        assert.deepEqual(saved.data.module_keys,["distributors","producers"]);
+        assert.equal(saved.data.territory,"IT");
+        assert.equal(saved.data.billing_period,"monthly");
+        assert.equal(saved.data.request_status,"requested");
+        const duplicate=await authRpc(producer,"netpro1e_request_activation",{
+          p_organization_id:producer.org,
+          p_module_keys:["processors"],
+          p_territory:"EU",p_billing_period:"annual",
+        });
+        assert.ifError(duplicate.error);
+        assert.equal(duplicate.data?.request_id,saved.data.id,
+          "One pending company request must be updated instead of duplicated");
+        const deniedViewer=await authRpc(buyerViewer,"netpro1e_request_activation",{
+          p_organization_id:buyer.org,p_module_keys:["producers"],
+          p_territory:"IT",p_billing_period:"monthly",
+        });
+        assert.equal(deniedViewer.error?.code,"42501","Viewer cannot request");
+        const deniedOtherOrg=await authRpc(buyer,"netpro1e_request_activation",{
+          p_organization_id:producer.org,p_module_keys:["producers"],
+          p_territory:"IT",p_billing_period:"monthly",
+        });
+        assert.equal(deniedOtherOrg.error?.code,"42501","Cross-tenant enquiry forbidden");
+        const afterEvents=await service.from("organization_product_entitlement_events")
+          .select("*",{head:true,count:"exact"}).eq("organization_id",producer.org);
+        assert.ifError(afterEvents.error);
+        assert.equal(afterEvents.count,beforeEvents.count,
+          "A commercial enquiry must never create an entitlement");
+        checks+=8;
+      }
       const rights=page.getByTestId("netpro1b-browse-IT-producers");
       assert.equal(await rights.count(),1,"Active IT producer link missing");
       assert.equal(await page.getByTestId("netpro1b-browse-IT-distributors").count(),0,
