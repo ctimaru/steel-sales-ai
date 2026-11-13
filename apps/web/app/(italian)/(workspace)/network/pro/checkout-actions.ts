@@ -57,6 +57,47 @@ export async function startNetworkProCheckout(input:CheckoutRequest):Promise<Che
       return {status:"unavailable",message:"Il listino non corrisponde al prezzo configurato. Nessun addebito eseguito."};
     const db=serviceDb();
     const modules=[...input.modules].sort();
+
+    // A lost redirect must not strand the customer or generate a second
+    // billable subscription. Resume the existing session for this company.
+    const {data:existing,error:lookupError}=await db.from("network_pro_checkout_intents")
+      .select("id,created_by,module_keys,territory,billing_interval,stripe_price_id,stripe_checkout_session_id,status")
+      .eq("organization_id",context.organizationId)
+      .in("status",["pending","paid"]).maybeSingle();
+    if(lookupError)throw new Error("checkout_lookup_failed");
+    if(existing){
+      if(existing.status==="paid")return {
+        status:"invalid",message:"Hai già un abbonamento attivo. Gestiscilo dal portale.",
+      };
+      if(existing.created_by!==context.userId||
+         existing.territory!==input.territory||
+         existing.billing_interval!==input.interval||
+         existing.stripe_price_id!==priceId||
+         JSON.stringify(existing.module_keys)!==JSON.stringify(modules))
+        return {status:"invalid",message:"Esiste già un checkout aziendale in corso. Completalo prima di cambiarne i moduli."};
+      if(!existing.stripe_checkout_session_id)
+        return {status:"invalid",message:"Il checkout aziendale è in preparazione. Ripeti l'operazione tra poco."};
+      const remote=await stripeCall<{id:string;url:string|null;status:string;client_reference_id:string;expires_at:number}>(
+        "/checkout/sessions/"+existing.stripe_checkout_session_id
+      );
+      if(remote.id!==existing.stripe_checkout_session_id||
+         remote.client_reference_id!==existing.id)throw new Error("checkout_resume_mismatch");
+      if(remote.status==="expired"){
+        const {error:expireError}=await db.from("network_pro_checkout_intents")
+          .update({status:"expired",updated_at:new Date().toISOString()})
+          .eq("id",existing.id).eq("status","pending");
+        if(expireError)throw new Error("checkout_resume_expire_failed");
+      }else if(remote.status==="complete"){
+        return {status:"ready",url:origin+"/network/pro/checkout/success?session_id="+encodeURIComponent(remote.id)};
+      }else if(remote.status==="open"&&remote.expires_at>Date.now()/1000&&remote.url){
+        const url=new URL(remote.url);
+        if(url.protocol!=="https:"||!url.hostname.endsWith(".stripe.com"))
+          throw new Error("checkout_resume_bad_url");
+        return {status:"ready",url:url.toString()};
+      }else{
+        return {status:"invalid",message:"Checkout in elaborazione. Nessun secondo abbonamento è stato creato."};
+      }
+    }
     // The unique partial index rejects duplicate active/pending purchases per organization.
     const {data:intent,error:insertError}=await db
       .from("network_pro_checkout_intents")
