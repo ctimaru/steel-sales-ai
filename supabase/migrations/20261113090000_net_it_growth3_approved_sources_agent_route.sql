@@ -1,5 +1,6 @@
 -- NET-IT-GROWTH3 — Founder-approved sources may also use the agent facts route
--- (13 Nov 2026, approved by the founder: "b").
+-- (13 Nov 2026, approved by the founder: "b"; applied on explicit founder
+-- instruction "applica la GROWTH3 in produzione").
 --
 -- 424 pending Italian candidates (CARP1 batches of 8-9 Nov and P3.4) belong to
 -- discovery runs whose SOURCE the founder already approved (terms allow reuse,
