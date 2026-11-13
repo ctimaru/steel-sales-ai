@@ -28,6 +28,7 @@ export function NetworkProfileOverview({
   primaryRole,
   roles = [],
   description,
+  evidenceSourceUrl,
   products = [],
   services = [],
   website,
@@ -43,6 +44,7 @@ export function NetworkProfileOverview({
   primaryRole?: string | null;
   roles?: string[];
   description?: string | null;
+  evidenceSourceUrl?: string | null;
   products?: string[];
   services?: string[];
   website?: string | null;
@@ -186,6 +188,13 @@ export function NetworkProfileOverview({
             ) : null}
             {!hasCommercialDetails ? (
               <p className="mt-3 text-sm leading-6 text-[#65776b]">Informazioni commerciali non ancora pubblicate dall'azienda.</p>
+            ) : null}
+            {evidenceSourceUrl ? (
+              <p data-testid="network-company-source-attribution" className="mt-5 border-t border-[#e4ede6] pt-3 text-xs leading-5 text-[#61766a]">
+                Informazioni da fonte pubblica, non disponibilità a magazzino.
+                <a href={evidenceSourceUrl} target="_blank" rel="noopener noreferrer"
+                  className="ml-1 font-semibold text-[#205c40] underline underline-offset-2 hover:text-[#123c29]">Consulta la fonte ↗</a>
+              </p>
             ) : null}
           </section>
         </div>

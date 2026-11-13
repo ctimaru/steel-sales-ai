@@ -4,6 +4,7 @@ import { NetworkSaveToggle } from "@/components/network-save-toggle";
 import { NetworkProfileOverview, NetworkProfileTopBar } from "@/components/network-profile-overview";
 import { NetworkProfileInventory } from "@/components/network-profile-inventory";
 import { getPublishedNetworkInventory } from "@/lib/network-stock";
+import { getReviewedCompanyEvidence, summarizeReviewedCompanyEvidence } from "@/lib/network-profile-evidence";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import {networkNameIt} from "@/lib/network-taxonomy-it";
 import { notFound, redirect } from "next/navigation";
@@ -302,6 +303,8 @@ export default async function NetworkCompanyProfilePage({
     (item) => item.key,
   );
   const publishedInventory = await getPublishedNetworkInventory(context.organizationId, profile.company.id);
+  const reviewedEvidence = await getReviewedCompanyEvidence(context.organizationId,profile.company.id,"pro").catch(()=>[]);
+  const reviewedSummary = summarizeReviewedCompanyEvidence(reviewedEvidence);
   const locationLabels = uniqueBy(
     profile.facilities
       .map((facility) => [facility.city, facility.country_code].filter(Boolean).join(", "))
@@ -338,9 +341,10 @@ export default async function NetworkCompanyProfilePage({
         location={locationLabels[0] ?? null}
         primaryRole={primaryRole ? networkNameIt(primaryRole.name) : null}
         roles={profile.roles.map((role) => networkNameIt(role.name))}
-        description={profile.company.description}
-        products={productGroups.map((product) => networkNameIt(product.name))}
-        services={[...profile.subtypes.map((subtype) => networkNameIt(subtype.name)), ...capabilities.map((capability) => networkNameIt(capability.name))]}
+        description={profile.company.description || reviewedSummary.description}
+        products={[...productGroups.map((product) => networkNameIt(product.name)), ...reviewedSummary.products]}
+        services={[...profile.subtypes.map((subtype) => networkNameIt(subtype.name)), ...capabilities.map((capability) => networkNameIt(capability.name)), ...reviewedSummary.services]}
+        evidenceSourceUrl={safeNetworkWebsiteUrl(reviewedSummary.evidenceSourceUrl)}
         logoUrl={logoUrl}
         website={website}
         email={emailContact?.email}

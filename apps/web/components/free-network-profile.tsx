@@ -2,7 +2,7 @@ import Link from "next/link";
 import { NetworkProfileOverview, NetworkProfileTopBar } from "@/components/network-profile-overview";
 import { NetworkProfileInventory } from "@/components/network-profile-inventory";
 import { getPublishedNetworkInventory } from "@/lib/network-stock";
-import {getReviewedCompanyEvidence} from "@/lib/network-profile-evidence";
+import {getReviewedCompanyEvidence,summarizeReviewedCompanyEvidence} from "@/lib/network-profile-evidence";
 import { notFound } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
 import { NetworkActivationCta, NetworkActivationHelp } from "@/components/network-activation-cta";
@@ -39,14 +39,7 @@ export async function FreeNetworkProfileView({
   const canConnect=canInteractWithNetwork((await getWorkspaceContext()).role);
   const inventory = provisional ? [] : await getPublishedNetworkInventory(organizationId, companyId);
   const companyName=profile.company.trading_name || profile.company.legal_name;
-  const evidenceProducts=reviewedEvidence
-    .filter((entry)=>entry.field_key==="products")
-    .flatMap((entry)=>typeof entry.field_value==="string" ? [entry.field_value] :
-      Array.isArray(entry.field_value) ? entry.field_value.filter((value):value is string=>typeof value==="string") : []);
-  const evidenceServices=reviewedEvidence
-    .filter((entry)=>entry.field_key==="services")
-    .flatMap((entry)=>typeof entry.field_value==="string" ? [entry.field_value] :
-      Array.isArray(entry.field_value) ? entry.field_value.filter((value):value is string=>typeof value==="string") : []);
+  const reviewedSummary=summarizeReviewedCompanyEvidence(reviewedEvidence);
   const firstLocation=profile.facilities
     .map((facility)=>[facility.city,facility.region].filter(Boolean).join(" · "))
     .find(Boolean) ?? null;
@@ -62,9 +55,10 @@ export async function FreeNetworkProfileView({
           location={firstLocation}
           primaryRole={profile.roles[0]?.name ?? null}
           roles={profile.roles.map((role)=>role.name)}
-          description={profile.company.description}
-          products={[...profile.products,...evidenceProducts]}
-          services={evidenceServices}
+          description={profile.company.description || reviewedSummary.description}
+          products={[...profile.products,...reviewedSummary.products]}
+          services={reviewedSummary.services}
+          evidenceSourceUrl={safeNetworkWebsiteUrl(reviewedSummary.evidenceSourceUrl)}
           website={website}
           actions={
             status==="available"&&canConnect ? (

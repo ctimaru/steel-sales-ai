@@ -106,6 +106,7 @@ export default async function NetworkVisualQaPage(){
           primaryRole="Produttore"
           roles={["Produttore", "Trasformatore"]}
           description="Produzione di tubi saldati e profilati cavi per carpenterie, strutture industriali e costruzioni meccaniche. Le informazioni di questa scheda sono esclusivamente sintetiche per test UI."
+          evidenceSourceUrl="https://example.org/company/facts"
           products={["Tubi tondi saldati", "Profilati cavi rettangolari", "Profilati cavi quadrati"]}
           services={["Taglio a misura", "Lavorazioni meccaniche"]}
           email="contatti@example.invalid"
