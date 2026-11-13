@@ -117,7 +117,7 @@ export async function FreeNetworkProfileView({
       ) : null}
 
       {(reviewedEvidence.length>0 || provisional || profile.products.length>0 || profile.facilities.length>0) ? (
-        <details id="network-profile-free-evidence" data-testid="network-profile-free-evidence" className="mt-4 rounded-2xl border border-[#dce6e0] bg-white p-4 sm:p-5">
+        <details id="network-profile-free-evidence" data-testid="network-profile-free-evidence" className="mt-4 hidden open:block rounded-2xl border border-[#dce6e0] bg-white p-4 sm:p-5">
           <summary className="cursor-pointer text-sm font-semibold text-[#175640]">Approfondimenti, sedi e fonti aziendali</summary>
           {reviewedEvidence.length>0 ? (
             <section aria-label="Informazioni aziendali con fonte" className="mt-5">
