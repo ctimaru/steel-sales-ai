@@ -121,6 +121,15 @@ try{
       await page.getByTestId("netpro1b-coverage").waitFor({state:"visible",timeout:90000});
       await page.getByTestId("netpro1b-license-producers").getByText("Accesso PRO attivo").waitFor({state:"visible",timeout:90000});
       await page.getByTestId("netpro1b-country-IT").waitFor({state:"visible",timeout:90000});
+      const checkoutButton=page.getByTestId("netpro-f1-checkout");
+      assert.equal(await checkoutButton.isEnabled(),false,
+        "Unconfigured Stripe must never expose a working checkout");
+      await page.getByText(/Checkout non ancora disponibile: configurazione Stripe/).waitFor({
+        state:"visible",timeout:15000,
+      });
+      assert.equal(await page.getByTestId("netpro-f2-portal").count(),0,
+        "No real paid subscription must imply no billing portal");
+      checks+=3;
       const rights=page.getByTestId("netpro1b-browse-IT-producers");
       assert.equal(await rights.count(),1,"Active IT producer link missing");
       assert.equal(await page.getByTestId("netpro1b-browse-IT-distributors").count(),0,
