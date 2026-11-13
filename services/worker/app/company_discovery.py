@@ -282,6 +282,31 @@ async def _robots_allows(client: httpx.AsyncClient, base_url: str, target_url: s
     return parser.can_fetch(USER_AGENT, target_url)
 
 
+async def robots_crawl_delay(client: httpx.AsyncClient, base_url: str) -> float:
+    """Seconds the site asks crawlers to wait between requests (Crawl-delay or
+    Request-rate in robots.txt), 0.0 when it asks nothing or cannot be read."""
+    parsed = urlsplit(base_url)
+    robots_url = urlunsplit((parsed.scheme, parsed.netloc, "/robots.txt", "", ""))
+    try:
+        response, _ = await _request_public_url(client, robots_url)
+    except (httpx.HTTPError, CompanyDiscoveryError):
+        return 0.0
+    if response.status_code >= 400:
+        return 0.0
+    parser = RobotFileParser()
+    parser.set_url(robots_url)
+    parser.parse(response.text.splitlines())
+    delay = parser.crawl_delay(USER_AGENT)
+    if delay is None:
+        rate = parser.request_rate(USER_AGENT)
+        if rate and rate.requests:
+            delay = rate.seconds / rate.requests
+    try:
+        return max(0.0, float(delay or 0))
+    except (TypeError, ValueError):
+        return 0.0
+
+
 async def _fetch_page(client: httpx.AsyncClient, url: str, base_url: str) -> CrawledPage | None:
     if not await _robots_allows(client, base_url, url):
         return None
