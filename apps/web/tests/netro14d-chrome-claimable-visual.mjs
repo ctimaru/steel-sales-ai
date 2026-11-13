@@ -305,6 +305,25 @@ try {
       assert.equal(await sourceEvidence.getByRole("link",{name:/Consulta la fonte/}).count(),1);
       await companyHub.getByTestId("network-company-card-contatti").click();
       await companyHub.getByRole("heading",{name:"Contatti"}).waitFor({state:"visible",timeout:15000});
+      // UX5.C: sources behave like every other card. Only the explicit
+      // drill-down opens the separate detailed technical disclosure.
+      const technicalDisclosure=page.getByTestId("fixture-rich-technical-details");
+      assert.equal(await technicalDisclosure.getAttribute("open"),null);
+      await companyHub.getByTestId("network-company-card-approfondimenti").click();
+      const trustPanel=companyHub.getByTestId("network-profile-trust-panel");
+      await trustPanel.waitFor({state:"visible",timeout:15000});
+      assert.match(await trustPanel.innerText(),/Fonte web disponibile/);
+      assert.match(await trustPanel.innerText(),/Profilo rivendicato/);
+      assert.match(await trustPanel.innerText(),/Dati dichiarati dall’azienda/);
+      assert.equal(await technicalDisclosure.getAttribute("open"),null,
+        "Clicking a Company Hub card must not silently jump into technical details");
+      const drillDown=companyHub.getByTestId("network-profile-open-details");
+      assert.equal(await drillDown.count(),1);
+      await trustPanel.scrollIntoViewIfNeeded();
+      await screenshot(page,"network-profile-ux5c-trust-panel",width);
+      await drillDown.click();
+      assert.equal(await technicalDisclosure.getAttribute("open"),"",
+        "Technical disclosure must open from the explicit action");
       const commercialHeaderActions=companyHero.getByTestId("network-profile-quick-actions");
       assert.equal(await commercialHeaderActions.count(),1,"Commercial actions must be in the hero");
       assert.equal(await commercialHeaderActions.getByRole("link",{name:/Esplora attività/}).count(),1);
@@ -315,6 +334,18 @@ try {
       await noOverflow(page,"Company-commercial-hero/"+width);
       await screenshot(page,"network-company-profile-ux2-full-admin",width);
       await companyHub.getByTestId("network-company-card-stock").click();
+      const publicSourceFixture=page.getByTestId("network-profile-public-source-fixture");
+      const publicSourceHub=publicSourceFixture.getByTestId("network-company-card-hub");
+      await publicSourceHub.getByTestId("network-company-card-approfondimenti").click();
+      const publicTrustPanel=publicSourceHub.getByTestId("network-profile-trust-panel");
+      await publicTrustPanel.waitFor({state:"visible",timeout:15000});
+      assert.match(await publicTrustPanel.innerText(),/Identità non verificata/);
+      assert.match(await publicTrustPanel.innerText(),/Fonte web disponibile/);
+      assert.equal(await publicSourceHub.getByTestId("network-profile-open-details").count(),0,
+        "A web source is not a technical dossier");
+      assert.equal(await publicSourceHub.getByText("Dati e documenti").count(),0);
+      await publicTrustPanel.scrollIntoViewIfNeeded();
+      await screenshot(page,"network-profile-ux5c-public-source",width);
       const sparseHero=page.getByTestId("network-profile-sparse-fixture");
       assert.equal(await sparseHero.getByRole("heading",{name:"DEMO Acciai S.p.A."}).count(),1);
       const compactCard=sparseHero.getByTestId("network-profile-ux1a");
@@ -352,6 +383,10 @@ try {
       assert.equal(await provisionalHero.getAttribute("data-profile-density"),"compact",
         "Provenance alone must not force a full Company Hub");
       assert.equal(await provisionalHero.getByTestId("network-company-card-hub").count(),0);
+      assert.match(await provisionalHero.getByTestId("network-profile-trust-signals").innerText(),
+        /Identità da confermare/);
+      assert.match(await provisionalHero.getByTestId("network-profile-trust-signals").innerText(),
+        /Fonte web disponibile/);
       await noOverflow(page,"Sparse-action-and-provisional/"+width);
       await sparseAction.scrollIntoViewIfNeeded();
       await screenshot(page,"network-company-profile-ux5-sparse-actions",width);
