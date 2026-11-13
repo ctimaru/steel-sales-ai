@@ -2,6 +2,11 @@
 -- (13 Nov 2026, founder decision: "qua bisogna automatizzare, no revisione
 -- umana ad oggi"; sole traders: discard automatically; blocked or unreachable
 -- sites: 3 attempts, then discard).
+-- APPLIED to production 13 Nov 2026 on explicit founder instruction
+-- "applica la AUTO4 parte 1"; md5 of the AUTO3, PA1.5, correct_identity and
+-- sweep bodies verified against this file; first sweep: 27 discards
+-- (17 already_in_network, 6 not_https, 2 reuse_restricted, 1 sole_trader,
+-- 1 invalid_domain); cron job net-it-auto2-discard-sweep scheduled.
 --
 -- 1. private.net_it_auto2_discards: automatic, reasoned, reversible discards.
 --    The candidate row is NOT marked 'rejected' (that status requires a human
