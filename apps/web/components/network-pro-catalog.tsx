@@ -1,6 +1,7 @@
 "use client";
 
-import {useState} from "react";
+import {useState,useTransition} from "react";
+import {requestNetworkProActivation,type RequestOutcome} from "@/app/(italian)/(workspace)/network/pro/actions";
 import Link from "next/link";
 import {networkCountryName} from "@/lib/network-eu-countries";
 import type {NetworkProAccess,NetworkProCoverage} from "@/lib/network-pro-coverage";
@@ -15,17 +16,29 @@ import {
 
 const euro = new Intl.NumberFormat("it-IT", {style: "currency", currency: "EUR", maximumFractionDigits: 0});
 
-export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage|null;access:NetworkProAccess|null}) {
+export function NetworkProCatalog({coverage,access,canRequestActivation}:{coverage:NetworkProCoverage|null;access:NetworkProAccess|null;canRequestActivation:boolean}) {
   const [territory, setTerritory] = useState<NetworkProTerritory>("IT");
   const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
   const [selected, setSelected] = useState<NetworkProModuleKey[]>(["producers", "distributors"]);
+  const [requestStatus,setRequestStatus]=useState<RequestOutcome|null>(null);
+  const [isSubmitting,startTransition]=useTransition();
   const quote = networkProQuote(selected, territory, billing);
   const countries=coverage?.countries.filter(row=>territory==="EU"||row.countryCode==="IT")??[];
 
   function toggle(key: NetworkProModuleKey) {
+    setRequestStatus(null);
     setSelected((current) => current.includes(key)
       ? current.filter((entry) => entry !== key)
       : [...current, key]);
+  }
+
+  function requestActivation(){
+    if(!canRequestActivation||!coverage||selected.length===0||isSubmitting)return;
+    setRequestStatus(null);
+    startTransition(async()=>{
+      const result=await requestNetworkProActivation({modules:selected,territory,billing});
+      setRequestStatus(result);
+    });
   }
 
   return (
@@ -204,7 +217,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
                 {key: "EU", title: "Europa"},
               ] as const).map((area) => (
                 <button key={area.key} type="button" aria-pressed={territory === area.key}
-                  onClick={() => setTerritory(area.key)}
+                  onClick={() => {setRequestStatus(null);setTerritory(area.key);}}
                   className={"min-h-11 rounded-xl border px-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
                     (territory === area.key ? "border-[#175640] bg-[#175640] text-white" : "border-[#d9e4db] bg-[#f5f8f6] text-[#244a39] hover:border-[#92b5a0]")}>
                   {area.title}
@@ -221,7 +234,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
                 {key: "annual", title: "Annuale"},
               ] as const).map((option) => (
                 <button key={option.key} type="button" aria-pressed={billing === option.key}
-                  onClick={() => setBilling(option.key)}
+                  onClick={() => {setRequestStatus(null);setBilling(option.key);}}
                   className={"min-h-11 rounded-xl border px-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
                     (billing === option.key ? "border-[#175640] bg-[#175640] text-white" : "border-[#d9e4db] bg-[#f5f8f6] text-[#244a39] hover:border-[#92b5a0]")}>
                   {option.title}
@@ -242,10 +255,37 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
                 Prezzi proposti, ancora da validare con i clienti pilota. Nessun ordine o pagamento viene creato da questa schermata.
               </p>
             </div>
-            <div className="mt-4 rounded-xl border border-[#e1e9e3] bg-[#f4f8f5] p-3">
-              <p className="text-xs font-semibold text-[#244f3b]">Attivazioni non ancora aperte</p>
-              <p className="mt-1 text-xs leading-5 text-[#596e60]">Checkout, fatturazione e permessi self-service non sono disponibili. I diritti per categoria e Paese sono verificati nel database e assegnabili soltanto da un operatore autorizzato.</p>
+            <div className="mt-4 rounded-xl border border-[#e1e9e3] bg-[#f4f8f5] p-3" id="netpro1e-disclosure">
+              <p className="text-xs font-semibold text-[#244f3b]">Richiesta di attivazione pilota</p>
+              <p className="mt-1 text-xs leading-5 text-[#596e60]">
+                Invia una richiesta commerciale senza impegno per questi moduli e questo territorio.
+                Prezzi e condizioni saranno verificati prima di qualsiasi attivazione.
+                Checkout, fatturazione e permessi self-service non sono disponibili.
+                Nessun pagamento, ordine o diritto PRO nasce da questa richiesta.
+              </p>
             </div>
+            <button type="button" onClick={requestActivation}
+              disabled={!canRequestActivation||selected.length===0||!coverage||isSubmitting}
+              aria-describedby="netpro1e-disclosure"
+              data-testid="netpro1e-request"
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#124632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:bg-[#87998c]">
+              {isSubmitting?"Invio richiesta in corso…":"Richiedi attivazione PRO"}
+            </button>
+            {!canRequestActivation?
+              <p className="mt-2 text-xs text-[#596e60]">Solo l'amministratore aziendale può inviare una richiesta commerciale.</p>
+              :!coverage?
+              <p className="mt-2 text-xs text-[#7b6336]">Copertura non disponibile: richiesta sospesa per evitare offerte senza dati verificati.</p>
+              :null}
+            {requestStatus?
+              <p role="status" aria-live="polite" data-testid="netpro1e-request-result"
+                className={"mt-2 rounded-xl border p-3 text-xs leading-5 " +
+                  (requestStatus.status==="recorded"
+                    ?"border-[#b3d9bd] bg-[#f0f8f2] text-[#225c3b]"
+                    :"border-[#e7d6a8] bg-[#fff9eb] text-[#725729]")}>
+                {requestStatus.status==="recorded"
+                  ?"Richiesta registrata per la valutazione commerciale. Non hai acquistato alcun abbonamento e nessun modulo è stato attivato."
+                  :requestStatus.message}
+              </p>:null}
             <Link href="/network" className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#b5d2bf] bg-white px-3 text-sm font-semibold text-[#205a3d] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
               Esplora il Network
             </Link>
