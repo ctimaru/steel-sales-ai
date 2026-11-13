@@ -63,3 +63,44 @@ class FindCompanyIdentityTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BoilerplateBoundaryTest(unittest.TestCase):
+    """Real first-run v4 cases (13 Nov 2026): footers flatten menus and privacy
+    notices into the line holding the company name."""
+
+    def check(self, text, domain, guess, expected):
+        found = find_company_identity([text], domain, guess)
+        self.assertIsNotNone(found)
+        self.assertEqual(found.legal_name, expected)
+
+    def test_privacy_notice_before_name(self):
+        self.check("Informativa agli Utenti. Titolare del Trattamento dei Dati T-OFF s.r.l. P.IVA 01234567890",
+                   "t-off.it", "T-OFF", "T-OFF s.r.l.")
+
+    def test_menu_words_before_name(self):
+        self.check("Servizi Azienda Certificazioni News Contatti Effevi s.r.l.",
+                   "effevi.net", "effevisrl", "Effevi s.r.l.")
+
+    def test_repeated_menu_brand(self):
+        self.check("SIDERLAVORI HOME CONTATTI SIDERLAVORI srl", "siderlavori.it",
+                   "Siderlavori", "SIDERLAVORI srl")
+
+    def test_gdpr_form_text_before_name(self):
+        self.check("ai sensi del Reg. EU 679/2016 GDPR INVIA IL MESSAGGIO STILMET CARPENTERIE S.r.l.",
+                   "stilmet-srl.it", "Stilmet", "STILMET CARPENTERIE S.r.l.")
+
+    def test_policy_title_before_name(self):
+        self.check("POLITICA PARITA' DI GENERE TECHNOLOGICA Srl", "technologicasrl.com",
+                   "technologicasrl.", "TECHNOLOGICA Srl")
+
+    def test_good_names_unchanged(self):
+        self.check("GALBUSERA SERRE S.R.L. P.IVA 01234567890", "serregalbusera.it",
+                   "Serre Galbusera", "GALBUSERA SERRE S.R.L.")
+        self.check("© Trevigiana Metalli S.r.l.", "trevigianametalli.it",
+                   "Trevigiana Metalli", "Trevigiana Metalli S.r.l.")
+        self.check("Flli Tiana snc", "tianainfissi.it", "Tianainfissi.it", "Flli Tiana snc")
+
+    def test_too_many_words_is_rejected(self):
+        self.assertIsNone(find_company_identity(
+            ["Alfa Beta Gamma Delta Epsilon Zeta Eta Rossi S.r.l."], "rossi.it", "Rossi"))

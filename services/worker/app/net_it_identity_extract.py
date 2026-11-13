@@ -42,6 +42,25 @@ _STOP_CHARS = "|•·©®™:;\"«»()[]{}<>\n\r\t"
 _CONNECTORS = {"&", "e", "di", "de", "del", "della", "dei", "degli", "c.", "&c.", "f.lli", "fratelli"}
 _LEADING_NOISE = {"copyright", "tutti", "i", "diritti", "riservati", "all", "rights", "reserved",
                   "la", "il", "lo", "società", "societa", "azienda", "ditta", "ragione", "sociale"}
+# Navigation, cookie/privacy and contact words: a ragione sociale never
+# contains them, so the name stops there (footers flatten menus and privacy
+# notices into the same line as the company name).
+_BOILERPLATE = {
+    "home", "homepage", "contatti", "contattaci", "contatto", "contact", "contacts",
+    "news", "notizie", "blog", "chi", "siamo", "certificazioni", "prodotti", "products",
+    "gallery", "galleria", "privacy", "policy", "cookie", "cookies", "gdpr",
+    "informativa", "titolare", "trattamento", "dati", "utenti", "utente", "invia",
+    "inviare", "messaggio", "politica", "parita", "parità", "genere", "menu", "cerca",
+    "search", "login", "riservata", "lavora", "dove", "mappa", "sito", "newsletter",
+    "iscriviti", "seguici", "follow", "facebook", "instagram", "linkedin", "youtube",
+    "whatsapp", "telefono", "tel", "fax", "email", "e-mail", "mail", "pec", "indirizzo",
+    "sede", "legale", "operativa", "capitale", "sociale", "registro", "imprese", "rea",
+    "iva", "p.iva", "codice", "fiscale", "regolamento", "copyright", "diritti",
+    "riservati", "rights", "reserved", "accetta", "accetto", "rifiuta", "impostazioni",
+    "chiudi", "leggi", "scopri", "richiedi", "preventivo", "catalogo", "download", "faq",
+    "careers", "english", "italiano",
+}
+MAX_NAME_WORDS = 6
 _GENERIC = {
     "carpenteria", "carpenterie", "metallica", "metalliche", "metallici", "costruzioni",
     "acciai", "acciaio", "lavorazioni", "lavorazione", "lamiere", "lamiera", "officina",
@@ -109,6 +128,12 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
         low = word.casefold()
         if not bare:
             break
+        if bare.casefold().strip("'’") in _BOILERPLATE or "/" in bare or "@" in bare:
+            break
+        # "Utenti. Titolare ..." — a word closing a previous sentence.
+        if (picked and word.endswith(".") and "." not in bare
+                and len(bare) >= 5 and bare.isalpha()):
+            break
         if low in _CONNECTORS or bare[0].isupper() or bare[0].isdigit() or bare.isupper():
             picked.append(word)
             if len(picked) >= 8:
@@ -122,7 +147,7 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
         picked.pop(0)
     while picked and picked[-1].casefold() in {"&", "e", "di"}:
         picked.pop()
-    if not picked:
+    if not picked or len(picked) > MAX_NAME_WORDS:
         return None
     core = " ".join(picked).strip(" ,-–")
     if not re.search(r"[A-Za-zÀ-ÿ]", core) or len(core) > 200:
