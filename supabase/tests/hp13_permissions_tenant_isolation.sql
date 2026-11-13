@@ -308,10 +308,40 @@ select pg_temp.hp13_assert(
         'net_pipeline1b2_preview_batch',
         -- NET-PIPELINE1B.2: guarded platform-only one-candidate publication;
         -- feature flag defaults OFF, source/domain validation, audit ledger.
-        'net_pipeline1b2_publish_one'
+        'net_pipeline1b2_publish_one',
+        -- NET-PRO-CATALOG1.E: security-reviewed, authenticated company-admin-only,
+        -- tenant-checked non-binding lead submission. No grant/payment/auto-activation.
+        -- Direct table permissions are revoked and only one pending lead per org.
+        'netpro1e_request_activation'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
+);
+
+-- NET-PRO-CATALOG1.E reviewed: only an active admin of the exact organization
+-- may submit a non-binding commercial enquiry; no direct table access or grants.
+select pg_temp.hp13_assert(
+  exists (
+    select 1 from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public' and p.proname='netpro1e_request_activation'
+      and p.prosecdef
+      and has_function_privilege('authenticated',p.oid,'EXECUTE')
+      and not has_function_privilege('anon',p.oid,'EXECUTE')
+      and coalesce(array_to_string(p.proconfig,','),'') like '%search_path=""%'
+  )
+  and exists (
+    select 1 from pg_class c
+    where c.oid='public.network_pro_activation_requests'::regclass
+      and c.relrowsecurity
+      and not has_table_privilege('authenticated',c.oid,'SELECT')
+      and not has_table_privilege('authenticated',c.oid,'INSERT')
+      and not has_table_privilege('authenticated',c.oid,'UPDATE')
+      and not has_table_privilege('authenticated',c.oid,'DELETE')
+      and not has_table_privilege('anon',c.oid,'SELECT')
+      and not has_table_privilege('anon',c.oid,'INSERT')
+  ),
+  'NET-PRO-CATALOG1.E requires pinned authenticated RPC and private RLS request table'
 );
 
 -- NET-UX-MAP1 reviewed facade: explicit tenant guard remains in the private
