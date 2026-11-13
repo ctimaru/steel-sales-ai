@@ -34,7 +34,7 @@ export const dynamic = "force-dynamic";
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ experience?: string; view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string }>;
+  searchParams: Promise<{ experience?: string; tools?: string; view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
@@ -49,14 +49,11 @@ export default async function CommercialHomePage({
     params.prospect !== undefined || params.prospects === "1";
   const aiNativeEnabled = params.experience === "ai" ||
     (params.experience !== "classic" && process.env.COMM_AI_NATIVE_UI_ENABLED !== "0");
-  if (aiNativeEnabled && !legacyRouteRequested) {
-    return (
-      <FocusPage compact className="max-w-[1480px]">
-        <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_ai_native" }} />
-        <CommercialAiNativeShell canWrite={canWrite} />
-      </FocusPage>
-    );
-  }
+  // COMM-DESK-AI1: la chat convive con la scrivania. L'assistente compatto
+  // sostituisce l'hero scuro sopra contatori e trattative; nulla resta dietro
+  // «Gestione completa». experience=classic e COMM_AI_NATIVE_UI_ENABLED=0
+  // riportano l'hero precedente senza altre differenze.
+  const aiDeskLanding = aiNativeEnabled && !legacyRouteRequested;
   const networkAvailable = isNetworkFrontendEnabled();
   const showProspects = networkAvailable && params.prospects === "1";
   const prospectAccess = showProspects
@@ -131,7 +128,7 @@ export default async function CommercialHomePage({
   ).slice(0, 3);
   return (
     <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
-      <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_home" }} />
+      <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: aiDeskLanding ? "commercial_ai_native" : "commercial_home" }} />
       {aiFocused ? (
         <header data-testid="commercial-rfq-ai-focused-header" aria-labelledby="commercial-rfq-ai-focused-heading"
           className={"relative " + cinematic.hero}>
@@ -167,6 +164,9 @@ export default async function CommercialHomePage({
         view={view}
       />
 
+      {aiNativeEnabled ? (
+        <CommercialAiNativeShell canWrite={canWrite} compact />
+      ) : (
       <section data-testid="comm-cine13-first-workspace" aria-labelledby="commercial-create-heading"
         className={"relative z-10 " + cinematic.hero}>
         <div className={"grid gap-5 p-5 sm:p-7 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center lg:gap-8 lg:p-8 " + cinematic.heroGrid}>
@@ -190,12 +190,14 @@ export default async function CommercialHomePage({
           <CommercialAiCompanion canWrite={canWrite} />
         </div>
       </section>
+      )}
 
       <CommercialRequestSummary view={view} counts={requestSummary} tools={
         <details id="commercial-tool-access" data-testid="commercial-primary-quick-actions"
+          open={params.tools === "1" || undefined}
           className="group relative shrink-0 scroll-mt-28 [&_summary::-webkit-details-marker]:hidden">
           <summary className="inline-flex min-h-9 cursor-pointer list-none items-center gap-1.5 rounded-lg border border-[#d6e5db] bg-white px-3 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]">
-            Strumenti <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
+            Calcolatrice e storico <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
           </summary>
           <div className="mt-1 flex min-w-[260px] flex-col items-stretch gap-2 rounded-xl border border-[#d6e5db] bg-white p-3 shadow-lg sm:absolute sm:right-0 sm:top-full sm:z-30"
             data-testid="commercial-alternative-methods">
@@ -232,7 +234,7 @@ export default async function CommercialHomePage({
                Assistente AI · prepara distinta
              </Link>
            ) : null}
-           <Link href={appRoutes.commercial.home + "?experience=classic#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
+           <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
           </div>
           ) : <h2 id="commercial-compose-heading" className="sr-only">Nuova distinta conversazionale</h2>}
           <BuyerDistintaBuilder

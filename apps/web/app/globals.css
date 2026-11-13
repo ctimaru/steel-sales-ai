@@ -3115,14 +3115,15 @@ nav[aria-label="Categorie ricerca commerciale"] a:focus-visible {
 
 /* COMM-AI-NATIVE1.CLEAN1 — the conversation is the only Commerciale entry chrome.
    Keep the director navigation for classic, filtered lists, active Distinte and RFQ
-   deep links; hide it only when the server actually renders the AI-native shell. */
+   deep links; hide it only when the server actually renders the full-page AI-native
+   shell. COMM-DESK-AI1: the compact shell docked on the desk keeps the navigation. */
 @supports selector(:has(*)) {
-  [data-testid="commercial-director-shell"]:has([data-testid="commercial-ai-native-shell"]) > div:first-child,
-  [data-testid="commercial-director-shell"]:has([data-testid="commercial-ai-native-shell"]) [data-testid="commercial-director-sidebar"] {
+  [data-testid="commercial-director-shell"]:has([data-testid="commercial-ai-native-shell"]:not([data-layout="desk"])) > div:first-child,
+  [data-testid="commercial-director-shell"]:has([data-testid="commercial-ai-native-shell"]:not([data-layout="desk"])) [data-testid="commercial-director-sidebar"] {
     display: none !important;
   }
   @media (min-width: 1280px) {
-    [data-testid="commercial-director-shell"]:has([data-testid="commercial-ai-native-shell"]) > div:nth-child(2) {
+    [data-testid="commercial-director-shell"]:has([data-testid="commercial-ai-native-shell"]:not([data-layout="desk"])) > div:nth-child(2) {
       grid-template-columns: minmax(0, 1fr) !important;
     }
   }
