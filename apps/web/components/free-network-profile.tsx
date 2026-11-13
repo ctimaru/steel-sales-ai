@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { NetworkProfileOverview, NetworkProfileTopBar } from "@/components/network-profile-overview";
 import { NetworkProfileInventory } from "@/components/network-profile-inventory";
+import { NetworkSaveToggle } from "@/components/network-save-toggle";
+import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import { getPublishedNetworkInventory } from "@/lib/network-stock";
 import {getReviewedCompanyEvidence,summarizeReviewedCompanyEvidence} from "@/lib/network-profile-evidence";
 import { notFound } from "next/navigation";
@@ -8,7 +10,7 @@ import { FocusPage } from "@/components/focus-ui";
 import { NetworkActivationCta, NetworkActivationHelp } from "@/components/network-activation-cta";
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 import {getWorkspaceContext} from "@/lib/workspace-context";
-import {canInteractWithNetwork} from "@/lib/access-policy";
+import {canInteractWithNetwork,canWriteWorkspace} from "@/lib/access-policy";
 import { getFreeNetworkProfile, getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 export async function FreeNetworkProfileView({
@@ -36,7 +38,13 @@ export async function FreeNetworkProfileView({
   const license = safeNetworkWebsiteUrl(profile.license_url);
   const provisional = profile.company.discovery_status==="unconfirmed";
   const status=provisional?"unavailable":(await getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null))?.get(companyId);
-  const canConnect=canInteractWithNetwork((await getWorkspaceContext()).role);
+  const workspace = await getWorkspaceContext();
+  const canConnect=canInteractWithNetwork(workspace.role);
+  // Saved companies are private and already supported by the existing
+  // Network server action; never expose the control on provisional entries.
+  const canSave=!provisional && canWriteWorkspace(workspace.role);
+  const savedIds=canSave ? await getSavedNetworkCompanyIds(organizationId,[companyId]) : [];
+  const isSaved=savedIds.includes(companyId);
   const inventory = provisional ? [] : await getPublishedNetworkInventory(organizationId, companyId);
   const companyName=profile.company.trading_name || profile.company.legal_name;
   const reviewedSummary=summarizeReviewedCompanyEvidence(reviewedEvidence);
@@ -62,11 +70,12 @@ export async function FreeNetworkProfileView({
           website={website}
           stockCount={inventory.length}
           stockContent={inventory.length ? <NetworkProfileInventory items={inventory} /> : undefined}
-          connectionsAvailable={Boolean((status==="available"&&canConnect) || status==="pending" || status==="connected")}
+          connectionsAvailable={Boolean((status==="available"&&canConnect) || status==="pending" || status==="connected" || canSave)}
+          primaryConnectionAvailable={Boolean(status==="available"&&canConnect)}
           hasTechnicalDetails={Boolean(reviewedEvidence.length || provisional || profile.products.length || profile.facilities.length)}
           detailsTargetId="network-profile-free-evidence"
-          actions={
-            status==="available"&&canConnect ? (
+          actions={<>
+            {status==="available"&&canConnect ? (
               <Link href={"/network/"+companyId+"/connect"}
                 className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold">
                 Connetti →
@@ -77,8 +86,10 @@ export async function FreeNetworkProfileView({
             ) : status==="connected" ? (
               <Link className="inline-flex min-h-11 items-center text-sm font-semibold text-[#176647] underline"
                 href="/network/connections?box=connected">Connessione attiva · Apri connessioni</Link>
-            ) : null
-          }
+            ) : null}
+            {canSave ? <NetworkSaveToggle companyId={companyId} name={companyName}
+              saved={isSaved} returnTo={"/network/"+companyId} /> : null}
+          </>}
         />
       </div>
 

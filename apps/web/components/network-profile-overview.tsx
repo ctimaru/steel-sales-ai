@@ -38,6 +38,7 @@ export function NetworkProfileOverview({
   logoUrl,
   actions,
   connectionsAvailable = false,
+  primaryConnectionAvailable = false,
   stockCount = 0,
   stockContent,
   hasTechnicalDetails = false,
@@ -59,6 +60,7 @@ export function NetworkProfileOverview({
   logoUrl?: string | null;
   actions?: ReactNode;
   connectionsAvailable?: boolean;
+  primaryConnectionAvailable?: boolean;
   stockCount?: number;
   stockContent?: ReactNode;
   hasTechnicalDetails?: boolean;
@@ -74,7 +76,9 @@ export function NetworkProfileOverview({
   // two-column content section. The website is the useful first action.
   const hasPublishedActivities = Boolean(description?.trim() || visibleProducts.length || visibleServices.length);
 
-  if (!hasPublishedActivities && !stockCount && !hasTechnicalDetails) {
+  // Sparse entries are compact even when they have provenance details below.
+  // A discovered source is not evidence of a technical catalogue.
+  if (!hasPublishedActivities && stockCount === 0) {
     return (
       <article aria-label="Profilo aziendale" data-testid="network-profile-ux1a"
         data-profile-density="compact"
@@ -83,12 +87,12 @@ export function NetworkProfileOverview({
         <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
           <div id="attivita" className="min-w-0 px-4 py-5 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#466d52]">Azienda nel Network</p>
-            <div className="mt-4 flex min-w-0 items-start gap-3.5 sm:gap-5">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#d7e5db] bg-[#f3f8f4] text-lg font-extrabold tracking-tight text-[#155338] sm:h-[72px] sm:w-[72px] sm:text-[22px]">
+            <div className="mt-4 flex min-w-0 items-start gap-2.5 sm:gap-5">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#d7e5db] bg-[#f3f8f4] text-lg font-extrabold tracking-tight text-[#155338] sm:h-[72px] sm:w-[72px] sm:text-[22px]">
                 {logoUrl ? <img src={logoUrl} alt={"Logo " + name} className="max-h-full max-w-full object-contain p-2" /> : <span aria-hidden="true">{initials}</span>}
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="break-words text-[26px] font-semibold leading-[1.13] tracking-[-0.035em] text-[#163d2a] sm:text-[34px]">{name}</h1>
+                <h1 className="break-words text-[22px] font-semibold leading-[1.16] tracking-[-0.035em] text-[#163d2a] sm:text-[34px]">{name}</h1>
                 {legalName && legalName !== name ? <p className="mt-1.5 break-words text-xs text-[#5d7062] sm:text-sm">{legalName}</p> : null}
                 {(location || countryCode) ? <p className="mt-2 text-sm font-medium text-[#5b705f]">{[location, countryCode && !location?.includes(countryCode) ? countryCode : null].filter(Boolean).join(" · ")}</p> : null}
                 {visibleRoles.length ? <div className="mt-3 flex flex-wrap gap-1.5">
@@ -104,9 +108,16 @@ export function NetworkProfileOverview({
           </div>
           <aside id="contatti" aria-label="Contatti aziendali" data-testid="network-profile-header-contact"
             className="flex min-w-0 flex-col justify-center gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] px-4 py-4 sm:px-7 lg:border-l lg:border-t-0 lg:px-5 lg:py-6">
-            {hasContacts ? <section aria-label="Contatti disponibili" className="space-y-2">
+            {connectionsAvailable && actions ? <section aria-label="Azioni commerciali" data-testid="network-profile-quick-actions"
+              className={"space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11 " +
+                (primaryConnectionAvailable ? "order-1" : "order-2")}>{actions}</section> : null}
+            {hasContacts ? <section aria-label="Contatti disponibili"
+              className={"space-y-2 " + (primaryConnectionAvailable ? "order-2" : "order-1")}>
               {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-                className="app-primary flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17553b]">
+                className={(primaryConnectionAvailable
+                  ? "flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#cfe0d3] bg-white px-4 py-3 text-sm font-semibold text-[#1f5b40]"
+                  : "app-primary flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold") +
+                  " transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17553b]"}>
                 <span>Visita il sito aziendale</span><span aria-hidden="true">↗</span>
               </a> : null}
               {email ? <a data-testid="network-company-public-email" href={"mailto:" + email}
@@ -118,9 +129,7 @@ export function NetworkProfileOverview({
                 <span>{phone}</span><span aria-hidden="true">↗</span>
               </a> : null}
             </section> : null}
-            {actions ? <section aria-label="Azioni commerciali"
-              className="space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11">{actions}</section> : null}
-            {!hasContacts && !actions ? <p className="text-xs leading-5 text-[#6a7b6e]">Nessun recapito pubblico disponibile.</p> : null}
+            {!hasContacts && !connectionsAvailable ? <p className="text-sm leading-5 text-[#6a7b6e]">Nessun recapito pubblico disponibile.</p> : null}
           </aside>
         </div>
       </article>
@@ -211,19 +220,6 @@ const sections: NetworkProfileHubSection[] = [];
     });
   }
 
-  if (connectionsAvailable && actions) {
-    sections.push({
-      id: "connessioni",
-      title: "Connessioni",
-      summary: "Salva, connetti e collabora",
-      icon: "connections",
-      content: <section id="azioni" aria-label="Azioni commerciali" className="max-w-md">
-        <h3 className="text-lg font-semibold text-[#173f35]">Azioni commerciali</h3>
-        <div className="mt-3 space-y-2 [&_button]:min-h-11 [&_a]:min-h-11">{actions}</div>
-      </section>,
-    });
-  }
-
   if (hasTechnicalDetails && detailsTargetId) {
     sections.push({
       id: "approfondimenti",
@@ -234,9 +230,9 @@ const sections: NetworkProfileHubSection[] = [];
     });
   }
 
-  // Keep the commercial next step visible in the first row on mobile.
-  // Activity stays the default open panel, but connections become easy to find.
-  const hubOrder = ["connessioni", "attivita", "contatti", "stock", "approfondimenti"];
+  // Commercial actions live in the identity header, not in a duplicate card.
+  // Only information-backed modules become cards.
+  const hubOrder = ["attivita", "contatti", "stock", "approfondimenti"];
   sections.sort((a, b) => hubOrder.indexOf(a.id) - hubOrder.indexOf(b.id));
 
   return (
@@ -244,7 +240,7 @@ const sections: NetworkProfileHubSection[] = [];
       className="min-w-0 space-y-4 sm:space-y-5">
       <header className="min-w-0 overflow-hidden rounded-[24px] border border-[#d9e5dc] bg-white shadow-[0_12px_32px_-26px_rgba(17,65,43,0.35)]">
         <div className="h-1.5 bg-[#1b5c40]" aria-hidden="true" />
-        <div className={"grid min-w-0 lg:items-start " + (website ? "lg:grid-cols-[minmax(0,1fr)_308px]" : "")}>
+        <div className={"grid min-w-0 lg:items-start " + (website || connectionsAvailable ? "lg:grid-cols-[minmax(0,1fr)_284px]" : "")}>
           <div className="min-w-0 p-4 sm:p-6 lg:p-7">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#4f745c]">Azienda nel Network</p>
             <div className="mt-3 flex min-w-0 items-start gap-3.5 sm:gap-5">
@@ -266,15 +262,19 @@ const sections: NetworkProfileHubSection[] = [];
             </div>
             {description ? <p className="mt-4 line-clamp-2 text-xs leading-5 text-[#52655a] sm:text-sm">{description}</p> : null}
           </div>
-          {website ? <aside className="min-w-0 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:border-l lg:border-t-0 lg:p-6">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#496b54]">Accesso rapido</p>
+          {(website || connectionsAvailable) ? <aside data-testid="network-profile-quick-actions"
+            className="flex min-w-0 flex-col gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:self-stretch lg:border-l lg:border-t-0 lg:p-5">
+            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#496b54]">Azioni disponibili</p>
+            {connectionsAvailable && actions ? <section aria-label="Azioni commerciali"
+              className={"space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11 " +
+                (primaryConnectionAvailable ? "order-1" : "order-2")}>{actions}</section> : null}
             {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-              className="app-primary mt-3 flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white">
+              className={(primaryConnectionAvailable
+                ? "flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#cfe0d3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1f5b40]"
+                : "app-primary flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white") +
+                " " + (primaryConnectionAvailable ? "order-2" : "order-1")}>
               <span>Visita il sito aziendale</span><span aria-hidden="true">↗</span>
             </a> : null}
-            <p className="mt-3 text-xs leading-5 text-[#687b6d]">
-              Esplora prodotti, contatti e informazioni pubblicate selezionando le card.
-            </p>
           </aside> : null}
         </div>
       </header>
