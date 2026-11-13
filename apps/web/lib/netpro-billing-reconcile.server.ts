@@ -37,7 +37,13 @@ export async function reconcilePaidCheckout(intentId:string):Promise<ReconcileRe
     .eq("id",intentId).maybeSingle();
   if(error||!data)return {status:"not_found"};
   const intent=data as Intent;
-  if(!intent.stripe_checkout_session_id||intent.status==="expired"||intent.status==="canceled")
+  // A late duplicate invoice after verified termination is not retryable
+  // and must NEVER reactivate a canceled/expired company subscription.
+  if(intent.status==="expired"||intent.status==="canceled")
+    return {status:"not_found"};
+  // If Stripe sends its paid event before Checkout persists the session ID,
+  // return pending so the signed webhook is retried, not silently acknowledged.
+  if(!intent.stripe_checkout_session_id)
     return {status:"pending"};
   if(!stripeId(intent.stripe_checkout_session_id,"cs"))throw new Error("invalid_session_binding");
 
