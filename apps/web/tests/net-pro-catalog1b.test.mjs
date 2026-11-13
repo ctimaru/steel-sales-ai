@@ -73,3 +73,13 @@ test("B: UI counts only source-backed rows and preserves Free/legacy PRO access"
   assert.match(oldAccess,/pa1_3_network_access_state/);
   assert.match(sql,/No active membership for this company/);
 });
+
+
+test("B: post-main-sync browser gate covers mobile pricing and expiry",()=>{
+  const browser=get("tests/net-pro-catalog1b-chrome.mjs");
+  assert.match(browser,/Cross-tenant scope must be denied/);
+  assert.match(browser,/buyer\.org,producer\.org/);
+  assert.match(browser,/Expired module grant must not unlock access/);
+  assert.match(browser,/priceBox\.y<moduleBox\.y/);
+  assert.match(browser,/1440,390,320/);
+});
