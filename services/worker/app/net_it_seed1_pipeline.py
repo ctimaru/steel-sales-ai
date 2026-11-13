@@ -32,7 +32,7 @@ import httpx
 
 from .company_discovery import (
     MAX_PAGES_PER_DOMAIN, CompanyDiscoveryError, _fetch_page, _priority_links,
-    canonical_domain, canonicalize_seed_url, extract_candidate,
+    canonical_domain, canonicalize_seed_url, extract_candidate, robots_crawl_delay,
 )
 
 MAX_SOURCES_PER_RUN = 20
@@ -46,6 +46,9 @@ SCAN_LINKS_PER_PAGE = 5000
 TWO_LEVEL_THRESHOLD = 10
 MAX_PROFILE_PAGES_PER_SOURCE = 300
 PROFILE_PAUSE_SECONDS = 0.4
+# Profile pages honour the index site's robots.txt Crawl-delay / Request-rate,
+# up to this cap (a larger request is treated as the cap, never ignored).
+MAX_PROFILE_PAUSE_SECONDS = 20.0
 # A website linked from many profiles is the index site's sponsor, partner or
 # footer, not the company of that profile.
 COMMON_LINK_SHARE = 0.2
@@ -156,7 +159,7 @@ def profile_links(index_url: str, links: tuple[str, ...] | list[str],
 
 async def two_level_items(web: httpx.AsyncClient, index_url: str,
                           links: tuple[str, ...] | list[str], limit: int,
-                          *, pause_seconds: float = PROFILE_PAUSE_SECONDS,
+                          *, pause_seconds: float | None = None,
                           ) -> tuple[list[dict[str, str]], int]:
     """(items, profiles_read): one company website per profile page.
 
@@ -164,6 +167,9 @@ async def two_level_items(web: httpx.AsyncClient, index_url: str,
     SSRF- and size-protected fetcher. Only the outbound domain is kept; the
     evidence is the profile URL. Nothing from the profile text is copied.
     """
+    if pause_seconds is None:
+        asked = await robots_crawl_delay(web, index_url) if web is not None else 0.0
+        pause_seconds = max(PROFILE_PAUSE_SECONDS, min(asked, MAX_PROFILE_PAUSE_SECONDS))
     per_profile: list[tuple[str, list[dict[str, str]]]] = []
     for i, url in enumerate(profile_links(index_url, links, limit)):
         if i:
