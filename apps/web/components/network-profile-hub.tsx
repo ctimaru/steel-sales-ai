@@ -14,6 +14,7 @@ export type NetworkProfileHubSection = {
   icon: "products" | "contacts" | "connections" | "stock" | "documents";
   content?: ReactNode;
   targetId?: string;
+  targetLabel?: string;
 };
 
 function HubIcon({ kind }: { kind: NetworkProfileHubSection["icon"] }) {
@@ -31,20 +32,27 @@ function HubIcon({ kind }: { kind: NetworkProfileHubSection["icon"] }) {
   );
 }
 
+/**
+ * UX6: five destinations are visible for every company. Never hide one
+ * because data is pending; selected panels communicate actual availability.
+ */
 export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSection[] }) {
-  const [selected, setSelected] = useState(
-    sections.find((section) => section.id === "attivita" && section.content !== undefined)?.id
-    ?? sections.find((section) => section.content !== undefined)?.id ?? "",
-  );
+  const [selected, setSelected] = useState("attivita");
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
-  if (!sections.length) return null;
-  // One real section needs no navigation card: show its content immediately.
-  if (sections.length === 1 && sections[0].content !== undefined) {
-    return <section data-testid="network-company-single-panel" aria-label={sections[0].title}
-      className="min-w-0 rounded-[20px] border border-[#dce6df] bg-white p-4 sm:p-5">
-      {sections[0].content}
-    </section>;
+
+  function selectSection(sectionId: string) {
+    setSelected(sectionId);
+    // On narrow screens the detail panel sits below the card grid. Bring it
+    // into view after selection rather than leaving the user on the card row.
+    if (window.matchMedia("(max-width: 639px)").matches) {
+      window.requestAnimationFrame(() => {
+        document.getElementById("company-hub-panel-" + sectionId)?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+          block: "start",
+        });
+      });
+    }
   }
 
   function openTarget(targetId: string) {
@@ -52,55 +60,71 @@ export function NetworkProfileHub({ sections }: { sections: NetworkProfileHubSec
     if (!target) return;
     if (target instanceof HTMLDetailsElement) target.open = true;
     target.scrollIntoView({ behavior: "smooth", block: "start" });
+    const summary = target.querySelector("summary");
+    if (summary instanceof HTMLElement) summary.focus({ preventScroll: true });
   }
 
+  if (!sections.length) return null;
+  const activeId = sections.some((section) => section.id === selected)
+    ? selected : sections[0].id;
   return (
-    <section aria-label="Esplora le informazioni aziendali" data-testid="network-company-card-hub" data-ready={ready ? "true" : "false"}
-      className="min-w-0 space-y-3">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-base font-semibold tracking-tight text-[#173f35] sm:text-lg">
-          Informazioni sull'azienda
-        </h2>
-        <span className="text-xs text-[#607567]">Scegli cosa esplorare</span>
+    <section aria-label="Esplora le informazioni aziendali"
+      data-testid="network-company-card-hub" data-ready={ready ? "true" : "false"}
+      className="min-w-0 space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-2 px-0.5">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#4f8060]">Company Hub</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight text-[#173b2b] sm:text-2xl">
+            Esplora le informazioni
+          </h2>
+        </div>
+        <p className="text-xs text-[#637569]">Seleziona un'area per aprire i dettagli</p>
       </div>
-
-      <div aria-label="Naviga la scheda"
-        className="grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(180px,1fr))]"
+      <div role="group" aria-label="Naviga la scheda"
+        className="grid min-w-0 grid-cols-2 gap-2.5 lg:grid-cols-5"
         data-testid="network-company-section-nav">
         {sections.map((section) => {
-          const current = selected === section.id && section.content !== undefined;
+          const current = activeId === section.id;
           return (
             <button key={section.id} type="button" disabled={!ready}
-              aria-pressed={current}
-              aria-controls={section.content !== undefined ? "company-hub-panel-" + section.id : undefined}
-              onClick={() => section.targetId ? openTarget(section.targetId) : setSelected(section.id)}
-              className={"group flex min-h-[104px] min-w-0 flex-col items-start gap-2 rounded-[18px] border p-3 sm:min-h-[116px] sm:gap-2.5 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840] sm:p-4 " +
+              aria-pressed={current} aria-controls={"company-hub-panel-" + section.id}
+              onClick={() => selectSection(section.id)}
+              data-testid={"network-company-card-" + section.id}
+              className={"group flex min-h-[160px] min-w-0 flex-col items-start gap-2 rounded-[20px] border p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840] sm:min-h-[142px] sm:p-4 " +
                 (current
-                  ? "border-[#356e4e] bg-[#eef7f0] shadow-[0_8px_26px_-20px_rgba(16,82,46,0.6)]"
-                  : "border-[#dce7df] bg-white hover:border-[#a2c5aa] hover:bg-[#f7fbf8]")}
-              data-testid={"network-company-card-" + section.id}>
+                  ? "border-[#24724f] bg-[#eff8f1] shadow-[0_12px_26px_-23px_rgba(21,85,48,0.55)]"
+                  : "border-[#dfe8e1] bg-white shadow-[0_10px_26px_-24px_rgba(13,69,43,0.35)] hover:-translate-y-0.5 hover:border-[#a5c9af] hover:bg-[#f9fcfa]")}>
               <span className={"flex h-9 w-9 items-center justify-center rounded-xl " +
-                (current ? "bg-[#dcefe1] text-[#17573c]" : "bg-[#f0f6f1] text-[#366a4a]")}>
+                (current ? "bg-[#d9eee0] text-[#175b3d]" : "bg-[#f1f6f2] text-[#406c4f]")}>
                 <HubIcon kind={section.icon} />
               </span>
-              <span className="flex w-full min-w-0 flex-1 flex-col">
-                <span className="break-words text-sm font-semibold leading-5 text-[#173f35]">{section.title}</span>
-                <span className="mt-1 break-words text-xs leading-4 text-[#63776a]">{section.summary}</span>
+              <span className="block min-w-0 flex-1">
+                <span className="block break-words text-[13px] font-bold leading-5 text-[#183e2d] sm:text-sm">{section.title}</span>
+                <span className="mt-1 block break-words text-xs leading-[1.45] text-[#6a786e]">{section.summary}</span>
               </span>
-              <span className="self-end text-[#427759]" aria-hidden="true">{current ? "↓" : "↗"}</span>
+              <span className="self-end text-sm font-bold text-[#31714c]" aria-hidden="true">
+                {current ? "↓" : "↗"}
+              </span>
             </button>
           );
         })}
       </div>
-
-      {sections.filter((section) => section.content !== undefined).map((section) => (
+      {sections.map((section) => (
         <div key={section.id} id={"company-hub-panel-" + section.id}
           role="region" aria-label={section.title}
           data-testid={"network-company-panel-" + section.id}
-          className={selected === section.id
-            ? "min-w-0 rounded-[22px] border border-[#dce6df] bg-white p-4 shadow-[0_10px_34px_-30px_rgba(11,53,34,0.25)] sm:p-6"
+          hidden={activeId !== section.id}
+          className={activeId === section.id
+            ? "min-w-0 scroll-mt-24 rounded-[24px] border border-[#e0e8e2] bg-white p-4 shadow-[0_16px_38px_-34px_rgba(18,70,44,0.36)] sm:p-6 lg:p-7"
             : "hidden"}>
           {section.content}
+          {section.targetId ? (
+            <button type="button" onClick={() => openTarget(section.targetId!)}
+              data-testid="network-profile-open-details"
+              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl border border-[#bdd6c3] bg-white px-4 text-sm font-semibold text-[#215a3d] hover:bg-[#eff7f1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840]">
+              {section.targetLabel || "Apri approfondimenti pubblicati"} <span aria-hidden="true" className="ml-2">↓</span>
+            </button>
+          ) : null}
         </div>
       ))}
     </section>

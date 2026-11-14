@@ -16,11 +16,44 @@ export function NetworkProfileTopBar() {
         <span aria-hidden="true">←</span>
         <span className="sm:hidden">Network</span><span className="hidden sm:inline">Torna alle aziende</span>
       </Link>
-      <span className="hidden text-xs font-medium text-[#667a6c] sm:inline">Network <span aria-hidden="true">/</span> Profilo azienda</span>
+      <span className="hidden text-xs font-medium text-[#667a6c] sm:inline">Network <span aria-hidden="true">/</span> Scheda aziendale</span>
     </nav>
   );
 }
 
+/** NET-PROFILE-UX5.C — identity, source and field provenance stay separate.
+ * A sourced or claimed profile never implies a verified product or supplier. */
+export type NetworkIdentityTrust = "verified" | "claimed" | "unconfirmed" | "unverified";
+
+function NetworkProfileTrustSignals({
+  identityTrust, hasWebSource, hasCompanyDeclarations, hasVerifiedFields,
+}: {
+  identityTrust: NetworkIdentityTrust;
+  hasWebSource: boolean;
+  hasCompanyDeclarations: boolean;
+  hasVerifiedFields: boolean;
+}) {
+  const identity = identityTrust === "verified" ? "Azienda verificata"
+    : identityTrust === "claimed" ? "Profilo rivendicato"
+    : identityTrust === "unconfirmed" ? "Identità da confermare"
+    : "Identità non verificata";
+  return (
+    <div data-testid="network-profile-trust-signals"
+      className="flex min-w-0 flex-wrap items-center gap-1.5 text-xs">
+      <span data-testid="network-profile-identity-status"
+        className="rounded-full border border-[#d5e4da] bg-[#f3f8f4] px-2.5 py-1 font-semibold text-[#315941]">{identity}</span>
+      {hasWebSource ? <span className="rounded-full border border-[#dfe7e1] bg-white px-2.5 py-1 font-medium text-[#516b59]">Fonte web disponibile</span> : null}
+      {hasCompanyDeclarations ? <span className="rounded-full border border-[#dfe7e1] bg-white px-2.5 py-1 font-medium text-[#516b59]">Dati dichiarati dall’azienda</span> : null}
+      {hasVerifiedFields ? <span className="rounded-full border border-[#d5e4da] bg-[#ecf6ef] px-2.5 py-1 font-medium text-[#235942]">Elementi verificati</span> : null}
+    </div>
+  );
+}
+
+/**
+ * NET-PROFILE-UX6 — company page follows the approved five-card concept.
+ * The five destinations are stable for every company, even sparse ones;
+ * all visible claims and actions still come only from authorized data.
+ */
 export function NetworkProfileOverview({
   name,
   legalName,
@@ -30,6 +63,12 @@ export function NetworkProfileOverview({
   roles = [],
   description,
   evidenceSourceUrl,
+  sourceUrl,
+  identityTrust = "unverified",
+  hasCompanyDeclarations = false,
+  hasVerifiedFields = false,
+  technicalTopics = [],
+  standards = [],
   products = [],
   services = [],
   website,
@@ -52,6 +91,12 @@ export function NetworkProfileOverview({
   roles?: string[];
   description?: string | null;
   evidenceSourceUrl?: string | null;
+  sourceUrl?: string | null;
+  identityTrust?: NetworkIdentityTrust;
+  hasCompanyDeclarations?: boolean;
+  hasVerifiedFields?: boolean;
+  technicalTopics?: string[];
+  standards?: string[];
   products?: string[];
   services?: string[];
   website?: string | null;
@@ -66,216 +111,217 @@ export function NetworkProfileOverview({
   hasTechnicalDetails?: boolean;
   detailsTargetId?: string;
 }) {
-  const initials = name.trim().split(/\s+/).slice(0, 2).map((word) => word.slice(0, 1).toUpperCase()).join("") || "SS";
-  const visibleRoles = Array.from(new Set([primaryRole, ...roles].filter((role): role is string => Boolean(role)))).slice(0, 4);
-  const visibleProducts = Array.from(new Set(products.filter(Boolean))).slice(0, 8);
-  const visibleServices = Array.from(new Set(services.filter(Boolean))).slice(0, 6);
-  const hasContacts = Boolean(email || phone || website);
-  // NET-PROFILE-UX3: a directory entry is not a catalogue. For companies
-  // without declared activity, products or services do not render a vacant
-  // two-column content section. The website is the useful first action.
-  const hasPublishedActivities = Boolean(description?.trim() || visibleProducts.length || visibleServices.length);
+  const initials = name.trim().split(/\s+/).slice(0, 2)
+    .map((word) => word.slice(0, 1).toUpperCase()).join("") || "SS";
+  const visibleProducts = Array.from(new Set(products.filter(Boolean))).slice(0, 12);
+  const visibleServices = Array.from(new Set(services.filter(Boolean))).slice(0, 10);
+  const visibleStandards = Array.from(new Set(standards.filter(Boolean))).slice(0, 12);
+  const visibleRoles = Array.from(new Set([primaryRole, ...roles].filter((role): role is string => Boolean(role)))).slice(0, 3);
+  const hasActivities = Boolean(description?.trim() || visibleProducts.length || visibleServices.length || visibleStandards.length);
+  const hasStock = stockCount > 0 && stockContent !== undefined;
+  const trustSourceUrl = sourceUrl || evidenceSourceUrl;
+  const hasWebSource = Boolean(trustSourceUrl);
+  const countryName = countryCode === "IT" ? "Italia" : countryCode === "RO" ? "Romania" : countryCode === "DE" ? "Germania"
+    : countryCode === "FR" ? "Francia" : countryCode === "ES" ? "Spagna" : countryCode || null;
+  const companyMeta = [location || countryName, primaryRole].filter(Boolean).join(" · ");
+  const sectionTitleClass = "text-xl font-semibold tracking-tight text-[#173f35] sm:text-2xl";
+  const emptyStateClass = "rounded-2xl border border-[#e4ebe6] bg-[#f8faf8] px-4 py-5 text-sm leading-6 text-[#53675b]";
+  const publicSourceLink = trustSourceUrl ? (
+    <a href={trustSourceUrl} target="_blank" rel="noopener noreferrer"
+      className="inline-flex min-h-11 items-center rounded-xl border border-[#bad6c3] bg-[#f5faf6] px-4 text-sm font-semibold text-[#19523a] transition hover:bg-[#e9f5ec] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205a40]">
+      Consulta la fonte pubblica <span aria-hidden="true" className="ml-2">↗</span>
+    </a>
+  ) : null;
 
-  // Sparse entries are compact even when they have provenance details below.
-  // A discovered source is not evidence of a technical catalogue.
-  if (!hasPublishedActivities && stockCount === 0) {
-    return (
-      <article aria-label="Profilo aziendale" data-testid="network-profile-ux1a"
-        data-profile-density="compact"
-        className="min-w-0 overflow-hidden rounded-[24px] border border-[#d8e6dc] bg-white shadow-[0_14px_38px_-32px_rgba(15,65,40,0.38)]">
-        <div className="h-1 bg-[#1a6044]" aria-hidden="true" />
-        <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_minmax(260px,320px)]">
-          <div id="attivita" className="min-w-0 px-4 py-5 sm:px-7 sm:py-7 lg:px-8 lg:py-8">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#466d52]">Azienda nel Network</p>
-            <div className="mt-4 flex min-w-0 items-start gap-2.5 sm:gap-5">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#d7e5db] bg-[#f3f8f4] text-lg font-extrabold tracking-tight text-[#155338] sm:h-[72px] sm:w-[72px] sm:text-[22px]">
-                {logoUrl ? <img src={logoUrl} alt={"Logo " + name} className="max-h-full max-w-full object-contain p-2" /> : <span aria-hidden="true">{initials}</span>}
-              </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="break-words text-[22px] font-semibold leading-[1.16] tracking-[-0.035em] text-[#163d2a] sm:text-[34px]">{name}</h1>
-                {legalName && legalName !== name ? <p className="mt-1.5 break-words text-xs text-[#5d7062] sm:text-sm">{legalName}</p> : null}
-                {(location || countryCode) ? <p className="mt-2 text-sm font-medium text-[#5b705f]">{[location, countryCode && !location?.includes(countryCode) ? countryCode : null].filter(Boolean).join(" · ")}</p> : null}
-                {visibleRoles.length ? <div className="mt-3 flex flex-wrap gap-1.5">
-                  {visibleRoles.map((role,index)=><span key={role} className={index===0
-                    ? "rounded-full bg-[#e3f0e7] px-3 py-1 text-xs font-semibold text-[#1b5b3d]"
-                    : "rounded-full border border-[#dfe8e1] bg-white px-3 py-1 text-xs font-medium text-[#496954]"}>{role}</span>)}
-                </div> : null}
-              </div>
-            </div>
-            <p className="mt-5 max-w-[580px] border-t border-[#ebf0eb] pt-3 text-xs leading-5 text-[#637467]">
-              Prodotti e specializzazioni non ancora pubblicati nel Network.
-            </p>
-          </div>
-          <aside id="contatti" aria-label="Contatti aziendali" data-testid="network-profile-header-contact"
-            className="flex min-w-0 flex-col justify-center gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] px-4 py-4 sm:px-7 lg:border-l lg:border-t-0 lg:px-5 lg:py-6">
-            {connectionsAvailable && actions ? <section aria-label="Azioni commerciali" data-testid="network-profile-quick-actions"
-              className={"space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11 " +
-                (primaryConnectionAvailable ? "order-1" : "order-2")}>{actions}</section> : null}
-            {hasContacts ? <section aria-label="Contatti disponibili"
-              className={"space-y-2 " + (primaryConnectionAvailable ? "order-2" : "order-1")}>
-              {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-                className={(primaryConnectionAvailable
-                  ? "flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#cfe0d3] bg-white px-4 py-3 text-sm font-semibold text-[#1f5b40]"
-                  : "app-primary flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold") +
-                  " transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17553b]"}>
-                <span>Visita il sito aziendale</span><span aria-hidden="true">↗</span>
-              </a> : null}
-              {email ? <a data-testid="network-company-public-email" href={"mailto:" + email}
-                className="flex min-h-11 min-w-0 items-center justify-between gap-2 rounded-xl border border-[#d8e5db] bg-white px-3.5 py-2.5 text-sm font-semibold text-[#205c40]">
-                <span className="break-all">{email}</span><span aria-hidden="true">↗</span>
-              </a> : null}
-              {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\d+]/g,"")}
-                className="flex min-h-11 items-center justify-between gap-2 rounded-xl border border-[#d8e5db] bg-white px-3.5 py-2.5 text-sm font-semibold text-[#205c40]">
-                <span>{phone}</span><span aria-hidden="true">↗</span>
-              </a> : null}
-            </section> : null}
-            {!hasContacts && !connectionsAvailable ? <p className="text-sm leading-5 text-[#6a7b6e]">Nessun recapito pubblico disponibile.</p> : null}
-          </aside>
-        </div>
-      </article>
-    );
-  }
-
-const sections: NetworkProfileHubSection[] = [];
-  if (hasPublishedActivities) {
-    sections.push({
+  const sections: NetworkProfileHubSection[] = [
+    {
       id: "attivita",
       title: "Attività e prodotti",
-      summary: visibleProducts.length ? String(visibleProducts.length) + " categorie di prodotto" : "Competenze e specializzazioni",
+      summary: "Prodotti, lavorazioni, norme",
       icon: "products",
       content: (
-        <section id="attivita" aria-label="Attività e prodotti" className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#4b765b]">Attività e prodotti</p>
-          <h3 className="mt-1 text-xl font-semibold tracking-tight text-[#173f35]">Cosa fa e cosa offre</h3>
-          {description ? <p className="mt-3 max-w-3xl whitespace-pre-wrap text-sm leading-7 text-[#47594d]">{description}</p> : null}
+        <section id="attivita" aria-label="Attività e prodotti" className="min-w-0 space-y-4">
+          <div>
+            <h3 className={sectionTitleClass}>Attività e prodotti</h3>
+            <p className="mt-2 text-sm leading-6 text-[#647369]">
+              Prodotti commercializzati o fabbricati, lavorazioni e competenze tecniche pubblicate.
+            </p>
+          </div>
+          {description ? <p className="max-w-3xl whitespace-pre-wrap text-sm leading-7 text-[#45594c]">{description}</p> : null}
           {visibleProducts.length ? (
-            <div className="mt-4">
-              <h4 className="text-xs font-bold text-[#315540]">Prodotti</h4>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wide text-[#2d6245]">Prodotti</h4>
               <div className="mt-2 flex flex-wrap gap-2">
                 {visibleProducts.map((product) => <span key={product}
-                  className="rounded-xl border border-[#cfe0d2] bg-[#f4f9f5] px-3 py-2 text-xs font-semibold leading-5 text-[#24553a]">{product}</span>)}
+                  className="rounded-xl border border-[#d5e6d8] bg-[#f3f9f4] px-3 py-2 text-xs font-semibold text-[#24573c]">{product}</span>)}
               </div>
             </div>
           ) : null}
           {visibleServices.length ? (
-            <div className="mt-4">
-              <h4 className="text-xs font-bold text-[#315540]">Specializzazioni e servizi</h4>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wide text-[#2d6245]">Lavorazioni e specializzazioni</h4>
               <div className="mt-2 flex flex-wrap gap-2">
                 {visibleServices.map((service) => <span key={service}
-                  className="rounded-xl border border-[#dce6df] bg-white px-3 py-2 text-xs font-medium leading-5 text-[#4d6656]">{service}</span>)}
+                  className="rounded-xl border border-[#dfe9e0] bg-white px-3 py-2 text-xs font-medium text-[#536a58]">{service}</span>)}
               </div>
             </div>
           ) : null}
+          {visibleStandards.length ? (
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wide text-[#2d6245]">Norme pubblicate</h4>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {visibleStandards.map((standard) => <span key={standard}
+                  className="rounded-lg border border-[#d8e5dc] bg-[#f7faf8] px-3 py-1.5 text-xs font-semibold text-[#305d46]">{standard}</span>)}
+              </div>
+            </div>
+          ) : null}
+          {!hasActivities ? <p className={emptyStateClass}>
+            Prodotti e specializzazioni non ancora pubblicati nel Network.
+          </p> : null}
           {evidenceSourceUrl ? <p data-testid="network-company-source-attribution"
-            className="mt-4 border-t border-[#e5ece6] pt-3 text-xs text-[#61766a]">
+            className="border-t border-[#e7ece8] pt-3 text-xs leading-5 text-[#60776b]">
             Informazioni da fonte pubblica, non disponibilità a magazzino.
             <a href={evidenceSourceUrl} target="_blank" rel="noopener noreferrer"
-              className="ml-1 font-semibold text-[#205c40] underline underline-offset-2">Consulta la fonte ↗</a>
+              className="ml-1 font-semibold text-[#235c41] underline underline-offset-2">Consulta la fonte ↗</a>
           </p> : null}
         </section>
       ),
-    });
-  }
-
-  if (hasContacts) {
-    sections.push({
-      id: "contatti",
-      title: "Contatti e sedi",
-      summary: [email ? "Email" : null, phone ? "Telefono" : null, website ? "Sito ufficiale" : null]
-        .filter(Boolean).join(" · "),
-      icon: "contacts",
-      content: (
-        <section id="contatti" aria-label="Contatti aziendali" data-testid="network-profile-header-contact">
-          <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#4b765b]">Canali pubblici</p>
-          <h3 className="mt-1 text-xl font-semibold text-[#173f35]">Contatti</h3>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {email ? <a data-testid="network-company-public-email" href={"mailto:" + email}
-              className="min-w-0 rounded-xl border border-[#dce6df] bg-[#fbfdfb] p-3 text-sm font-semibold text-[#205b40] hover:border-[#9ec2a9]">
-              <span className="mb-1 block text-xs font-medium text-[#627466]">Email</span>
-              <span className="block break-all">{email} ↗</span>
-            </a> : null}
-            {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\d+]/g, "")}
-              className="min-w-0 rounded-xl border border-[#dce6df] bg-[#fbfdfb] p-3 text-sm font-semibold text-[#205b40] hover:border-[#9ec2a9]">
-              <span className="mb-1 block text-xs font-medium text-[#627466]">Telefono</span>
-              <span>{phone} ↗</span>
-            </a> : null}
-            {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-              className="min-w-0 rounded-xl border border-[#dce6df] bg-[#fbfdfb] p-3 text-sm font-semibold text-[#205b40] hover:border-[#9ec2a9]">
-              <span className="mb-1 block text-xs font-medium text-[#627466]">Sito ufficiale</span>
-              <span>Visita il sito ↗</span>
-            </a> : null}
-          </div>
-        </section>
-      ),
-    });
-  }
-
-  if (stockCount > 0 && stockContent) {
-    sections.push({
+    },
+    {
       id: "stock",
       title: "Stock e produzioni",
-      summary: String(stockCount) + (stockCount === 1 ? " posizione pubblicata" : " posizioni pubblicate"),
+      summary: "Magazzino e prossimi arrivi",
       icon: "stock",
-      content: stockContent,
-    });
-  }
-
-  if (hasTechnicalDetails && detailsTargetId) {
-    sections.push({
+      content: (
+        <section id="stock" aria-label="Stock e produzioni" className="min-w-0 space-y-4">
+          <div>
+            <h3 className={sectionTitleClass}>Stock e produzioni</h3>
+            <p className="mt-2 text-sm leading-6 text-[#647369]">Disponibilità pubblicate, arrivi programmati e produzioni comunicate dall'azienda.</p>
+          </div>
+          {hasStock ? stockContent : <p className={emptyStateClass}>
+            Nessuna disponibilità o produzione pubblicata per questa azienda. Non significa che non abbia materiale.
+          </p>}
+        </section>
+      ),
+    },
+    {
+      id: "contatti",
+      title: "Contatti e sedi",
+      summary: "Recapiti e stabilimenti",
+      icon: "contacts",
+      content: (
+        <section id="contatti" aria-label="Contatti aziendali" data-testid="network-profile-header-contact" className="min-w-0 space-y-4">
+          <div>
+            <h3 className={sectionTitleClass}>Contatti e sedi</h3>
+            <p className="mt-2 text-sm leading-6 text-[#647369]">Solo contatti e località pubblicati nel Network.</p>
+          </div>
+          {location ? <p className="text-sm font-semibold text-[#345c44]">{location}</p> : null}
+          {(email || phone || website) ? (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {email ? <a data-testid="network-company-public-email" href={"mailto:" + email}
+                className="min-w-0 rounded-xl border border-[#dce8df] bg-[#fbfdfb] p-4 text-sm text-[#205b40] hover:border-[#a7c9b0]">
+                <span className="mb-1 block text-xs font-medium text-[#627466]">Email</span>
+                <span className="block break-all font-semibold">{email} ↗</span>
+              </a> : null}
+              {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\d+]/g, "")}
+                className="min-w-0 rounded-xl border border-[#dce8df] bg-[#fbfdfb] p-4 text-sm text-[#205b40] hover:border-[#a7c9b0]">
+                <span className="mb-1 block text-xs font-medium text-[#627466]">Telefono</span>
+                <span className="font-semibold">{phone} ↗</span>
+              </a> : null}
+              {website ? <a href={website} target="_blank" rel="noopener noreferrer"
+                className="min-w-0 rounded-xl border border-[#dce8df] bg-[#fbfdfb] p-4 text-sm text-[#205b40] hover:border-[#a7c9b0]">
+                <span className="mb-1 block text-xs font-medium text-[#627466]">Sito ufficiale</span>
+                <span className="font-semibold">Visita il sito ↗</span>
+              </a> : null}
+            </div>
+          ) : !location ? <p className={emptyStateClass}>Nessun recapito o stabilimento pubblicato per questa azienda.</p> : null}
+        </section>
+      ),
+    },
+    {
+      id: "connessioni",
+      title: "Connessioni",
+      summary: "Relazioni e opportunità",
+      icon: "connections",
+      content: (
+        <section aria-label="Connessioni" className="min-w-0 space-y-4">
+          <div>
+            <h3 className={sectionTitleClass}>Connessioni</h3>
+            <p className="mt-2 text-sm leading-6 text-[#647369]">
+              Gestisci le relazioni commerciali con questa azienda, quando consentite dal tuo accesso.
+            </p>
+          </div>
+          {connectionsAvailable && actions ? <div data-testid="network-profile-quick-actions"
+            aria-label="Azioni commerciali" className="flex max-w-sm flex-col gap-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11">
+            {actions}
+          </div> : (
+            <p className={emptyStateClass}>
+              Nessuna azione commerciale disponibile per questo profilo con i permessi attuali.
+            </p>
+          )}
+        </section>
+      ),
+    },
+    {
       id: "approfondimenti",
-      title: "Dati e documenti",
-      summary: "Sedi, norme, fonti e certificazioni",
+      title: "Documenti e fonti",
+      summary: "Certificazioni e informazioni",
       icon: "documents",
-      targetId: detailsTargetId,
-    });
-  }
-
-  // Commercial actions live in the identity header, not in a duplicate card.
-  // Only information-backed modules become cards.
-  const hubOrder = ["attivita", "contatti", "stock", "approfondimenti"];
-  sections.sort((a, b) => hubOrder.indexOf(a.id) - hubOrder.indexOf(b.id));
+      targetId: hasTechnicalDetails ? detailsTargetId : undefined,
+      targetLabel: technicalTopics.length ? "Apri dati tecnici pubblicati" : "Apri informazioni e fonti",
+      content: (
+        <section aria-label="Documenti e fonti" data-testid="network-profile-trust-panel" className="min-w-0 space-y-4">
+          <div>
+            <h3 className={sectionTitleClass}>Documenti e fonti</h3>
+            <p className="mt-2 text-sm leading-6 text-[#647369]">
+              Origine delle informazioni, attendibilità ed eventuali documenti pubblicati.
+            </p>
+          </div>
+          <NetworkProfileTrustSignals identityTrust={identityTrust} hasWebSource={hasWebSource}
+            hasCompanyDeclarations={hasCompanyDeclarations} hasVerifiedFields={hasVerifiedFields} />
+          <p className="max-w-3xl text-sm leading-6 text-[#566b5d]">
+            Un profilo rivendicato indica chi lo gestisce. La verifica riguarda l'azienda o singoli dati:
+            non garantisce capacità di fornitura, stock o certificazioni non pubblicate.
+          </p>
+          {publicSourceLink || <p className={emptyStateClass}>Nessuna fonte web consultabile pubblicata per questa scheda.</p>}
+          {technicalTopics.length ? <div className="border-t border-[#e7ece8] pt-4">
+            <p className="text-sm font-semibold text-[#2e5941]">Informazioni presenti nel Network</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {technicalTopics.slice(0, 6).map((topic) =>
+                <span key={topic} className="rounded-lg border border-[#dce8df] bg-[#f7faf8] px-2.5 py-1 text-xs font-medium text-[#526b59]">{topic}</span>)}
+            </div>
+          </div> : null}
+        </section>
+      ),
+    },
+  ];
 
   return (
-    <article aria-label="Profilo aziendale" data-testid="network-profile-ux1a" data-profile-density="rich"
-      className="min-w-0 space-y-4 sm:space-y-5">
-      <header className="min-w-0 overflow-hidden rounded-[24px] border border-[#d9e5dc] bg-white shadow-[0_12px_32px_-26px_rgba(17,65,43,0.35)]">
-        <div className="h-1.5 bg-[#1b5c40]" aria-hidden="true" />
-        <div className={"grid min-w-0 lg:items-start " + (website || connectionsAvailable ? "lg:grid-cols-[minmax(0,1fr)_284px]" : "")}>
-          <div className="min-w-0 p-4 sm:p-6 lg:p-7">
-            <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#4f745c]">Azienda nel Network</p>
-            <div className="mt-3 flex min-w-0 items-start gap-3.5 sm:gap-5">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-[#d7e5db] bg-[#f3f8f4] text-lg font-extrabold tracking-tight text-[#155338] sm:h-[76px] sm:w-[76px]">
-                {logoUrl ? <img src={logoUrl} alt={"Logo " + name} className="max-h-full max-w-full object-contain p-2" /> : <span aria-hidden="true">{initials}</span>}
-              </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="break-words text-xl font-semibold leading-[1.14] tracking-[-0.035em] text-[#163d2a] sm:text-[34px]">{name}</h1>
-                {legalName && legalName !== name ? <p className="mt-1.5 break-words text-xs text-[#5d7062]">{legalName}</p> : null}
-                {location || countryCode ? <p className="mt-2 text-sm font-medium text-[#5b705f]">
-                  {[location, countryCode && !location?.includes(countryCode) ? countryCode : null].filter(Boolean).join(" · ")}
-                </p> : null}
-                {visibleRoles.length ? <div className="mt-3 flex flex-wrap gap-1.5">
-                  {visibleRoles.map((role,index)=><span key={role} className={index===0
-                    ? "rounded-full bg-[#e3f0e7] px-3 py-1 text-xs font-semibold text-[#1b5b3d]"
-                    : "rounded-full border border-[#dfe8e1] bg-white px-3 py-1 text-xs font-medium text-[#496954]"}>{role}</span>)}
-                </div> : null}
-              </div>
-            </div>
-            {description ? <p className="mt-4 line-clamp-2 text-xs leading-5 text-[#52655a] sm:text-sm">{description}</p> : null}
+    <article aria-label="Profilo aziendale" data-testid="network-profile-ux1a"
+      data-profile-density={hasActivities || hasStock ? "rich" : "compact"}
+      data-profile-layout="concept-five-cards"
+      className="min-w-0 space-y-5">
+      <header className="min-w-0 rounded-[26px] border border-[#dce6df] bg-white p-5 shadow-[0_18px_48px_-42px_rgba(13,70,43,0.4)] sm:p-7 lg:p-9">
+        <div className="flex min-w-0 flex-col gap-6 sm:flex-row sm:items-start">
+          <div className="flex h-[76px] w-[76px] shrink-0 items-center justify-center overflow-hidden rounded-[20px] bg-[#e5f0e9] text-2xl font-extrabold tracking-tight text-[#145b40] sm:h-[92px] sm:w-[92px] sm:text-[28px]">
+            {logoUrl ? <img src={logoUrl} alt={"Logo " + name} className="max-h-full max-w-full object-contain p-2" /> : <span aria-hidden="true">{initials}</span>}
           </div>
-          {(website || connectionsAvailable) ? <aside data-testid="network-profile-quick-actions"
-            className="flex min-w-0 flex-col gap-3 border-t border-[#e2eae3] bg-[#f8fbf8] p-4 sm:px-6 lg:self-stretch lg:border-l lg:border-t-0 lg:p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#496b54]">Azioni disponibili</p>
-            {connectionsAvailable && actions ? <section aria-label="Azioni commerciali"
-              className={"space-y-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11 " +
-                (primaryConnectionAvailable ? "order-1" : "order-2")}>{actions}</section> : null}
-            {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-              className={(primaryConnectionAvailable
-                ? "flex min-h-11 w-full items-center justify-between gap-3 rounded-xl border border-[#cfe0d3] bg-white px-4 py-2.5 text-sm font-semibold text-[#1f5b40]"
-                : "app-primary flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white") +
-                " " + (primaryConnectionAvailable ? "order-2" : "order-1")}>
-              <span>Visita il sito aziendale</span><span aria-hidden="true">↗</span>
-            </a> : null}
-          </aside> : null}
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#4d8060]">Scheda aziendale · Steel Industry Network</p>
+            <h1 className="mt-2 break-words text-[30px] font-semibold leading-[1.08] tracking-[-0.04em] text-[#173b2b] sm:text-[40px] lg:text-[44px]">{name}</h1>
+            {legalName && legalName !== name ? <p className="mt-1.5 break-words text-sm text-[#6b7c70]">{legalName}</p> : null}
+            {companyMeta ? <p className="mt-3 text-sm font-medium leading-6 text-[#536c5c]">{companyMeta}</p> : null}
+            {!primaryRole && visibleRoles.length ? <p className="mt-1 text-sm text-[#536c5c]">{visibleRoles.join(" · ")}</p> : null}
+            <div className="mt-5 flex flex-wrap items-center gap-2" data-testid="network-profile-hero-actions">
+              {website ? <a href={website} target="_blank" rel="noopener noreferrer"
+                className="app-primary inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#276a4d]">
+                Sito aziendale <span className="ml-2" aria-hidden="true">↗</span>
+              </a> : null}
+              <span className="inline-flex min-h-10 items-center rounded-xl border border-[#dde8df] bg-[#f8faf8] px-3.5 text-xs font-semibold text-[#54705c]">
+                Profilo attuale
+              </span>
+            </div>
+          </div>
         </div>
       </header>
 

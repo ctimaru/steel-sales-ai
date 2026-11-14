@@ -305,6 +305,17 @@ export default async function NetworkCompanyProfilePage({
   const publishedInventory = await getPublishedNetworkInventory(context.organizationId, profile.company.id);
   const reviewedEvidence = await getReviewedCompanyEvidence(context.organizationId,profile.company.id,"pro").catch(()=>[]);
   const reviewedSummary = summarizeReviewedCompanyEvidence(reviewedEvidence);
+  const hasCompanyDeclarations = [
+    ...profile.products, ...profile.facilities, ...profile.subtypes,
+    ...profile.contacts, ...profile.markets, ...profile.certifications,
+  ].some((item) => item.provenance_kind === "company_declared");
+  const technicalTopics = [
+    productGroups.length ? "Prodotti e lavorazioni" : null,
+    profile.facilities.length ? "Sedi e stabilimenti" : null,
+    technicalStandards.length || technicalGrades.length ? "Norme e gradi" : null,
+    profile.certifications.length ? "Certificazioni pubblicate" : null,
+    profile.markets.length ? "Mercati e applicazioni" : null,
+  ].filter((item): item is string => Boolean(item));
   const locationLabels = uniqueBy(
     profile.facilities
       .map((facility) => [facility.city, facility.country_code].filter(Boolean).join(", "))
@@ -345,6 +356,11 @@ export default async function NetworkCompanyProfilePage({
         products={[...productGroups.map((product) => networkNameIt(product.name)), ...reviewedSummary.products]}
         services={[...profile.subtypes.map((subtype) => networkNameIt(subtype.name)), ...capabilities.map((capability) => networkNameIt(capability.name)), ...reviewedSummary.services]}
         evidenceSourceUrl={safeNetworkWebsiteUrl(reviewedSummary.evidenceSourceUrl)}
+        identityTrust={profile.trust.verified ? "verified" : profile.trust.claimed ? "claimed" : "unverified"}
+        hasCompanyDeclarations={hasCompanyDeclarations}
+        hasVerifiedFields={verifiedAssetCount > 0}
+        technicalTopics={technicalTopics}
+        standards={technicalStandards.map((item) => item.code)}
         logoUrl={logoUrl}
         website={website}
         email={emailContact?.email}
@@ -416,7 +432,7 @@ export default async function NetworkCompanyProfilePage({
         </section>
       ) : null}
 
-      <details id="network-profile-technical-details" data-testid="network-profile-technical-details" className="rounded-[24px] border border-[#d7e6db] bg-white p-3.5 shadow-[0_6px_24px_-22px_rgba(17,65,43,0.3)] sm:p-5">
+      <details id="network-profile-technical-details" data-testid="network-profile-technical-details" className="hidden open:block rounded-[24px] border border-[#d7e6db] bg-white p-3.5 shadow-[0_6px_24px_-22px_rgba(17,65,43,0.3)] sm:p-5">
         <summary className="flex min-h-12 cursor-pointer list-item items-center rounded-xl px-2 py-2 text-sm font-semibold text-[#20533b] marker:text-[#286344] hover:bg-[#f4f8f5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#256646]">
           Esplora dati tecnici, sedi e certificazioni
           <span className="ml-2 text-xs font-normal text-[#65786c]">— Informazioni complete e fonti</span>

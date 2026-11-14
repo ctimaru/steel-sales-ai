@@ -15,10 +15,10 @@ const nav = read("../lib/commercial-director-navigation.ts");
 
 test("COMM-DESK-AI2 le domande sulla scrivania diventano filtri esistenti", () => {
   const href = (text) => desk(text)?.href ?? null;
-  assert.equal(href("Quali richieste scadono questa settimana?"), "/commercial?view=all&focus=due");
-  assert.equal(href("Mostrami le trattative in scadenza"), "/commercial?view=all&focus=due");
-  assert.equal(href("Quali richieste sono da rispondere?"), "/commercial?view=all&focus=reply");
-  assert.equal(href("Fammi vedere le offerte in attesa"), "/commercial?view=all&focus=waiting");
+  assert.equal(href("Quali richieste scadono questa settimana?"), "/commercial?focus=due");
+  assert.equal(href("Mostrami le trattative in scadenza"), "/commercial?focus=due");
+  assert.equal(href("Quali richieste sono da rispondere?"), "/commercial?focus=reply");
+  assert.equal(href("Fammi vedere le offerte in attesa"), "/commercial?focus=waiting");
   assert.equal(href("Mostra le bozze"), "/commercial?view=drafts");
   assert.equal(href("Apri le distinte"), "/commercial?view=drafts");
   assert.equal(href("Quali richieste ho ricevuto dai clienti?"), "/commercial?view=received");
@@ -26,7 +26,17 @@ test("COMM-DESK-AI2 le domande sulla scrivania diventano filtri esistenti", () =
   assert.equal(href("Elenca le RFQ ai fornitori"), "/commercial?view=sent");
   assert.equal(href("Fammi vedere le offerte"), "/commercial?view=offers");
   assert.equal(href("Mostrami gli ordini"), "/commercial?view=orders");
-  assert.equal(href("Mostrami tutte le trattative"), "/commercial?view=all");
+  assert.equal(href("Mostrami tutte le trattative"), "/commercial");
+});
+
+test("COMM-DESK-AI3 filtro dalla chat: il menu resta su Scrivania e il vuoto parla chiaro", () => {
+  const page = read("../app/(italian)/(workspace)/commercial/page.tsx");
+  // Senza ?view la pagina usa la vista «all», l'unica in cui il focus è valido.
+  assert.match(page, /const focus = view === "all" \? parseCommercialFocus\(params\.focus\) : ""/);
+  assert.match(page, /params\.focus !== undefined/);
+  const list = read("../components/commercial-unified-worklist.tsx");
+  assert.match(list, /due: "Niente in scadenza nei prossimi 7 giorni"/);
+  assert.match(list, /focus && !query \? focusEmptyTitles\[focus\]/);
 });
 
 test("COMM-DESK-AI2 creazione, ricerca aziende e domande tecniche restano all'assistente", () => {
