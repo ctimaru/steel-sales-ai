@@ -126,14 +126,18 @@ try{
       assert.match(inItaly,/^\d+ profil[oi] pubblicat[oi] in Italia$/,
         "Module card must show actual Italian published coverage");
       await page.getByRole("button",{name:"Europa",exact:true}).click();
-      await page.getByTestId("netpro1d-live-count-producers")
-        .getByText(/nei Paesi europei censiti$/).waitFor({state:"visible",timeout:15000});
+      await page.waitForFunction(() =>
+        document.querySelector('[data-testid="netpro1d-live-count-producers"]')
+          ?.textContent?.trim().endsWith("nei Paesi europei censiti"),
+        null,{timeout:15000});
       const inEurope=(await liveCount.innerText()).replace(/\s+/g," ").trim();
       assert.match(inEurope,/^\d+ profil[oi] pubblicat[oi] nei Paesi europei censiti$/,
         "European module card must describe only catalogued countries");
       await page.getByRole("button",{name:"Italia",exact:true}).click();
-      await page.getByTestId("netpro1d-live-count-producers")
-        .getByText(/in Italia$/).waitFor({state:"visible",timeout:15000});
+      await page.waitForFunction(() =>
+        document.querySelector('[data-testid="netpro1d-live-count-producers"]')
+          ?.textContent?.trim().endsWith("in Italia"),
+        null,{timeout:15000});
       assert.equal((await liveCount.innerText()).replace(/\s+/g," ").trim(),inItaly,
         "Italian coverage must return after territory switch");
       const rights=page.getByTestId("netpro1b-browse-IT-producers");
