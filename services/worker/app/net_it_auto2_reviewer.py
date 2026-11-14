@@ -314,10 +314,38 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                 r = await client.post(f"{url}/rest/v1/rpc/net_it_auto2_record",
                                       headers=headers,json=finding)
                 if r.status_code in REJECTED_STATUSES:
-                    # One candidate refused by the database contract (e.g. the
-                    # page is not on the company-owned domain) must not stop
-                    # the whole run; it stays in the queue unrecorded.
-                    rejected += 1
+                    # Preserve the rejected observation as a private exception,
+                    # not as supported identity. This prevents a deterministic
+                    # invalid evidence payload from starving the entire queue.
+                    # No URL, hash, observed name or rights assertion is carried
+                    # into the fallback; the DB still enforces candidate scope.
+                    fallback = dict(finding)
+                    fallback.update(
+                        p_verdict="needs_human",
+                        p_reasons=sorted(set(finding["p_reasons"]) |
+                                         {"evidence_contract_rejected"}),
+                        p_observed_domain=None,
+                        p_matched_name=False,
+                        p_observed_name=None,
+                        p_page_url=None,
+                        p_hash=None,
+                        p_confidence=0.0,
+                        p_terms_url=None,
+                        p_rights_state="unknown",
+                    )
+                    retry = await client.post(
+                        f"{url}/rest/v1/rpc/net_it_auto2_record",
+                        headers=headers, json=fallback)
+                    if retry.status_code in REJECTED_STATUSES:
+                        rejected += 1
+                        continue
+                    retry.raise_for_status()
+                    result = retry.json()
+                    if (result.get("contract") != "net-it-auto2-review-v1"
+                            or result.get("publication_count") != 0
+                            or result.get("verdict") != "needs_human"):
+                        raise RuntimeError("unexpected exception evidence response")
+                    written += 1
                     continue
                 r.raise_for_status()
                 result = r.json()
