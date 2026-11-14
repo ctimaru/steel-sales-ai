@@ -61,6 +61,9 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
           <div className="grid gap-3 sm:grid-cols-2">
             {NETWORK_PRO_MODULES.map((module, index) => {
               const active = selected.includes(module.key);
+              const publishedInTerritory = coverage
+                ? countries.reduce((total, country) => total + country.publishedModules[module.key], 0)
+                : null;
               return (
                 <button
                   key={module.key}
@@ -82,6 +85,17 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
                   <h3 className="mt-3 text-base font-bold text-[#173f35]">{module.title}</h3>
                   <p className="mt-2 text-xs leading-5 text-[#42574c]">{module.description}</p>
                   <p className="mt-3 text-[11px] font-semibold leading-4 text-[#386e53]">{module.audience}</p>
+                  <p className="mt-2 text-[11px] leading-5 text-[#425b4c]"
+                    data-testid={"netpro1d-live-count-"+module.key}>
+                    {publishedInTerritory===null
+                      ? "Copertura pubblicata non disponibile"
+                      : <>
+                        <span className="font-bold tabular-nums text-[#173f35]">
+                          {publishedInTerritory.toLocaleString("it-IT")}
+                        </span>{" "}{publishedInTerritory===1?"profilo pubblicato":"profili pubblicati"}{" "}
+                        {territory==="IT"?"in Italia":"nei Paesi europei censiti"}
+                      </>}
+                  </p>
                   <p className="mt-2 text-[11px] font-semibold text-[#425b4c]" data-testid={"netpro1b-license-"+module.key}>
                     {access?(territory==="IT"?access.modules[module.key].italy:access.modules[module.key].europe)
                       ? "Accesso PRO attivo" : "Accesso PRO non attivo":"Stato accesso non disponibile"}
