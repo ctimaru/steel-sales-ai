@@ -226,8 +226,9 @@ export function NetworkCompactExperience({
         <span data-testid="network-access-mode" className="ml-2 align-middle rounded-full bg-[#e4f0e9] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#176647]">{accessMode==="pro"?"Pro":"Free"}</span>
       </h1>
       <p className="text-xs text-[#52615b]" aria-label="Statistiche Network">
-        <strong className="tabular-nums text-[#173f35]">{directory.published.toLocaleString("it-IT")}</strong> profili pubblicati
-        {knownTotals?<> · <strong className="tabular-nums text-[#173f35]">{directory.discovered.toLocaleString("it-IT")}</strong> {directory.marketEvidence?"con settore da fonte":technicalOnly?"censite non filtrabili":"censite da fonti pubbliche"}</>:null}
+        {knownTotals?<>
+          <strong className="tabular-nums text-[#173f35]">{directory.total.toLocaleString("it-IT")}</strong> {filterActive?"aziende trovate":"aziende nel Network"}
+        </>:<span>Esplora le aziende del Network</span>}
       </p>
       <Link href="/network/pro" className="inline-flex min-h-9 items-center justify-center rounded-xl border border-[#b2d1bb] bg-[#f0f8f2] px-3 text-xs font-bold text-[#175640] hover:bg-[#e3f1e7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
         Network PRO · Moduli e prezzi
