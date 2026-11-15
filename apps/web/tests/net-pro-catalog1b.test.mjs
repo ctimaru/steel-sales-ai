@@ -80,7 +80,8 @@ test("B: post-main-sync browser gate covers mobile pricing and expiry",()=>{
   assert.match(browser,/Cross-tenant scope must be denied/);
   assert.match(browser,/buyer\.org,producer\.org/);
   assert.match(browser,/Expired module grant must not unlock access/);
-  assert.match(browser,/priceBox\.y<moduleBox\.y/);
+  assert.match(browser,/netpro-design1-mobile-checkout/);
+  assert.match(browser,/getByTestId\("netpro-design1-mobile-pay"\)/);
   assert.match(browser,/1440,390,320/);
 });
 
