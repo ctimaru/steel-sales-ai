@@ -196,7 +196,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
                         <span className="font-bold tabular-nums text-[#173f35]">
                           {publishedInTerritory.toLocaleString("it-IT")}
                         </span>{" "}{publishedInTerritory===1?"profilo pubblicato":"profili pubblicati"}{" "}
-                        <span className="sr-only">{territory==="IT"?"in Italia":"nei Paesi europei censiti"}</span>
+                        {territory==="IT"?"in Italia":"nei Paesi europei censiti"}
                       </>}
                   </span>
                   <span className="rounded-full border border-[#cbdcd0] bg-white px-2 py-0.5 text-[9px] font-semibold text-[#356249]">
@@ -255,7 +255,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
         </div>
       </div>
 
-      <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block" aria-label="Configurazione e prezzi Network PRO">
+      <aside className="hidden min-w-0 lg:sticky lg:top-24 lg:block" aria-label="Configurazione e prezzi Network PRO">
         <div className="overflow-hidden rounded-[22px] border border-[#d8e3da] bg-white p-5 shadow-[0_15px_38px_rgba(25,56,39,0.1)]">
           <h2 className="flex items-center gap-2.5 text-[17px] font-extrabold leading-6 text-[#172c21]">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e6f2e9] text-[#185a3d]">
