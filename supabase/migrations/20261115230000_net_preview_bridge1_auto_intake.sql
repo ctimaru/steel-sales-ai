@@ -57,13 +57,13 @@ begin
       and not exists (select 1 from private.net_preview_bridge1_ledger l where l.lead_id=t.id)
       and not exists (
         select 1 from public.network_company_discovery_candidates c
-        where lower(btrim(c.canonical_domain))=lower(btrim(t.canonical_domain))
+        where regexp_replace(lower(btrim(c.canonical_domain)),'^www[.]','')=lower(t.canonical_domain)
            or lower(regexp_replace(btrim(c.legal_name),'[^[:alnum:]]','','g'))
               =lower(regexp_replace(btrim(t.company_name),'[^[:alnum:]]','','g'))
       )
       and not exists (
         select 1 from public.network_companies c
-        where lower(btrim(c.website_domain))=lower(btrim(t.canonical_domain))
+        where regexp_replace(lower(btrim(c.website_domain)),'^www[.]','')=lower(t.canonical_domain)
            or (c.country_code='IT' and
               lower(regexp_replace(btrim(c.legal_name),'[^[:alnum:]]','','g'))
               =lower(regexp_replace(btrim(t.company_name),'[^[:alnum:]]','','g')))
@@ -125,14 +125,14 @@ begin
       jsonb_build_object('source','previous_public_research',
         'identity_verified',false,'material_signal',t.material_signal),
       '{}'::jsonb,
-      case when t.company_name ~* '(s[.]?r[.]?l[.]?|s[.]?p[.]?a[.]?|s[.]?n[.]?c[.]?|s[.]?a[.]?s[.]?)\\s*$'
+      case when t.company_name ~* '(s[.]?r[.]?l[.]?|s[.]?p[.]?a[.]?|s[.]?n[.]?c[.]?|s[.]?a[.]?s[.]?)[[:space:]]*$'
         then array['legal_identity_not_verified']::text[]
         else array['legal_identity_not_verified','identity_no_legal_suffix']::text[]
       end,
       'unreviewed',false
     from public.network_core_target_leads t where t.id=any(v_ids)
       and not exists(select 1 from public.network_company_discovery_candidates c
-        where lower(btrim(c.canonical_domain))=lower(btrim(t.canonical_domain)))
+        where regexp_replace(lower(btrim(c.canonical_domain)),'^www[.]','')=lower(t.canonical_domain))
     returning id,canonical_domain
   ), ledger as (
     insert into private.net_preview_bridge1_ledger(lead_id,candidate_id,run_id)
