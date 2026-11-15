@@ -456,3 +456,42 @@ def test_wood_carpentry_and_non_tube_machine_builder_are_rejected() -> None:
     roles, _, _, _, _ = classify_company(
         "Costruzione macchine e impianti industriali in acciaio per OEM.")
     assert "end_user" not in roles
+
+
+# NET-IT-GROWTH6: treatments, producers beyond mills, iron and steel merchants.
+def test_steel_treatments_qualify_as_processors() -> None:
+    for text in (
+        "Zincheria: zincatura a caldo di manufatti in acciaio e carpenteria.",
+        "Trattamenti termici di acciai: tempra, rinvenimento e bonifica.",
+        "Decapaggio e passivazione di componenti in acciaio inox.",
+        "Ossitaglio e calandratura di lamiere in acciaio di grosso spessore.",
+    ):
+        roles, _, products, _, _ = classify_company(text)
+        assert roles == ["processor_service_provider"], text
+        assert products == []
+
+
+def test_steel_producers_beyond_mills_qualify() -> None:
+    for text in (
+        "Trafileria: produzione di trafilati in acciaio al carbonio.",
+        "Forgiatura a stampo aperto di acciai legati per l'industria.",
+        "Fonderia: getti in acciaio per valvole e pompe.",
+        "Produzione di flange in acciaio inox su disegno.",
+    ):
+        roles, _, _, _, _ = classify_company(text)
+        assert "producer" in roles, text
+
+
+def test_iron_and_steel_merchants_qualify() -> None:
+    for text in (
+        "Ingrosso ferro e acciai: travi, lamiere, tondo per cemento armato.",
+        "Vendita tubi e raccordi in acciaio, flange e raccordi a magazzino.",
+    ):
+        roles, _, _, _, _ = classify_company(text)
+        assert "trader_distributor" in roles, text
+
+
+def test_treatment_words_without_steel_evidence_are_rejected() -> None:
+    roles, _, _, _, flags = classify_company(
+        "Verniciatura industriale e sabbiatura di mobili in legno e plastica.")
+    assert roles == [] and flags == ["classification_no_steel_evidence"]
