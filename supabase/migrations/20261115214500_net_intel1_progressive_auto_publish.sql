@@ -94,8 +94,8 @@ begin
       and c.publication_status='published' and c.archived_at is null
       and nullif(btrim(c.description),'') is null
       and c.website_url ~* '^https://' and e.evidence_url ~* '^https://'
-      and lower(regexp_replace(split_part(split_part(c.website_url,'://',2),'/',1),'^www\\.','')) =
-          lower(regexp_replace(split_part(split_part(e.evidence_url,'://',2),'/',1),'^www\\.',''))
+      and lower(regexp_replace(split_part(split_part(c.website_url,'://',2),'/',1),'^www[.]','')) =
+          lower(regexp_replace(split_part(split_part(e.evidence_url,'://',2),'/',1),'^www[.]',''))
       and length(coalesce(e.evidence_excerpt,'')) >= 60
       and length(e.field_value #>> '{}') between 65 and 270
       and (e.field_value #>> '{}') !~* '(home|menu|skip|button|contatt|telefona|visita il sito|chi siamo|vai al contenuto|search|toggle|cookies)'
