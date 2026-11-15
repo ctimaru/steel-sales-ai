@@ -120,6 +120,28 @@ try{
       await visit(page,"/network/pro");
       await page.getByTestId("netpro1b-coverage").waitFor({state:"visible",timeout:90000});
       await page.getByTestId("netpro1b-license-producers").getByText("Accesso PRO attivo").waitFor({state:"visible",timeout:90000});
+      // Capture the compact purchase experience BEFORE opening the detailed country audit.
+      await page.screenshot({
+        path:path.join(out,"netpro-design1-purchase-"+width+".png"),
+        fullPage:true,animations:"disabled",
+      });
+      const dynamicPrice=page.getByTestId(width<1024?"network-pro-mobile-price":"network-pro-price");
+      const basePrice=(await dynamicPrice.innerText()).trim();
+      const processors=page.getByTestId("network-pro-module-processors");
+      assert.equal(await processors.getAttribute("aria-pressed"),"false");
+      await processors.click();
+      await page.waitForFunction(({id,previous})=>
+        document.querySelector('[data-testid="'+id+'"]')?.textContent?.trim()!==previous,
+        {id:width<1024?"network-pro-mobile-price":"network-pro-price",previous:basePrice},
+        {timeout:15000});
+      assert.equal(await processors.getAttribute("aria-pressed"),"true");
+      await processors.click();
+      await page.waitForFunction(({id,expected})=>
+        document.querySelector('[data-testid="'+id+'"]')?.textContent?.trim()===expected,
+        {id:width<1024?"network-pro-mobile-price":"network-pro-price",expected:basePrice},
+        {timeout:15000});
+      assert.equal(await processors.getAttribute("aria-pressed"),"false");
+      checks+=3;
       await page.getByTestId("netpro-design1-toggle-country-details").click();
       await page.getByTestId("netpro1b-country-IT").waitFor({state:"visible",timeout:90000});
       const liveCount=page.getByTestId("netpro1d-live-count-producers");
