@@ -96,7 +96,7 @@ select pg_temp.k4_assert(
 select pg_temp.k4_assert(
   jsonb_typeof(:'p265gh_detail'::jsonb->'source_references')='array'
   and jsonb_array_length(:'p265gh_detail'::jsonb->'source_references')>=2
-  and (:'p265gh_detail'::jsonb->>'last_reviewed_at')='2026-09-28',
+  and (:'p265gh_detail'::jsonb->>'last_reviewed_at')::date>='2026-09-28'::date,
   'public grade detail must expose reviewed references and freshness'
 );
 

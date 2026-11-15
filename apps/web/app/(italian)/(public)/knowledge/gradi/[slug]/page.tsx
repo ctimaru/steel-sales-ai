@@ -220,6 +220,38 @@ export default async function GradeDetailPage({
           <section id={`grade-reading-section-${index + 1}`} key={section.heading + index} className="scroll-mt-24 rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
             <h2 className="text-2xl font-semibold text-[#1d2824]">{section.heading}</h2>
             <p className="mt-3 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">{section.body}</p>
+            {section.table?.columns?.length && section.table.rows?.length ? (
+              <div className="mt-5 overflow-x-auto rounded-2xl border border-[#dce2df]">
+                <table className="w-full min-w-[420px] border-collapse text-left text-sm">
+                  {section.table.caption ? (
+                    <caption className="sr-only">{section.table.caption}</caption>
+                  ) : null}
+                  <thead className="bg-[#f6f8f7] text-xs font-bold uppercase tracking-[0.08em] text-[#465c4f]">
+                    <tr>
+                      {section.table.columns.map((column) => (
+                        <th key={column} scope="col" className="px-4 py-3">{column}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e8eeeb] bg-white">
+                    {section.table.rows.map((row, rowIndex) => (
+                      <tr key={row.join("|") + rowIndex}>
+                        {row.map((cell, cellIndex) =>
+                          cellIndex === 0 ? (
+                            <th key={cellIndex} scope="row" className="px-4 py-3 font-semibold text-[#1d2824]">{cell}</th>
+                          ) : (
+                            <td key={cellIndex} className="px-4 py-3 tabular-nums text-[#465c4f]">{cell}</td>
+                          ),
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
+            {section.table?.note ? (
+              <p className="mt-3 max-w-[74ch] text-xs leading-5 text-[#66736e]">{section.table.note}</p>
+            ) : null}
           </section>
         ))}
 
