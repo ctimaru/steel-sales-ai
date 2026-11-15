@@ -43,7 +43,10 @@ test("NET-PRO-CATALOG1.A offers accessible responsive selection without fake che
   assert.match(ux, /aria-live="polite"/);
   assert.match(ux, /sm:grid-cols-2/);
   assert.match(ux, /lg:sticky lg:top-24/);
-  assert.match(ux, /Checkout, fatturazione e permessi/);
+  assert.match(ux, /data-testid="netpro-design1-desktop-checkout"/);
+  assert.match(ux, /data-testid="netpro-design1-mobile-checkout"/);
+  assert.match(ux, /Checkout non ancora disponibile/);
+  assert.match(ux, /Nessun ordine o pagamento viene creato/);
   assert.doesNotMatch(ux, /stripe\.com\/|paymentIntent|grantEntitlement|<form[^>]*action=/i);
 });
 
