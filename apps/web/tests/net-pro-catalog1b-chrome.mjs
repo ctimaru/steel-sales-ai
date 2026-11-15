@@ -120,6 +120,7 @@ try{
       await visit(page,"/network/pro");
       await page.getByTestId("netpro1b-coverage").waitFor({state:"visible",timeout:90000});
       await page.getByTestId("netpro1b-license-producers").getByText("Accesso PRO attivo").waitFor({state:"visible",timeout:90000});
+      await page.getByTestId("netpro-design1-toggle-country-details").click();
       await page.getByTestId("netpro1b-country-IT").waitFor({state:"visible",timeout:90000});
       const liveCount=page.getByTestId("netpro1d-live-count-producers");
       const inItaly=(await liveCount.innerText()).replace(/\s+/g," ").trim();
@@ -145,11 +146,18 @@ try{
       assert.equal(await page.getByTestId("netpro1b-browse-IT-distributors").count(),0,
         "Unpaid distributors must not display browse link");
       if(width<1024){
-        const priceBox=await page.getByTestId("network-pro-price").boundingBox();
-        const moduleBox=await page.getByTestId("network-pro-module-producers").boundingBox();
-        assert.ok(priceBox&&moduleBox&&priceBox.y<moduleBox.y,
-          "Mobile must show configuration and live price before the module cards");
-        checks++;
+        const sticky=page.getByTestId("netpro-design1-mobile-checkout");
+        const stickyPosition=await sticky.evaluate(el=>getComputedStyle(el).position);
+        assert.equal(stickyPosition,"fixed","Mobile price and CTA must stay visible while selecting modules");
+        assert.equal(await page.getByTestId("netpro-design1-mobile-pay").isDisabled(),true,
+          "Checkout must stay unavailable until Stripe pricing and billing are approved");
+        assert.ok(await page.getByTestId("network-pro-mobile-price").innerText(),
+          "Live mobile price must remain visible");
+        checks+=3;
+      }else{
+        assert.equal(await page.getByTestId("netpro-design1-desktop-checkout").isDisabled(),true);
+        assert.ok(await page.getByTestId("network-pro-price").innerText());
+        checks+=2;
       }
       const overflow=await page.evaluate(()=>({
         viewport:document.documentElement.clientWidth,
