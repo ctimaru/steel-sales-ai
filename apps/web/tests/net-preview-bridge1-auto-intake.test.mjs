@@ -7,7 +7,7 @@ test("BRIDGE1 stages only first-party research with bounded automatic batches",(
   assert.match(sql,/p_max integer default 100/);
   assert.match(sql,/not between 1 and 100/);
   assert.match(sql,/session_user <> 'postgres'/);
-  assert.match(sql,/private\\.net_it_auto3_policy/);
+  assert.match(sql,/private\.net_it_auto3_policy/);
   assert.match(sql,/evidence_url ~\* '\^https:\/\/'/);
   assert.match(sql,/network_netfast3_suppressed_domains/);
   assert.match(sql,/network_company_discovery_candidates/);
@@ -21,7 +21,7 @@ test("BRIDGE1 does not bypass identity verification or publish contact data",()=
   assert.match(sql,/publication_authorized',false/);
   assert.match(sql,/'unreviewed','not_checked','not_assessed','not_assessed'/);
   assert.match(sql,/published',0/);
-  assert.doesNotMatch(sql,/insert into public\\.network_companies/i);
-  assert.doesNotMatch(sql,/insert into public\\.network_contacts/i);
+  assert.doesNotMatch(sql,/insert into public\.network_companies/i);
+  assert.doesNotMatch(sql,/insert into public\.network_contacts/i);
   assert.match(sql,/net-preview-bridge1-daily-stage/);
 });
