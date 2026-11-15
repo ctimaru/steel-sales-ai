@@ -67,11 +67,16 @@ test("SEO-GRADE1 keeps the editorial trust contract", () => {
 });
 
 test("SEO-GRADE1 renders section tables accessibly on the grade page", () => {
+  const table = fs.readFileSync(
+    new URL("../components/knowledge-section-table.tsx", import.meta.url),
+    "utf8",
+  );
   assert.match(data, /export type KnowledgeEditorialTable/);
   assert.match(data, /table\?: KnowledgeEditorialTable/);
-  assert.match(detailPage, /section\.table\?\.columns\?\.length/);
-  assert.match(detailPage, /<caption className="sr-only">/);
-  assert.match(detailPage, /scope="col"/);
-  assert.match(detailPage, /scope="row"/);
-  assert.match(detailPage, /overflow-x-auto/);
+  assert.match(detailPage, /<KnowledgeSectionTable table=\{section\.table\} \/>/);
+  assert.match(table, /table\?\.columns\?\.length/);
+  assert.match(table, /<caption className="sr-only">/);
+  assert.match(table, /scope="col"/);
+  assert.match(table, /scope="row"/);
+  assert.match(table, /overflow-x-auto/);
 });
