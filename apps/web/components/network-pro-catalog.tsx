@@ -1,10 +1,9 @@
 "use client";
 
-import {useState} from "react";
+import {useState,type ReactNode} from "react";
 import Link from "next/link";
 import {networkCountryName} from "@/lib/network-eu-countries";
 import type {NetworkProAccess,NetworkProCoverage} from "@/lib/network-pro-coverage";
-
 import {
   NETWORK_PRO_ANNUAL_DISCOUNT_PERCENT,
   NETWORK_PRO_MODULES,
@@ -13,249 +12,421 @@ import {
   type NetworkProTerritory,
 } from "@/lib/network-pro-catalog";
 
-const euro = new Intl.NumberFormat("it-IT", {style: "currency", currency: "EUR", maximumFractionDigits: 0});
+const euro = new Intl.NumberFormat("it-IT", {style:"currency",currency:"EUR",maximumFractionDigits:0});
+const orderedModules:NetworkProModuleKey[]=["producers","distributors","processors","end_users"];
+type IconName="cursor"|"card"|"bolt"|"globe"|"calendar"|"layers"|"factory"|"truck"|"tools"|"gear"|"building"|"check"|"shield"|"arrow"|"chart"|"database"|"lock"|"info"|"spark"|"receipt";
 
-export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage|null;access:NetworkProAccess|null}) {
-  const [territory, setTerritory] = useState<NetworkProTerritory>("IT");
-  const [billing, setBilling] = useState<"monthly" | "annual">("monthly");
-  const [selected, setSelected] = useState<NetworkProModuleKey[]>(["producers", "distributors"]);
-  const quote = networkProQuote(selected, territory, billing);
+function Icon({name,size=20,className=""}:{name:IconName;size?:number;className?:string}){
+  const paths:Record<IconName,ReactNode>={
+    cursor:<><path d="m4 3 7 17 2.4-6.6L20 11 4 3Z"/><path d="m13.4 13.4 4.8 4.8"/></>,
+    card:<><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3 10h18M7 15h4"/></>,
+    bolt:<path d="m13 2-9 12h7l-1 8 10-13h-7l1-7Z"/>,
+    globe:<><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></>,
+    calendar:<><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/></>,
+    layers:<><path d="m12 2 9 5-9 5-9-5 9-5Zm-9 10 9 5 9-5M3 17l9 5 9-5"/></>,
+    factory:<><path d="M3 21V10l6 4V9l6 4V3l6 3v15H3Z"/><path d="M7 18h.01M12 18h.01M17 18h.01"/></>,
+    truck:<><path d="M3 5h11v11H3zM14 9h4l3 4v3h-7z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/></>,
+    tools:<><path d="m4 20 8-8M9 4l4 4-5 5-4-4M14 11l7 7-3 3-7-7M15 3a5 5 0 0 0 6 6l-4 4-6-6 4-4Z"/></>,
+    gear:<><path d="M10 2h4l.7 2.2 2 .9 2.1-1.1 2.8 2.8-1.1 2.1.9 2L23 11v4l-2.2.7-.9 2 1.1 2.1-2.8 2.8-2.1-1.1-2 .9L14 23h-4l-.7-2.2-2-.9-2.1 1.1-2.8-2.8 1.1-2.1-.9-2L1 15v-4l2.2-.7.9-2L3 6.2 5.8 3.4l2.1 1.1 2-.9L10 2Z" transform="translate(1 -1) scale(.9)"/><circle cx="12" cy="12" r="3"/></>,
+    building:<><path d="M4 21V4h12v17M16 11h4v10M2 21h20"/><path d="M8 8h1M12 8h1M8 12h1M12 12h1M8 16h1M12 16h1"/></>,
+    check:<path d="m5 12 4 4L19 6"/>,
+    shield:<><path d="m12 2 9 4v6c0 6-4 9-9 10-5-1-9-4-9-10V6l9-4Z"/><path d="m8 12 3 3 5-6"/></>,
+    arrow:<><path d="M4 12h16m-7-7 7 7-7 7"/></>,
+    chart:<><path d="M4 20V12m6 8V7m6 13v-9m4 9V4"/></>,
+    database:<><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 4 18 4 18 0V5M3 12c0 4 18 4 18 0"/></>,
+    lock:<><rect x="4" y="10" width="16" height="12" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v3"/></>,
+    info:<><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7h.01"/></>,
+    spark:<><path d="m12 2 2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2L12 2Z"/></>,
+    receipt:<><path d="M5 2h14v20l-3-2-4 2-4-2-3 2V2Z"/><path d="M9 8h6M9 12h6M9 16h3"/></>,
+  };
+  return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24"
+    fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
+    strokeLinejoin="round" className={className}>{paths[name]}</svg>;
+}
+
+function territoryCopy(territory:NetworkProTerritory){
+  return territory==="IT"?"Italia":"Paesi europei censiti";
+}
+
+export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage|null;access:NetworkProAccess|null}){
+  const [territory,setTerritory]=useState<NetworkProTerritory>("IT");
+  const [billing,setBilling]=useState<"monthly"|"annual">("monthly");
+  const [selected,setSelected]=useState<NetworkProModuleKey[]>(["producers","distributors"]);
+  const [coverageExpanded,setCoverageExpanded]=useState(false);
+  const quote=networkProQuote(selected,territory,billing);
   const countries=coverage?.countries.filter(row=>territory==="EU"||row.countryCode==="IT")??[];
+  const publishedTerritory=coverage?countries.reduce((total,country)=>total+country.published,0):null;
+  const selectedModules=orderedModules.map(key=>NETWORK_PRO_MODULES.find(m=>m.key===key)!)
+    .filter(module=>selected.includes(module.key));
 
-  function toggle(key: NetworkProModuleKey) {
-    setSelected((current) => current.includes(key)
-      ? current.filter((entry) => entry !== key)
-      : [...current, key]);
+  function toggle(key:NetworkProModuleKey){
+    setSelected(current=>current.includes(key)
+      ?current.filter(entry=>entry!==key)
+      :[...current,key]);
   }
+  const controls = (kind:"territory"|"billing")=>{
+    if(kind==="territory")return <div role="group" aria-label="Copertura geografica"
+      className="grid grid-cols-2 rounded-xl border border-[#cfddd4] bg-[#f4f8f5] p-1">
+      {([{key:"IT",title:"Italia"},{key:"EU",title:"Europa"}] as const).map(area=>
+        <button key={area.key} type="button" aria-pressed={territory===area.key}
+          onClick={()=>setTerritory(area.key)}
+          className={"min-h-10 rounded-lg px-3 text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
+            (territory===area.key?"bg-[#145640] text-white shadow-sm":"text-[#244638] hover:bg-white")}>
+          {area.title}
+        </button>)}
+    </div>;
+    return <div role="group" aria-label="Periodicità abbonamento"
+      className="grid grid-cols-2 rounded-xl border border-[#cfddd4] bg-[#f4f8f5] p-1">
+      {([{key:"monthly",title:"Mensile"},{key:"annual",title:"Annuale"}] as const).map(item=>
+        <button key={item.key} type="button" aria-pressed={billing===item.key}
+          onClick={()=>setBilling(item.key)}
+          className={"min-h-10 rounded-lg px-3 text-[13px] font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
+            (billing===item.key?"bg-[#145640] text-white shadow-sm":"text-[#244638] hover:bg-white")}>
+          {item.title}
+        </button>)}
+    </div>;
+  };
 
-  return (
-    <main className="mx-auto w-full max-w-[1320px] space-y-5 pb-16" data-testid="network-pro-catalog">
-      <nav aria-label="Percorso Network" className="text-xs">
-        <Link href="/network" className="font-semibold text-[#236d52] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-          ← Torna al Network
-        </Link>
-      </nav>
-      <header className="overflow-hidden rounded-[24px] border border-[#b8d5c6] bg-[linear-gradient(120deg,#ecf5ef_0%,#ffffff_74%)] p-5 sm:p-7">
-        <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.13em]">
-          <span className="rounded-full bg-[#174c3c] px-3 py-1.5 text-white">Network PRO</span>
-          <span className="rounded-full border border-[#bcd3c5] bg-white px-3 py-1.5 text-[#285a47]">Catalogo in anteprima</span>
+  return <main className="mx-auto w-full max-w-[1400px] min-w-0 space-y-5 pb-[164px] sm:pb-[155px] lg:pb-12"
+    data-testid="network-pro-catalog">
+    <nav aria-label="Percorso Network" className="px-1 text-xs">
+      <Link href="/network" className="font-semibold text-[#256347] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+        ← Torna al Network
+      </Link>
+    </nav>
+
+    <div className="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_350px] xl:gap-8">
+      <div className="min-w-0 space-y-5">
+        <header className="space-y-3 px-1">
+          <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold">
+            <span className="rounded-full bg-[#11553d] px-3 py-1.5 uppercase tracking-[0.04em] text-white">Network PRO</span>
+            <span className="rounded-full border border-[#cfdfd4] bg-white px-3 py-1.5 uppercase tracking-[0.04em] text-[#275640]">Catalogo aziende</span>
+          </div>
+          <h1 className="max-w-[790px] text-[26px] font-extrabold leading-[1.14] tracking-[-0.035em] text-[#103f30] sm:text-[34px] xl:text-[38px]">
+            Sblocca i contatti industriali che ti servono.
+          </h1>
+          <p className="max-w-[790px] text-[13px] leading-5 text-[#516259] sm:text-sm sm:leading-6">
+            Configura il tuo accesso al Network dell&apos;acciaio: produttori, commercianti,
+            carpenterie e utilizzatori industriali, con copertura reale per Paese.
+          </p>
+        </header>
+
+        <div className="grid grid-cols-3 gap-1.5 rounded-[18px] bg-[linear-gradient(120deg,#eef6f0,#f7faf8)] p-2.5 sm:gap-3 sm:p-3"
+          aria-label="Come funziona l'abbonamento">
+          {([
+            {icon:"cursor" as const,title:"1. Seleziona",description:"Scegli i moduli"},
+            {icon:"card" as const,title:"2. Paga",description:"Checkout sicuro"},
+            {icon:"bolt" as const,title:"3. Accedi subito",description:"Pagamento verificato"},
+          ]).map(step=><div key={step.title} className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#deeee2] text-[#17583e] sm:h-11 sm:w-11">
+              <Icon name={step.icon} size={20}/>
+            </span>
+            <span className="min-w-0">
+              <span className="block text-[10px] font-bold leading-4 text-[#162d23] sm:text-[12px]">{step.title}</span>
+              <span className="hidden text-[10px] leading-4 text-[#5c6b60] sm:block">{step.description}</span>
+            </span>
+          </div>)}
         </div>
-        <h1 className="mt-4 max-w-[800px] text-2xl font-bold tracking-tight text-[#173f35] sm:text-3xl">
-          Le aziende che cerchi, in un unico Network.
-        </h1>
-        <p className="mt-2 max-w-[790px] text-sm leading-6 text-[#435b50]">
-          Scegli i moduli e il territorio per configurare una proposta commerciale.
-          Visualizza le aziende realmente pubblicate prima di valutare un futuro abbonamento.
-        </p>
-      </header>
 
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_330px]">
-        <section aria-labelledby="network-pro-modules-title" className="min-w-0 space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Moduli · Scegli i contenuti</p>
-              <h2 id="network-pro-modules-title" className="mt-1 text-lg font-bold text-[#173f35]">Quattro moduli indipendenti</h2>
+        <section aria-label="Configura il tuo Network PRO" className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+          <div className="min-w-0 space-y-2">
+            <h2 className="flex items-center gap-2 text-sm font-bold text-[#18372a]">
+              <Icon name="globe" size={19}/> Territorio
+              <span className="text-[#778e7e]" title="Europa comprende solo i Paesi effettivamente censiti"><Icon name="info" size={14}/></span>
+            </h2>
+            {controls("territory")}
+          </div>
+          <div className="min-w-0 space-y-2">
+            <div className="flex min-w-0 flex-wrap items-center justify-between gap-1">
+              <h2 className="flex items-center gap-2 text-sm font-bold text-[#18372a]">
+                <Icon name="calendar" size={19}/> Periodicità
+              </h2>
+              <span className="rounded-full bg-[#e4f3e6] px-2 py-0.5 text-[10px] font-semibold text-[#286646]">
+                -{NETWORK_PRO_ANNUAL_DISCOUNT_PERCENT}% annuale indicativo
+              </span>
             </div>
-            <span className="text-xs font-medium text-[#52665b]">{selected.length} di 4 selezionati</span>
+            {controls("billing")}
+          </div>
+        </section>
+
+        <section aria-labelledby="network-pro-modules-title" className="space-y-3">
+          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+            <h2 id="network-pro-modules-title" className="flex items-center gap-2 text-base font-extrabold text-[#142f23] sm:text-lg">
+              <Icon name="layers" size={21}/> Seleziona i moduli di tuo interesse
+            </h2>
+            <span className="text-[11px] font-semibold text-[#477460]">{selected.length} di 4 selezionati</span>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {NETWORK_PRO_MODULES.map((module, index) => {
-              const active = selected.includes(module.key);
+            {orderedModules.map(key=>{
+              const module=NETWORK_PRO_MODULES.find(m=>m.key===key)!;
+              const active=selected.includes(module.key);
               const publishedInTerritory = coverage
                 ? countries.reduce((total, country) => total + country.publishedModules[module.key], 0)
                 : null;
-              return (
-                <button
-                  key={module.key}
-                  type="button"
-                  aria-pressed={active}
-                  aria-label={(active ? "Rimuovi" : "Aggiungi") + " modulo " + module.title}
-                  onClick={() => toggle(module.key)}
-                  className={"min-h-[216px] rounded-[20px] border p-4 text-left shadow-[0_5px_18px_rgba(17,65,47,0.04)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
-                    (active ? "border-[#35765a] bg-[#f0f7f2] ring-1 ring-[#6eac88]" : "border-[#dae5dc] bg-white hover:border-[#94bea3] hover:bg-[#f7faf8]")}
-                  data-testid={"network-pro-module-" + module.key}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold tracking-[0.12em] text-[#577365]">0{index + 1}</span>
-                    <span aria-hidden="true" className={"flex h-7 w-7 items-center justify-center rounded-full border text-sm font-bold " +
-                      (active ? "border-[#256c49] bg-[#256c49] text-white" : "border-[#b8ccc0] bg-white text-[#5e7468]")}>
-                      {active ? "✓" : "+"}
-                    </span>
+              const iconName:IconName=key==="producers"?"factory":key==="distributors"?"truck":key==="processors"?"tools":"gear";
+              return <button key={module.key} type="button" aria-pressed={active}
+                aria-label={(active?"Rimuovi":"Aggiungi")+" modulo "+module.title}
+                onClick={()=>toggle(module.key)}
+                data-testid={"network-pro-module-"+module.key}
+                className={"group flex min-h-[159px] min-w-0 flex-col rounded-2xl border px-3.5 py-3.5 text-left shadow-[0_5px_15px_rgba(17,65,47,0.045)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] sm:min-h-[183px] sm:px-4 sm:py-4 "+
+                  (active?"border-[#2b7955] bg-[#f0f8f2] ring-1 ring-[#c1deca]":"border-[#dce4de] bg-white hover:border-[#97bba5] hover:bg-[#f8faf8]")}>
+                <div className="flex items-start gap-3">
+                  <span className={"flex h-11 w-11 shrink-0 items-center justify-center rounded-xl "+
+                    (active?"bg-[#dceee1] text-[#176342]":"bg-[#eff4f0] text-[#386751]")}>
+                    <Icon name={iconName} size={24}/>
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-[15px] font-extrabold leading-5 text-[#142b20]">{module.title}</h3>
+                    <p className="mt-1 line-clamp-3 text-[11px] leading-[17px] text-[#4f6356] sm:text-[12px]">
+                      {module.description}
+                    </p>
                   </div>
-                  <h3 className="mt-3 text-base font-bold text-[#173f35]">{module.title}</h3>
-                  <p className="mt-2 text-xs leading-5 text-[#42574c]">{module.description}</p>
-                  <p className="mt-3 text-[11px] font-semibold leading-4 text-[#386e53]">{module.audience}</p>
-                  <p className="mt-2 text-[11px] leading-5 text-[#425b4c]"
+                  <span aria-hidden="true" className={"flex h-[25px] w-[25px] shrink-0 items-center justify-center rounded-md border "+
+                    (active?"border-[#176042] bg-[#176042] text-white":"border-[#b5c9bc] bg-white text-transparent")}>
+                    {active?<Icon name="check" size={17}/>:null}
+                  </span>
+                </div>
+                <div className="mt-auto flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1.5 border-t border-[#dce9df] pt-2.5">
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-[#1d3b2c]"
                     data-testid={"netpro1d-live-count-"+module.key}>
+                    <Icon name="building" size={15}/>
                     {publishedInTerritory===null
                       ? "Copertura pubblicata non disponibile"
                       : <>
                         <span className="font-bold tabular-nums text-[#173f35]">
                           {publishedInTerritory.toLocaleString("it-IT")}
                         </span>{" "}{publishedInTerritory===1?"profilo pubblicato":"profili pubblicati"}{" "}
-                        {territory==="IT"?"in Italia":"nei Paesi europei censiti"}
+                        <span className="sr-only">{territory==="IT"?"in Italia":"nei Paesi europei censiti"}</span>
                       </>}
-                  </p>
-                  <p className="mt-2 text-[11px] font-semibold text-[#425b4c]" data-testid={"netpro1b-license-"+module.key}>
-                    {access?(territory==="IT"?access.modules[module.key].italy:access.modules[module.key].europe)
-                      ? "Accesso PRO attivo" : "Accesso PRO non attivo":"Stato accesso non disponibile"}
-                  </p>
-                </button>
-              );
+                  </span>
+                  <span className="rounded-full border border-[#cbdcd0] bg-white px-2 py-0.5 text-[9px] font-semibold text-[#356249]">
+                    {territory==="IT"?"Copertura Italia":"Copertura Europa"}
+                  </span>
+                </div>
+                <span className="mt-1.5 text-[10px] font-medium text-[#526b59]" data-testid={"netpro1b-license-"+module.key}>
+                  {access?(territory==="IT"?access.modules[module.key].italy:access.modules[module.key].europe)
+                    ?"Accesso PRO attivo":"Accesso PRO non attivo":"Stato accesso non disponibile"}
+                </span>
+              </button>;
             })}
           </div>
-          <section className="rounded-[20px] border border-[#c9dfd0] bg-white p-4 sm:p-5"
-            data-testid="netpro1b-coverage" aria-label="Copertura reale Network per modulo e Paese">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Copertura effettiva · dati pubblicati</p>
-                <h2 className="mt-1 text-base font-bold text-[#173f35]">Quante aziende ci sono realmente?</h2>
-              </div>
-              {coverage?<span className="text-[11px] text-[#607467]">Rilevazione {coverage.asOf.slice(0,10)}</span>:null}
-            </div>
-            <p className="mt-2 text-xs leading-5 text-[#536c5c]">
-              Solo schede pubblicate e ruoli registrati nel database. Le aziende preliminari
-              non sono incluse nei numeri e non costituiscono copertura commerciale pronta.
-              Le carpenterie classificate come terzisti sono nel modulo
-              lavorazioni: non diventano automaticamente utilizzatori finali o acquirenti di tubi.
-              Un’azienda appare in più moduli solo quando ha più ruoli registrati.
-            </p>
-            {!coverage?
-              <p className="mt-4 rounded-xl border border-[#e5d4aa] bg-[#fffaf0] p-3 text-sm text-[#6b542c]" role="status">
-                Conteggi verificati temporaneamente non disponibili. Non mostriamo valori stimati.
-              </p>:
-              countries.length===0?
-                <p className="mt-4 rounded-xl bg-[#f2f5f3] p-3 text-sm text-[#516a59]">
-                  Nessuna azienda pubblicata rilevata in questo territorio.
-                </p>:
-                <div className="mt-4 grid gap-3">
-                  {countries.map(country=><article key={country.countryCode}
-                    className="rounded-xl border border-[#e0eae2] bg-[#f8fbf9] p-3"
-                    data-testid={"netpro1b-country-"+country.countryCode}>
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h3 className="text-sm font-bold text-[#173f35]">
-                        {networkCountryName(country.countryCode)||country.countryCode}
-                      </h3>
-                      <span className="text-sm font-bold tabular-nums text-[#174d39]">
-                        {country.published.toLocaleString("it-IT")} pubblicate
-                      </span>
-                    </div>
-                    <p className="mt-1 text-[11px] leading-5 text-[#596d60]">
-                      {country.classified.toLocaleString("it-IT")} classificate ·{" "}
-                      {country.unclassified.toLocaleString("it-IT")} senza ruolo ·{" "}
-                      {country.provisional.toLocaleString("it-IT")} preliminari
-                    </p>
-                    {selected.length===0?
-                      <p className="mt-2 text-xs text-[#66796d]">Seleziona almeno un modulo per vedere i relativi numeri.</p>:
-                      <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                        {NETWORK_PRO_MODULES.filter(module=>selected.includes(module.key)).map(module=>{
-                          const allowed=country.countryCode==="IT"
-                            ?access?.modules[module.key].italy
-                            :access?.modules[module.key].europe;
-                          const count=country.publishedModules[module.key];
-                          const sourced=country.provisionalModules[module.key];
-                          return <div key={module.key} className="rounded-lg border border-[#e2ebe4] bg-white p-2.5"
-                            data-testid={"netpro1b-module-"+country.countryCode+"-"+module.key}>
-                            <p className="text-[11px] font-semibold text-[#355b42]">{module.title}</p>
-                            <p className="mt-1 text-lg font-bold tabular-nums text-[#183d2d]">{count}</p>
-                            <p className="text-[11px] text-[#62766a]">{sourced} preliminari, non incluse</p>
-                            {allowed?
-                              <Link href={"/network/pro/explore?"+new URLSearchParams({module:module.key,country:country.countryCode})}
-                                className="mt-2 inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline"
-                                data-testid={"netpro1b-browse-"+country.countryCode+"-"+module.key}>
-                                Esplora con accesso attivo
-                              </Link>:
-                              <span className="mt-2 block text-[11px] font-medium text-[#7b806e]">
-                                {access?"Modulo non attivo":"Accesso da verificare"}
-                              </span>}
-                          </div>;
-                        })}
-                      </div>}
-                  </article>)}
-                </div>}
-            <p className="mt-3 text-[11px] leading-5 text-[#64776b]">
-              Europa non significa copertura completa di tutti i Paesi: mostriamo soltanto
-              quelli con dati effettivamente disponibili. Nessun Paese è dichiarato pronto
-              alla vendita sulla sola base di questi conteggi.
-            </p>
-          </section>
-          <section className="rounded-[20px] border border-[#dce7df] bg-white p-4 sm:p-5" aria-label="Esempi di ricerche intelligenti">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Dalla directory all'intelligence</p>
-            <h2 className="mt-1 text-base font-bold text-[#173f35]">L'AI parlerà il linguaggio dell'acciaio</h2>
-            <p className="mt-2 text-sm leading-6 text-[#506358]">
-              Esempio di domanda: <span className="font-semibold text-[#173f35]">
-                {NETWORK_PRO_MODULES.find((module) => module.key === selected[0])?.example
-                  ?? "Trova produttori e distributori europei di tubolari strutturali."}
-              </span>
-            </p>
-            <p className="mt-2 text-xs leading-5 text-[#67786e]">
-              La ricerca intelligente per moduli è prevista in una fase successiva; non è inclusa in questa anteprima.
-              Le capacità delle aziende saranno distinte tra dichiarate, documentate e da confermare.
-            </p>
-          </section>
         </section>
 
-        <aside className="order-first min-w-0 space-y-3 lg:order-last lg:sticky lg:top-24" aria-label="Configurazione e prezzi Network PRO">
-          <div className="rounded-[22px] border border-[#c6d9ce] bg-white p-4 shadow-[0_12px_30px_rgba(17,65,47,0.07)] sm:p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Territorio</p>
-            <div className="mt-3 grid grid-cols-2 gap-2" role="group" aria-label="Copertura geografica">
-              {([
-                {key: "IT", title: "Italia"},
-                {key: "EU", title: "Europa"},
-              ] as const).map((area) => (
-                <button key={area.key} type="button" aria-pressed={territory === area.key}
-                  onClick={() => setTerritory(area.key)}
-                  className={"min-h-11 rounded-xl border px-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
-                    (territory === area.key ? "border-[#175640] bg-[#175640] text-white" : "border-[#d9e4db] bg-[#f5f8f6] text-[#244a39] hover:border-[#92b5a0]")}>
-                  {area.title}
-                </button>
-              ))}
-            </div>
-            <p className="mt-2 text-xs leading-5 text-[#64776a]">
-              {territory === "IT" ? "Aziende con copertura italiana." : "Paesi europei disponibili, Italia inclusa. Copertura effettiva per Paese da verificare."}
-            </p>
-            <p className="mt-5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[#4b6c5b]">Periodicità</p>
-            <div className="mt-3 grid grid-cols-2 gap-2" role="group" aria-label="Periodicità abbonamento">
-              {([
-                {key: "monthly", title: "Mensile"},
-                {key: "annual", title: "Annuale"},
-              ] as const).map((option) => (
-                <button key={option.key} type="button" aria-pressed={billing === option.key}
-                  onClick={() => setBilling(option.key)}
-                  className={"min-h-11 rounded-xl border px-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
-                    (billing === option.key ? "border-[#175640] bg-[#175640] text-white" : "border-[#d9e4db] bg-[#f5f8f6] text-[#244a39] hover:border-[#92b5a0]")}>
-                  {option.title}
-                </button>
-              ))}
-            </div>
-            {billing === "annual" ? <p className="mt-2 text-xs text-[#326e4d]">Sconto annuo ipotizzato: {NETWORK_PRO_ANNUAL_DISCOUNT_PERCENT}%.</p> : null}
-
-            <div className="mt-5 border-t border-[#e1e9e3] pt-4" aria-live="polite" aria-atomic="true">
-              <div className="flex items-baseline justify-between gap-3">
-                <span className="text-sm font-semibold text-[#274838]">{quote.count === 4 ? "Full Network" : quote.count + (quote.count === 1 ? " modulo" : " moduli")}</span>
-                <span className="text-3xl font-bold tabular-nums tracking-tight text-[#173f35]" data-testid="network-pro-price">{euro.format(quote.displayedTotal)}</span>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <section className="rounded-[18px] border border-[#dfe8e1] bg-white p-4" aria-label="Cosa ottieni con Network PRO">
+            <h2 className="flex items-center gap-2 text-[14px] font-bold text-[#153a2b]">
+              <Icon name="chart" size={20}/> Cosa ottieni con Network PRO
+            </h2>
+            <ul className="mt-3 space-y-1.5 text-[11px] leading-4 text-[#405647]">
+              {["Consultazione dei profili e dei contatti disponibili",
+                "Filtri per ruolo industriale e Paese",
+                "Copertura aggiornata con i profili pubblicati",
+                "Configurazione dei moduli in autonomia"].map(value=>
+                <li key={value} className="flex items-start gap-2">
+                  <Icon name="check" size={15} className="shrink-0 text-[#16714b]"/><span>{value}</span>
+                </li>)}
+            </ul>
+          </section>
+          <section className="rounded-[18px] border border-[#d9e8de] bg-[linear-gradient(130deg,#f4f9f5,#eaf4ed)] p-4"
+            aria-label="Copertura del database">
+            <h2 className="flex items-center gap-2 text-[14px] font-bold text-[#153a2b]">
+              <Icon name="database" size={20}/> Copertura del database
+            </h2>
+            <div className="mt-3 grid grid-cols-2 divide-x divide-[#c5d9cb]">
+              <div className="pr-2">
+                <p className="text-[11px] text-[#455d4d]">🇮🇹 Italia</p>
+                <p className="mt-1 text-[17px] font-extrabold tabular-nums text-[#143a29]">
+                  {coverage?coverage.countries.find(row=>row.countryCode==="IT")?.published.toLocaleString("it-IT")??"0":"—"}
+                </p>
+                <p className="text-[10px] text-[#65796b]">profili pubblicati</p>
               </div>
-              <p className="mt-1 text-right text-xs text-[#586f60]">{billing === "annual" ? "all'anno" : "al mese"} · IVA esclusa</p>
-              {quote.count > 1 ? <p className="mt-2 text-xs font-medium text-[#326e4d]">Sconto combinazione già applicato.</p> : null}
-              {quote.count === 0 ? <p className="mt-3 text-xs text-[#926328]">Seleziona almeno un modulo per configurare l'offerta.</p> : null}
-              <p className="mt-4 text-xs leading-5 text-[#52695a]">
-                Prezzi proposti, ancora da validare con i clienti pilota. Nessun ordine o pagamento viene creato da questa schermata.
-              </p>
+              <div className="pl-3">
+                <p className="text-[11px] text-[#455d4d]">🇪🇺 Europa censita</p>
+                <p className="mt-1 text-[17px] font-extrabold tabular-nums text-[#143a29]">
+                  {coverage?coverage.countries.reduce((sum,row)=>sum+row.published,0).toLocaleString("it-IT"):"—"}
+                </p>
+                <p className="text-[10px] text-[#65796b]">profili per Paese</p>
+              </div>
             </div>
-            <div className="mt-4 rounded-xl border border-[#e1e9e3] bg-[#f4f8f5] p-3">
-              <p className="text-xs font-semibold text-[#244f3b]">Attivazioni non ancora aperte</p>
-              <p className="mt-1 text-xs leading-5 text-[#596e60]">Checkout, fatturazione e permessi self-service non sono disponibili. I diritti per categoria e Paese sono verificati nel database e assegnabili soltanto da un operatore autorizzato.</p>
-            </div>
-            <Link href="/network" className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-[#b5d2bf] bg-white px-3 text-sm font-semibold text-[#205a3d] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-              Esplora il Network
-            </Link>
-          </div>
-          <p className="px-1 text-xs leading-5 text-[#66776d]">
-            Directory Free e gestione del profilo aziendale rimangono indipendenti dall'acquisto PRO.
-            Nessun dato privato viene reso pubblico.
-          </p>
-        </aside>
+            <p className="mt-3 text-[10px] leading-4 text-[#637668]">
+              Solo dati pubblicati; nessuna stima di aziende o contatti disponibili.
+            </p>
+          </section>
+        </div>
       </div>
-    </main>
-  );
+
+      <aside className="hidden min-w-0 lg:sticky lg:top-20 lg:block" aria-label="Configurazione e prezzi Network PRO">
+        <div className="overflow-hidden rounded-[22px] border border-[#d8e3da] bg-white p-5 shadow-[0_15px_38px_rgba(25,56,39,0.1)]">
+          <h2 className="flex items-center gap-2.5 text-[17px] font-extrabold leading-6 text-[#172c21]">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#e6f2e9] text-[#185a3d]">
+              <Icon name="bolt" size={21}/>
+            </span>
+            Il tuo abbonamento Network PRO
+          </h2>
+          <div className="mt-4 rounded-xl border border-[#e3eae4] px-3.5 py-1">
+            <div className="flex items-center justify-between gap-2 border-b border-[#e8eee9] py-3 text-[12px]">
+              <span className="flex items-center gap-2 text-[#44594b]"><Icon name="globe" size={17}/> Territorio</span>
+              <strong className="text-[#172a20]">{territoryCopy(territory)}</strong>
+            </div>
+            <div className="flex items-center justify-between gap-2 py-3 text-[12px]">
+              <span className="flex items-center gap-2 text-[#44594b]"><Icon name="calendar" size={17}/> Periodicità</span>
+              <strong className="text-[#172a20]">{billing==="annual"?"Annuale":"Mensile"}</strong>
+            </div>
+          </div>
+          <h3 className="mt-5 flex items-center gap-2 text-[13px] font-bold text-[#1e382a]">
+            <Icon name="layers" size={18}/> Moduli selezionati ({selected.length})
+          </h3>
+          <div className="mt-3 min-h-12 space-y-2" aria-live="polite">
+            {selectedModules.length===0?<p className="text-xs text-[#7b6653]">Seleziona almeno un modulo.</p>:
+              selectedModules.map(m=><div key={m.key} className="flex items-center gap-2 text-[12px] font-semibold text-[#1e3528]">
+                <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#e7f3e9] text-[#176342]">
+                  <Icon name="check" size={15}/>
+                </span>
+                <span className="flex-1">{m.title}</span>
+              </div>)}
+          </div>
+          <div className="mt-5 space-y-2 border-t border-[#e2e9e2] pt-4 text-xs">
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-[#4c6154]">Pacchetto {quote.count} {quote.count===1?"modulo":"moduli"}</span>
+              <strong className="tabular-nums text-[#223a2a]">{euro.format(quote.monthlyBase)} / mese</strong>
+            </div>
+            {billing==="annual"?<div className="flex justify-between gap-2 text-[#376a4c]">
+              <span>Sconto annuo indicativo</span><strong>-{NETWORK_PRO_ANNUAL_DISCOUNT_PERCENT}%</strong>
+            </div>:null}
+            <div className="flex justify-between gap-2 text-[#6b796f]">
+              <span>Imposte</span><span>Calcolate al checkout</span>
+            </div>
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-[#edf5ef] px-3 py-4">
+            <span className="text-[12px] font-bold text-[#1b3a29]">Totale indicativo</span>
+            <div className="text-right">
+              <p data-testid="network-pro-price" className="text-[24px] font-extrabold tabular-nums leading-7 text-[#102c20]">
+                {euro.format(quote.displayedTotal)}
+              </p>
+              <span className="text-[10px] text-[#536b59]">{billing==="annual"?"/ anno":"/ mese"} · IVA esclusa</span>
+            </div>
+          </div>
+          <div className="mt-5 space-y-3 border-t border-[#e7eee8] pt-4">
+            {[
+              {icon:"bolt" as const,title:"Attivazione automatica",body:"Dopo conferma del pagamento."},
+              {icon:"shield" as const,title:"Checkout sicuro",body:"Pagamento gestito dal provider."},
+              {icon:"gear" as const,title:"Gestione autonoma",body:"Rinnovo e disdetta dal profilo."},
+            ].map(item=><div key={item.title} className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#edf5ef] text-[#1c6345]">
+                <Icon name={item.icon} size={20}/>
+              </span>
+              <div><p className="text-[12px] font-bold text-[#1d3628]">{item.title}</p>
+                <p className="text-[11px] leading-4 text-[#68776b]">{item.body}</p></div>
+            </div>)}
+          </div>
+          <button type="button" disabled aria-disabled="true" data-testid="netpro-design1-desktop-checkout"
+            title="Checkout Stripe non ancora disponibile"
+            className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#124f39] px-3 text-[14px] font-extrabold text-white opacity-70"
+          ><Icon name="lock" size={19}/> Abbonati e sblocca <Icon name="arrow" size={19}/></button>
+          <p className="mt-2 text-center text-[10px] leading-4 text-[#745b36]">
+            Checkout in preparazione. Prezzi proposti, ancora da validare.
+            Nessun ordine o pagamento viene creato da questa schermata.
+          </p>
+          <Link href="/network" className="mt-3 inline-flex min-h-9 w-full items-center justify-center text-xs font-semibold text-[#286d4d] underline">
+            Esplora il Network
+          </Link>
+        </div>
+      </aside>
+    </div>
+
+    <section className="rounded-[18px] border border-[#dce8df] bg-white p-3.5 sm:p-5"
+      data-testid="netpro1b-coverage" aria-label="Copertura reale Network per modulo e Paese">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="flex items-center gap-2 text-sm font-bold text-[#17422f]">
+            <Icon name="database" size={18}/> Dettaglio della copertura per Paese
+          </h2>
+          <p className="mt-1 text-[11px] leading-4 text-[#647769]">
+            Solo schede pubblicate e ruoli registrati nel database. Le aziende preliminari
+            non sono incluse nei numeri e non costituiscono copertura commerciale pronta.
+          </p>
+        </div>
+        <button type="button" aria-expanded={coverageExpanded}
+          onClick={()=>setCoverageExpanded(current=>!current)}
+          data-testid="netpro-design1-toggle-country-details"
+          className="min-h-10 rounded-lg border border-[#c9dbcf] bg-[#f8faf8] px-3 text-[11px] font-bold text-[#275b40] hover:bg-[#eaf4ee]">
+          {coverageExpanded?"Nascondi dettagli":"Mostra dettagli"}
+        </button>
+      </div>
+      {!coverage?<p className="mt-3 rounded-xl bg-[#fff7e9] p-3 text-xs text-[#75572e]" role="status">
+        Conteggi verificati temporaneamente non disponibili. Non mostriamo valori stimati.
+      </p>:null}
+      {coverageExpanded&&<div className="mt-4 grid gap-3 lg:grid-cols-2" data-testid="netpro-design1-country-details">
+        {countries.map(country=><article key={country.countryCode}
+          className="rounded-xl border border-[#e0eae2] bg-[#f8fbf9] p-3"
+          data-testid={"netpro1b-country-"+country.countryCode}>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="text-sm font-bold text-[#173f35]">
+              {networkCountryName(country.countryCode)||country.countryCode}
+            </h3>
+            <span className="text-[12px] font-bold tabular-nums text-[#174d39]">
+              {country.published.toLocaleString("it-IT")} pubblicate
+            </span>
+          </div>
+          <p className="mt-1 text-[11px] leading-5 text-[#596d60]">
+            {country.classified.toLocaleString("it-IT")} classificate ·{" "}
+            {country.unclassified.toLocaleString("it-IT")} senza ruolo ·{" "}
+            {country.provisional.toLocaleString("it-IT")} preliminari
+          </p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {NETWORK_PRO_MODULES.filter(module=>selected.includes(module.key)).map(module=>{
+              const allowed=country.countryCode==="IT"
+                ?access?.modules[module.key].italy
+                :access?.modules[module.key].europe;
+              const count=country.publishedModules[module.key];
+              const sourced=country.provisionalModules[module.key];
+              return <div key={module.key} className="rounded-lg border border-[#e2ebe4] bg-white p-2.5"
+                data-testid={"netpro1b-module-"+country.countryCode+"-"+module.key}>
+                <p className="text-[11px] font-semibold text-[#355b42]">{module.title}</p>
+                <p className="mt-1 text-lg font-bold tabular-nums text-[#183d2d]">{count}</p>
+                <p className="text-[11px] text-[#62766a]">{sourced} preliminari, non incluse</p>
+                {allowed?<Link href={"/network/pro/explore?"+new URLSearchParams({module:module.key,country:country.countryCode})}
+                  className="mt-2 inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] underline"
+                  data-testid={"netpro1b-browse-"+country.countryCode+"-"+module.key}>
+                  Esplora con accesso attivo
+                </Link>:<span className="mt-2 block text-[11px] font-medium text-[#7b806e]">
+                  {access?"Modulo non attivo":"Accesso da verificare"}
+                </span>}
+              </div>;
+            })}
+          </div>
+        </article>)}
+      </div>}
+      <p className="mt-3 text-[11px] leading-4 text-[#64776b]">
+        Le carpenterie classificate come terzisti sono nel modulo lavorazioni:
+        non diventano automaticamente utilizzatori finali o acquirenti di tubi.
+        Un&apos;azienda può comparire in più moduli soltanto se dispone di più ruoli registrati.
+        Europa comprende soltanto i Paesi con dati disponibili.
+        {coverage?" Rilevazione "+coverage.asOf.slice(0,10)+".":""}
+      </p>
+    </section>
+
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#d7e6dc] bg-white/95 px-3 pt-2.5 shadow-[0_-9px_28px_rgba(15,53,35,0.11)] backdrop-blur-md lg:hidden"
+      data-testid="netpro-design1-mobile-checkout"
+      style={{paddingBottom:"max(12px, env(safe-area-inset-bottom))"}}>
+      <div className="mx-auto max-w-[540px]">
+        <div className="flex min-w-0 items-center justify-between gap-2 rounded-xl bg-[#f2f7f3] px-3 py-2">
+          <div className="min-w-0">
+            <p className="text-[12px] font-bold text-[#193729]">{selected.length} moduli selezionati</p>
+            <p className="text-[10px] text-[#627467]">Totale indicativo · IVA esclusa</p>
+          </div>
+          <p data-testid="network-pro-mobile-price" className="shrink-0 text-[21px] font-extrabold tabular-nums text-[#112c20]">
+            {euro.format(quote.displayedTotal)} <span className="text-[11px] font-medium">{billing==="annual"?"/ anno":"/ mese"}</span>
+          </p>
+        </div>
+        <button type="button" disabled aria-disabled="true" data-testid="netpro-design1-mobile-pay"
+          className="mt-2 flex min-h-11 w-full items-center justify-center gap-3 rounded-xl bg-[#124f39] px-3 text-[14px] font-extrabold text-white opacity-70">
+          <Icon name="lock" size={18}/> Abbonati e sblocca <Icon name="arrow" size={19}/>
+        </button>
+        <p className="mt-1 text-center text-[10px] leading-4 text-[#795f38]">
+          Checkout non ancora disponibile · nessun addebito
+        </p>
+      </div>
+    </div>
+  </main>;
 }
