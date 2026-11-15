@@ -14,6 +14,20 @@ alter table private.netintel1_enrichment_attempts enable row level security;
 revoke all on private.netintel1_enrichment_attempts from public, anon, authenticated;
 grant select, insert, update on private.netintel1_enrichment_attempts to service_role;
 
+
+-- Preserve the exact 25-company November 15 canary as previously attempted,
+-- including the seven with insufficient steel evidence; no redundant recrawl.
+insert into private.netintel1_enrichment_attempts(company_id,last_attempt_at,last_status)
+select c.id,now(),
+       case when exists(select 1 from private.network_company_enrichment e
+                         where e.canonical_company_id=c.id
+                           and e.extractor_version='net-intel1-b-description-v1')
+            then 'candidate_only' else 'insufficient_steel_evidence' end
+from public.network_companies c
+where c.id in ('00214597-458d-43d4-8c60-45e99d02a655'::uuid,'00b02f0d-d1c6-46c4-80d0-8c0f8155dd01'::uuid,'00b609ce-09e0-4b87-9370-fd0e141babb9'::uuid,'0103eac0-c9f3-400b-b1d6-caa47d399bc6'::uuid,'014ca708-8b58-4ba4-8c7c-58aa5486e6c3'::uuid,'0158107c-3bc3-4644-bbb3-603cd83a78be'::uuid,'01744e1c-8ae8-426a-aafe-71c744058ec7'::uuid,'019be528-2887-4cc8-aa6d-297453b6fdeb'::uuid,'01a8211b-0311-4a2a-90ba-ce9e1681d68e'::uuid,'01ecc0c3-9aa7-4965-8497-59cb4d70f918'::uuid,'0213dfcf-a0cc-41a1-87a9-cd13def9ed59'::uuid,'02dad880-99fc-4eba-a4c1-38aeb40900e5'::uuid,'0357927c-7ebf-49e7-a29a-9e2b245da5f0'::uuid,'03c64860-0c6f-48ca-a14a-1318c7186c84'::uuid,'03cb701b-7331-4d93-8871-5922194cf200'::uuid,'04af956d-6563-4d2b-8ae3-2bc75a33df05'::uuid,'050f23fc-ca27-450f-ae84-31ff2e46f2aa'::uuid,'05c09b67-b0a4-484a-ac1b-51939f0dae27'::uuid,'063c52bc-6b65-4e82-a859-d3342f2af582'::uuid,'06462f5b-c851-476c-9ce5-bd13b667a867'::uuid,'06c52f1a-5e75-4cc5-930d-16b2e96ab996'::uuid,'06c8b69c-0760-497a-9cbe-beac45626bde'::uuid,'072a138e-219f-4f83-acb8-a8f7864fd934'::uuid,'073e8c4d-25e0-4e93-918d-e5b360dad2c0'::uuid,'074bbfcb-3014-4c7c-86c2-b05a371081a7'::uuid)
+  and c.publication_status='published' and c.archived_at is null
+on conflict(company_id) do nothing;
+
 create or replace function public.netintel1_next_batch(p_limit integer default 100)
 returns jsonb language plpgsql security definer set search_path = ''
 as $$
