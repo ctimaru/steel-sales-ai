@@ -204,7 +204,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
                   </span>
                 </div>
                 <span className="mt-1.5 text-[10px] font-medium text-[#526b59]" data-testid={"netpro1b-license-"+module.key}>
-                  {access?(territory==="IT"?access.modules[module.key].italy:access.modules[module.key].europe)
+                  {access?(territory==="IT"?access?.modules[module.key].italy:access?.modules[module.key].europe)
                     ?"Accesso PRO attivo":"Accesso PRO non attivo":"Stato accesso non disponibile"}
                 </span>
               </button>;
