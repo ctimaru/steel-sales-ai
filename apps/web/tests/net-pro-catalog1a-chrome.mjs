@@ -104,7 +104,7 @@ try {
   // Read-only company staff must be allowed to inspect prices too (not granted Network PRO).
   const {context,page,errors}=await signIn(viewer,390);
   try {
-    await price(page,66,width);
+    await price(page,66,390);
     assert.equal(await page.getByRole("heading",{name:"Sblocca i contatti industriali che ti servono."}).count(),1);
     assert.deepEqual(errors,[]);
     checks+=2;
