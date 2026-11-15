@@ -9,13 +9,13 @@ function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplica
   return <Link
     href={"/network?country="+encodeURIComponent(item.countryCode)+"#network-results"}
     tabIndex={duplicate?-1:undefined}
-    title={"Esplora "+name+" · "+item.published+" profili pubblicati e "+item.sourced+" aziende censite da fonti"}
+    title={"Esplora "+name+" · "+item.total+" aziende nel Network"}
     className="inline-flex min-h-9 shrink-0 items-center gap-2 rounded-md px-1 text-xs text-[#284b3d] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
     <NetworkCountryFlag code={item.countryCode}/>
     <strong className="text-[#173f35]">{name}</strong>
     <span className="text-[#7a9386]" aria-hidden="true">·</span>
     <strong className="tabular-nums text-[#173f35]">{item.total.toLocaleString("it-IT")}</strong>
-    <span>aziende censite nel Network</span>
+    <span>aziende nel Network</span>
     <span className="text-[#7a9386]" aria-hidden="true">·</span>
     <span>{item.producer.toLocaleString("it-IT")} produttori</span>
     <span className="text-[#7a9386]" aria-hidden="true">·</span>
@@ -25,9 +25,7 @@ function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplica
     <span className="text-[#7a9386]" aria-hidden="true">·</span>
     <span>{item.endUser.toLocaleString("it-IT")} utilizzatori</span>
     {item.other>0?<span>· {item.other.toLocaleString("it-IT")} ruoli da precisare</span>:null}
-    <span className="text-[#7a9386]" aria-hidden="true">·</span>
-    <span>{item.published.toLocaleString("it-IT")} profili pubblicati</span>
-    {item.sourced>0?<span>· {item.sourced.toLocaleString("it-IT")} da fonti, da confermare</span>:null}
+
   </Link>;
 }
 
