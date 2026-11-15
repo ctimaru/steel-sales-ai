@@ -156,6 +156,9 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
             </h2>
             <span className="text-[11px] font-semibold text-[#477460]">{selected.length} di 4 selezionati</span>
           </div>
+          {selected.length===0?<p className="text-xs font-semibold text-[#775d36]" role="status">
+            Seleziona almeno un modulo per configurare l&apos;abbonamento.
+          </p>:null}
           <div className="grid gap-3 sm:grid-cols-2">
             {orderedModules.map(key=>{
               const module=NETWORK_PRO_MODULES.find(m=>m.key===key)!;
@@ -168,7 +171,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
                 aria-label={(active?"Rimuovi":"Aggiungi")+" modulo "+module.title}
                 onClick={()=>toggle(module.key)}
                 data-testid={"network-pro-module-"+module.key}
-                className={"group flex min-h-[159px] min-w-0 flex-col rounded-2xl border px-3.5 py-3.5 text-left shadow-[0_5px_15px_rgba(17,65,47,0.045)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] sm:min-h-[183px] sm:px-4 sm:py-4 "+
+                className={"group flex min-h-[160px] min-w-0 flex-col rounded-2xl border px-3.5 py-3.5 text-left shadow-[0_5px_15px_rgba(17,65,47,0.045)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] sm:min-h-[183px] sm:px-4 sm:py-4 "+
                   (active?"border-[#2b7955] bg-[#f0f8f2] ring-1 ring-[#c1deca]":"border-[#dce4de] bg-white hover:border-[#97bba5] hover:bg-[#f8faf8]")}>
                 <div className="flex items-start gap-3">
                   <span className={"flex h-11 w-11 shrink-0 items-center justify-center rounded-xl "+
