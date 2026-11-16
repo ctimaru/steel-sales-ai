@@ -27,7 +27,9 @@ test("NET-PRO-PRODUCERS1: free/locked view cannot display producer directory row
 });
 
 test("NET-PRO-PRODUCERS1: comparison never invents manufacturer specifications or catalogs",()=>{
-  assert.match(experience,/current\.length<3/);
+  // Selection now resets by (query,page); test the current list, not a stale prior scope.
+  assert.match(experience,/ids\.length<3/);
+  assert.match(experience,/selection\.scope===selectionScope\?selection\.ids:\[\]/);
   assert.match(experience,/Non disponibile in questa vista/);
   assert.match(experience,/La ricerca tecnica per norma, grado e dimensione/);
   assert.match(experience,/cataloghi tecnici sono qualificazioni distinte/);
