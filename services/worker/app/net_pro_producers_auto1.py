@@ -135,7 +135,12 @@ def discover_product_links(html: str, root_url: str, canonical_domain: str) -> l
                 continue
             if len(path) > 800 or not re.fullmatch(r"/[A-Za-z0-9._~/%-]+", path):
                 continue
-            normalized = urlunsplit(("https", (parsed.hostname or "").lower(), path, "", ""))
+            # Normalize www/apex variants to the already-verified official
+            # homepage host. This avoids duplicate pages and persistent 301s.
+            if not safe_official_url(joined, canonical_domain):
+                continue
+            primary_host = (urlsplit(root_url).hostname or "").lower()
+            normalized = urlunsplit(("https", primary_host, path, "", ""))
             if not safe_official_url(normalized, canonical_domain):
                 continue
             slug = path.replace("-", " ").replace("_", " ")
