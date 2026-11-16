@@ -47,7 +47,7 @@ IGNORE_LINK_PATTERN = re.compile(
     r"social|facebook|instagram|linkedin|event|press|cookie-policy)", re.I
 )
 NON_HTML_EXTENSION = re.compile(
-    r"\\.(?:pdf|zip|docx?|xlsx?|csv|xml|jpg|jpeg|png|gif|svg|webp)(?:$|[?#])", re.I
+    r"\.(?:pdf|zip|docx?|xlsx?|csv|xml|jpg|jpeg|png|gif|svg|webp)(?:$|[?#])", re.I
 )
 
 
