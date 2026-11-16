@@ -165,7 +165,11 @@ begin
       join public.network_company_roles r on r.id=a.role_id
       where a.company_id=c.id and r.canonical_key='producer' and r.status='active'
     )
-  order by q.next_check_at,q.company_id
+  -- Revisit already-fetched homepages that lack product-link discovery first.
+  -- Each snapshot is prioritized only once (product_discovery_sha256 set on completion).
+  order by case when q.last_sha256 is not null
+                      and q.product_discovery_sha256 is distinct from q.last_sha256
+                then 0 else 1 end, q.next_check_at,q.company_id
   for update of q skip locked
   limit p_limit
  ), leased as (
