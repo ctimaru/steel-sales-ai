@@ -16,7 +16,7 @@ import json
 import os
 import re
 import socket
-from urllib.parse import urlsplit
+from urllib.parse import urljoin, urlsplit, urlunsplit
 from urllib.robotparser import RobotFileParser
 
 import httpx
@@ -26,6 +26,30 @@ MAX_BATCH = 25
 MAX_HTML_BYTES = 512_000
 MAX_TEXT_CHARS = 80_000
 MAX_CANDIDATES = 25
+MAX_PRODUCT_PAGES_PER_COMPANY = 8
+MAX_PRODUCT_PAGES_PER_RUN = 5
+PRODUCT_LINK_PATTERNS = {
+    "catalog": re.compile(
+        r"(?:catalog(?:o|hi|ue|ues|os)?|katalog|brochure|download|technical[-_/ ]?documents?)", re.I
+    ),
+    "products": re.compile(
+        r"(?:prodott[oi]|products?|produits?|productos?|produkte|"
+        r"tub[io]|tubes?|pipes?|hollow[-_/ ]?section|structural|"
+        r"profil[io]|sections?|gamma|range|lavorazion[ie])", re.I
+    ),
+    "standards": re.compile(
+        r"(?:norm[ae]|standards?|specifications?|specifiche|certificazion[ie])", re.I
+    ),
+}
+IGNORE_LINK_PATTERN = re.compile(
+    r"(?:privacy|cookies?|consent|contact|contatt|about|chi[-_/ ]?siamo|"
+    r"news|blog|career|jobs?|lavora[-_/ ]?con|login|registr|cart|checkout|"
+    r"social|facebook|instagram|linkedin|event|press|cookie-policy)", re.I
+)
+NON_HTML_EXTENSION = re.compile(
+    r"\.(?:pdf|zip|docx?|xlsx?|csv|xml|jpg|jpeg|png|gif|svg|webp)(?:$|[?#])", re.I
+)
+
 
 # These are RESEARCH CANDIDATES only, even for a company tagged "producer".
 TOKEN_PATTERNS = (
@@ -65,6 +89,82 @@ class SafeHtmlText(HTMLParser):
 
     def text(self):
         return " ".join(" ".join(self._pieces).split())[:MAX_TEXT_CHARS]
+
+
+class ProductLinkParser(HTMLParser):
+    """Collect only href+short anchor text, including site navigation labels."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.links: list[tuple[str, str]] = []
+        self._current: list[str] | None = None
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            href = dict(attrs).get("href")
+            self._current = [href, ""] if isinstance(href, str) else None
+
+    def handle_data(self, data):
+        if self._current is not None:
+            self._current[1] += data[:100]
+
+    def handle_endtag(self, tag):
+        if tag == "a" and self._current is not None:
+            self.links.append(tuple(self._current))
+            self._current = None
+
+
+def discover_product_links(html: str, root_url: str, canonical_domain: str) -> list[dict]:
+    """Single-depth first-party discovery; NO PDF downloads or external links."""
+    parser = ProductLinkParser()
+    parser.feed(html[:MAX_HTML_BYTES])
+    ranked: dict[str, tuple[int, str]] = {}
+    for href, label in parser.links[:1500]:
+        if not href or href.startswith(("#", "mailto:", "javascript:", "tel:")):
+            continue
+        if len(href) > 1000:
+            continue
+        try:
+            joined = urljoin(root_url, href)
+            parsed = urlsplit(joined)
+            if parsed.scheme != "https" or parsed.username or parsed.password:
+                continue
+            if parsed.port not in (None, 443):
+                continue
+            path = parsed.path or "/"
+            if path in ("", "/") or NON_HTML_EXTENSION.search(path):
+                continue
+            if len(path) > 800 or not re.fullmatch(r"/[A-Za-z0-9._~/%-]+", path):
+                continue
+            normalized = urlunsplit(("https", (parsed.hostname or "").lower(), path, "", ""))
+            if not safe_official_url(normalized, canonical_domain):
+                continue
+            slug = path.replace("-", " ").replace("_", " ")
+            short_label = " ".join(label.split())[:100]
+            if IGNORE_LINK_PATTERN.search(slug):
+                continue
+            kind = None
+            score = 0
+            for candidate, pattern in PRODUCT_LINK_PATTERNS.items():
+                path_hit = pattern.search(slug) is not None
+                label_hit = pattern.search(short_label) is not None
+                if not path_hit and not label_hit:
+                    continue
+                candidate_score = (8 if path_hit else 0) + (3 if label_hit else 0)
+                if candidate == "products":
+                    candidate_score += 2
+                if candidate_score > score:
+                    kind, score = candidate, candidate_score
+            if kind is None:
+                continue
+            previous = ranked.get(normalized)
+            if previous is None or score > previous[0]:
+                ranked[normalized] = (score, kind)
+        except (ValueError, TypeError, UnicodeError):
+            continue
+    return [
+        {"url": url, "kind": kind}
+        for url, (_, kind) in sorted(ranked.items(), key=lambda kv: (-kv[1][0], kv[0]))
+    ][:MAX_PRODUCT_PAGES_PER_COMPANY]
 
 
 def safe_official_url(value: str, canonical_domain: str) -> bool:
@@ -137,6 +237,20 @@ def parse_lease(payload: object) -> list[dict]:
     return items
 
 
+def parse_product_page_lease(payload: object) -> list[dict]:
+    if not isinstance(payload, dict) or payload.get("contract") != "netproducers-auto1a3-claim-v1":
+        raise ValueError("Invalid product page claim contract")
+    items = payload.get("items")
+    if not isinstance(items, list) or len(items) > MAX_PRODUCT_PAGES_PER_RUN or payload.get("count") != len(items):
+        raise ValueError("Invalid product page claim batch")
+    for row in items:
+        if not isinstance(row, dict) or not isinstance(row.get("page_id"), str) or not safe_official_url(
+            row.get("source_url", ""), row.get("canonical_domain", "")
+        ):
+            raise ValueError("Invalid first-party product page")
+    return items
+
+
 def db_rpc(db, name: str, arguments: dict) -> dict:
     res = db.rpc(name, arguments).execute()
     if not isinstance(res.data, dict):
@@ -195,6 +309,9 @@ async def fetch_official_page(client: httpx.AsyncClient, lease: dict) -> dict:
                 "etag": response.headers.get("etag", "")[:200] or None,
                 "last_modified": response.headers.get("last-modified", "")[:200] or None,
                 "candidates": extract_candidates(text),
+                "product_links": discover_product_links(
+                    text, url, lease["canonical_domain"]
+                ),
             }
     except httpx.HTTPError:
         return {"status": "failed", "error": "http_transport_error"}
@@ -234,20 +351,63 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
                 "p_last_modified": outcome.get("last_modified"),
                 "p_error": outcome.get("error"),
             })
+            if outcome["status"] == "processed":
+                # SQL rechecks the ROOT's exact SHA after completion. Discovery
+                # is idempotent and bounded even on a repeated HTML snapshot.
+                discovery = db_rpc(db, "netproducers1_auto1a3_discover", {
+                    "p_company_id": lease["company_id"],
+                    "p_home_sha256": outcome["sha256"],
+                    "p_pages": outcome.get("product_links", []),
+                })
+                if discovery.get("contract") != "netproducers-auto1a3-discover-v1":
+                    raise ValueError("Invalid discovery acknowledgement")
             outcomes.append({
                 "company_id": lease["company_id"],
                 "status": outcome["status"],
                 "candidate_count": result.get("candidate_count", 0),
                 "published_claims": 0,
             })
+    page_leases = parse_product_page_lease(db_rpc(
+        db, "netproducers1_auto1a3_claim_pages",
+        {"p_limit": min(MAX_PRODUCT_PAGES_PER_RUN, limit)}
+    ))
+    page_outcomes = []
+    async with httpx.AsyncClient(
+        timeout=httpx.Timeout(12.0), follow_redirects=False, trust_env=False,
+    ) as client:
+        for idx, page in enumerate(page_leases):
+            if idx:
+                await asyncio.sleep(1.5)
+            outcome = await fetch_official_page(client, page)
+            result = db_rpc(db, "netproducers1_auto1a3_complete_page", {
+                "p_page_id": page["page_id"],
+                "p_source_sha256": outcome.get("sha256"),
+                "p_status": outcome["status"],
+                "p_candidates": outcome.get("candidates", []),
+                "p_etag": outcome.get("etag"),
+                "p_last_modified": outcome.get("last_modified"),
+                "p_error": outcome.get("error"),
+            })
+            if result.get("contract") != "netproducers-auto1a3-complete-v1":
+                raise ValueError("Invalid product page completion")
+            page_outcomes.append({
+                "page_id": page["page_id"],
+                "status": outcome["status"],
+                "candidate_count": result.get("candidate_count", 0),
+            })
     # Per-attribute verification is independent from collection. It never
     # publishes manufacturing capability, size/grade combinations or stock.
     verification = db_rpc(db, "netproducers1_auto1b_verify", {"p_limit": 100})
+    page_verification = db_rpc(db, "netproducers1_auto1a3_verify", {"p_limit": 100})
     return {"mode": "private_candidate_intake", "new_sources": seed["added"],
             "processed": len(outcomes),
             "new_candidates": sum(x["candidate_count"] for x in outcomes),
+            "product_pages_processed": len(page_outcomes),
+            "page_candidate_mentions": sum(x["candidate_count"] for x in page_outcomes),
             "verification": verification,
-            "published_claims": 0, "outcomes": outcomes}
+            "page_verification": page_verification,
+            "published_claims": 0, "outcomes": outcomes,
+            "page_outcomes": page_outcomes}
 
 
 def main() -> int:
