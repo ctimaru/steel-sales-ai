@@ -6,6 +6,14 @@ name: "NET-IT-AUTO2 — Hourly first-party identity review"
 # Publication stays behind the Platform Owner's NET-IT-AUTO3 policy.
 
 on:
+  # Only protected updates to this reviewer/priority code trigger immediate
+  # identity evidence gathering; daily and hourly schedules remain unchanged.
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/net-it-auto2-reviewer.yml"
+      - "services/worker/app/net_it_auto2_reviewer.py"
+      - "supabase/migrations/20261116190000_net_it_piemonte3_auto2_priority.sql"
   workflow_dispatch:
     inputs:
       limit:
@@ -56,11 +64,16 @@ jobs:
             echo "::error::Missing worker-only Supabase secrets; nothing reviewed"
             exit 1
           fi
+          if [ "$SUPABASE_URL" != "https://ecrafjdummcdfycznitx.supabase.co" ]; then
+            echo "::error::Unexpected Supabase project; no review writes performed"
+            exit 1
+          fi
+          echo "::add-mask::$SUPABASE_SERVICE_ROLE_KEY"
       - name: Review official websites and record private evidence
         working-directory: services/worker
         env:
           LIMIT: ${{ inputs.limit || '50' }}
-          PERSIST: ${{ github.event_name == 'schedule' || inputs.persist }}
+          PERSIST: ${{ github.event_name != 'workflow_dispatch' || inputs.persist }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
