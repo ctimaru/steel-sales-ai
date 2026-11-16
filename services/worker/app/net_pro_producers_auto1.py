@@ -21,6 +21,8 @@ from urllib.robotparser import RobotFileParser
 
 import httpx
 
+from .net_pro_producers_auto1a4 import discover_detail_links, extract_exact_row_candidates
+
 USER_AGENT = "SmartSteelSalesTechnicalEvidenceBot/1.0"
 MAX_BATCH = 25
 MAX_HTML_BYTES = 512_000
@@ -28,6 +30,7 @@ MAX_TEXT_CHARS = 80_000
 MAX_CANDIDATES = 25
 MAX_PRODUCT_PAGES_PER_COMPANY = 8
 MAX_PRODUCT_PAGES_PER_RUN = 5
+MAX_DETAIL_PAGES_PER_RUN = 3
 PRODUCT_LINK_PATTERNS = {
     "catalog": re.compile(
         r"(?:catalog(?:o|hi|ue|ues|os)?|katalog|brochure|download|technical[-_/ ]?documents?)", re.I
@@ -256,6 +259,23 @@ def parse_product_page_lease(payload: object) -> list[dict]:
     return items
 
 
+def parse_detail_page_lease(payload: object) -> list[dict]:
+    if not isinstance(payload, dict) or payload.get("contract") != "netproducers-auto1a4-claim-v1":
+        raise ValueError("Invalid depth-two claim contract")
+    items = payload.get("items")
+    if not isinstance(items, list) or len(items) > MAX_DETAIL_PAGES_PER_RUN or payload.get("count") != len(items):
+        raise ValueError("Invalid depth-two claim list")
+    for row in items:
+        if (not isinstance(row, dict)
+            or not isinstance(row.get("page_id"), str)
+            or not isinstance(row.get("parent_page_id"), str)
+            or not isinstance(row.get("parent_sha256"), str)
+            or re.fullmatch(r"[0-9a-f]{64}", row["parent_sha256"]) is None
+            or not safe_official_url(row.get("source_url", ""), row.get("canonical_domain", ""))):
+            raise ValueError("Invalid depth-two official source")
+    return items
+
+
 def db_rpc(db, name: str, arguments: dict) -> dict:
     res = db.rpc(name, arguments).execute()
     if not isinstance(res.data, dict):
@@ -305,7 +325,7 @@ async def fetch_official_page(client: httpx.AsyncClient, lease: dict) -> dict:
                     return {"status": "blocked", "error": "html_too_large"}
             raw = bytes(content)
             digest = hashlib.sha256(raw).hexdigest()
-            if digest == lease.get("last_sha256"):
+            if digest == lease.get("last_sha256") and not (lease.get("needs_detail_discovery") or lease.get("needs_content_reparse")):
                 return {"status": "unchanged", "sha256": digest}
             text = raw.decode("utf-8", errors="replace")
             return {
@@ -316,7 +336,13 @@ async def fetch_official_page(client: httpx.AsyncClient, lease: dict) -> dict:
                 "candidates": extract_candidates(text),
                 "product_links": discover_product_links(
                     text, url, lease["canonical_domain"]
-                ),
+                ) if not lease.get("page_id") else [],
+                "detail_links": discover_detail_links(
+                    text, url, host, digest
+                ) if lease.get("page_id") and not lease.get("parent_page_id") else [],
+                "technical_candidates": extract_exact_row_candidates(
+                    text, url, digest
+                ) if lease.get("parent_page_id") else [],
             }
     except httpx.HTTPError:
         return {"status": "failed", "error": "http_transport_error"}
@@ -328,6 +354,9 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
     if dry_run:
         # Status-only default: do not lease anything or contact external websites.
         return {"mode": "dry_run", "status": db_rpc(db, "netproducers1_auto1_status", {})}
+
+    # Release flag: never call A4 RPCs before its migration is installed.
+    a4_enabled = os.getenv("NETPRODUCERS_A4_ENABLED", "false").lower() == "true"
 
     # Grow the durable queue automatically as newly published canonical IT
     # producers appear. Only the private service role can invoke this RPC.
@@ -395,11 +424,47 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
             })
             if result.get("contract") != "netproducers-auto1a3-complete-v1":
                 raise ValueError("Invalid product page completion")
+            if a4_enabled and outcome["status"] == "processed" and "detail_links" in outcome:
+                discovery = db_rpc(db, "netproducers1_auto1a4_discover", {
+                    "p_parent_page_id": page["page_id"],
+                    "p_parent_sha256": outcome["sha256"],
+                    "p_links": outcome["detail_links"],
+                })
+                if discovery.get("contract") != "netproducers-auto1a4-discover-v1":
+                    raise ValueError("Invalid depth-two discovery response")
             page_outcomes.append({
                 "page_id": page["page_id"],
                 "status": outcome["status"],
                 "candidate_count": result.get("candidate_count", 0),
             })
+    detail_outcomes = []
+    if a4_enabled:
+        detail_leases = parse_detail_page_lease(db_rpc(
+            db, "netproducers1_auto1a4_claim_pages",
+            {"p_limit": min(MAX_DETAIL_PAGES_PER_RUN, limit)}
+        ))
+        async with httpx.AsyncClient(
+            timeout=httpx.Timeout(12.0), follow_redirects=False, trust_env=False,
+        ) as client:
+            for idx, detail in enumerate(detail_leases):
+                if idx:
+                    await asyncio.sleep(1.5)
+                outcome = await fetch_official_page(client, detail)
+                completed = db_rpc(db, "netproducers1_auto1a4_complete_page", {
+                    "p_page_id": detail["page_id"],
+                    "p_source_sha256": outcome.get("sha256"),
+                    "p_status": outcome["status"],
+                    "p_candidates": outcome.get("technical_candidates", []),
+                    "p_etag": outcome.get("etag"),
+                    "p_last_modified": outcome.get("last_modified"),
+                    "p_error": outcome.get("error"),
+                })
+                if completed.get("contract") != "netproducers-auto1a4-complete-v1":
+                    raise ValueError("Invalid depth-two completion response")
+                detail_outcomes.append({
+                    "page_id": detail["page_id"], "status": outcome["status"],
+                    "private_technical_candidates": completed.get("candidate_count", 0),
+                })
     # Per-attribute verification is independent from collection. It never
     # publishes manufacturing capability, size/grade combinations or stock.
     verification = db_rpc(db, "netproducers1_auto1b_verify", {"p_limit": 100})
@@ -411,8 +476,10 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
             "page_candidate_mentions": sum(x["candidate_count"] for x in page_outcomes),
             "verification": verification,
             "page_verification": page_verification,
+            "detail_pages_processed": len(detail_outcomes),
+            "private_technical_candidates": sum(x["private_technical_candidates"] for x in detail_outcomes),
             "published_claims": 0, "outcomes": outcomes,
-            "page_outcomes": page_outcomes}
+            "page_outcomes": page_outcomes, "detail_outcomes": detail_outcomes}
 
 
 def main() -> int:
