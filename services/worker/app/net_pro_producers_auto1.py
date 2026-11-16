@@ -325,7 +325,7 @@ async def fetch_official_page(client: httpx.AsyncClient, lease: dict) -> dict:
                     return {"status": "blocked", "error": "html_too_large"}
             raw = bytes(content)
             digest = hashlib.sha256(raw).hexdigest()
-            if digest == lease.get("last_sha256"):
+            if digest == lease.get("last_sha256") and not lease.get("needs_detail_discovery"):
                 return {"status": "unchanged", "sha256": digest}
             text = raw.decode("utf-8", errors="replace")
             return {
