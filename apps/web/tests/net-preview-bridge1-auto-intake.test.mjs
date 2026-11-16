@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-const sql=readFileSync(new URL("../../../supabase/migrations/20261116094500_net_preview_bridge1_auto_intake.sql",import.meta.url),"utf8");
+const sql=readFileSync(new URL("../../../supabase/migrations/20261116084458_net_preview_bridge1_auto_intake.sql",import.meta.url),"utf8");
 
 test("BRIDGE1 stages only first-party research with bounded automatic batches",()=>{
   assert.match(sql,/p_max integer default 100/);
