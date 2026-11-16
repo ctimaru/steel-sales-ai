@@ -80,16 +80,24 @@ function EvidenceValues({items,kind}:{items:NetworkProducerTechnicalClaim[]|null
 }
 
 export function NetworkProducersExperience({result,query,page,publishedCount,catalogs,technicalClaims,sourceMentions}:Props){
-  const [selected,setSelected]=useState<string[]>([]);
+  // Search/pagination navigations can preserve this client component: stale ids must never disable the new result list.
+  const selectionScope=JSON.stringify([query,page]);
+  const [selection,setSelection]=useState<{scope:string;ids:string[]}>({scope:selectionScope,ids:[]});
+  const selected=selection.scope===selectionScope?selection.ids:[];
+  const clearSelection=()=>setSelection({scope:selectionScope,ids:[]});
   const companies=result.status==="ready"?result.data.items:[];
   const selectedCompanies=selected.flatMap(id=>{
     const found=companies.find(company=>company.id===id);
     return found?[found]:[];
   });
   function toggle(id:string){
-    setSelected(current=>current.includes(id)
-      ?current.filter(value=>value!==id)
-      :current.length<3?[...current,id]:current);
+    setSelection(current=>{
+      const ids=current.scope===selectionScope?current.ids:[];
+      const next=ids.includes(id)
+        ?ids.filter(value=>value!==id)
+        :ids.length<3?[...ids,id]:ids;
+      return {scope:selectionScope,ids:next};
+    });
   }
   const total=result.status==="ready"?result.data.total:null;
   const pages=result.status==="ready"?Math.max(1,Math.ceil(result.data.total/result.data.limit)):1;
@@ -307,7 +315,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
                 di diametro, spessore e grado, né stock o capacità disponibile.
               </p>
             </div>
-            <button type="button" onClick={()=>setSelected([])} className="min-h-10 text-xs font-bold text-[#185740] underline">Svuota</button>
+            <button type="button" onClick={clearSelection} className="min-h-10 text-xs font-bold text-[#185740] underline">Svuota</button>
           </div>
         </div>
         <div className="w-full overflow-x-auto">
@@ -343,7 +351,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
         <span className="text-xs font-extrabold">{selectedCompanies.length} / 3 nel confronto</span>
         <span className="hidden min-w-0 flex-1 truncate text-[11px] text-[#cfe6db] sm:inline">{selectedCompanies.map(c=>c.name).join(" · ")}</span>
         <a href="#producer-compare" className="ml-auto inline-flex min-h-9 items-center rounded-xl bg-[#f2b544] px-3 text-xs font-extrabold text-[#2a1c00] hover:bg-[#f6c460] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Vedi confronto ↓</a>
-        <button type="button" onClick={()=>setSelected([])} className="min-h-9 rounded-xl border border-white/30 px-3 text-xs font-bold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Svuota</button>
+        <button type="button" onClick={clearSelection} className="min-h-9 rounded-xl border border-white/30 px-3 text-xs font-bold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Svuota</button>
       </div>:null}
       <nav aria-label="Navigazione produttori" className="flex items-center justify-between gap-2">
         {page>1?<PageLink label="← Precedenti" query={query} page={page-1}/>:<span/>}

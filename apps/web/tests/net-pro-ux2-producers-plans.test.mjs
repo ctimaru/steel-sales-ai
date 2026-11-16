@@ -35,3 +35,15 @@ test("NET-PRO-UX2 speed: client-side search and instant skeletons",()=>{
   for(const path of ["pro/loading.tsx","pro/producers/loading.tsx","pro/explore/loading.tsx"])
     assert.ok(existsSync(new URL("../app/(italian)/(workspace)/network/"+path,import.meta.url)),path);
 });
+
+test("NET-PRO-UX2 follow-up: comparison selection is scoped to current search and page",()=>{
+  // Next/Form and Next/Link preserve the client component across navigations.
+  // The selected list must be empty immediately when the query or page changes,
+  // even before a state effect or an explicit form handler runs.
+  assert.match(exp,/const selectionScope=JSON\.stringify\(\[query,page\]\)/);
+  assert.match(exp,/const selected=selection\.scope===selectionScope\?selection\.ids:\[\]/);
+  assert.match(exp,/const ids=current\.scope===selectionScope\?current\.ids:\[\]/);
+  assert.match(exp,/const clearSelection=\(\)=>setSelection\(\{scope:selectionScope,ids:\[\]\}\)/);
+  assert.equal((exp.match(/onClick=\{clearSelection\}/g)||[]).length,2,
+    "both comparison clear controls must reset the current scope");
+});
