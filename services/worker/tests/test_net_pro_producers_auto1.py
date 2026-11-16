@@ -97,14 +97,154 @@ def test_persist_auto_seeds_100_before_claim_and_keeps_publication_zero():
             if name == "netproducers1_auto1b_verify":
                 return RpcCall({"contract": "netproducers-auto1b-verify-v1",
                                 "checked": 0, "manufacturing_capabilities_published": 0})
+            if name == "netproducers1_auto1a3_claim_pages":
+                return RpcCall({"contract": "netproducers-auto1a3-claim-v1", "count": 0, "items": []})
+            if name == "netproducers1_auto1a3_verify":
+                return RpcCall({"contract": "netproducers-auto1a3-verify-v1",
+                                "checked": 0, "manufacturing_capabilities_published": 0})
             raise AssertionError(f"Unexpected RPC {name}")
     db = Db()
     result = asyncio.run(run(db, limit=10, dry_run=False))
     assert db.calls == [
         ("netproducers1_auto1_seed", {"p_limit": 100}),
         ("netproducers1_auto1_claim", {"p_limit": 10}),
+        ("netproducers1_auto1a3_claim_pages", {"p_limit": 5}),
         ("netproducers1_auto1b_verify", {"p_limit": 100}),
+        ("netproducers1_auto1a3_verify", {"p_limit": 100}),
     ]
     assert result["new_sources"] == 2
     assert result["processed"] == 0
     assert result["published_claims"] == 0
+
+
+def test_auto1a3_discovers_first_party_product_catalog_standards_pages_not_pdfs():
+    from app.net_pro_producers_auto1 import discover_product_links
+    html = """
+      <nav><a href="/it/prodotti/">Prodotti</a>
+        <a href="/it/catalogo-tecnico/">Catalogo tecnico</a>
+        <a href="/it/norme-e-certificazioni/">Norme</a>
+        <a href="/it/contatti/">Contatti</a>
+        <a href="/privacy/">Privacy Policy</a>
+        <a href="https://outsider.it/products">Products outside</a>
+        <a href="//127.0.0.1/products">Internal</a>
+        <a href="/catalogo-tubi.pdf">Scarica catalogo PDF</a>
+        <a href="/it/prodotti/?utm_source=homepage">Prodotti</a>
+        <a href="/download.zip">Downloads</a>
+        <a href="/it/ricerca/">Cerca</a>
+      </nav>
+    """
+    links = discover_product_links(html, "https://www.example.com/it/", "example.com")
+    urls = {x["url"] for x in links}
+    assert "https://www.example.com/it/prodotti/" in urls
+    assert "https://www.example.com/it/catalogo-tecnico/" in urls
+    assert "https://www.example.com/it/norme-e-certificazioni/" in urls
+    assert all(x["kind"] in ("products", "catalog", "standards") for x in links)
+    assert not any("outsider" in u or "127.0.0.1" in u for u in urls)
+    assert not any(".pdf" in u or ".zip" in u for u in urls)
+    assert not any("/privacy" in u or "/contatti" in u for u in urls)
+    assert all("?" not in u and "#" not in u for u in urls)
+    assert len(urls) == len(links)
+
+
+def test_auto1a3_enforces_one_company_and_bounded_links():
+    from app.net_pro_producers_auto1 import discover_product_links, MAX_PRODUCT_PAGES_PER_COMPANY
+    html = "<html>" + "".join(
+        f'<a href="/it/prodotti/{i}/">Tubi prodotti {i}</a>'
+        for i in range(50)
+    ) + "</html>"
+    links = discover_product_links(html, "https://example.com", "example.com")
+    assert len(links) == MAX_PRODUCT_PAGES_PER_COMPANY
+    assert len({x["url"] for x in links}) == MAX_PRODUCT_PAGES_PER_COMPANY
+
+
+def test_auto1a3_rejects_page_leases_from_foreign_domains():
+    from app.net_pro_producers_auto1 import parse_product_page_lease
+    with pytest.raises(ValueError):
+        parse_product_page_lease({
+            "contract": "netproducers-auto1a3-claim-v1", "count": 1,
+            "items": [{"page_id": "1", "source_url": "https://other.test/catalog",
+                       "canonical_domain": "example.com"}]
+        })
+    valid = parse_product_page_lease({
+        "contract": "netproducers-auto1a3-claim-v1", "count": 1,
+        "items": [{"page_id": "1", "source_url": "https://example.com/catalog",
+                   "canonical_domain": "example.com"}]
+    })
+    assert len(valid) == 1
+
+
+def test_auto1a3_workflow_discovers_then_verifies_page_mentions_without_sku(monkeypatch):
+    from app import net_pro_producers_auto1 as worker
+
+    class Response:
+        def __init__(self, data):
+            self.data = data
+    class RpcCall:
+        def __init__(self, value):
+            self.value = value
+        def execute(self):
+            return Response(self.value)
+    calls = []
+    class Db:
+        def rpc(self, name, args):
+            calls.append((name, args))
+            data = {
+                "netproducers1_auto1_seed": {
+                    "contract": "netproducers1-auto1-seed-v1", "added": 0
+                },
+                "netproducers1_auto1_claim": {
+                    "contract": "netproducers1-auto1-claim-v1", "count": 1,
+                    "items": [{"company_id": "c1", "source_url": "https://example.com/",
+                               "canonical_domain": "example.com"}]
+                },
+                "netproducers1_auto1_complete": {
+                    "contract": "netproducers1-auto1-complete-v1", "candidate_count": 0
+                },
+                "netproducers1_auto1a3_discover": {
+                    "contract": "netproducers-auto1a3-discover-v1", "recorded_total": 1
+                },
+                "netproducers1_auto1a3_claim_pages": {
+                    "contract": "netproducers-auto1a3-claim-v1", "count": 1,
+                    "items": [{"page_id": "page1", "company_id": "c1",
+                               "source_url": "https://example.com/prodotti/",
+                               "canonical_domain": "example.com"}]
+                },
+                "netproducers1_auto1a3_complete_page": {
+                    "contract": "netproducers-auto1a3-complete-v1", "candidate_count": 1
+                },
+                "netproducers1_auto1b_verify": {
+                    "contract": "netproducers-auto1b-verify-v1", "checked": 0
+                },
+                "netproducers1_auto1a3_verify": {
+                    "contract": "netproducers-auto1a3-verify-v1", "checked": 1,
+                    "source_mentions_confirmed": 1,
+                    "manufacturing_capabilities_published": 0
+                },
+            }
+            return RpcCall(data[name])
+
+    async def fake_fetch(client, lease):
+        if lease.get("page_id"):
+            return {"status": "processed", "sha256": "b"*64,
+                    "candidates": [{"claim_kind": "technical_standard",
+                                    "claim_value": "EN 10219",
+                                    "evidence_excerpt": "Tubi EN 10219"}]}
+        return {"status": "processed", "sha256": "a"*64, "candidates": [],
+                "product_links": [{"url": "https://example.com/prodotti/",
+                                   "kind": "products"}]}
+    monkeypatch.setattr(worker, "fetch_official_page", fake_fetch)
+
+    result = asyncio.run(run(Db(), limit=3, dry_run=False))
+    assert result["product_pages_processed"] == 1
+    assert result["page_candidate_mentions"] == 1
+    assert result["published_claims"] == 0
+    assert [name for name, _ in calls] == [
+        "netproducers1_auto1_seed", "netproducers1_auto1_claim",
+        "netproducers1_auto1_complete", "netproducers1_auto1a3_discover",
+        "netproducers1_auto1a3_claim_pages",
+        "netproducers1_auto1a3_complete_page",
+        "netproducers1_auto1b_verify", "netproducers1_auto1a3_verify"
+    ]
+    assert calls[3][1]["p_pages"] == [
+        {"url": "https://example.com/prodotti/", "kind": "products"}
+    ]
