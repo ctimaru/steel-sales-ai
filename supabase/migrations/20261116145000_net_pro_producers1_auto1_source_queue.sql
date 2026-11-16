@@ -432,3 +432,49 @@ comment on table private.network_producer_auto1_sources is
   'Incremental first-party source-check queue for canonical IT producer-role companies. Producer role alone does not verify steel-tube production.';
 comment on table private.network_producer_auto1_candidates is
   'Short candidate claim evidence held privately until separate automated per-attribute verification. No client reads.';
+
+
+-- Supabase Data API exposes `public`, NOT `private`. These wrappers are
+-- deliberately service_role-only so the Railway worker can call them via RPC.
+-- Browsers (anon and authenticated) cannot acquire leases or see raw candidates.
+create or replace function public.netproducers1_auto1_seed(p_limit integer default 100)
+returns jsonb language sql security invoker set search_path=''
+as $body$
+ select private.netproducers1_auto1_seed(p_limit);
+$body$;
+create or replace function public.netproducers1_auto1_claim(p_limit integer default 10)
+returns jsonb language sql security invoker set search_path=''
+as $body$
+ select private.netproducers1_auto1_claim(p_limit);
+$body$;
+create or replace function public.netproducers1_auto1_complete(
+ p_company_id uuid, p_source_sha256 text, p_status text,
+ p_candidates jsonb default '[]'::jsonb,
+ p_etag text default null, p_last_modified text default null,
+ p_error text default null
+)
+returns jsonb language sql security invoker set search_path=''
+as $body$
+ select private.netproducers1_auto1_complete(
+   p_company_id,p_source_sha256,p_status,p_candidates,p_etag,p_last_modified,p_error
+ );
+$body$;
+create or replace function public.netproducers1_auto1_status()
+returns jsonb language sql stable security invoker set search_path=''
+as $body$
+ select private.netproducers1_auto1_status();
+$body$;
+
+revoke all on function public.netproducers1_auto1_seed(integer) from public,anon,authenticated;
+revoke all on function public.netproducers1_auto1_claim(integer) from public,anon,authenticated;
+revoke all on function public.netproducers1_auto1_complete(uuid,text,text,jsonb,text,text,text)
+  from public,anon,authenticated;
+revoke all on function public.netproducers1_auto1_status() from public,anon,authenticated;
+grant execute on function public.netproducers1_auto1_seed(integer) to service_role;
+grant execute on function public.netproducers1_auto1_claim(integer) to service_role;
+grant execute on function public.netproducers1_auto1_complete(uuid,text,text,jsonb,text,text,text)
+  to service_role;
+grant execute on function public.netproducers1_auto1_status() to service_role;
+
+comment on function public.netproducers1_auto1_claim(integer) is
+  'Railway first-party source intake only: private queue leases, never a public producer capability or entitlement grant.';
