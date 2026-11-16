@@ -27,7 +27,7 @@ const SURFACES = new Set<NetworkSaveSurface>([
  * published companies can be saved). Idempotent: saving twice or removing a
  * missing row is a success, so double clicks and retries are harmless.
  *
- * Speed (NET-SAVE-INLINE1B): no revalidatePath. In a server action any
+ * Speed (NET-SAVE-INLINE1B): no path or tag revalidation. In a server action any
  * revalidation re-renders the whole current route (the heavy /network page)
  * inside the same response, which took ~3 s per click. The pages that list
  * saved state (/network/saved, profiles) are dynamic and read fresh data on
