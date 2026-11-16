@@ -5,6 +5,7 @@ import {hasSpecCriteria,normalizeSpecFilters} from "@/lib/network-spec-filters";
 import {getEuropeRegionCoverage} from "@/lib/network-europe-regional";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
+import {NetworkProducersEntry} from "@/components/network-producers-entry";
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 import {getNetworkReplyIntelligence,sharedPublicProducts} from "@/lib/network-reply-intelligence";
@@ -102,6 +103,7 @@ export async function FreeNetworkDirectoryView({
   return (
     <FocusPage className="max-w-[1180px]">
       <NetworkCompanyGrowthEntry />
+      <NetworkProducersEntry />
       <NetworkInventoryBar accessMode="free" published={data.published_page.total}
         unconfirmed={data.discovery_page?.total??0} discoveryUnavailable={data.discovery_unavailable}
         filters={filters} />

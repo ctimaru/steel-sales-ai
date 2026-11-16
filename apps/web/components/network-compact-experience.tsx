@@ -7,6 +7,7 @@ import type {EuropeRegionCoverage} from "@/lib/network-europe-regional";
 import {NetworkLiveSearch} from "@/components/network-live-search";
 import {NetworkConversation} from "@/components/network-conversation";
 import Link from "next/link";
+import {NetworkProducersEntry} from "@/components/network-producers-entry";
 import {safeNetworkWebsiteUrl, type FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compact-directory";
 import {NetworkEuropeanMap} from "@/components/network-europe-map";
@@ -234,6 +235,9 @@ export function NetworkCompactExperience({
         Network PRO · Moduli e prezzi
       </Link>
     </header>
+    <div className="mb-3">
+      <NetworkProducersEntry />
+    </div>
     <NetworkCountryTicker organizationId={organizationId} accessMode={accessMode}/>
     <div data-testid="network-europe1d-one-screen-shell" className="grid items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
       <aside aria-label="Filtri delle aziende" className="min-w-0 lg:sticky lg:top-24" data-testid="network-side-column">

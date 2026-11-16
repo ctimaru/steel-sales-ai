@@ -4,6 +4,7 @@ import {getEuropeRegionCoverage} from "@/lib/network-europe-regional";
 import {hasSpecCriteria,normalizeSpecFilters} from "@/lib/network-spec-filters";
 import Link from "next/link";
 import {NetworkCompanyGrowthEntry} from "@/components/network-company-growth-entry";
+import {NetworkProducersEntry} from "@/components/network-producers-entry";
 import {NetworkReadyConnections} from "@/components/network-ready-connections";
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 import {getNetworkReplyIntelligence,sharedPublicProducts} from "@/lib/network-reply-intelligence";
@@ -265,6 +266,7 @@ export default async function NetworkDirectoryPage({
   return (
     <FocusPage className="max-w-[1180px]">
       <NetworkCompanyGrowthEntry />
+      <NetworkProducersEntry />
       <NetworkInventoryBar accessMode="pro" published={results.total}
         unconfirmed={previewDirectory?.discovered_total??0}
         publishedUnavailable={canonicalUnavailable} discoveryUnavailable={!previewDirectory}
