@@ -64,10 +64,19 @@ def first_party_text_localities(pages: list[object], domain: str) -> list[Locali
             prefix = text[max(0, match.start()-95):match.start()]
             if not any(hint in prefix.casefold() for hint in POSTAL_CONTEXT):
                 continue
-            raw = " ".join(
-                text[max(0, match.start()-45):min(len(text), match.end()+30)].split()
+            # A generic phone redactor can mistake "12 - 10100" (street
+            # number + postcode) for a long phone number and erase the CAP.
+            # Redact the surrounding channels separately, preserving only the
+            # explicit, already-public postal tuple matched by ADDRESS_RE.
+            before_address = _redact_personal_channels(
+                text[max(0, match.start()-45):match.start()]
             )
-            excerpt = _redact_personal_channels(raw)[:420]
+            after_address = _redact_personal_channels(
+                text[match.end():min(len(text), match.end()+30)]
+            )
+            excerpt = " ".join(
+                (before_address + " " + match.group(0) + " " + after_address).split()
+            )[:420]
             if not (18 <= len(excerpt) <= 500 and postal in excerpt
                     and city.casefold() in excerpt.casefold()
                     and f"({province})" in excerpt):
