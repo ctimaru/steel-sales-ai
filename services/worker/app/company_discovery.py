@@ -57,7 +57,7 @@ LEGAL_SUFFIX_RE = re.compile(
     re.IGNORECASE,
 )
 VAT_PATTERNS = (
-    re.compile(r"(?:P\.?\s*IVA|Partita\s+IVA|VAT(?:\s+number)?)[\s:#-]*([A-Z]{0,2}\s*\d{8,13})", re.I),
+    re.compile(r"(?:P\.?\s*IVA(?:\s*/\s*C\.?\s*F\.?)?|P\.?\s*I\.?|Partita\s+IVA|VAT(?:\s+number)?)[\s:#-]*([A-Z]{0,2}\s*\d{8,13})", re.I),
     re.compile(r"\bIT\s*(\d{11})\b", re.I),
 )
 

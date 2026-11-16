@@ -15,6 +15,14 @@ from app.company_discovery import (
 )
 
 
+def test_italian_vat_variants_on_company_site() -> None:
+    from app.company_discovery import _vat_id
+
+    assert _vat_id("Spark S.r.l. P.IVA/C.F. 08813540013 – REA TO") == "08813540013"
+    assert _vat_id("Miglietti – P.I. 01888430038 | Privacy") == "01888430038"
+    assert _vat_id("Partita IVA 01234567890") == "01234567890"
+
+
 def test_discovery_blocks_non_public_seed_targets() -> None:
     for url in (
         "http://127.0.0.1/admin",

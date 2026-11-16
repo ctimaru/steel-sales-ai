@@ -53,6 +53,46 @@ class OutboundDomainsTest(unittest.TestCase):
         self.assertFalse(looks_italian("stahlwerk.de", {"vat_id": "DE123456789"}))
         self.assertFalse(looks_italian("acciaicinque.com", {}))
 
+    def test_non_it_domain_requires_first_party_locality(self):
+        italian = {
+            "vat_id": None,
+            "facility_candidates": [{
+                "source_url": "https://acciaicinque.com/dove-siamo",
+                "source_kind": "json_ld_postal_address",
+                "country_code": "IT", "region": "Piemonte",
+                "postal_code": "10040", "city": "Givoletto",
+            }],
+        }
+        self.assertTrue(looks_italian("acciaicinque.com", italian))
+        foreign_source = {"facility_candidates": [{
+            **italian["facility_candidates"][0],
+            "source_url": "https://unrelated.it/dove-siamo",
+        }]}
+        self.assertFalse(looks_italian("acciaicinque.com", foreign_source))
+        for invalid in (
+            {"region": "California"},
+            {"postal_code": "US-10040"},
+            {"country_code": "US"},
+            {"city": ""},
+        ):
+            bad = {"facility_candidates": [{
+                **italian["facility_candidates"][0], **invalid,
+            }]}
+            self.assertFalse(looks_italian("acciaicinque.com", bad))
+
+    def test_first_party_postal_text_needs_explicit_italia(self):
+        source = "https://acciaicinque.com/"
+        candidate = {"vat_id": None}
+        self.assertTrue(looks_italian("acciaicinque.com", candidate, [
+            page(source, text="Sede: Via Quintino Sella, 10 – 10040 Givoletto (TO) – Italia"),
+        ]))
+        self.assertFalse(looks_italian("acciaicinque.com", candidate, [
+            page(source, text="10040 Givoletto (TO)"),
+        ]))
+        self.assertFalse(looks_italian("acciaicinque.com", candidate, [
+            page("https://unrelated.it/", text="10040 Givoletto (TO) – Italia"),
+        ]))
+
 
 class ProfileLinksTest(unittest.TestCase):
     def test_only_same_site_profiles_below_index_or_hinted(self):
