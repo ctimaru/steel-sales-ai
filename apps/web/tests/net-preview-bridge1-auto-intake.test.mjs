@@ -25,3 +25,13 @@ test("BRIDGE1 does not bypass identity verification or publish contact data",()=
   assert.doesNotMatch(sql,/insert into public\.network_contacts/i);
   assert.match(sql,/net-preview-bridge1-daily-stage/);
 });
+
+test("BRIDGE1 keeps repeated imports idempotent and respects the independent publisher",()=>{
+  assert.match(sql,/lead_id uuid primary key/);
+  assert.match(sql,/candidate_id uuid not null unique/);
+  assert.match(sql,/on conflict \(lead_id\) do nothing/);
+  assert.match(sql,/pg_advisory_xact_lock\(810021,20262\)/);
+  assert.match(sql,/network_netfast3_suppressed_domains/);
+  assert.match(sql,/status','staged_for_ai_identity_verification'/);
+  assert.doesNotMatch(sql,/insert into private\.net_it_auto3_publications/i);
+});
