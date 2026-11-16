@@ -53,13 +53,15 @@ def discover_detail_links(html: str, parent_url: str, official_host: str, parent
     root = urlsplit(parent_url)
     if root.scheme != "https" or root.hostname != official_host:
         return []
+    canonical_host = official_host.removeprefix("www.")
+    allowed_hosts = {canonical_host, "www." + canonical_host}
     parser = _Links()
     parser.feed(html[:512_000])
     unique = {}
     for href, label in parser.links[:1000]:
         try:
             raw = urlsplit(urljoin(parent_url, href))
-            if (raw.scheme != "https" or raw.hostname not in {official_host}
+            if (raw.scheme != "https" or raw.hostname not in allowed_hosts
                     or raw.username or raw.password or raw.port not in (None, 443)
                     or not raw.path or raw.path == "/" or len(raw.path) > 800
                     or not re.fullmatch(r"/[A-Za-z0-9._~/%-]+", raw.path)
@@ -130,6 +132,8 @@ def extract_exact_row_candidates(html: str, source_url: str, source_sha256: str)
     seen = set()
     for row_index, cells in enumerate(rows.rows):
         line = " | ".join(cells)
+        if not 10 <= len(line) <= 240:
+            continue  # Only store a short, self-contained source locator.
         norms = set(x.group(0).upper().replace(" ", "").replace("-", "") for x in STANDARD.finditer(line))
         grades = set(x.group(0).upper() for x in GRADE.finditer(line))
         shapes = set(x.group(0).upper() for x in SHAPE.finditer(line))
@@ -157,6 +161,7 @@ def extract_exact_row_candidates(html: str, source_url: str, source_sha256: str)
             "dimensions_mm": list(numbers), "source_url": source_url,
             "source_sha256": source_sha256, "locator": f"table_row:{row_index + 1}",
             "evidence_status": "pending_verification",
+            "source_row_excerpt": line,
             "interpretation": "same_row_explicit_candidate",
         })
         if len(candidates) >= 20:
