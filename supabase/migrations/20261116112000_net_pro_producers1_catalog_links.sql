@@ -42,9 +42,9 @@ with sources (domain,match_name,title,url,kind,langs,edition_year) as (
    'https://www.padanatubi.it/prodotti/',
    'official_catalog_page',array['it']::text[],null::integer),
   ('marcegaglia.com','Marcegaglia Carbon Steel%',
-   'Marcegaglia Carbon Steel - Carbon Steel Tubes',
-   'https://www.publications.marcegaglia.com/wp-content/uploads/2023/11/Marcegaglia-Carbon-Steel-Tubes.pdf',
-   'official_pdf',array['it','en']::text[],2023)
+   'Marcegaglia Carbon Steel - Tubi saldati in acciaio al carbonio',
+   'https://www.carbonsteel.marcegaglia.com/it/tubi-saldati-in-acciaio-al-carbonio/',
+   'official_catalog_page',array['it']::text[],null::integer)
 )
 insert into private.network_producer_catalog_links
 (company_id,title,source_url,document_type,language_codes,edition_year)
