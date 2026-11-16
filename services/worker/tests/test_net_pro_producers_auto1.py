@@ -71,3 +71,40 @@ def test_default_worker_dry_run_does_not_lease_or_publish():
     assert result["mode"] == "dry_run"
     assert result["status"]["queued"] == 56
     assert db.calls == [("netproducers1_auto1_status", {})]
+
+
+def test_persist_auto_seeds_100_before_claim_and_keeps_publication_zero():
+    class Response:
+        def __init__(self, data):
+            self.data = data
+
+    class RpcCall:
+        def __init__(self, data):
+            self.data = data
+        def execute(self):
+            return Response(self.data)
+
+    class Db:
+        def __init__(self):
+            self.calls = []
+        def rpc(self, name, args):
+            self.calls.append((name, args))
+            if name == "netproducers1_auto1_seed":
+                return RpcCall({"contract": "netproducers1-auto1-seed-v1", "added": 2})
+            if name == "netproducers1_auto1_claim":
+                return RpcCall({"contract": "netproducers1-auto1-claim-v1",
+                                "count": 0, "items": []})
+            if name == "netproducers1_auto1b_verify":
+                return RpcCall({"contract": "netproducers-auto1b-verify-v1",
+                                "checked": 0, "manufacturing_capabilities_published": 0})
+            raise AssertionError(f"Unexpected RPC {name}")
+    db = Db()
+    result = asyncio.run(run(db, limit=10, dry_run=False))
+    assert db.calls == [
+        ("netproducers1_auto1_seed", {"p_limit": 100}),
+        ("netproducers1_auto1_claim", {"p_limit": 10}),
+        ("netproducers1_auto1b_verify", {"p_limit": 100}),
+    ]
+    assert result["new_sources"] == 2
+    assert result["processed"] == 0
+    assert result["published_claims"] == 0
