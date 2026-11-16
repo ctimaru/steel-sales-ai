@@ -1,5 +1,6 @@
 import Link from "next/link";
 import styles from "./public-cinematic-hero.module.css";
+import { PublicNetworkProHeroCard } from "./public-network-pro";
 
 /**
  * HOME-CINE1B: cinematic experience without video, JavaScript or WebGL.
@@ -16,6 +17,8 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
     <>
     <section aria-labelledby="home-cinematic-title" className={styles.hero}>
       <div className={styles.ambient} data-home-cine-motion="photo" aria-hidden="true" />
+      {/* HOME-NETPRO-PUBLIC2: on the Italian home the right side hosts the Network PRO card. */}
+      {en ? (
       <div className={styles.intelligenceOverlay} data-home-cine-motion="network" aria-hidden="true">
         <svg className={styles.globe} viewBox="0 0 480 410" xmlns="http://www.w3.org/2000/svg" fill="none" focusable="false">
           <defs>
@@ -63,8 +66,9 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
         <span className={styles.orbitBadge + " " + styles.orbitOpportunity}>{en ? "OPPORTUNITIES" : "OPPORTUNITÀ"}</span>
         <span className={styles.networkLabel}>{en ? "CONNECTED STEEL INDUSTRY" : "FILIERA CONNESSA"}</span>
       </div>
+      ) : null}
 
-      <div className={styles.container}>
+      <div className={styles.container + " max-lg:flex-col max-lg:items-start lg:gap-10"}>
         <div className={styles.copy}>
           <p className={styles.eyebrow}>
             <span className={styles.signal} aria-hidden="true" />
@@ -103,6 +107,8 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           <span className={styles.captionKicker}>01 / 03</span>
           <span>{en ? "MATERIAL · DATA · CONNECTIONS" : "MATERIA · DATI · CONNESSIONI"}</span>
         </div>
+        {en ? null : <PublicNetworkProHeroCard />}
+        {en ? (
         <aside className={styles.productHint} data-home-cine-motion="product" aria-label={en ? "Illustrative technical workflow preview" : "Anteprima illustrativa del percorso tecnico"}>
           <span className={styles.hintLabel}>{en ? "TECHNICAL CALCULATOR" : "CALCOLATRICE TECNICA"}</span>
           <div className={styles.specHead}>
@@ -132,6 +138,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           </div>
           <span className={styles.hintFooter}>{en ? "Illustrative — not live data" : "Illustrativo — non sono dati reali"}</span>
         </aside>
+        ) : null}
       </div>
     </section>
     <section className={styles.bridge} aria-label={en ? "From material to business intelligence" : "Dalla materia all'intelligenza commerciale"}>
