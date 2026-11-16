@@ -152,10 +152,10 @@ export async function setScale15KFactPolicy(formData: FormData) {
   const attested = formData.get("attested") === "on";
   const note = String(formData.get("policy_note") ?? "").trim();
   const cap = Number(formData.get("daily_cap") ?? 100);
-  if (enabled && (!attested || !Number.isInteger(cap) || cap < 1 || cap > 300 ||
+  if (enabled && (!attested || !Number.isInteger(cap) || cap < 1 || cap > 1000 ||
       note.length < 100 || note.length > 2000)) {
     redirect(resultPath("error",
-      "Delega non concessa: seleziona 1–300 al giorno, motivazione da almeno 100 caratteri e conferma delle condizioni."));
+      "Delega non concessa: seleziona 1–1000 al giorno, motivazione da almeno 100 caratteri e conferma delle condizioni."));
   }
   const { data, error } = await supabase.rpc("net_it_auto3_set_policy", {
     p_enabled: enabled, p_daily_cap: enabled ? cap : 100,
@@ -170,7 +170,7 @@ export async function setScale15KFactPolicy(formData: FormData) {
   }
   revalidatePath(ROOT);
   redirect(resultPath("message",enabled
-    ? "Delega fatti aziendali attiva per 30 giorni. Solo verifiche recenti del sito ufficiale, quota giornaliera e audit macchina."
+    ? `Delega AUTO3 aggiornata: massimo ${cap} pubblicazioni giornaliere, 30 giorni, soltanto dopo le verifiche delle fonti e con audit macchina.`
     : "Delega fatti aziendali revocata: il motore automatico non potrà effettuare nuovi lotti."));
 }
 
