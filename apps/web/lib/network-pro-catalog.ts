@@ -8,7 +8,7 @@ export const NETWORK_PRO_MODULES = [
     key: "producers",
     title: "Produttori",
     role: "producer",
-    description: "Tubifici, acciaierie e produttori di profili, lamiere, coil e altri prodotti siderurgici.",
+    description: "Tubifici, acciaierie e produttori siderurgici. Include Intelligence Produttori: confronto tecnico, cataloghi ufficiali e ricerca guidata, senza costi o moduli aggiuntivi.",
     audience: "Per commercianti e uffici acquisti",
     example: "Chi produce tubolari EN 10219 S355 in Europa?",
   },
