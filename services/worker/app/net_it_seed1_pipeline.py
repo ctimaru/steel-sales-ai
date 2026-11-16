@@ -31,8 +31,9 @@ from urllib.parse import urljoin, urlsplit
 import httpx
 
 from .company_discovery import (
-    MAX_PAGES_PER_DOMAIN, CompanyDiscoveryError, _fetch_page, _priority_links,
-    canonical_domain, canonicalize_seed_url, extract_candidate, robots_crawl_delay,
+    ITALIAN_REGIONS, MAX_PAGES_PER_DOMAIN, CompanyDiscoveryError,
+    _fetch_page, _priority_links, canonical_domain, canonicalize_seed_url,
+    extract_candidate, robots_crawl_delay,
 )
 
 MAX_SOURCES_PER_RUN = 20
@@ -225,13 +226,59 @@ async def two_level_items(web: httpx.AsyncClient, index_url: str,
     return list(items.values()), len(per_profile)
 
 
-def looks_italian(domain: str, candidate: dict[str, object]) -> bool:
-    """Exhibitor and member lists include foreign firms: keep a site only when
-    it is on .it or shows an Italian VAT number (11 digits, optional IT)."""
+# Only a *first-party* civic address can support a non-.it / no-VAT
+# provisional candidate. Geographic signals are NOT legal-identity approval.
+ITALIAN_POSTAL_TEXT = re.compile(
+    r"\b\d{5}\s+[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’.\s-]{1,70}"
+    r"\s*\([A-Z]{2}\)\s*(?:[-–—,]\s*)?Italia\b", re.I
+)
+
+
+def looks_italian(
+    domain: str,
+    candidate: dict[str, object],
+    pages: list[object] | None = None,
+) -> bool:
+    """Provisional Italy scope: .it, first-party VAT or sourced IT locality.
+
+    Foreign exhibitors remain excluded: a foreign domain cannot qualify based
+    on the caller-supplied country_code alone. For non-.it domains, require
+    first-party published postal evidence. AUTO2 and AUTO3 retain the separate
+    legal-identity, anti-duplicate and rights checks before public release.
+    """
     if domain.endswith(".it"):
         return True
     vat = re.sub(r"[\s.]", "", str(candidate.get("vat_id") or ""))
-    return bool(ITALIAN_VAT.match(vat))
+    if ITALIAN_VAT.fullmatch(vat):
+        return True
+
+    facilities = candidate.get("facility_candidates") or []
+    if isinstance(facilities, list):
+        for item in facilities[:12]:
+            if not isinstance(item, dict):
+                continue
+            source = str(item.get("source_url") or "")
+            try:
+                same_domain = canonical_domain(source) == domain
+            except (CompanyDiscoveryError, ValueError, TypeError):
+                same_domain = False
+            if (same_domain and item.get("source_kind") == "json_ld_postal_address"
+                    and item.get("country_code") == "IT"
+                    and str(item.get("region") or "").casefold() in ITALIAN_REGIONS
+                    and re.fullmatch(r"\d{5}", str(item.get("postal_code") or ""))
+                    and len(str(item.get("city") or "").strip()) >= 2):
+                return True
+
+    for page in (pages or [])[:MAX_PAGES_PER_DOMAIN]:
+        source = str(getattr(page, "url", ""))
+        try:
+            if canonical_domain(source) != domain:
+                continue
+        except (CompanyDiscoveryError, ValueError, TypeError):
+            continue
+        if ITALIAN_POSTAL_TEXT.search(str(getattr(page, "text", ""))):
+            return True
+    return False
 
 
 class SeedApi:
@@ -354,8 +401,8 @@ async def inspect_site(web: httpx.AsyncClient, item: dict[str, object]) -> tuple
         return "unreachable", None, type(exc).__name__
     if candidate is None:
         return "no_candidate", None, "no steel role evidence on the site"
-    if not looks_italian(domain, candidate):
-        return "not_italian", None, "no .it domain and no Italian VAT on the site"
+    if not looks_italian(domain, candidate, pages):
+        return "not_italian", None, "no first-party Italian VAT or postal locality on the site"
     return "candidate", candidate, None
 
 
