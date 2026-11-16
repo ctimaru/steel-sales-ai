@@ -45,11 +45,29 @@ const roles=[
 // One source of truth for widths: header and rows share the exact grid columns.
 // NET-UX LOT1: Azienda · Ruolo · Località · Contatto. Products and capabilities
 // move under the name (they rarely differ between rows and left columns empty).
-const COMPANY_COLUMNS="lg:grid-cols-[minmax(240px,2.2fr)_minmax(110px,.8fr)_minmax(160px,1.1fr)_minmax(150px,.95fr)]";
+const COMPANY_COLUMNS="lg:grid-cols-[minmax(240px,2.2fr)_minmax(120px,.8fr)_minmax(150px,1fr)_minmax(196px,1fr)]";
 const keys:Record<string,string>={
   producer:"Produttore",trader_distributor:"Commerciante",
   processor_service_provider:"Terzista",end_user:"Utilizzatore",
 };
+// NET-UX-ROWS1: one tint per role (avatar + pill), all pairs ≥ 7:1 contrast.
+const roleTone:Record<string,string>={
+  producer:"bg-[#e8eefb] text-[#2f4b8f]",
+  trader_distributor:"bg-[#e6f3ec] text-[#175640]",
+  processor_service_provider:"bg-[#fdf1e1] text-[#7a4206]",
+  end_user:"bg-[#f1eafa] text-[#5e3a8c]",
+};
+const neutralTone="bg-[#eef2f0] text-[#3f5248]";
+function UserPlusIcon({className="h-4 w-4"}:{className?:string}){
+  return <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M19 8v6M16 11h6"/>
+  </svg>;
+}
+function StarIcon({filled=false,className="h-4 w-4"}:{filled?:boolean;className?:string}){
+  return <svg aria-hidden="true" viewBox="0 0 24 24" fill={filled?"currentColor":"none"} stroke="currentColor" strokeWidth="2" strokeLinejoin="round" className={className}>
+    <path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>
+  </svg>;
+}
 function filterUrl(filters:CompactNetworkFilters,changes:Record<string,string|null>={},hash=""){
   const q=new URLSearchParams();
   for(const [key,value] of Object.entries(filters)){
@@ -79,13 +97,13 @@ const EMAIL_REACHABLE_LABEL="Contattabile via email";
 // relationship is discoverable. Readiness stays SQL-bound: only "available" links.
 const CONNECT_UNAVAILABLE_HINT="Connetti sarà disponibile quando l’azienda sarà attiva sulla piattaforma";
 function DisabledConnect({name,emailReachable}:{name:string;emailReachable?:boolean}){
-  return <span className="relative z-10 flex flex-col items-end gap-0.5">
+  return <span className="relative z-10 flex flex-col items-start gap-1">
     <span role="button" aria-disabled="true" tabIndex={0} data-testid="network-row-connect-disabled"
       aria-label={"Connetti con "+name+": non ancora disponibile"} title={CONNECT_UNAVAILABLE_HINT}
-      className="inline-flex min-h-10 cursor-not-allowed select-none items-center justify-center rounded-lg border border-[#d7e3dc] bg-[#f3f6f4] px-3 text-xs font-semibold text-[#52615b]">
-      Connetti
+      className="inline-flex min-h-10 cursor-not-allowed select-none items-center justify-center gap-1.5 rounded-xl border border-dashed border-[#b9c9c0] bg-white px-3 text-xs font-semibold text-[#5b6b63]">
+      <UserPlusIcon/>Connetti
     </span>
-    <span className="text-[10px] leading-3 text-[#52615b]">
+    <span className="text-[10px] leading-3 text-[#5b6b63]">
       {emailReachable?<span data-testid="network-email-reachable" title="Riceve la RFQ via email al contatto aziendale pubblico">{EMAIL_REACHABLE_LABEL}</span>:"Non ancora attiva"}
     </span>
   </span>;
@@ -97,13 +115,17 @@ function ContactCell({company,name,status,emailReachable,canAct}:{
   if(status==="unavailable"&&canAct&&!company.discovery_status)return <DisabledConnect name={name} emailReachable={emailReachable}/>;
   if(status==="available")return <Link href={"/network/"+company.id+"/connect"} data-testid="network-row-connect"
     aria-label={"Connetti con "+name}
-    className="ui-action ui-action-primary relative z-10 inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">
-    Connetti
+    className="ui-action ui-action-primary relative z-10 inline-flex min-h-10 items-center justify-center gap-1.5 rounded-xl px-3.5 text-xs font-bold shadow-sm">
+    <UserPlusIcon/>Connetti
   </Link>;
-  if(status==="connected")return <span className="text-xs font-semibold text-[#175640]" data-testid="network-recipient-status">✓ Connessa</span>;
-  if(status==="pending")return <span className="text-xs font-semibold text-[#175640]" data-testid="network-recipient-status">Richiesta inviata</span>;
-  if(emailReachable)return <span className="text-xs font-semibold text-[#175640]" data-testid="network-email-reachable"
-    title="Riceve la RFQ via email al contatto aziendale pubblico">{EMAIL_REACHABLE_LABEL}</span>;
+  if(status==="connected")return <span className="relative z-10 inline-flex min-h-8 items-center rounded-full bg-[#e6f3ec] px-3 text-xs font-bold text-[#175640]" data-testid="network-recipient-status">✓ Connessa</span>;
+  if(status==="pending")return <span className="relative z-10 inline-flex min-h-8 items-center gap-1.5 rounded-full bg-[#fff4e0] px-3 text-xs font-bold text-[#7a4206]" data-testid="network-recipient-status">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="h-3.5 w-3.5"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Richiesta inviata
+  </span>;
+  if(emailReachable)return <span className="relative z-10 inline-flex min-h-8 items-center gap-1.5 rounded-full bg-[#eef2f0] px-3 text-xs font-semibold text-[#175640]" data-testid="network-email-reachable"
+    title="Riceve la RFQ via email al contatto aziendale pubblico">
+    <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" className="h-3.5 w-3.5"><rect x="3.5" y="5.5" width="17" height="13" rx="2"/><path d="M4 7l8 6 8-6"/></svg>{EMAIL_REACHABLE_LABEL}
+  </span>;
   // NET-UX touch-up: no label when there is nothing to do (most companies are not yet active).
   return null;
 }
@@ -125,20 +147,21 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,
   const moreOffer=Math.max(0,company.products.length-2)+Math.max(0,capabilities.length-2);
   // NET-AUDIT1.4 / NET-UX LOT1: the whole row opens the profile through the
   // stretched name link; Connetti and source links sit above the overlay.
-  return <article className={"relative grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-2.5 transition-colors last:border-b-0 hover:bg-[#f6faf8] sm:px-4 "+COMPANY_COLUMNS}
+  const tone=(role&&roleTone[role.key])||neutralTone;
+  return <article className={"group relative grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#edf2ef] px-3 py-3.5 transition-colors last:border-b-0 hover:bg-[#f5faf7] sm:px-4 "+(saved?"bg-[#fffbf2] ":"")+COMPANY_COLUMNS}
     data-testid="network-compact-company-row">
     <div className="flex min-w-0 items-center gap-3">
       {selectable?<input type="checkbox" form="network-rfq-selection" name="supplier" value={company.id}
         aria-label={"Seleziona "+name+" per una RFQ"} className="relative z-10 h-5 w-5 shrink-0 accent-[#175640]"/>:null}
-      <span aria-hidden="true" className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e4f0e9] text-[11px] font-bold text-[#175640] sm:flex">
+      <span aria-hidden="true" className={"hidden h-11 w-11 shrink-0 items-center justify-center rounded-xl text-[13px] font-extrabold sm:flex "+tone}>
         {initialLetters(name)}
       </span>
       <div className="min-w-0">
-        <h3 className="truncate text-sm font-semibold text-[#173f35]" title={name}>
+        <h3 className="truncate text-[15px] font-bold leading-5 text-[#173f35]" title={name}>
           <Link href={"/network/"+company.id} aria-label={"Apri profilo di "+name}
-            className="after:absolute after:inset-0 after:content-[''] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">{name}</Link>
+            className="after:absolute after:inset-0 after:content-[''] group-hover:text-[#0f5a3f] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">{name}</Link>
         </h3>
-        <p className="truncate text-xs text-[#52615b]" data-testid="network-row-offer"
+        <p className="mt-0.5 truncate text-xs text-[#52615b]" data-testid="network-row-offer"
           title={[domain,...offer].filter(Boolean).join(" · ")}>
           {[domain,...offer].filter(Boolean).join(" · ")||"Offerta non indicata"}
           {moreOffer?<span className="ml-1 font-semibold text-[#175640]">+{moreOffer}</span>:null}
@@ -167,7 +190,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,
       </div>
     </div>
     <div className="hidden min-w-0 lg:block">
-      <span className="inline-block max-w-full truncate rounded-full bg-[#eaf4ee] px-2 py-1 text-[11px] font-semibold text-[#175640]">
+      <span className={"inline-block max-w-full truncate rounded-full px-2.5 py-1 text-[11px] font-bold "+tone}>
         {role?(keys[role.key]||role.name):"Non indicato"}
       </span>
       {company.discovery_status==="unconfirmed"?<p className="mt-0.5 text-[10px] text-[#52615b]">Ruolo indicativo</p>:null}
@@ -184,7 +207,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,
           className="relative z-10 font-semibold text-[#175640] underline underline-offset-2">Fonte ↗</a>:null}
       </p>:!location?<p className="text-[10px] text-[#52615b]">Località da integrare</p>:null}
     </div>
-    <div className="flex min-w-0 items-center justify-end gap-2 lg:justify-between">
+    <div className="flex min-w-0 items-start justify-end gap-2" data-testid="network-row-actions">
       <ContactCell company={company} name={name} status={status} emailReachable={emailReachable} canAct={canAct}/>
       {/* NET-UX LOT1B: private list. Discovered (unconfirmed) records have no canonical profile to save. */}
       {returnTo&&!company.discovery_status?<NetworkSaveToggle companyId={company.id} name={name} saved={Boolean(saved)} returnTo={returnTo} compact/>:null}
@@ -337,6 +360,7 @@ export function NetworkCompactExperience({
         <div className="mt-3"><NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/></div>
       </aside>
       <div className="min-w-0 space-y-3">
+        {accessMode==="pro"&&canCompose?<NetworkSaveConnectGuide/>:null}
         <NetworkLiveSearch filters={filters}/>
       <div className="flex flex-wrap items-center gap-2" data-testid="network-sort">
         <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-[#175640]">Ordina</span>
@@ -401,7 +425,7 @@ export function NetworkCompactExperience({
             </div>
           </div>
           <div className={"hidden gap-3 border-b border-[#e8eeeb] bg-[#f9fbfa] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[#52615b] lg:grid "+COMPANY_COLUMNS}>
-            <span>Azienda</span><span>Ruolo</span><span>Località</span><span>Contatto</span>
+            <span>Azienda</span><span>Ruolo</span><span>Località</span><span className="lg:text-right">Connetti · Salva</span>
           </div>
       {directory.specLocked?<div className="px-4 py-9 text-center text-sm text-[#52615b]" data-testid="network-spec-locked">
           La ricerca per norma, grado e misure è inclusa nel Network Pro. Puoi continuare a cercare per nome, ruolo e regione.
@@ -461,4 +485,35 @@ function NetworkActiveFilters({filters,additionalFilters,specSummary}:{
       <span className="truncate">{chip.text}</span> <span aria-hidden="true" className="ml-1">×</span>
     </Link>)}
   </nav>;
+}
+
+/** NET-UX-ROWS1 (founder request, 16 Nov 2026): explain Salva vs Connetti above the list. */
+function NetworkSaveConnectGuide(){
+  return <section aria-label="Salva e Connetti: la differenza" data-testid="network-save-connect-guide"
+    className="grid gap-2 sm:grid-cols-2">
+    <div className="flex gap-3 rounded-2xl border border-[#f0dfb5] bg-[#fffaf0] p-3.5">
+      <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fde9bd] text-[#8a5200]">
+        <StarIcon filled className="h-5 w-5"/>
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm font-bold text-[#173f35]">Salva <span className="font-semibold text-[#6b5a2e]">· la tua lista privata</span></p>
+        <p className="mt-0.5 text-xs leading-5 text-[#52615b]">
+          Segna con la stellina le aziende su cui lavorare dopo. Le vedi solo tu e l’azienda non riceve nulla.
+          Le ritrovi in <Link href="/network/saved" className="font-semibold text-[#175640] underline underline-offset-2">Salvate</Link>.
+        </p>
+      </div>
+    </div>
+    <div className="flex gap-3 rounded-2xl border border-[#cfe3d7] bg-[#f3faf6] p-3.5">
+      <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] text-white">
+        <UserPlusIcon className="h-5 w-5"/>
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm font-bold text-[#173f35]">Connetti <span className="font-semibold text-[#3f6b56]">· una relazione tra aziende</span></p>
+        <p className="mt-0.5 text-xs leading-5 text-[#52615b]">
+          Invii all’azienda una richiesta motivata: può accettarla o rifiutarla. Se accetta, la trovi in <Link href="/network/connections" className="font-semibold text-[#175640] underline underline-offset-2">Connessioni</Link>.
+          Possibile con le aziende già attive sulla piattaforma.
+        </p>
+      </div>
+    </div>
+  </section>;
 }
