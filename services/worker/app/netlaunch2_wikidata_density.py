@@ -1,7 +1,8 @@
 """NET-LAUNCH2: sequential industry-specific Wikidata CC0 company discovery.
 
 Each company requires an Italian Wikidata country (P17), an actual industry
-(P452), an official website (P856), and a nonempty Italian or English label.
+(P452) belonging directly to or one subclass below the approved sector,
+an official website (P856), and a nonempty Italian or English label.
 Every candidate is explicitly unconfirmed. No business websites are fetched.
 """
 from __future__ import annotations
@@ -26,11 +27,14 @@ def sparql(sector:str,offset:int)->str:
 PREFIX wdt: <http://www.wikidata.org/prop/direct/>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT DISTINCT ?item ?website ?label WHERE {{
- ?item wdt:P17 wd:Q38 ; wdt:P452 wd:{sector} ; wdt:P856 ?website ; rdfs:label ?label .
+ ?item wdt:P17 wd:Q38 ; wdt:P452 ?actualIndustry ; wdt:P856 ?website ; rdfs:label ?label .
+ # One-hop taxonomy expansion: keep the SAME four approved industrial cohorts.
+ # This does not accept generic businesses or unrelated industries.
+ ?actualIndustry wdt:P279? wd:{sector} .
  FILTER(LANG(?label) = "it" || LANG(?label) = "en")
  FILTER NOT EXISTS {{ ?item wdt:P31 wd:Q5 . }}
 }}
-ORDER BY ?item
+ORDER BY ?item ?website ?label
 LIMIT 100
 OFFSET {offset}"""
 
