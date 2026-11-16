@@ -59,7 +59,8 @@ BEGIN
   PERFORM private.netproducers1_auto1a4_discover(
    '00000000-0000-0000-0000-000000000000'::uuid,
    repeat('a',64),
-   '[{"url":"https://evil.test/products/rhs","parent_url":"https://evil.test/products","parent_sha256":"' || repeat('a',64) || '","depth":2}]'::jsonb
+   jsonb_build_array(jsonb_build_object('url','https://evil.test/products/rhs',
+     'parent_url','https://evil.test/products','parent_sha256',repeat('a',64),'depth',2))
   );
   RAISE EXCEPTION 'Unknown parent accepted';
  EXCEPTION WHEN insufficient_privilege THEN NULL;
