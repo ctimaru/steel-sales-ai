@@ -381,7 +381,7 @@ export default async function NetworkCompanyProfilePage({
             ) : null}
             {organizationId && canWriteWorkspace(membershipRole) ? (
               <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
-                returnTo={"/network/" + profile.company.id} />
+                surface="network_company_profile" />
             ) : null}
             {/* An unavailable connection is not an action. Show only usable CTAs. */}
           </>

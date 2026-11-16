@@ -148,7 +148,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,
   // NET-AUDIT1.4 / NET-UX LOT1: the whole row opens the profile through the
   // stretched name link; Connetti and source links sit above the overlay.
   const tone=(role&&roleTone[role.key])||neutralTone;
-  return <article className={"group relative grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#edf2ef] px-3 py-3.5 transition-colors last:border-b-0 hover:bg-[#f5faf7] sm:px-4 "+(saved?"bg-[#fffbf2] ":"")+COMPANY_COLUMNS}
+  return <article className={"group relative grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#edf2ef] px-3 py-3.5 transition-colors last:border-b-0 hover:bg-[#f5faf7] sm:px-4 "+"has-[[aria-pressed=true]]:bg-[#fffbf2] "+COMPANY_COLUMNS}
     data-testid="network-compact-company-row">
     <div className="flex min-w-0 items-center gap-3">
       {selectable?<input type="checkbox" form="network-rfq-selection" name="supplier" value={company.id}
@@ -210,7 +210,7 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,
     <div className="flex min-w-0 items-start justify-end gap-2" data-testid="network-row-actions">
       <ContactCell company={company} name={name} status={status} emailReachable={emailReachable} canAct={canAct}/>
       {/* NET-UX LOT1B: private list. Discovered (unconfirmed) records have no canonical profile to save. */}
-      {returnTo&&!company.discovery_status?<NetworkSaveToggle companyId={company.id} name={name} saved={Boolean(saved)} returnTo={returnTo} compact/>:null}
+      {returnTo&&!company.discovery_status?<NetworkSaveToggle companyId={company.id} name={name} saved={Boolean(saved)} surface="network_directory" compact/>:null}
     </div>
   </article>;
 }

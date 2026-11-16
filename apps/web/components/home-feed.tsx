@@ -14,6 +14,7 @@ import {
 } from "@/components/company-post";
 import type { CompanyPostItem, CompanyPostType } from "@/lib/company-posts-model";
 import { companyInitials, type HomeFeedItem } from "@/lib/home-feed-model";
+import { NetworkSaveToggle } from "@/components/network-save-toggle";
 
 /**
  * HOME-FEED1: LinkedIn-style infinite feed. Posts re-present content the viewer
@@ -55,21 +56,6 @@ const actionClass =
   "inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#3f5248] transition hover:bg-[#f1f6f3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]";
 
 function CompanyPost({ item, canInteract }: { item: Extract<HomeFeedItem, { kind: "company" }>; canInteract: boolean }) {
-  const [saved, setSaved] = useState(item.saved);
-  const [error, setError] = useState(false);
-  const [pending, startTransition] = useTransition();
-  function toggle() {
-    const next = !saved;
-    setSaved(next);
-    setError(false);
-    startTransition(async () => {
-      const result = await toggleHomeFeedSavedCompany(item.id, next);
-      if (!result.ok) {
-        setSaved(!next);
-        setError(true);
-      }
-    });
-  }
   return (
     <>
       <div className="px-4 pt-4">
@@ -107,7 +93,6 @@ function CompanyPost({ item, canInteract }: { item: Extract<HomeFeedItem, { kind
             ) : null}
           </p>
         ) : null}
-        {error ? <p role="alert" className="mt-2 text-xs text-[#9d4e28]">Non è stato possibile aggiornare i salvati. Riprova.</p> : null}
       </div>
       <div className="mt-3 flex flex-wrap items-center gap-1 border-t border-[#edf2ef] px-2 py-1">
         {canInteract && item.connect === "available" ? (
@@ -119,11 +104,9 @@ function CompanyPost({ item, canInteract }: { item: Extract<HomeFeedItem, { kind
         ) : item.connect === "pending" ? (
           <span className="px-3 text-xs font-semibold text-[#175640]">Richiesta inviata</span>
         ) : null}
+        {/* NET-SAVE-INLINE1: same inline Salva as the Network (toast, Annulla, counter sync). */}
         {canInteract ? (
-          <button type="button" onClick={toggle} disabled={pending} aria-pressed={saved} className={actionClass}
-            aria-label={(saved ? "Rimuovi dai salvati: " : "Salva nella tua lista privata: ") + item.name}>
-            <span aria-hidden="true">{saved ? "★" : "☆"}</span> {saved ? "Salvata" : "Salva"}
-          </button>
+          <NetworkSaveToggle companyId={item.id} name={item.name} saved={item.saved} surface="home_feed" appearance="ghost" />
         ) : null}
         <Link href={"/network/" + item.id} className={actionClass} aria-label={"Profilo di " + item.name}>
           Profilo

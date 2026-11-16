@@ -29,13 +29,11 @@ test("NET-UX-ROWS1 role tint on avatar and pill; saved rows highlighted",()=>{
   for(const key of ["producer","trader_distributor","processor_service_provider","end_user"])
     assert.match(ui,new RegExp(key+':"bg-\\[#'));
   assert.match(ui,/const tone=\(role&&roleTone\[role\.key\]\)\|\|neutralTone;/);
-  assert.match(ui,/\(saved\?"bg-\[#fffbf2\] ":""\)/);
+  assert.match(ui,/has-\[\[aria-pressed=true\]\]:bg-\[#fffbf2\]/);
 });
 
-test("NET-UX-ROWS1 star save: SVG star filled when saved, label visible, still a no-JS server action",()=>{
+test("NET-UX-ROWS1 star save: SVG star filled when saved, label visible",()=>{
   assert.match(save,/fill=\{saved \? "currentColor" : "none"\}/);
-  assert.match(save,/saved \? "Salvata" : compact \? "Salva" : "Salva azienda"/);
+  assert.match(save,/const label = saved \? "Salvata" : compact \|\| ghost \? "Salva" : "Salva azienda";/);
   assert.match(save,/aria-pressed=\{saved\}/);
-  assert.match(save,/action=\{saved \? removeSavedNetworkCompany : saveNetworkCompany\}/);
-  assert.doesNotMatch(save,/"use client"/);
 });
