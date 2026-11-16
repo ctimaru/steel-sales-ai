@@ -19,8 +19,9 @@ const box={exports:{},module:{exports:{}}};box.module.exports=box.exports;vm.run
 const {parsePublicNetworkCounts}=box.exports;
 
 test("HOME-NETPRO-PUBLIC1 SQL: aggregate counts only, anon-callable, same rules as coverage",()=>{
-  assert.match(sql,/create or replace function public\.public_network_counts\(\)/);
-  assert.match(sql,/security definer\s+set search_path = ''/);
+  // SEC1: privileged implementation in sec1_public, SECURITY INVOKER facade in public.
+  assert.match(sql,/create or replace function sec1_public\.public_network_counts_impl\(\)\s+returns jsonb\s+language sql\s+stable\s+security definer/);
+  assert.match(sql,/create or replace function public\.public_network_counts\(\)\s+returns jsonb\s+language sql\s+stable\s+security invoker/);
   assert.match(sql,/c\.publication_status = 'published'\s+and c\.archived_at is null\s+and private\.netpro1b_europe_country\(c\.country_code\)/);
   assert.match(sql,/grant execute on function public\.public_network_counts\(\) to anon, authenticated, service_role;/);
   const output=sql.slice(sql.indexOf("jsonb_build_object("));

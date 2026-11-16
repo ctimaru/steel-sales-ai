@@ -1,11 +1,21 @@
 -- HOME-NETPRO-PUBLIC1 (founder decision, 16 Nov 2026): the public home shows live
--- Network totals. This function returns AGGREGATE COUNTS ONLY — no company id,
--- name, domain, contact or location — with exactly the published/role rules of
+-- Network totals. AGGREGATE COUNTS ONLY — no company id, name, domain, contact or
+-- location — with exactly the published/role rules of
 -- private.netpro1b_coverage_impl (published, not archived, supported European
 -- country; module = active canonical role). Callable by anon so the statically
 -- generated public home can be revalidated without a user session.
+--
+-- SEC1 boundary: the privileged implementation lives in sec1_public (not a
+-- PostgREST schema); public exposes only a SECURITY INVOKER facade, so the
+-- anonymous SECURITY DEFINER surface in public stays zero.
 
-create or replace function public.public_network_counts()
+-- Same boundary schema as SEC1 (idempotent: already present where SEC1 ran).
+create schema if not exists sec1_public;
+comment on schema sec1_public is 'SEC1 internal published-content implementations; not exposed by PostgREST or GraphQL';
+revoke all on schema sec1_public from public, anon, authenticated;
+grant usage on schema sec1_public to anon, authenticated, service_role;
+
+create or replace function sec1_public.public_network_counts_impl()
 returns jsonb
 language sql
 stable
@@ -39,8 +49,21 @@ as $$
   );
 $$;
 
+revoke all on function sec1_public.public_network_counts_impl() from public;
+grant execute on function sec1_public.public_network_counts_impl() to anon, authenticated, service_role;
+
+create or replace function public.public_network_counts()
+returns jsonb
+language sql
+stable
+security invoker
+set search_path = ''
+as $$
+  select sec1_public.public_network_counts_impl();
+$$;
+
 revoke all on function public.public_network_counts() from public;
 grant execute on function public.public_network_counts() to anon, authenticated, service_role;
 
 comment on function public.public_network_counts() is
-  'HOME-NETPRO-PUBLIC1: aggregate-only public Network totals (published companies per module); no per-company data.';
+  'HOME-NETPRO-PUBLIC1: SECURITY INVOKER facade; aggregate-only public Network totals (published companies per module); no per-company data.';
