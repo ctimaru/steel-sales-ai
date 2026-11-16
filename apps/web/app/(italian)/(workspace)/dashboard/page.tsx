@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PilotEvent } from "@/components/pilot-event";
 import { FocusPage } from "@/components/focus-ui";
 import { HomeFeed } from "@/components/home-feed";
-import { HomeNetworkProCard } from "@/components/home-network-pro-card";
+import { HomeNetworkProCard, summarizeNetworkProCoverage } from "@/components/home-network-pro-card";
 import { WorkspaceFirstRunChecklist } from "@/components/workspace-first-run-checklist";
 import { CompanyVerificationCard } from "@/components/company-verification-card";
 import { loadCompanyVerification } from "@/lib/company-verification";
@@ -120,8 +120,8 @@ export default async function DashboardPage({
     canWrite ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 5 })).catch(() => ({ data: null, error: true })) : Promise.resolve({ data: null, error: null }),
     loadDashboardPulse(),
     loadHomeFeedPage(feedViewer, initialHomeFeedCursor).catch(() => ({ items: [], nextCursor: null, unavailable: [] })),
-    // HOME-NETPRO1: real published count for the upsell; null simply hides the number.
-    networkEnabled && !networkEntitled ? getNetworkProCoverage(context.organizationId) : Promise.resolve(null),
+    // HOME-NETPRO2: real published counts for the Network PRO card; null simply hides the numbers.
+    networkEnabled ? getNetworkProCoverage(context.organizationId) : Promise.resolve(null),
   ]);
 
   const { recent, mode, operational } = commercial;
@@ -177,7 +177,7 @@ export default async function DashboardPage({
     { label: "Offerte", value: operational.offers },
     { label: "Ordini", value: operational.orders },
   ] : [];
-  const italyPublished = coverage?.countries.find((country) => country.countryCode === "IT")?.published ?? null;
+  const networkProStats = summarizeNetworkProCoverage(coverage);
   const feedItems = withPulseNews(feedPage.items, pulse.available ? pulseNewsItems(pulse.feed?.items ?? []) : []);
 
   return (
@@ -312,7 +312,7 @@ export default async function DashboardPage({
             "Aziende da conoscere" is replaced by the Network PRO card; the same companies
             already appear in the feed. Locked organizations see the offer, entitled ones a shortcut. */}
         <aside aria-label="Network PRO" data-testid="home-right-rail" className="hidden min-w-0 space-y-3 xl:sticky xl:top-20 xl:block">
-          {networkEnabled ? <HomeNetworkProCard entitled={networkEntitled} italyPublished={italyPublished} /> : null}
+          {networkEnabled ? <HomeNetworkProCard entitled={networkEntitled} stats={networkProStats} /> : null}
           <Link href={appRoutes.steelPulse} className="inline-flex min-h-9 items-center px-1 text-[11px] font-semibold text-[#175640] underline underline-offset-4">
             Personalizza il feed
           </Link>

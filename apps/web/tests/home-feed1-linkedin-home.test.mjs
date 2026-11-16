@@ -120,7 +120,7 @@ test("HOME-FEED1 Home is three columns: company, composer + feed, Network PRO (H
   assert.match(home, /data-testid="home-right-rail" className="hidden min-w-0 space-y-3 xl:sticky xl:top-20 xl:block"/);
   assert.match(home, /<HomeFeed\s+initialItems=\{feedItems\}\s+initialCursor=\{feedPage\.nextCursor\}\s+canInteract=\{feedViewer\.canInteract\}/);
   // HOME-NETPRO1 (founder request, 16 Nov 2026): "Aziende da conoscere" replaced by the Network PRO card.
-  assert.match(home, /<HomeNetworkProCard entitled=\{networkEntitled\} italyPublished=\{italyPublished\} \/>/);
+  assert.match(home, /<HomeNetworkProCard entitled=\{networkEntitled\} stats=\{networkProStats\} \/>/);
   assert.doesNotMatch(home, /<HomeSuggestedCompanies/);
   assert.doesNotMatch(home, /<WorkspaceHomePanels|<DashboardPulsePreview|<DashboardDiscoveryFeed|orderedQuickActions/);
   assert.match(home, /mode === "live" && recent\.length > 0|recent\.length === 0/);
