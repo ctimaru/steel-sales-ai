@@ -26,7 +26,6 @@ import { FreeNetworkProfileView } from "@/components/free-network-profile";
 import { getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 import { isNetworkFreeReadEnabled } from "@/lib/network-flags";
 import { getWorkspaceContext } from "@/lib/workspace-context";
-import { createClient } from "@/lib/supabase/server";
 
 // NET-CONTACT1: contact types shown in Italian.
 const CONTACT_TYPE_IT: Record<string, string> = {
@@ -132,6 +131,18 @@ function validityLabel(state: "valid" | "expired" | "not_yet_valid" | "unknown")
 }
 
 
+// NET-PROFILE-FAST1: start every independent read at once, but keep each read's
+// own failure behaviour (a loader that used to throw still throws when its value is used).
+type Settled<T> = { ok: true; value: T } | { ok: false; error: unknown };
+function settle<T>(promise: Promise<T>): Promise<Settled<T>> {
+  return promise.then((value) => ({ ok: true as const, value }), (error: unknown) => ({ ok: false as const, error }));
+}
+function unwrap<T>(result: Settled<T>): T {
+  if (!result.ok) throw result.error;
+  return result.value;
+}
+const COMPANY_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 function uniqueBy<T>(items: T[], keyFor: (item: T) => string) {
   const seen = new Set<string>();
   return items.filter((item) => {
@@ -151,68 +162,47 @@ export default async function NetworkCompanyProfilePage({
 }) {
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
   const { id } = await params;
+  if (!COMPANY_ID.test(id)) notFound();
   const context = await getWorkspaceContext();
+  // Cached per request (layout + page + requireNetworkAccess share one RPC).
   const access = await getNetworkAccessState(context.organizationId);
   if (!access.can_access_network && isNetworkFreeReadEnabled()) {
     return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} isWorkspaceAdmin={context.role==="admin"} />;
   }
-  // NET-LAUNCH1: even entitled Pro viewers must open an unconfirmed discovery
-  // in the Free profile reader, not in the canonical Pro-company query.
-  // That reader enforces active company membership and returns no private data.
-  if (access.can_access_network) {
-    const candidate = await getProNetworkDiscoveryProfile(context.organizationId,id).catch(() => null);
-    if (candidate?.company.discovery_status === "unconfirmed") {
-      return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} accessMode="pro" isWorkspaceAdmin={context.role==="admin"} />;
-    }
-  }
   await requireNetworkAccess();
 
-  const { error, message } = await searchParams;
-  const profile = await getNetworkProfile(id);
-  if (!profile) notFound();
-
-  const supabase = await createClient();
-  const { data: authData } = await supabase.auth.getUser();
-  const userId = authData.user?.id;
-  let organizationId: string | null = null;
-  let adminOrganizationId: string | null = null;
-  let canInteract = false;
-  let inquiryEligible = false;
-  let inquiryReason = "";
-  let isSaved = false;
-  let membershipRole = "";
-  let claimState: CompanyClaimState | null = null;
-
-  if (userId) {
-    const { data: memberships } = await supabase
-      .from("organization_memberships")
-      .select("organization_id,is_default,role,status")
-      .eq("user_id", userId)
-      .eq("status", "active");
-
-    const membership = memberships?.find((row) => row.is_default) ?? memberships?.[0];
-    organizationId = membership?.organization_id ?? null;
-    membershipRole = membership?.role ?? "";
-    canInteract = membership ? canInteractWithNetwork(membership.role) : false;
-
-    adminOrganizationId =
-      membership?.role === "admin" ? membership.organization_id : null;
-
-    if (adminOrganizationId) {
-      claimState = await getMyCompanyClaim(profile.company.id, adminOrganizationId);
-    }
-
-    if (organizationId) {
-      const [eligibility, savedIds] = await Promise.all([
-        getInquiryEligibility(organizationId, profile.company.id)
-          .catch(() => ({eligible:false,reason:"unavailable"})),
-        getSavedNetworkCompanyIds(organizationId, [profile.company.id]),
-      ]);
-      inquiryEligible = eligibility.eligible;
-      inquiryReason = String(eligibility.reason ?? "");
-      isSaved = savedIds.includes(profile.company.id);
-    }
+  // NET-PROFILE-FAST1: the viewer is the session workspace (same default-membership
+  // rule as before), so no second auth or membership round trip. Every read below
+  // depends only on the route id and the viewer: they run in parallel instead of
+  // one after another.
+  const organizationId: string | null = context.organizationId;
+  const membershipRole = context.role;
+  const canInteract = canInteractWithNetwork(context.role);
+  const adminOrganizationId: string | null = context.role === "admin" ? context.organizationId : null;
+  const [candidateResult, profileResult, claimResult, eligibility, savedResult, inventoryResult, reviewedEvidence, query] = await Promise.all([
+    // NET-LAUNCH1: even entitled Pro viewers must open an unconfirmed discovery
+    // in the Free profile reader, not in the canonical Pro-company query.
+    // That reader enforces active company membership and returns no private data.
+    getProNetworkDiscoveryProfile(context.organizationId, id).catch(() => null),
+    settle(getNetworkProfile(id)),
+    adminOrganizationId ? settle(getMyCompanyClaim(id, adminOrganizationId)) : Promise.resolve<Settled<CompanyClaimState | null>>({ ok: true, value: null }),
+    getInquiryEligibility(context.organizationId, id).catch(() => ({ eligible: false, reason: "unavailable" })),
+    settle(getSavedNetworkCompanyIds(context.organizationId, [id])),
+    settle(getPublishedNetworkInventory(context.organizationId, id)),
+    getReviewedCompanyEvidence(context.organizationId, id, "pro").catch(() => []),
+    searchParams,
+  ]);
+  if (candidateResult?.company.discovery_status === "unconfirmed") {
+    return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} accessMode="pro" isWorkspaceAdmin={context.role==="admin"} preloadedProfile={candidateResult} />;
   }
+
+  const { error, message } = query;
+  const profile = unwrap(profileResult);
+  if (!profile) notFound();
+  const claimState: CompanyClaimState | null = unwrap(claimResult);
+  const inquiryEligible = eligibility.eligible;
+  const inquiryReason = String(eligibility.reason ?? "");
+  const isSaved = unwrap(savedResult).includes(profile.company.id);
 
   const displayName = profile.company.trading_name || profile.company.legal_name;
   const website = safeNetworkWebsiteUrl(profile.company.website_url);
@@ -302,8 +292,7 @@ export default async function NetworkCompanyProfilePage({
     profile.facilities.flatMap((facility) => facility.capabilities),
     (item) => item.key,
   );
-  const publishedInventory = await getPublishedNetworkInventory(context.organizationId, profile.company.id);
-  const reviewedEvidence = await getReviewedCompanyEvidence(context.organizationId,profile.company.id,"pro").catch(()=>[]);
+  const publishedInventory = unwrap(inventoryResult);
   const reviewedSummary = summarizeReviewedCompanyEvidence(reviewedEvidence);
   const hasCompanyDeclarations = [
     ...profile.products, ...profile.facilities, ...profile.subtypes,

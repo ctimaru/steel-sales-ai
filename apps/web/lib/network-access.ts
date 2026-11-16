@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
@@ -14,7 +15,12 @@ export type NetworkAccessState = {
   expires_at: string | null;
 };
 
-export async function getNetworkAccessState(
+/**
+ * NET-PROFILE-FAST1: memoized per request with React cache(). The workspace
+ * layout, the page and requireNetworkAccess() used to call the same RPC up to
+ * three times per page view; the answer cannot change within one request.
+ */
+export const getNetworkAccessState = cache(async function getNetworkAccessState(
   organizationId: string,
 ): Promise<NetworkAccessState> {
   const supabase = await createClient();
@@ -27,7 +33,7 @@ export async function getNetworkAccessState(
   }
 
   return data as NetworkAccessState;
-}
+});
 
 export async function requireNetworkAccess(
   fallback = "/network?locked=1",

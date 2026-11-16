@@ -51,8 +51,8 @@ test("UX1.5 direct-route boundaries protect write and company-admin surfaces", (
 });
 
 test("UX1.5 Viewer is read-only on Network interaction surfaces", () => {
-  assert.match(networkProfile, /canInteractWithNetwork\(membership\.role\)/);
-  assert.match(networkProfile, /canInteractWithNetwork\(membership\.role\)/);
+  // NET-PROFILE-FAST1: the role comes from the session workspace context (same default membership).
+  assert.match(networkProfile, /const canInteract = canInteractWithNetwork\(context\.role\)/);
   assert.match(networkProfile, /inquiryEligible && canInteract/);
   assert.match(inquiries, /redirect\("\/network"\)/); // NET-UX LOT1B: requests only from the RFQ Hub
   assert.match(networkActions, /requireWorkspaceWriteRole/);

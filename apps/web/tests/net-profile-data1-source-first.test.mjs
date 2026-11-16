@@ -25,7 +25,7 @@ test("NET-PROFILE-DATA1: only accepted evidence RPC supplies source-backed Free 
     assert.match(profile,/safeNetworkWebsiteUrl\(reviewedSummary\.evidenceSourceUrl\)/);
     assert.match(profile,/description=\{profile\.company\.description \|\| reviewedSummary\.description\}/);
   }
-  assert.match(pro,/getReviewedCompanyEvidence\(context\.organizationId,profile\.company\.id,"pro"\)/);
+  assert.match(pro,/getReviewedCompanyEvidence\(context\.organizationId, id, "pro"\)/);
   assert.match(overview,/data-testid="network-company-source-attribution"/);
   assert.match(overview,/Informazioni da fonte pubblica, non disponibilità a magazzino/);
   assert.match(overview,/rel="noopener noreferrer"/);

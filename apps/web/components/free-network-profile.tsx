@@ -14,12 +14,16 @@ import {canInteractWithNetwork,canWriteWorkspace} from "@/lib/access-policy";
 import { getFreeNetworkProfile, getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
 export async function FreeNetworkProfileView({
-  organizationId, companyId, accessMode="free", isWorkspaceAdmin=false,
-}: { organizationId: string; companyId: string; accessMode?:"free"|"pro"; isWorkspaceAdmin?:boolean }) {
+  organizationId, companyId, accessMode="free", isWorkspaceAdmin=false, preloadedProfile,
+}: {
+  organizationId: string; companyId: string; accessMode?:"free"|"pro"; isWorkspaceAdmin?:boolean;
+  /** NET-PROFILE-FAST1: the Pro page already read this discovery profile; do not read it twice. */
+  preloadedProfile?: Awaited<ReturnType<typeof getProNetworkDiscoveryProfile>>;
+}) {
   if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(companyId)) notFound();
   let profile;
   try {
-    profile = accessMode==="pro"
+    profile = preloadedProfile ? preloadedProfile : accessMode==="pro"
       ? await getProNetworkDiscoveryProfile(organizationId,companyId)
       : await getFreeNetworkProfile(organizationId, companyId);
   } catch {
@@ -32,20 +36,25 @@ export async function FreeNetworkProfileView({
     );
   }
   if (!profile) notFound();
-  const reviewedEvidence=await getReviewedCompanyEvidence(organizationId,companyId,accessMode).catch(()=>[]);
   const website = safeNetworkWebsiteUrl(profile.company.website_url);
   const source = safeNetworkWebsiteUrl(profile.source_url);
   const license = safeNetworkWebsiteUrl(profile.license_url);
   const provisional = profile.company.discovery_status==="unconfirmed";
-  const status=provisional?"unavailable":(await getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null))?.get(companyId);
+  // Request-cached: the layout already resolved the workspace.
   const workspace = await getWorkspaceContext();
   const canConnect=canInteractWithNetwork(workspace.role);
   // Saved companies are private and already supported by the existing
   // Network server action; never expose the control on provisional entries.
   const canSave=!provisional && canWriteWorkspace(workspace.role);
-  const savedIds=canSave && accessMode==="pro" ? await getSavedNetworkCompanyIds(organizationId,[companyId]) : [];
+  // NET-PROFILE-FAST1: the remaining reads are independent, so they run together.
+  const [reviewedEvidence, readiness, savedIds, inventory] = await Promise.all([
+    getReviewedCompanyEvidence(organizationId,companyId,accessMode).catch(()=>[]),
+    provisional ? Promise.resolve(null) : getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null),
+    canSave && accessMode==="pro" ? getSavedNetworkCompanyIds(organizationId,[companyId]) : Promise.resolve([] as string[]),
+    provisional ? Promise.resolve([]) : getPublishedNetworkInventory(organizationId, companyId),
+  ]);
+  const status=provisional?"unavailable":readiness?.get(companyId);
   const isSaved=savedIds.includes(companyId);
-  const inventory = provisional ? [] : await getPublishedNetworkInventory(organizationId, companyId);
   const companyName=profile.company.trading_name || profile.company.legal_name;
   const reviewedSummary=summarizeReviewedCompanyEvidence(reviewedEvidence);
   const firstLocation=profile.facilities
