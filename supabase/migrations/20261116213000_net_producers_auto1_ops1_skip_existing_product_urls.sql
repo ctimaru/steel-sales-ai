@@ -67,55 +67,12 @@ begin
    or length(v_url)>1200
    or split_part(v_url,'/',3)<>split_part(v_parent.source_url,'/',3)
    or v_url=v_parent.source_url or v_url=v_root.source_url
-   or lower(v_url) ~ '[.](pdf|docx?|xlsx?|zip|png|jpg|jpeg|svg|webp)
-  if not exists (select 1 from private.network_producer_auto1_detail_pages d
-                 where d.company_id=v_parent.company_id and d.source_url=v_url) then
-   if (select count(*) from private.network_producer_auto1_detail_pages d
-       where d.company_id=v_parent.company_id)>=24
-      or (select count(*) from private.network_producer_auto1_detail_pages d
-          where d.parent_page_id=p_parent_page_id)>=6 then
-    continue;
-   end if;
-  end if;
-  insert into private.network_producer_auto1_detail_pages
-   (company_id,parent_page_id,parent_sha256,source_url,canonical_domain)
-  values (v_parent.company_id,p_parent_page_id,p_parent_sha256,v_url,v_parent.canonical_domain)
-  on conflict (company_id,source_url) do update set
-   parent_page_id=excluded.parent_page_id,
-   parent_sha256=excluded.parent_sha256,
-   canonical_domain=excluded.canonical_domain,
-   status='queued',next_check_at=now(),last_etag=null,last_modified=null,
-   needs_reparse=true,leased_until=null,updated_at=now()
-  where private.network_producer_auto1_detail_pages.parent_sha256 is distinct from excluded.parent_sha256
-     or private.network_producer_auto1_detail_pages.parent_page_id is distinct from excluded.parent_page_id;
-  v_recorded:=v_recorded+1;
- end loop;
-
- -- An empty valid link set still records the scan and prevents endless re-fetch.
- update private.network_producer_auto1_product_pages
- set detail_discovery_sha256=p_parent_sha256,detail_discovery_at=now(),updated_at=now()
- where id=p_parent_page_id;
- -- Re-parented/changed parent snapshot invalidates prior associations; never publish them.
- update private.network_producer_auto1_detail_candidates c
- set evidence_status='stale',updated_at=now()
- from private.network_producer_auto1_detail_pages d
- where c.detail_page_id=d.id and d.company_id=v_parent.company_id
-   and d.parent_page_id=p_parent_page_id
-   and d.parent_sha256=p_parent_sha256
-   and d.last_checked_at is not null
-   and d.status='queued';
- return jsonb_build_object('contract','netproducers-auto1a4-discover-v1',
-                          'considered',v_considered,'recorded',v_recorded,
-                          'skipped_existing_product',v_skipped_existing_product,
-                          'published_capabilities',0);
-end;
-$body$;
+   or lower(v_url) ~ '[.](pdf|docx?|xlsx?|zip|png|jpg|jpeg|svg|webp)$'
   then
    raise exception 'Invalid, duplicate or foreign second-level URL' using errcode='22023';
   end if;
-  -- Safe cross-links to another *already registered* first-level product page
-  -- are navigation, not a fresh depth-two source. Keep all earlier URL,
-  -- parent-SHA, canonical-host, rights and producer checks fail-closed.
+  -- Existing same-company first-level product pages are navigation, not new detail sources.
+  -- The exact URL is validated as HTTPS + same host + parent SHA *before* this skip.
   if exists (select 1 from private.network_producer_auto1_product_pages x
              where x.company_id=v_parent.company_id and x.source_url=v_url) then
    v_skipped_existing_product:=v_skipped_existing_product+1;
@@ -159,11 +116,12 @@ $body$;
    and d.last_checked_at is not null
    and d.status='queued';
  return jsonb_build_object('contract','netproducers-auto1a4-discover-v1',
-                          'considered',v_considered,'recorded',v_recorded,'published_capabilities',0);
+                          'considered',v_considered,'recorded',v_recorded,
+                          'skipped_existing_product',v_skipped_existing_product,
+                          'published_capabilities',0);
 end;
 $body$;
 
--- Preserve least-privilege gates even if restoring from an older environment.
 revoke all on function private.netproducers1_auto1a4_discover(uuid,text,jsonb)
  from public,anon,authenticated;
 grant execute on function private.netproducers1_auto1a4_discover(uuid,text,jsonb)
