@@ -51,3 +51,105 @@ def test_shs_geometry_and_fingerprint():
     assert len(result) == 1
     assert result[0]["shape"] == "SHS"
     assert extract_exact_row_candidates(html, SPEC, "bad") == []
+
+
+def test_depth_two_lease_is_bounded_and_rejects_external_site():
+    from app.net_pro_producers_auto1 import parse_detail_page_lease
+    import pytest
+    with pytest.raises(ValueError):
+        parse_detail_page_lease({"contract": "netproducers-auto1a4-claim-v1", "count": 1, "items": [
+            {"page_id": "d1", "parent_page_id": "p1", "parent_sha256": SHA,
+             "source_url": "https://evil.test/prodotti/rhs", "canonical_domain": "example.it"}
+        ]})
+    with pytest.raises(ValueError):
+        parse_detail_page_lease({"contract": "netproducers-auto1a4-claim-v1", "count": 1, "items": [
+            {"page_id": "d1", "parent_page_id": "p1", "parent_sha256": "bad",
+             "source_url": SPEC, "canonical_domain": "example.it"}
+        ]})
+
+
+def test_depth_two_worker_persists_candidates_only_when_enabled(monkeypatch):
+    import asyncio
+    from app import net_pro_producers_auto1 as worker
+    monkeypatch.setenv("NETPRODUCERS_A4_ENABLED", "true")
+    calls = []
+
+    class Response:
+        def __init__(self, data):
+            self.data = data
+
+    class RpcCall:
+        def __init__(self, data):
+            self.data = data
+        def execute(self):
+            return Response(self.data)
+
+    responses = {
+        "netproducers1_auto1_seed": {"contract": "netproducers1-auto1-seed-v1", "added": 0},
+        "netproducers1_auto1_claim": {"contract": "netproducers1-auto1-claim-v1", "count": 0, "items": []},
+        "netproducers1_auto1a3_claim_pages": {"contract": "netproducers-auto1a3-claim-v1", "count": 1,
+            "items": [{"page_id": "p1", "company_id": "c1",
+                       "source_url": ROOT, "canonical_domain": "example.it",
+                       "needs_detail_discovery": True}]},
+        "netproducers1_auto1a3_complete_page": {
+            "contract": "netproducers-auto1a3-complete-v1", "candidate_count": 0},
+        "netproducers1_auto1a4_discover": {
+            "contract": "netproducers-auto1a4-discover-v1", "recorded": 1},
+        "netproducers1_auto1a4_claim_pages": {"contract": "netproducers-auto1a4-claim-v1", "count": 1,
+            "items": [{"page_id": "d1", "parent_page_id": "p1", "parent_sha256": SHA,
+                       "company_id": "c1", "source_url": SPEC, "canonical_domain": "example.it"}]},
+        "netproducers1_auto1a4_complete_page": {
+            "contract": "netproducers-auto1a4-complete-v1", "candidate_count": 1},
+        "netproducers1_auto1b_verify": {"contract": "netproducers-auto1b-verify-v1", "checked": 0},
+        "netproducers1_auto1a3_verify": {"contract": "netproducers-auto1a3-verify-v1", "checked": 0}
+    }
+    class Db:
+        def rpc(self, name, args):
+            calls.append((name, args))
+            assert name in responses, name
+            return RpcCall(responses[name])
+
+    async def fake_fetch(client, lease):
+        if lease["page_id"] == "p1":
+            return {"status": "processed", "sha256": SHA, "candidates": [],
+                    "detail_links": [{"url": SPEC, "parent_url": ROOT,
+                                      "parent_sha256": SHA, "depth": 2}]}
+        return {"status": "processed", "sha256": "b" * 64,
+                "technical_candidates": [{
+                    "standard": "EN10219", "grade": "S355J2H", "shape": "RHS",
+                    "dimensions_mm": [200, 100, 6], "source_url": SPEC,
+                    "source_sha256": "b" * 64, "locator": "table_row:1",
+                    "source_row_excerpt": "EN 10219 | S355J2H | RHS | 200x100x6",
+                    "evidence_status": "pending_verification",
+                    "interpretation": "same_row_explicit_candidate"
+                }]}
+    monkeypatch.setattr(worker, "fetch_official_page", fake_fetch)
+    result = asyncio.run(worker.run(Db(), limit=3, dry_run=False))
+    names = [name for name, _ in calls]
+    assert names == [
+        "netproducers1_auto1_seed", "netproducers1_auto1_claim",
+        "netproducers1_auto1a3_claim_pages", "netproducers1_auto1a3_complete_page",
+        "netproducers1_auto1a4_discover", "netproducers1_auto1a4_claim_pages",
+        "netproducers1_auto1a4_complete_page", "netproducers1_auto1b_verify",
+        "netproducers1_auto1a3_verify",
+    ]
+    assert calls[4][1]["p_parent_sha256"] == SHA
+    assert calls[6][1]["p_candidates"][0]["evidence_status"] == "pending_verification"
+    assert result["detail_pages_processed"] == 1
+    assert result["private_technical_candidates"] == 1
+    assert result["published_claims"] == 0
+
+
+def test_depth_two_apex_and_www_links_normalize_to_approved_host():
+    html = ('<a href="https://example.it/prodotti/tubi/rhs">Technical data</a>'
+            '<a href="https://www.example.it/prodotti/tubi/rhs">Technical data</a>')
+    items = discover_detail_links(html, ROOT, "www.example.it", SHA)
+    assert len(items) == 1
+    assert items[0]["url"] == SPEC
+
+
+def test_source_excerpt_is_short_and_unchanged_row_only():
+    html = "<table><tr><td>EN 10219 S355J2H RHS 200x100x6</td></tr></table>"
+    row = extract_exact_row_candidates(html, SPEC, SHA)[0]
+    assert row["source_row_excerpt"] == "EN 10219 S355J2H RHS 200x100x6"
+    assert len(row["source_row_excerpt"]) <= 240
