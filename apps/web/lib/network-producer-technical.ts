@@ -38,7 +38,8 @@ export function parseProducerTechnicalClaims(input:unknown):NetworkProducerTechn
   const payload=input as Record<string,unknown>;
   if(payload.contract!=="netproducers1-technical-claims-v1"||
      !Array.isArray(payload.items)||payload.items.length>160||
-     !Number.isSafeInteger(payload.total)||payload.total!==payload.items.length)return null;
+     typeof payload.total!=="number"||!Number.isSafeInteger(payload.total)||
+     payload.total!==payload.items.length)return null;
   const claims:NetworkProducerTechnicalClaim[]=[];
   for(const raw of payload.items){
     if(!raw||typeof raw!=="object"||Array.isArray(raw))return null;
