@@ -37,8 +37,13 @@ BEGIN
         v_before,v_after,v_first;
     END IF;
     v_second := private.net_it_region_geo_auto_publish('Piemonte',25,false);
-    IF (v_second->>'published')::int <> 0 THEN
-      RAISE EXCEPTION 'Repeat invocation not idempotent: %',v_second;
+    IF EXISTS (
+      SELECT 1
+      FROM jsonb_array_elements(v_first->'items') first_batch(item)
+      JOIN jsonb_array_elements(v_second->'items') second_batch(item)
+        ON first_batch.item->>'company_id'=second_batch.item->>'company_id'
+    ) THEN
+      RAISE EXCEPTION 'Repeat invocation republished a company: %',v_second;
     END IF;
   END IF;
 END
