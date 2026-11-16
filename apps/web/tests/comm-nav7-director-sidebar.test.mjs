@@ -86,13 +86,13 @@ test("COMM-NAV8 keeps a single director destination on deal details and legacy b
   assert.deepEqual(selected("/offers/offer-1"), ["Trattative"]);
   assert.deepEqual(selected("/commercial/orders/order-1"), ["Trattative"]);
   assert.deepEqual(selected("/orders/order-1"), ["Trattative"]);
-  assert.deepEqual(selected("/commercial/rfqs/request-1"), ["Centro RFQ"]);
-  assert.deepEqual(selected("/rfqs/request-1"), ["Centro RFQ"]);
+  assert.deepEqual(selected("/commercial/rfqs/request-1"), ["RFQ e conversazioni"]);
+  assert.deepEqual(selected("/rfqs/request-1"), ["RFQ e conversazioni"]);
   assert.deepEqual(selected("/commercial/conversations/thread-1"), ["Inbox e risposte"]);
   assert.deepEqual(selected("/conversations/thread-1"), ["Inbox e risposte"]);
-  assert.deepEqual(selected("/rfq-hub/campaign-1"), ["Centro RFQ"]);
-  assert.deepEqual(selected("/rfq-hub/intelligence"), ["Centro RFQ"]);
-  assert.deepEqual(selected("/rfq-hub/distinta"), ["Centro RFQ"]);
+  assert.deepEqual(selected("/rfq-hub/campaign-1"), ["RFQ e conversazioni"]);
+  assert.deepEqual(selected("/rfq-hub/intelligence"), ["RFQ e conversazioni"]);
+  assert.deepEqual(selected("/rfq-hub/distinta"), ["RFQ e conversazioni"]);
   assert.deepEqual(selected("/rfq-hub/inbox"), ["Inbox e risposte"]);
   assert.deepEqual(selected("/rfq-hub/suppliers/abc"), ["Fornitori RFQ"]);
   assert.deepEqual(selected("/rfq-hub/distinte/abc"), ["Distinte"]);
