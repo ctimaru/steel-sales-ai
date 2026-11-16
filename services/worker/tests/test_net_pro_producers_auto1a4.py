@@ -39,7 +39,7 @@ def test_range_only_does_not_certify_specific_dimension():
 
 
 def test_multiple_grades_and_negations_rejected():
-    html = ('<table><tr><td>EN 10219 S355J2H S235JR H RHS 200x100x6</td></tr>'
+    html = ('<table><tr><td>EN 10219 S355J2H S235JRH RHS 200x100x6</td></tr>'
             '<tr><td>EN 10219 S355J2H RHS 200x100x6 not available</td></tr></table>')
     assert extract_exact_row_candidates(html, SPEC, SHA) == []
 
