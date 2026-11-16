@@ -115,7 +115,7 @@ begin
  for v_item in select value from jsonb_array_elements(p_links) loop
   v_url:=v_item->>'url';
   if jsonb_typeof(v_item)<>'object'
-   or v_item->>'depth'<>'2'
+   or coalesce(v_item->>'depth','')<>'2'
    or v_item->>'parent_url' is distinct from v_parent.source_url
    or v_item->>'parent_sha256' is distinct from p_parent_sha256
    or v_url is null
@@ -352,12 +352,12 @@ begin
   if jsonb_typeof(v_item)<>'object'
    or v_item->>'source_url' is distinct from v_page.source_url
    or v_item->>'source_sha256' is distinct from p_source_sha256
-   or v_item->>'evidence_status'<>'pending_verification'
-   or v_item->>'interpretation'<>'same_row_explicit_candidate'
+   or coalesce(v_item->>'evidence_status','')<>'pending_verification'
+   or coalesce(v_item->>'interpretation','')<>'same_row_explicit_candidate'
    or coalesce(v_item->>'locator','') !~ '^table_row:[1-9][0-9]{0,2}$'
    or coalesce(v_item->>'standard','') !~ '^EN(10219|10210)([12])?$'
    or coalesce(v_item->>'grade','') !~ '^S(235|275|355|420|460)(JR|J0|J2|M|ML|N|NL)?H$'
-   or v_shape not in ('CHS','SHS','RHS')
+   or coalesce(v_shape,'') not in ('CHS','SHS','RHS')
    or jsonb_typeof(v_dims) is distinct from 'array'
    or (v_shape='CHS' and jsonb_array_length(v_dims)<>2)
    or (v_shape in ('SHS','RHS') and jsonb_array_length(v_dims)<>3)
