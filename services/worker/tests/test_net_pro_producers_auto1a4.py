@@ -153,3 +153,36 @@ def test_source_excerpt_is_short_and_unchanged_row_only():
     row = extract_exact_row_candidates(html, SPEC, SHA)[0]
     assert row["source_row_excerpt"] == "EN 10219 S355J2H RHS 200x100x6"
     assert len(row["source_row_excerpt"]) <= 240
+
+
+def test_first_level_same_sha_is_reparsed_for_missing_detail_discovery(monkeypatch):
+    import asyncio
+    import hashlib
+    import httpx
+    from app import net_pro_producers_auto1 as worker
+    html = b'<html><a href="/prodotti/tubi/rhs">Technical data sheet</a></html>'
+    fingerprint = hashlib.sha256(html).hexdigest()
+
+    def handler(request):
+        if request.url.path == "/robots.txt":
+            return httpx.Response(404)
+        assert request.url.path == "/prodotti/tubi"
+        assert "if-none-match" not in request.headers
+        assert "if-modified-since" not in request.headers
+        return httpx.Response(200, headers={"Content-Type": "text/html"}, content=html)
+
+    monkeypatch.setattr(worker, "public_dns_only", lambda host: host == "www.example.it")
+
+    async def execute(needs_discovery):
+        lease = {"page_id": "p1", "source_url": ROOT,
+                 "canonical_domain": "example.it", "last_sha256": fingerprint,
+                 "needs_detail_discovery": needs_discovery}
+        async with httpx.AsyncClient(transport=httpx.MockTransport(handler)) as client:
+            return await worker.fetch_official_page(client, lease)
+
+    pending = asyncio.run(execute(True))
+    assert pending["status"] == "processed"
+    assert pending["detail_links"][0]["url"] == SPEC
+    assert pending["detail_links"][0]["parent_sha256"] == fingerprint
+    already_scanned = asyncio.run(execute(False))
+    assert already_scanned["status"] == "unchanged"
