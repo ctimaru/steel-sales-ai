@@ -4,12 +4,14 @@ import Link from "next/link";
 import {useState} from "react";
 
 import type {NetworkProDirectoryResult} from "@/lib/network-pro-coverage";
+import type {NetworkProducerCatalogLink} from "@/lib/network-producer-catalogs";
 
 type Props={
   result:NetworkProDirectoryResult;
   query:string;
   page:number;
   publishedCount:number|null;
+  catalogs:NetworkProducerCatalogLink[]|null;
 };
 
 type DirectoryItem={id:string;name:string;countryCode:string;websiteUrl:string|null};
@@ -31,7 +33,7 @@ function PageLink({label,query,page}:{label:string;query:string;page:number}){
   </Link>;
 }
 
-export function NetworkProducersExperience({result,query,page,publishedCount}:Props){
+export function NetworkProducersExperience({result,query,page,publishedCount,catalogs}:Props){
   const [selected,setSelected]=useState<string[]>([]);
   const companies=result.status==="ready"?result.data.items:[];
   const selectedCompanies=selected.flatMap(id=>{
@@ -143,6 +145,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount}:Pr
           {companies.map(company=>{
             const active=selected.includes(company.id);
             const url=website(company);
+            const docs=catalogs?.filter(doc=>doc.companyId===company.id)??[];
             return <article key={company.id} className={"flex min-w-0 flex-col gap-4 rounded-[18px] border bg-white p-4 shadow-[0_6px_18px_rgba(23,68,46,0.035)] "+
               (active?"border-[#327952] ring-1 ring-[#bddbc6]":"border-[#d9e5dc]")}>
               <div className="flex items-start gap-3">
@@ -156,6 +159,24 @@ export function NetworkProducersExperience({result,query,page,publishedCount}:Pr
                 Norme, gamma produttiva e cataloghi: in qualificazione. La scheda
                 non implica disponibilità o produzione di una specifica misura.
               </p>
+              {docs.length>0?<details className="rounded-xl border border-[#d5e5d9] bg-[#f7faf8] p-3">
+                <summary className="cursor-pointer text-xs font-extrabold text-[#1c573a]">
+                  Cataloghi ufficiali ({docs.length})
+                </summary>
+                <ul className="mt-2 space-y-2">
+                  {docs.map(doc=><li key={doc.id}>
+                    <a href={doc.sourceUrl} target="_blank" rel="noopener noreferrer"
+                      className="text-xs font-semibold leading-5 text-[#1e6948] underline underline-offset-2">
+                      {doc.title}
+                    </a>
+                    <p className="mt-0.5 text-[10px] text-[#657d6c]">
+                      {doc.documentType==="official_pdf"?"PDF sul sito produttore":"Pagina sul sito produttore"}
+                      {doc.editionYear?" · Edizione "+doc.editionYear:""}
+                      {" · Collegamento esterno"}
+                    </p>
+                  </li>)}
+                </ul>
+              </details>:null}
               <div className="mt-auto flex flex-wrap items-center gap-2">
                 <button type="button" aria-pressed={active} disabled={!active&&selected.length>=3}
                   onClick={()=>toggle(company.id)}
@@ -192,10 +213,18 @@ export function NetworkProducersExperience({result,query,page,publishedCount}:Pr
             <tbody className="text-[#506557]">
               <tr><th scope="row" className="border-b border-[#e5ede6] p-4 font-bold">Paese</th>
                 {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-4">Italia</td>)}</tr>
-              {["Processo produttivo","Norme e gradi","Gamma dimensionale","Cataloghi verificati"].map(label=>
+              {["Processo produttivo","Norme e gradi","Gamma dimensionale"].map(label=>
                 <tr key={label}><th scope="row" className="border-b border-[#e5ede6] p-4 font-bold">{label}</th>
                   {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-4 italic text-[#758479]">Non disponibile in questa vista</td>)}
                 </tr>)}
+              <tr><th scope="row" className="border-b border-[#e5ede6] p-4 font-bold">Cataloghi ufficiali</th>
+                {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-4">
+                  {catalogs===null?"Indice non disponibile":
+                    (catalogs.filter(link=>link.companyId===c.id).length>0
+                     ?catalogs.filter(link=>link.companyId===c.id).length+" collegamenti"
+                     :"Non ancora indicizzati")}
+                </td>)}
+              </tr>
             </tbody>
           </table>
         </div>
@@ -209,7 +238,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount}:Pr
 
     <section className="grid gap-3 md:grid-cols-3" aria-label="Funzioni in arricchimento">
       {[
-        {title:"Cataloghi tecnici",text:"Link alle fonti e PDF autorizzati, con versione, lingua e dati estratti citabili."},
+        {title:"Cataloghi tecnici",text:"Link ufficiali ai documenti dei produttori, senza copiarne i PDF. Estrazione dati citabile in sviluppo."},
         {title:"Confronto per specifica",text:"EN 10219, EN 10305, inox, gradi, forme e gamme realmente documentate."},
         {title:"Dal produttore alla RFQ",text:"Dalla ricerca alla Distinta e alla richiesta commerciale mantenendo il contesto."},
       ].map(x=><article key={x.title} className="rounded-[18px] border border-[#dbe6de] bg-[#f7faf8] p-4">
