@@ -248,3 +248,18 @@ def test_auto1a3_workflow_discovers_then_verifies_page_mentions_without_sku(monk
     assert calls[3][1]["p_pages"] == [
         {"url": "https://example.com/prodotti/", "kind": "products"}
     ]
+
+
+def test_auto1a3_apex_www_duplicates_prefer_verified_homepage_host():
+    from app.net_pro_producers_auto1 import discover_product_links
+    html = """
+      <a href="https://tomatislamiere.it/lavorazioni-metalli/">Lavorazioni tubi</a>
+      <a href="https://www.tomatislamiere.it/lavorazioni-metalli/">Lavorazioni tubi</a>
+    """
+    found = discover_product_links(
+        html, "https://www.tomatislamiere.it/", "tomatislamiere.it"
+    )
+    assert found == [{
+        "url": "https://www.tomatislamiere.it/lavorazioni-metalli/",
+        "kind": "products"
+    }]
