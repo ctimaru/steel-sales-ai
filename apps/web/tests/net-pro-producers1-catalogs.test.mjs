@@ -16,7 +16,7 @@ test("NET-PRO-PRODUCERS1: official catalog index is link-only and typed",()=>{
   assert.match(sql,/https:\/\/www\.acciaitubi\.it\/files\/pages\/12\/Acciaitubi-catalogo-2024-it\.pdf/);
   assert.match(sql,/https:\/\/alessiotubi\.it\/wp-content\/uploads\/2026\/04/);
   assert.match(sql,/https:\/\/www\.padanatubi\.it\/prodotti\//);
-  assert.match(sql,/https:\/\/www\.publications\.marcegaglia\.com/);
+  assert.match(sql,/https:\/\/www\.carbonsteel\.marcegaglia\.com\/it\/tubi-saldati-in-acciaio-al-carbonio/);
   assert.doesNotMatch(sql,/extracted_text|insert into public\.documents|pdf_binary/i);
 });
 
