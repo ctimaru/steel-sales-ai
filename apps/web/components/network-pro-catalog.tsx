@@ -109,6 +109,10 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
             Configura il tuo accesso al Network dell&apos;acciaio: produttori, commercianti,
             carpenterie e utilizzatori industriali, con copertura reale per Paese.
           </p>
+          <Link href="/network/pro/producers"
+            className="inline-flex min-h-10 items-center rounded-xl border border-[#b5d4bd] bg-white px-4 text-xs font-bold text-[#175640] shadow-sm hover:bg-[#eff7f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+            Esplora Intelligence Produttori →
+          </Link>
         </header>
 
         <div className="grid grid-cols-3 gap-1.5 rounded-[18px] bg-[linear-gradient(120deg,#eef6f0,#f7faf8)] p-2.5 sm:gap-3 sm:p-3"
