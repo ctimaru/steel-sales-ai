@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 
 import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 import { canWriteWorkspace } from "@/lib/access-policy";
@@ -26,6 +26,13 @@ const SURFACES = new Set<NetworkSaveSurface>([
  * (network_saved_companies_* + PA1.3 restrictive entitlement policy; only
  * published companies can be saved). Idempotent: saving twice or removing a
  * missing row is a success, so double clicks and retries are harmless.
+ *
+ * Speed (NET-SAVE-INLINE1B): no revalidatePath. In a server action any
+ * revalidation re-renders the whole current route (the heavy /network page)
+ * inside the same response, which took ~3 s per click. The pages that list
+ * saved state (/network/saved, profiles) are dynamic and read fresh data on
+ * navigation; the open page keeps its client state. Analytics run after the
+ * response with after().
  */
 export async function toggleNetworkSavedCompany(
   companyId: string,
@@ -43,8 +50,7 @@ export async function toggleNetworkSavedCompany(
     if (!access?.can_access_network) return { ok: false, saved: !save, reason: "locked" };
 
     const supabase = await createClient();
-    const { data: auth } = await supabase.auth.getUser();
-    const userId = auth.user?.id;
+    const userId = context.userId;
     if (!userId) return { ok: false, saved: !save, reason: "unavailable" };
 
     const { error } = save
@@ -60,12 +66,12 @@ export async function toggleNetworkSavedCompany(
           .eq("network_company_id", companyId);
     if (error) return { ok: false, saved: !save, reason: "unavailable" };
 
-    await recordPilotUsageEvent({
+    after(() => recordPilotUsageEvent({
       eventName: save ? "network_saved_created" : "network_saved_removed",
       entityType: "network_company",
       entityId: companyId,
       metadata: { surface: safeSurface },
-    });
+    }));
 
     const { count, error: countError } = await supabase
       .from("network_saved_companies")
@@ -73,9 +79,6 @@ export async function toggleNetworkSavedCompany(
       .eq("organization_id", context.organizationId)
       .eq("user_id", userId);
 
-    // The directory keeps its client state; only the pages that list saved state re-render.
-    revalidatePath("/network/saved");
-    revalidatePath("/network/" + companyId);
     return { ok: true, saved: save, count: countError || typeof count !== "number" ? null : count };
   } catch {
     return { ok: false, saved: !save, reason: "unavailable" };
