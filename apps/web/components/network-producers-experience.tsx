@@ -5,6 +5,7 @@ import {useState} from "react";
 
 import type {NetworkProDirectoryResult} from "@/lib/network-pro-coverage";
 import type {NetworkProducerCatalogLink} from "@/lib/network-producer-catalogs";
+import type {NetworkProducerTechnicalClaim,ProducerEvidenceKind} from "@/lib/network-producer-technical";
 
 type Props={
   result:NetworkProDirectoryResult;
@@ -12,6 +13,7 @@ type Props={
   page:number;
   publishedCount:number|null;
   catalogs:NetworkProducerCatalogLink[]|null;
+  technicalClaims:NetworkProducerTechnicalClaim[]|null;
 };
 
 type DirectoryItem={id:string;name:string;countryCode:string;websiteUrl:string|null};
@@ -33,7 +35,30 @@ function PageLink({label,query,page}:{label:string;query:string;page:number}){
   </Link>;
 }
 
-export function NetworkProducersExperience({result,query,page,publishedCount,catalogs}:Props){
+const technicalKinds:{kind:ProducerEvidenceKind;label:string}[]=[
+  {kind:"manufacturing_process",label:"Processo produttivo"},
+  {kind:"technical_standard",label:"Norme dichiarate"},
+  {kind:"steel_grade",label:"Gradi indicati"},
+  {kind:"section_shape",label:"Sezioni"},
+  {kind:"dimension_range",label:"Gamme dimensionali"},
+];
+
+/** Each fact keeps its own first-party link; a range NEVER asserts a full SKU. */
+function EvidenceValues({items,kind}:{items:NetworkProducerTechnicalClaim[]|null;kind:ProducerEvidenceKind}){
+  if(items===null)return <span className="italic text-[#687a6e]">Indice non disponibile</span>;
+  const matches=items.filter(item=>item.kind===kind);
+  if(matches.length===0)return <span className="italic text-[#758479]">Non disponibile in questa vista</span>;
+  return <ul className="flex flex-wrap gap-1.5">
+    {matches.map(item=><li key={item.id}>
+      <a href={item.sourceUrl} title={item.sourceTitle} target="_blank" rel="noopener noreferrer"
+        className="inline-flex max-w-[260px] items-center gap-1 break-words rounded-lg border border-[#d0e3d6] bg-[#f4f9f5] px-2.5 py-1.5 text-[11px] font-semibold leading-4 text-[#1b5b40] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-[#1d6948]">
+        {item.value}<span aria-hidden="true">↗</span>
+      </a>
+    </li>)}
+  </ul>;
+}
+
+export function NetworkProducersExperience({result,query,page,publishedCount,catalogs,technicalClaims}:Props){
   const [selected,setSelected]=useState<string[]>([]);
   const companies=result.status==="ready"?result.data.items:[];
   const selectedCompanies=selected.flatMap(id=>{
@@ -146,6 +171,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
             const active=selected.includes(company.id);
             const url=website(company);
             const docs=catalogs?.filter(doc=>doc.companyId===company.id)??[];
+            const evidence=technicalClaims?.filter(item=>item.companyId===company.id)??[];
             return <article key={company.id} className={"flex min-w-0 flex-col gap-4 rounded-[18px] border bg-white p-4 shadow-[0_6px_18px_rgba(23,68,46,0.035)] "+
               (active?"border-[#327952] ring-1 ring-[#bddbc6]":"border-[#d9e5dc]")}>
               <div className="flex items-start gap-3">
@@ -156,9 +182,25 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
                 </div>
               </div>
               <p className="min-h-10 text-xs leading-5 text-[#647767]">
-                Norme, gamma produttiva e cataloghi: in qualificazione. La scheda
-                non implica disponibilità o produzione di una specifica misura.
+                {evidence.length>0
+                  ?"Sono presenti dati tecnici attribuiti a fonti ufficiali. Nessuna combinazione dimensione/grado è garantita."
+                  :"Norme, gamma produttiva e cataloghi: in qualificazione. La scheda non implica disponibilità o produzione di una specifica misura."}
               </p>
+              {evidence.length>0?<details className="rounded-xl border border-[#cde2d3] bg-[#f8fbf9] p-3">
+                <summary className="cursor-pointer text-xs font-extrabold text-[#1c573a]">
+                  Dati tecnici con fonte ({evidence.length})
+                </summary>
+                <p className="mt-2 text-[11px] leading-5 text-[#587363]">
+                  Dichiarazioni presenti sui siti ufficiali. Non costituiscono conferma di una misura esatta,
+                  della disponibilità, né di una certificazione verificata da Smart Steel Sales.
+                </p>
+                <div className="mt-3 space-y-3">
+                  {technicalKinds.filter(group=>evidence.some(item=>item.kind===group.kind)).map(group=><div key={group.kind}>
+                    <p className="mb-1 text-[10px] font-extrabold uppercase tracking-wide text-[#546c5a]">{group.label}</p>
+                    <EvidenceValues items={evidence} kind={group.kind}/>
+                  </div>)}
+                </div>
+              </details>:technicalClaims===null?<p className="text-[11px] text-[#8b6b45]">Dati tecnici momentaneamente non disponibili.</p>:null}
               {docs.length>0?<details className="rounded-xl border border-[#d5e5d9] bg-[#f7faf8] p-3">
                 <summary className="cursor-pointer text-xs font-extrabold text-[#1c573a]">
                   Cataloghi ufficiali ({docs.length})
@@ -200,7 +242,9 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
             <div>
               <h2 id="producer-compare-title" className="text-base font-extrabold text-[#153f2d]">Confronto produttori</h2>
               <p className="mt-1 text-xs leading-5 text-[#5b7463]">
-                Solo informazioni presenti nella directory autorizzata. I dati tecnici entreranno dopo la verifica dei cataloghi.
+                Norme, processi e gamme riportati con link alle pagine ufficiali.
+                Le misure sono intervalli indicativi: non dimostrano una specifica combinazione
+                di diametro, spessore e grado, né stock o capacità disponibile.
               </p>
             </div>
             <button type="button" onClick={()=>setSelected([])} className="min-h-10 text-xs font-bold text-[#185740] underline">Svuota</button>
@@ -213,9 +257,14 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
             <tbody className="text-[#506557]">
               <tr><th scope="row" className="border-b border-[#e5ede6] p-4 font-bold">Paese</th>
                 {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-4">Italia</td>)}</tr>
-              {["Processo produttivo","Norme e gradi","Gamma dimensionale"].map(label=>
-                <tr key={label}><th scope="row" className="border-b border-[#e5ede6] p-4 font-bold">{label}</th>
-                  {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-4 italic text-[#758479]">Non disponibile in questa vista</td>)}
+              {technicalKinds.map(group=>
+                <tr key={group.kind}><th scope="row" className="border-b border-[#e5ede6] p-4 font-bold">{group.label}</th>
+                  {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-3 align-top">
+                    <EvidenceValues
+                      items={technicalClaims?.filter(claim=>claim.companyId===c.id)??(technicalClaims===null?null:[])}
+                      kind={group.kind}
+                    />
+                  </td>)}
                 </tr>)}
               <tr><th scope="row" className="border-b border-[#e5ede6] p-4 font-bold">Cataloghi ufficiali</th>
                 {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-4">
@@ -238,8 +287,8 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
 
     <section className="grid gap-3 md:grid-cols-3" aria-label="Funzioni in arricchimento">
       {[
-        {title:"Cataloghi tecnici",text:"Link ufficiali ai documenti dei produttori, senza copiarne i PDF. Estrazione dati citabile in sviluppo."},
-        {title:"Confronto per specifica",text:"EN 10219, EN 10305, inox, gradi, forme e gamme realmente documentate."},
+        {title:"Cataloghi e fonti",text:"Link ufficiali e dati tecnici documentati; nessun PDF copiato o licenza presunta."},
+        {title:"Ricerca per misura",text:"Stiamo costruendo la ricerca esatta per norma, grado e dimensioni; i range da soli non confermano la producibilità."},
         {title:"Dal produttore alla RFQ",text:"Dalla ricerca alla Distinta e alla richiesta commerciale mantenendo il contesto."},
       ].map(x=><article key={x.title} className="rounded-[18px] border border-[#dbe6de] bg-[#f7faf8] p-4">
         <h2 className="text-sm font-extrabold text-[#17402e]">{x.title}</h2>
