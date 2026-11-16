@@ -25,7 +25,7 @@ test("NET-CONN3 list: only SQL 'unavailable', only for roles that can act, never
 
 test("NET-CONN3 profile: only eligible recipients get an active connection action",()=>{
   assert.match(profile,/inquiryEligible && canInteract/);
-  assert.match(profile,/getInquiryEligibility\(organizationId, profile.company.id\)/);
+  assert.match(profile,/getInquiryEligibility\(context\.organizationId, id\)/); // NET-PROFILE-FAST1: same company, read in parallel
   assert.match(profile,/inquiryReason !== "self_inquiry"|inquiryEligible && canInteract/);
   assert.doesNotMatch(profile,/data-testid="network-profile-connect-disabled"/);
   assert.doesNotMatch(profile,/Connessione nella piattaforma non disponibile/);

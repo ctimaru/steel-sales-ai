@@ -60,7 +60,7 @@ test("NET-PROFILE-UX6: every card stays navigable without fabricating business d
   assert.match(overview, /hasVerifiedFields/);
   assert.doesNotMatch(overview, /Math\.random|fake stock|placeholder phone|quantità inventata/);
   assert.match(free, /canSave=!provisional && canWriteWorkspace\(workspace\.role\)/);
-  assert.match(free, /provisional \? \[\] : await getPublishedNetworkInventory/);
+  assert.match(free, /provisional \? Promise\.resolve\(\[\]\) : getPublishedNetworkInventory/);
   assert.match(free, /profile\.company\.verification_status==="verified" \? "verified"/);
   assert.match(pro, /standards=\{technicalStandards\.map/);
   assert.match(pro, /inquiryEligible && canInteract/);
