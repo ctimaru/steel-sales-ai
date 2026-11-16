@@ -3,6 +3,7 @@ import {redirect} from "next/navigation";
 import {NetworkProducersExperience} from "@/components/network-producers-experience";
 import {getNetworkProducerCatalogLinks} from "@/lib/network-producer-catalogs";
 import {getProducerTechnicalClaims} from "@/lib/network-producer-technical";
+import {getProducerSourceMentions} from "@/lib/network-producer-source-mentions";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 import {getNetworkProCoverage,getNetworkProScopedDirectory} from "@/lib/network-pro-coverage";
 import {getWorkspaceContext} from "@/lib/workspace-context";
@@ -39,14 +40,14 @@ export default async function NetworkProProducersPage({
   ]);
   const publishedCount=coverage?.countries.find(row=>row.countryCode==="IT")
     ?.publishedModules.producers??null;
-  const [catalogs,technicalClaims]=result.status==="ready"
+  const ids=result.status==="ready"?result.data.items.map(company=>company.id):[];
+  const [catalogs,technicalClaims,sourceMentions]=result.status==="ready"
     ?await Promise.all([
-      getNetworkProducerCatalogLinks(context.organizationId,
-        result.data.items.map(company=>company.id)),
-      getProducerTechnicalClaims(context.organizationId,
-        result.data.items.map(company=>company.id)),
+      getNetworkProducerCatalogLinks(context.organizationId,ids),
+      getProducerTechnicalClaims(context.organizationId,ids),
+      getProducerSourceMentions(context.organizationId,ids),
     ])
-    :[[],[]];
+    :[[],[],[]];
 
   return <NetworkProducersExperience
     result={result}
@@ -55,5 +56,6 @@ export default async function NetworkProProducersPage({
     publishedCount={publishedCount}
     catalogs={catalogs}
     technicalClaims={technicalClaims}
+    sourceMentions={sourceMentions}
   />;
 }
