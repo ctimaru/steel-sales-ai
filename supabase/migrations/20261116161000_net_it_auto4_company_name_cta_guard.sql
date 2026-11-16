@@ -32,7 +32,7 @@ BEGIN
   -- at most 6 words before the legal form
   AND coalesce(array_length(regexp_split_to_array(v_core,'[[:space:]]+'),1),0) <= 6;
 END
-$function$
+$function$;
 
 
 -- Narrow provenance-backed correction of one polluted Piemonte AUTO3 name.
