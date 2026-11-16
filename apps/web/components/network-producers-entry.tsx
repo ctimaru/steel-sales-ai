@@ -58,7 +58,7 @@ export function NetworkProducersEntry(){
             </div>
           </div>
           <Link href="/network/pro/producers"
-            data-testid="network-producers-entry-link"
+            data-testid="network-producers-entry-link" style={{ color: "#2a1c00", WebkitTextFillColor: "#2a1c00" }}
             className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[#f2b544] px-4 text-sm font-extrabold text-[#2a1c00] transition-colors hover:bg-[#f6c460] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2b544]"
           >
             Esplora produttori

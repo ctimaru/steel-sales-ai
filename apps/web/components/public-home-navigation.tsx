@@ -23,11 +23,6 @@ const items = {
   ],
 } as const;
 
-// HOME-NETPRO-PUBLIC1: same yellow PRO badge as the workspace navigation.
-function ProBadge() {
-  return <span className="ml-1.5 rounded-[4px] bg-[#f2b544] px-1 py-px text-[9px] font-extrabold tracking-[0.06em] text-[#3a2600]">PRO</span>;
-}
-
 export function PublicHomeNavigation({ locale, theme = "light" }: { locale: Locale; theme?: "light" | "dark" }) {
   const links = items[locale];
   const dark = theme === "dark";
@@ -38,11 +33,11 @@ export function PublicHomeNavigation({ locale, theme = "light" }: { locale: Loca
   return (
     <>
       <nav aria-label={locale === "it" ? "Navigazione principale" : "Main navigation"} className="hidden min-w-0 items-center justify-center gap-0.5 border-b border-[#234536] bg-[#071713] xl:flex">
-        {links.map((item) => <Link key={item.label} href={item.href} className={linkClass}>{item.label}{item.label === "Network" ? <ProBadge /> : null}</Link>)}
+        {links.map((item) => <Link key={item.label} href={item.href} className={linkClass}>{item.label}</Link>)}
       </nav>
       <nav aria-label={locale === "it" ? "Navigazione mobile" : "Mobile navigation"} className={(dark ? "border-b border-t border-[#234536] bg-[#071713]" : "border-y border-[#edf1ee]") + " xl:hidden"}>
         <div className="mx-auto grid max-w-[1180px] grid-cols-[repeat(3,minmax(0,1fr))_auto] items-center gap-1 px-3 py-1.5 sm:px-6">
-          {main.map((item) => <Link key={item.label} href={item.href} className={"flex min-h-10 min-w-0 items-center justify-center rounded-lg px-1 text-center text-xs font-semibold leading-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 " + (dark ? "text-[#d4e8da] hover:bg-[#183a2c] focus-visible:outline-[#85f6c4]" : "text-[#43564f] hover:bg-[#edf4f0]") + (dark ? ` ${styles.darkMobileLink}` : "")}>{item.label}{item.label === "Network" ? <ProBadge /> : null}</Link>)}
+          {main.map((item) => <Link key={item.label} href={item.href} className={"flex min-h-10 min-w-0 items-center justify-center rounded-lg px-1 text-center text-xs font-semibold leading-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 " + (dark ? "text-[#d4e8da] hover:bg-[#183a2c] focus-visible:outline-[#85f6c4]" : "text-[#43564f] hover:bg-[#edf4f0]") + (dark ? ` ${styles.darkMobileLink}` : "")}>{item.label}</Link>)}
           <details className="group relative">
             <summary className={"flex min-h-10 cursor-pointer list-none items-center justify-center gap-1 rounded-lg border px-2 text-xs font-semibold marker:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#85f6c4] [&::-webkit-details-marker]:hidden " + (dark ? "border-[#466952] text-[#e1f7e9] hover:bg-[#183a2c]" : "border-[#dce5e0] text-[#173f35] hover:bg-[#edf4f0]")}>
               {locale === "it" ? "Altro" : "More"} <span aria-hidden="true" className="text-[10px] group-open:rotate-180">▾</span>

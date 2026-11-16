@@ -56,5 +56,6 @@ test("HOME-NETPRO-PUBLIC2 one screen: Network card in the hero next to the headl
   assert.doesNotMatch(hero+explorer,/PublicNetworkProPill|PublicNetworkProShowcase/);
   // EN keeps the original illustration; the overlay/aside markup stays in source.
   assert.match(hero,/<aside className=\{styles\.productHint\}/);
-  assert.match(nav,/item\.label === "Network" \? <ProBadge \/> : null/);
+  // CONTRAST1: one PRO on the first screen (the hero card), not also in the nav.
+  assert.doesNotMatch(nav,/ProBadge|>PRO</);
 });

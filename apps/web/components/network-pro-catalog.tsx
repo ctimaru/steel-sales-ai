@@ -143,7 +143,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
               </div>)}
             </dl>
             <div className="flex flex-wrap gap-2 pt-1">
-              <Link href="/network/pro/producers"
+              <Link href="/network/pro/producers" style={{ color: "#2a1c00", WebkitTextFillColor: "#2a1c00" }}
                 className="inline-flex min-h-10 items-center rounded-xl bg-[#f2b544] px-4 text-xs font-extrabold text-[#2a1c00] hover:bg-[#f6c460] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2b544]">
                 Esplora Intelligence Produttori →
               </Link>
