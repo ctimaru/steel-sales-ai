@@ -13,6 +13,7 @@ create table if not exists private.network_producer_auto1_detail_pages (
  parent_sha256 text not null check (parent_sha256 ~ '^[a-f0-9]{64}$'),
  source_url text not null check (source_url ~ '^https://[A-Za-z0-9.-]+/[A-Za-z0-9._~/%-]+$' and length(source_url) between 14 and 1200),
  canonical_domain text not null,
+ needs_reparse boolean not null default true,
  crawl_depth smallint not null default 2 check (crawl_depth=2),
  status text not null default 'queued' check (status in ('queued','leased','processed','unchanged','blocked','failed')),
  last_sha256 text check (last_sha256 ~ '^[a-f0-9]{64}$'),
@@ -103,6 +104,14 @@ begin
   raise exception 'Current canonical producer required' using errcode='42501';
  end if;
 
+ -- Any parent SHA change retires old proof, including links no longer present.
+ update private.network_producer_auto1_detail_candidates c
+ set evidence_status='stale',updated_at=now()
+ from private.network_producer_auto1_detail_pages d
+ where c.detail_page_id=d.id and d.parent_page_id=p_parent_page_id
+   and d.parent_sha256 is distinct from p_parent_sha256
+   and c.evidence_status<>'stale';
+
  for v_item in select value from jsonb_array_elements(p_links) loop
   v_url:=v_item->>'url';
   if jsonb_typeof(v_item)<>'object'
@@ -138,7 +147,7 @@ begin
    parent_sha256=excluded.parent_sha256,
    canonical_domain=excluded.canonical_domain,
    status='queued',next_check_at=now(),last_etag=null,last_modified=null,
-   leased_until=null,updated_at=now()
+   needs_reparse=true,leased_until=null,updated_at=now()
   where private.network_producer_auto1_detail_pages.parent_sha256 is distinct from excluded.parent_sha256
      or private.network_producer_auto1_detail_pages.parent_page_id is distinct from excluded.parent_page_id;
   v_recorded:=v_recorded+1;
@@ -155,7 +164,7 @@ begin
  where c.detail_page_id=d.id and d.company_id=v_parent.company_id
    and d.parent_page_id=p_parent_page_id
    and d.parent_sha256=p_parent_sha256
-   and d.last_checked_at is distinct from null
+   and d.last_checked_at is not null
    and d.status='queued';
  return jsonb_build_object('contract','netproducers-auto1a4-discover-v1',
                           'considered',v_considered,'recorded',v_recorded,'published_capabilities',0);
@@ -259,13 +268,16 @@ begin
       attempt_count=d.attempt_count+1,updated_at=now()
   from picked p where d.id=p.id
   returning d.id,d.company_id,d.source_url,d.canonical_domain,
-            d.last_sha256,d.last_etag,d.last_modified,d.parent_page_id,d.parent_sha256
+            d.last_sha256,d.last_etag,d.last_modified,d.parent_page_id,d.parent_sha256,
+            d.needs_reparse
  )
  select coalesce(jsonb_agg(jsonb_build_object(
     'page_id',v.id,'company_id',v.company_id,'source_url',v.source_url,
     'canonical_domain',v.canonical_domain,'parent_page_id',v.parent_page_id,
     'parent_sha256',v.parent_sha256,'last_sha256',v.last_sha256,
-    'etag',v.last_etag,'last_modified',v.last_modified
+    'needs_content_reparse',v.needs_reparse,
+    'etag',case when v.needs_reparse then null else v.last_etag end,
+    'last_modified',case when v.needs_reparse then null else v.last_modified end
  ) order by v.company_id,v.source_url),'[]'::jsonb)
  into v_items from leased v;
  return jsonb_build_object('contract','netproducers-auto1a4-claim-v1',
@@ -364,7 +376,9 @@ begin
    v_page.id,v_page.company_id,v_page.source_url,p_source_sha256,
    v_item->>'locator',v_item->>'source_row_excerpt',
    v_item->>'standard',v_item->>'grade',v_shape,v_dims,'pending_verification'
-  ) on conflict (detail_page_id,source_sha256,locator) do nothing;
+  ) on conflict (detail_page_id,source_sha256,locator) do update
+  set evidence_status='pending_verification',observed_at=now(),updated_at=now()
+  where private.network_producer_auto1_detail_candidates.evidence_status='stale';
   v_count:=v_count+1;
  end loop;
  if p_status='processed' and v_page.last_sha256 is distinct from p_source_sha256 then
@@ -378,6 +392,7 @@ begin
  end if;
  update private.network_producer_auto1_detail_pages
  set status=p_status,last_sha256=coalesce(p_source_sha256,last_sha256),
+     needs_reparse=case when p_status='processed' then false else needs_reparse end,
      last_etag=coalesce(p_etag,last_etag),last_modified=coalesce(p_last_modified,last_modified),
      last_checked_at=now(),
      next_check_at=now()+case when p_status='failed' then interval '1 day'
