@@ -85,6 +85,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
       <div className="flex flex-wrap items-center gap-2">
         <span className="rounded-full bg-[#14543c] px-3 py-1 text-[10px] font-extrabold tracking-wide text-white">NETWORK PRO</span>
         <span className="rounded-full border border-[#b8d6c3] bg-white px-3 py-1 text-[10px] font-bold tracking-wide text-[#275a40]">INTELLIGENCE PRODUTTORI</span>
+        <span className="rounded-full border border-[#bddac6] bg-white px-3 py-1 text-[10px] font-bold text-[#175640]">INCLUSO NEL MODULO PRODUTTORI</span>
         <span className="rounded-full border border-[#d0e3d5] bg-white px-3 py-1 text-[10px] font-semibold text-[#496b56]">Italia</span>
       </div>
       <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
