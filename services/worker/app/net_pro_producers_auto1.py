@@ -207,6 +207,15 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
         # Status-only default: do not lease anything or contact external websites.
         return {"mode": "dry_run", "status": db_rpc(db, "netproducers1_auto1_status", {})}
 
+    # Grow the durable queue automatically as newly published canonical IT
+    # producers appear. Only the private service role can invoke this RPC.
+    # Existing sources are skipped by the idempotent DB seed.
+    seed = db_rpc(db, "netproducers1_auto1_seed", {"p_limit": 100})
+    if (seed.get("contract") != "netproducers1-auto1-seed-v1"
+            or type(seed.get("added")) is not int
+            or not 0 <= seed["added"] <= 100):
+        raise ValueError("Invalid automatic seed response")
+
     leases = parse_lease(db_rpc(db, "netproducers1_auto1_claim", {"p_limit": limit}))
     outcomes = []
     async with httpx.AsyncClient(
@@ -234,7 +243,8 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
     # Per-attribute verification is independent from collection. It never
     # publishes manufacturing capability, size/grade combinations or stock.
     verification = db_rpc(db, "netproducers1_auto1b_verify", {"p_limit": 100})
-    return {"mode": "private_candidate_intake", "processed": len(outcomes),
+    return {"mode": "private_candidate_intake", "new_sources": seed["added"],
+            "processed": len(outcomes),
             "new_candidates": sum(x["candidate_count"] for x in outcomes),
             "verification": verification,
             "published_claims": 0, "outcomes": outcomes}
