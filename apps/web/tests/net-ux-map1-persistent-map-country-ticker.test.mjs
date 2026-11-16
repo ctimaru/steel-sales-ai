@@ -38,7 +38,7 @@ test("MAP1: banner precedes the two-column layout and retains safe motion",()=>{
   assert.ok(ui.indexOf("<NetworkCountryTicker ")<ui.indexOf('data-testid="network-europe1d-one-screen-shell"'));
   assert.match(ticker,/getNetworkCountryStats\(organizationId,accessMode\)/);
   assert.match(ticker,/encodeURIComponent\(item.countryCode\)/);
-  for(const label of ["produttori","commercianti","terzisti","utilizzatori","profili pubblicati","da confermare"])
+  for(const label of ["produttori","commercianti","terzisti","utilizzatori","aziende nel Network"])
     assert.ok(ticker.includes(label),label);
   assert.match(css,/prefers-reduced-motion:reduce/);
   assert.match(css,/focus-within/);

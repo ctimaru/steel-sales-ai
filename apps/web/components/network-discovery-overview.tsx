@@ -39,7 +39,7 @@ export function NetworkDiscoveryOverview({
             {anyUnavailable ? "Scopri la filiera industriale" : total.toLocaleString("it-IT")+" aziende da esplorare"}
           </h2>
           <p className="mt-1 text-xs leading-5 text-[#52615b]">
-            {publishedUnavailable ? "—" : published.toLocaleString("it-IT")} profili pubblicati · {discoveryUnavailable ? "—" : discovered.toLocaleString("it-IT")} scoperti, da confermare
+            Informazioni e livelli di verifica consultabili nelle singole schede aziendali.
           </p>
         </div>
         <Link href="/network#network-region-results"
@@ -62,7 +62,7 @@ export function NetworkDiscoveryOverview({
       </nav>
       {region ? (
         <p className="mt-3 rounded-lg bg-[#fff7e6] px-3 py-2 text-xs leading-5 text-[#765821]">
-          Il filtro regionale mostra i profili pubblicati e, separatamente, le aziende scoperte con una località documentata dal sito aziendale. Queste ultime restano Da confermare.
+          Le località ricavate dai siti aziendali possono essere indicative finché non confermate. La fonte è visibile nella scheda.
           {" "}<Link href="/network#network-new-discoveries" className="font-semibold underline">Mostra anche quelle senza regione</Link>
         </p>
       ) : null}

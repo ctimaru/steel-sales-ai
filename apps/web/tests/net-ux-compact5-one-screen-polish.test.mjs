@@ -10,8 +10,9 @@ test("COMPACT5 keeps the dashboard summary compact and free of filler metrics",(
   assert.match(page,/aria-label="Statistiche Network"/);
   // NET-UX LOT1: one inline line next to the title instead of a stats box.
   assert.doesNotMatch(page,/label:"Ruoli nella filiera"/);
-  assert.match(page,/profili pubblicati/);
-  assert.match(page,/censite da fonti pubbliche/);
+  assert.match(page,/directory\.total\.toLocaleString\("it-IT"\)/);
+  assert.match(page,/aziende nel Network/);
+  assert.doesNotMatch(page,/censite da fonti pubbliche/);
 });
 
 test("COMPACT5 places the region within the single filter form instead of a separate disclosure",()=>{
