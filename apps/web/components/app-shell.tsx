@@ -4,6 +4,7 @@ import { logout } from "@/app/(workspace)/actions";
 import { ContextSwitchLink } from "@/components/context-switch-link";
 import { WorkspaceCommercialDirectorShell } from "@/components/workspace-commercial-director-shell";
 import { HeaderMenuDismissController } from "@/components/header-menu-dismiss-controller";
+import { NetworkSaveToaster } from "@/components/network-save-feedback";
 import { WorkspaceNotificationBell } from "@/components/workspace-notification-bell";
 import { ProductBrand } from "@/components/product-brand";
 import {
@@ -96,6 +97,7 @@ export function AppShell({
   networkEnabled,
   networkEntitled,
   networkFreeEnabled,
+  networkSavedCount = null,
 }: {
   children: ReactNode;
   viewerLabel: string;
@@ -111,6 +113,7 @@ export function AppShell({
   networkEnabled: boolean;
   networkEntitled: boolean;
   networkFreeEnabled: boolean;
+  networkSavedCount?: number | null;
 }) {
   const commercialItems = visibleItems(commercialNav, organizationRole);
   const networkItems =
@@ -190,6 +193,7 @@ export function AppShell({
           networkItems={networkItems}
           marketplaceItems={marketplaceItems}
           knowledgeItems={knowledgeItems}
+          savedCount={networkSavedCount}
         />
       </header>
 
@@ -198,6 +202,8 @@ export function AppShell({
           {children}
         </WorkspaceCommercialDirectorShell>
       </main>
+
+      {networkEnabled ? <NetworkSaveToaster /> : null}
 
       <WorkspaceMobileBottomNavigation
         networkEnabled={networkEnabled}

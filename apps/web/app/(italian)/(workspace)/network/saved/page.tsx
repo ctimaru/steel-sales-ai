@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { FirstUseEmptyState } from "@/components/first-use-empty-state";
 import { NetworkCountryFlag } from "@/components/network-country-flag";
 import { NetworkRfqSelectionBar } from "@/components/network-rfq-selection-bar";
+import { NetworkSavedRow } from "@/components/network-save-feedback";
 import { NetworkSaveToggle } from "@/components/network-save-toggle";
 import { getSavedNetworkCompanies } from "@/lib/network";
 import { requireNetworkAccess } from "@/lib/network-access";
@@ -88,7 +89,8 @@ export default async function SavedNetworkCompaniesPage({
             const selectable = rfqSelection && isRfqReachable(status, channel);
             const country = (company.country_code || "").toUpperCase();
             return (
-              <article key={company.id} data-testid="network-saved-row"
+              <NetworkSavedRow key={company.id} companyId={company.id}>
+              <article data-testid="network-saved-row"
                 className="relative grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-[#e8eeeb] px-3 py-3 last:border-b-0 hover:bg-[#f6faf8] sm:px-4 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
                 <div className="flex min-w-0 items-center gap-3">
                   {selectable ? (
@@ -115,8 +117,9 @@ export default async function SavedNetworkCompaniesPage({
                     : channel === "email" ? <span className="font-semibold text-[#175640]">Contattabile via email</span>
                     : <span className="text-[#647269]">Non ancora attiva</span>}
                 </div>
-                {canEdit ? <NetworkSaveToggle companyId={company.id} name={name} saved returnTo="/network/saved" compact /> : <span />}
+                {canEdit ? <NetworkSaveToggle companyId={company.id} name={name} saved surface="network_saved_companies" compact /> : <span />}
               </article>
+              </NetworkSavedRow>
             );
           })}
         </section>

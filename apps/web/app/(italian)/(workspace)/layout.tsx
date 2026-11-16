@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { AppShell } from "@/components/app-shell";
 import { getNetworkAccessState } from "@/lib/network-access";
 import { isNetworkFreeReadEnabled, isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { countNetworkSavedCompanies } from "@/lib/network-saved-count";
 import { parseWorkspaceNotificationSnapshot, type WorkspaceNotificationSnapshot } from "@/lib/workspace-notifications";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
@@ -30,6 +31,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let guidedSetupComplete = true;
   const networkEnabled = isNetworkFrontendEnabled();
   let networkEntitled = !configured;
+  let networkSavedCount: number | null = null;
 
   if (configured) {
     const [context, supabase] = await Promise.all([
@@ -47,6 +49,8 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
     if (networkEnabled) {
       const networkAccess = await getNetworkAccessState(context.organizationId);
       networkEntitled = networkAccess.can_access_network;
+      // NET-SAVE-INLINE1: "Salvate" tab counter; null (any failure) hides it.
+      if (networkEntitled) networkSavedCount = await countNetworkSavedCompanies(context.organizationId, context.userId);
     }
 
     // The bell must fail closed. RPC failures may not be represented as zero unread.
@@ -80,6 +84,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       networkEnabled={networkEnabled}
       networkEntitled={networkEntitled}
       networkFreeEnabled={networkEnabled && isNetworkFreeReadEnabled()}
+      networkSavedCount={networkSavedCount}
     >
       {children}
     </AppShell>

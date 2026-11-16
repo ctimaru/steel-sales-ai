@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { NetworkSavedCountBadge } from "@/components/network-save-feedback";
 import { appRoutes } from "@/lib/routes";
 import {
   getWorkspaceNavigationContext,
@@ -272,9 +273,11 @@ export function WorkspaceMobileBottomNavigation({
 function ContextLink({
   item,
   selected,
+  savedCount,
 }: {
   item: WorkspaceNavItem;
   selected: boolean;
+  savedCount?: number | null;
 }) {
   return (
     <Link
@@ -288,6 +291,7 @@ function ContextLink({
       ].join(" ")}
     >
       {item.label}
+      {item.contextKey === "network:saved" && savedCount !== undefined ? <NetworkSavedCountBadge initial={savedCount} /> : null}
     </Link>
   );
 }
@@ -297,11 +301,13 @@ export function WorkspaceContextNavigation({
   networkItems,
   marketplaceItems,
   knowledgeItems,
+  savedCount,
 }: {
   commercialItems: WorkspaceNavItem[];
   networkItems: WorkspaceNavItem[];
   marketplaceItems: WorkspaceNavItem[];
   knowledgeItems: WorkspaceNavItem[];
+  savedCount?: number | null;
 }) {
   const pathname = usePathname();
   const navigation = getWorkspaceNavigationContext(pathname);
@@ -327,6 +333,7 @@ export function WorkspaceContextNavigation({
             key={item.contextKey}
             item={item}
             selected={navigation.context === item.contextKey}
+            savedCount={savedCount}
           />
         ))}
       </div>
