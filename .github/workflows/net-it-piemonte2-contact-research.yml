@@ -1,0 +1,78 @@
+name: "NET-IT-PIEMONTE2 — Autonomous first-party contact geography"
+
+# The worker never publishes companies/facilities. It only stages sourced
+# private locality facts. The maintenance-only geo agent publishes after
+# the existing policy, identity, first-party and ISTAT checks.
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Maximum official sites to inspect (1, 5 or 10)"
+        required: true
+        default: "10"
+        type: choice
+        options: ["1", "5", "10"]
+      persist:
+        description: "Store private source observations (unchecked = dry run)"
+        required: true
+        default: true
+        type: boolean
+  push:
+    branches: ["main"]
+    paths:
+      - "services/worker/app/net_it_piemonte2_contact_research.py"
+      - "supabase/migrations/20261116173000_net_it_piemonte2_contact_research.sql"
+      - ".github/workflows/net-it-piemonte2-contact-research.yml"
+  schedule:
+    - cron: "37 * * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-it-piemonte2-first-party-contact
+  cancel-in-progress: false
+
+jobs:
+  contact:
+    name: "Bounded first-party contact research; no profile publishing"
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install the existing safe worker and crawler
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Verify worker-only Supabase secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          test "$SUPABASE_URL" = "https://ecrafjdummcdfycznitx.supabase.co" ||
+            { echo "::error::Unexpected target project; no writes performed"; exit 1; }
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Missing server-only key; no writes performed"
+            exit 1
+          fi
+          echo "::add-mask::$SUPABASE_SERVICE_ROLE_KEY"
+      - name: Collect company-owned public contact locality evidence
+        working-directory: services/worker
+        env:
+          LIMIT: ${{ inputs.limit || '10' }}
+          PERSIST: ${{ github.event_name != 'workflow_dispatch' || inputs.persist }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          case "$LIMIT" in 1|5|10) ;; *) echo "::error::Invalid bounded count"; exit 1 ;; esac
+          if [ "$PERSIST" = "true" ]; then
+            python -m app.net_it_piemonte2_contact_research --limit "$LIMIT" --persist
+          else
+            python -m app.net_it_piemonte2_contact_research --limit "$LIMIT"
+          fi
