@@ -61,7 +61,7 @@ export function HomeCinematicTools({ locale }: { locale: Locale }) {
               <span className={styles.cardTop}><span>{tool.eyebrow}</span><span>{tool.number} / 05</span></span>
               <ProductMiniature kind={tool.number} />
               <span className={styles.cardBody}>
-                <strong>{tool.title}</strong>
+                <strong>{tool.title}{tool.number === "03" ? <span className="ml-2 inline-block rounded-[5px] bg-[#f2b544] px-1.5 py-px align-middle text-[10px] font-extrabold tracking-[0.06em] text-[#3a2600]">PRO</span> : null}</strong>
                 <span className={styles.description}>{tool.description}</span>
               </span>
               <span className={styles.cardFoot}><span>{tool.access}</span><span aria-hidden="true">↗</span></span>
