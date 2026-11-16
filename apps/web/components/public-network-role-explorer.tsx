@@ -1,6 +1,5 @@
 import Link from "next/link";
 import cineStyles from "./public-cinematic-continuity.module.css";
-import { PublicNetworkProShowcase } from "./public-network-pro";
 
 type PersonaKey = "merchant" | "user" | "processor" | "producer";
 
@@ -80,8 +79,6 @@ export function PublicNetworkRoleExplorer() {
       aria-label="Network per Produttori, Commercianti, Terzisti e Utilizzatori"
     >
       <div className="mx-auto max-w-[1120px] px-4 py-10 sm:px-6 sm:py-12 lg:px-8">
-        {/* HOME-NETPRO-PUBLIC1: Network PRO showcase with live totals, before the role explorer. */}
-        <PublicNetworkProShowcase />
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">
             Network

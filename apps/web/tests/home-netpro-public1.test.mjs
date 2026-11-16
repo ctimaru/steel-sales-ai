@@ -44,13 +44,17 @@ test("HOME-NETPRO-PUBLIC1 page stays static, refreshed hourly; numbers hidden wh
   assert.match(lib,/^import "server-only";/);
   assert.match(lib,/export const getPublicNetworkCounts = cache\(/);
   assert.match(lib,/createPublicSupabaseClient\(\)/);
-  assert.match(ui,/\{counts \? \(\s*<div className="mt-6" data-testid="public-network-pro-counts">/);
+  assert.match(ui,/\{counts \? \(\s*<div className="mt-4" data-testid="public-network-pro-counts">/);
 });
 
-test("HOME-NETPRO-PUBLIC1 no public price; CTA to registration; placements",()=>{
+test("HOME-NETPRO-PUBLIC2 one screen: Network card in the hero next to the headline; no price; CTA to registration",()=>{
   assert.doesNotMatch(ui,/€|NETWORK_PRO_PRICE_BOOK|\/ mese/);
   assert.match(ui,/href="\/register" data-testid="public-network-pro-register"/);
-  assert.match(hero,/\{en \? null : <PublicNetworkProPill \/>\}/);
-  assert.match(explorer,/<PublicNetworkProShowcase \/>/);
+  assert.match(hero,/\{en \? null : <PublicNetworkProHeroCard \/>\}/);
+  assert.match(hero,/max-lg:flex-col max-lg:items-start/);
+  // The pill and the separate showcase were folded into the hero card.
+  assert.doesNotMatch(hero+explorer,/PublicNetworkProPill|PublicNetworkProShowcase/);
+  // EN keeps the original illustration; the overlay/aside markup stays in source.
+  assert.match(hero,/<aside className=\{styles\.productHint\}/);
   assert.match(nav,/item\.label === "Network" \? <ProBadge \/> : null/);
 });
