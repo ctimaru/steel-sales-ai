@@ -35,6 +35,10 @@ test("Source queue is bounded, durable, idempotent and invisible to clients",()=
   assert.match(sql,/enable row level security/);
   assert.match(sql,/revoke all on private\.network_producer_auto1_sources from public,anon,authenticated/);
   assert.match(sql,/grant execute on function private\.netproducers1_auto1_claim\(integer\) to service_role/);
+  assert.match(sql,/create or replace function public\.netproducers1_auto1_claim/);
+  assert.match(sql,/create or replace function public\.netproducers1_auto1_complete/);
+  assert.match(sql,/revoke all on function public\.netproducers1_auto1_claim\(integer\) from public,anon,authenticated/);
+  assert.match(sql,/grant execute on function public\.netproducers1_auto1_claim\(integer\) to service_role/);
   assert.match(sql,/evidence_status text not null default 'pending_verification'/);
   assert.match(sql,/'published_claims',0/);
   assert.doesNotMatch(sql,/insert into public\.network_company_product_standard_scopes|update public\.network_companies/i);
