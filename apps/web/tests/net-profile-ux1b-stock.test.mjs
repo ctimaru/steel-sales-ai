@@ -50,7 +50,7 @@ test("NET-PROFILE-UX1.B: public UI renders actual rows or nothing", () => {
   assert.match(publicCard, /Aggiornato:/);
   assert.match(publicCard, /soggette a conferma/);
   assert.match(canonical, /<NetworkProfileInventory items=\{publishedInventory\}/);
-  assert.match(free, /provisional \? \[\] : await getPublishedNetworkInventory/);
+  assert.match(free, /provisional \? Promise\.resolve\(\[\]\) : getPublishedNetworkInventory/);
   assert.match(free, /<NetworkProfileInventory items=\{inventory\}/);
   assert.doesNotMatch(publicCard, /example\.com|12 t|40 t|Dato stimato/);
 });
