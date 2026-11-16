@@ -1,5 +1,6 @@
 """NET-PRO-PRODUCERS1.AUTO1: no unsafe URL, false exact SKU or unverified publication."""
 import pytest
+import asyncio
 
 from app.net_pro_producers_auto1 import (
     safe_official_url, extract_candidates, parse_lease, run,
@@ -54,8 +55,7 @@ def test_lease_contract_rejects_cross_domain():
     assert len(rows) == 1
 
 
-@pytest.mark.asyncio
-async def test_default_worker_dry_run_does_not_lease_or_publish():
+def test_default_worker_dry_run_does_not_lease_or_publish():
     class FakeResponse:
         data = {"contract": "netproducers1-auto1-status-v1", "queued": 56}
     class RpcCall:
@@ -67,7 +67,7 @@ async def test_default_worker_dry_run_does_not_lease_or_publish():
             self.calls.append((name, args))
             return RpcCall()
     db = Db()
-    result = await run(db, limit=10, dry_run=True)
+    result = asyncio.run(run(db, limit=10, dry_run=True))
     assert result["mode"] == "dry_run"
     assert result["status"]["queued"] == 56
     assert db.calls == [("netproducers1_auto1_status", {})]
