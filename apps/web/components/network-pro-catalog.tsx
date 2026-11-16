@@ -59,6 +59,19 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
   const selectedModules=orderedModules.map(key=>NETWORK_PRO_MODULES.find(m=>m.key===key)!)
     .filter(module=>selected.includes(module.key));
 
+  // NET-PRO-UX3: live totals for the hero (published only) and the access state in one place.
+  const italyPublished=coverage?coverage.countries.find(row=>row.countryCode==="IT")?.published??0:null;
+  const europePublished=coverage?coverage.countries.reduce((sum,row)=>sum+row.published,0):null;
+  const activeModules=access?orderedModules.filter(key=>access.modules[key].italy||access.modules[key].europe):[];
+  const hasActiveAccess=Boolean(access&&(access.legacyFullNetwork||activeModules.length>0));
+  const annualSaving=billing==="annual"?Math.max(0,quote.monthlyBase*12-quote.annualTotal):0;
+  // Marginal price of adding a module to the current selection (package pricing).
+  function addPrice(key:NetworkProModuleKey){
+    const next=networkProQuote([...selected,key],territory,"monthly").monthlyBase;
+    return next-networkProQuote(selected,territory,"monthly").monthlyBase;
+  }
+  const allSelected=orderedModules.every(key=>selected.includes(key));
+
   function toggle(key:NetworkProModuleKey){
     setSelected(current=>current.includes(key)
       ?current.filter(entry=>entry!==key)
@@ -97,29 +110,56 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
 
     <div className="grid min-w-0 items-start gap-5 lg:grid-cols-[minmax(0,1fr)_350px] xl:gap-8">
       <div className="min-w-0 space-y-5">
-        <header className="space-y-3 px-1">
-          <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold">
-            <span className="rounded-full bg-[#11553d] px-3 py-1.5 uppercase tracking-[0.04em] text-white">Network PRO</span>
-            <span className="rounded-full border border-[#cfdfd4] bg-white px-3 py-1.5 uppercase tracking-[0.04em] text-[#275640]">Catalogo aziende</span>
+        <header className="relative overflow-hidden rounded-[24px] bg-[#123a2e] p-5 text-white shadow-[0_14px_34px_rgba(18,58,46,0.2)] sm:p-7">
+          <svg aria-hidden="true" width="260" height="260" viewBox="0 0 260 260" className="pointer-events-none absolute -right-16 -top-20 opacity-[0.12]">
+            <circle cx="130" cy="130" r="110" fill="none" stroke="#9fd3bc" strokeWidth="22"/>
+            <circle cx="130" cy="130" r="64" fill="none" stroke="#9fd3bc" strokeWidth="14"/>
+          </svg>
+          <div className="relative space-y-3">
+            <div className="flex flex-wrap items-center gap-2 text-[10px] font-bold">
+              <span className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 uppercase tracking-[0.08em]">
+                Network <span className="rounded-[4px] bg-[#f2b544] px-1 py-px text-[9px] text-[#3a2600]">PRO</span>
+              </span>
+              <span className="rounded-full border border-white/20 px-3 py-1.5 uppercase tracking-[0.06em] text-[#cfe6db]">Catalogo aziende</span>
+              {hasActiveAccess?<span data-testid="netpro-ux3-active-access" className="rounded-full bg-[#e6f3ec] px-3 py-1.5 text-[#155a3c]">
+                ✓ Il tuo accesso PRO è attivo
+              </span>:null}
+            </div>
+            <h1 className="max-w-[760px] text-[26px] font-extrabold leading-[1.14] tracking-[-0.035em] sm:text-[34px] xl:text-[38px]">
+              Sblocca i contatti industriali che ti servono.
+            </h1>
+            <p className="max-w-[720px] text-[13px] leading-5 text-[#d3e7dd] sm:text-sm sm:leading-6">
+              Configura il tuo accesso al Network dell&apos;acciaio: produttori, commercianti,
+              carpenterie e utilizzatori industriali, con copertura reale per Paese.
+            </p>
+            <dl className="grid max-w-[560px] grid-cols-3 gap-2 pt-1" data-testid="netpro-ux3-hero-stats">
+              {[
+                {label:"aziende pubblicate in Italia",value:italyPublished},
+                {label:"nei Paesi europei censiti",value:europePublished},
+                {label:"moduli da combinare",value:4},
+              ].map(stat=><div key={stat.label} className="rounded-xl border border-white/10 bg-white/[0.06] px-3 py-2.5">
+                <dd className="text-[22px] font-extrabold leading-7 tabular-nums text-[#f2b544]">{stat.value===null?"—":stat.value.toLocaleString("it-IT")}</dd>
+                <dt className="text-[10.5px] leading-[14px] text-[#cfe6db]">{stat.label}</dt>
+              </div>)}
+            </dl>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Link href="/network/pro/producers"
+                className="inline-flex min-h-10 items-center rounded-xl bg-[#f2b544] px-4 text-xs font-extrabold text-[#2a1c00] hover:bg-[#f6c460] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2b544]">
+                Esplora Intelligence Produttori →
+              </Link>
+              {hasActiveAccess?<Link href="/network"
+                className="inline-flex min-h-10 items-center rounded-xl border border-white/30 px-4 text-xs font-bold text-white hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+                Apri il Network
+              </Link>:null}
+            </div>
           </div>
-          <h1 className="max-w-[790px] text-[26px] font-extrabold leading-[1.14] tracking-[-0.035em] text-[#103f30] sm:text-[34px] xl:text-[38px]">
-            Sblocca i contatti industriali che ti servono.
-          </h1>
-          <p className="max-w-[790px] text-[13px] leading-5 text-[#516259] sm:text-sm sm:leading-6">
-            Configura il tuo accesso al Network dell&apos;acciaio: produttori, commercianti,
-            carpenterie e utilizzatori industriali, con copertura reale per Paese.
-          </p>
-          <Link href="/network/pro/producers"
-            className="inline-flex min-h-10 items-center rounded-xl border border-[#b5d4bd] bg-white px-4 text-xs font-bold text-[#175640] shadow-sm hover:bg-[#eff7f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-            Esplora Intelligence Produttori →
-          </Link>
         </header>
 
         <div className="grid grid-cols-3 gap-1.5 rounded-[18px] bg-[linear-gradient(120deg,#eef6f0,#f7faf8)] p-2.5 sm:gap-3 sm:p-3"
           aria-label="Come funziona l'abbonamento">
           {([
             {icon:"cursor" as const,title:"1. Seleziona",description:"Scegli i moduli"},
-            {icon:"card" as const,title:"2. Paga",description:"Checkout sicuro"},
+            {icon:"card" as const,title:"2. Paga",description:"Checkout in arrivo"},
             {icon:"bolt" as const,title:"3. Accedi subito",description:"Pagamento verificato"},
           ]).map(step=><div key={step.title} className="flex min-w-0 items-center gap-1.5 sm:gap-2">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#deeee2] text-[#17583e] sm:h-11 sm:w-11">
@@ -158,7 +198,14 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
             <h2 id="network-pro-modules-title" className="flex items-center gap-2 text-base font-extrabold text-[#142f23] sm:text-lg">
               <Icon name="layers" size={21}/> Seleziona i moduli di tuo interesse
             </h2>
-            <span className="text-[11px] font-semibold text-[#477460]">{selected.length} di 4 selezionati</span>
+            <span className="flex items-center gap-2 text-[11px] font-semibold text-[#477460]">
+              {selected.length} di 4 selezionati
+              <button type="button" onClick={()=>setSelected(allSelected?[]:[...orderedModules])}
+                data-testid="netpro-ux3-select-all"
+                className="min-h-8 rounded-lg border border-[#c9dbcf] bg-white px-2.5 text-[11px] font-bold text-[#175640] hover:bg-[#eef6f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                {allSelected?"Deseleziona tutti":"Tutta la filiera · 4 moduli"}
+              </button>
+            </span>
           </div>
           {selected.length===0?<p className="text-xs font-semibold text-[#775d36]" role="status">
             Seleziona almeno un modulo per configurare l&apos;abbonamento.
@@ -183,9 +230,18 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
                     <Icon name={iconName} size={24}/>
                   </span>
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-[15px] font-extrabold leading-5 text-[#142b20]">{module.title}</h3>
-                    <p className="mt-1 line-clamp-3 text-[11px] leading-[17px] text-[#4f6356] sm:text-[12px]">
+                    <h3 className="flex flex-wrap items-baseline gap-x-2 text-[15px] font-extrabold leading-5 text-[#142b20]">
+                      {module.title}
+                      <span className={"text-[11px] font-bold "+(active?"text-[#176342]":"text-[#6e4400]")} data-testid={"netpro-ux3-add-price-"+module.key}>
+                        {active?"incluso":"+ "+euro.format(addPrice(module.key))+" / mese"}
+                      </span>
+                    </h3>
+                    <p className="mt-0.5 text-[11px] font-semibold text-[#3f6b56]">{module.audience}</p>
+                    <p className="mt-1 text-[11px] leading-[17px] text-[#4f6356] sm:text-[12px]">
                       {module.description}
+                    </p>
+                    <p className="mt-2 rounded-lg bg-white/70 px-2.5 py-1.5 text-[11px] italic leading-4 text-[#365746] ring-1 ring-[#e1ebe4]">
+                      «{module.example}»
                     </p>
                   </div>
                   <span aria-hidden="true" className={"flex h-[25px] w-[25px] shrink-0 items-center justify-center rounded-md border "+
@@ -210,7 +266,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
                     {territory==="IT"?"Copertura Italia":"Copertura Europa"}
                   </span>
                 </div>
-                <span className="mt-1.5 text-[10px] font-medium text-[#526b59]" data-testid={"netpro1b-license-"+module.key}>
+                <span className="mt-1.5 text-[10px] font-bold text-[#2d6a4c]" data-testid={"netpro1b-license-"+module.key}>
                   {access?(territory==="IT"?access?.modules[module.key].italy:access?.modules[module.key].europe)
                     ?"Accesso PRO attivo":"Accesso PRO non attivo":"Stato accesso non disponibile"}
                 </span>
@@ -219,47 +275,25 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
           </div>
         </section>
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          <section className="rounded-[18px] border border-[#dfe8e1] bg-white p-4" aria-label="Cosa ottieni con Network PRO">
-            <h2 className="flex items-center gap-2 text-[14px] font-bold text-[#153a2b]">
-              <Icon name="chart" size={20}/> Cosa ottieni con Network PRO
-            </h2>
-            <ul className="mt-3 space-y-1.5 text-[11px] leading-4 text-[#405647]">
-              {["Consultazione dei profili e dei contatti disponibili",
-                "Filtri per ruolo industriale e Paese",
-                "Copertura aggiornata con i profili pubblicati",
-                "Configurazione dei moduli in autonomia"].map(value=>
-                <li key={value} className="flex items-start gap-2">
-                  <Icon name="check" size={15} className="shrink-0 text-[#16714b]"/><span>{value}</span>
-                </li>)}
-            </ul>
-          </section>
-          <section className="rounded-[18px] border border-[#d9e8de] bg-[linear-gradient(130deg,#f4f9f5,#eaf4ed)] p-4"
-            aria-label="Copertura del database">
-            <h2 className="flex items-center gap-2 text-[14px] font-bold text-[#153a2b]">
-              <Icon name="database" size={20}/> Copertura del database
-            </h2>
-            <div className="mt-3 grid grid-cols-2 divide-x divide-[#c5d9cb]">
-              <div className="pr-2">
-                <p className="text-[11px] text-[#455d4d]">🇮🇹 Italia</p>
-                <p className="mt-1 text-[17px] font-extrabold tabular-nums text-[#143a29]">
-                  {coverage?coverage.countries.find(row=>row.countryCode==="IT")?.published.toLocaleString("it-IT")??"0":"—"}
-                </p>
-                <p className="text-[10px] text-[#65796b]">profili pubblicati</p>
-              </div>
-              <div className="pl-3">
-                <p className="text-[11px] text-[#455d4d]">🇪🇺 Europa censita</p>
-                <p className="mt-1 text-[17px] font-extrabold tabular-nums text-[#143a29]">
-                  {coverage?coverage.countries.reduce((sum,row)=>sum+row.published,0).toLocaleString("it-IT"):"—"}
-                </p>
-                <p className="text-[10px] text-[#65796b]">profili per Paese</p>
-              </div>
-            </div>
-            <p className="mt-3 text-[10px] leading-4 text-[#637668]">
-              Solo dati pubblicati; nessuna stima di aziende o contatti disponibili.
-            </p>
-          </section>
-        </div>
+        <section className="rounded-[18px] border border-[#dfe8e1] bg-white p-4 sm:p-5" aria-label="Cosa ottieni con Network PRO">
+          <h2 className="flex items-center gap-2 text-[14px] font-bold text-[#153a2b]">
+            <Icon name="chart" size={20}/> Cosa ottieni con Network PRO
+          </h2>
+          <ul className="mt-3 grid gap-2.5 text-[12px] leading-5 text-[#405647] sm:grid-cols-2">
+            {[
+              {title:"Profili e contatti",text:"Consultazione dei profili e dei contatti disponibili, solo dati pubblicati."},
+              {title:"Filtri avanzati",text:"Filtri per ruolo industriale, prodotto, capability, mercato e Paese."},
+              {title:"Intelligence Produttori",text:"Cataloghi ufficiali, dati tecnici con fonte e confronto fino a 3 aziende (modulo Produttori)."},
+              {title:"Lavoro quotidiano",text:"Salva le aziende, connettiti con quelle attive e porta i fornitori nelle tue RFQ."},
+            ].map(item=><li key={item.title} className="flex items-start gap-2.5">
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#e7f3e9] text-[#16714b]"><Icon name="check" size={15}/></span>
+              <span><strong className="text-[#173f35]">{item.title}</strong> · {item.text}</span>
+            </li>)}
+          </ul>
+          <p className="mt-3 text-[10.5px] leading-4 text-[#637668]">
+            Copertura aggiornata con i profili pubblicati; nessuna stima di aziende o contatti disponibili.
+          </p>
+        </section>
       </div>
 
       <aside className="hidden min-w-0 lg:sticky lg:top-24 lg:block" aria-label="Configurazione e prezzi Network PRO">
@@ -270,6 +304,9 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
             </span>
             Il tuo abbonamento Network PRO
           </h2>
+          {hasActiveAccess?<p className="mt-3 rounded-xl bg-[#e9f6ee] px-3 py-2 text-[11.5px] font-semibold leading-5 text-[#155a3c]">
+            ✓ Accesso attivo{access?.legacyFullNetwork?" a tutto il Network":activeModules.length?": "+activeModules.map(key=>NETWORK_PRO_MODULES.find(m=>m.key===key)!.title).join(", "):""}.
+          </p>:null}
           <div className="mt-4 rounded-xl border border-[#e3eae4] px-3.5 py-1">
             <div className="flex items-center justify-between gap-2 border-b border-[#e8eee9] py-3 text-[12px]">
               <span className="flex items-center gap-2 text-[#44594b]"><Icon name="globe" size={17}/> Territorio</span>
@@ -299,6 +336,9 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
             </div>
             {billing==="annual"?<div className="flex justify-between gap-2 text-[#376a4c]">
               <span>Sconto annuo indicativo</span><strong>-{NETWORK_PRO_ANNUAL_DISCOUNT_PERCENT}%</strong>
+            </div>:null}
+            {annualSaving>0?<div className="flex justify-between gap-2 font-semibold text-[#155a3c]" data-testid="netpro-ux3-annual-saving">
+              <span>Risparmio indicativo</span><strong className="tabular-nums">{euro.format(annualSaving)} / anno</strong>
             </div>:null}
             <div className="flex justify-between gap-2 text-[#6b796f]">
               <span>Imposte</span><span>Calcolate al checkout</span>
@@ -330,7 +370,7 @@ export function NetworkProCatalog({coverage,access}:{coverage:NetworkProCoverage
             title="Checkout Stripe non ancora disponibile"
             className="mt-5 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#124f39] px-3 text-[14px] font-extrabold text-white opacity-70"
           ><Icon name="lock" size={19}/> Abbonati e sblocca <Icon name="arrow" size={19}/></button>
-          <p className="mt-2 text-center text-[10px] leading-4 text-[#745b36]">
+          <p className="mt-2 rounded-lg bg-[#fff6e3] px-3 py-2 text-center text-[10.5px] leading-4 text-[#6e4a14]">
             Checkout in preparazione. Prezzi proposti, ancora da validare.
             Nessun ordine o pagamento viene creato da questa schermata.
           </p>
