@@ -10,6 +10,14 @@ name: "NET-IT-SEED1 — Hourly site finder and first-party staging"
 # enabled the NET-IT-SEED1 policy, and enforces its own daily cap.
 
 on:
+  # A protected change to the crawler or its workflow kicks the current
+  # policy-bound queue immediately, rather than waiting for the hourly cron.
+  # Ordinary frontend commits never trigger this worker.
+  push:
+    branches: ["main"]
+    paths:
+      - "services/worker/app/net_it_seed1_pipeline.py"
+      - ".github/workflows/net-it-seed1-finder.yml"
   workflow_dispatch:
     inputs:
       mode:
@@ -68,6 +76,11 @@ jobs:
             echo "::error::Missing worker-only Supabase secrets; nothing run"
             exit 1
           fi
+          if [ "$SUPABASE_URL" != "https://ecrafjdummcdfycznitx.supabase.co" ]; then
+            echo "::error::Unexpected Supabase target; no writes performed"
+            exit 1
+          fi
+          echo "::add-mask::$SUPABASE_SERVICE_ROLE_KEY"
       - name: Pick mode and limit for this run
         id: pick
         run: |
@@ -82,10 +95,19 @@ jobs:
               esac
               echo "persist=true" >> "$GITHUB_OUTPUT"
               ;;
-            *)
+            push)
+              echo "mode=crawl" >> "$GITHUB_OUTPUT"
+              echo "limit=200" >> "$GITHUB_OUTPUT"
+              echo "persist=true" >> "$GITHUB_OUTPUT"
+              ;;
+            workflow_dispatch)
               echo "mode=${{ inputs.mode }}" >> "$GITHUB_OUTPUT"
               echo "limit=${{ inputs.limit }}" >> "$GITHUB_OUTPUT"
               echo "persist=${{ inputs.persist }}" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "::error::Unsupported workflow event"
+              exit 1
               ;;
           esac
       - name: Run the site finder
