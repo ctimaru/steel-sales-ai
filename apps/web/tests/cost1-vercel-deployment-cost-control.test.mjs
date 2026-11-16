@@ -17,3 +17,9 @@ test("COST1 deploys main and explicit preview branches only", () => {
 test("COST1 keeps ignored-build protection for non-web changes", () => {
   assert.equal(config.ignoreCommand, "git diff --quiet HEAD^ HEAD -- .");
 });
+
+test("PERF-REGION1 runs functions in Paris (cdg1), next to the Supabase database (eu-west-3)", () => {
+  // Founder decision, 16 Nov 2026: functions were in iad1 (Washington), so every
+  // database round trip crossed the Atlantic.
+  assert.deepEqual(config.regions, ["cdg1"]);
+});
