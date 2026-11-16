@@ -1,5 +1,6 @@
 import Link from "next/link";
 import styles from "./public-cinematic-hero.module.css";
+import { PublicNetworkProPill } from "./public-network-pro";
 
 /**
  * HOME-CINE1B: cinematic experience without video, JavaScript or WebGL.
@@ -80,6 +81,8 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
               ? "From dimensions and theoretical weight to RFQ bills and commercial opportunities. One connected workflow."
               : "Dalle dimensioni al peso teorico, dalla distinta alle opportunità commerciali. Tutto in un unico percorso."}
           </p>
+          {/* HOME-NETPRO-PUBLIC1: Network PRO announcement (Italian home only). */}
+          {en ? null : <PublicNetworkProPill />}
           <div className={styles.actions}>
             <Link href={links.calculator} className={styles.primary}>
               {en ? "Standards & weights" : "Norme e pesi"} <span aria-hidden="true">↗</span>

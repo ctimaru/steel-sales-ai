@@ -40,6 +40,8 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-static";
+// HOME-NETPRO-PUBLIC1: regenerate at most hourly so the Network totals stay fresh.
+export const revalidate = 3600;
 
 const publicTools = [
   {
