@@ -231,8 +231,12 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
                 "candidate_count": result.get("candidate_count", 0),
                 "published_claims": 0,
             })
+    # Per-attribute verification is independent from collection. It never
+    # publishes manufacturing capability, size/grade combinations or stock.
+    verification = db_rpc(db, "netproducers1_auto1b_verify", {"p_limit": 100})
     return {"mode": "private_candidate_intake", "processed": len(outcomes),
             "new_candidates": sum(x["candidate_count"] for x in outcomes),
+            "verification": verification,
             "published_claims": 0, "outcomes": outcomes}
 
 
