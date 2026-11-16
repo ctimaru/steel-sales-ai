@@ -1,6 +1,7 @@
 import {redirect} from "next/navigation";
 
 import {NetworkProducersExperience} from "@/components/network-producers-experience";
+import {getNetworkProducerCatalogLinks} from "@/lib/network-producer-catalogs";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 import {getNetworkProCoverage,getNetworkProScopedDirectory} from "@/lib/network-pro-coverage";
 import {getWorkspaceContext} from "@/lib/workspace-context";
@@ -37,11 +38,16 @@ export default async function NetworkProProducersPage({
   ]);
   const publishedCount=coverage?.countries.find(row=>row.countryCode==="IT")
     ?.publishedModules.producers??null;
+  const catalogs=result.status==="ready"
+    ?await getNetworkProducerCatalogLinks(context.organizationId,
+      result.data.items.map(company=>company.id))
+    :[];
 
   return <NetworkProducersExperience
     result={result}
     query={query}
     page={page}
     publishedCount={publishedCount}
+    catalogs={catalogs}
   />;
 }
