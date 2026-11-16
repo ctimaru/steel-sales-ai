@@ -78,9 +78,11 @@ BEGIN
           SELECT 1 FROM public.network_facilities f
           WHERE f.company_id=n.id AND f.archived_at IS NULL
         )
+        -- Existing geo-evidence must finish in its own review lane.
+        -- Never route around a pending, rejected or conflicted decision.
         AND NOT EXISTS (
           SELECT 1 FROM public.network_it_geo_evidence_candidates g
-          WHERE g.company_id=n.id AND g.status='conflict'
+          WHERE g.company_id=n.id
         )
         AND NOT EXISTS (
           SELECT 1 FROM private.net_it_region_geo_auto_ledger l
