@@ -254,9 +254,7 @@ export function NetworkCompactExperience({
           <strong className="tabular-nums text-[#173f35]">{directory.total.toLocaleString("it-IT")}</strong> {filterActive?"aziende trovate":"aziende nel Network"}
         </>:<span>Esplora le aziende del Network</span>}
       </p>
-      <Link href="/network/pro" className="inline-flex min-h-9 items-center justify-center rounded-xl border border-[#b2d1bb] bg-[#f0f8f2] px-3 text-xs font-bold text-[#175640] hover:bg-[#e3f1e7] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-        Network PRO · Moduli e prezzi
-      </Link>
+      {/* NET-PRO-UX2: "Moduli e prezzi" now lives in the PRO strip below, next to Intelligence Produttori. */}
     </header>
     <div className="mb-3">
       <NetworkProducersEntry />
