@@ -6,6 +6,7 @@ import {useState} from "react";
 import type {NetworkProDirectoryResult} from "@/lib/network-pro-coverage";
 import type {NetworkProducerCatalogLink} from "@/lib/network-producer-catalogs";
 import type {NetworkProducerTechnicalClaim,ProducerEvidenceKind} from "@/lib/network-producer-technical";
+import type {ProducerSourceMention} from "@/lib/network-producer-source-mentions";
 
 type Props={
   result:NetworkProDirectoryResult;
@@ -14,6 +15,7 @@ type Props={
   publishedCount:number|null;
   catalogs:NetworkProducerCatalogLink[]|null;
   technicalClaims:NetworkProducerTechnicalClaim[]|null;
+  sourceMentions:ProducerSourceMention[]|null;
 };
 
 type DirectoryItem={id:string;name:string;countryCode:string;websiteUrl:string|null};
@@ -58,7 +60,7 @@ function EvidenceValues({items,kind}:{items:NetworkProducerTechnicalClaim[]|null
   </ul>;
 }
 
-export function NetworkProducersExperience({result,query,page,publishedCount,catalogs,technicalClaims}:Props){
+export function NetworkProducersExperience({result,query,page,publishedCount,catalogs,technicalClaims,sourceMentions}:Props){
   const [selected,setSelected]=useState<string[]>([]);
   const companies=result.status==="ready"?result.data.items:[];
   const selectedCompanies=selected.flatMap(id=>{
@@ -173,6 +175,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
             const url=website(company);
             const docs=catalogs?.filter(doc=>doc.companyId===company.id)??[];
             const evidence=technicalClaims?.filter(item=>item.companyId===company.id)??[];
+            const mentions=sourceMentions?.filter(item=>item.companyId===company.id)??[];
             return <article key={company.id} className={"flex min-w-0 flex-col gap-4 rounded-[18px] border bg-white p-4 shadow-[0_6px_18px_rgba(23,68,46,0.035)] "+
               (active?"border-[#327952] ring-1 ring-[#bddbc6]":"border-[#d9e5dc]")}>
               <div className="flex items-start gap-3">
@@ -187,6 +190,24 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
                   ?"Sono presenti dati tecnici attribuiti a fonti ufficiali. Nessuna combinazione dimensione/grado è garantita."
                   :"Norme, gamma produttiva e cataloghi: in qualificazione. La scheda non implica disponibilità o produzione di una specifica misura."}
               </p>
+              {mentions.length>0?<details className="rounded-xl border border-[#dde6df] bg-[#fafcfb] p-3">
+                <summary className="cursor-pointer text-xs font-extrabold text-[#365746]">
+                  Menzioni tecniche rilevate ({mentions.length}) · da qualificare
+                </summary>
+                <p className="mt-2 text-[11px] leading-5 text-[#647768]">
+                  Parole tecniche individuate e confermate sulla pagina ufficiale.
+                  Una menzione NON dimostra che l'azienda produca una specifica combinazione
+                  di norma, materiale, dimensioni o che abbia disponibilità.
+                </p>
+                <ul className="mt-2 flex flex-wrap gap-1.5">
+                  {mentions.map(m=><li key={m.id}>
+                    <a target="_blank" rel="noopener noreferrer" href={m.sourceUrl}
+                      className="inline-flex min-h-9 items-center rounded-lg border border-[#dae5dc] bg-white px-2.5 py-1.5 text-[11px] font-semibold text-[#315b45] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                      {m.value} ↗
+                    </a>
+                  </li>)}
+                </ul>
+              </details>:null}
               {evidence.length>0?<details className="rounded-xl border border-[#cde2d3] bg-[#f8fbf9] p-3">
                 <summary className="cursor-pointer text-xs font-extrabold text-[#1c573a]">
                   Dati tecnici con fonte ({evidence.length})
