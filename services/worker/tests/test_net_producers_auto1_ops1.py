@@ -13,6 +13,11 @@ def test_sql_skips_only_previously_indexed_first_level_product_links():
     migration = (Path(__file__).resolve().parents[3] /
                  "supabase/migrations/20261116213000_net_producers_auto1_ops1_skip_existing_product_urls.sql")
     sql = migration.read_text(encoding="utf-8")
+    # Guard against SQL corruption from string interpolation that may duplicate
+    # or truncate a PL/pgSQL body containing the literal regex suffix "$'".
+    assert sql.count("$body$;") == 1
+    assert sql.count("raise exception 'Invalid, duplicate or foreign second-level URL'") == 1
+    assert "webp)$'\n  then\n   raise exception" in sql
     assert "create or replace function private.netproducers1_auto1a4_discover" in sql.lower()
     assert "v_url !~ '^https://" in sql
     assert "split_part(v_url,'/',3)<>split_part(v_parent.source_url,'/',3)" in sql
