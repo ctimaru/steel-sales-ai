@@ -153,6 +153,7 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
             label: "Network",
             icon: "network" as const,
             locked: !networkEntitled,
+            pro: true,
           },
           {
             key: "marketplace" as const,
@@ -161,6 +162,7 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
             mobileLabel: "Mercato",
             icon: "marketplace" as const,
             locked: false,
+            pro: true,
           },
         ]
       : []),
@@ -202,9 +204,10 @@ export function WorkspaceDesktopPrimaryNavigation({
           >
             <NavIcon name={item.icon} className="h-[21px] w-[21px]" />
             <span>{item.label}</span>
-            {item.locked ? (
-              <span className="absolute right-1 top-1 rounded-full bg-[#edf5f2] px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em] text-[#173f35]">
-                Premium
+            {/* HOME-NETPRO2 (founder request): yellow PRO badge on Network and Marketplace. */}
+            {"pro" in item && item.pro ? (
+              <span data-testid={"nav-pro-" + item.key} className="absolute right-1 top-1 rounded-[5px] bg-[#f2b544] px-1.5 py-[1px] text-[9px] font-extrabold tracking-[0.06em] text-[#3a2600]">
+                PRO<span className="sr-only">{item.locked ? " · Premium, non attivo" : " · Premium"}</span>
               </span>
             ) : null}
             {selected ? (
@@ -254,6 +257,11 @@ export function WorkspaceMobileBottomNavigation({
               {"mobileLabel" in item ? item.mobileLabel : item.label}
               {item.locked ? " · 🔒" : ""}
             </span>
+            {"pro" in item && item.pro ? (
+              <span className="absolute right-[18%] top-1 rounded-[4px] bg-[#f2b544] px-1 text-[8px] font-extrabold leading-[13px] text-[#3a2600]">
+                PRO<span className="sr-only">{item.locked ? " · Premium, non attivo" : " · Premium"}</span>
+              </span>
+            ) : null}
           </Link>
         );
       })}
