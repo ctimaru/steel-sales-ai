@@ -1,0 +1,9 @@
+# Railway isolated cron service with rootDirectory=services/worker.
+# The existing monorepo Dockerfile stays unchanged for the FastAPI service.
+FROM python:3.12-slim
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+COPY pyproject.toml /app/pyproject.toml
+COPY app /app/app
+RUN pip install --no-cache-dir .
+CMD ["python","-m","app.net_pro_producers_auto1","--persist","--limit","10"]
