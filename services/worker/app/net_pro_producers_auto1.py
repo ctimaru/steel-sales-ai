@@ -424,18 +424,40 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
             })
             if result.get("contract") != "netproducers-auto1a3-complete-v1":
                 raise ValueError("Invalid product page completion")
+            discovery_rejected = False
             if a4_enabled and outcome["status"] == "processed" and "detail_links" in outcome:
-                discovery = db_rpc(db, "netproducers1_auto1a4_discover", {
-                    "p_parent_page_id": page["page_id"],
-                    "p_parent_sha256": outcome["sha256"],
-                    "p_links": outcome["detail_links"],
-                })
-                if discovery.get("contract") != "netproducers-auto1a4-discover-v1":
-                    raise ValueError("Invalid depth-two discovery response")
+                try:
+                    discovery = db_rpc(db, "netproducers1_auto1a4_discover", {
+                        "p_parent_page_id": page["page_id"],
+                        "p_parent_sha256": outcome["sha256"],
+                        "p_links": outcome["detail_links"],
+                    })
+                except Exception as exc:
+                    # Source navigation can include an already indexed product
+                    # link. Reject that parent's A4 batch without killing the
+                    # remaining companies; DO NOT swallow permission, DB or
+                    # other URL errors. A failed parent remains unscanned and
+                    # eligible for a bounded future retry.
+                    if (str(getattr(exc, "code", "")) != "22023"
+                            or str(getattr(exc, "message", "")) !=
+                                "Invalid, duplicate or foreign second-level URL"):
+                        raise
+                    discovery_rejected = True
+                    print(json.dumps({
+                        "event": "netproducers_auto1a4_discovery_rejected",
+                        "page_id": page["page_id"],
+                        "links_considered": len(outcome["detail_links"]),
+                        "reason": "invalid_or_duplicate_link",
+                        "published_claims": 0,
+                    }))
+                else:
+                    if discovery.get("contract") != "netproducers-auto1a4-discover-v1":
+                        raise ValueError("Invalid depth-two discovery response")
             page_outcomes.append({
                 "page_id": page["page_id"],
                 "status": outcome["status"],
                 "candidate_count": result.get("candidate_count", 0),
+                "discovery_rejected": discovery_rejected,
             })
     detail_outcomes = []
     if a4_enabled:
@@ -474,6 +496,7 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
             "new_candidates": sum(x["candidate_count"] for x in outcomes),
             "product_pages_processed": len(page_outcomes),
             "page_candidate_mentions": sum(x["candidate_count"] for x in page_outcomes),
+            "depth_two_discovery_rejections": sum(x["discovery_rejected"] for x in page_outcomes),
             "verification": verification,
             "page_verification": page_verification,
             "detail_pages_processed": len(detail_outcomes),
