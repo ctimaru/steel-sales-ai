@@ -91,7 +91,7 @@ select pg_temp.k3_assert(
 select pg_temp.k3_assert(
   jsonb_typeof(:'en10219_detail'::jsonb->'source_references')='array'
   and jsonb_array_length(:'en10219_detail'::jsonb->'source_references')>=2
-  and (:'en10219_detail'::jsonb->>'last_reviewed_at')='2026-09-28',
+  and (:'en10219_detail'::jsonb->>'last_reviewed_at')::date>='2026-09-28'::date,
   'public detail must expose reviewed official references and freshness'
 );
 

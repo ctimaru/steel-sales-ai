@@ -1,8 +1,17 @@
 import { createPublicSupabaseClient } from "@/lib/supabase/public";
 
+/** SEO-GRADE1: optional sourced data table attached to an editorial section. */
+export type KnowledgeEditorialTable = {
+  caption?: string;
+  columns: string[];
+  rows: string[][];
+  note?: string;
+};
+
 export type KnowledgeEditorialSection = {
   heading: string;
   body: string;
+  table?: KnowledgeEditorialTable;
 };
 
 export type KnowledgeFaqItem = {

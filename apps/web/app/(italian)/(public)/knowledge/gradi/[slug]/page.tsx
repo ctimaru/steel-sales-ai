@@ -5,6 +5,7 @@ import { cache } from "react";
 
 import { SchoolHero } from "@/components/school-ui";
 import { SchoolReadingIndex } from "@/components/school-reading-index";
+import { KnowledgeSectionTable } from "@/components/knowledge-section-table";
 
 import {
   applicabilityLabel,
@@ -220,6 +221,7 @@ export default async function GradeDetailPage({
           <section id={`grade-reading-section-${index + 1}`} key={section.heading + index} className="scroll-mt-24 rounded-[20px] border border-[#dce6df] bg-white p-5 sm:p-7">
             <h2 className="text-2xl font-semibold text-[#1d2824]">{section.heading}</h2>
             <p className="mt-3 max-w-[74ch] whitespace-pre-line text-[15px] leading-8 text-[#465c4f]">{section.body}</p>
+            <KnowledgeSectionTable table={section.table} />
           </section>
         ))}
 
