@@ -2,7 +2,8 @@ import Link from "next/link";
 
 import { PilotEvent } from "@/components/pilot-event";
 import { FocusPage } from "@/components/focus-ui";
-import { HomeFeed, HomeSuggestedCompanies } from "@/components/home-feed";
+import { HomeFeed } from "@/components/home-feed";
+import { HomeNetworkProCard } from "@/components/home-network-pro-card";
 import { WorkspaceFirstRunChecklist } from "@/components/workspace-first-run-checklist";
 import { CompanyVerificationCard } from "@/components/company-verification-card";
 import { loadCompanyVerification } from "@/lib/company-verification";
@@ -12,10 +13,11 @@ import { canWriteWorkspace } from "@/lib/access-policy";
 import { getDashboardData } from "@/lib/commercial-data";
 import { getCompanySetupState } from "@/lib/company-setup";
 import { loadDashboardPulse } from "@/lib/dashboard-pulse";
-import { loadHomeFeedPage, loadHomeSuggestedCompanies } from "@/lib/home-feed";
+import { loadHomeFeedPage } from "@/lib/home-feed";
 import { initialHomeFeedCursor, pulseNewsItems, withPulseNews } from "@/lib/home-feed-model";
 import { buildHomeFeedViewer } from "@/lib/home-feed-viewer";
 import { getNetworkAccessState } from "@/lib/network-access";
+import { getNetworkProCoverage } from "@/lib/network-pro-coverage";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
@@ -81,7 +83,7 @@ function workspaceRoleLabel(role: string) {
 /**
  * HOME-FEED1 (founder decision, 4 Nov 2026): the Home is a LinkedIn-style
  * workspace, not a page of links. Left: the company and what to do next.
- * Centre: company posts and the infinite feed. Right: companies to meet.
+ * Centre: company posts and the infinite feed. Right: Network PRO (HOME-NETPRO1).
  * Every read keeps its own server-side permission check; nothing here grants access.
  */
 export default async function DashboardPage({
@@ -110,7 +112,7 @@ export default async function DashboardPage({
   // CPOST1: may this user publish for the session organization? null hides the composer.
   const postPublishPromise = loadCompanyPostPublishState(context.organizationId);
 
-  const [setup, commercial, procurement, pulse, feedPage, suggestions] = await Promise.all([
+  const [setup, commercial, procurement, pulse, feedPage, coverage] = await Promise.all([
     isAdmin
       ? getCompanySetupState(context.organizationId).catch(() => null)
       : Promise.resolve(null),
@@ -118,7 +120,8 @@ export default async function DashboardPage({
     canWrite ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 5 })).catch(() => ({ data: null, error: true })) : Promise.resolve({ data: null, error: null }),
     loadDashboardPulse(),
     loadHomeFeedPage(feedViewer, initialHomeFeedCursor).catch(() => ({ items: [], nextCursor: null, unavailable: [] })),
-    loadHomeSuggestedCompanies(feedViewer).catch(() => []),
+    // HOME-NETPRO1: real published count for the upsell; null simply hides the number.
+    networkEnabled && !networkEntitled ? getNetworkProCoverage(context.organizationId) : Promise.resolve(null),
   ]);
 
   const { recent, mode, operational } = commercial;
@@ -174,6 +177,7 @@ export default async function DashboardPage({
     { label: "Offerte", value: operational.offers },
     { label: "Ordini", value: operational.orders },
   ] : [];
+  const italyPublished = coverage?.countries.find((country) => country.countryCode === "IT")?.published ?? null;
   const feedItems = withPulseNews(feedPage.items, pulse.available ? pulseNewsItems(pulse.feed?.items ?? []) : []);
 
   return (
@@ -304,13 +308,14 @@ export default async function DashboardPage({
           />
         </section>
 
-        {/* Right rail: companies to meet (desktop only, like LinkedIn). */}
-        <aside aria-label="Suggerimenti" data-testid="home-right-rail" className="hidden min-w-0 space-y-3 xl:sticky xl:top-20 xl:block">
-          <HomeSuggestedCompanies companies={suggestions} canInteract={feedViewer.canInteract} />
-          <p className="px-1 text-[11px] leading-4 text-[#65746c]">
-            Il feed mostra post delle aziende verificate, aziende del Network, guide della Scuola, opportunità del Marketplace e notizie Steel Pulse verificate.{" "}
-            <Link href={appRoutes.steelPulse} className="font-semibold text-[#175640] underline underline-offset-4">Personalizza</Link>
-          </p>
+        {/* Right rail (desktop only, like LinkedIn). HOME-NETPRO1 (founder request, 16 Nov 2026):
+            "Aziende da conoscere" is replaced by the Network PRO card; the same companies
+            already appear in the feed. Locked organizations see the offer, entitled ones a shortcut. */}
+        <aside aria-label="Network PRO" data-testid="home-right-rail" className="hidden min-w-0 space-y-3 xl:sticky xl:top-20 xl:block">
+          {networkEnabled ? <HomeNetworkProCard entitled={networkEntitled} italyPublished={italyPublished} /> : null}
+          <Link href={appRoutes.steelPulse} className="inline-flex min-h-9 items-center px-1 text-[11px] font-semibold text-[#175640] underline underline-offset-4">
+            Personalizza il feed
+          </Link>
         </aside>
       </div>
     </FocusPage>
