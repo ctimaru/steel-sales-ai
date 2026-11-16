@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/app-shell";
+import { NetworkPerfGate } from "@/components/network-perf-gate";
 import { getNetworkAccessState } from "@/lib/network-access";
 import { isNetworkFreeReadEnabled, isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { countNetworkSavedCompanies } from "@/lib/network-saved-count";
@@ -28,6 +29,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
   let notificationVerifiedAt: string | null = null;
   let organizationId: string | null = null;
   let platformConsoleAccess = false;
+  let platformSuperadmin = false;
   let guidedSetupComplete = true;
   const networkEnabled = isNetworkFrontendEnabled();
   let networkEntitled = !configured;
@@ -44,6 +46,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
     organizationRole = context.role;
     businessRole = context.businessRole;
     platformConsoleAccess = context.platformConsoleAccess;
+    platformSuperadmin = context.platformSuperadmin;
     guidedSetupComplete = context.guidedSetupComplete;
 
     if (networkEnabled) {
@@ -87,6 +90,7 @@ export default async function WorkspaceLayout({ children }: { children: ReactNod
       networkSavedCount={networkSavedCount}
     >
       {children}
+      {platformSuperadmin ? <NetworkPerfGate /> : null}
     </AppShell>
   );
 }

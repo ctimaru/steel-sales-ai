@@ -1,0 +1,139 @@
+name: NET-PERF1.A Authenticated Chrome Lab Baseline
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/components/network-perf-*.tsx"
+      - "apps/web/tests/net-perf1a-*.mjs"
+      - "apps/web/app/(italian)/(workspace)/layout.tsx"
+      - "supabase/tests/netperf1a_local_browser_fixture.sql"
+      - ".github/workflows/net-perf1a-chrome-baseline.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  numeric-chrome-baseline:
+    name: Chrome prod-build / synthetic GoTrue / 1440 390 320
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    env:
+      CI: "true"
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3010
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NETPERF_WEB_URL: http://127.0.0.1:3010
+      NETPERF_LAB_DIAGNOSTICS: "true"
+      COMPANY_DISCOVERY_ENABLED: "false"
+      SEMANTIC_INDEX_ENABLED: "false"
+      CRAWL_IT3_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.122.1
+      - name: Install audited web dependencies and Chrome
+        working-directory: apps/web
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Start disposable local Supabase with repository migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+          supabase start > "$RUNNER_TEMP/netperf1a-supabase-start.log" 2>&1
+          supabase db reset --local > "$RUNNER_TEMP/netperf1a-supabase-reset.log" 2>&1
+      - name: Mask local keys and create synthetic users
+        shell: bash
+        working-directory: apps/web
+        run: |
+          set -euo pipefail
+          umask 077
+          supabase status -o env > "$RUNNER_TEMP/netperf1a-local.env"
+          source "$RUNNER_TEMP/netperf1a-local.env"
+          test -n "$ANON_KEY"
+          test -n "$SERVICE_ROLE_KEY"
+          echo "::add-mask::$ANON_KEY"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+          SUPABASE_URL=http://127.0.0.1:54321 \
+            DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            node tests/perf1-chrome-seed-auth.mjs
+      - name: Seed synthetic platform owner workspace and 36 fictional companies
+        shell: bash
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/perf1-psql-vars.sql" \
+            -f supabase/tests/perf1_chrome_seed.sql \
+            -f supabase/tests/netperf1a_local_browser_fixture.sql
+      - name: Verify real local GoTrue and PostgREST browse contract before the slow Chrome build
+        working-directory: apps/web
+        timeout-minutes: 2
+        run: node tests/net-perf1a-local-rpc-preflight.mjs
+      - name: Build production-mode Next.js (localhost only)
+        working-directory: apps/web
+        timeout-minutes: 12
+        run: npm run build
+      - name: Start production-mode local Next.js 3010
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          nohup npm run start -- --hostname 127.0.0.1 --port 3010 \
+            > "$RUNNER_TEMP/netperf1a-next.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/netperf1a-next.pid"
+          for attempt in $(seq 1 75); do
+            if curl --fail --silent --max-time 10 http://127.0.0.1:3010/login > /dev/null; then
+              echo "NET-PERF1.A Next production-mode localhost READY"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "NET-PERF1.A local startup failed"
+          grep -E 'Error|error|Failed|failed|Exception' "$RUNNER_TEMP/netperf1a-next.log" | tail -n 20 || true
+          exit 1
+      - name: Benchmark 3 viewports in authenticated real Chrome (synthetic tenant)
+        working-directory: apps/web
+        timeout-minutes: 14
+        run: node tests/net-perf1a-chrome-lab.mjs
+      - name: Report sanitized fallback category if synthetic benchmark failed
+        if: failure()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/netperf1a-next.log" ]; then
+            grep -F "NET-PERF1.A LOCAL_COMPACT_QUERY_FAILURE" "$RUNNER_TEMP/netperf1a-next.log" | tail -n 5 || true
+          fi
+      - name: Retain numeric-only synthetic baseline JSON (including diagnostics)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-perf1a-synthetic-chrome-numeric
+          path: ${{ runner.temp }}/netperf1a-synthetic-numeric/numeric-summary.json
+          retention-days: 7
+          if-no-files-found: warn
+      - name: Destroy temporary services and synthetic credentials
+        if: always()
+        shell: bash
+        run: |
+          if [ -f "$RUNNER_TEMP/netperf1a-next.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/netperf1a-next.pid")" || true
+          fi
+          supabase stop --no-backup > /dev/null 2>&1 || true
+          rm -f "$RUNNER_TEMP/perf1-personas.json" "$RUNNER_TEMP/perf1-psql-vars.sql" \
+            "$RUNNER_TEMP/netperf1a-local.env" \
+            "$RUNNER_TEMP/netperf1a-supabase-start.log" \
+            "$RUNNER_TEMP/netperf1a-supabase-reset.log" \
+            "$RUNNER_TEMP/netperf1a-next.log"
