@@ -72,7 +72,10 @@ begin
     where c.country_code='IT'
       and c.publication_status='published' and c.archived_at is null
       and c.website_url ~ '^https://[^[:space:]<>]+$'
-      and c.website_domain ~ '^[a-z0-9][a-z0-9.-]{2,250}
+      and c.website_domain ~ '^[a-z0-9][a-z0-9.-]{2,250}$'
+      and lower(regexp_replace(split_part(split_part(c.website_url,'/',3),':',1),'^www\\.',''))=c.website_domain
+      and not exists (select 1 from private.network_producer_auto1_sources q where q.company_id=c.id)
+      and exists (
         select 1 from public.network_company_role_assignments a
         join public.network_company_roles r on r.id=a.role_id
         where a.company_id=c.id and r.canonical_key='producer' and r.status='active'
