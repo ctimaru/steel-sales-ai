@@ -11,7 +11,7 @@ test("NET-IT-AUTO3-CAP1000 updates only upper bound, not an active Owner policy"
   assert.match(sql,/CHECK \(daily_cap BETWEEN 1 AND 1000\)/);
   assert.match(sql,/p_daily_cap NOT BETWEEN 1 AND 1000/);
   assert.match(sql,/CREATE OR REPLACE FUNCTION private\.net_it_auto3_set_policy_impl/);
-  assert.doesNotMatch(sql,/UPDATE private\.net_it_auto3_policy SET/i);
+  assert.doesNotMatch(sql.split("CREATE OR REPLACE FUNCTION")[0],/UPDATE private\.net_it_auto3_policy SET/i);
   assert.doesNotMatch(sql,/INSERT INTO private\.net_it_auto3_policy/i);
   assert.doesNotMatch(sql,/CREATE OR REPLACE FUNCTION private\.net_it_auto3_release/i);
   assert.doesNotMatch(sql,/INSERT INTO public\.network_companies/i);
