@@ -376,18 +376,46 @@ export default async function NetItScale15KPage({
         </p>
         {canDelegate && factPolicy ? (
           factPolicy.active ? (
-            <form action={setScale15KFactPolicy} className="mt-3">
-              <input type="hidden" name="enabled" value="false" />
-              <button className="min-h-11 rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-bold text-rose-800" type="submit">
-                Revoca subito l'autonomia AI
-              </button>
-            </form>
+            <div className="mt-3 grid gap-3">
+              {factPolicy.daily_cap < 1000 ? (
+                <form action={setScale15KFactPolicy} className="grid gap-3 rounded-xl border border-[#cfe5d6] bg-[#f7fbf8] p-3">
+                  <input type="hidden" name="enabled" value="true" />
+                  <input type="hidden" name="daily_cap" value="1000" />
+                  <input type="hidden" name="policy_note"
+                    value="Come Platform Owner autorizzo per 30 giorni fino a 1.000 pubblicazioni di soli profili societari italiani minimi, subordinandole a verifica first-party AUTO2 recente, identità e dominio coerenti, deduplica, esclusione dati personali, registro macchina, controlli sulle fonti e possibilità di revoca immediata." />
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-xs font-bold text-[#184d35]">Aumenta AUTO3 a 1.000 aziende al giorno</p>
+                      <p className="mt-1 text-[11px] text-[#576e5e]">Attuale: {factPolicy.daily_cap.toLocaleString("it-IT")}/giorno. Rimangono invariati i controlli su identità, fonte, duplicati e il massimo di 100 per lotto.</p>
+                    </div>
+                    <span className="rounded-full border border-[#d1e7d7] bg-white px-2.5 py-1 text-xs font-bold tabular-nums text-[#176447]">1.000/giorno</span>
+                  </div>
+                  <label className="flex items-start gap-2 text-xs leading-5 text-[#355a44]">
+                    <input type="checkbox" name="attested" required className="mt-0.5 h-4 w-4 accent-[#176447]" />
+                    Come proprietario Platform confermo il nuovo limite, la delega rinnovata per 30 giorni e gli stessi requisiti di verifica e revoca.
+                  </label>
+                  <div>
+                    <button type="submit" className="min-h-11 rounded-lg bg-[#176447] px-4 py-2 text-xs font-bold text-white">
+                      Autorizza 1.000 pubblicazioni al giorno
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <p className="text-xs font-bold text-[#176447]">Limite AUTO3 di 1.000 aziende al giorno già autorizzato.</p>
+              )}
+              <form action={setScale15KFactPolicy}>
+                <input type="hidden" name="enabled" value="false" />
+                <button className="min-h-11 rounded-lg border border-rose-200 bg-white px-4 py-2 text-xs font-bold text-rose-800" type="submit">
+                  Revoca subito l'autonomia AI
+                </button>
+              </form>
+            </div>
           ) : (
             <form action={setScale15KFactPolicy} className="mt-3 grid gap-3 rounded-xl border border-[#d9e9dd] bg-[#fafdfa] p-3">
               <input type="hidden" name="enabled" value="true" />
               <label className="text-xs font-semibold text-[#355a44]">
                 Limite di pubblicazioni automatiche al giorno
-                <input type="number" name="daily_cap" min={1} max={300} defaultValue={100} required
+                <input type="number" name="daily_cap" min={1} max={1000} defaultValue={1000} required
                   className="mt-1 block w-28 rounded-lg border border-[#c1d9c6] bg-white p-2.5" />
               </label>
               <label className="text-xs font-semibold text-[#355a44]">
@@ -417,7 +445,7 @@ export default async function NetItScale15KPage({
           </p>
         )}
         <p className="mt-2 text-[11px] text-[#677c6d]">
-          Il verificatore gira ogni sei ore solo dopo l'attivazione del servizio Railway.
+          Il verificatore Railway AUTO2 è programmato ogni 10 minuti.
           Le aziende che non superano i controlli restano private e non incrementano il contatore.
         </p>
       </section>
