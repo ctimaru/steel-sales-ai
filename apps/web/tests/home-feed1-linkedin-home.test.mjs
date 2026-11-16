@@ -95,10 +95,10 @@ test("HOME-FEED1 sources are the existing permission-checked reads, failing inde
 });
 
 test("HOME-FEED1 Salva writes the same table as the Network action, scoped to the session", () => {
-  assert.match(actions, /if \(!viewer\.canInteract\) return \{ ok: false, saved: !save \}/);
-  assert.match(actions, /\.from\("network_saved_companies"\)\.upsert\(\s*\{ organization_id: viewer\.organizationId, user_id: userId, network_company_id: companyId \}/);
-  assert.match(actions, /\.eq\("organization_id", viewer\.organizationId\)\s*\.eq\("user_id", userId\)/);
-  assert.match(actions, /UUID\.test\(companyId\)/);
+  // NET-SAVE-INLINE1: the Home delegates to the one Network writer (same checks, analytics, revalidation).
+  assert.match(actions, /return \{ ok: result\.ok, saved: result\.saved \}/);
+  assert.match(actions, /toggleNetworkSavedCompany\(companyId, save, "home_feed"\)/);
+  assert.match(feed, /<NetworkSaveToggle companyId=\{item\.id\} name=\{item\.name\} saved=\{item\.saved\} surface="home_feed" appearance="ghost" \/>/);
 });
 
 test("HOME-FEED1 infinite scroll loads on approach, never polls, and stays accessible", () => {

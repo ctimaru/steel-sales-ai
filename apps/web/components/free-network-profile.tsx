@@ -43,7 +43,7 @@ export async function FreeNetworkProfileView({
   // Saved companies are private and already supported by the existing
   // Network server action; never expose the control on provisional entries.
   const canSave=!provisional && canWriteWorkspace(workspace.role);
-  const savedIds=canSave ? await getSavedNetworkCompanyIds(organizationId,[companyId]) : [];
+  const savedIds=canSave && accessMode==="pro" ? await getSavedNetworkCompanyIds(organizationId,[companyId]) : [];
   const isSaved=savedIds.includes(companyId);
   const inventory = provisional ? [] : await getPublishedNetworkInventory(organizationId, companyId);
   const companyName=profile.company.trading_name || profile.company.legal_name;
@@ -94,8 +94,13 @@ export async function FreeNetworkProfileView({
               <Link className="inline-flex min-h-11 items-center text-sm font-semibold text-[#176647] underline"
                 href="/network/connections?box=connected">Connessione attiva · Apri connessioni</Link>
             ) : null}
-            {canSave ? <NetworkSaveToggle companyId={companyId} name={companyName}
-              saved={isSaved} returnTo={"/network/"+companyId} /> : null}
+            {/* NET-SAVE-INLINE1: saving needs Network PRO (PA1.3 RLS); free viewers get the offer, not a dead end. */}
+            {canSave && accessMode==="pro" ? <NetworkSaveToggle companyId={companyId} name={companyName}
+              saved={isSaved} surface="network_company_profile" /> : canSave ? <Link href="/network/pro" data-testid="network-save-upsell"
+              className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-[#e9c46a] bg-[#fffaf0] px-4 text-xs font-bold text-[#6e4400] hover:bg-[#fff4d6]">
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" /></svg>
+              Salva · incluso in Network PRO
+            </Link> : null}
           </>}
         />
       </div>
