@@ -24,9 +24,10 @@ test("NET-SAVE-INLINE1 one server writer: no redirect, same checks, idempotent, 
   assert.match(action,/if \(!access\?\.can_access_network\) return \{ ok: false, saved: !save, reason: "locked" \}/);
   assert.match(action,/onConflict: "organization_id,user_id,network_company_id", ignoreDuplicates: true/);
   assert.match(action,/\.eq\("organization_id", context\.organizationId\)\s*\.eq\("user_id", userId\)\s*\.eq\("network_company_id", companyId\)/);
-  assert.match(action,/save \? "network_saved_created" : "network_saved_removed"/);
-  assert.match(action,/revalidatePath\("\/network\/saved"\)/);
-  assert.doesNotMatch(action,/revalidatePath\("\/network"\)/,"the directory keeps its client state");
+  assert.match(action,/after\(\(\) => recordPilotUsageEvent\(\{\s*eventName: save \? "network_saved_created" : "network_saved_removed"/);
+  // NET-SAVE-INLINE1B: any revalidation re-renders the whole current route in the action response (~3 s).
+  assert.doesNotMatch(action,/revalidatePath|revalidateTag|auth\.getUser/);
+  assert.match(action,/const userId = context\.userId;/);
   assert.match(count,/^import "server-only";/);
 });
 
