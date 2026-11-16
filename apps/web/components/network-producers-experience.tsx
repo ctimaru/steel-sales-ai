@@ -4,7 +4,6 @@ import Link from "next/link";
 import {useState} from "react";
 
 import type {NetworkProDirectoryResult} from "@/lib/network-pro-coverage";
-import {safeNetworkWebsiteUrl} from "@/lib/network-free";
 
 type Props={
   result:NetworkProDirectoryResult;
@@ -16,7 +15,12 @@ type Props={
 type DirectoryItem={id:string;name:string;countryCode:string;websiteUrl:string|null};
 
 function website(company:DirectoryItem){
-  return safeNetworkWebsiteUrl(company.websiteUrl);
+  if(!company.websiteUrl)return null;
+  try {
+    const target=new URL(company.websiteUrl);
+    return target.protocol==="https:" && !target.username && !target.password
+      ?target.toString():null;
+  }catch{return null;}
 }
 
 function PageLink({label,query,page}:{label:string;query:string;page:number}){
