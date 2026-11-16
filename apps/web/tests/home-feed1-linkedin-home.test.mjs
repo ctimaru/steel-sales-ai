@@ -114,12 +114,14 @@ test("HOME-FEED1 infinite scroll loads on approach, never polls, and stays acces
   assert.doesNotMatch(feed, /dangerouslySetInnerHTML|createClient|fetch\(/);
 });
 
-test("HOME-FEED1 Home is three columns: company, composer + feed, companies to meet", () => {
+test("HOME-FEED1 Home is three columns: company, composer + feed, Network PRO (HOME-NETPRO1)", () => {
   assert.match(home, /data-testid="home-left-rail"/);
   assert.match(home, /data-testid="home-center"/);
   assert.match(home, /data-testid="home-right-rail" className="hidden min-w-0 space-y-3 xl:sticky xl:top-20 xl:block"/);
   assert.match(home, /<HomeFeed\s+initialItems=\{feedItems\}\s+initialCursor=\{feedPage\.nextCursor\}\s+canInteract=\{feedViewer\.canInteract\}/);
-  assert.match(home, /<HomeSuggestedCompanies companies=\{suggestions\} canInteract=\{feedViewer\.canInteract\} \/>/);
+  // HOME-NETPRO1 (founder request, 16 Nov 2026): "Aziende da conoscere" replaced by the Network PRO card.
+  assert.match(home, /<HomeNetworkProCard entitled=\{networkEntitled\} italyPublished=\{italyPublished\} \/>/);
+  assert.doesNotMatch(home, /<HomeSuggestedCompanies/);
   assert.doesNotMatch(home, /<WorkspaceHomePanels|<DashboardPulsePreview|<DashboardDiscoveryFeed|orderedQuickActions/);
   assert.match(home, /mode === "live" && recent\.length > 0|recent\.length === 0/);
 });
