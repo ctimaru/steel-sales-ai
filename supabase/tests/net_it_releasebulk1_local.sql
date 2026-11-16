@@ -1,0 +1,559 @@
+-- NET-IT-RELEASEBULK1 CI-ONLY integration acceptance. NEVER use on production.
+-- This file is run solely against disposable local Supabase in GitHub Actions.
+-- Fake names, invalid domains and fake rights pages are synthetic test fixtures.
+\set ON_ERROR_STOP on
+\ir ../../services/worker/sql/net_it_facts1_policy_proposed.sql
+\ir ../../services/worker/sql/net_it_releasebulk1_proposed.sql
+
+BEGIN;
+
+-- Verify RLS/grants after installing the candidate schema on isolated Postgres.
+DO $acl$
+BEGIN
+ IF has_function_privilege('anon','public.netit_releasebulk1(text,text,jsonb,text,boolean,boolean)','EXECUTE') THEN
+   RAISE EXCEPTION 'anon must not be able to invoke publish RPC';
+ END IF;
+ IF has_table_privilege('authenticated','private.netit_releasebulk1_runtime','SELECT') OR has_table_privilege('anon','private.netit_releasebulk1_runtime','UPDATE') THEN
+   RAISE EXCEPTION 'Publisher runtime switch must not be client accessible';
+ END IF;
+ IF (SELECT count(*) FROM private.netit_releasebulk1_runtime WHERE singleton=true AND enabled=false)<>1 THEN
+   RAISE EXCEPTION 'Publisher must be OFF immediately after migration';
+ END IF;
+ IF to_regprocedure('public.net_it_pub1_review_queue()') IS NULL THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 first-five review queue migration missing';
+ END IF;
+ IF has_function_privilege('anon','public.net_it_pub1_review_queue()','EXECUTE') THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 review queue must be inaccessible to anon';
+ END IF;
+ IF NOT has_function_privilege('authenticated','public.net_it_pub1_review_queue()','EXECUTE') THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 review queue must be callable by authenticated Platform reviewer only';
+ END IF;
+ IF EXISTS (
+   SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+   WHERE n.nspname='public' AND p.proname='net_it_pub1_review_queue' AND p.prosecdef
+ ) THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 facade must be SECURITY INVOKER';
+ END IF;
+ IF NOT EXISTS (
+   SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+   WHERE n.nspname='private' AND p.proname='net_it_pub1_review_queue_impl' AND p.prosecdef
+ ) THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 implementation must protect private data with SECURITY DEFINER';
+ END IF;
+ IF has_function_privilege('anon','private.net_it_pub1_review_queue_impl()','EXECUTE') THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 private implementation must deny anonymous users';
+ END IF;
+ IF has_function_privilege('anon','public.netit_facts1_signoff(boolean,text,text)','EXECUTE') THEN
+   RAISE EXCEPTION 'anon must not be able to sign off FACTS1';
+ END IF;
+ IF has_table_privilege('authenticated','private.netit_facts1_policy','SELECT')
+    OR has_table_privilege('authenticated','private.netit_facts1_policy','UPDATE')
+    OR has_table_privilege('anon','private.netit_facts1_signoff_ledger','SELECT') THEN
+   RAISE EXCEPTION 'FACTS1 policy and ledger must not be direct client tables';
+ END IF;
+ IF NOT has_function_privilege('authenticated','public.netit_releasebulk1(text,text,jsonb,text,boolean,boolean)','EXECUTE') THEN
+   RAISE EXCEPTION 'authenticated facade should be callable with Platform permission gate';
+ END IF;
+ IF has_table_privilege('authenticated','private.netit_releasebulk1_links','SELECT')
+    OR has_table_privilege('anon','private.netit_releasebulk1_links','SELECT')
+    OR has_table_privilege('authenticated','private.netit_releasebulk1_links','INSERT') THEN
+   RAISE EXCEPTION 'publication ledger must remain isolated from API clients';
+ END IF;
+ IF EXISTS (
+   SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+   WHERE n.nspname='public' AND p.proname='netit_releasebulk1' AND p.prosecdef
+ ) THEN
+   RAISE EXCEPTION 'public wrapper must stay security invoker';
+ END IF;
+END $acl$;
+
+-- Synthetic local user; never send email, never use real credentials.
+INSERT INTO auth.users (
+ id,instance_id,aud,role,email,encrypted_password,email_confirmed_at,created_at,updated_at
+) VALUES (
+ '5e5dfabe-f01d-4bca-89dc-61d031f80a01',
+ '00000000-0000-0000-0000-000000000000',
+ 'authenticated','authenticated','netit-releasebulk1-ci@example.invalid',
+ 'not-a-real-credential',now(),now(),now()
+);
+INSERT INTO public.platform_user_roles(user_id,role,status,reason)
+VALUES ('5e5dfabe-f01d-4bca-89dc-61d031f80a01','platform_superadmin','active','Synthetic local SQL acceptance only');
+
+INSERT INTO private.network_web_research_seeds (
+ id,country_code,canonical_domain,display_name,proposed_role,source_url,
+ source_summary,source_kind,review_lane,claim_status,verification_status,
+ publication_status,research_id,batch_key
+) VALUES (
+ '5e5dfabe-f01d-4bca-89dc-61d031f80b01',
+ 'IT','netit-ci-synthetic.invalid','NETIT CI SYNTHETIC INDUSTRIAL COMPANY','end_user',
+ 'https://netit-ci-synthetic.invalid/company',
+ 'Synthetic local-only source description for testing an industrial steel tube user; no actual company or rights exist.',
+ 'first_party_web','web_profile_review_pending','unclaimed','web_sourced_unverified',
+ 'not_published','NETIT-CI-0001','NET-IT-CI-BATCH01'
+);
+
+-- FACTS1 synthetic legal-person seed is used only by CI and is always rolled back.
+INSERT INTO private.network_web_research_seeds (
+ id,country_code,canonical_domain,display_name,proposed_role,source_url,
+ source_summary,source_kind,review_lane,claim_status,verification_status,
+ publication_status,research_id,batch_key
+) VALUES (
+ '5e5dfabe-f01d-4bca-89dc-61d031f80b02',
+ 'IT','netit-ci-facts.invalid','NETIT CI FACTS S.r.l.','processor_service_provider',
+ 'https://netit-ci-facts.invalid/company',
+ 'Synthetic only company facts demonstration, no real source, copyright clearance or legal entity.',
+ 'first_party_web','web_profile_review_pending','unclaimed','web_sourced_unverified',
+ 'not_published','NETIT-CI-0002','NET-IT-CI-FACTSBATCH01'
+);
+
+-- Anonymous user cannot invoke this endpoint.
+SET LOCAL ROLE anon;
+DO $anon$
+DECLARE v_denied boolean := false;
+BEGIN
+ BEGIN
+  PERFORM public.netit_releasebulk1('NET-IT-CI-BATCH01','NET-IT-CI-WAVE01','[]'::jsonb);
+ EXCEPTION WHEN insufficient_privilege THEN v_denied := true;
+ END;
+ IF NOT v_denied THEN
+   RAISE EXCEPTION 'anonymous caller reached publisher';
+ END IF;
+END $anon$;
+DO $anonfacts$
+DECLARE denied boolean := false;
+BEGIN
+ BEGIN
+   PERFORM public.netit_facts1_signoff(
+      true,'https://netit-ci-review.invalid/legal/facts1',
+      'SYNTHETIC ONLY: this is not a legal approval; the anonymous caller must never be allowed to sign off a policy.');
+ EXCEPTION WHEN insufficient_privilege THEN denied := true;
+ END;
+ IF NOT denied THEN RAISE EXCEPTION 'Anonymous FACTS1 signoff accepted'; END IF;
+END $anonfacts$;
+RESET ROLE;
+
+-- Authenticated but not Platform user also fails closed; no spoofed auth.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',true);
+SELECT set_config('request.jwt.claim.role','authenticated',true);
+DO $notplatform$
+DECLARE v_denied boolean := false;
+BEGIN
+ BEGIN
+  PERFORM public.netit_releasebulk1('NET-IT-CI-BATCH01','NET-IT-CI-WAVE01','[]'::jsonb);
+ EXCEPTION WHEN insufficient_privilege THEN v_denied := true;
+ END;
+ IF NOT v_denied THEN
+   RAISE EXCEPTION 'non-Platform user passed governance gate';
+ END IF;
+END $notplatform$;
+DO $notplatformfacts$
+DECLARE denied boolean := false;
+BEGIN
+ BEGIN
+   PERFORM public.netit_facts1_signoff(
+      true,'https://netit-ci-review.invalid/legal/facts1',
+      'SYNTHETIC ONLY: this is not a legal approval; non-Platform authenticated user must not be allowed to approve facts publication.');
+ EXCEPTION WHEN insufficient_privilege THEN denied := true;
+ END;
+ IF NOT denied THEN RAISE EXCEPTION 'Non-Platform FACTS1 signoff accepted'; END IF;
+END $notplatformfacts$;
+RESET ROLE;
+
+-- CI-ONLY: ensure genuine Platform actor cannot publish while runtime switch OFF.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','5e5dfabe-f01d-4bca-89dc-61d031f80a01',true);
+SELECT set_config('request.jwt.claim.role','authenticated',true);
+DO $disabled_runtime$
+DECLARE blocked boolean := false;
+BEGIN
+ BEGIN
+  PERFORM public.netit_releasebulk1('NET-IT-CI-BATCH01','NET-IT-CI-WAVE01','[]'::jsonb,NULL,true,true);
+ EXCEPTION WHEN insufficient_privilege THEN blocked := true;
+ END;
+ IF NOT blocked THEN RAISE EXCEPTION 'Default-OFF runtime allowed a publish attempt'; END IF;
+END $disabled_runtime$;
+RESET ROLE;
+-- Only local disposable CI turns this ON to exercise the publisher mechanics.
+-- No equivalent release is enabled by any production migration.
+UPDATE private.netit_releasebulk1_runtime SET enabled=true WHERE singleton=true;
+
+-- The synthetic identity has a real local Platform role, but its "rights"
+-- reference is a fake .invalid URL *solely* for testing workflow mechanics.
+-- No publishing consent or license is represented for any real company.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub','5e5dfabe-f01d-4bca-89dc-61d031f80a01',true);
+SELECT set_config('request.jwt.claim.role','authenticated',true);
+
+DO $accept$
+DECLARE
+ v_seed uuid := '5e5dfabe-f01d-4bca-89dc-61d031f80b01';
+ v_items jsonb;
+ v_bad_items jsonb;
+ v_preview jsonb;
+ v_commit jsonb;
+ v_repeat jsonb;
+ v_blocked boolean;
+ v_fingerprint text;
+ v_company uuid;
+BEGIN
+ v_items := jsonb_build_array(jsonb_build_object(
+  'seed_id',v_seed,'domain','netit-ci-synthetic.invalid','role','end_user',
+  'legal_name','NETIT CI SYNTHETIC INDUSTRIAL COMPANY',
+  'identity_evidence_url','https://netit-ci-synthetic.invalid/company',
+  'rights_reference_url','https://netit-ci-synthetic.invalid/rights',
+  'rights_decision','licensed',
+  'rights_note','SYNTHETIC local-only simulated license fixture; NOT a real company or real license.'
+ ));
+ v_bad_items := jsonb_build_array(jsonb_build_object(
+  'seed_id',v_seed,'domain','netit-ci-synthetic.invalid','role','end_user',
+  'legal_name','NETIT CI SYNTHETIC INDUSTRIAL COMPANY',
+  'identity_evidence_url','https://netit-ci-synthetic.invalid/company',
+  'rights_reference_url','https://netit-ci-synthetic.invalid/rights',
+  'rights_decision','licensed',
+  'rights_note','CHANGED SYNTHETIC local-only simulated license fixture; not the approved preview.'
+ ));
+
+ -- Preview writes no public company, role or assertion.
+ v_preview := public.netit_releasebulk1(
+   'NET-IT-CI-BATCH01','NET-IT-CI-WAVE01',v_items,NULL,false,false);
+ IF v_preview->>'status'<>'ready_for_attested_commit'
+    OR (v_preview->>'eligible')::int<>1
+    OR (v_preview->>'published_now')::int<>0 THEN
+   RAISE EXCEPTION 'Synthetic authorized preview did not report eligible=1: %',v_preview;
+ END IF;
+ IF EXISTS (SELECT 1 FROM public.network_companies
+            WHERE website_domain='netit-ci-synthetic.invalid') THEN
+   RAISE EXCEPTION 'Preview mutated canonical company';
+ END IF;
+ v_fingerprint := v_preview->>'manifest_fingerprint';
+
+ -- Missing attestation refuses and rolls back.
+ v_blocked := false;
+ BEGIN
+  PERFORM public.netit_releasebulk1(
+   'NET-IT-CI-BATCH01','NET-IT-CI-WAVE01',v_items,v_fingerprint,false,true);
+ EXCEPTION WHEN insufficient_privilege THEN v_blocked := true;
+ END;
+ IF NOT v_blocked THEN RAISE EXCEPTION 'Commit without attestation was accepted'; END IF;
+
+ -- Even genuine operator cannot switch the reviewed manifest on commit.
+ v_blocked := false;
+ BEGIN
+  PERFORM public.netit_releasebulk1(
+   'NET-IT-CI-BATCH01','NET-IT-CI-WAVE01',v_bad_items,v_fingerprint,true,true);
+ EXCEPTION WHEN insufficient_privilege THEN v_blocked := true;
+ END;
+ IF NOT v_blocked THEN RAISE EXCEPTION 'Changed rights review passed original fingerprint'; END IF;
+
+ -- Positive synthetic commit on disposable DB only.
+ v_commit := public.netit_releasebulk1(
+   'NET-IT-CI-BATCH01','NET-IT-CI-WAVE01',v_items,v_fingerprint,true,true);
+ IF v_commit->>'status'<>'published' OR (v_commit->>'published_count')::int<>1 THEN
+   RAISE EXCEPTION 'Atomic synthetic commit failed: %',v_commit;
+ END IF;
+ SELECT id INTO STRICT v_company FROM public.network_companies
+ WHERE website_domain='netit-ci-synthetic.invalid'
+   AND publication_status='published' AND claimed_status='unclaimed'
+   AND verification_status='unverified';
+ IF NOT EXISTS (
+   SELECT 1 FROM public.network_company_role_assignments a
+   JOIN public.network_company_roles r ON r.id=a.role_id
+   WHERE a.company_id=v_company AND r.canonical_key='end_user'
+ ) THEN RAISE EXCEPTION 'Published company missing role assertion'; END IF;
+ -- Direct SELECT of the private audit ledger is intentionally denied
+ -- to authenticated clients. Its presence is checked by postgres below.
+
+ -- Exactly identical replay is idempotent.
+ v_repeat := public.netit_releasebulk1(
+   'NET-IT-CI-BATCH01','NET-IT-CI-WAVE01',v_items,v_fingerprint,true,true);
+ IF v_repeat->>'status'<>'already_published'
+    OR (v_repeat->>'created_now')::int<>0 THEN
+   RAISE EXCEPTION 'Idempotent replay failed: %',v_repeat;
+ END IF;
+ IF (SELECT count(*) FROM public.network_companies
+     WHERE website_domain='netit-ci-synthetic.invalid') <> 1 THEN
+   RAISE EXCEPTION 'Replay duplicated company';
+ END IF;
+
+ -- Reuse the same wave with altered rights must be rejected.
+ v_blocked := false;
+ BEGIN
+  PERFORM public.netit_releasebulk1(
+   'NET-IT-CI-BATCH01','NET-IT-CI-WAVE01',v_bad_items,v_fingerprint,true,true);
+ EXCEPTION WHEN invalid_parameter_value THEN v_blocked := true;
+ END;
+ IF NOT v_blocked THEN RAISE EXCEPTION 'Tampered replay was accepted'; END IF;
+END $accept$;
+
+-- FACTS1 acceptance: default-deny, local Platform role, revision-bound
+-- SHA, revocation before commit, re-approval and minimal synthetic commit.
+DO $facts1_accept$
+DECLARE
+  v_items jsonb;
+  v_preview jsonb;
+  v_after jsonb;
+  v_result jsonb;
+  v_previous_fingerprint text;
+  v_denied boolean;
+  v_review_url text := 'https://netit-ci-review.invalid/legal/facts1';
+  v_policy_note text := 'SYNTHETIC LOCAL-ONLY REVIEW: fictional limited-liability company; publish only original factual metadata, no personal data, no third-party database copying and no actual rights clearance.';
+BEGIN
+  v_items := jsonb_build_array(jsonb_build_object(
+    'seed_id','5e5dfabe-f01d-4bca-89dc-61d031f80b02',
+    'domain','netit-ci-facts.invalid',
+    'role','processor_service_provider',
+    'legal_name','NETIT CI FACTS S.r.l.',
+    'identity_evidence_url','https://netit-ci-facts.invalid/company',
+    'rights_reference_url',v_review_url,
+    'rights_decision','factual_metadata_only_reviewed',
+    'rights_note',v_policy_note
+  ));
+  v_preview := public.netit_releasebulk1(
+     'NET-IT-CI-FACTSBATCH01','NET-IT-CI-FACTSWAVE01',v_items,NULL,false,false);
+  IF (v_preview->>'eligible')::integer<>0 OR v_preview->>'status'<>'blocked' THEN
+    RAISE EXCEPTION 'FACTS1 bypassed default-disabled policy: %',v_preview;
+  END IF;
+  v_result := public.netit_facts1_signoff(true,v_review_url,v_policy_note);
+  IF v_result->>'enabled'<>'true' THEN
+    RAISE EXCEPTION 'Synthetic policy signoff not recorded';
+  END IF;
+  v_preview := public.netit_releasebulk1(
+     'NET-IT-CI-FACTSBATCH01','NET-IT-CI-FACTSWAVE01',v_items,NULL,false,false);
+  IF (v_preview->>'eligible')::integer<>1
+     OR v_preview->>'status'<>'ready_for_attested_commit' THEN
+    RAISE EXCEPTION 'FACTS1 authorized preview not eligible: %',v_preview;
+  END IF;
+  v_previous_fingerprint := v_preview->>'manifest_fingerprint';
+
+  -- A legal revocation after preview invalidates both eligibility and SHA.
+  v_result := public.netit_facts1_signoff(
+     false,NULL,'SYNTHETIC LOCAL-ONLY legal approval revocation before fingerprint commit.');
+  v_denied := false;
+  BEGIN
+    PERFORM public.netit_releasebulk1(
+      'NET-IT-CI-FACTSBATCH01','NET-IT-CI-FACTSWAVE01',
+      v_items,v_previous_fingerprint,true,true);
+  EXCEPTION WHEN invalid_parameter_value THEN v_denied := true;
+  END;
+  IF NOT v_denied THEN
+    RAISE EXCEPTION 'FACTS1 revoked legal review was still publishable';
+  END IF;
+
+  -- A new approved revision requires a fresh preview, never stale attestation.
+  v_result := public.netit_facts1_signoff(true,v_review_url,v_policy_note);
+  v_after := public.netit_releasebulk1(
+    'NET-IT-CI-FACTSBATCH01','NET-IT-CI-FACTSWAVE01',v_items,NULL,false,false);
+  IF (v_after->>'eligible')::integer<>1
+     OR v_after->>'manifest_fingerprint'=v_previous_fingerprint THEN
+    RAISE EXCEPTION 'FACTS1 legal revision did not invalidate the original SHA';
+  END IF;
+  v_result := public.netit_releasebulk1(
+    'NET-IT-CI-FACTSBATCH01','NET-IT-CI-FACTSWAVE01',
+    v_items,v_after->>'manifest_fingerprint',true,true);
+  IF v_result->>'status'<>'published'
+     OR (v_result->>'published_count')::integer<>1 THEN
+    RAISE EXCEPTION 'FACTS1 synthetic one-company atomic commit failed: %',v_result;
+  END IF;
+  IF NOT EXISTS (
+    SELECT 1 FROM public.network_companies
+    WHERE website_domain='netit-ci-facts.invalid'
+      AND claimed_status='unclaimed' AND verification_status='unverified'
+      AND description NOT ILIKE '%synthetic%'
+  ) THEN
+    RAISE EXCEPTION 'FACTS1 minimal factual published profile failed';
+  END IF;
+END $facts1_accept$;
+
+-- NET-IT-PUB1: isolated PostgreSQL release preview must remain fail-closed
+-- until REAL source/candidate approvals; no production data in this fixture.
+SELECT set_config(
+  'request.jwt.claim.sub','5e5dfabe-f01d-4bca-89dc-61d031f80a01',true
+);
+DO $pub1_five$
+DECLARE
+  v_preview jsonb;
+  v_rejected boolean := false;
+BEGIN
+  v_preview := public.net_it_pub1_release(NULL,false,NULL,false);
+  IF (v_preview->>'status')<>'blocked'
+     OR (v_preview->>'requested')::integer<>5
+     OR (v_preview->>'eligible')::integer<>0
+     OR (v_preview->>'published_now')::integer<>0 THEN
+     RAISE EXCEPTION 'Unreviewed five-company batch was considered publishable: %',v_preview;
+  END IF;
+  BEGIN
+    PERFORM public.net_it_pub1_release(
+      v_preview->>'manifest_fingerprint',true,
+      'SYNTHETIC LOCAL-ONLY rejected attempt: five real official-source companies are not part of the disposable CI fixture and their governance has not been reviewed.',true
+    );
+  EXCEPTION WHEN invalid_parameter_value THEN v_rejected := true;
+  END;
+  IF NOT v_rejected THEN
+    RAISE EXCEPTION 'NET-IT-PUB1 committed unreviewed or absent companies';
+  END IF;
+END $pub1_five$;
+
+-- SYNTHETIC HAPPY-PATH ACCEPTANCE: the five IDs exist only in the disposable
+-- local database and use made-up .invalid domains. Production company data is
+-- never inserted, copied or touched. Fixture setup uses local postgres role.
+RESET ROLE;
+INSERT INTO public.network_company_discovery_runs(
+  id,requested_by,country_code,seed_urls,status,source_type,source_reference,
+  label,started_at,completed_at,governance_status,terms_status,database_rights_status,
+  personal_data_policy,governance_reviewed_by,governance_reviewed_at,governance_note
+)
+SELECT
+  ('5e5dfabe-f01d-4bca-89dc-61d031f80c0'||i)::uuid,
+  '5e5dfabe-f01d-4bca-89dc-61d031f80a01'::uuid,
+  'IT',
+  jsonb_build_array('https://netit-pub1-ci-'||i||'.invalid/'),
+  'completed','manual_url','SYNTHETIC LOCAL CI source only',
+  'NET-IT-PUB1 synthetic source '||i,
+  now()-interval '2 minutes',now()-interval '1 minute',
+  'approved','allows_reuse','low_risk','exclude_personal_data',
+  '5e5dfabe-f01d-4bca-89dc-61d031f80a01'::uuid,
+  now(),
+  'Synthetic local-only source review, not actual terms or rights clearance'
+FROM pg_catalog.generate_series(1,3) AS i;
+
+INSERT INTO public.network_company_discovery_candidates(
+  id,run_id,source_url,canonical_domain,website_url,
+  legal_name,country_code,role_keys,subtype_keys,
+  product_relations,evidence,source_urls,
+  enrichment_quality,governance_status,governance_reviewed_by,governance_reviewed_at
+)
+SELECT
+  CASE i
+    WHEN 1 THEN '3222c3fa-4a44-4b68-bb27-5fb04d52f6fc'::uuid
+    WHEN 2 THEN '28defb68-413d-47d7-93e0-3bbb95afa1cf'::uuid
+    WHEN 3 THEN '79960391-2660-4843-a0e3-f423130166c5'::uuid
+    WHEN 4 THEN '9d306e06-e62d-49f6-8b90-7ea088c741d9'::uuid
+    ELSE 'd6307036-2999-4c56-a5d6-801130e13bdd'::uuid
+  END,
+  ('5e5dfabe-f01d-4bca-89dc-61d031f80c0'||(1+((i-1)%3)))::uuid,
+  'https://netit-pub1-ci-'||i||'.invalid/about',
+  'netit-pub1-ci-'||i||'.invalid',
+  'https://netit-pub1-ci-'||i||'.invalid/',
+  'NETIT PUB1 CI FABRICATOR '||i||' S.r.l.',
+  'IT',
+  ARRAY['processor_service_provider']::text[],
+  ARRAY['fabricator']::text[],
+  jsonb_build_array(jsonb_build_object('sector','metal_fabrication')),
+  jsonb_build_array(jsonb_build_object(
+    'source_url','https://netit-pub1-ci-'||i||'.invalid/about',
+    'note','SYNTHETIC CI fixture without a real company'
+  )),
+  jsonb_build_array('https://netit-pub1-ci-'||i||'.invalid/about'),
+  jsonb_build_object(
+    'net_it_pub1_20261110',jsonb_build_object('synthetic',true),
+    'net_it_pub1_official_identity_evidence_20261110',
+      jsonb_build_object('synthetic',true)
+  ),
+  'approved_company_data',
+  '5e5dfabe-f01d-4bca-89dc-61d031f80a01'::uuid,
+  now()
+FROM pg_catalog.generate_series(1,5) AS i;
+
+SET ROLE authenticated;
+SELECT set_config(
+  'request.jwt.claim.sub','5e5dfabe-f01d-4bca-89dc-61d031f80a01',true
+);
+DO $pub1_five_success$
+DECLARE
+  v_preview jsonb;
+  v_result jsonb;
+  v_note text :=
+    'SYNTHETIC LOCAL-ONLY test: five imaginary company identities and three fake source decisions. This validates atomic inserts, role provenance and original disabled publisher restoration without asserting real legal rights.';
+  v_denied boolean := false;
+BEGIN
+  v_preview := public.net_it_pub1_release(NULL,false,NULL,false);
+  IF v_preview->>'status'<>'ready_for_attested_commit'
+     OR (v_preview->>'eligible')::integer<>5 THEN
+    RAISE EXCEPTION 'SYNTHETIC approved preview not eligible: %',v_preview;
+  END IF;
+  BEGIN
+    PERFORM public.net_it_pub1_release(repeat('0',64),true,v_note,true);
+  EXCEPTION WHEN insufficient_privilege THEN
+    v_denied:=true;
+  END;
+  IF NOT v_denied THEN
+    RAISE EXCEPTION 'NET-IT-PUB1 accepted stale fingerprint';
+  END IF;
+  v_result := public.net_it_pub1_release(
+    v_preview->>'manifest_fingerprint',true,v_note,true
+  );
+  IF v_result->>'status'<>'published'
+     OR (v_result->>'published_count')::integer<>5 THEN
+    RAISE EXCEPTION 'NET-IT-PUB1 atomic five-company synthetic release failed: %',v_result;
+  END IF;
+END $pub1_five_success$;
+
+RESET ROLE;
+
+DO $pub1_production_guards$
+BEGIN
+ IF (SELECT enabled FROM private.net_pipeline1b2_settings WHERE singleton=true) THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 default-off minimal publisher was changed by failed commit';
+ END IF;
+ IF (SELECT count(*) FROM private.net_it_pub1_batch_ledger)<>1 THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 exactly one synthetic five-company audit entry expected';
+ END IF;
+ IF (SELECT count(*) FROM public.network_companies
+     WHERE website_domain LIKE 'netit-pub1-ci-%.invalid'
+       AND publication_status='published'
+       AND claimed_status='unclaimed' AND verification_status='unverified')<>5 THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 did not publish exactly five synthetic unverified profiles';
+ END IF;
+ IF (SELECT count(*) FROM public.network_company_role_assignments a
+     JOIN public.network_companies c ON c.id=a.company_id
+     JOIN public.network_company_roles r ON r.id=a.role_id
+     JOIN public.network_data_assertions s ON s.id=a.source_assertion_id
+     WHERE c.website_domain LIKE 'netit-pub1-ci-%.invalid'
+       AND r.canonical_key='processor_service_provider'
+       AND s.asserted_value->>'role_confirmed_by_company'='false')<>5 THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 five synthetic role assignments were not atomically saved';
+ END IF;
+ IF has_function_privilege('anon','public.net_it_pub1_release(text,boolean,text,boolean)','EXECUTE')
+    OR has_function_privilege('anon','private.net_it_pub1_release_impl(text,boolean,text,boolean)','EXECUTE') THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 anonymous execution privileges are unsafe';
+ END IF;
+ IF NOT EXISTS(
+   SELECT 1 FROM pg_proc p JOIN pg_namespace n ON n.oid=p.pronamespace
+   WHERE n.nspname='public' AND p.proname='net_it_pub1_release'
+     AND NOT p.prosecdef
+ ) THEN
+   RAISE EXCEPTION 'NET-IT-PUB1 public facade must remain security invoker';
+ END IF;
+END $pub1_production_guards$;
+
+-- PostgreSQL audit inspection after dropping authenticated session role:
+-- user-facing RPC does not grant SELECT on this private table.
+DO $audit$
+BEGIN
+ IF NOT EXISTS(
+   SELECT 1 FROM private.netit_releasebulk1_links l
+   JOIN public.network_companies c ON c.id=l.company_id
+   WHERE c.website_domain='netit-ci-synthetic.invalid'
+     AND l.approved_by='5e5dfabe-f01d-4bca-89dc-61d031f80a01'
+     AND l.wave='NET-IT-CI-WAVE01'
+ ) THEN RAISE EXCEPTION 'Missing reviewer ledger record'; END IF;
+ IF (SELECT count(*) FROM private.netit_facts1_signoff_ledger
+     WHERE actor='5e5dfabe-f01d-4bca-89dc-61d031f80a01')<>3 THEN
+   RAISE EXCEPTION 'Expected three immutable synthetic FACTS1 legal policy decisions';
+ END IF;
+ IF NOT EXISTS (SELECT 1 FROM private.netit_releasebulk1_links
+    WHERE wave='NET-IT-CI-FACTSWAVE01'
+      AND rights_decision='factual_metadata_only_reviewed') THEN
+   RAISE EXCEPTION 'FACTS1 fact-only evidence absent from private publication ledger';
+ END IF;
+ IF EXISTS (SELECT 1 FROM public.network_data_assertions
+     WHERE field_path='netit_releasebulk1_company_profile'
+       AND (asserted_value ? 'rights_reference_url'
+         OR asserted_value ? 'rights_review_note')) THEN
+   RAISE EXCEPTION 'Private legal document URL or reviewer note leaked into company assertion';
+ END IF;
+END $audit$;
+
+ROLLBACK;
+SELECT 'NET-IT-RELEASEBULK1 isolated live SQL acceptance PASS; synthetic test fully rolled back' AS result;
