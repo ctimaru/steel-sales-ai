@@ -359,7 +359,8 @@ begin
    or coalesce(v_item->>'grade','') !~ '^S(235|275|355|420|460)(JR|J0|J2|M|ML|N|NL)?H$'
    or v_shape not in ('CHS','SHS','RHS')
    or jsonb_typeof(v_dims) is distinct from 'array'
-   or jsonb_array_length(v_dims)<>case when v_shape='CHS' then 2 else 3 end
+   or (v_shape='CHS' and jsonb_array_length(v_dims)<>2)
+   or (v_shape in ('SHS','RHS') and jsonb_array_length(v_dims)<>3)
    or length(coalesce(v_item->>'source_row_excerpt','')) not between 10 and 240
    or exists (
      select 1 from jsonb_array_elements(v_dims) el
