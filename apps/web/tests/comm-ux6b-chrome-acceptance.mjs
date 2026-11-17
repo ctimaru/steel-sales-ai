@@ -312,7 +312,7 @@ try {
             // Fast path: size → quantity → Enter adds a complete row to the Distinta.
             const quickSearch = page.locator("#distinta-quick-add-search");
             await quickSearch.fill("100x100x5");
-            await page.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
+            await page.getByTestId("distinta-quick-add").getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
             await quickSearch.press("Enter");
             await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Q.tà", null, { timeout: 10000 });
             await page.keyboard.type("10");
