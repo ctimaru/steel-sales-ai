@@ -322,6 +322,14 @@ export async function CommercialDealsDesk({
         </p>
       ) : null}
 
+      {state.item && !active ? (
+        // Chiave sconosciuta, scaduta o di un'altra azienda: nessun dettaglio, nessun indizio su cosa esista.
+        <p role="status" data-testid="commercial-deal-not-found"
+          className="rounded-lg border border-[#e6d3ae] bg-[#fffaf0] px-3 py-2 text-xs text-[#795321]">
+          Trattativa non trovata o non visibile con il tuo accesso.
+        </p>
+      ) : null}
+
       <section id="commercial-worklist" aria-label="Elenco trattative" className="scroll-mt-28">
         <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,.9fr)]" : "min-w-0"}>
           <div className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-2xl border border-[#dce7e0] bg-white"} data-testid="commercial-deals-list">

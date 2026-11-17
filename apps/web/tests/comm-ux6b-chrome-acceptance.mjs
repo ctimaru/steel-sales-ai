@@ -39,59 +39,59 @@ async function assertNoOverflow(page, name) {
   }));
   assert.ok(size.scroll <= size.client + 12, name + " has horizontal overflow: " + JSON.stringify(size));
 }
+// COMM-DEALS1: la lista Commerciale è un elenco di trattative (una riga per trattativa).
+// I vecchi parametri ?view=sent restano validi e aprono il segmento Acquisti.
 async function inspectList(page, width, persona) {
   const href = "/commercial?view=sent&q=COMMUX6B";
   const response = await page.goto(base + href, { waitUntil: "domcontentloaded", timeout: 90000 });
   assert.equal(response?.status(), 200);
-  const heading = page.getByRole("heading", { name: "Le mie trattative", exact: true });
-  await heading.waitFor({ state: "visible", timeout: 60000 });
-  assert.equal(await page.getByText("Trattative e attività", { exact: true }).count(), 0,
-    "Duplicate worklist sub-heading must not return");
-  // COMM-CLEAN-LIST1: the second visible heading was removed to keep one
-  // concise list. The semantic heading must remain for assistive tech.
-  const worklistHeading = page.locator("#commercial-worklist-title");
-  assert.equal(await worklistHeading.count(), 1);
-  assert.equal(await page.getByTestId("comm-cine9-workspace-heading").count(), 0);
-  const filters = page.getByTestId("commercial-compact-filters");
-  const list = page.getByTestId("commercial-list-pane");
+  await page.getByRole("heading", { name: "Trattative", exact: true, level: 1 })
+    .waitFor({ state: "visible", timeout: 60000 });
+  const purchase = page.getByTestId("commercial-deal-segments").getByRole("link", { name: /^Acquisti/ });
+  assert.equal(await purchase.getAttribute("aria-current"), "page", "Legacy view=sent must open the Acquisti segment");
+  const list = page.getByTestId("commercial-deals-list");
   await list.waitFor({ state: "visible", timeout: 60000 });
-  const entries = list.locator("div.divide-y > a");
+  const entries = list.getByTestId("commercial-deal-row");
   await entries.first().waitFor({ state: "visible", timeout: 60000 });
   const count = await entries.count();
-  assert.equal(count, 8, "Expected exactly eight local RFQ density entries, got " + count);
-  const filtersRect = await filters.boundingBox();
-  assert.ok(filtersRect && filtersRect.height <= 125,
-    "Compact filters must not create a duplicate header: " + filtersRect?.height);
+  assert.equal(count, 8, "Expected exactly eight local RFQ deals, got " + count);
+  // L'assistente resta sulla pagina ma chiuso: la tabella parte nel primo schermo.
+  assert.equal(await page.getByTestId("commercial-ai-native-shell").isVisible(), false);
   let maxHeight = 0;
   for (let i = 0; i < count; i++) {
     const entry = entries.nth(i);
     const dimensions = await entry.boundingBox();
     assert.ok(dimensions, "Deal row " + i + " must have layout");
-    assert.ok(dimensions.height >= 44 && dimensions.height <= (width === 1440 ? 86 : 148),
+    assert.ok(dimensions.height >= 44 && dimensions.height <= (width === 1440 ? 80 : 180),
       "Deal row " + i + " is not compact at " + width + "px: " + dimensions.height);
     maxHeight = Math.max(maxHeight, dimensions.height);
-    const title = entry.locator("span.truncate").first();
-    assert.match(await title.innerText(), /COMMUX6B RFQ \d{2}/);
-    assert.match(await entry.innerText(), /RFQ ai fornitori/i);
-    assert.match(await entry.innerText(), /Bozza/i);
+    const text = await entry.innerText();
+    assert.match(text, /COMMUX6B RFQ \d{2}/);
+    assert.match(text, /Acquisto/);
+    assert.match(text, /RFQ-[0-9A-F]{6}/);
+    assert.match(text, /Bozza/);
+    assert.match(text, /Completa e invia ai fornitori/);
     const destination = await entry.getAttribute("href") ?? "";
-    assert.match(destination, /view=sent/);
+    assert.match(destination, /seg=purchase/);
     assert.match(destination, /item=campaign%3A|item=campaign:/);
+    assert.doesNotMatch(destination, /view=/, "New rows must use the deal desk parameters");
   }
   const listText = await list.innerText();
+  // Una riga per trattativa: le distinte già usate dalle RFQ non tornano come righe.
+  assert.doesNotMatch(listText, /COMMUX6B Distinta/);
   assert.doesNotMatch(listText, /DEMOTEST23 PRODUCER PRIVATE RFQ/, "No cross-tenant records");
+  if (width === 1440) {
+    const first = await entries.first().boundingBox();
+    const last = await entries.last().boundingBox();
+    assert.ok(first && first.y < 420, "First deal must sit high in the desktop viewport: " + Math.round(first?.y ?? -1));
+    assert.ok(first && last && last.y - first.y <= 8 * 80, "Rows must stay dense: " + Math.round((last?.y ?? 0) - (first?.y ?? 0)));
+  }
   await assertNoOverflow(page, persona.id + " at " + width);
-  await list.scrollIntoViewIfNeeded();
   await page.screenshot({
     path: path.join(dir, "worklist-" + persona.id + "-" + width + "px.png"),
     fullPage: false, animations: "disabled"
   });
-  if (width === 1440) {
-    const first = await entries.first().boundingBox();
-    const last = await entries.last().boundingBox();
-    assert.ok(first && last && last.y + last.height <= 910, "Eight deals must be readable in one desktop viewport after scrolling");
-  }
-  console.log("COMM-UX6.B WORKLIST PASS", persona.id, width, "rows", count, "maxRowPx", maxHeight);
+  console.log("COMM-DEALS1 WORKLIST PASS", persona.id, width, "rows", count, "maxRowPx", maxHeight);
   return entries;
 }
 
@@ -100,25 +100,22 @@ async function inspectViewer(page, width) {
     waitUntil: "domcontentloaded", timeout: 90000
   });
   assert.equal(response?.status(), 200);
-  await page.getByRole("heading", { name: "Le mie trattative", exact: true })
+  await page.getByRole("heading", { name: "Trattative", exact: true, level: 1 })
     .waitFor({ state: "visible", timeout: 60000 });
-  const list = page.getByTestId("commercial-list-pane");
+  const list = page.getByTestId("commercial-deals-list");
   await list.waitFor({ state: "visible", timeout: 60000 });
   // A viewer is read-only; tenant RLS may deny campaign rows entirely.
-  // The density fixture is only for the buyer role and must NOT assume viewer grants.
-  const rows = list.locator("div.divide-y > a");
-  const count = await rows.count();
+  const count = await list.getByTestId("commercial-deal-row").count();
   assert.ok(count <= 8, "Viewer cannot gain synthetic records from other tenants");
   assert.doesNotMatch(await list.innerText(), /DEMOTEST23 PRODUCER PRIVATE RFQ/);
-  assert.equal(await page.getByRole("link", { name: "+ Nuova richiesta" }).count(), 0);
+  assert.equal(await page.getByTestId("commercial-new-request").count(), 0);
   assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 0);
   await assertNoOverflow(page, "viewer at " + width);
-  await list.scrollIntoViewIfNeeded();
   await page.screenshot({
     path: path.join(dir, "read-only-viewer-" + width + "px.png"),
     fullPage: false, animations: "disabled"
   });
-  console.log("COMM-UX6.B READ-ONLY VIEWER PASS", width, "visibleRows", count);
+  console.log("COMM-DEALS1 READ-ONLY VIEWER PASS", width, "visibleRows", count);
 }
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
@@ -144,54 +141,32 @@ try {
         await page.waitForURL(u => u.searchParams.has("item"), { timeout: 60000 });
         const detail = page.locator("#commercial-detail");
         await detail.waitFor({ state: "visible", timeout: 60000 });
-        await detail.getByRole("heading", { name: "Trattativa selezionata" }).waitFor({ state: "visible" });
-        const intelligence = detail.getByTestId("commercial-deal-intelligence");
-        await intelligence.waitFor({ state: "visible", timeout: 60000 });
-        await intelligence.getByRole("heading", { name: "Il quadro della trattativa" })
-          .waitFor({ state: "visible" });
-        const readiness = detail.getByTestId("commercial-decision-readiness");
-        await readiness.getByRole("heading", { name: "Prima di decidere" })
-          .waitFor({ state: "visible" });
-        const readinessRect = await readiness.boundingBox();
-        const actionRect = await detail.getByTestId("commercial-deal-next-step").boundingBox();
-        const factsRect = await intelligence.boundingBox();
-        assert.ok(readinessRect && actionRect && factsRect &&
-          readinessRect.y < actionRect.y && actionRect.y < factsRect.y,
-          "Decision checks and next action must appear before the detailed commercial facts");
-        const advice = await readiness.innerText();
-        assert.match(advice, /Da confermare:/);
-        assert.match(advice, /Conferma i destinatari nella RFQ originale/);
-        assert.match(advice, /Controlla scadenze e condizioni/);
-        assert.match(advice, /non una validazione automatica/);
-        assert.equal(await readiness.locator("button").count(), 0,
-          "Decision checklist must not execute RFQ/PO operations");
-        const materialText = await intelligence.getByTestId("commercial-deal-materials").innerText();
-        assert.match(materialText, /(?:SHS 100x100x5|RHS 200x100x6)/);
-        assert.match(materialText, /EN 10219/);
-        assert.match(materialText, /S355J2H/);
-        const sourceText = await intelligence.getByTestId("commercial-deal-sources").innerText();
-        assert.match(sourceText, /RFQ e documenti originali/);
-        assert.match(sourceText, /Distinta privata originale/);
-        assert.doesNotMatch(await intelligence.innerText(), /DEMO Steel Manufacturing/);
-        await detail.getByRole("heading", { name: "Completa la RFQ e verifica i fornitori" })
-          .waitFor({ state: "visible" });
-
-        const continueAction = detail.getByTestId("commercial-deal-next-step").getByRole("link");
-        await continueAction.waitFor({ state: "visible" });
-        // COMM-UX7.C: reuse a single decision surface and never jump from a
-        // synthetic draft campaign directly into comparison/PO execution.
-        const decisionDock = detail.getByTestId("commercial-decision-dock");
-        assert.equal(await decisionDock.count(), 1);
-        assert.ok(await decisionDock.getByTestId("commercial-decision-readiness").isVisible());
-        const draftTarget = await detail.getByTestId("commercial-deal-primary-action").getAttribute("href");
-        assert.ok(draftTarget && !draftTarget.includes("#commercial-operations") && !draftTarget.includes("tab="),
-          "Draft RFQ CTA must remain on the governed original document");
-        const actualColors = await continueAction.evaluate(el => ({
+        const content = detail.getByTestId("commercial-deal-detail");
+        await content.getByRole("heading", { level: 2, name: /COMMUX6B RFQ \d{2}/ }).waitFor({ state: "visible" });
+        const next = detail.getByTestId("commercial-deal-next-step");
+        assert.match(await next.innerText(), /Completa e invia ai fornitori/);
+        const documents = detail.getByTestId("commercial-deal-documents");
+        assert.match(await documents.innerText(), /RFQ ai fornitori/);
+        assert.match(await documents.innerText(), /Bozza/);
+        // Righe articolo: norma, grado e quantità della distinta originale, nessun prezzo.
+        const detailText = await detail.innerText();
+        assert.match(detailText, /(?:SHS 100x100x5|RHS 200x100x6)/);
+        assert.match(detailText, /EN 10219 · S355J2H/);
+        assert.doesNotMatch(detailText, /DEMO Steel Manufacturing/);
+        assert.doesNotMatch(detailText, /€/);
+        // Una bozza resta sul documento originale: nessun salto a confronto o ordini.
+        const primary = detail.getByTestId("commercial-deal-primary-action");
+        const draftTarget = await primary.getAttribute("href");
+        assert.ok(draftTarget && draftTarget.startsWith("/rfq-hub/") && !draftTarget.includes("#commercial-operations") && !draftTarget.includes("tab="),
+          "Draft RFQ CTA must remain on the governed original document: " + draftTarget);
+        const actualColors = await primary.evaluate(el => ({
           foreground: getComputedStyle(el).color,
           fill: getComputedStyle(el).webkitTextFillColor
         }));
         assert.equal(actualColors.foreground, "rgb(255, 255, 255)", "Selected deal CTA must be white on green");
         assert.equal(actualColors.fill, "rgb(255, 255, 255)", "Selected deal CTA WebKit text fill must be white");
+        assert.equal(await detail.getByTestId("commercial-deal-next-step").locator("button").count(), 0,
+          "The next-step summary never executes RFQ/PO operations");
 
         await assertNoOverflow(page, "selected deal " + width);
         await detail.scrollIntoViewIfNeeded();
@@ -199,15 +174,14 @@ try {
           path: path.join(dir, "deal-detail-" + persona.id + "-" + width + "px.png"),
           fullPage: false, animations: "disabled"
         });
-        await detail.getByRole("link", { name: /Chiudi/ }).click();
+        await detail.getByRole("link", { name: "Chiudi il dettaglio" }).click();
         await page.waitForURL(u => !u.searchParams.has("item"), { timeout: 60000 });
-        assert.equal(await page.getByTestId("commercial-list-pane").locator("div.divide-y > a").count(), 8,
-          "Closing selected detail must retain filtered worklist");
+        assert.equal(await page.getByTestId("commercial-deals-list").getByTestId("commercial-deal-row").count(), 8,
+          "Closing the detail must keep segment and search");
         if (persona.id === "buyer") {
           const alien = "/commercial?view=sent&q=COMMUX6B&item=campaign:" + producer.rfq;
           await page.goto(base + alien, { waitUntil: "domcontentloaded", timeout: 90000 });
-          await page.getByRole("status").filter({ hasText: "Attività non trovata" })
-            .waitFor({ state: "visible", timeout: 60000 });
+          await page.getByTestId("commercial-deal-not-found").waitFor({ state: "visible", timeout: 60000 });
           assert.equal(await page.locator("#commercial-detail").count(), 0);
 
           // COMM-RFQ-UX1: actual authenticated browser handoff. The text
