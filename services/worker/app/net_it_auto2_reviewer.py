@@ -90,6 +90,40 @@ def _is_capital_company(name: str) -> bool:
     return any(token in ADMITTED_LEGAL_FORMS for token in tokens)
 
 
+# A flattened footer can repeat the crawler's guess word-for-word even when
+# that "name" includes dates, navigation, legal boilerplate or contact text.
+# Textual repetition alone must not count as a supported corporate identity.
+_NAME_BOILERPLATE = re.compile(
+    r"(?<![a-zà-ÿ])(?:privacy|cookies?|informativa|copyright|diritti|"
+    r"riservati|contatti|contact|homepage|newsletter|gdpr|messaggio|"
+    r"preventivo|chiama|clicca|scarica|titolare|trattamento|"
+    r"branded|facebook|instagram)(?![a-zà-ÿ])",
+    re.I,
+)
+_NAME_YEAR = re.compile(r"(?<![0-9])(?:19|20)[0-9]{2}(?![0-9])")
+_NAME_WEB = re.compile(r"[a-z0-9-]+\\.(?:it|com|net|eu|biz|org|info)(?![a-z])", re.I)
+
+
+def _credible_first_party_name(name: str) -> bool:
+    """Conservative preflight: bad guesses require a clean first-party extraction.
+
+    This is intentionally NOT a bypass of DB name-quality or AUTO3 gates.
+    False negatives remain in the review queue; only backed-up clean names can
+    be proposed to the existing controlled identity-correction RPC.
+    """
+    value = unescape(name or "").strip()
+    return bool(
+        value and len(value) <= 160
+        and value[0].isalpha() and value[0].isupper()
+        and len(value.split()) <= 8
+        and _is_capital_company(value)
+        and not _NAME_BOILERPLATE.search(value)
+        and not _NAME_YEAR.search(value)
+        and not _NAME_WEB.search(value)
+        and not any(ch in value for ch in "?!@")
+    )
+
+
 def _name_evidenced(name: str, page_texts: list[str]) -> bool:
     normalized = _normalize_full_legal_name(name)
     # A corporate suffix on the candidate must ALSO appear on the first-party
@@ -173,13 +207,15 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     # corporate name in first-party BODY text, not merely page metadata.
     texts = [str(p.text) for p in pages]
     name = str(candidate.get("company_name") or "")
-    matched = _name_evidenced(name, texts)
+    # Do not treat a verbatim match of polluted footer text as identity proof.
+    # First try extracting the actual ragione sociale from the official site.
+    matched = _credible_first_party_name(name) and _name_evidenced(name, texts)
     correction = None
     if not matched or not _is_capital_company(name):
         # v4: the first guess is often a brand or the domain; use the company's
         # own ragione sociale when the site prints one that belongs to it.
         found = find_company_identity(texts, domain, name)
-        if found and _is_capital_company(found.legal_name) \
+        if found and _credible_first_party_name(found.legal_name) \
                 and _name_evidenced(found.legal_name, texts):
             page_url = next((p.url for p in pages
                              if _name_evidenced(found.legal_name, [str(p.text)])), pages[0].url)
