@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import styles from "./commercial-rfq-workspace.module.css";
 
 /**
@@ -9,9 +9,11 @@ import styles from "./commercial-rfq-workspace.module.css";
  * in-flight review, draft text and edit state are never lost on tab changes.
  */
 export function CommercialRfqWorkspace({
-  conversation, preview, approvedCount, proposalCount,
+  conversation, preview, approvedCount, proposalCount, chatFocusSignal = 0,
 }: {
   conversation: ReactNode;
+  /** DISTINTA-QUICK1: each increment shows the «Conversazione» tab (quick-add bar) on mobile. */
+  chatFocusSignal?: number;
   preview: ReactNode;
   approvedCount: number;
   proposalCount: number;
@@ -22,6 +24,7 @@ export function CommercialRfqWorkspace({
   const chatTab = useRef<HTMLButtonElement>(null);
   const previewTab = useRef<HTMLButtonElement>(null);
   const draftCount = approvedCount + proposalCount;
+  useEffect(() => { if (chatFocusSignal > 0) setMobileView("chat"); }, [chatFocusSignal]);
 
   function onMobileTabKeyDown(event: KeyboardEvent<HTMLDivElement>) {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;

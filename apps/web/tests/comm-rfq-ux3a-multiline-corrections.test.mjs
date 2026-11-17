@@ -72,7 +72,7 @@ test("UX3.A routes each chat correction to review, not model memory or dispatch"
   assert.ok(builder.includes("function insertRfqAiTextLines(proposals: BuyerDistintaDraftLine[])"));
   assert.ok(builder.includes("<TechnicalCartShell visible={activeLineCount > 0 && (!focusAiIntake || cartOpen)} open={cartOpen}"));
   assert.ok(builder.includes("onEditLine={editApprovedLine}"));
-  assert.ok(builder.includes("onOpenEditor={() => { setShowManualTools(true); openPrivateCart(); }}"));
+  assert.ok(builder.includes("onOpenEditor={openPrivateCart}"));
 
   assert.ok(intake.includes("if (!onInsertTextLines(items)) return false"));
   assert.ok(!source.includes("sendBuyerDistinta"));

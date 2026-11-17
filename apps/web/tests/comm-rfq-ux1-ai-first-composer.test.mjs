@@ -36,7 +36,8 @@ test("COMM-RFQ-UX1 puts the text review before manual tools and hides the empty 
   assert.match(builder, /\{focusAiIntake && !restoreCandidate \? \(/);
   assert.ok(builder.indexOf("<CommercialRfqWorkspace") < builder.indexOf("data-private-calculator-shell"));
   assert.match(builder, /\{!focusAiIntake \? \(/);
-  assert.match(builder, /hidden=\{focusAiIntake && !showManualTools\}/);
+  // DISTINTA-QUICK1: no calculator on the focused screen, only the Distinta editor dialog.
+  assert.match(builder, /hidden=\{focusAiIntake\} data-private-calculator-shell/);
   assert.doesNotMatch(builder, /data-testid="commercial-ai-manual-tools-toggle"/); // COMM-RFQ-CREATE2: niente calcolatrice qui
   assert.match(intake, /data-testid="commercial-ai-focused-modes"/);
   assert.match(intake, /aria-pressed=\{mode === "manual"\}/);
@@ -52,7 +53,7 @@ test("COMM-RFQ-UX1 makes approved articles actionable while keeping private save
   assert.match(preview, /data-testid="commercial-rfq-approved-lines"/);
   assert.match(builder, /onSave=\{saveDistinta\}/);
   assert.match(builder, /onClick=\{createRfqHub\}/);
-  assert.match(builder, /onOpenEditor=\{\(\) => \{ setShowManualTools\(true\); openPrivateCart\(\); \}\}/);
+  assert.match(builder, /onOpenEditor=\{openPrivateCart\}/);
   assert.match(preview, /disabled=\{!canSave \|\| Boolean\(savedId\)\}/);
   assert.match(builder, /Explicit human-approved candidates from the review UI/);
   assert.match(builder, /crea la RFQ con un clic/);

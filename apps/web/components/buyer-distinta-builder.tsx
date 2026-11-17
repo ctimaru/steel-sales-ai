@@ -15,6 +15,8 @@ import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
 import { RfqAiIntakeUx, type RfqAiIntakeMode } from "@/components/rfq-ai-intake-ux";
 import { CommercialRfqWorkspace } from "@/components/commercial-rfq-workspace";
 import { CommercialRfqLivePreview } from "@/components/commercial-rfq-live-preview";
+import { DistintaQuickAddBar, DISTINTA_QUICK_ADD_SEARCH_ID, type DistintaQuickAddArticle } from "@/components/distinta-quick-add-bar";
+import { quickAddWeightText } from "@/lib/distinta-quick-add";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
 import { guidedTubeMassKgM, guidedTubeMeasurement,  type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
 import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
@@ -101,11 +103,12 @@ export function BuyerDistintaBuilder({
   organizationId?: string | null;
   /**
    * DISTINTA-ONE1: the single «Nuova richiesta» screen (/rfq-hub/distinta) is
-   * chat + Distinta. The calculator lives in the «Aggiungi una misura» panel.
+   * chat + Distinta. DISTINTA-QUICK1: articles are added with the «Aggiungi
+   * articolo» bar above the chat (no separate calculator on this screen).
    * The public /distinta calculator keeps the classic layout (false).
    */
   focusAiIntake?: boolean;
-  /** Open «Aggiungi una misura» on arrival (manual entry, calculator handoff). */
+  /** Focus «Aggiungi articolo» on arrival (manual entry, calculator handoff). */
   openMeasure?: boolean;
   locale?: BuyerUiLocale;
   /** Compact only the public /distinta landing, not authenticated RFQ Hub. */
@@ -119,7 +122,9 @@ export function BuyerDistintaBuilder({
   const [previewDraft, setPreviewDraft] = useState<GuidedTubeDraft | null>(null);
   const [wizardRestoreSerial, setWizardRestoreSerial] = useState(0);
   const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>(focusAiIntake && workspace ? "text" : "manual");
-  const [showManualTools, setShowManualTools] = useState(!focusAiIntake || openMeasure);
+  // DISTINTA-QUICK1: a site-search size handoff pre-fills the quick-add bar.
+  const [quickAddPrefill, setQuickAddPrefill] = useState<{ query: string; standard: "EN 10219" | "EN 10210" } | null>(null);
+  const [chatFocusSignal, setChatFocusSignal] = useState(0);
   const [aiPreview, setAiPreview] = useState<RfqAiTextDraftResult | null>(null);
   const [quickQuery, setQuickQuery] = useState("");
   const [quickGrade, setQuickGrade] = useState("");
@@ -140,7 +145,13 @@ export function BuyerDistintaBuilder({
       if (item.family === "round_tube" && (!dim(item.outerDiameter) || Number(item.outerDiameter) <= 2*t)) return;
       if (item.family !== "round_tube" && (!dim(item.width) || Number(item.width) <= 2*t)) return;
       if (item.family === "rectangular_tube" && (!dim(item.height) || Number(item.height) <= 2*t)) return;
-      setShowManualTools(true);
+      const fmtDim = (v: unknown) => String(v).replace(".", ",");
+      setQuickAddPrefill({
+        query: item.family === "round_tube" ? "tondo " + fmtDim(item.outerDiameter) + "x" + fmtDim(item.thickness)
+          : (item.family === "square_tube" ? "quadro " : "rettangolare ") + fmtDim(item.width) + "x" +
+            fmtDim(item.family === "square_tube" ? item.width : item.height) + "x" + fmtDim(item.thickness),
+        standard: item.standard === "en10210" ? "EN 10210" : "EN 10219",
+      });
       setSearchCalculatorPrefill({
         family: item.family as "round_tube" | "square_tube" | "rectangular_tube",
         standard: item.standard as "en10210" | "en10219",
@@ -166,7 +177,6 @@ export function BuyerDistintaBuilder({
   function editApprovedLine(lineId: string) {
     // Keep the canonical cart as the only editable row source. Its existing
     // pending-row focus contract also works when opening from mobile preview.
-    setShowManualTools(true);
     setEditingRows((previous) => ({ ...previous, [lineId]: true }));
     pendingCartRowRef.current = lineId;
     if (!cartOpen) {
@@ -463,6 +473,58 @@ export function BuyerDistintaBuilder({
     setCopyState("idle");
     // NEXT1D: never auto-open or scroll to the cart after adding.
     return true;
+  }
+
+  /** DISTINTA-QUICK1: one complete row (or a free row to complete) from the quick-add bar. */
+  function addQuickArticle(article: DistintaQuickAddArticle): boolean {
+    if (!draftReady || restoreCandidate) return false;
+    const reusable = lines.length === 1 && isUntouchedLine(lines[0]);
+    if (!reusable && lines.length >= 500) return false;
+    const id = reusable ? lines[0].id : newLineId();
+    const nextLine: BuyerDistintaDraftLine = {
+      ...blankLine(id),
+      description: article.description,
+      standard: article.standard,
+      grade: article.grade,
+      quantityMode: article.quantityMode,
+      quantity: article.quantity,
+      barLengthM: article.barLengthM,
+      weightKgM: article.weightKgM === null ? "" : quickAddWeightText(article.weightKgM),
+    };
+    setLines((current) => {
+      const empty = current.length === 1 && isUntouchedLine(current[0]);
+      const existing = empty ? [] : current;
+      return existing.length >= 500 ? current : [...existing, nextLine];
+    });
+    if (article.catalog) {
+      const option = article.catalog;
+      setSelectedCatalog((current) => ({
+        ...current,
+        [id]: { family: option.family, sizeKey: option.sizeKey, optionId: option.id },
+      }));
+    }
+    if (article.weightKgM !== null) {
+      trackProductEvent("rfq_calculator_line_added", { surface: "quick_add", standard: article.standard, source: article.source });
+    }
+    setQuickAddedCount((count) => count + 1);
+    setCompactMode(true);
+    setExpandedRows((current) => ({ ...current, [id]: false }));
+    setEditingRows((current) => ({ ...current, [id]: article.weightKgM === null }));
+    setSavedId(null);
+    setSaveMessage(null);
+    setRfqMessage(null);
+    setCopyState("idle");
+    return true;
+  }
+
+  function focusQuickAdd() {
+    // On mobile the bar lives in the «Conversazione» tab: show it first.
+    setChatFocusSignal((value) => value + 1);
+    window.requestAnimationFrame(() => {
+      const search = document.getElementById(DISTINTA_QUICK_ADD_SEARCH_ID);
+      search?.focus({ preventScroll: true });
+      search?.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
   }
 
   function addGuidedTube(draft: GuidedTubeDraft) {
@@ -788,6 +850,19 @@ export function BuyerDistintaBuilder({
               onInsertTextLines={insertRfqAiTextLines}
               onPreviewChange={setAiPreview}
             >
+            {focusAiIntake ? (
+              <DistintaQuickAddBar
+                key={quickAddPrefill ? "prefill:" + quickAddPrefill.query : "default"}
+                catalogOptions={catalogOptions}
+                grade={quickGrade}
+                onGradeChange={setQuickGrade}
+                onAdd={addQuickArticle}
+                disabled={!draftReady || Boolean(restoreCandidate)}
+                autoFocus={openMeasure || Boolean(quickAddPrefill)}
+                initialQuery={quickAddPrefill?.query ?? ""}
+                initialStandard={quickAddPrefill?.standard}
+              />
+            ) : (<>
             <BuyerTubeGuidedCreator
               key={wizardRestoreSerial}
               initialDraft={previewDraft}
@@ -864,6 +939,7 @@ export function BuyerDistintaBuilder({
           ) : null}
         </section>
         </details>
+            </>)}
             </RfqAiIntakeUx>
               </div>
             </details>
@@ -945,6 +1021,7 @@ export function BuyerDistintaBuilder({
       {focusAiIntake && !restoreCandidate ? (
         <CommercialRfqWorkspace
           approvedCount={activeLineCount}
+          chatFocusSignal={chatFocusSignal}
           proposalCount={aiPreview?.candidates.length ?? 0}
           conversation={aiIntakePanel}
           preview={
@@ -964,14 +1041,9 @@ export function BuyerDistintaBuilder({
               rfqMessage={rfqMessage}
               onSave={saveDistinta}
               onCreateRfq={createRfqHub}
-              onOpenEditor={() => { setShowManualTools(true); openPrivateCart(); }}
+              onOpenEditor={openPrivateCart}
               onEditLine={editApprovedLine}
-              onAddMeasure={() => {
-                setShowManualTools(true);
-                window.requestAnimationFrame(() => document.getElementById("commercial-rfq-manual-tools")
-                  ?.scrollIntoView({ block: "start", behavior: "smooth" }));
-              }}
-              measureOpen={showManualTools}
+              onAddMeasure={focusQuickAdd}
             />
           }
         />
@@ -1019,8 +1091,12 @@ export function BuyerDistintaBuilder({
         </button>
       </aside>
       ) : null}
-      {/* COMM-RFQ-CREATE2: nessuna calcolatrice separata nella pagina di creazione richiesta. */}
-      <section id="commercial-rfq-manual-tools" hidden={focusAiIntake && !showManualTools} data-private-calculator-shell className={`rounded-2xl border border-[#d8e1dd] bg-white p-2.5 shadow-[0_12px_36px_rgba(18,61,52,0.045)] sm:p-3 ${styles.shell}`}>
+      {/* DISTINTA-QUICK1: nella pagina di creazione richiesta non c'è una calcolatrice separata:
+          la barra «Aggiungi articolo» sta sopra la chat; qui resta solo l'editor della distinta,
+          che si apre in un dialogo (portale su body) e quindi funziona anche con la sezione nascosta. */}
+      <section id="commercial-rfq-manual-tools" hidden={focusAiIntake} data-private-calculator-shell
+        className={`rounded-2xl border border-[#d8e1dd] bg-white p-2.5 shadow-[0_12px_36px_rgba(18,61,52,0.045)] sm:p-3 ${styles.shell}`}>
+        {!focusAiIntake ? (<>
         <div data-private-calculator-toolbar className={`mb-2 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#c6dccc] bg-[#f4faf7] px-2.5 py-1.5 ${styles.cartBar}`}>
           <div className="min-w-0">
             <p className="text-xs font-extrabold text-[#173f35]">{t("Calcola qui, gestisci nel carrello")}</p>
@@ -1062,9 +1138,10 @@ export function BuyerDistintaBuilder({
             />
           </label>
         </div>
-
+        </>) : null}
 
         <div className="bd7-workbench" style={{gridTemplateColumns:"minmax(0,1fr)"}}>
+          {!focusAiIntake ? (
           <div className="bd7-workbench-editor">
             <div data-private-calculator-grade className="mb-1.5">
               <details className="group rounded-lg border border-[#d5e1db] bg-[#f7faf8]">
@@ -1087,8 +1164,9 @@ export function BuyerDistintaBuilder({
             <p role="status" aria-live="polite" className="mt-2 text-xs font-semibold text-[#1d5748]">
               {quickAddedCount > 0 ? `${quickAddedCount} ${quickAddedCount === 1 ? "articolo nel carrello" : "articoli nel carrello"} · aprilo quando vuoi.` : "Il peso teorico si aggiorna mentre scrivi; nessuna RFQ viene inviata automaticamente."}
             </p>
-            {!focusAiIntake ? aiIntakePanel : null}
+            {aiIntakePanel}
           </div>
+          ) : null}
           {/* The focused chat already exposes its editable Distinta preview. Do not
               overlay a second fixed cart CTA on top of mobile navigation. */}
           <TechnicalCartShell visible={activeLineCount > 0 && (!focusAiIntake || cartOpen)} open={cartOpen}

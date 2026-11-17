@@ -16,7 +16,7 @@ const fmt = (value: number, digits: number) =>
 export function CommercialRfqLivePreview({
   title, onTitleChange, proposals, approvedLines, savedId,
   ready, savePending, rfqPending, saveMessage, rfqMessage,
-  onSave, onCreateRfq, onOpenEditor, onEditLine, onAddMeasure, measureOpen = false,
+  onSave, onCreateRfq, onOpenEditor, onEditLine, onAddMeasure,
 }: {
   title: string;
   onTitleChange: (value: string) => void;
@@ -32,9 +32,8 @@ export function CommercialRfqLivePreview({
   onCreateRfq: () => void;
   onOpenEditor: () => void;
   onEditLine: (lineId: string) => void;
-  /** DISTINTA-ONE1: apre il pannello «Aggiungi una misura» (calcolatrice e catalogo). */
+  /** DISTINTA-QUICK1: moves the focus to the «Aggiungi articolo» bar above the chat. */
   onAddMeasure?: () => void;
-  measureOpen?: boolean;
 }) {
   const calculated = approvedLines.map(calculateBuyerDistintaLine);
   const totals = calculateBuyerDistintaTotals(calculated);
@@ -98,16 +97,16 @@ export function CommercialRfqLivePreview({
           </div>
           {onAddMeasure ? (
             <button type="button" onClick={onAddMeasure} data-testid="distinta-add-measure"
-              aria-expanded={measureOpen} aria-controls="commercial-rfq-manual-tools"
+              aria-controls="distinta-quick-add-search"
               className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#9fc3ae] bg-[#f6fbf8] px-3 text-sm font-semibold text-[#175640] hover:bg-[#ecf6f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-              <span aria-hidden="true">＋</span> {measureOpen ? "Calcolatrice aperta sotto" : "Aggiungi una misura"}
+              <span aria-hidden="true">＋</span> Aggiungi articolo
             </button>
           ) : null}
           {approvedLines.length === 0 ? (
             <div className="mt-3 rounded-xl bg-[#f3f7f4] px-3 py-4 text-center">
               <p className="text-sm font-semibold text-[#36584a]">Ancora nessun articolo</p>
               <p className="mt-1 text-xs leading-5 text-[#607467]">
-                Gli articoli che confermi dalla chat compaiono qui.
+                Gli articoli che aggiungi con la barra o confermi dalla chat compaiono qui.
               </p>
             </div>
           ) : (

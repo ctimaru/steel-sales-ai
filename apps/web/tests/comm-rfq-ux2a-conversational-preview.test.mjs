@@ -34,7 +34,7 @@ test("COMM-RFQ-UX2.A mobile tab keeps both panels mounted and never resets unsen
   assert.match(workspace, /className=\{mobileView === "preview" \? "hidden min-w-0 xl:block"/);
   assert.match(workspace, /className=\{mobileView === "chat" \? "hidden min-w-0 xl:block"/);
   assert.match(builder, /id="commercial-ai-intake"/);
-  assert.match(builder, /hidden=\{focusAiIntake && !showManualTools\}/);
+  assert.match(builder, /hidden=\{focusAiIntake\} data-private-calculator-shell/);
 });
 
 test("COMM-RFQ-UX2.A keeps AI proposals separate from human confirmed lines", () => {
