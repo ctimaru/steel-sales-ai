@@ -14,7 +14,7 @@ from .net_pro_producers_auto1a4 import (
 
 MAX_HTML_BYTES = 512_000
 MAX_DIAGNOSTIC_ROWS = 120
-PDF_LINK = re.compile(r"\\.pdf(?:[?#]|$)", re.I)
+PDF_LINK = re.compile(r"\.pdf(?:[?#]|$)", re.I)
 REASON_CODES = frozenset({
     "exact_candidate", "no_table_rows", "no_eligible_rows",
     "missing_standard", "missing_grade", "missing_shape",
