@@ -89,7 +89,9 @@ def _dimensions(shape: str, text: str) -> list[float] | None:
 
 
 def _candidate(row: dict, line: int, manifest: dict, actual_sha: str) -> dict | None:
-    if any(not isinstance(row.get(key), str) for key in REQUIRED_COLUMNS):
+    if (None in row or any(value is None for value in row.values())
+            or any(not isinstance(row.get(key), str) for key in REQUIRED_COLUMNS)):
+        # Reject extra/missing CSV cells instead of silently truncating a row.
         return None
     norm = " ".join(row["standard"].upper().split())
     grade = row["grade"].strip().upper()
