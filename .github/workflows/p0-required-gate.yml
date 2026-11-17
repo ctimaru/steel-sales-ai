@@ -4,10 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    # NET-IT-BACKLOG1: also attach the unchanged P0 check to the actual
-    # feature head, because GitHub has repeatedly regenerated the synthetic
-    # PR merge ref after a successful run. Keeps all existing required jobs.
-    branches: [main, net-it-auto2-bad-name-recovery-20261117]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
