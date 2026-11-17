@@ -1542,7 +1542,43 @@ export function BuyerDistintaBuilder({
       </section>
 
       {/* DISTINTA-ONE1: niente invio diretto della distinta per email. Ogni richiesta
-          ai fornitori passa dalla RFQ, con revisione dei destinatari e conferma. */}
+          ai fornitori passa dalla RFQ, con revisione dei destinatari e conferma.
+          Nella calcolatrice classica (pagina pubblica) resta solo il salvataggio. */}
+      {!focusAiIntake ? (
+        <section aria-labelledby="buyer-save-only-title" className="rounded-2xl border border-[#d8e1dd] bg-white p-4 shadow-sm">
+          <h3 id="buyer-save-only-title" className="text-base font-semibold text-[#1d2824]">{t("Salva soltanto la distinta.")}</h3>
+          <p className="mt-1 text-sm leading-6 text-[#66736e]">
+            Lo snapshot resta privato e separato dai contenuti pubblici. Per chiedere un&apos;offerta ai fornitori usa il pulsante principale.
+          </p>
+          {authenticated ? (
+            <button
+              type="button"
+              disabled={!allComplete || savePending || rfqPending}
+              onClick={saveDistinta}
+              className="platform-primary mt-3 inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {t(savePending ? "Salvataggio…" : savedId ? "Salvata ✓" : "Salva distinta")}
+            </button>
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                href={"/login?next=" + encodeURIComponent(appRoutes.rfqHub.createDistinta)}
+                onClick={persistBrowserDraft}
+                className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold"
+              >
+                Accedi per salvare
+              </Link>
+              <Link
+                href="/register"
+                onClick={persistBrowserDraft}
+                className="app-secondary inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
+              >
+                Registra azienda
+              </Link>
+            </div>
+          )}
+        </section>
+      ) : null}
     </div>
   );
 }

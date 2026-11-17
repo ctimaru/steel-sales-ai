@@ -13,7 +13,7 @@ const handoff = read("../lib/commercial-ai-intake-handoff.ts");
 test("COMM-RFQ-UX1 retains the private one-shot text transfer with explicit AI consent", () => {
   assert.match(companion, /sessionStorage\.setItem\("sss:commercial-ai-intake-handoff", value\)/);
   assert.match(companion, /newRequestHref\(\)/);
-  assert.match(page, /const aiFocused = composing && params\.method === "ai"/);
+  assert.match(page, /redirect\(legacyComposeRedirect\(params\)\)/);
   assert.match(handoff, /sessionStorage\.removeItem\(HANDOFF_KEY\)/);
   assert.match(intake, /consumeCommercialAiTextHandoff\(MAX_TEXT_CHARS\)/);
   assert.match(intake, /onClick=\{analyzeText\}/);
@@ -50,13 +50,13 @@ test("COMM-RFQ-UX1 makes approved articles actionable while keeping private save
   assert.match(builder, /<CommercialRfqLivePreview/);
   assert.match(preview, /data-testid="commercial-rfq-live-preview"/);
   assert.match(preview, /data-testid="commercial-rfq-approved-lines"/);
-  assert.match(builder, /onClick=\{saveDistinta\}/);
+  assert.match(builder, /onSave=\{saveDistinta\}/);
   assert.match(builder, /onClick=\{createRfqHub\}/);
   assert.match(builder, /onOpenEditor=\{\(\) => \{ setShowManualTools\(true\); openPrivateCart\(\); \}\}/);
   assert.match(preview, /disabled=\{!canSave \|\| Boolean\(savedId\)\}/);
   assert.match(builder, /Explicit human-approved candidates from the review UI/);
   assert.match(builder, /crea la RFQ con un clic/);
-  assert.match(preview, /non invia messaggi ai fornitori/);
+  assert.match(preview, /l’invio parte solo dopo la tua conferma/);
 });
 
 test("COMM-RFQ-UX1 TSX changed modules parse without JSX syntax errors", () => {

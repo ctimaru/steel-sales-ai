@@ -34,7 +34,7 @@ export default async function NewRequestPage({ searchParams }: {
   // Supabase policies independently verify the authenticated data owner.
   const context = await requireWorkspaceWriteRole(appRoutes.rfqHub.home);
   const params = await searchParams;
-  const locale = safeBuyerUiLocale(params.lang);
+  const locale=safeBuyerUiLocale(params.lang);
   const [catalogOptions, networkContext] = await Promise.all([
     listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions),
     // Provenance only: the Network company is never added as a recipient automatically.

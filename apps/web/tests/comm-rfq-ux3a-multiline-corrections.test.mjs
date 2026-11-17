@@ -70,7 +70,7 @@ test("UX3.A routes each chat correction to review, not model memory or dispatch"
   assert.ok(preview.includes('correctedByBuyer ? "Modificato da te · da confermare"'));
   assert.ok(preview.includes("Le proposte non vengono salvate né conteggiate finché non le confermi."));
   assert.ok(builder.includes("function insertRfqAiTextLines(proposals: BuyerDistintaDraftLine[])"));
-  assert.ok(builder.includes("<TechnicalCartShell visible={activeLineCount > 0 && !focusAiIntake} open={cartOpen}"));
+  assert.ok(builder.includes("<TechnicalCartShell visible={activeLineCount > 0 && (!focusAiIntake || cartOpen)} open={cartOpen}"));
   assert.ok(builder.includes("onEditLine={editApprovedLine}"));
   assert.ok(builder.includes("onOpenEditor={() => { setShowManualTools(true); openPrivateCart(); }}"));
 

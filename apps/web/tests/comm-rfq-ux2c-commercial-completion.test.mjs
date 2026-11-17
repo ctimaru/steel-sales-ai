@@ -42,7 +42,7 @@ test("COMM-RFQ-UX2.C saves ONLY verified rows and never dispatches suppliers", (
   assert.match(builder, /onSave=\{saveDistinta\}/);
   assert.match(builder, /onCreateRfq=\{createRfqHub\}/);
   assert.match(preview, /I totali sono parziali/);
-  assert.match(preview, /non invia messaggi ai fornitori/);
+  assert.match(preview, /l’invio parte solo dopo la tua conferma/);
   assert.doesNotMatch(preview, /sendBuyerDistinta|sendDistinta|sendEmail\(/);
 });
 

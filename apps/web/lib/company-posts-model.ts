@@ -4,11 +4,8 @@
  * Parses only the governed RPC payloads (cpost1_feed, cpost1_can_publish,
  * cpost1_staff_queue) and maps their codes to Italian copy. Never grants
  * anything: every permission is re-checked in SQL by the cpost1_* functions.
- * Kept free of runtime imports so it can be unit-tested in isolation
- * (the one relative import below has no imports of its own).
+ * Kept free of runtime imports so it can be unit-tested in isolation.
  */
-
-import { newRequestHref } from "./new-request-href.ts";
 
 export const COMPANY_POST_MAX_CHARS = 3000;
 export const COMPANY_POST_DAILY_LIMIT = 3;
@@ -198,7 +195,8 @@ export function companyPostIsOffer(type: CompanyPostType): boolean {
  */
 export function companyPostOfferHref(item: Pick<CompanyPostItem, "postType" | "companyId" | "isOwnCompany">): string | null {
   if (!companyPostIsOffer(item.postType) || item.isOwnCompany || !UUID.test(item.companyId)) return null;
-  return newRequestHref({ network: item.companyId, measure: true });
+  // DISTINTA-ONE1: same address as newRequestHref({ network, measure: true }), kept import-free.
+  return "/rfq-hub/distinta?aggiungi=misura&network=" + encodeURIComponent(item.companyId);
 }
 
 export function parseCompanyPostsFeed(value: unknown): { items: CompanyPostItem[]; next: CompanyPostsCursor | null } | null {
