@@ -1,0 +1,46 @@
+name: "NET-IT-GROWTH.B3.B — CORDIS Italian industrial sources"
+
+on:
+  schedule:
+    # Post B2 and first-party B3; the registry gate enforces source cooldown.
+    - cron: "13 8 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-it-growthb3b-cordis-italian-industrial
+  cancel-in-progress: false
+
+jobs:
+  source-discovery:
+    name: "EU CORDIS licensed source (only after owner approval, no publication)"
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 24
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned existing worker dependency manifest
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Validate dedicated Supabase service credentials
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+        run: |
+          set -euo pipefail
+          test "$CRAWL_IT65B_SUPABASE_URL" = "https://ecrafjdummcdfycznitx.supabase.co" || exit 1
+          case "$CRAWL_IT65B_SUPABASE_SECRET_KEY" in sb_secret_*) ;; *) exit 1 ;; esac
+          echo "::add-mask::$CRAWL_IT65B_SUPABASE_SECRET_KEY"
+      - name: B3.B approved source claim; industrial/province selection and staging
+        working-directory: services/worker
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+        run: python -m app.net_it_growthb3b_cordis
