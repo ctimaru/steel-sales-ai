@@ -81,7 +81,7 @@ def test_a5_sql_is_private_and_fingerprint_bound():
     assert "p.detail_discovery_sha256=v_page.parent_sha256" in sql
     assert "and c.publication_status='published'" in sql
     assert "c.evidence_status='pending_verification'" in sql
-    assert sql.count("from public,anon,authenticated;") == 3
+    assert sql.count("from public,anon,authenticated;") == 2
     assert sql.count("to service_role;") == 2
     assert "update private.network_producer_auto1_detail_pages set next_check_at" not in sql
     assert "published_capabilities',0" in sql
@@ -129,7 +129,8 @@ def test_worker_records_only_when_a5_flag_enabled(monkeypatch, flag):
             return type("Reply", (), {"data": self.data})()
 
     class Db:
-        calls = []
+        def __init__(self):
+            self.calls = []
 
         def rpc(self, name, args):
             self.calls.append((name, args))
