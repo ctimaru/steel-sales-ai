@@ -791,9 +791,35 @@ def classify_company(
         ("produttore di raccordi", 5.0),
         ("produzione di flange", 5.0),
         ("produttore di flange", 5.0),
+        ("fabbricazione di raccordi", 5.0),
+        ("fabbricazione di raccorderia", 5.0),
+        ("produzione di raccorderia", 5.0),
+        ("produciamo raccordi", 5.0),
         ("produzione", 0.5),
         ("manufacturing", 0.5),
     ))
+    # Official sites may describe fittings production with an intervening
+    # tenure phrase: "produce da oltre 40 anni raccordi per tubi".
+    # Require a short, sentence-local company-production assertion; mentioning
+    # fittings in a catalogue alone is never enough.
+    if re.search(
+        r"\\b(?:produce|produciamo|producono|fabbrica|fabbrichiamo)\\b"
+        r"[^.!?;]{0,75}\\braccord(?:i|eria)\\b", lowered,
+    ):
+        producer_raw += 5.0
+
+    # A fitting/flange producer often mentions the tubes they connect to.
+    # Do not label it a steel tube MILL without explicit production of tubes.
+    tube_production_evidenced = _has_any(lowered, (
+        "tubificio", "produttore di tubi", "produttori di tubi",
+        "produzione di tubi", "produciamo tubi", "fabbricazione di tubi",
+        "tube manufacturer", "manufacturer of tubes",
+        "manufacturer of steel tubes", "manufactures steel tubes",
+        "welded tube manufacturer", "seamless tube manufacturer",
+        "welded pipe manufacturer", "seamless pipe manufacturer",
+        "production of steel tubes",
+    ))
+
     trader_raw = _weighted_signal_score(lowered, (
         ("stockholder", 6.0),
         ("stockist", 6.0),
@@ -905,6 +931,16 @@ def classify_company(
         ("spianatura", 3.0),
         ("cesoiatura", 3.0),
         ("lavorazioni meccaniche", 1.5),
+        # First-party metalworking companies use inflected constructions:
+        # "taglio e deformazione dei tubi" is explicit processing evidence.
+        ("taglio dei tubi", 6.0),
+        ("taglio del tubo", 6.0),
+        ("taglio di tubi", 6.0),
+        ("deformazione dei tubi", 6.0),
+        ("deformazione del tubo", 6.0),
+        ("deformazione di tubi", 6.0),
+        ("lavorazione dei tubi", 6.0),
+        ("lavorazioni dei tubi", 6.0),
     ))
     end_user_raw = _weighted_signal_score(lowered, (
         ("costruzione macchine", 5.0),
@@ -956,7 +992,7 @@ def classify_company(
         quality_flags.append("classification_insufficient_role_evidence")
 
     subtypes: list[str] = []
-    if "producer" in roles and has_tube:
+    if "producer" in roles and tube_production_evidenced:
         subtypes.append("tube_pipe_producer")
     if "trader_distributor" in roles:
         if _has_any(lowered, (
@@ -990,12 +1026,14 @@ def classify_company(
                 "processor_service_provider": "processes",
                 "end_user": "uses",
             }[role]
-            if has_tube:
+            if has_tube and (role != "producer" or tube_production_evidenced):
                 product_relations.append({
                     "key": "tubes_pipes",
                     "relationship_type": relation,
                 })
-            if _has_any(lowered, hollow_terms):
+            if _has_any(lowered, hollow_terms) and (
+                role != "producer" or tube_production_evidenced
+            ):
                 product_relations.append({
                     "key": "hollow_sections",
                     "relationship_type": relation,
