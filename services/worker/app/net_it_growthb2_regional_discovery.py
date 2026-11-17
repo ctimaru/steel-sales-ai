@@ -207,7 +207,7 @@ async def main() -> dict:
         report = {
             "status": stored.get("status"), "region_qids": sorted(ids),
             "fetched": sum(counts.values()),
-            "verified_source_leads": stored.get("new_domains", 0),
+            "new_unverified_domains": stored.get("new_domains", 0),
             "existing_or_rejected": stored.get("duplicate_or_rejected", 0),
             "published": 0,
         }
