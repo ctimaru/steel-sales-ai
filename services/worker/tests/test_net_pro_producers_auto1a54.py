@@ -67,7 +67,8 @@ def test_second_level_accepts_explicit_dimension_tables_and_keeps_parent_sha():
     assert result[0]["parent_url"] == PRODUCT
     assert all(x["depth"] == 2 for x in result)
     assert all(not x["url"].endswith(".pdf") and "evil.test" not in x["url"] for x in result)
-    assert all("azienda" not in x["url"] for x in result)
+    # Corporate pages are *deprioritized*, never deleted: may include evidence.
+    assert all("azienda" not in x["url"] for x in result[:1])
     baseline = discover_detail_links(html, PRODUCT, "www.example.it", SHA)
     assert all("/schede/tabelle-dimensionali/" not in x["url"] for x in baseline)
 
