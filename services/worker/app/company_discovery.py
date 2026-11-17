@@ -803,8 +803,8 @@ def classify_company(
     # Require a short, sentence-local company-production assertion; mentioning
     # fittings in a catalogue alone is never enough.
     if re.search(
-        r"\\b(?:produce|produciamo|producono|fabbrica|fabbrichiamo)\\b"
-        r"[^.!?;]{0,75}\\braccord(?:i|eria)\\b", lowered,
+        r"\b(?:produce|produciamo|producono|fabbrica|fabbrichiamo)\b"
+        r"[^.!?;]{0,75}\braccord(?:i|eria)\b", lowered,
     ):
         producer_raw += 5.0
 
