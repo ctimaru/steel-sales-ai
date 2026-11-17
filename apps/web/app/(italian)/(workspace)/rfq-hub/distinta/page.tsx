@@ -71,7 +71,8 @@ export default async function NewRequestPage({ searchParams }: {
       <BuyerDistintaBuilder
         workspace
         focusAiIntake
-        openMeasure={params.aggiungi === "misura"}
+        // The AI chat is Italian; a bill prepared in another language starts from the calculator.
+        openMeasure={params.aggiungi === "misura" || locale !== "it"}
         locale={locale}
         authenticated
         userId={context.userId}

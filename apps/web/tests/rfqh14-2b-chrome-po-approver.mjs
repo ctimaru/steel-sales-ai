@@ -147,19 +147,22 @@ try {
     await supplierPage.getByRole("button",{name:"Registra risposta",exact:true}).click();
     await supplierPage.waitForFunction(() => {
       const text=document.body.innerText;
-      return text.includes("Risposta registrata.") ||
+      // The success message and router.refresh() commit in the same transition, so
+      // the refreshed «Risposta registrata» panel (uppercase via CSS) may be the first
+      // evidence the browser sees.
+      return /risposta registrata/i.test(text) ||
         text.includes("Non è stato possibile registrare la risposta al PO.") ||
         text.includes("Questa versione del PO non è più aperta") ||
         text.includes("La scadenza di conferma è trascorsa.");
     },null,{timeout:30000});
     const message=await supplierPage.locator("body").innerText();
     console.log("RFQH14.2b SUPPLIER SUBMIT DIAGNOSTIC",JSON.stringify({
-      registered:message.includes("Risposta registrata."),
+      registered:/risposta registrata/i.test(message),
       failed:message.includes("Non è stato possibile registrare la risposta al PO."),
       closed:message.includes("Questa versione del PO non è più aperta"),
       expired:message.includes("La scadenza di conferma è trascorsa."),
     }));
-    assert.ok(message.includes("Risposta registrata."),"Supplier confirmation action failed");
+    assert.ok(/risposta registrata/i.test(message),"Supplier confirmation action failed");
     await supplierPage.getByRole("heading",{name:"Confermato",exact:true})
       .waitFor({state:"visible",timeout:30000});
     assert.equal(await supplierPage.getByRole("button",{name:"Registra risposta"}).count(),0,

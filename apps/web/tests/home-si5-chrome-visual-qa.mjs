@@ -97,7 +97,8 @@ try {
       check((await primaryHeroAction.getAttribute("href")) ===
         "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi",
         "Hero calculator must remain public and live");
-      const publicDistinta = hero.getByRole("link", { name: /Crea una distinta gratis/ });
+      // HOME-MOBILE-B: under 700px the same link shows the short label «Distinta gratis».
+      const publicDistinta = hero.getByRole("link", { name: /Crea una distinta gratis|Distinta gratis/ });
       check(await publicDistinta.count() === 1 &&
         await publicDistinta.getAttribute("href") === "/distinta", "Public bill CTA missing");
       check(await page.locator("#home-tools a").count() === 5,
@@ -137,7 +138,9 @@ try {
         check(await geometryProof.getByText(family, { exact: true }).count() >= 1,
           "Missing tube geometry " + family);
       }
-      check(await geometryProof.getByRole("link", { name: "Apri il calcolatore" }).getAttribute("href") ===
+      // HOME-MOBILE-B: the Italian proof shows the public tool cards; the weight
+      // calculator card must keep the tracked School-section destination.
+      check(await geometryProof.getByRole("link", { name: /Calcolo pesi/ }).getAttribute("href") ===
         "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
         "Technical proof calculator destination lost");
       const enPage = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });
@@ -206,7 +209,10 @@ try {
         }))
       );
       const quietMotion = await readCinematicMotion();
-      check(quietMotion.length === 3, viewport.name + " is missing a cinematic layer");
+      // HOME-NETPRO-PUBLIC2: on the Italian home the network overlay and the product hint
+      // give way to the Network PRO card; the photographic layer must stay (EN keeps all three).
+      check(quietMotion.some((item) => item.layer === "photo"),
+        viewport.name + " is missing a cinematic layer: " + JSON.stringify(quietMotion));
       check(quietMotion.every((layer) => layer.animation === "none"),
         viewport.name + " failed reduced-motion gate: " + JSON.stringify(quietMotion));
       if (viewport.width === 1440) {

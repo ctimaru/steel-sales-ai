@@ -44,7 +44,7 @@ test("the single screen: chat + Distinta, measure panel on demand, step 2 = supp
   const page = read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx");
   assert.match(page, /requireWorkspaceWriteRole/);
   assert.match(page, /focusAiIntake\n/);
-  assert.match(page, /openMeasure=\{params\.aggiungi === "misura"\}/);
+  assert.match(page, /openMeasure=\{params\.aggiungi === "misura" \|\| locale !== "it"\}/);
   assert.match(page, /"Cosa ti serve", "A chi lo chiedi", "Invia"/);
   // A Network company is provenance only, never an automatic recipient.
   assert.match(page, /non viene aggiunta in automatico/);
