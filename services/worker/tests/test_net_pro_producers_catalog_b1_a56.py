@@ -114,11 +114,12 @@ def test_csv_source_bound_and_no_cross_row_tuple_inference():
 
 
 def test_malformed_csv_with_extra_or_missing_cells_cannot_be_promoted():
-    content = (
-        "standard,grade,shape,dimensions_mm\\n"
-        "EN 10219,S355J2H,RHS,200x100x6,unauthorized_extra\\n"
-        "EN 10219,S355J2H,RHS\\n"
-    ).replace("\\\\n", "\\n").encode()
+    content = "\n".join([
+        "standard,grade,shape,dimensions_mm",
+        "EN 10219,S355J2H,RHS,200x100x6,unauthorized_extra",
+        "EN 10219,S355J2H,RHS",
+        "",
+    ]).encode()
     report = inspect(content)
     assert report["candidates"] == []
     assert report["rejected_rows"] == 2
