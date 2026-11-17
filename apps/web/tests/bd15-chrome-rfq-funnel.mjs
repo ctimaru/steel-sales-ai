@@ -75,6 +75,44 @@ async function fillTwoTubularLines(page) {
   assert.match(summary, /72(?:[,.]0+)? m/);
   return { calc, bill };
 }
+/** DISTINTA-QUICK1: /rfq-hub/distinta adds articles with the «Aggiungi articolo» bar. */
+async function fillTwoQuickLines(page, width) {
+  // No calculator on this screen: the draft-ready flag is the hydration gate.
+  await page.locator('[data-private-calculator-page][data-buyer-draft-ready="true"]')
+    .waitFor({ state: "visible", timeout: 60000 });
+  const cookie = page.locator('[data-testid="mobile-cookie-consent"]');
+  if (await cookie.isVisible()) {
+    await cookie.getByRole("button",{name:"Accetta necessari"}).click();
+  }
+  const quick = page.getByTestId("distinta-quick-add");
+  await quick.waitFor({ state: "visible", timeout: 60000 });
+  const search = page.locator("#distinta-quick-add-search");
+  await quick.getByLabel("Grado", { exact: true }).fill("S355J2H");
+  for (const standard of ["EN 10219", "EN 10210"]) {
+    await quick.getByRole("button", { name: standard, exact: true }).click();
+    await search.fill("quadro 100x100x5");
+    await quick.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
+    await search.press("Enter");
+    await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Q.tà");
+    await page.keyboard.type("3");
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => document.activeElement?.id === "distinta-quick-add-search");
+  }
+  assert.equal(await page.locator("#buyer-live-preview").count(), 0, "Adding a line must not auto-open the editor");
+  if (width < 1280) await page.getByRole("tab", { name: /Distinta/ }).click();
+  await page.waitForFunction(() =>
+    document.querySelectorAll('[data-testid="commercial-rfq-approved-lines"] li').length === 2);
+  await page.getByLabel("Nome della distinta", { exact: true }).fill("BD15 E2E LOCAL " + width);
+  await page.getByRole("button", { name: "Modifica gli articoli nella distinta", exact: true }).click();
+  const bill = page.locator("#buyer-live-preview");
+  await page.waitForFunction(() =>
+    document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === 2);
+  const summary = await bill.innerText();
+  assert.match(summary, /EN 10219/);
+  assert.match(summary, /EN 10210/);
+  assert.match(summary, /72(?:[,.]0+)? m/);
+  return { bill };
+}
 async function login(page) {
   await goto(page, "/login");
   await page.locator('input[name="email"]').fill(buyer.email);
@@ -109,11 +147,7 @@ try {
     await step("buyer local GoTrue login " + width, () => login(page));
     await step("create mixed-EN 10210/10219 bill with one-click rows " + width, async () => {
       await goto(page, "/rfq-hub/distinta?aggiungi=misura");
-      await waitForBuilderReady(page);
-      await page.getByLabel("Titolo distinta").fill("BD15 E2E LOCAL " + width);
-      await page.locator("[data-private-calculator-grade] details > summary").click();
-      await page.getByLabel("Grado acciaio · facoltativo ora").fill("S355J2H");
-      const { bill } = await fillTwoTubularLines(page);
+      const { bill } = await fillTwoQuickLines(page, width);
       const btn = bill.getByRole("button", { name: /Crea RFQ privata|Scegli i fornitori/ });
       await btn.waitFor({state:"visible"});
       assert.equal(await btn.isEnabled(),true,"Mixed EN bill must be valid and immediately RFQ-ready");

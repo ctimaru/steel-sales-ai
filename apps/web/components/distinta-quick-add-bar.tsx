@@ -91,7 +91,8 @@ export function DistintaQuickAddBar({
     setQuery(suggestion.description);
     setOpen(false);
     setMessage(null);
-    window.requestAnimationFrame(() => quantityRef.current?.focus());
+    // Synchronous: a deferred focus could steal keystrokes typed into another field meanwhile.
+    quantityRef.current?.focus();
   }
 
   function clearSelection() {
