@@ -170,9 +170,8 @@ try {
         }
         if (person.id === "buyer") {
           await start.click();
-          await page.waitForURL(url => url.pathname === "/commercial" &&
-            url.searchParams.get("compose") === "1" &&
-            url.searchParams.get("method") === "ai", { timeout: 90000 });
+          // DISTINTA-ONE1: the assistant opens the single «Nuova richiesta» screen.
+          await page.waitForURL(url => url.pathname === "/rfq-hub/distinta", { timeout: 90000 });
           assert.equal(await page.getByTestId("commercial-ai-native-shell").count(), 0);
         } else {
           const reset = shell.getByTestId("commercial-ai-native-new-chat");
