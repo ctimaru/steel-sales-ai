@@ -30,6 +30,8 @@ test("HOME-MOBILE-B7: five tools swipe horizontally on phones, still five links"
   assert.equal((tools.match(/<Link key=\{tool\.number\}/g) || []).length, 1);
   assert.doesNotMatch(tools, /role="listitem"/);
   const block = toolsCss.slice(toolsCss.indexOf("HOME-MOBILE-B7"));
+  assert.match(block, /\.inner\{padding-inline:18px\}/); // bleed equals padding: no page overflow
+  assert.match(block, /margin-inline:-18px/);
   assert.match(block, /overflow-x:auto/);
   assert.match(block, /scroll-snap-type:x mandatory/);
   assert.match(block, /scroll-snap-align:start/);
