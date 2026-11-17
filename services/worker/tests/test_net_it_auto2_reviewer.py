@@ -164,6 +164,50 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(outcome["_identity_correction"]["p_reviewer_version"],
                          "net-it-auto2-firstparty-v4")
 
+    async def test_piemonte_v4_recovers_legal_name_even_if_bad_guess_matches(self):
+        # Real pending Piemonte patterns, 17 Nov: an old first-party crawler
+        # guess includes a year, copyright, privacy or marketing sentence.
+        # Even though that *whole* string is present on the official site,
+        # v4 must use the independently evidenced, domain-related legal name.
+        cases = (
+            ("mcmonarbario.com", "2020 MC MONARBARIO S.r.l.",
+             "© 2020 MC MONARBARIO S.r.l. P.IVA 00463280016", "MC MONARBARIO S.r.l."),
+            ("metald.it", "2023 Tutti i diritti riservati a Metal D S.r.l.",
+             "© 2023 Tutti i diritti riservati a Metal D S.r.l. - P.IVA 00195980065",
+             "Metal D S.r.l."),
+            ("prlamiera.com", "suggerendo metodologie produttive più appropriate. PR LAMIERA S.r.l.",
+             "suggerendo metodologie produttive più appropriate. PR LAMIERA S.r.l. P.IVA 02451810069",
+             "PR LAMIERA S.r.l."),
+            ("tbsrl.it", "branded social media profiles. Informativa privacy e cookie Tecnomeccanica Biellese S.r.l.",
+             "branded social media profiles. Informativa privacy e cookie Tecnomeccanica Biellese S.r.l.",
+             "Tecnomeccanica Biellese S.r.l."),
+            ("trafileriemonferrato.com", "siamo sicuri che non rimarrete delusi. Trafilerie del Monferrato S.r.l.",
+             "siamo sicuri che non rimarrete delusi. Trafilerie del Monferrato S.r.l. P.IVA 02493570069",
+             "Trafilerie del Monferrato S.r.l."),
+        )
+        for domain, contaminated, first_party, expected in cases:
+            with self.subTest(domain=domain):
+                with patch("app.net_it_auto2_reviewer._fetch_page",
+                           new=AsyncMock(return_value=page(
+                               first_party, url=f"https://{domain}/"))):
+                    outcome = await inspect_candidate(
+                        None, row(name=contaminated, domain=domain))
+                self.assertEqual(outcome["p_verdict"], "identity_supported")
+                self.assertEqual(outcome["p_observed_name"], expected)
+                self.assertEqual(outcome["_identity_correction"]["p_legal_name"], expected)
+                self.assertEqual(outcome["p_rights_state"], "unknown")
+                self.assertNotIn("p_approved", outcome)
+
+    async def test_clean_first_party_name_does_not_trigger_identity_write(self):
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=AsyncMock(return_value=page(
+                       "© 2023 Metal D S.r.l. - P.IVA 00195980065",
+                       url="https://metald.it/"))):
+            outcome = await inspect_candidate(None, row(
+                name="Metal D S.r.l.", domain="metald.it"))
+        self.assertEqual(outcome["p_verdict"], "identity_supported")
+        self.assertNotIn("_identity_correction", outcome)
+
     async def test_v4_no_company_name_on_site_is_explicit(self):
         with patch("app.net_it_auto2_reviewer._fetch_page",
                   new=AsyncMock(return_value=page("Officina Emme lavori in ferro",
