@@ -222,6 +222,20 @@ BEGIN
   'published',0);
 END
 $fn$;
+-- Pre-populate only the DOCUMENTARY EVIDENCE for a possible one-time source
+-- review. Do NOT mark reviewed/approved, relax terms, or enable discovery.
+-- Existing human decisions are never overwritten.
+UPDATE public.network_discovery_source_registry
+SET rights_evidence_url=coalesce(rights_evidence_url,
+      'https://cordis.europa.eu/about/legal'),
+    review_note=CASE WHEN nullif(btrim(coalesce(review_note,'')),'') IS NULL
+      THEN 'B3.B source assessment proposal only (not approval). EU CORDIS open CSV; reuse notice CC BY 4.0 for EU-owned content, beneficiary/third-party works excluded. Use only non-personal official company web links as unverified first-party crawl pointers. Named owner must separately check archive-specific rights and approve.'
+      ELSE review_note END
+WHERE id='63b3ab2f-e272-43d1-b1cb-026d20a0a384'::uuid
+ AND source_url='https://data.europa.eu/data/datasets/cordis-eu-research-projects-under-horizon-europe-2021-2027'
+ AND governance_status='unreviewed' AND NOT enabled_for_discovery
+ AND reviewed_by IS NULL AND reviewed_at IS NULL;
+
 REVOKE ALL ON FUNCTION private.net_it_growthb3b_source_active()
  FROM PUBLIC,anon,authenticated,service_role;
 REVOKE ALL ON FUNCTION public.net_it_growthb3b_claim_daily()
