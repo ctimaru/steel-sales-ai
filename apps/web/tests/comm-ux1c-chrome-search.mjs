@@ -94,7 +94,10 @@ try {
       const bridge = page.getByRole("link", { name: "RFQ fornitori e bozze" });
       assert.equal(await bridge.count(), 1);
       const href = await bridge.getAttribute("href");
-      assert.equal(href, "/commercial?q=P265GH#commercial-worklist");
+      // COMM-DEALS1: the deal list translates view=all; only the search term matters.
+      const bridgeUrl = new URL(href, "http://local");
+      assert.equal(bridgeUrl.pathname, "/commercial");
+      assert.equal(bridgeUrl.searchParams.get("q"), "P265GH");
       await noOverflow(page, id + " category search");
       await page.screenshot({ path: path.join(screenshots, "search-" + id + ".png"),
         fullPage: false, animations: "disabled" });

@@ -138,7 +138,9 @@ try {
         check(await geometryProof.getByText(family, { exact: true }).count() >= 1,
           "Missing tube geometry " + family);
       }
-      check(await geometryProof.getByRole("link", { name: "Apri il calcolatore" }).getAttribute("href") ===
+      // HOME-MOBILE-B: the Italian proof shows the public tool cards; the weight
+      // calculator card must keep the tracked School-section destination.
+      check(await geometryProof.getByRole("link", { name: /Calcolo pesi/ }).getAttribute("href") ===
         "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
         "Technical proof calculator destination lost");
       const enPage = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });
