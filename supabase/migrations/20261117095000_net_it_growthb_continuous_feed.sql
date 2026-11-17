@@ -54,6 +54,25 @@ BEGIN
              lower(btrim(n.domain))
              OR lower(split_part(n.source_url,'/',3)) LIKE '%.'||lower(btrim(n.domain)))
       UNION ALL
+      -- Existing scheduled NET-LAUNCH2 adds fresh CC0 items here daily.
+      -- Never treat a Wikidata label as a verified company or steel role.
+      SELECT lower(btrim(w.domain)), w.website_url, w.source_url,
+             'wikidata_daily_structured'::text, 3, w.discovered_at
+      FROM public.network_netfast2_structured_entities w
+      WHERE w.country_code='IT' AND w.removed_at IS NULL
+        AND w.license_url='https://www.wikidata.org/wiki/Wikidata:Licensing'
+        AND w.source_entity_id ~ '^Q[1-9][0-9]{0,13}$'
+        AND w.source_url=('https://www.wikidata.org/wiki/'||w.source_entity_id)
+        AND EXISTS (
+          SELECT 1 FROM public.network_discovery_source_registry s
+          WHERE s.source_url='https://query.wikidata.org/sparql'
+            AND s.country_code='IT' AND s.enabled_for_discovery
+            AND s.governance_status='approved' AND s.reviewed_by IS NOT NULL
+            AND s.terms_status='allows_reuse'
+            AND s.database_rights_status IN ('low_risk','licensed')
+            AND s.personal_data_policy IN ('company_data_only','exclude_personal_data')
+        )
+      UNION ALL
       -- Wikidata P856 is a discovery lead, not evidence of legal identity or
       -- Italian production. Use only the existing reviewed CC0 registry.
       SELECT lower(btrim(n.domain)), n.website_url, n.source_url,
