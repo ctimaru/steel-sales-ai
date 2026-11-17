@@ -419,3 +419,59 @@ export function dealDeskHref(state: Partial<DealDeskState> & { tab?: DealOperati
   const search = params.toString();
   return "/commercial" + (search ? "?" + search : "") + (anchor ? "#" + anchor : "");
 }
+
+// ── Pagina della lista ────────────────────────────────────────────────────────
+
+export type DealPageView = {
+  rows: CommercialDeal[];
+  total: number;
+  page: number;
+  pages: number;
+  counts: DealCounts;
+};
+
+/** Ripiego della fase 1: filtro, priorità e pagina calcolati sulla finestra caricata. */
+export function pageFromDeals(deals: readonly CommercialDeal[], state: DealDeskState, pageSize: number, now = Date.now()): DealPageView {
+  const visible = sortDeals(deals.filter((deal) => dealMatches(deal, state.segment, state.filter, state.query, now)), now);
+  const pages = Math.max(1, Math.ceil(visible.length / pageSize));
+  const page = Math.min(state.page, pages);
+  return {
+    rows: visible.slice((page - 1) * pageSize, page * pageSize),
+    total: visible.length, page, pages,
+    counts: countDeals(deals, state.segment, now),
+  };
+}
+
+export type DealIndexKey = { key: string; kind: DealKind; id: string };
+export type DealIndex = { total: number; keys: DealIndexKey[]; counts: DealCounts };
+
+const INDEX_KINDS: readonly DealKind[] = ["inbound-rfq", "inbound-offer", "inbound-order", "campaign", "distinta"];
+const count = (value: unknown) => Number.isSafeInteger(value) && Number(value) >= 0 ? Number(value) : 0;
+
+/** Risposta di public.comm_deals2_index: accettata solo se il contratto è quello atteso. */
+export function parseDealIndex(value: unknown): DealIndex | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const raw = value as Row;
+  if (raw.contract !== "comm-deals2-v1" || !Array.isArray(raw.keys)) return null;
+  const counts = parent(raw.counts);
+  const segmentsRaw = parent(counts?.segments);
+  const filtersRaw = parent(counts?.filters);
+  if (!segmentsRaw || !filtersRaw) return null;
+  const keys: DealIndexKey[] = [];
+  for (const entry of rows(raw.keys)) {
+    const kind = entry.kind as DealKind;
+    if (!INDEX_KINDS.includes(kind) || !isId(entry.id) || entry.key !== kind + ":" + entry.id) return null;
+    keys.push({ key: entry.key, kind, id: entry.id });
+  }
+  return {
+    total: count(raw.total),
+    keys,
+    counts: {
+      segments: { all: count(segmentsRaw.all), sales: count(segmentsRaw.sales), purchase: count(segmentsRaw.purchase) },
+      filters: {
+        todo: count(filtersRaw.todo), waiting: count(filtersRaw.waiting), due: count(filtersRaw.due),
+        drafts: count(filtersRaw.drafts), closed: count(filtersRaw.closed),
+      },
+    },
+  };
+}

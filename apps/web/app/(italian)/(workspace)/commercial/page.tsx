@@ -10,8 +10,8 @@ import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialRequestSummary } from "@/components/commercial-request-summary";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
 import { CommercialDirectorPriorityDesk } from "@/components/commercial-director-priority-desk";
-import { CommercialDealsDesk } from "@/components/commercial-deals-desk";
-import { loadCommercialDeals } from "@/lib/commercial-deals";
+import { CommercialDealsDesk, DEALS_PAGE_SIZE } from "@/components/commercial-deals-desk";
+import { loadCommercialDealsPage } from "@/lib/commercial-deals";
 import { parseDealDeskState } from "@/lib/commercial-deal-model";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
@@ -54,7 +54,7 @@ export default async function CommercialHomePage({
     const operationTabs = ["compare", "negotiate", "award", "po"] as const;
     const deskTab = operationTabs.find((option) => option === params.tab) ?? null;
     const [deals, references] = await Promise.all([
-      loadCommercialDeals(context.organizationId),
+      loadCommercialDealsPage(context.organizationId, deskState, DEALS_PAGE_SIZE),
       listPublicTubeDimensionPages(),
     ]);
     return (

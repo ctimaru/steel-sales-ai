@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
-  countDeals, dealDeskHref, dealMatches, parseDealDeskState, purchaseDealFromRow,
+  countDeals, dealDeskHref, dealMatches, pageFromDeals, parseDealDeskState, parseDealIndex, purchaseDealFromRow,
   resolveDealKey, salesDealsFromRows, distintaDealsFromRows, sortDeals,
 } from "../lib/commercial-deal-model.ts";
 
@@ -126,4 +126,50 @@ test("pagina: elenco trattative come predefinito, con ritorno alla vista precede
   assert.doesNotMatch(desk, /<details id="commercial-assistant"[^>]*\bopen\b/);
   // Il vecchio ancoraggio della sidebar e della dashboard continua a puntare alla lista.
   assert.match(desk, /id="commercial-worklist"/);
+});
+
+// COMM-DEALS2 — priorità su tutte le trattative con public.comm_deals2_index.
+
+test("indice SQL: contratto verificato, chiavi coerenti, conteggi numerici", () => {
+  const good = {
+    contract: "comm-deals2-v1", total: 3,
+    keys: [{ key: "campaign:" + id(10), kind: "campaign", id: id(10) }, { key: "inbound-rfq:" + id(1), kind: "inbound-rfq", id: id(1) }],
+    counts: { segments: { all: 3, sales: 1, purchase: 2 }, filters: { todo: 1, waiting: 1, due: 0, drafts: 1, closed: 0 } },
+  };
+  const parsed = parseDealIndex(good);
+  assert.equal(parsed.total, 3);
+  assert.deepEqual(parsed.keys.map((k) => k.key), ["campaign:" + id(10), "inbound-rfq:" + id(1)]);
+  assert.equal(parsed.counts.filters.drafts, 1);
+  assert.equal(parseDealIndex({ ...good, contract: "other" }), null);
+  assert.equal(parseDealIndex({ ...good, keys: [{ key: "campaign:" + id(1), kind: "inbound-rfq", id: id(1) }] }), null);
+  assert.equal(parseDealIndex({ ...good, keys: [{ key: "quote:x", kind: "quote", id: "x" }] }), null);
+  assert.equal(parseDealIndex(null), null);
+});
+
+test("ripiego sulla finestra: stessa pagina, stessi conteggi del modello", () => {
+  const deals = salesDealsFromRows([
+    { id: id(60), status: "new", created_at: "2026-11-16T10:00:00Z", company: { name: "A" } },
+    { id: id(61), status: "quoted", created_at: "2026-11-15T10:00:00Z", company: { name: "B" } },
+    { id: id(62), status: "new", created_at: "2026-11-14T10:00:00Z", company: { name: "C" } },
+  ], [], [], routes);
+  const view = pageFromDeals(deals, parseDealDeskState({ p: "2" }), 2, NOW);
+  assert.equal(view.total, 3);
+  assert.equal(view.pages, 2);
+  assert.deepEqual(view.rows.map((d) => d.counterparty), ["B"]);
+  assert.equal(pageFromDeals(deals, parseDealDeskState({ p: "9" }), 2, NOW).page, 2);
+  assert.deepEqual(view.counts, countDeals(deals, "all", NOW));
+});
+
+test("migrazione: sola lettura, RLS del chiamante, non eseguibile da anon", () => {
+  const sql = readFileSync(new URL("../../../supabase/migrations/20261117120000_comm_deals2_priority_index.sql", import.meta.url), "utf8");
+  assert.match(sql, /security invoker/);
+  assert.doesNotMatch(sql, /security definer/);
+  assert.match(sql, /\bstable\b/);
+  assert.match(sql, /revoke all on function public\.comm_deals2_index[^;]*from public, anon/);
+  for (const forbidden of ["insert into", "update public", "delete from", "notes", "total_eur", "unit_price", "body"]) {
+    assert.equal(sql.toLowerCase().includes(forbidden), false, "la funzione non deve contenere " + forbidden);
+  }
+  const loader = readFileSync(new URL("../lib/commercial-deals.ts", import.meta.url), "utf8");
+  assert.match(loader, /rpc\("comm_deals2_index"/);
+  assert.match(loader, /loadFromWindow/);
 });
