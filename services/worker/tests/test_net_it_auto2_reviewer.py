@@ -264,6 +264,81 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(outcome["p_verdict"],"needs_human")
         self.assertIn("legal_form_requires_human_review",outcome["p_reasons"])
 
+    async def test_fallback_to_stored_official_home_when_subpath_denied(self):
+        fetched = []
+        async def first_party_fetch(client, url, base):
+            fetched.append(url)
+            if url == "https://carpenteriatest.it/chi-siamo":
+                return None
+            if url == "https://carpenteriatest.it/":
+                return page("Carpenteria Test S.r.l. - P.IVA 01234567890",
+                            url="https://carpenteriatest.it/")
+            raise AssertionError("Unapproved URL fetched")
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=first_party_fetch):
+            result = await inspect_candidate(None, row())
+        self.assertEqual(fetched, [
+            "https://carpenteriatest.it/chi-siamo",
+            "https://carpenteriatest.it/"])
+        self.assertEqual(result["p_verdict"], "identity_supported")
+        self.assertEqual(result["p_rights_state"], "unknown")
+        self.assertNotIn("p_approved", result)
+
+    async def test_both_robots_denied_never_create_identity(self):
+        seen = []
+        async def robots_denied(client, url, base):
+            seen.append(url)
+            return None
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=robots_denied):
+            result = await inspect_candidate(None, row())
+        self.assertEqual(len(seen), 2)
+        self.assertEqual(result["p_verdict"], "needs_human")
+        self.assertIn("robots_blocked_or_unavailable", result["p_reasons"])
+        self.assertNotIn("_identity_correction", result)
+
+    async def test_fallback_same_canonical_domain_but_other_host_disallowed(self):
+        # www and bare hosts have the same canonical domain but different
+        # origins. A subpath denial must not trigger a host switch.
+        seen = []
+        async def denied(client, url, base):
+            seen.append(url)
+            return None
+        with patch("app.net_it_auto2_reviewer._fetch_page", new=denied):
+            result = await inspect_candidate(None, row(
+                url="https://www.carpenteriatest.it/chi-siamo",
+                website_url="https://carpenteriatest.it/"))
+        self.assertEqual(seen, ["https://www.carpenteriatest.it/chi-siamo"])
+        self.assertEqual(result["p_verdict"], "needs_human")
+
+    async def test_primary_fetch_error_fallback_denied_remains_exception(self):
+        import httpx
+        seen = []
+        async def failed(client, url, base):
+            seen.append(url)
+            if url.endswith("/chi-siamo"):
+                raise httpx.ConnectError("source unavailable")
+            return None
+        with patch("app.net_it_auto2_reviewer._fetch_page", new=failed):
+            result = await inspect_candidate(None, row())
+        self.assertEqual(len(seen), 2)
+        self.assertEqual(result["p_verdict"], "needs_human")
+        self.assertIn("fetch_rejected_or_unavailable", result["p_reasons"])
+
+    async def test_untrusted_redirect_after_fallback_never_supports_identity(self):
+        seen = []
+        async def redirects(client, url, base):
+            seen.append(url)
+            if url.endswith("/chi-siamo"):
+                return None
+            return page("Carpenteria Test S.r.l.",
+                        url="https://unrelated-external-site.com/")
+        with patch("app.net_it_auto2_reviewer._fetch_page", new=redirects):
+            result = await inspect_candidate(None, row())
+        self.assertEqual(len(seen), 2)
+        self.assertEqual(result["p_verdict"], "needs_human")
+        self.assertNotIn("_identity_correction", result)
+
     async def test_robot_denial_fails_closed(self):
         with patch("app.net_it_auto2_reviewer._fetch_page",new=AsyncMock(return_value=None)):
             outcome=await inspect_candidate(None,row())
