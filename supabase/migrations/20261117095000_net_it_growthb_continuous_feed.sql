@@ -85,7 +85,7 @@ BEGIN
       SELECT f.* FROM feed f
       WHERE f.domain ~ '^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?[.][a-z]{2,24}$'
         AND f.homepage ~* '^https://[a-z0-9.-]+(/|$)'
-        AND f.homepage !~ '[@:]'
+        AND f.homepage !~ '@' AND split_part(f.homepage,'/',3) !~ ':'
         AND lower(regexp_replace(split_part(f.homepage,'/',3),'^www[.]','')) = f.domain
         AND char_length(f.homepage)<=2000
         AND f.evidence_url ~* '^https://' AND char_length(f.evidence_url)<=2000
