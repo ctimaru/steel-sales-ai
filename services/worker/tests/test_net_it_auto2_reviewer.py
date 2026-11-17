@@ -203,7 +203,7 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         # We only trim a year, navigation heading or content AFTER a legal form.
         cases = (
             ("arper.com", "2011-2026 Arper SPA",
-             "© 2011-2026 Arper SPA. P.IVA 01234567890", "Arper SPA"),
+             "© 2011-2026 Arper SPA - P.IVA 01234567890", "Arper SPA"),
             ("carpenteriagrisenti.it", "grisenti.S.n.c.",
              "© grisenti.S.n.c. P.IVA 01234567890", "Grisenti S.n.c."),
             ("cdm2022srl.com",
