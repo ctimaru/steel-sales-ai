@@ -1,6 +1,11 @@
 name: "NET-IT-GROWTH.B3.B — CORDIS Italian industrial sources"
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/net-it-growthb3b-cordis-italian-industrial-sources.yml"
+      - "services/worker/app/net_it_growthb3b_cordis.py"
   schedule:
     # Post B2 and first-party B3; the registry gate enforces source cooldown.
     - cron: "13 8 * * *"
