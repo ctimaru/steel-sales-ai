@@ -93,13 +93,26 @@ def _is_capital_company(name: str) -> bool:
 def _has_contaminated_name_prefix(current: str, evidenced: str) -> bool:
     """An official page may print '© 2023 ... Acme S.r.l.' as one text run.
 
-    Only remove a prefix when the *entire* independently evidenced company
-    name is a suffix of the current guess. This does not authorize inventing
-    a legal form or replacing the company with a different name.
+    Remove leading or trailing footer/product copy only when the entire
+    independently evidenced legal name is an exact word-boundary prefix or
+    suffix of the initial guess. Never invent a legal form or alias.
     """
     bad = _normalize_full_legal_name(current)
     clean = _normalize_full_legal_name(evidenced)
-    return bool(clean and bad != clean and bad.endswith(" " + clean))
+    return bool(clean and bad != clean and
+                (bad.endswith(" " + clean) or bad.startswith(clean + " ")))
+
+
+def _has_bad_name_case_or_spacing(current: str, evidenced: str) -> bool:
+    """Repair typography only when the extracted whole identity is identical.
+
+    A first-party string like 'grisenti.S.n.c.' can be proven but cannot pass
+    the publication quality gate. This must never replace a different brand.
+    """
+    return bool(current and evidenced and current != evidenced
+                and current[:1].islower() and evidenced[:1].isupper()
+                and _normalize_full_legal_name(current)
+                    == _normalize_full_legal_name(evidenced))
 
 
 def _name_evidenced(name: str, page_texts: list[str]) -> bool:
@@ -197,7 +210,8 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     if (found and _is_capital_company(found.legal_name)
             and _name_evidenced(found.legal_name, texts)
             and (not matched or not _is_capital_company(name)
-                 or _has_contaminated_name_prefix(name, found.legal_name))):
+                 or _has_contaminated_name_prefix(name, found.legal_name)
+                 or _has_bad_name_case_or_spacing(name, found.legal_name))):
         page_url = next((p.url for p in pages
                          if _name_evidenced(found.legal_name, [str(p.text)])), pages[0].url)
         correction = {"p_candidate_id": str(candidate["id"]),
