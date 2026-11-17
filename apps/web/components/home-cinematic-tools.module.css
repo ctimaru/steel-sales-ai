@@ -75,3 +75,6 @@
 .miniKnowledge{display:flex;gap:9px;padding-top:10px}.miniKnowledge span{display:block;flex:1;height:49px;border:1px solid #44795c;border-radius:2px;background:repeating-linear-gradient(to bottom,transparent 0 10px,rgba(137,218,164,.43) 11px 12px);border-top:5px solid #8bd5a8}.miniKnowledge span:nth-child(2){opacity:.78}.miniKnowledge span:nth-child(3){opacity:.55}
 @media(max-width:560px){.miniature{grid-column:1;grid-row:2;width:46px;height:48px;padding:5px}.miniTop{display:none}.miniCalculator,.miniBill,.miniNetwork,.miniInbox,.miniKnowledge{transform:scale(.48);transform-origin:top left;width:180px;height:88px;padding-top:8px}.miniNetwork{width:85px}.miniCalculator{gap:5px}.miniShapes{gap:4px}.miniShapes i{width:18px;height:18px}.miniShapes i:nth-child(3){width:24px;height:16px}.miniLines{display:none}}
 @media(max-width:359px){.miniature{width:40px;height:44px}}
+
+/* HOME-MOBILE-A4: phone readability floor. */
+@media (max-width:700px){.kicker{font-size:11px}.cardTop,.cardFoot{font-size:11px;letter-spacing:.08em}.description{font-size:13px}.footnote{font-size:12px}}

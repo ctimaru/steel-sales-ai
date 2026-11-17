@@ -1,0 +1,9 @@
+/* HOME-MOBILE-A4 (17 Nov 2026): phone readability floor for the public home.
+   Section components use Tailwind arbitrary sizes (9–10px labels) that are fine
+   on desktop but unreadable on a phone: lift them to 11px below 700px only. */
+@media (max-width: 700px) {
+  .home :global(.text-\[8px\]),
+  .home :global(.text-\[9px\]),
+  .home :global(.text-\[10px\]),
+  .home :global(.text-\[10\.5px\]) { font-size: 11px; }
+}

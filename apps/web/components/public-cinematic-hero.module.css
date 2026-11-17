@@ -715,3 +715,39 @@
   .caveat { order: 4; }
   .quickLinks { order: 5; }
 }
+
+/* HOME-MOBILE-A2 (17 Nov 2026): phone hero = headline, two side-by-side tools,
+   then the Network PRO card with its register CTA inside the first screen.
+   .copy becomes display:contents so its children and the card share one
+   ordered column; caveat and quick links follow the card. Last block wins. */
+.labelShort { display: none; }
+@media (max-width: 700px) {
+  .container { display: flex; flex-direction: column; align-items: stretch; padding: 18px 16px 26px; }
+  .copy { display: contents; }
+  .eyebrow { order: 0; gap: 6px; font-size: 11px; letter-spacing: .08em; }
+  .title { order: 1; margin-top: 10px; font-size: clamp(2rem, 9vw, 2.3rem); line-height: 1.04; }
+  .description { order: 2; margin-top: 8px; font-size: 14px; line-height: 1.45; }
+  .actions { order: 3; margin-top: 14px; flex-wrap: nowrap; gap: 8px; }
+  .primary, .secondary { flex: 1 1 0; min-width: 0; min-height: 48px; padding: 10px; gap: 8px; font-size: 13px; }
+  .labelLong { display: none; }
+  .labelShort { display: inline; }
+  .container > [data-testid="public-network-pro-showcase"] { order: 4; margin-top: 16px; max-width: none; }
+  .caveat { order: 5; margin-top: 16px; font-size: 12px; line-height: 1.5; }
+  .quickLinks { order: 6; margin-top: 10px; padding-top: 12px; gap: 8px; }
+  .quickLinks a {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 0 16px;
+    border: 1px solid rgba(172, 228, 196, .35);
+    border-radius: 999px;
+    font-size: 13px;
+  }
+  .visualCaption { display: none; }
+  .bridgeEyebrow { font-size: 11px; }
+  .bridgeSteps strong { font-size: 12px; }
+}
+@media (max-width: 359px) {
+  .actions { flex-wrap: wrap; }
+  .primary, .secondary { flex-basis: 100%; }
+}

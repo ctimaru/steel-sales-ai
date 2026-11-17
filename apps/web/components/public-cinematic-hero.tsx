@@ -89,7 +89,9 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
               {en ? "Standards & weights" : "Norme e pesi"} <span aria-hidden="true">↗</span>
             </Link>
             <Link href={links.builder} className={styles.secondary}>
-              {en ? "Create a free RFQ bill" : "Crea una distinta gratis"} <span aria-hidden="true">→</span>
+              <span className={styles.labelLong}>{en ? "Create a free RFQ bill" : "Crea una distinta gratis"}</span>
+              <span className={styles.labelShort}>{en ? "Free RFQ bill" : "Distinta gratis"}</span>
+              <span aria-hidden="true">→</span>
             </Link>
           </div>
           <p className={styles.caveat}>

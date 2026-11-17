@@ -31,8 +31,9 @@ test("HOME-SI2 prioritizes conversion but preserves free utilities and role expl
 });
 
 test("HOME-SI2 keeps public navigation and registration accessible on narrow screens", () => {
-  assert.match(publicNav, /Navigazione mobile/);
-  assert.match(publicNav, /xl:hidden/);
+  const menu = fs.readFileSync(new URL("../components/public-home-menu.tsx", import.meta.url), "utf8");
+  assert.match(menu, /Navigazione mobile/);
+  assert.match(menu, /xl:hidden/);
   assert.doesNotMatch(publicNav, /overflow-x-auto/);
   assert.match(header, /Area aziende/);
   assert.match(header, /Registrati/);
