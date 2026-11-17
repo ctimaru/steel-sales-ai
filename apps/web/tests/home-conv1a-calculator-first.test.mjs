@@ -60,12 +60,12 @@ test("HOME-CONV1A keeps five languages without giant header selectors", () => {
 });
 
 test("HOME-CONV1A is lightweight, readable and available at all breakpoints", () => {
-  assert.match(nav, /grid-cols-\[repeat\(3,minmax\(0,1fr\)\)_auto\]/);
-  assert.match(nav, /xl:hidden/);
+  // HOME-MOBILE-A1: one header row on phones; section links in the ☰ menu.
+  const menu = read("../components/public-home-menu.tsx");
+  assert.match(menu, /xl:hidden/);
   assert.match(nav, /xl:flex/);
   for (const label of ["Distinta", "Trova aziende", "Network", "Scuola"]) assert.ok(nav.includes(label));
   assert.doesNotMatch(nav, /overflow-x-auto/);
-  assert.match(nav, /styles.darkMobileLink/);
   assert.match(nav, /styles.darkDesktopLink/);
   assert.match(navCss, /color: #d4e8da !important/);
   assert.match(navCss, /color: #d2e9db !important/);

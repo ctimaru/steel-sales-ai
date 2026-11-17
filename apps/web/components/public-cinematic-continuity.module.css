@@ -390,3 +390,10 @@
 .toolSection .toolShelf .toolTile p:first-child { font-size: 12px; }
 .toolSection .toolShelf .toolTile p + p { font-size: 10px; line-height: 1.45; }
 @media (min-width: 1024px) { .toolSection .toolShelf { max-width: 680px; } }
+
+/* HOME-MOBILE-A4: phone readability floor (labels 11px, helper text 12px). */
+@media (max-width: 700px) {
+  .kicker, .accessKicker, .panelHeading, .panelRight, .shapeCard span, .processSteps li, .process > p, .sampleNote { font-size: 11px; }
+  .toolSection .toolShelf .toolTile { min-height: 44px; }
+  .toolSection .toolShelf .toolTile p + p { font-size: 12px; }
+}

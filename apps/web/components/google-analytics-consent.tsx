@@ -244,7 +244,7 @@ export function GoogleAnalyticsConsent({
           aria-label={localizedConsent?.title ?? (english ? "Cookies and privacy" : "Cookie e privacy")}
           aria-modal="false"
           data-testid="mobile-cookie-consent"
-          className={"fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-2 right-2 z-[100] ml-auto rounded-2xl border border-[#c9d8d2] bg-white/98 p-3 shadow-[0_12px_36px_rgba(17,54,45,0.14)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 "+(compactSchoolConsent?"max-w-[420px]":"max-w-[560px] sm:p-4")}
+          className={"fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-2 right-2 z-[100] ml-auto rounded-2xl border border-[#c9d8d2] bg-white/98 p-3 shadow-[0_12px_36px_rgba(17,54,45,0.14)] backdrop-blur sm:bottom-4 sm:left-auto sm:right-4 max-sm:p-2.5 "+(compactSchoolConsent?"max-w-[420px]":"max-w-[560px] sm:p-4")}
         >
           <button
             type="button"
@@ -257,7 +257,9 @@ export function GoogleAnalyticsConsent({
           </button>
 
           <div className="pr-8">
-            <div className="flex flex-wrap items-center gap-2">
+            {/* HOME-MOBILE-A3: on phones the first-visit banner is one paragraph (title, notice
+                and policy links inline) plus the two equal choices — same text, less height. */}
+            <div className={"flex flex-wrap items-center gap-2" + (consent === null ? " max-sm:hidden" : "")}>
               <p className="text-sm font-bold text-[#173f35]">{localizedConsent?.title ?? (english ? "Cookies and privacy" : "Cookie e privacy")}</p>
               {consent !== null ? (
                 <span className="rounded-full bg-[#f1f5f3] px-2 py-1 text-[10px] font-semibold text-[#66736e]">
@@ -265,13 +267,21 @@ export function GoogleAnalyticsConsent({
                 </span>
               ) : null}
             </div>
-            <p className="mt-1 max-w-lg text-xs leading-[1.4] text-[#52615b] sm:hidden">
-              {localizedConsent?.short ?? (english ? "We use essential cookies. Google Analytics may send cookieless signals; analytics cookies are enabled only with your consent on public pages." : "Usiamo cookie necessari. Google Analytics invia segnali senza cookie; solo se accetti abilitiamo i cookie statistici sulle pagine pubbliche.")}
+            <p className={"max-w-lg text-xs leading-[1.4] text-[#52615b] sm:hidden" + (consent === null ? "" : " mt-1")}>
+              {consent === null ? <strong className="font-bold text-[#173f35]">{localizedConsent?.title ?? (english ? "Cookies and privacy" : "Cookie e privacy")}. </strong> : null}
+              {localizedConsent?.short ?? (english ? "We use essential cookies. Google Analytics may send cookieless signals; analytics cookies are enabled only with your consent on public pages." : "Usiamo cookie necessari. Google Analytics invia segnali senza cookie; solo se accetti abilitiamo i cookie statistici sulle pagine pubbliche.")}{" "}
+              <Link href="/privacy" hrefLang="it" className="font-semibold text-[#1a5144] underline underline-offset-2">
+                {english ? "Privacy (IT)" : "Privacy"}
+              </Link>
+              <span aria-hidden="true"> · </span>
+              <Link href="/cookies" hrefLang="it" className="font-semibold text-[#1a5144] underline underline-offset-2">
+                {english ? "Cookie Policy (IT)" : "Cookie Policy"}
+              </Link>
             </p>
             <p className="mt-1.5 hidden max-w-lg text-xs leading-5 text-[#52615b] sm:block">
               {compactSchoolConsent ? (localizedConsent?.short ?? (english ? "We use essential cookies. Analytics cookies require your consent." : "Usiamo cookie necessari. I cookie statistici si attivano solo con il tuo consenso.")) : (localizedConsent?.desktop ?? (english ? "We use essential cookies and Google Analytics Consent Mode. Before your choice, analytics remains cookieless; accepting enables full analytics cookies on public pages only." : "Usiamo cookie necessari per il sito e Google Analytics in Consent Mode. Prima della tua scelta Analytics resta senza cookie; se accetti, abiliti la misurazione statistica completa sulle sole pagine pubbliche."))}
             </p>
-            <p className="mt-1 text-[11px] leading-5 text-[#718078] sm:mt-2">
+            <p className="mt-1 hidden text-[11px] leading-5 text-[#718078] sm:mt-2 sm:block">
               <Link href="/privacy" hrefLang="it" className="font-semibold text-[#1a5144] underline underline-offset-4">
                 {english ? "Privacy (IT)" : "Privacy"}
               </Link>

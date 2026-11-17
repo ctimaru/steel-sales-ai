@@ -4,6 +4,7 @@ import { PublicCinematicHero } from "@/components/public-cinematic-hero";
 import { HomeFloatingTools } from "@/components/home-floating-tools";
 import { PublicSteelGeometryProof } from "@/components/public-steel-geometry-proof";
 import cineStyles from "@/components/public-cinematic-continuity.module.css";
+import mobilePolish from "@/components/home-mobile-polish.module.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -67,6 +68,9 @@ const publicTools = [
 ] as const;
 
 
+// HOME-MOBILE-A4: 44px tap targets in a two-column grid on phones; inline row from sm.
+const footerLink = "inline-flex min-h-11 items-center font-semibold hover:text-[#173f35] sm:min-h-0";
+
 export default function PublicHomePage() {
   const organizationJsonLd = {
     "@context": "https://schema.org",
@@ -86,7 +90,7 @@ export default function PublicHomePage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
+    <main className={`${mobilePolish.home} min-h-screen bg-[#f2f4f3] text-[#1d2824]`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -176,25 +180,25 @@ export default function PublicHomePage() {
 
       <footer className="bg-[#f2f4f3]">
         <div className="mx-auto flex max-w-[1120px] flex-col gap-4 px-4 py-6 text-xs text-[#718078] sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <div className="flex flex-wrap gap-x-5 gap-y-2">
+          <div className="grid grid-cols-2 gap-x-4 sm:flex sm:flex-wrap sm:gap-x-5 sm:gap-y-2">
             <Link
               href="/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi"
-              className="font-semibold hover:text-[#173f35]"
+              className={footerLink}
             >
               Calcolo pesi
             </Link>
-            <Link href="/knowledge" className="font-semibold hover:text-[#173f35]">Scuola</Link>
-            <Link href="/distinta" className="font-semibold hover:text-[#173f35]">Crea distinta</Link>
-            <Link href="/login" className="font-semibold hover:text-[#173f35]">Accedi</Link>
-            <Link href="/register" className="font-semibold hover:text-[#173f35]">Registra azienda</Link>
-                        <Link href="/investitori" className="font-semibold hover:text-[#173f35]">Investitori</Link>
-            <a href="https://www.linkedin.com/company/smart-steel-sales" target="_blank" rel="noopener noreferrer" className="font-semibold hover:text-[#173f35]">LinkedIn ↗</a>
-            <a href="mailto:hello@smartsteelsales.com" className="font-semibold hover:text-[#173f35]">hello@smartsteelsales.com</a>
-<Link href="/privacy" className="font-semibold hover:text-[#173f35]">Privacy</Link>
-            <Link href="/company-data" className="font-semibold hover:text-[#173f35]">Dati aziendali</Link>
-            <Link href="/cookies" className="font-semibold hover:text-[#173f35]">Cookie</Link>
-            <Link href="/terms" className="font-semibold hover:text-[#173f35]">Termini</Link>
-            <Link href="/legal" className="font-semibold hover:text-[#173f35]">Informazioni legali</Link>
+            <Link href="/knowledge" className={footerLink}>Scuola</Link>
+            <Link href="/distinta" className={footerLink}>Crea distinta</Link>
+            <Link href="/login" className={footerLink}>Accedi</Link>
+            <Link href="/register" className={footerLink}>Registra azienda</Link>
+            <Link href="/investitori" className={footerLink}>Investitori</Link>
+            <a href="https://www.linkedin.com/company/smart-steel-sales" target="_blank" rel="noopener noreferrer" className={footerLink}>LinkedIn ↗</a>
+            <a href="mailto:hello@smartsteelsales.com" className={footerLink}>hello@smartsteelsales.com</a>
+            <Link href="/privacy" className={footerLink}>Privacy</Link>
+            <Link href="/company-data" className={footerLink}>Dati aziendali</Link>
+            <Link href="/cookies" className={footerLink}>Cookie</Link>
+            <Link href="/terms" className={footerLink}>Termini</Link>
+            <Link href="/legal" className={footerLink}>Informazioni legali</Link>
           </div>
           <span>Smart Steel Sales · Built for the steel & tube industry.</span>
         </div>
