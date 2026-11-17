@@ -1,5 +1,6 @@
 """NET-IT-GROWTH.B2: region, industry and source-integrity regressions."""
 import pytest
+import asyncio
 from unittest.mock import AsyncMock, patch
 
 from app import net_it_growthb2_regional_discovery as b2
@@ -73,8 +74,11 @@ def test_parser_rejects_overbudget_or_malformed_response():
         b2.parse_bindings({"results": {"bindings": "not-an-array"}}, "Q1216")
 
 
-@pytest.mark.asyncio
-async def test_main_skips_without_owner_source_authorization():
+def test_main_skips_without_owner_source_authorization():
+    asyncio.run(_async_test_main_skips_without_owner_source_authorization())
+
+
+async def _async_test_main_skips_without_owner_source_authorization():
     with patch.object(b2, "credentials_from_environment",
                       return_value=("https://example.supabase.co", "x" * 40)), \
          patch.object(b2, "call_rpc", new=AsyncMock(return_value={
@@ -87,8 +91,11 @@ async def test_main_skips_without_owner_source_authorization():
     assert rpc.await_count == 1
 
 
-@pytest.mark.asyncio
-async def test_main_uses_exactly_two_regions_then_never_publishes():
+def test_main_uses_exactly_two_regions_then_never_publishes():
+    asyncio.run(_async_test_main_uses_exactly_two_regions_then_never_publishes())
+
+
+async def _async_test_main_uses_exactly_two_regions_then_never_publishes():
     claims = {
         "contract": "net-it-growthb2-v1",
         "eligible": True, "run_id": "test-run", "max_records": 200,
@@ -121,8 +128,11 @@ async def test_main_uses_exactly_two_regions_then_never_publishes():
     assert result["published"] == 0
 
 
-@pytest.mark.asyncio
-async def test_main_rejects_unapproved_regions_without_fetching():
+def test_main_rejects_unapproved_regions_without_fetching():
+    asyncio.run(_async_test_main_rejects_unapproved_regions_without_fetching())
+
+
+async def _async_test_main_rejects_unapproved_regions_without_fetching():
     claim = {
         "contract": "net-it-growthb2-v1", "eligible": True,
         "max_records": 200, "run_id": "test-run",
