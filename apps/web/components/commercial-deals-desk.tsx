@@ -23,6 +23,8 @@ import { appRoutes } from "@/lib/routes";
 // chiusa per impostazione predefinita.
 
 export const DEALS_PAGE_SIZE = 20;
+// Nota: globals.css imposta `a { color: inherit }` fuori dai layer di Tailwind,
+// quindi sui link il colore del testo va forzato con `!text-…`.
 
 const segments: ReadonlyArray<{ key: DealSegment; label: string }> = [
   { key: "all", label: "Tutte" },
@@ -46,7 +48,7 @@ const emptyCopy: Record<DealFilter | "", { title: string; body: string }> = {
 };
 
 // Badge per lato: stessa logica dei ruoli nel Network (tinta + testo scuro, contrasto ≥ 7:1).
-const sideTone = { sales: "bg-[#e6f3ec] text-[#175640]", purchase: "bg-[#ece9fb] text-[#3c3489]" } as const;
+const sideTone = { sales: "bg-[#e6f3ec] !text-[#175640]", purchase: "bg-[#ece9fb] text-[#3c3489]" } as const;
 const sideLabel = { sales: "Vendita", purchase: "Acquisto" } as const;
 const actionTone: Record<CommercialDeal["bucket"], string> = {
   todo: "text-[#8a4b00]", waiting: "text-[#3f5248]", drafts: "text-[#6f5a2a]", progress: "text-[#276147]", closed: "text-[#6b7d73]",
@@ -114,7 +116,7 @@ async function DealDetail({ deal, state, tab, canWrite }: {
           </p>
         </div>
         <Link href={closeHref} aria-label="Chiudi il dettaglio"
-          className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-[#d6e5db] text-base text-[#175640] hover:bg-[#f2f8f4]">×</Link>
+          className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-[#d6e5db] text-base !text-[#175640] hover:bg-[#f2f8f4]">×</Link>
       </div>
 
       <section aria-labelledby="commercial-deal-next" data-testid="commercial-deal-next-step"
@@ -126,7 +128,7 @@ async function DealDetail({ deal, state, tab, canWrite }: {
         <h3 id="commercial-deal-next" className={"mt-1 text-base font-semibold " + actionTone[deal.bucket]}>{deal.action}</h3>
         {due ? <p className={"mt-0.5 text-xs " + (isDealDue(deal, now) ? "font-semibold text-[#9a3412]" : "text-[#5c7063]")}>{due}</p> : null}
         <Link href={primary.href} data-testid="commercial-deal-primary-action"
-          className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-sm font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+          className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
           {primary.label} →
         </Link>
       </section>
@@ -175,7 +177,7 @@ async function DealDetail({ deal, state, tab, canWrite }: {
       ) : null}
 
       <details className="group rounded-xl border border-[#e0eae4] bg-white" data-testid="commercial-deal-more">
-        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 text-xs font-semibold text-[#175640] [&::-webkit-details-marker]:hidden">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 text-xs font-semibold !text-[#175640] [&::-webkit-details-marker]:hidden">
           Altro <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
         </summary>
         <div className="space-y-3 border-t border-[#edf3ef] p-3">
@@ -188,17 +190,17 @@ async function DealDetail({ deal, state, tab, canWrite }: {
           <div className="flex flex-wrap gap-2">
             {deal.campaignId && !tab ? (
               <Link href={dealDeskHref({ ...state, item: deal.key, tab: "compare" }, "commercial-operations")}
-                className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4]">
+                className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
                 Confronto, negoziazione e ordini
               </Link>
             ) : null}
             <Link href={deal.href}
-              className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4]">
+              className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
               Apri pagina completa ↗
             </Link>
             {deal.side === "purchase" && canWrite ? (
               <Link href={appRoutes.network.directory}
-                className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold text-[#175640] hover:bg-[#f2f8f4]">
+                className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
                 Cerca fornitori nel Network ↗
               </Link>
             ) : null}
@@ -238,7 +240,7 @@ export async function CommercialDealsDesk({
             <Link key={option.key} href={dealDeskHref({ ...keep, segment: option.key })}
               aria-current={state.segment === option.key ? "page" : undefined}
               className={"inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
-                (state.segment === option.key ? "bg-[#175640] text-white" : "text-[#3f5c4c] hover:bg-[#e8f3ec]")}>
+                (state.segment === option.key ? "bg-[#175640] !text-white" : "!text-[#3f5c4c] hover:bg-[#e8f3ec]")}>
               {option.label}
               <span className={"text-xs tabular-nums " + (state.segment === option.key ? "text-[#cfe8da]" : "text-[#7a9184]")}>{counts.segments[option.key]}</span>
             </Link>
@@ -256,22 +258,22 @@ export async function CommercialDealsDesk({
           </form>
           {canWrite ? (
             <Link href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"} data-testid="commercial-new-request"
-              className="inline-flex min-h-9 items-center rounded-full bg-[#175640] px-4 text-sm font-semibold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+              className="inline-flex min-h-9 items-center rounded-full bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
               + Nuova richiesta
             </Link>
           ) : null}
           <details className="group relative" data-testid="commercial-desk-tools">
             <summary aria-label="Altri strumenti"
-              className="inline-flex min-h-9 min-w-9 cursor-pointer list-none items-center justify-center rounded-full border border-[#d6e5db] bg-white px-2.5 text-sm font-semibold text-[#175640] hover:bg-[#f2f8f4] [&::-webkit-details-marker]:hidden">
+              className="inline-flex min-h-9 min-w-9 cursor-pointer list-none items-center justify-center rounded-full border border-[#d6e5db] bg-white px-2.5 text-sm font-semibold !text-[#175640] hover:bg-[#f2f8f4] [&::-webkit-details-marker]:hidden">
               ⋯
             </summary>
             <div className="absolute right-0 top-[calc(100%+6px)] z-30 flex w-[270px] flex-col gap-2 rounded-xl border border-[#d6e5db] bg-white p-3 shadow-lg">
               <CommercialCalculatorQuickAccess references={calculatorReferences} />
-              <Link href={commercialSearchHref(state.query)} className="rounded-lg px-2 py-2 text-sm font-medium text-[#254f3d] hover:bg-[#f2f8f4]">Cerca nello storico</Link>
-              <Link href={appRoutes.rfqHub.savedDistinte} className="rounded-lg px-2 py-2 text-sm font-medium text-[#254f3d] hover:bg-[#f2f8f4]">Distinte</Link>
-              <Link href={appRoutes.rfqHub.home} className="rounded-lg px-2 py-2 text-sm font-medium text-[#254f3d] hover:bg-[#f2f8f4]">Centro RFQ</Link>
+              <Link href={commercialSearchHref(state.query)} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Cerca nello storico</Link>
+              <Link href={appRoutes.rfqHub.savedDistinte} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Distinte</Link>
+              <Link href={appRoutes.rfqHub.home} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Centro RFQ</Link>
               <Link href={appRoutes.commercial.home + "?experience=classic"} data-testid="commercial-desk-classic"
-                className="rounded-lg px-2 py-2 text-xs text-[#5c7063] hover:bg-[#f2f8f4]">Vista precedente</Link>
+                className="rounded-lg px-2 py-2 text-xs !text-[#5c7063] hover:bg-[#f2f8f4]">Vista precedente</Link>
             </div>
           </details>
         </div>
@@ -279,8 +281,8 @@ export async function CommercialDealsDesk({
 
       <details id="commercial-assistant" className="group rounded-2xl border border-[#d6e5db] bg-white" data-testid="commercial-desk-assistant">
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 text-sm text-[#52685b] [&::-webkit-details-marker]:hidden">
-          <span aria-hidden="true" className="flex h-6 w-6 items-center justify-center rounded-md bg-[#175640] text-xs text-white">✦</span>
-          <span className="font-semibold text-[#175640]">Assistente</span>
+          <span aria-hidden="true" className="flex h-6 w-6 items-center justify-center rounded-md bg-[#175640] text-xs !text-white">✦</span>
+          <span className="font-semibold !text-[#175640]">Assistente</span>
           <span className="hidden truncate sm:inline">cerca aziende, chiarisci una norma, prepara una distinta o filtra le trattative</span>
           <span aria-hidden="true" className="ml-auto transition group-open:rotate-180">▾</span>
         </summary>
@@ -297,9 +299,9 @@ export async function CommercialDealsDesk({
             <Link key={option.key} href={dealDeskHref({ ...keep, filter: on ? "" : option.key })}
               aria-current={on ? "true" : undefined}
               className={"inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
-                (on ? "border-[#175640] bg-[#175640] text-white"
-                  : urgent ? "border-[#e2c27a] bg-[#fff4d6] text-[#6b4a07] hover:bg-[#ffedc0]"
-                  : "border-[#d6e5db] bg-white text-[#3f5c4c] hover:bg-[#f2f8f4]")}>
+                (on ? "border-[#175640] bg-[#175640] !text-white"
+                  : urgent ? "border-[#e2c27a] bg-[#fff4d6] !text-[#6b4a07] hover:bg-[#ffedc0]"
+                  : "border-[#d6e5db] bg-white !text-[#3f5c4c] hover:bg-[#f2f8f4]")}>
               {option.label}
               {option.key !== "closed" ? <span className="tabular-nums">{counts.filters[option.key]}</span> : null}
               {on ? <span aria-hidden="true">×</span> : null}
@@ -315,7 +317,7 @@ export async function CommercialDealsDesk({
             : data.purchaseUnavailable ? "Le RFQ ai fornitori non sono verificabili in questo momento. " : ""}
           {data.truncated ? "Mostro le 200 trattative più recenti per lato. " : ""}
           {state.query || data.truncated ? (
-            <Link href={commercialSearchHref(state.query)} className="font-semibold text-[#175640] underline underline-offset-2">
+            <Link href={commercialSearchHref(state.query)} className="font-semibold !text-[#175640] underline underline-offset-2">
               {state.query ? "Cerca «" + state.query + "» in tutto lo storico" : "Cerca nello storico"}
             </Link>
           ) : null}
@@ -381,7 +383,7 @@ export async function CommercialDealsDesk({
                 <p className="mt-1 text-xs text-[#5c7063]">{state.query ? "Prova un altro nome o cerca in tutto lo storico." : emptyCopy[state.filter].body}</p>
                 {!state.filter && !state.query && canWrite ? (
                   <Link href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}
-                    className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-sm font-semibold text-white hover:bg-[#104632]">
+                    className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632]">
                     Crea la prima richiesta
                   </Link>
                 ) : null}
@@ -390,11 +392,11 @@ export async function CommercialDealsDesk({
             {pages > 1 ? (
               <nav aria-label="Pagine trattative" className="flex items-center justify-between gap-2 border-t border-[#edf2ef] px-4 py-2.5" data-testid="commercial-deals-pager">
                 {page > 1 ? (
-                  <Link href={dealDeskHref({ ...keep, page: page - 1 })} className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] px-3 text-xs font-semibold text-[#175640] hover:bg-[#eef6f1]">← Precedenti</Link>
+                  <Link href={dealDeskHref({ ...keep, page: page - 1 })} className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#eef6f1]">← Precedenti</Link>
                 ) : <span />}
                 <span className="text-xs tabular-nums text-[#5c7063]">Pagina {page} di {pages}</span>
                 {page < pages ? (
-                  <Link href={dealDeskHref({ ...keep, page: page + 1 })} className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] px-3 text-xs font-semibold text-[#175640] hover:bg-[#eef6f1]">Successive →</Link>
+                  <Link href={dealDeskHref({ ...keep, page: page + 1 })} className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#eef6f1]">Successive →</Link>
                 ) : <span />}
               </nav>
             ) : null}
@@ -403,7 +405,7 @@ export async function CommercialDealsDesk({
           {active ? (
             <aside id="commercial-detail" aria-label="Dettaglio trattativa"
               className="min-w-0 scroll-mt-24 rounded-2xl border border-[#dce7e0] bg-white p-4 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto">
-              <Link href={dealDeskHref({ ...keep, page })} className="mb-3 inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] lg:hidden">← Trattative</Link>
+              <Link href={dealDeskHref({ ...keep, page })} className="mb-3 inline-flex min-h-9 items-center text-xs font-semibold !text-[#175640] lg:hidden">← Trattative</Link>
               <DealDetail deal={active} state={{ ...state, page }} tab={tab} canWrite={canWrite} />
             </aside>
           ) : null}
