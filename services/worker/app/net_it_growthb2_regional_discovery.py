@@ -41,8 +41,8 @@ MAX_BYTES = 850_000
 def sparql(region_qid: str, offset: int) -> str:
     """One bounded region-sector query, requiring an actual HQ location path.
 
-    P159 headquarters -> P131* administrative hierarchy -> named IT region.
-    Headquarters evidence is only a LEAD HINT; first-party verifies actual
+    P159 headquarters or P131 administrative location -> P131* region.
+    Wikidata's geographical fields are only DISCOVERY HINTS; first-party verifies actual
     locality, products, roles and identity before publication.
     """
     if (region_qid not in REGIONS.values() or type(offset) is not int
@@ -57,8 +57,10 @@ SELECT DISTINCT ?item ?website ?label ?industry WHERE {{
   ?item wdt:P17 wd:Q38 ;
         wdt:P452 ?industry ;
         wdt:P856 ?website ;
-        wdt:P159 ?headquarters ;
         rdfs:label ?label .
+  {{ ?item wdt:P159 ?headquarters . }}
+  UNION
+  {{ ?item wdt:P131 ?headquarters . }}
   ?headquarters wdt:P131* wd:{region_qid} .
   FILTER(LANG(?label) = "it" || LANG(?label) = "en")
   FILTER NOT EXISTS {{ ?item wdt:P31 wd:Q5 . }}
