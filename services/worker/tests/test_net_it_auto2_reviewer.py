@@ -164,6 +164,37 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(outcome["_identity_correction"]["p_reviewer_version"],
                          "net-it-auto2-firstparty-v4")
 
+    async def test_v4_cleans_copyright_footer_instead_of_supporting_dirty_name(self):
+        dirty = "2023 Tutti i diritti riservati a Metal D S.r.l."
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=AsyncMock(return_value=page(dirty, url="https://metald.it/"))):
+            outcome = await inspect_candidate(
+                None, row(name=dirty, domain="metald.it"))
+        self.assertEqual(outcome["p_verdict"], "identity_supported")
+        self.assertEqual(outcome["p_observed_name"], "Metal D S.r.l.")
+        self.assertEqual(outcome["_identity_correction"]["p_legal_name"], "Metal D S.r.l.")
+
+    async def test_v4_cleans_flattened_privacy_menu_before_company_name(self):
+        dirty = ("branded social media profiles. Informativa privacy e cookie "
+                 "Tecnomeccanica Biellese S.r.l.")
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=AsyncMock(return_value=page(dirty, url="https://tbsrl.it/"))):
+            outcome = await inspect_candidate(
+                None, row(name=dirty, domain="tbsrl.it"))
+        self.assertEqual(outcome["p_verdict"], "identity_supported")
+        self.assertEqual(outcome["p_observed_name"], "Tecnomeccanica Biellese S.r.l.")
+        self.assertEqual(outcome["_identity_correction"]["p_legal_name"],
+                         "Tecnomeccanica Biellese S.r.l.")
+
+    async def test_v4_does_not_assert_identity_on_page_noise_only(self):
+        dirty = "2026 Privacy Cookie S.r.l."
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=AsyncMock(return_value=page(dirty, url="https://altraazienda.it/"))):
+            outcome = await inspect_candidate(
+                None, row(name=dirty, domain="altraazienda.it"))
+        self.assertNotEqual(outcome["p_verdict"], "identity_supported")
+        self.assertNotIn("_identity_correction", outcome)
+
     async def test_v4_no_company_name_on_site_is_explicit(self):
         with patch("app.net_it_auto2_reviewer._fetch_page",
                   new=AsyncMock(return_value=page("Officina Emme lavori in ferro",
