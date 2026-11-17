@@ -317,7 +317,8 @@ try {
             await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Q.tà", null, { timeout: 10000 });
             await page.keyboard.type("10");
             await page.keyboard.press("Enter");
-            await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem").first()
+            // On mobile the Distinta column sits in a hidden tab: include hidden nodes.
+            await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem", { includeHidden: true }).first()
               .waitFor({ state: "attached", timeout: 30000 });
             assert.equal(await quickSearch.evaluate(el => el === document.activeElement), true,
               "After adding, the focus returns to the search for the next article");
