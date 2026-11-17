@@ -150,8 +150,9 @@ export function CommercialRfqLivePreview({
       <div className="mt-4 border-t border-[#e1e9e1] pt-3">
         <label className="block text-xs font-semibold text-[#34594c]">
           Nome della distinta
-          <input value={title} onChange={(e) => onTitleChange(e.target.value)}
-            className="mt-1 min-h-11 w-full rounded-lg border border-[#c1d5c9] bg-white px-3 text-sm text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
+          {/* Disabled until the tab draft is restored, so early keystrokes are never overwritten. */}
+          <input value={title} onChange={(e) => onTitleChange(e.target.value)} disabled={!ready}
+            className="mt-1 min-h-11 w-full rounded-lg border border-[#c1d5c9] bg-white px-3 text-sm text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:opacity-60" />
         </label>
         {approvedLines.length > 0 ? (
           <dl className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-[#f3f8f4] p-3">

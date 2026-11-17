@@ -154,31 +154,38 @@ try {
       await complete.click();
       await page.waitForURL(url => url.pathname === "/rfq-hub/distinta", { timeout: 60000 });
       await page.locator('[data-private-calculator-page][data-buyer-draft-ready="true"]').waitFor({ timeout: 60000 });
-      await page.locator('#calcolatore-pesi[data-calculator-ready="true"]').waitFor({ timeout: 60000 });
-      const calc = page.locator("#calcolatore-pesi");
-      assert.equal(await calc.getByRole("combobox", { name: "Norma", exact: true }).inputValue(), "en10219");
-      assert.equal(await calc.locator('[data-calc-shape-buttons] button').first().getAttribute('aria-pressed'), "true");
-      assert.equal(Number(await calc.getByLabel("Diametro D", { exact: true }).inputValue()), 60.3);
-      assert.equal(Number(await calc.getByLabel("Spessore t", { exact: true }).inputValue()), 3.2);
+      // DISTINTA-QUICK1: the verified geometry pre-fills the «Aggiungi articolo» bar.
+      const quick = page.getByTestId("distinta-quick-add");
+      await quick.waitFor({ state: "visible", timeout: 60000 });
+      assert.equal(await page.locator("#distinta-quick-add-search").inputValue(), "tondo 60,3x3,2");
+      assert.equal(await quick.getByRole("button", { name: "EN 10219", exact: true }).getAttribute("aria-pressed"), "true");
     });
     await step("complete and persist mixed two-line private RFQ " + width, async () => {
-      await page.getByLabel("Titolo distinta", { exact: true }).fill(title);
-      await page.locator("[data-private-calculator-grade] details > summary").click();
-      await page.getByLabel("Grado acciaio · facoltativo ora", { exact: true }).fill("S355J2H");
-      const calc = page.locator("#calcolatore-pesi");
-      await calc.getByLabel("Lunghezza barra personalizzata", { exact: true }).fill("6");
-      await calc.getByLabel("Numero barre", { exact: true }).fill("3");
-      await calc.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
-      await page.getByTestId("private-cart-inline-open").click(); // DISTINTA-ONE1: no floating cart on the single screen
-      let bill = page.locator("#buyer-live-preview");
-      await bill.locator(".bd10-preview-row:not([hidden])").waitFor({ state: "visible" });
-      assert.equal(await bill.locator(".bd10-preview-row:not([hidden])").count(), 1, "First add creates one row");
-      await page.getByRole("dialog", { name: "Carrello della distinta privata" }).getByRole("button", { name: /^Chiudi/ }).click();
-      await calc.getByRole("combobox", { name: "Norma", exact: true }).selectOption("en10210");
-      await calc.getByLabel("Lunghezza barra personalizzata", { exact: true }).fill("12");
-      await calc.getByLabel("Numero barre", { exact: true }).fill("2");
-      await calc.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
-      await page.getByTestId("private-cart-inline-open").click(); // DISTINTA-ONE1: no floating cart on the single screen
+      // DISTINTA-QUICK1: articles come from the «Aggiungi articolo» bar; the title is in the preview.
+      const showTab = async (name) => { if (width < 1280) await page.getByRole("tab", { name }).click(); };
+      const quick = page.getByTestId("distinta-quick-add");
+      const search = page.locator("#distinta-quick-add-search");
+      const addQuick = async (query, standard, length, bars) => {
+        await quick.getByRole("button", { name: standard, exact: true }).click();
+        await search.fill(query);
+        await quick.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
+        await search.press("Enter");
+        await quick.getByLabel("Lunghezza barra in metri", { exact: true }).fill(length);
+        const qty = quick.getByLabel("Quantità", { exact: true });
+        await qty.fill(bars);
+        await qty.press("Enter");
+        await quick.getByRole("status").filter({ hasText: /Aggiunto:/ }).waitFor({ timeout: 30000 });
+      };
+      await quick.getByLabel("Grado", { exact: true }).fill("S355J2H");
+      await addQuick("tondo 60,3x3,2", "EN 10219", "6", "3");
+      await addQuick("tondo 60,3x3,2", "EN 10210", "12", "2");
+      await showTab(/Distinta/);
+      await page.getByLabel("Nome della distinta", { exact: true }).fill(title);
+      const approved = page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem");
+      await page.waitForFunction(() => document.querySelectorAll('[data-testid="commercial-rfq-approved-lines"] li').length === 2);
+      assert.equal(await approved.count(), 2, "Two quick adds create two rows");
+      await page.getByRole("button", { name: "Modifica gli articoli nella distinta", exact: true }).click();
+      let bill;
       bill = page.locator("#buyer-live-preview");
       const lineRows = bill.locator(".bd10-preview-row:not([hidden])");
       await page.waitForFunction(() => document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === 2);

@@ -298,7 +298,7 @@ export function DistintaQuickAddBar({
         </div>
         <label className="inline-flex items-center gap-1.5">
           <span>Grado</span>
-          <input list={gradeListId} value={grade} disabled={disabled}
+          <input list={gradeListId} value={grade} disabled={disabled} aria-label="Grado"
             onChange={(event) => onGradeChange(event.target.value)} onKeyDown={onFieldEnter}
             placeholder="facoltativo"
             className="h-7 w-28 rounded-lg border border-[#d6e5db] bg-white px-2 text-xs text-[#173f35] outline-none focus:border-[#175640]" />
