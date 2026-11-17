@@ -100,7 +100,6 @@ try {
         fullPage: false, animations: "disabled", caret: "initial",
       });
       console.log("COMM-SIMPLE1 VISUAL PASS", width, {
-        commercialHeroHeight: creationBox.height,
         worklistY: dealBox.y,
         rfqSummaryHeight: summaryBox.height,
       });
