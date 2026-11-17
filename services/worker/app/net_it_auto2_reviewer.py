@@ -172,6 +172,25 @@ def _validate_official_website(candidate: dict) -> tuple[str, str]:
     return source, domain
 
 
+def _same_host_root_fallback(candidate: dict, source: str, domain: str) -> str | None:
+    """One pre-recorded company homepage, never a fabricated bypass URL.
+
+    A denied subpath does not imply the official homepage is allowed. The
+    normal _fetch_page must independently enforce robots, DNS, SSRF, size,
+    redirect, and rights restrictions on BOTH URLs. No new host is accepted.
+    """
+    try:
+        website = canonicalize_seed_url(str(candidate["website_url"]))
+        src, dst = urlsplit(source), urlsplit(website)
+        if (website == source or dst.scheme != "https"
+                or src.netloc != dst.netloc or dst.path not in ("", "/")
+                or dst.query or dst.fragment or canonical_domain(website) != domain):
+            return None
+        return website
+    except (KeyError, TypeError, ValueError, CompanyDiscoveryError):
+        return None
+
+
 async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     """Return bounded evidence fields only; never a human approval decision."""
     reasons: list[str] = []
@@ -181,20 +200,34 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
         return _finding(candidate, "needs_human", ["invalid_or_untrusted_domain"])
 
     pages = []
+    primary_fetch_error = False
     try:
         home = await _fetch_page(client, source, source)
-        if not home:
-            return _finding(candidate, "needs_human", ["robots_blocked_or_unavailable"])
-        pages.append(home)
-        for link in _identity_links(home, MAX_PAGES - 1):
-            try:
-                page = await _fetch_page(client, link, source)
-                if page and canonical_domain(page.url) == domain:
-                    pages.append(page)
-            except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
-                pass
     except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
-        return _finding(candidate, "needs_human", ["fetch_rejected_or_unavailable"])
+        primary_fetch_error = True
+        home = None
+    if not home:
+        # Only a previously recorded official homepage on the SAME HTTPS host.
+        # Never infer a new URL and never override a robots denial: the normal
+        # protected fetch independently checks the fallback as well.
+        website = _same_host_root_fallback(candidate, source, domain)
+        if website:
+            try:
+                home = await _fetch_page(client, website, website)
+            except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
+                home = None
+    if not home or canonical_domain(home.url) != domain:
+        reason = ("fetch_rejected_or_unavailable" if primary_fetch_error
+                  else "robots_blocked_or_unavailable")
+        return _finding(candidate, "needs_human", [reason])
+    pages.append(home)
+    for link in _identity_links(home, MAX_PAGES - 1):
+        try:
+            page = await _fetch_page(client, link, home.url)
+            if page and canonical_domain(page.url) == domain:
+                pages.append(page)
+        except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
+            pass
 
     # Title/H1/og:site_name may repeat an unverified brand, even when the
     # actual company identity on the page is different. Require the full
