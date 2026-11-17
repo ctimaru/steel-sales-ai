@@ -93,20 +93,36 @@ def _is_capital_company(name: str) -> bool:
 def _has_contaminated_name_prefix(current: str, evidenced: str) -> bool:
     """An official page may print '© 2023 ... Acme S.r.l.' as one text run.
 
-    Only remove a prefix when the *entire* independently evidenced company
-    name is a suffix of the current guess. This does not authorize inventing
-    a legal form or replacing the company with a different name.
+    Remove leading or trailing footer/product copy only when the entire
+    independently evidenced legal name is an exact word-boundary prefix or
+    suffix of the initial guess. Never invent a legal form or alias.
     """
     bad = _normalize_full_legal_name(current)
     clean = _normalize_full_legal_name(evidenced)
-    return bool(clean and bad != clean and bad.endswith(" " + clean))
+    return bool(clean and bad != clean and
+                (bad.endswith(" " + clean) or bad.startswith(clean + " ")))
+
+
+def _has_bad_name_case_or_spacing(current: str, evidenced: str) -> bool:
+    """Repair typography only when the extracted whole identity is identical.
+
+    A first-party string like 'grisenti.S.n.c.' can be proven but cannot pass
+    the publication quality gate. This must never replace a different brand.
+    """
+    return bool(current and evidenced and current != evidenced
+                and current[:1].islower() and evidenced[:1].isupper()
+                and _normalize_full_legal_name(current)
+                    == _normalize_full_legal_name(evidenced))
 
 
 def _name_evidenced(name: str, page_texts: list[str]) -> bool:
     normalized = _normalize_full_legal_name(name)
     # A corporate suffix on the candidate must ALSO appear on the first-party
     # body text. A brand-only title or partial token match is not enough.
-    if len(normalized) < 8:
+    # Three-letter official acronyms (e.g. CDM S.r.l.) are valid complete
+    # first-party identities; two-letter guesses still fail closed. The
+    # domain relationship and legal form are checked separately before write.
+    if len(normalized) < 7:
         return False
     for page in page_texts:
         text = _normalize_full_legal_name(page)
@@ -156,6 +172,25 @@ def _validate_official_website(candidate: dict) -> tuple[str, str]:
     return source, domain
 
 
+def _same_host_root_fallback(candidate: dict, source: str, domain: str) -> str | None:
+    """One pre-recorded company homepage, never a fabricated bypass URL.
+
+    A denied subpath does not imply the official homepage is allowed. The
+    normal _fetch_page must independently enforce robots, DNS, SSRF, size,
+    redirect, and rights restrictions on BOTH URLs. No new host is accepted.
+    """
+    try:
+        website = canonicalize_seed_url(str(candidate["website_url"]))
+        src, dst = urlsplit(source), urlsplit(website)
+        if (website == source or dst.scheme != "https"
+                or src.netloc != dst.netloc or dst.path not in ("", "/")
+                or dst.query or dst.fragment or canonical_domain(website) != domain):
+            return None
+        return website
+    except (KeyError, TypeError, ValueError, CompanyDiscoveryError):
+        return None
+
+
 async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     """Return bounded evidence fields only; never a human approval decision."""
     reasons: list[str] = []
@@ -165,20 +200,34 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
         return _finding(candidate, "needs_human", ["invalid_or_untrusted_domain"])
 
     pages = []
+    primary_fetch_error = False
     try:
         home = await _fetch_page(client, source, source)
-        if not home:
-            return _finding(candidate, "needs_human", ["robots_blocked_or_unavailable"])
-        pages.append(home)
-        for link in _identity_links(home, MAX_PAGES - 1):
-            try:
-                page = await _fetch_page(client, link, source)
-                if page and canonical_domain(page.url) == domain:
-                    pages.append(page)
-            except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
-                pass
     except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
-        return _finding(candidate, "needs_human", ["fetch_rejected_or_unavailable"])
+        primary_fetch_error = True
+        home = None
+    if not home:
+        # Only a previously recorded official homepage on the SAME HTTPS host.
+        # Never infer a new URL and never override a robots denial: the normal
+        # protected fetch independently checks the fallback as well.
+        website = _same_host_root_fallback(candidate, source, domain)
+        if website:
+            try:
+                home = await _fetch_page(client, website, website)
+            except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
+                home = None
+    if not home or canonical_domain(home.url) != domain:
+        reason = ("fetch_rejected_or_unavailable" if primary_fetch_error
+                  else "robots_blocked_or_unavailable")
+        return _finding(candidate, "needs_human", [reason])
+    pages.append(home)
+    for link in _identity_links(home, MAX_PAGES - 1):
+        try:
+            page = await _fetch_page(client, link, home.url)
+            if page and canonical_domain(page.url) == domain:
+                pages.append(page)
+        except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
+            pass
 
     # Title/H1/og:site_name may repeat an unverified brand, even when the
     # actual company identity on the page is different. Require the full
@@ -197,7 +246,8 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     if (found and _is_capital_company(found.legal_name)
             and _name_evidenced(found.legal_name, texts)
             and (not matched or not _is_capital_company(name)
-                 or _has_contaminated_name_prefix(name, found.legal_name))):
+                 or _has_contaminated_name_prefix(name, found.legal_name)
+                 or _has_bad_name_case_or_spacing(name, found.legal_name))):
         page_url = next((p.url for p in pages
                          if _name_evidenced(found.legal_name, [str(p.text)])), pages[0].url)
         correction = {"p_candidate_id": str(candidate["id"]),
