@@ -269,7 +269,7 @@ export async function CommercialDealsDesk({
             </summary>
             <div className="absolute right-0 top-[calc(100%+6px)] z-30 flex w-[270px] flex-col gap-2 rounded-xl border border-[#d6e5db] bg-white p-3 shadow-lg">
               <CommercialCalculatorQuickAccess references={calculatorReferences} />
-              <Link href={commercialSearchHref(state.query)} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Cerca nello storico</Link>
+              <Link href={commercialSearchHref(state.query)} data-testid="commercial-history-entry" className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Cerca nello storico</Link>
               <Link href={appRoutes.rfqHub.savedDistinte} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Distinte</Link>
               <Link href={appRoutes.rfqHub.home} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Centro RFQ</Link>
               <Link href={appRoutes.commercial.home + "?experience=classic"} data-testid="commercial-desk-classic"
@@ -381,6 +381,12 @@ export async function CommercialDealsDesk({
               <div className="px-4 py-6" data-testid="commercial-deals-empty">
                 <p className="text-sm font-semibold text-[#143f30]">{state.query ? "Nessuna trattativa per «" + state.query + "»" : emptyCopy[state.filter].title}</p>
                 <p className="mt-1 text-xs text-[#5c7063]">{state.query ? "Prova un altro nome o cerca in tutto lo storico." : emptyCopy[state.filter].body}</p>
+                {state.filter || state.query ? (
+                  <Link href={dealDeskHref({ segment: state.segment })}
+                    className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
+                    Rimuovi filtro
+                  </Link>
+                ) : null}
                 {!state.filter && !state.query && canWrite ? (
                   <Link href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}
                     className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632]">
