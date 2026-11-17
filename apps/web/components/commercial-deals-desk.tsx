@@ -6,10 +6,10 @@ import { CommercialCampaignOperations, type CommercialOperationsTab } from "@/co
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealLabelForm } from "@/components/commercial-deal-label-form";
 import {
-  countDeals, dealDeskHref, dealMatches, isDealDue, resolveDealKey, sortDeals,
+  dealDeskHref, isDealDue,
   type CommercialDeal, type DealDeskState, type DealFilter, type DealSegment,
 } from "@/lib/commercial-deal-model";
-import { loadDealLines, type CommercialDealsData } from "@/lib/commercial-deals";
+import { loadDealLines, type CommercialDealsPage } from "@/lib/commercial-deals";
 import { commercialSearchHref } from "@/lib/commercial-search-context";
 import type { PublicTubeDimensionSummary } from "@/lib/public-knowledge";
 import { formatHubDate } from "@/lib/rfq-hub-overview";
@@ -214,20 +214,17 @@ async function DealDetail({ deal, state, tab, canWrite }: {
 export async function CommercialDealsDesk({
   data, state, tab, canWrite, calculatorReferences,
 }: {
-  data: CommercialDealsData;
+  data: CommercialDealsPage;
   state: DealDeskState;
   tab: CommercialOperationsTab | null;
   canWrite: boolean;
   calculatorReferences: PublicTubeDimensionSummary[];
 }) {
+  // COMM-DEALS2: pagina, priorità e conteggi arrivano già calcolati su tutte le trattative.
   const now = Date.now();
-  const counts = countDeals(data.deals, state.segment, now);
-  const visible = sortDeals(data.deals.filter((deal) => dealMatches(deal, state.segment, state.filter, state.query, now)), now);
-  const pages = Math.max(1, Math.ceil(visible.length / DEALS_PAGE_SIZE));
-  const page = Math.min(state.page, pages);
-  const shown = visible.slice((page - 1) * DEALS_PAGE_SIZE, page * DEALS_PAGE_SIZE);
-  const activeKey = resolveDealKey(data.deals, state.item);
-  const active = activeKey ? data.deals.find((deal) => deal.key === activeKey) ?? null : null;
+  const { counts, page, pages } = data;
+  const shown = data.rows;
+  const active = data.selected;
   const columns = active ? COLUMNS_SPLIT : COLUMNS_WIDE;
   const keep = { segment: state.segment, filter: state.filter, query: state.query };
 

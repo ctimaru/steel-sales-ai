@@ -1,32 +1,42 @@
 import "server-only";
 
 import {
-  distintaDealsFromRows, purchaseDealsFromRows, salesDealsFromRows,
-  type CommercialDeal, type DealRoutes,
+  distintaDealsFromRows, pageFromDeals, parseDealIndex, purchaseDealsFromRows, resolveDealKey, salesDealsFromRows,
+  type CommercialDeal, type DealCounts, type DealDeskState, type DealIndexKey, type DealRoutes,
 } from "@/lib/commercial-deal-model";
 import { ROW_LINES_FETCHED } from "@/lib/commercial-row-lines";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
-// COMM-DEALS1 — lettura delle trattative per la lista Commerciale.
+// Lettura delle trattative per la lista Commerciale.
 //
-// Finestra limitata: le 200 richieste cliente e le 200 RFQ ai fornitori più
-// recenti, ciascuna con i propri documenti incorporati nella stessa query
-// (PostgREST + RLS). La priorità «cosa fare adesso» è calcolata su tutta la
-// finestra, non sulla singola pagina. Oltre la finestra si usa la ricerca
-// nello storico; la fase successiva porterà la priorità in una funzione SQL.
+// COMM-DEALS2: la priorità «cosa fare adesso», i filtri, la ricerca e i
+// conteggi sono calcolati su TUTTE le trattative dell'azienda da
+// public.comm_deals2_index (SQL, SECURITY INVOKER, quindi RLS). La funzione
+// restituisce solo le chiavi della pagina; qui si leggono le righe complete di
+// quelle trattative e il modello le trasforma in righe della lista.
+//
+// Ripiego COMM-DEALS1: se la funzione non risponde, la lista resta disponibile
+// sulla finestra delle 200 trattative più recenti per lato.
 //
 // Letture autorizzate: nessun testo delle email, nessuna nota, nessun prezzo.
 
 export const DEALS_WINDOW = 200;
 const ORPHANS_WINDOW = 100;
 
-export type CommercialDealsData = {
-  deals: CommercialDeal[];
+export type CommercialDealsPage = {
+  rows: CommercialDeal[];
+  /** Trattativa aperta nel dettaglio, anche se non è nella pagina mostrata. */
+  selected: CommercialDeal | null;
+  total: number;
+  page: number;
+  pages: number;
+  counts: DealCounts;
   salesUnavailable: boolean;
   purchaseUnavailable: boolean;
-  /** Almeno un lato ha riempito la finestra: possono esistere trattative più vecchie. */
+  /** Solo nel ripiego: almeno un lato ha riempito la finestra. */
   truncated: boolean;
+  source: "index" | "window";
 };
 
 const routes: DealRoutes = {
@@ -40,37 +50,185 @@ const routes: DealRoutes = {
 const OFFER_FIELDS = "id,status,created_at,deal_label";
 const ORDER_FIELDS = "id,status,created_at,customer_order_ref";
 const LINE_FIELDS = "requested_quantity,quantity_unit,requested_standard,requested_grade,created_at";
+const COMPANY = (fk: string) => "company:companies!" + fk + "(name)";
+
+// Select dinamiche (tipo `string`): stesso tipo di risultato per lettura completa e di riserva.
+const SALES_SELECT: string = "id,status,created_at,due_at,deal_label," + COMPANY("rfqs_company_id_fkey") + "," +
+  "lines:rfq_lines!rfq_lines_rfq_id_fkey(" + LINE_FIELDS + ")," +
+  "offers:offers!offers_rfq_id_fkey(" + OFFER_FIELDS + ")," +
+  "orders:orders!orders_rfq_id_fkey(" + ORDER_FIELDS + ")";
+const SALES_SELECT_BARE: string = "id,status,created_at,due_at,deal_label," + COMPANY("rfqs_company_id_fkey") + "," +
+  "offers:offers!offers_rfq_id_fkey(" + OFFER_FIELDS + "),orders:orders!orders_rfq_id_fkey(" + ORDER_FIELDS + ")";
+const ORPHAN_OFFER_SELECT: string = OFFER_FIELDS + "," + COMPANY("offers_company_id_fkey") +
+  ",orders:orders!orders_offer_id_fkey(" + ORDER_FIELDS + ")";
+const ORPHAN_ORDER_SELECT: string = ORDER_FIELDS + ",deal_label," + COMPANY("orders_company_id_fkey");
+const CAMPAIGN_SELECT: string = "id,title,status,due_at,created_at,source_distinta_id," +
+  "distinta:buyer_distintas!buyer_rfq_campaigns_source_distinta_id_fkey(line_count,total_tonnes,total_meters)," +
+  "suppliers:buyer_rfq_suppliers!buyer_rfq_suppliers_rfq_id_fkey(status)," +
+  "quotes:buyer_rfq_quotes!buyer_rfq_quotes_rfq_id_fkey(id,supplier_id,status,submitted_at,created_at)," +
+  "orders:buyer_purchase_order_drafts!buyer_purchase_order_drafts_rfq_id_fkey(id,status,po_draft_ref,supplier_name_snapshot,created_at)";
+const CAMPAIGN_SELECT_BARE: string = "id,title,status,due_at,created_at,source_distinta_id";
+const DISTINTA_SELECT: string = "id,title,line_count,total_tonnes,total_meters,created_at";
 
 type Db = Awaited<ReturnType<typeof createClient>>;
+type Ids = { rfqs: string[]; offers: string[]; orders: string[]; campaigns: string[]; distinte: string[] };
 
-async function loadSales(db: Db, organizationId: string) {
-  const full = "id,status,created_at,due_at,deal_label,company:companies!rfqs_company_id_fkey(name)," +
-    "lines:rfq_lines!rfq_lines_rfq_id_fkey(" + LINE_FIELDS + ")," +
-    "offers:offers!offers_rfq_id_fkey(" + OFFER_FIELDS + ")," +
-    "orders:orders!orders_rfq_id_fkey(" + ORDER_FIELDS + ")";
-  let rfqs = await db.from("rfqs").select(full)
+// ── Righe complete per un insieme di chiavi (fase 2) ──────────────────────────
+
+async function salesByIds(db: Db, organizationId: string, ids: string[]) {
+  if (!ids.length) return { data: [] as unknown[], error: false };
+  let result = await db.from("rfqs").select(SALES_SELECT)
+    .eq("organization_id", organizationId).in("id", ids)
+    .order("created_at", { referencedTable: "lines", ascending: true })
+    .limit(ROW_LINES_FETCHED, { referencedTable: "lines" });
+  // Le righe articolo sono un arricchimento: senza, la trattativa resta visibile.
+  if (result.error) result = await db.from("rfqs").select(SALES_SELECT_BARE).eq("organization_id", organizationId).in("id", ids);
+  return { data: (result.data ?? []) as unknown[], error: Boolean(result.error) };
+}
+
+async function campaignsByIds(db: Db, organizationId: string, ids: string[]) {
+  if (!ids.length) return { data: [] as unknown[], error: false };
+  let result = await db.from("buyer_rfq_campaigns").select(CAMPAIGN_SELECT).eq("organization_id", organizationId).in("id", ids);
+  if (result.error) result = await db.from("buyer_rfq_campaigns").select(CAMPAIGN_SELECT_BARE).eq("organization_id", organizationId).in("id", ids);
+  return { data: (result.data ?? []) as unknown[], error: Boolean(result.error) };
+}
+
+async function simpleByIds(db: Db, table: "offers" | "orders" | "buyer_distintas", select: string, organizationId: string, ids: string[]) {
+  if (!ids.length) return { data: [] as unknown[], error: false };
+  const result = await db.from(table).select(select).eq("organization_id", organizationId).in("id", ids);
+  return { data: (result.data ?? []) as unknown[], error: Boolean(result.error) };
+}
+
+async function dealsByIds(db: Db, organizationId: string, ids: Ids) {
+  const [rfqs, offers, orders, campaigns, distinte] = await Promise.all([
+    salesByIds(db, organizationId, ids.rfqs),
+    simpleByIds(db, "offers", ORPHAN_OFFER_SELECT, organizationId, ids.offers),
+    simpleByIds(db, "orders", ORPHAN_ORDER_SELECT, organizationId, ids.orders),
+    campaignsByIds(db, organizationId, ids.campaigns),
+    simpleByIds(db, "buyer_distintas", DISTINTA_SELECT, organizationId, ids.distinte),
+  ]);
+  return {
+    // L'indice ha già scartato le distinte usate da una RFQ.
+    deals: [
+      ...salesDealsFromRows(rfqs.data, offers.data, orders.data, routes),
+      ...purchaseDealsFromRows(campaigns.data, routes),
+      ...distintaDealsFromRows(distinte.data, new Set(), routes),
+    ],
+    salesUnavailable: rfqs.error || offers.error || orders.error,
+    purchaseUnavailable: campaigns.error || distinte.error,
+  };
+}
+
+function idsOf(keys: readonly DealIndexKey[]): Ids {
+  const ids: Ids = { rfqs: [], offers: [], orders: [], campaigns: [], distinte: [] };
+  for (const { kind, id } of keys) {
+    if (kind === "inbound-rfq") ids.rfqs.push(id);
+    else if (kind === "inbound-offer") ids.offers.push(id);
+    else if (kind === "inbound-order") ids.orders.push(id);
+    else if (kind === "campaign") ids.campaigns.push(id);
+    else ids.distinte.push(id);
+  }
+  return ids;
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Trattativa di un link ?item= (anche di un documento figlio: offerta, ordine,
+ * risposta fornitore, PO). Sempre filtrata per azienda e RLS: una chiave di
+ * un'altra azienda non trova nulla.
+ */
+async function dealKeyFor(db: Db, organizationId: string, key: string): Promise<DealIndexKey | null> {
+  const [prefix, id] = key.split(":");
+  if (!id || !UUID.test(id)) return null;
+  if (prefix === "inbound-rfq" || prefix === "campaign" || prefix === "distinta") {
+    return { key: prefix + ":" + id, kind: prefix, id };
+  }
+  if (prefix === "quote" || prefix === "purchase-order") {
+    const table = prefix === "quote" ? "buyer_rfq_quotes" : "buyer_purchase_order_drafts";
+    const { data } = await db.from(table).select("rfq_id").eq("organization_id", organizationId).eq("id", id).maybeSingle();
+    const rfqId = (data as { rfq_id?: unknown } | null)?.rfq_id;
+    return typeof rfqId === "string" && UUID.test(rfqId) ? { key: "campaign:" + rfqId, kind: "campaign", id: rfqId } : null;
+  }
+  if (prefix === "inbound-offer") {
+    const { data } = await db.from("offers").select("id,rfq_id").eq("organization_id", organizationId).eq("id", id).maybeSingle();
+    const row = data as { rfq_id?: unknown } | null;
+    if (!row) return null;
+    return typeof row.rfq_id === "string" && UUID.test(row.rfq_id)
+      ? { key: "inbound-rfq:" + row.rfq_id, kind: "inbound-rfq", id: row.rfq_id }
+      : { key: "inbound-offer:" + id, kind: "inbound-offer", id };
+  }
+  if (prefix === "inbound-order") {
+    const { data } = await db.from("orders").select("id,rfq_id,offer_id").eq("organization_id", organizationId).eq("id", id).maybeSingle();
+    const row = data as { rfq_id?: unknown; offer_id?: unknown } | null;
+    if (!row) return null;
+    if (typeof row.rfq_id === "string" && UUID.test(row.rfq_id)) return { key: "inbound-rfq:" + row.rfq_id, kind: "inbound-rfq", id: row.rfq_id };
+    if (typeof row.offer_id === "string" && UUID.test(row.offer_id)) return dealKeyFor(db, organizationId, "inbound-offer:" + row.offer_id);
+    return { key: "inbound-order:" + id, kind: "inbound-order", id };
+  }
+  return null;
+}
+
+async function loadFromIndex(db: Db, organizationId: string, state: DealDeskState, pageSize: number): Promise<CommercialDealsPage | null> {
+  const offset = (state.page - 1) * pageSize;
+  const { data, error } = await db.rpc("comm_deals2_index", {
+    p_organization_id: organizationId, p_segment: state.segment, p_filter: state.filter,
+    p_query: state.query, p_limit: pageSize, p_offset: offset,
+  });
+  if (error) return null;
+  let index = parseDealIndex(data);
+  if (!index) return null;
+  const pages = Math.max(1, Math.ceil(index.total / pageSize));
+  let page = state.page;
+  // Pagina oltre la fine (ad es. dopo aver chiuso trattative): si torna all'ultima.
+  if (page > pages) {
+    page = pages;
+    const retry = await db.rpc("comm_deals2_index", {
+      p_organization_id: organizationId, p_segment: state.segment, p_filter: state.filter,
+      p_query: state.query, p_limit: pageSize, p_offset: (page - 1) * pageSize,
+    });
+    index = retry.error ? null : parseDealIndex(retry.data);
+    if (!index) return null;
+  }
+
+  const wanted = state.item ? await dealKeyFor(db, organizationId, state.item).catch(() => null) : null;
+  const keys = [...index.keys];
+  if (wanted && !keys.some((k) => k.key === wanted.key)) keys.push(wanted);
+  const loaded = await dealsByIds(db, organizationId, idsOf(keys));
+  const byKey = new Map(loaded.deals.map((deal) => [deal.key, deal]));
+  return {
+    // L'ordine è quello dell'indice; una riga non più leggibile viene saltata.
+    rows: index.keys.map((k) => byKey.get(k.key)).filter((deal): deal is CommercialDeal => Boolean(deal)),
+    selected: wanted ? byKey.get(wanted.key) ?? null : null,
+    total: index.total, page, pages,
+    counts: index.counts,
+    salesUnavailable: loaded.salesUnavailable,
+    purchaseUnavailable: loaded.purchaseUnavailable,
+    truncated: false,
+    source: "index",
+  };
+}
+
+// ── Ripiego COMM-DEALS1: finestra delle trattative più recenti ───────────────
+
+async function loadSalesWindow(db: Db, organizationId: string) {
+  let rfqs = await db.from("rfqs").select(SALES_SELECT)
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false }).order("id", { ascending: false })
     .order("created_at", { referencedTable: "lines", ascending: true })
     .limit(ROW_LINES_FETCHED, { referencedTable: "lines" })
     .limit(DEALS_WINDOW);
-  // Le righe articolo sono un arricchimento: se la lettura combinata fallisce,
-  // la trattativa resta visibile con documenti e stati, senza materiale.
   if (rfqs.error) {
-    rfqs = await db.from("rfqs").select(
-      "id,status,created_at,due_at,deal_label,company:companies!rfqs_company_id_fkey(name)," +
-      "offers:offers!offers_rfq_id_fkey(" + OFFER_FIELDS + "),orders:orders!orders_rfq_id_fkey(" + ORDER_FIELDS + ")")
+    rfqs = await db.from("rfqs").select(SALES_SELECT_BARE)
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: false }).order("id", { ascending: false })
       .limit(DEALS_WINDOW);
   }
   const [offers, orders] = await Promise.all([
-    db.from("offers")
-      .select(OFFER_FIELDS + ",company:companies!offers_company_id_fkey(name),orders:orders!orders_offer_id_fkey(" + ORDER_FIELDS + ")")
+    db.from("offers").select(ORPHAN_OFFER_SELECT)
       .eq("organization_id", organizationId).is("rfq_id", null)
       .order("created_at", { ascending: false }).limit(ORPHANS_WINDOW),
-    db.from("orders")
-      .select(ORDER_FIELDS + ",deal_label,company:companies!orders_company_id_fkey(name)")
+    db.from("orders").select(ORPHAN_ORDER_SELECT)
       .eq("organization_id", organizationId).is("rfq_id", null).is("offer_id", null)
       .order("created_at", { ascending: false }).limit(ORPHANS_WINDOW),
   ]);
@@ -81,30 +239,23 @@ async function loadSales(db: Db, organizationId: string) {
   };
 }
 
-async function loadPurchase(db: Db, organizationId: string) {
-  const full = "id,title,status,due_at,created_at,source_distinta_id," +
-    "distinta:buyer_distintas!buyer_rfq_campaigns_source_distinta_id_fkey(line_count,total_tonnes,total_meters)," +
-    "suppliers:buyer_rfq_suppliers!buyer_rfq_suppliers_rfq_id_fkey(status)," +
-    "quotes:buyer_rfq_quotes!buyer_rfq_quotes_rfq_id_fkey(id,supplier_id,status,submitted_at,created_at)," +
-    "orders:buyer_purchase_order_drafts!buyer_purchase_order_drafts_rfq_id_fkey(id,status,po_draft_ref,supplier_name_snapshot,created_at)";
-  let campaigns = await db.from("buyer_rfq_campaigns").select(full)
+async function loadPurchaseWindow(db: Db, organizationId: string) {
+  let campaigns = await db.from("buyer_rfq_campaigns").select(CAMPAIGN_SELECT)
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false }).order("id", { ascending: false })
     .limit(DEALS_WINDOW);
   if (campaigns.error) {
-    // Stesso tipo di risultato della lettura completa: select dinamica, righe non tipizzate.
-    const bare: string = "id,title,status,due_at,created_at,source_distinta_id";
-    campaigns = await db.from("buyer_rfq_campaigns").select(bare)
+    campaigns = await db.from("buyer_rfq_campaigns").select(CAMPAIGN_SELECT_BARE)
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: false }).order("id", { ascending: false })
       .limit(DEALS_WINDOW);
   }
-  const distinte = await db.from("buyer_distintas")
-    .select("id,title,line_count,total_tonnes,total_meters,created_at")
+  const distinte = await db.from("buyer_distintas").select(DISTINTA_SELECT)
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false }).limit(ORPHANS_WINDOW);
   // Una distinta già usata da una RFQ (anche fuori finestra) non è una bozza.
-  const distintaIds = (distinte.data ?? []).map((row) => row.id).filter((id): id is string => typeof id === "string");
+  const distintaRows = (distinte.data ?? []) as Array<{ id?: unknown }>;
+  const distintaIds = distintaRows.map((row) => row.id).filter((id): id is string => typeof id === "string");
   const used = new Set<string>();
   for (const row of (campaigns.data ?? []) as Array<{ source_distinta_id?: unknown }>) {
     if (typeof row.source_distinta_id === "string") used.add(row.source_distinta_id);
@@ -128,18 +279,28 @@ async function loadPurchase(db: Db, organizationId: string) {
   };
 }
 
-export async function loadCommercialDeals(organizationId: string): Promise<CommercialDealsData> {
-  const db = await createClient();
+async function loadFromWindow(db: Db, organizationId: string, state: DealDeskState, pageSize: number): Promise<CommercialDealsPage> {
   const [sales, purchase] = await Promise.all([
-    loadSales(db, organizationId).catch(() => ({ deals: [], unavailable: true, full: false })),
-    loadPurchase(db, organizationId).catch(() => ({ deals: [], unavailable: true, full: false })),
+    loadSalesWindow(db, organizationId).catch(() => ({ deals: [], unavailable: true, full: false })),
+    loadPurchaseWindow(db, organizationId).catch(() => ({ deals: [], unavailable: true, full: false })),
   ]);
+  const deals = [...sales.deals, ...purchase.deals];
+  const view = pageFromDeals(deals, state, pageSize);
+  const selectedKey = resolveDealKey(deals, state.item);
   return {
-    deals: [...sales.deals, ...purchase.deals],
+    ...view,
+    selected: selectedKey ? deals.find((deal) => deal.key === selectedKey) ?? null : null,
     salesUnavailable: sales.unavailable,
     purchaseUnavailable: purchase.unavailable,
     truncated: sales.full || purchase.full,
+    source: "window",
   };
+}
+
+export async function loadCommercialDealsPage(organizationId: string, state: DealDeskState, pageSize: number): Promise<CommercialDealsPage> {
+  const db = await createClient();
+  const indexed = await loadFromIndex(db, organizationId, state, pageSize).catch(() => null);
+  return indexed ?? loadFromWindow(db, organizationId, state, pageSize);
 }
 
 export type DealLine = { id: string; position: number; description: string; spec: string; quantity: string };
