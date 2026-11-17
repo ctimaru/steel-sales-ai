@@ -89,7 +89,7 @@ export function NetworkSaveToaster() {
           {toast.kind === "saved" ? "salvata nella tua lista privata" : "rimossa dai salvati"}
         </p>
         {toast.kind === "saved" && !onSavedPage ? (
-          <Link href="/network/saved" className="shrink-0 rounded-lg px-2 py-1.5 text-xs font-bold text-[#f2b544] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
+          <Link href="/network/saved" style={{ color: "#f2b544", WebkitTextFillColor: "#f2b544" }} className="shrink-0 rounded-lg px-2 py-1.5 text-xs font-bold text-[#f2b544] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">
             Vedi Salvate
           </Link>
         ) : null}

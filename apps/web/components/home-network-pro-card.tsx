@@ -142,6 +142,7 @@ export function HomeNetworkProCard({
         <Link
           href={entitled ? appRoutes.network.directory : appRoutes.network.pro}
           data-testid="home-network-pro-cta"
+          style={{ color: "#2a1c00", WebkitTextFillColor: "#2a1c00" }}
           className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#f2b544] px-3 text-[15px] font-extrabold text-[#2a1c00] hover:bg-[#f6c460] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f2b544]"
         >
           {entitled ? "Apri il Network" : "Passa a Network PRO"}
