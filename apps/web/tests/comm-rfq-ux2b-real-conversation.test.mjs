@@ -43,7 +43,8 @@ test("UX2.B the AI only interprets explicitly submitted individual text without 
   assert.match(intake, /setTextResult\(response\.result\)/);
   assert.match(intake, /onPreviewChange\?\.\(response\.result\)/);
   assert.doesNotMatch(intake, /analyzeRfqAiFreeText\((?:conversationTurns|messages|history)\)/);
-  assert.ok(conversation.includes('canSubmit = hydrated && value.trim().length >= 3 && !pending && mode === "text"'));
+  // DISTINTA-QUICK1: the conversation has no manual mode any more; the chat is always text.
+  assert.ok(conversation.includes('canSubmit = hydrated && value.trim().length >= 3 && !pending;'));
   assert.ok(intake.includes("if (textResult && focused) {"));
   assert.ok(intake.includes("setPendingCorrection({"));
   assert.match(intake, /if \(focused && submitted\.length < 12\)/);

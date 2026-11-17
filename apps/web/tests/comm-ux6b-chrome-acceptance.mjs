@@ -216,7 +216,9 @@ try {
             "Full dashboard assistant must be hidden in AI-focused compose");
           assert.equal(await page.getByTestId("commercial-list-pane").count(), 0,
             "Historical worklist must not crowd the AI review");
-          assert.equal(await page.getByTestId("commercial-ai-focused-modes").count(), 1);
+          // DISTINTA-QUICK1: no AI/manual switch; one «Aggiungi articolo» bar above the chat.
+          assert.equal(await page.getByTestId("commercial-ai-focused-modes").count(), 0);
+          assert.equal(await page.getByTestId("distinta-quick-add").count(), 1);
           const workspace = page.getByTestId("commercial-rfq-chat-workspace");
           await workspace.waitFor({ state: "visible" });
           assert.equal(await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem").count(), 0,
@@ -255,9 +257,8 @@ try {
             assert.equal(await page.getByRole("tab", { name: "Conversazione" }).getAttribute("aria-selected"), "true",
               "Keyboard Home must select the conversation");
           }
-          const manualShell = page.locator("#commercial-rfq-manual-tools");
-          assert.equal(await manualShell.isVisible(), false,
-            "Calculator must initially be a secondary action");
+          assert.equal(await page.locator("[data-private-calculator-toolbar]").count(), 0,
+            "No separate calculator on the request screen (DISTINTA-QUICK1)");
           const analyzeAction = composer.getByRole("button", {
             name: /Analizza la richiesta con AI|Correggi proposta AI|Completa richiesta|Analisi in corso/
           });
@@ -304,10 +305,23 @@ try {
           // COMM-RFQ-CREATE2: la calcolatrice separata non è più nella pagina di creazione richiesta.
           assert.equal(await page.getByTestId("commercial-ai-manual-tools-toggle").count(), 0);
           if (width !== 320) {
-            // Old manual-entry links redirect to the same screen with «Aggiungi una misura» open.
+            // Old manual-entry links redirect to the same screen with «Aggiungi articolo» focused.
             await page.goto(base + "/commercial?compose=1", { waitUntil: "domcontentloaded", timeout: 90000 });
             await page.waitForURL(url => url.pathname === "/rfq-hub/distinta" && url.searchParams.get("aggiungi") === "misura", { timeout: 60000 });
-            await page.locator("#commercial-rfq-manual-tools").waitFor({ state: "visible", timeout: 60000 });
+            await page.getByTestId("distinta-quick-add").waitFor({ state: "visible", timeout: 60000 });
+            // Fast path: size → quantity → Enter adds a complete row to the Distinta.
+            const quickSearch = page.locator("#distinta-quick-add-search");
+            await quickSearch.fill("100x100x5");
+            await page.getByTestId("distinta-quick-add").getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
+            await quickSearch.press("Enter");
+            await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Q.tà", null, { timeout: 10000 });
+            await page.keyboard.type("10");
+            await page.keyboard.press("Enter");
+            // On mobile the Distinta column sits in a hidden tab: include hidden nodes.
+            await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem", { includeHidden: true }).first()
+              .waitFor({ state: "attached", timeout: 30000 });
+            assert.equal(await quickSearch.evaluate(el => el === document.activeElement), true,
+              "After adding, the focus returns to the search for the next article");
             assert.equal(await page.getByTestId("commercial-rfq-ai-focused-header").count(), 0,
               "Manual New Request does not force an AI-focused screen");
           }

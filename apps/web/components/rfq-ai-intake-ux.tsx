@@ -194,8 +194,6 @@ export function RfqAiIntakeUx({
   if (focused && workspace) {
     return (
       <CommercialRfqConversation
-        mode={mode}
-        onModeChange={onModeChange}
         turns={conversationTurns}
         value={textDraft}
         onChange={updateFocusedDraft}
@@ -205,7 +203,7 @@ export function RfqAiIntakeUx({
         pending={textPending}
         error={textError}
         hasProposals={Boolean(textResult)}
-        manualTools={children}
+        quickAdd={children}
         review={textResult ? (
           <RfqAiTextReview
             result={textResult}

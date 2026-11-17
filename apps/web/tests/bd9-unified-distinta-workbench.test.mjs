@@ -15,7 +15,9 @@ test("BD9/10 assisted creation and editable article list form one two-column wor
   const preview = builder.slice(previewStart, builder.indexOf('className="rounded-3xl', previewStart));
   // The sole guided creator is now shared by a hoisted intake panel, so AI-first can render ahead of the calculator.
   assert.match(builder, /const aiIntakePanel = \([\s\S]*?<BuyerTubeGuidedCreator/);
-  assert.match(editor, /\{!focusAiIntake \? aiIntakePanel : null\}/);
+  // DISTINTA-QUICK1: the whole calculator editor (and its intake panel) exists only outside /rfq-hub/distinta.
+  assert.match(editor, /\{aiIntakePanel\}/);
+  assert.match(builder, /\{!focusAiIntake \? \(\s*<div className="bd7-workbench-editor">/);
   assert.doesNotMatch(editor, /className="bd5-row-card/);
   assert.match(preview, /className="bd10-preview-lines"/);
   assert.match(preview, /className="bd5-row-card bd10-preview-row"/);

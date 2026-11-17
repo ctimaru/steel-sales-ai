@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { safeBuyerUiLocale } from "@/lib/buyer-ui-locale";
@@ -19,6 +20,17 @@ export const metadata: Metadata = {
 const steps = ["Cosa ti serve", "A chi lo chiedi", "Invia"] as const;
 
 /**
+ * DISTINTA-QUICK1: the published sizes are public, tenant-independent data
+ * (publishable key, no cookies). Cache them for an hour instead of three
+ * Supabase RPCs on every visit. An empty read throws so it is never cached.
+ */
+const cachedQuickAddCatalog = unstable_cache(async () => {
+  const options = buildBuyerDistintaCatalogOptions(await listBuyerDistintaPublicDimensions());
+  if (!options.length) throw new Error("Public tube catalog unavailable");
+  return options;
+}, ["distinta-quick1-public-catalog-v1"], { revalidate: 3600 });
+
+/**
  * DISTINTA-ONE1 (founder decision, 17 Nov 2026): the ONLY screen to create a
  * request. Commerciale, dashboard, Network, RFQ Hub, Marketplace and search all
  * link here (lib/new-request-href.ts); old /commercial?compose=1 links redirect.
@@ -36,7 +48,7 @@ export default async function NewRequestPage({ searchParams }: {
   const params = await searchParams;
   const locale=safeBuyerUiLocale(params.lang);
   const [catalogOptions, networkContext] = await Promise.all([
-    listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions),
+    cachedQuickAddCatalog().catch(() => []),
     // Provenance only: the Network company is never added as a recipient automatically.
     getCommercialNetworkContext(context.organizationId, params.network).catch(() => null),
   ]);
@@ -71,7 +83,7 @@ export default async function NewRequestPage({ searchParams }: {
       <BuyerDistintaBuilder
         workspace
         focusAiIntake
-        // The AI chat is Italian; a bill prepared in another language starts from the calculator.
+        // The AI chat is Italian; a bill prepared in another language starts from the «Aggiungi articolo» bar.
         openMeasure={params.aggiungi === "misura" || locale !== "it"}
         locale={locale}
         authenticated

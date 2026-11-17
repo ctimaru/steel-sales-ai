@@ -38,7 +38,7 @@ test("RFQAI2 reuses BD10 wizard and keeps preview in exactly one place", () => {
   assert.ok(chooserStart < wizardStart && wizardStart < chooserEnd && chooserEnd < workbench && workbench < previewStart);
   assert.match(builder, /\{focusAiIntake && !restoreCandidate \? \(/);
   assert.match(builder, /\{aiIntakePanel\}/);
-  assert.match(builder, /\{!focusAiIntake \? aiIntakePanel : null\}/);
+  assert.match(builder, /\{!focusAiIntake \? \(\s*<div className="bd7-workbench-editor">[\s\S]*?\{aiIntakePanel\}/);
   assert.match(chooser, /<div className="rfqai2-manual" hidden=\{mode !== "manual"\}>/);
   assert.match(builder, /className="bd10-preview-lines"/);
   assert.equal((builder.match(/className="bd5-row-card bd10-preview-row"/g) ?? []).length, 1);

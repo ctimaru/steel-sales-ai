@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
-import type { RfqAiIntakeMode } from "@/components/rfq-ai-intake-ux";
 
 /** Purely local presentation history: not synchronized, saved or sent to suppliers.
  * Each Analyze click sends ONLY the current message to the existing AI action.
@@ -14,11 +13,9 @@ export type CommercialRfqTurn = {
 };
 
 export function CommercialRfqConversation({
-  mode, onModeChange, turns, value, onChange, onAnalyze, onClear, onSample,
-  pending, error, hasProposals, review, manualTools,
+  turns, value, onChange, onAnalyze, onClear, onSample,
+  pending, error, hasProposals, review, quickAdd,
 }: {
-  mode: RfqAiIntakeMode;
-  onModeChange: (mode: RfqAiIntakeMode) => void;
   turns: CommercialRfqTurn[];
   value: string;
   onChange: (value: string) => void;
@@ -29,7 +26,8 @@ export function CommercialRfqConversation({
   error: string;
   hasProposals: boolean;
   review: ReactNode;
-  manualTools: ReactNode;
+  /** DISTINTA-QUICK1: the «Aggiungi articolo» bar, always visible above the chat. */
+  quickAdd: ReactNode;
 }) {
   const chatEnd = useRef<HTMLDivElement>(null);
   const hasMounted = useRef(false);
@@ -37,7 +35,7 @@ export function CommercialRfqConversation({
   // when the controlled composer binds (especially at 320px on slow devices).
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => { setHydrated(true); }, []);
-  const canSubmit = hydrated && value.trim().length >= 3 && !pending && mode === "text";
+  const canSubmit = hydrated && value.trim().length >= 3 && !pending;
   // Prima del primo messaggio la chat non occupa spazio vuoto: il campo resta sotto il saluto.
   const started = turns.length > 0 || pending || Boolean(review) || Boolean(error);
 
@@ -61,127 +59,100 @@ export function CommercialRfqConversation({
     <section data-testid="commercial-rfq-gpt-conversation"
       aria-label="Conversazione per la creazione della distinta"
       className={"flex min-w-0 flex-col " + (started ? "min-h-[min(48dvh,400px)] xl:min-h-[min(70dvh,670px)]" : "")}>
-      {/* COMM-RFQ-CREATE2: un interruttore tra i due modi di compilare la stessa distinta. */}
-      <div role="group" aria-label="Metodo di preparazione della distinta"
-        data-testid="commercial-ai-focused-modes"
-        className="mb-3 inline-flex w-fit gap-1 self-start rounded-full border border-[#d6e5db] bg-[#f1f7f3] p-1">
-        {([["text", "✦ Compila con AI"], ["manual", "▤ Compila manualmente"]] as const).map(([key, label]) => {
-          const active = mode === key;
-          return (
-            <button key={key} type="button" aria-pressed={active}
-              disabled={!hydrated || pending}
-              onClick={() => { if (!active) onModeChange(key); }}
-              className={"min-h-9 rounded-full px-4 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:opacity-50 " +
-                (active ? "bg-white text-[#143f30] shadow-[0_2px_8px_rgba(19,65,43,0.12)]" : "text-[#4f6b5b] hover:text-[#143f30]")}>
-              {label}
-            </button>
-          );
-        })}
+      {/* DISTINTA-QUICK1: niente interruttore AI/manuale; la barra rapida sta sopra la chat. */}
+      {quickAdd}
+      <div role="log" aria-label="Messaggi della richiesta" aria-live="polite"
+        aria-relevant="additions"
+        data-testid="commercial-rfq-message-thread"
+        className={"max-h-[min(53dvh,520px)] min-w-0 space-y-4 overflow-y-auto px-1 pt-2 xl:max-h-[min(65dvh,650px)] " + (started ? "min-h-[min(22dvh,200px)] flex-1 pb-5 xl:min-h-[min(42dvh,370px)]" : "pb-3")}>
+        {turns.length === 0 ? (
+          <div data-testid="commercial-rfq-conversation-intro"
+            className="flex items-start gap-3 pt-3">
+            <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#175640] text-sm text-white">✦</span>
+            <div className="max-w-[94%] min-w-0">
+              <p className="text-[15px] font-bold text-[#173f35]">Come posso aiutarti con la richiesta?</p>
+              <p className="mt-1 text-sm leading-6 text-[#53695d]">
+                Scrivi le misure. Preparo gli articoli da verificare.
+              </p>
+              {!value.trim() ? (
+                <button type="button" onClick={onSample} data-testid="commercial-rfq-sample"
+                  className="mt-3 min-h-11 rounded-xl border border-[#c4d8ca] bg-white px-3 py-2 text-left text-xs font-medium leading-5 text-[#175640] hover:bg-[#eef7f1]">
+                  Prova: 40 tubi quadri 100×100×5, S355J2H, EN 10219, 12 m
+                </button>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        {turns.map((turn) => (
+          <div key={turn.id} data-testid={turn.role === "user" ? "commercial-rfq-user-message" : "commercial-rfq-assistant-message"}
+            className={turn.role === "user" ? "flex justify-end" : "flex items-start gap-3"}>
+            {turn.role === "assistant" ? (
+              <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-sm text-white">✦</span>
+            ) : null}
+            <div className={turn.role === "user"
+              ? "max-w-[88%] whitespace-pre-wrap break-words rounded-2xl rounded-br-sm bg-[#eaf3ee] px-4 py-3 text-sm leading-6 text-[#173f35]"
+              : "max-w-[calc(100%-2.75rem)] min-w-0 whitespace-pre-wrap break-words rounded-2xl rounded-bl-sm bg-white px-3 py-2.5 text-sm leading-6 text-[#2c4738]"}>
+              {turn.content}
+            </div>
+          </div>
+        ))}
+
+        {pending ? (
+          <div role="status" data-testid="commercial-rfq-thinking" className="flex items-center gap-3">
+            <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-sm text-white">✦</span>
+            <p className="text-sm text-[#52695b]">Sto analizzando le misure e i dati che hai scritto…</p>
+          </div>
+        ) : null}
+
+        {review ? (
+          <div data-testid="commercial-rfq-inline-review" className="min-w-0 pl-0 sm:pl-11">
+            {review}
+          </div>
+        ) : null}
+
+        {error ? (
+          <p role="alert" data-testid="commercial-rfq-analysis-error"
+            className="rounded-xl border border-[#e8cbb4] bg-[#fff8f2] px-3 py-2 text-sm text-[#8c431e]">
+            {error} Il testo rimane disponibile per correggerlo e riprovare.
+          </p>
+        ) : null}
+        <div ref={chatEnd} aria-hidden="true" />
       </div>
 
-      {mode === "manual" ? (
-        <section aria-label="Configuratore manuale" className="min-w-0 space-y-3">
-          <p className="text-xs text-[#36584b]">
-            Configura un articolo alla volta. Passa a “Compila con AI” per scrivere più materiali insieme.
-          </p>
-          {manualTools}
-        </section>
-      ) : (
-        <>
-          <div role="log" aria-label="Messaggi della richiesta" aria-live="polite"
-            aria-relevant="additions"
-            data-testid="commercial-rfq-message-thread"
-            className={"max-h-[min(53dvh,520px)] min-w-0 space-y-4 overflow-y-auto px-1 pt-2 xl:max-h-[min(65dvh,650px)] " + (started ? "min-h-[min(22dvh,200px)] flex-1 pb-5 xl:min-h-[min(42dvh,370px)]" : "pb-3")}>
-            {turns.length === 0 ? (
-              <div data-testid="commercial-rfq-conversation-intro"
-                className="flex items-start gap-3 pt-3">
-                <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#175640] text-sm text-white">✦</span>
-                <div className="max-w-[94%] min-w-0">
-                  <p className="text-[15px] font-bold text-[#173f35]">Come posso aiutarti con la richiesta?</p>
-                  <p className="mt-1 text-sm leading-6 text-[#53695d]">
-                    Scrivi le misure. Preparo gli articoli da verificare.
-                  </p>
-                  {!value.trim() ? (
-                    <button type="button" onClick={onSample} data-testid="commercial-rfq-sample"
-                      className="mt-3 min-h-11 rounded-xl border border-[#c4d8ca] bg-white px-3 py-2 text-left text-xs font-medium leading-5 text-[#175640] hover:bg-[#eef7f1]">
-                      Prova: 40 tubi quadri 100×100×5, S355J2H, EN 10219, 12 m
-                    </button>
-                  ) : null}
-                </div>
-              </div>
-            ) : null}
-
-            {turns.map((turn) => (
-              <div key={turn.id} data-testid={turn.role === "user" ? "commercial-rfq-user-message" : "commercial-rfq-assistant-message"}
-                className={turn.role === "user" ? "flex justify-end" : "flex items-start gap-3"}>
-                {turn.role === "assistant" ? (
-                  <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-sm text-white">✦</span>
-                ) : null}
-                <div className={turn.role === "user"
-                  ? "max-w-[88%] whitespace-pre-wrap break-words rounded-2xl rounded-br-sm bg-[#eaf3ee] px-4 py-3 text-sm leading-6 text-[#173f35]"
-                  : "max-w-[calc(100%-2.75rem)] min-w-0 whitespace-pre-wrap break-words rounded-2xl rounded-bl-sm bg-white px-3 py-2.5 text-sm leading-6 text-[#2c4738]"}>
-                  {turn.content}
-                </div>
-              </div>
-            ))}
-
-            {pending ? (
-              <div role="status" data-testid="commercial-rfq-thinking" className="flex items-center gap-3">
-                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#175640] text-sm text-white">✦</span>
-                <p className="text-sm text-[#52695b]">Sto analizzando le misure e i dati che hai scritto…</p>
-              </div>
-            ) : null}
-
-            {review ? (
-              <div data-testid="commercial-rfq-inline-review" className="min-w-0 pl-0 sm:pl-11">
-                {review}
-              </div>
-            ) : null}
-
-            {error ? (
-              <p role="alert" data-testid="commercial-rfq-analysis-error"
-                className="rounded-xl border border-[#e8cbb4] bg-[#fff8f2] px-3 py-2 text-sm text-[#8c431e]">
-                {error} Il testo rimane disponibile per correggerlo e riprovare.
-              </p>
-            ) : null}
-            <div ref={chatEnd} aria-hidden="true" />
+      <div className={"sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 bg-[#fbfdfb] pb-2 md:bottom-3 " + (started ? "mt-auto border-t border-[#e0e9e2] pt-3" : "pt-1")}
+        data-testid="commercial-rfq-sticky-composer">
+        <label htmlFor="rfqai2-text-input" className="sr-only">Scrivi la richiesta o altri articoli</label>
+        <div className="rounded-2xl border border-[#b8d2c4] bg-white p-2 shadow-[0_6px_22px_rgba(19,65,43,0.06)] focus-within:border-[#175640]">
+          <textarea id="rfqai2-text-input" rows={2} maxLength={12000}
+            value={value} onChange={(event) => onChange(event.target.value)}
+            onKeyDown={onComposerKeyDown}
+            disabled={!hydrated || pending}
+            placeholder={hasProposals ? "Correggi una proposta: riga 2: 20 barre" : "Scrivi misure, quantità, norma, lunghezza…"}
+            className="min-h-[54px] max-h-44 w-full resize-y rounded-lg border-0 bg-transparent px-2 py-1 text-sm leading-6 text-[#173f35] outline-none placeholder:text-[#788d80] disabled:cursor-not-allowed disabled:opacity-60"
+            spellCheck={false} />
+          <div className="flex items-center justify-between gap-2">
+            <button type="button" onClick={onClear} disabled={!hydrated || !value.trim() || pending}
+              className="min-h-10 rounded-lg px-2 text-xs font-semibold text-[#52695b] underline underline-offset-4 disabled:opacity-40">
+              Cancella
+            </button>
+            <button type="button" onClick={onAnalyze} disabled={!canSubmit}
+              aria-label={pending ? "Analisi in corso" : hasProposals ? "Correggi proposta AI" : value.trim().length > 0 && value.trim().length < 12 ? "Completa richiesta" : "Analizza la richiesta con AI"}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
+              {pending ? "Analisi…" : hasProposals ? "Correggi riga" : value.trim().length > 0 && value.trim().length < 12 ? "Completa" : "Analizza"}
+              <span aria-hidden="true">↑</span>
+            </button>
           </div>
-
-          <div className={"sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 bg-[#fbfdfb] pb-2 md:bottom-3 " + (started ? "mt-auto border-t border-[#e0e9e2] pt-3" : "pt-1")}
-            data-testid="commercial-rfq-sticky-composer">
-            <label htmlFor="rfqai2-text-input" className="sr-only">Scrivi la richiesta o altri articoli</label>
-            <div className="rounded-2xl border border-[#b8d2c4] bg-white p-2 shadow-[0_6px_22px_rgba(19,65,43,0.06)] focus-within:border-[#175640]">
-              <textarea id="rfqai2-text-input" rows={2} maxLength={12000}
-                value={value} onChange={(event) => onChange(event.target.value)}
-                onKeyDown={onComposerKeyDown}
-                disabled={!hydrated || pending}
-                placeholder={hasProposals ? "Correggi una proposta: riga 2: 20 barre" : "Scrivi misure, quantità, norma, lunghezza…"}
-                className="min-h-[54px] max-h-44 w-full resize-y rounded-lg border-0 bg-transparent px-2 py-1 text-sm leading-6 text-[#173f35] outline-none placeholder:text-[#788d80] disabled:cursor-not-allowed disabled:opacity-60"
-                spellCheck={false} />
-              <div className="flex items-center justify-between gap-2">
-                <button type="button" onClick={onClear} disabled={!hydrated || !value.trim() || pending}
-                  className="min-h-10 rounded-lg px-2 text-xs font-semibold text-[#52695b] underline underline-offset-4 disabled:opacity-40">
-                  Cancella
-                </button>
-                <button type="button" onClick={onAnalyze} disabled={!canSubmit}
-                  aria-label={pending ? "Analisi in corso" : hasProposals ? "Correggi proposta AI" : value.trim().length > 0 && value.trim().length < 12 ? "Completa richiesta" : "Analizza la richiesta con AI"}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
-                  {pending ? "Analisi…" : hasProposals ? "Correggi riga" : value.trim().length > 0 && value.trim().length < 12 ? "Completa" : "Analizza"}
-                  <span aria-hidden="true">↑</span>
-                </button>
-              </div>
-            </div>
-            <p className="mt-1 px-1 text-[11px] leading-4 text-[#67796f]">
-              {hasProposals
-                ? "Puoi correggere una riga alla volta (es. riga 2: 20 barre). Nessuna correzione è approvata automaticamente."
-                : value.trim().length > 0 && value.trim().length < 12
-                  ? "Puoi completare questa misura: ti chiederò forma, quantità o lunghezza senza inventarle."
-                  : "Invio per analizzare · Maiusc+Invio per andare a capo."}
-            </p>
-            <p className="sr-only">Invio per analizzare, Maiusc+Invio per andare a capo.</p>
-          </div>
-        </>
-      )}
+        </div>
+        <p className="mt-1 px-1 text-[11px] leading-4 text-[#67796f]">
+          {hasProposals
+            ? "Puoi correggere una riga alla volta (es. riga 2: 20 barre). Nessuna correzione è approvata automaticamente."
+            : value.trim().length > 0 && value.trim().length < 12
+              ? "Puoi completare questa misura: ti chiederò forma, quantità o lunghezza senza inventarle."
+              : "Invio per analizzare · Maiusc+Invio per andare a capo."}
+        </p>
+        <p className="sr-only">Invio per analizzare, Maiusc+Invio per andare a capo.</p>
+      </div>
     </section>
   );
 }
