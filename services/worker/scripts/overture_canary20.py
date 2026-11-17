@@ -46,7 +46,7 @@ def company_domain(url: str) -> str | None:
         if u.scheme not in ("https", "http") or u.username or u.password or u.port:
             return None
         host = (u.hostname or "").lower().removeprefix("www.")
-        if (not re.fullmatch(r"[a-z0-9][a-z0-9.-]*\\.[a-z]{2,24}", host)
+        if (not re.fullmatch(r"[a-z0-9][a-z0-9.-]*\.[a-z]{2,24}", host)
                 or ".." in host or any(
                     host == b or host.endswith("." + b) for b in REJECT_HOSTS
                 )):
