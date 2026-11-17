@@ -612,19 +612,26 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--persist", action="store_true", help="Lease + fetch + private candidate write")
     parser.add_argument("--audit-a5", action="store_true",
-                        help="Manual A5.2 read-only historical snapshot audit; never requeue/publish")
+                        help="Manual A5.2 read-only depth-two historical audit")
+    parser.add_argument("--audit-a55", action="store_true",
+                        help="Manual A5.5 read-only first-level HTML layout audit")
     parser.add_argument("--sample", type=int, default=8,
-                        help="Number of already-processed pages for A5.2 audit (1..12)")
+                        help="Already-processed pages for manual audit (1..12)")
     args = parser.parse_args()
-    if args.audit_a5 and args.persist:
-        parser.error("--audit-a5 is read-only and incompatible with --persist")
-    if not args.audit_a5 and args.sample != 8:
-        parser.error("--sample is only valid with --audit-a5")
+    if args.audit_a5 and args.audit_a55:
+        parser.error("Choose only one read-only audit mode")
+    if (args.audit_a5 or args.audit_a55) and args.persist:
+        parser.error("Read-only audits are incompatible with --persist")
+    if not (args.audit_a5 or args.audit_a55) and args.sample != 8:
+        parser.error("--sample is only valid with a manual audit mode")
     from supabase import create_client
     db = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
     if args.audit_a5:
         from .net_pro_producers_auto1a5_audit import audit_historical_details
         report = asyncio.run(audit_historical_details(db, limit=args.sample))
+    elif args.audit_a55:
+        from .net_pro_producers_auto1a55_audit import audit_historical_products
+        report = asyncio.run(audit_historical_products(db, limit=args.sample))
     else:
         report = asyncio.run(run(db, limit=args.limit, dry_run=not args.persist))
     print(json.dumps(report, indent=2))
