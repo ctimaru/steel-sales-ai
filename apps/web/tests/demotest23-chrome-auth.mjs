@@ -106,14 +106,16 @@ try {
         const picker = page.locator('[data-testid="buyer-private-language-switch"] select');
         await picker.waitFor({state:"visible",timeout:30000});
         assert.equal(await picker.inputValue(),"de");
-        await page.getByRole("heading",{name:"Stücklistenpositionen"}).waitFor({state:"visible"});
-        const name = page.getByLabel("Titel der Stückliste");
+        // DISTINTA-QUICK1: no separate calculator on this screen; the bill title lives in the
+        // Distinta preview and the «Aggiungi articolo» bar is focused for non-Italian bills.
+        await page.getByTestId("distinta-quick-add").waitFor({state:"visible"});
+        const name = page.getByLabel("Nome della distinta");
         await name.fill("DEMO-NEXT1F-local-tab");
         await picker.selectOption("fr");
-        await page.getByRole("heading",{name:"Articles de la liste"}).waitFor({state:"visible"});
+        assert.equal(await picker.inputValue(),"fr");
         await picker.selectOption("en");
-        await page.getByRole("heading",{name:"Bill items"}).waitFor({state:"visible"});
-        assert.equal(await page.getByLabel("Bill title").inputValue(),"DEMO-NEXT1F-local-tab");
+        assert.equal(await picker.inputValue(),"en");
+        assert.equal(await page.getByLabel("Nome della distinta").inputValue(),"DEMO-NEXT1F-local-tab");
         assert.equal(await page.locator('[data-testid="private-cart-trigger"]').count(),0);
         assert.equal(new URL(page.url()).searchParams.get("lang"),"de",
           "Client-side locale switches must not pass commercial data through URLs");
