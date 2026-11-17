@@ -14,13 +14,14 @@ const css = read("../components/commercial-cinematic.module.css");
 
 test("COMM-TRUST1.D has exactly one primary chat entry into the canonical Distinta builder", () => {
   assert.equal((page.match(/<CommercialAiCompanion/g) ?? []).length, 1);
-  assert.equal((page.match(/<BuyerDistintaBuilder/g) ?? []).length, 1);
+  assert.equal((page.match(/<BuyerDistintaBuilder/g) ?? []).length, 0);
   assert.match(companion, /Descrivi i tubi che ti servono/);
   assert.match(companion, /Analizza con l’AI/);
   assert.match(companion, /data-testid="commercial-ai-first-cta"/);
   assert.match(companion, /sessionStorage\.setItem\("sss:commercial-ai-intake-handoff", value\)/);
-  assert.match(companion, /\?compose=1&method=ai#commercial-ai-intake/);
-  assert.match(page, /focusAiIntake=\{aiFocused\}/);
+  assert.match(companion, /newRequestHref\(\)/);
+  // DISTINTA-ONE1: the single screen /rfq-hub/distinta always opens chat + Distinta.
+  assert.match(read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx"), /focusAiIntake\n/);
   assert.match(builder, /<CommercialRfqWorkspace/);
   assert.match(workspace, /data-testid="commercial-rfq-chat-workspace"/);
   assert.doesNotMatch(companion, /analyzeRfqAiFreeText|saveBuyerDistinta\(|sendBuyerDistinta\(|sendEmail\(/);
@@ -32,7 +33,7 @@ test("COMM-TRUST1.D exposes manual and calculator only as alternatives", () => {
   assert.equal((page.match(/<CommercialCalculatorQuickAccess/g) ?? []).length, 1);
   assert.match(page, /data-testid="commercial-alternative-methods"/);
   assert.match(page, /data-testid="commercial-manual-entry"/);
-  assert.match(page, /\?compose=1#commercial-compose/);
+  assert.match(page, /newRequestHref\(\{ measure: true \}\)/);
   assert.match(page, /Crea dalla distinta/);
   assert.doesNotMatch(page + companion, /\+ Nuova richiesta/);
   assert.doesNotMatch(companion, /Crea dalla distinta/);
@@ -47,7 +48,7 @@ test("COMM-TRUST1.D historical search never starts a new RFQ", () => {
   assert.doesNotMatch(page, /Ricerca su dati già presenti/);
   assert.doesNotMatch(companion, /role="search"/);
   assert.match(worklist, /label: "Prepara con la chat"/);
-  assert.match(worklist, /\?compose=1&method=ai#commercial-ai-intake/);
+  assert.match(worklist, /newRequestHref\(\)/);
 });
 
 test("COMM-TRUST1.D keyboard and access policies remain explicit", () => {

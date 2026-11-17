@@ -52,7 +52,7 @@ async function fillTwoTubularLines(page) {
   if (await cookie.isVisible()) {
     await cookie.getByRole("button",{name:"Accetta necessari"}).click();
   }
-  const trigger=page.locator('[data-testid="private-cart-trigger"]');
+  const trigger=page.locator('[data-testid="private-cart-inline-open"]');
   assert.equal(await bill.count(),0,"Drawer starts intentionally closed");
   await calc.getByLabel("Numero barre").fill("3");
   const add = calc.getByRole("button", { name: /Aggiungi alla distinta/ });
@@ -94,7 +94,7 @@ try {
   await step("public anonymous two-line calculator and copy-only RFQ path", async () => {
     await goto(a, "/distinta");
     const { bill } = await fillTwoTubularLines(a);
-    assert.equal(await bill.getByRole("button", {name:/Crea RFQ privata/}).count(),0);
+    assert.equal(await bill.getByRole("button", {name:/Crea RFQ privata|Scegli i fornitori/}).count(),0);
     assert.ok(await a.getByRole("link", {name:/Accedi per creare una RFQ privata|Accedi e scegli i fornitori per una RFQ privata/}).isVisible());
     await noOverflow(a,"anonymous mobile bill");
   });
@@ -108,19 +108,19 @@ try {
     const page = await ctx.newPage();
     await step("buyer local GoTrue login " + width, () => login(page));
     await step("create mixed-EN 10210/10219 bill with one-click rows " + width, async () => {
-      await goto(page, "/rfq-hub/distinta");
+      await goto(page, "/rfq-hub/distinta?aggiungi=misura");
       await waitForBuilderReady(page);
       await page.getByLabel("Titolo distinta").fill("BD15 E2E LOCAL " + width);
       await page.locator("[data-private-calculator-grade] details > summary").click();
       await page.getByLabel("Grado acciaio · facoltativo ora").fill("S355J2H");
       const { bill } = await fillTwoTubularLines(page);
-      const btn = bill.getByRole("button", { name: /Crea RFQ privata/ });
+      const btn = bill.getByRole("button", { name: /Crea RFQ privata|Scegli i fornitori/ });
       await btn.waitFor({state:"visible"});
       assert.equal(await btn.isEnabled(),true,"Mixed EN bill must be valid and immediately RFQ-ready");
       await noOverflow(page,"private bill "+width);
     });
     await step("one action persists bill and opens private draft RFQ " + width, async () => {
-      await page.locator("#buyer-live-preview").getByRole("button",{name:/Crea RFQ privata/}).click();
+      await page.locator("#buyer-live-preview").getByRole("button",{name:/Crea RFQ privata|Scegli i fornitori/}).click();
       await page.waitForURL(url => /^\/rfq-hub\/[0-9a-f-]{36}$/.test(url.pathname),{timeout:60000});
       try {
         await page.getByRole("heading",{name:"BD15 E2E LOCAL "+width,exact:true})

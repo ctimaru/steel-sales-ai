@@ -12,8 +12,8 @@ const handoff = read("../lib/commercial-ai-intake-handoff.ts");
 
 test("COMM-RFQ-UX1 retains the private one-shot text transfer with explicit AI consent", () => {
   assert.match(companion, /sessionStorage\.setItem\("sss:commercial-ai-intake-handoff", value\)/);
-  assert.match(companion, /\?compose=1&method=ai#commercial-ai-intake/);
-  assert.match(page, /const aiFocused = composing && params\.method === "ai"/);
+  assert.match(companion, /newRequestHref\(\)/);
+  assert.match(page, /redirect\(legacyComposeRedirect\(params\)\)/);
   assert.match(handoff, /sessionStorage\.removeItem\(HANDOFF_KEY\)/);
   assert.match(intake, /consumeCommercialAiTextHandoff\(MAX_TEXT_CHARS\)/);
   assert.match(intake, /onClick=\{analyzeText\}/);
@@ -21,16 +21,13 @@ test("COMM-RFQ-UX1 retains the private one-shot text transfer with explicit AI c
   assert.match(intake, /Il testo viene inviato al servizio AI solo quando premi Analizza/);
 });
 
-test("COMM-RFQ-UX1 shows a focused commercial workflow instead of a second dashboard", () => {
-  assert.match(page, /data-testid="commercial-rfq-ai-focused-header"/);
-  assert.match(page, /Nuova distinta/);
-  assert.doesNotMatch(page, /1 · Analizza il materiale/);
-  assert.match(page, /data-testid="commercial-rfq-ai-focused-header"/);
-  assert.match(page, /\{aiFocused \? \(/);
-  assert.match(page, /\{!aiFocused \? \(<>\s*<CommercialUnifiedWorklist/);
-  assert.equal((page.match(/<BuyerDistintaBuilder/g) ?? []).length, 1);
-  assert.match(page, /focusAiIntake=\{aiFocused\}/);
-  assert.match(page, /canWrite && params\.compose === "1"/);
+test("COMM-RFQ-UX1 / DISTINTA-ONE1 the focused workflow is the single «Nuova richiesta» screen", () => {
+  const single = read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx");
+  assert.match(single, /data-testid="new-request-steps"/);
+  assert.match(single, /Nuova richiesta/);
+  assert.match(single, /focusAiIntake\n/);
+  assert.equal((page.match(/<BuyerDistintaBuilder/g) ?? []).length, 0);
+  assert.match(page, /redirect\(legacyComposeRedirect\(params\)\)/);
 });
 
 test("COMM-RFQ-UX1 puts the text review before manual tools and hides the empty cart statistics", () => {
@@ -53,13 +50,13 @@ test("COMM-RFQ-UX1 makes approved articles actionable while keeping private save
   assert.match(builder, /<CommercialRfqLivePreview/);
   assert.match(preview, /data-testid="commercial-rfq-live-preview"/);
   assert.match(preview, /data-testid="commercial-rfq-approved-lines"/);
-  assert.match(builder, /onClick=\{saveDistinta\}/);
+  assert.match(builder, /onSave=\{saveDistinta\}/);
   assert.match(builder, /onClick=\{createRfqHub\}/);
   assert.match(builder, /onOpenEditor=\{\(\) => \{ setShowManualTools\(true\); openPrivateCart\(\); \}\}/);
   assert.match(preview, /disabled=\{!canSave \|\| Boolean\(savedId\)\}/);
   assert.match(builder, /Explicit human-approved candidates from the review UI/);
   assert.match(builder, /crea la RFQ con un clic/);
-  assert.match(preview, /non invia messaggi ai fornitori/);
+  assert.match(preview, /l’invio parte solo dopo la tua conferma/);
 });
 
 test("COMM-RFQ-UX1 TSX changed modules parse without JSX syntax errors", () => {

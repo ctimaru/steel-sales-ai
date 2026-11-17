@@ -1,4 +1,5 @@
 "use client";
+import { newRequestHref } from "@/lib/new-request-href";
 import {useRouter} from "next/navigation";
 import {useEffect,useRef,useState} from "react";
 import {analyzeRfqAiFreeText} from "@/app/(workspace)/rfq-hub/distinta/ai-actions";
@@ -200,7 +201,7 @@ export function NetworkRfqBridge({sourceText,userId,organizationId,canCompose}:{
         Articoli confermati. Puoi aggiungerli alla distinta esistente nel Commerciale.
       </p>
       <button type="button"
-        onClick={()=>router.push("/commercial?compose=1&source=network#commercial-compose")}
+        onClick={()=>router.push(newRequestHref({fromNetwork:true}))}
         className="ui-action ui-action-primary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">
         Apri Commerciale e importa articoli →
       </button>

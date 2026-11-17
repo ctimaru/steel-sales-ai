@@ -30,7 +30,8 @@ test("NEXT1F workspace remains write-role protected, authorization server-owned"
  assert.match(route,/robots: privateNoIndexRobots/);
  assert.match(actions,/auth\.getUser\(\)/);
  assert.match(actions,/\.eq\("owner_user_id", authData\.user\.id\)/);
- assert.match(actions,/\.eq\("owner_user_id", user\.id\)/);
+ // DISTINTA-ONE1: the email send (the other owner-scoped read) is retired and closed.
+ assert.doesNotMatch(actions,/api\.resend\.com/);
  assert.match(snapshot,/\.eq\("organization_id", context\.organizationId\)/);
  assert.match(snapshot,/canWriteWorkspace\(context\.role\)/);
  assert.match(snapshot,/snapshot\.owner_user_id === context\.userId/);
@@ -48,7 +49,7 @@ test("NEXT1F selector is client-only and cannot change existing ownership or dra
  assert.match(builder,/buyerDraftKey\(authenticated \? userId : null, workspace \? organizationId : null\)/);
  assert.match(route,/organizationId=\{context\.organizationId\}/);
  assert.match(builder,/window\.sessionStorage/);
- assert.match(builder,/returnToCommercial/);
+ assert.doesNotMatch(builder,/returnToCommercial/); // DISTINTA-ONE1: every entry continues to step 2
  assert.match(builder,/TechnicalCartShell/);
  assert.doesNotMatch(dict,/createClient|sendBuyerDistinta|secret|supabase/);
  for(const file of [dict,builder,route]){

@@ -71,7 +71,7 @@ test("COMPACT6D reuses existing verified RFQAI3 parser and human approval UI",()
  assert.match(bridge,/<RfqAiTextReview/);
  assert.match(bridge,/serializeNetworkReviewedHandoff\(lines\)/);
  assert.match(bridge,/parseNetworkReviewedHandoff\(window.sessionStorage.getItem\(key\)\)/);
- assert.match(bridge,/router.push\("\/commercial\?compose=1&source=network#commercial-compose"\)/);
+ assert.match(bridge,/router.push\(newRequestHref\(\{fromNetwork:true\}\)\)/);
  assert.match(chat,/sourceText:query/);
  assert.match(chat,/<NetworkRfqBridge key=\{latestAssistant\?\.id\} sourceText=\{rfqSource\}/);
  assert.match(chat,/const rfqSource=latestAssistant\?\.result\?\.status==="rfq"/);
@@ -92,7 +92,8 @@ test("COMPACT6D Commerciale shows a separate import decision and only appends to
  assert.match(builder,/data-testid="network-reviewed-rfq-import"/);
  assert.match(builder,/Scarta passaggio/);
  assert.match(builder,/const base = recyclable \? \[\] : current/);
- assert.match(commercial,/organizationId=\{context.organizationId\}/);
+ // DISTINTA-ONE1: the builder with the user's scope lives on the single /rfq-hub/distinta screen.
+ assert.match(read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx"),/organizationId=\{context.organizationId\}/);
  assert.match(pro,/canCompose=\{canWriteWorkspace\(context.role\)\}/);
  assert.match(free,/userId=\{userId\} organizationId=\{organizationId\} canCompose=\{canCompose\}/);
  assert.match(network,/<NetworkConversation userId=\{userId\} organizationId=\{organizationId\} canCompose=\{canCompose\}\/>/);

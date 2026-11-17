@@ -1,5 +1,6 @@
 "use client";
 
+import { newRequestHref } from "@/lib/new-request-href";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
@@ -191,7 +192,7 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
     try {
       window.sessionStorage.setItem("sss:commercial-ai-intake-handoff", text.slice(0, MAX_CHARS));
       setHandoffError("");
-      router.push(appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake");
+      router.push(newRequestHref());
     } catch {
       setHandoffError("Il trasferimento non è riuscito. Apri la chat Distinta e incolla il testo manualmente.");
     }
@@ -407,7 +408,7 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
                   Cosa scade
                 </button>
                 {canWrite ? (
-                  <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
+                  <Link href={newRequestHref({ measure: true })}
                     data-testid="commercial-ai-native-manual-entry"
                     className="inline-flex min-h-9 items-center rounded-full px-3 text-xs font-semibold text-[#175640] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] sm:ml-auto">
                     Crea dalla distinta →
@@ -415,7 +416,7 @@ export function CommercialAiNativeShell({ canWrite, compact = false }: { canWrit
                 ) : null}
               </div>
             ) : null}
-            {handoffError ? <p role="alert" className="mx-auto mt-2 max-w-[740px] text-xs text-[#974621]">{handoffError} <Link className="underline" href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}>Apri Distinta</Link></p> : null}
+            {handoffError ? <p role="alert" className="mx-auto mt-2 max-w-[740px] text-xs text-[#974621]">{handoffError} <Link className="underline" href={newRequestHref()}>Apri la nuova richiesta</Link></p> : null}
             <p className={(compact ? "mt-1.5 " : "mx-auto mt-1 max-w-[800px] text-center ") + "text-[10px] leading-4 text-[#829187]"}>
               <span className="sm:hidden">Risposte da verificare · Nessun invio automatico.</span>
               <span className="hidden sm:inline">Le risposte possono richiedere verifica; cronologia solo in questa scheda, nessuna memoria persistente o invio automatico.</span>

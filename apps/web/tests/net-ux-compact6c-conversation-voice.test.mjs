@@ -100,7 +100,7 @@ test("COMPACT6C gateway action must enforce auth, budget, timeout and no private
    "getWorkspaceContext()","getNetworkAccessState(context.organizationId)",
    'db.rpc("netux6c_claim_ai_budget")',"NETUX6C_AI_ENABLED",
    "18_000","AI_GATEWAY_API_KEY","validateNetworkAIOutput(candidate,query,taxonomy)",
-   'mode:"safe_fallback"','/commercial?compose=1#commercial-compose',
+   'mode:"safe_fallback"','newRequestHref({measure:true})',
  ]){
    assert.ok(action.includes(needle),needle);
  }

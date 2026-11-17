@@ -16,7 +16,7 @@ test("COMM-UX6.A reduces the industrial hero and keeps AI accessible on small sc
   assert.match(ai, /nessuna richiesta viene inviata automaticamente/);
   assert.ok(page.indexOf("comm-cine1-hero") < page.indexOf("comm-cine13-first-workspace"));
   assert.ok(page.indexOf("comm-cine13-first-workspace") < page.indexOf("commercial-primary-quick-actions"));
-  assert.ok(page.indexOf("commercial-primary-quick-actions") < page.indexOf("commercial-worklist"));
+  assert.ok(page.indexOf("commercial-primary-quick-actions") < page.indexOf("<CommercialUnifiedWorklist"));
 });
 
 test("COMM-CINE17 authenticated Chrome evidence covers the owner, viewer and a 320px layout", () => {

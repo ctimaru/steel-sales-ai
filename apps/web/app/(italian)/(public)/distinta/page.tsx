@@ -44,7 +44,6 @@ export default async function BuyerDistintaPage() {
   const data = supabase ? (await supabase.auth.getUser()).data : { user: null };
   const catalogOptions = buildBuyerDistintaCatalogOptions(publishedDimensions);
   const authenticated = Boolean(data.user);
-  const emailConfigured = Boolean(process.env.RESEND_API_KEY);
 
   return (
     <div data-public-bill-landing className={`mx-auto max-w-[1180px] px-3 py-2.5 sm:px-6 sm:py-9 lg:px-8 ${styles.landing}`}>
@@ -91,7 +90,6 @@ export default async function BuyerDistintaPage() {
         <BuyerDistintaBuilder
           compactLanding
           authenticated={authenticated}
-          emailConfigured={emailConfigured}
           catalogOptions={catalogOptions}
           userId={data.user?.id ?? null}
         />

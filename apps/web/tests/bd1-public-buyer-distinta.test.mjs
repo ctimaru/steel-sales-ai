@@ -43,17 +43,15 @@ test("BD1 converts Target euro per tonne into Target euro per metre from kg per 
   assert.match(builder, /Peso kg\/m/);
 });
 
-test("BD1 supports public copy and private save/send", () => {
+test("BD1 supports public copy and private save; DISTINTA-ONE1 retires the direct email send", () => {
   assert.match(builder, /Copia distinta/);
   assert.match(builder, /saveBuyerDistinta/);
-  assert.match(builder, /sendBuyerDistinta/);
+  assert.doesNotMatch(builder, /sendBuyerDistinta/);
   assert.match(actions, /buyer_create_distinta_snapshot/);
-  assert.match(actions, /https:\/\/api\.resend\.com\/emails/);
-  assert.match(actions, /reply_to/);
 });
 
-test("BD1 supplier delivery keeps recipient addresses separate", () => {
-  assert.match(actions, /for \(const recipient of recipients\)/);
-  assert.match(actions, /to: \[recipient\]/);
-  assert.doesNotMatch(actions, /to:\s*recipients/);
+test("DISTINTA-ONE1 the old send endpoint is closed: no email provider, no recipients", () => {
+  assert.doesNotMatch(actions, /api\.resend\.com/);
+  assert.doesNotMatch(actions, /for \(const recipient of recipients\)/);
+  assert.match(actions, /L'invio diretto della distinta non è più disponibile/);
 });

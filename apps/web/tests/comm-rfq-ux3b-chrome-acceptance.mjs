@@ -95,7 +95,7 @@ try {
       const approved=page.getByTestId("commercial-rfq-approved-lines");
       assert.equal(await proposed.locator("li").count(),10);
       assert.match(await approved.textContent(),/0 righe/);
-      assert.equal(await live.locator("button").filter({hasText:"Salva distinta privata"}).isDisabled(),true);
+      assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),true);
       const row8=page.getByRole("article",{name:"Articolo AI 8",exact:true});
       const row9=page.getByRole("article",{name:"Articolo AI 9",exact:true});
       assert.equal(await row8.locator('input[type="checkbox"]').isDisabled(),true,
@@ -130,7 +130,7 @@ try {
       assert.match(await row8.innerText(),/S235JRH/);
       assert.match(await row9.innerText(),/EN 10210/);
       assert.match(await approved.textContent(),/0 righe/);
-      assert.equal(await live.locator("button").filter({hasText:"Salva distinta privata"}).isDisabled(),true);
+      assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),true);
 
       // Do not select line 10: only 9 explicitly verified lines may persist.
       for(let i=1;i<=9;i++)
@@ -148,7 +148,7 @@ try {
       const title="COMM-RFQ-UX3B PRIVATE LOCAL "+width;
       await live.getByLabel("Nome della distinta").fill(title);
       await page.screenshot({path:path.join(screenshotDir,"ux3b-"+width+"-nine-approved-preview.png"),animations:"disabled"});
-      const save=live.getByRole("button",{name:"Salva distinta privata"});
+      const save=live.getByRole("button",{name:"Salva solo la distinta"});
       assert.equal(await save.isEnabled(),true);
       await save.click();
       const savedLink=live.getByTestId("comm-rfq-saved-distinta-link");

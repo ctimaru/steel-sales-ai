@@ -302,8 +302,8 @@ try {
             assert.equal(await page.locator("#commercial-worklist").count(), 1);
           }
           await page.getByRole("link", { name: /^Chiudi/ }).click();
-          await navigate(page, "/commercial?compose=1");
-          await page.getByRole("heading", { name: "Crea distinta e RFQ senza lasciare Commerciale" })
+          await navigate(page, "/commercial?compose=1"); // DISTINTA-ONE1: redirects to the single screen
+          await page.getByRole("heading", { name: "Nuova richiesta", exact: true })
             .waitFor({ state: "visible", timeout: 60000 });
         }
       });

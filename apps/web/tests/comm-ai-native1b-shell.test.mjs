@@ -42,7 +42,9 @@ test("COMM-AI-NATIVE1.B has a reversible UI-only entry and keeps all deep links"
   assert.match(page, /params\.experience !== "classic"/);
   assert.match(page, /const legacyRouteRequested/);
   assert.match(page, /<CommercialAiNativeShell canWrite=\{canWrite\}/);
-  assert.match(page, /<BuyerDistintaBuilder/);
+  // DISTINTA-ONE1: creation moved to /rfq-hub/distinta; compose links redirect there.
+  assert.doesNotMatch(page, /<BuyerDistintaBuilder/);
+  assert.match(page, /redirect\(legacyComposeRedirect\(params\)\)/);
   assert.match(page, /<CommercialUnifiedWorklist/);
   assert.match(shell, /\?experience=classic/);
   assert.match(shell, /appRoutes\.rfqHub\.home/);
@@ -55,7 +57,7 @@ test("COMM-AI-NATIVE1.B/C keeps honest evidence labels and the authorized Distin
   assert.match(shell, /cronologia solo in questa scheda, nessuna memoria persistente/);
   assert.match(shell, /commercialAiNativeResponse/);
   assert.match(shell, /sss:commercial-ai-intake-handoff/);
-  assert.match(shell, /\?compose=1&method=ai#commercial-ai-intake/);
+  assert.match(shell, /newRequestHref\(\)/);
   assert.match(shell, /onClick=\{\(\) => startDistinta\(turn\.question\)\}/);
   assert.match(shell, /if \(!canWrite \|\| !ready/);
   assert.match(shell, /data-testid="commercial-ai-native-mobile-drawer"/);
@@ -67,7 +69,8 @@ test("COMM-AI-NATIVE1.B/C keeps honest evidence labels and the authorized Distin
 test("COMM-AI-NATIVE1.CLEAN2 preserves calculator and editor anchors on classic URLs", () => {
   // COMM-DESK-AI2: la scrivania è la pagina di default; i link non passano più dalla vista classica.
   assert.match(directorNavigation, /Calcolatrice pesi.*\?tools=1#commercial-tool-access/);
-  assert.match(page, /appRoutes\.commercial\.home \+ "#commercial-worklist".*Chiudi editor/);
+  // DISTINTA-ONE1: no embedded editor to close on Commerciale any more.
+  assert.doesNotMatch(page, /Chiudi editor/);
   assert.match(page, /open=\{params\.tools === "1" \|\| undefined\}/);
   assert.match(page, /params\.compose === "1"/);
   assert.match(page, /params\.view !== undefined/);

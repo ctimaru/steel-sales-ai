@@ -1,3 +1,4 @@
+import { newRequestHref } from "@/lib/new-request-href";
 import Link from "next/link";
 
 import { CommercialAiNativeShell } from "@/components/commercial-ai-native-shell";
@@ -254,7 +255,7 @@ export async function CommercialDealsDesk({
               className="min-h-9 w-[220px] max-w-full rounded-full border border-[#d6e5db] bg-white pl-8 pr-3 text-sm text-[#143f30] placeholder:text-[#7a9184] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
           </form>
           {canWrite ? (
-            <Link href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"} data-testid="commercial-new-request"
+            <Link href={newRequestHref()} data-testid="commercial-new-request"
               className="inline-flex min-h-9 items-center rounded-full bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
               + Nuova richiesta
             </Link>
@@ -385,7 +386,7 @@ export async function CommercialDealsDesk({
                   </Link>
                 ) : null}
                 {!state.filter && !state.query && canWrite ? (
-                  <Link href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}
+                  <Link href={newRequestHref()}
                     className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632]">
                     Crea la prima richiesta
                   </Link>

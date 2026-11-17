@@ -169,7 +169,7 @@ try {
       await calc.getByLabel("Lunghezza barra personalizzata", { exact: true }).fill("6");
       await calc.getByLabel("Numero barre", { exact: true }).fill("3");
       await calc.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
-      await page.getByTestId("private-cart-trigger").click();
+      await page.getByTestId("private-cart-inline-open").click(); // DISTINTA-ONE1: no floating cart on the single screen
       let bill = page.locator("#buyer-live-preview");
       await bill.locator(".bd10-preview-row:not([hidden])").waitFor({ state: "visible" });
       assert.equal(await bill.locator(".bd10-preview-row:not([hidden])").count(), 1, "First add creates one row");
@@ -178,7 +178,7 @@ try {
       await calc.getByLabel("Lunghezza barra personalizzata", { exact: true }).fill("12");
       await calc.getByLabel("Numero barre", { exact: true }).fill("2");
       await calc.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
-      await page.getByTestId("private-cart-trigger").click();
+      await page.getByTestId("private-cart-inline-open").click(); // DISTINTA-ONE1: no floating cart on the single screen
       bill = page.locator("#buyer-live-preview");
       const lineRows = bill.locator(".bd10-preview-row:not([hidden])");
       await page.waitForFunction(() => document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === 2);
@@ -190,7 +190,7 @@ try {
         await row.getByLabel("Target €/t (facoltativo)", { exact: true }).fill("900");
       }
       await usable(page);
-      const create = bill.getByRole("button", { name: /Crea RFQ privata/ });
+      const create = bill.getByRole("button", { name: /Scegli i fornitori/ }); // DISTINTA-ONE1: step 2 is the suppliers
       assert.equal(await create.isEnabled(), true, "Both completed lines must be RFQ-ready");
       await create.click();
       await page.waitForURL(url => /^\/rfq-hub\/[0-9a-f-]{36}$/.test(url.pathname), { timeout: 60000 });
