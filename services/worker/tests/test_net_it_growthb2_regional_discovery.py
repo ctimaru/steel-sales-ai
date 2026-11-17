@@ -31,6 +31,7 @@ def test_source_query_requires_actual_headquarters_industry_and_italian_country(
     assert "wdt:P452 ?industry" in query
     assert "wdt:P856 ?website" in query
     assert "wdt:P159 ?headquarters" in query
+    assert "wdt:P131 ?headquarters" in query
     assert "?headquarters wdt:P131* wd:Q1216" in query
     assert "FILTER NOT EXISTS" in query and "wdt:P31 wd:Q5" in query
     assert "LIMIT 100 OFFSET 0" in query
