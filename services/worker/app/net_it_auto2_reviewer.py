@@ -90,6 +90,18 @@ def _is_capital_company(name: str) -> bool:
     return any(token in ADMITTED_LEGAL_FORMS for token in tokens)
 
 
+def _has_contaminated_name_prefix(current: str, evidenced: str) -> bool:
+    """An official page may print '© 2023 ... Acme S.r.l.' as one text run.
+
+    Only remove a prefix when the *entire* independently evidenced company
+    name is a suffix of the current guess. This does not authorize inventing
+    a legal form or replacing the company with a different name.
+    """
+    bad = _normalize_full_legal_name(current)
+    clean = _normalize_full_legal_name(evidenced)
+    return bool(clean and bad != clean and bad.endswith(" " + clean))
+
+
 def _name_evidenced(name: str, page_texts: list[str]) -> bool:
     normalized = _normalize_full_legal_name(name)
     # A corporate suffix on the candidate must ALSO appear on the first-party
@@ -175,19 +187,24 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
     name = str(candidate.get("company_name") or "")
     matched = _name_evidenced(name, texts)
     correction = None
-    if not matched or not _is_capital_company(name):
-        # v4: the first guess is often a brand or the domain; use the company's
-        # own ragione sociale when the site prints one that belongs to it.
-        found = find_company_identity(texts, domain, name)
-        if found and _is_capital_company(found.legal_name) \
-                and _name_evidenced(found.legal_name, texts):
-            page_url = next((p.url for p in pages
-                             if _name_evidenced(found.legal_name, [str(p.text)])), pages[0].url)
-            correction = {"p_candidate_id": str(candidate["id"]),
-                          "p_legal_name": found.legal_name[:255],
-                          "p_vat_id": found.vat_id, "p_page_url": page_url,
-                          "p_reviewer_version": VERSION}
-            name, matched = found.legal_name, True
+    # A crawler guess can literally occur in the official footer but include
+    # copyright years, cookie notices or nearby marketing prose. A positive
+    # substring match alone must not suppress v4's clean-name extraction:
+    # AUTO3 will correctly reject these contaminated names, starving growth.
+    # Reconsider only a shorter, domain-related first-party company name when
+    # the old name ENDS with that exact legal name (never an unrelated alias).
+    found = find_company_identity(texts, domain, name)
+    if (found and _is_capital_company(found.legal_name)
+            and _name_evidenced(found.legal_name, texts)
+            and (not matched or not _is_capital_company(name)
+                 or _has_contaminated_name_prefix(name, found.legal_name))):
+        page_url = next((p.url for p in pages
+                         if _name_evidenced(found.legal_name, [str(p.text)])), pages[0].url)
+        correction = {"p_candidate_id": str(candidate["id"]),
+                      "p_legal_name": found.legal_name[:255],
+                      "p_vat_id": found.vat_id, "p_page_url": page_url,
+                      "p_reviewer_version": VERSION}
+        name, matched = found.legal_name, True
     if not matched:
         reasons.append("corporate_name_not_evidenced")
     if not _is_capital_company(name):
