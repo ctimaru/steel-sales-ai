@@ -23,6 +23,11 @@ import httpx
 
 from .net_pro_producers_auto1a4 import discover_detail_links, extract_exact_row_candidates
 from .net_pro_producers_auto1a5 import diagnose_detail_html
+from .net_pro_producers_auto1a53 import fingerprint_technical_rows
+from .net_pro_producers_auto1a54 import (
+    technical_sheet_hint, link_priority_bonus, classify_html_layout,
+    LAYOUT_CATEGORIES,
+)
 
 USER_AGENT = "SmartSteelSalesTechnicalEvidenceBot/1.0"
 MAX_BATCH = 25
@@ -117,7 +122,10 @@ class ProductLinkParser(HTMLParser):
             self._current = None
 
 
-def discover_product_links(html: str, root_url: str, canonical_domain: str) -> list[dict]:
+def discover_product_links(
+    html: str, root_url: str, canonical_domain: str,
+    *, a54_enabled: bool = False,
+) -> list[dict]:
     """Single-depth first-party discovery; NO PDF downloads or external links."""
     parser = ProductLinkParser()
     parser.feed(html[:MAX_HTML_BYTES])
@@ -163,8 +171,14 @@ def discover_product_links(html: str, root_url: str, canonical_domain: str) -> l
                     candidate_score += 2
                 if candidate_score > score:
                     kind, score = candidate, candidate_score
+            if kind is None and a54_enabled and technical_sheet_hint(
+                slug + " " + short_label
+            ):
+                kind, score = "catalog", 8
             if kind is None:
                 continue
+            if a54_enabled:
+                score += link_priority_bonus(path, short_label)
             previous = ranked.get(normalized)
             if previous is None or score > previous[0]:
                 ranked[normalized] = (score, kind)
@@ -334,6 +348,15 @@ async def fetch_official_page(client: httpx.AsyncClient, lease: dict) -> dict:
             is_detail = bool(lease.get("parent_page_id"))
             technical_candidates = extract_exact_row_candidates(text, url, digest) if is_detail else []
             diagnostic = diagnose_detail_html(text, technical_candidates) if is_detail else None
+            technical_fingerprint = fingerprint_technical_rows(text) if is_detail else None
+            a54_enabled = os.getenv("NETPRODUCERS_A54_ENABLED", "false").lower() == "true"
+            # The product page can itself have an HTML table. For A5.4 only
+            # classify the layout; do NOT extract a first-level technical claim.
+            layout = None
+            if a54_enabled and lease.get("page_id"):
+                layout_diagnostic = diagnostic or diagnose_detail_html(text, [])
+                layout_fingerprint = technical_fingerprint or fingerprint_technical_rows(text)
+                layout = classify_html_layout(layout_diagnostic, layout_fingerprint)
             return {
                 "status": "processed",
                 "sha256": digest,
@@ -341,13 +364,15 @@ async def fetch_official_page(client: httpx.AsyncClient, lease: dict) -> dict:
                 "last_modified": response.headers.get("last-modified", "")[:200] or None,
                 "candidates": extract_candidates(text),
                 "product_links": discover_product_links(
-                    text, url, lease["canonical_domain"]
+                    text, url, lease["canonical_domain"], a54_enabled=a54_enabled
                 ) if not lease.get("page_id") else [],
                 "detail_links": discover_detail_links(
-                    text, url, host, digest
+                    text, url, host, digest, a54_enabled=a54_enabled
                 ) if lease.get("page_id") and not lease.get("parent_page_id") else [],
                 "technical_candidates": technical_candidates,
                 "diagnostic": diagnostic,
+                "technical_fingerprint": technical_fingerprint,
+                "a54_layout": layout,
             }
     except httpx.HTTPError:
         return {"status": "failed", "error": "http_transport_error"}
@@ -364,6 +389,10 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
     a4_enabled = os.getenv("NETPRODUCERS_A4_ENABLED", "false").lower() == "true"
     # Explicit rollout flag: SQL A5 migration must exist before calling its RPC.
     a5_enabled = a4_enabled and os.getenv("NETPRODUCERS_A5_ENABLED", "false").lower() == "true"
+    # Separate migration + release flag: never call the A5.3 RPC prematurely.
+    a53_enabled = a5_enabled and os.getenv("NETPRODUCERS_A53_ENABLED", "false").lower() == "true"
+    # A5.4 changes discovery ranking + aggregate HTML layout metrics only.
+    a54_enabled = os.getenv("NETPRODUCERS_A54_ENABLED", "false").lower() == "true"
 
     # Grow the durable queue automatically as newly published canonical IT
     # producers appear. Only the private service role can invoke this RPC.
@@ -413,6 +442,8 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
         {"p_limit": min(MAX_PRODUCT_PAGES_PER_RUN, limit)}
     ))
     page_outcomes = []
+    a54_product_quality = {}
+    a54_detail_quality = {}
     async with httpx.AsyncClient(
         timeout=httpx.Timeout(12.0), follow_redirects=False, trust_env=False,
     ) as client:
@@ -460,6 +491,11 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
                 else:
                     if discovery.get("contract") != "netproducers-auto1a4-discover-v1":
                         raise ValueError("Invalid depth-two discovery response")
+            if a54_enabled and outcome["status"] == "processed":
+                layout = outcome.get("a54_layout")
+                if layout not in LAYOUT_CATEGORIES:
+                    raise ValueError("Missing bounded A5.4 product HTML layout")
+                a54_product_quality[layout] = a54_product_quality.get(layout, 0) + 1
             page_outcomes.append({
                 "page_id": page["page_id"],
                 "status": outcome["status"],
@@ -504,10 +540,40 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
                             or ack.get("recorded") is not True):
                         raise ValueError("Invalid A5 diagnostic acknowledgement")
                     diagnostic_recorded = True
+                fingerprint_comparison = None
+                if a53_enabled and diagnostic_recorded:
+                    fingerprint = outcome.get("technical_fingerprint")
+                    if (not isinstance(fingerprint, dict)
+                            or fingerprint.get("contract") != "netproducers-auto1a53-row-fingerprint-v1"
+                            or type(fingerprint.get("technical_rows")) is not int
+                            or fingerprint["technical_rows"] < 0
+                            or fingerprint["technical_rows"] > 120):
+                        raise ValueError("Missing bounded A5.3 row signature")
+                    ack53 = db_rpc(db, "netproducers1_auto1a53_record_fingerprint", {
+                        "p_page_id": detail["page_id"],
+                        "p_source_sha256": outcome["sha256"],
+                        "p_technical_sha256": fingerprint.get("technical_sha256"),
+                        "p_technical_rows": fingerprint["technical_rows"],
+                    })
+                    if (ack53.get("contract") != "netproducers-auto1a53-record-v1"
+                            or ack53.get("recorded") is not True
+                            or ack53.get("comparison") not in (
+                                "baseline", "no_comparable_rows",
+                                "same_observed_rows", "changed_observed_rows",
+                                "unchanged_snapshot"
+                            ) or ack53.get("published_capabilities") != 0):
+                        raise ValueError("Invalid A5.3 fingerprint acknowledgement")
+                    fingerprint_comparison = ack53["comparison"]
+                if a54_enabled and outcome["status"] == "processed":
+                    layout = outcome.get("a54_layout")
+                    if layout not in LAYOUT_CATEGORIES:
+                        raise ValueError("Missing bounded A5.4 detail HTML layout")
+                    a54_detail_quality[layout] = a54_detail_quality.get(layout, 0) + 1
                 detail_outcomes.append({
                     "page_id": detail["page_id"], "status": outcome["status"],
                     "private_technical_candidates": completed.get("candidate_count", 0),
                     "diagnostic_recorded": diagnostic_recorded,
+                    "fingerprint_comparison": fingerprint_comparison,
                     "diagnostic_reason": (
                         outcome["diagnostic"]["reason"] if diagnostic_recorded else None
                     ),
@@ -527,6 +593,16 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
             "detail_pages_processed": len(detail_outcomes),
             "private_technical_candidates": sum(x["private_technical_candidates"] for x in detail_outcomes),
             "a5_diagnostics_recorded": sum(x["diagnostic_recorded"] for x in detail_outcomes),
+            "a54_product_page_quality": dict(sorted(a54_product_quality.items())),
+            "a54_detail_page_quality": dict(sorted(a54_detail_quality.items())),
+            "a53_fingerprints_recorded": sum(bool(x["fingerprint_comparison"]) for x in detail_outcomes),
+            "a53_comparisons": {
+                key: sum(x["fingerprint_comparison"] == key for x in detail_outcomes)
+                for key in (
+                    "baseline", "no_comparable_rows", "same_observed_rows",
+                    "changed_observed_rows", "unchanged_snapshot"
+                ) if any(x["fingerprint_comparison"] == key for x in detail_outcomes)
+            },
             "published_claims": 0, "outcomes": outcomes,
             "page_outcomes": page_outcomes, "detail_outcomes": detail_outcomes}
 
