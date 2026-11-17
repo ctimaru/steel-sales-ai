@@ -119,7 +119,10 @@ def _name_evidenced(name: str, page_texts: list[str]) -> bool:
     normalized = _normalize_full_legal_name(name)
     # A corporate suffix on the candidate must ALSO appear on the first-party
     # body text. A brand-only title or partial token match is not enough.
-    if len(normalized) < 8:
+    # Three-letter official acronyms (e.g. CDM S.r.l.) are valid complete
+    # first-party identities; two-letter guesses still fail closed. The
+    # domain relationship and legal form are checked separately before write.
+    if len(normalized) < 7:
         return False
     for page in page_texts:
         text = _normalize_full_legal_name(page)
