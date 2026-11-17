@@ -209,9 +209,9 @@ try {
         }))
       );
       const quietMotion = await readCinematicMotion();
-      // HOME-NETPRO-PUBLIC1: on the Italian home the product hint is replaced by the
-      // Network PRO card; the photo and network layers must stay (the English home keeps three).
-      check(["photo", "network"].every((layer) => quietMotion.some((item) => item.layer === layer)),
+      // HOME-NETPRO-PUBLIC2: on the Italian home the network overlay and the product hint
+      // give way to the Network PRO card; the photographic layer must stay (EN keeps all three).
+      check(quietMotion.some((item) => item.layer === "photo"),
         viewport.name + " is missing a cinematic layer: " + JSON.stringify(quietMotion));
       check(quietMotion.every((layer) => layer.animation === "none"),
         viewport.name + " failed reduced-motion gate: " + JSON.stringify(quietMotion));

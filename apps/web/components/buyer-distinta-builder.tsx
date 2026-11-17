@@ -875,7 +875,7 @@ export function BuyerDistintaBuilder({
       inert={!draftReady && !restoreCandidate}
       aria-busy={!draftReady && !restoreCandidate}
       data-public-bill-mobile-compact={compactLanding ? "true" : undefined} className={`bd54-page ${styles.page} ${compactLanding ? styles.publicMobileLanding : ""} space-y-3 sm:space-y-4`} lang={uiLocale}>
-      {!focusAiIntake ? (
+      {/* DISTINTA-ONE1: the bill language stays available on the single screen (compact). */}
       <div className={"flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-2"} data-testid="buyer-private-language-switch">
         <p className={focusAiIntake ? "sr-only" : "min-w-0 text-xs font-semibold text-[var(--brand-deep)]"}>{focusAiIntake ? "Bozza RFQ · nessun invio" : t("RFQ privata · nessun invio automatico")}</p>
         <label className="flex shrink-0 items-center gap-2 text-xs font-bold text-[var(--brand-deep)]"><span className={focusAiIntake ? "sr-only" : ""}>{t("Scegli la lingua")}</span>
@@ -885,7 +885,6 @@ export function BuyerDistintaBuilder({
           </select>
         </label>
       </div>
-      ) : null}
       {networkHandoff&&workspace&&!restoreCandidate?<aside aria-label="Articoli approvati dal Network"
         data-testid="network-reviewed-rfq-import"
         className="rounded-xl border border-[#b7d1c4] bg-[#f1faf4] p-3 sm:p-4">
