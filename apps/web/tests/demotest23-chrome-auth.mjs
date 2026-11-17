@@ -205,9 +205,10 @@ try {
     });
 
     if (p.id === "buyerViewer" || p.id === personas[0].id) {
-      await step(p.id + " COMMERCIAL-UNIFY2 one-page cockpit", async () => {
+      // COMM-DEALS1/2: Commerciale is one deal list (segments, filters, one row per deal).
+      await step(p.id + " COMM-DEALS deal list", async () => {
         await navigate(page, "/commercial");
-        await page.getByRole("heading", { name: "Le mie trattative", exact: true })
+        await page.getByRole("heading", { name: "Trattative", exact: true, level: 1 })
           .waitFor({ state: "visible", timeout: 60000 });
         assert.equal(
           await page.getByRole("navigation", { name: "Navigazione principale" })
@@ -216,75 +217,40 @@ try {
         );
         const worklist = page.locator("#commercial-worklist");
         assert.equal(await worklist.count(), 1);
-        await worklist.getByRole("link", { name: "Inviate", exact: true }).click();
-        await page.waitForURL((url) => url.pathname === "/commercial" && url.searchParams.get("view") === "sent");
+        await page.getByTestId("commercial-deal-segments").getByRole("link", { name: /^Acquisti/ }).click();
+        await page.waitForURL((url) => url.pathname === "/commercial" && url.searchParams.get("seg") === "purchase");
         assert.equal(await page.locator("#commercial-worklist").count(), 1);
         if (p.id === "buyerViewer") {
-          assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 0,
+          assert.equal(await page.getByTestId("commercial-new-request").count(), 0,
             "Viewer has no RFQ composition privileges");
         } else {
-          assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 1,
-            "Writer has exactly one governed RFQ intake");
-          // COMM-SIMPLE2: the visible quick filters are now Tutte/Ricevute/
-          // Inviate/Bozze; historic Offerte/Ordini are canonical deep links,
-          // not ghost tabs. Exercise both UI and source-backed route.
-          for (const [tabLabel, expected] of [
-            ["Tutte", null],
-            ["Ricevute", "received"],
-            ["Inviate", "sent"],
-            ["Bozze", "drafts"],
-            ["Offerte (storico)", "offers"],
-            ["Ordini (storico)", "orders"],
+          assert.equal(await page.getByTestId("commercial-new-request").count(), 1,
+            "Writer has exactly one governed entry to a new request");
+          for (const [label, expected] of [
+            ["Da fare", "todo"], ["In attesa", "waiting"], ["In scadenza", "due"], ["Bozze", "drafts"], ["Chiuse", "closed"],
           ]) {
-            if (expected === "offers" || expected === "orders") {
-              await navigate(page, "/commercial?view=" + expected + "#commercial-worklist");
-            } else {
-              await worklist.getByRole("navigation", { name: "Filtra attività commerciali" })
-                .getByRole("link", { name: tabLabel, exact: true }).click();
-            }
-            await page.waitForURL((url) => url.pathname === "/commercial" &&
-              url.searchParams.get("view") === expected, { timeout: 60000 });
-            // COMM-TRUST1.C: the truthful loading state replaces the list during
-            // navigation, and a single first page no longer renders a useless pager.
-            await page.locator("[data-commercial-loading]").waitFor({ state: "detached", timeout: 60000 });
-            await worklist.waitFor({ state: "visible", timeout: 60000 });
-            const tabPager = worklist.getByRole("navigation", { name: "Pagine attività commerciali" });
-            if (await tabPager.count()) {
-              assert.ok((await tabPager.innerText()).includes("Pagina 1"), tabLabel + " pager must start at page 1");
-            }
-            assert.ok(!(await worklist.innerText()).includes("Alcuni dati commerciali e di acquisto non sono disponibili."),
-              tabLabel + " must not show an incomplete multi-source list");
-            assert.ok(!(await worklist.innerText()).includes("Il caricamento di alcune attività acquisti non è riuscito."),
-              tabLabel + " must not hide an error as an empty result");
-          }
-          // Stream views paginate by a verified cursor, not by arbitrary
-          // ?page=2. Only follow the next link when synthetic data has a
-          // genuine next page; never invent a pager or a zero result.
-          await navigate(page, "/commercial?view=sent#commercial-worklist");
-          const pager = page.getByRole("navigation", { name: "Pagine attività commerciali" });
-          const next = pager.getByRole("link", { name: /Successive/ });
-          if (await next.count()) {
-            await next.click();
-            await page.locator("#commercial-worklist").waitFor({ state: "visible", timeout: 60000 });
-            const prev = page.getByRole("navigation", { name: "Pagine attività commerciali" })
-              .getByRole("link", { name: /Precedenti/ });
-            await prev.waitFor({ state: "visible", timeout: 60000 });
-            await prev.click();
-            await page.waitForURL(url => url.pathname === "/commercial" && url.searchParams.get("view") === "sent",
+            await page.getByTestId("commercial-deal-filters").getByRole("link", { name: new RegExp("^" + label) }).click();
+            await page.waitForURL((url) => url.pathname === "/commercial" && url.searchParams.get("f") === expected,
               { timeout: 60000 });
+            await worklist.waitFor({ state: "visible", timeout: 60000 });
+            assert.ok(!(await page.locator("body").innerText()).includes("non sono verificabili"),
+              label + " must not hide a load error as an empty result");
+            // Toggle the filter off again so the next one starts from the segment only.
+            await page.getByTestId("commercial-deal-filters").getByRole("link", { name: new RegExp("^" + label) }).click();
+            await page.waitForURL((url) => url.pathname === "/commercial" && !url.searchParams.has("f"), { timeout: 60000 });
           }
           const originalViewport = page.viewportSize();
           try {
             await page.setViewportSize({ width: 390, height: 844 });
             await navigate(page, "/commercial?item=campaign:" + p.rfq);
             await page.locator("#commercial-detail").waitFor({ state: "visible", timeout: 60000 });
-            assert.equal(await page.locator('[data-testid="commercial-list-pane"]').isVisible(), false,
+            assert.equal(await page.getByTestId("commercial-deals-list").isVisible(), false,
               "On mobile the detail should take priority over the list");
-            assert.equal(await page.locator("#commercial-detail").isVisible(), true);
           } finally {
             if (originalViewport) await page.setViewportSize(originalViewport);
           }
-          await navigate(page, "/commercial?item=campaign:" + p.rfq);
+          // RFQ operations stay inside the deal: compare, negotiate, award, PO.
+          await navigate(page, "/commercial?item=campaign:" + p.rfq + "&tab=compare#commercial-operations");
           await page.locator("#commercial-detail").waitFor({ state: "visible", timeout: 60000 });
           const operations = page.locator("#commercial-operations");
           await operations.waitFor({ state: "visible", timeout: 60000 });
@@ -301,7 +267,7 @@ try {
             await page.locator("#commercial-operations").waitFor({ state: "visible", timeout: 60000 });
             assert.equal(await page.locator("#commercial-worklist").count(), 1);
           }
-          await page.getByRole("link", { name: /^Chiudi/ }).click();
+          await page.getByRole("link", { name: "Chiudi il dettaglio" }).click();
           await navigate(page, "/commercial?compose=1"); // DISTINTA-ONE1: redirects to the single screen
           await page.getByRole("heading", { name: "Nuova richiesta", exact: true })
             .waitFor({ state: "visible", timeout: 60000 });

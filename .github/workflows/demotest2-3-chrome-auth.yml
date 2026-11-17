@@ -6,7 +6,6 @@ on:
       - "apps/web/tests/demotest23-*.mjs"
       - "apps/web/tests/comm-ux1c-chrome-search.mjs"
       - "apps/web/tests/comm-simple1-chrome-visual.mjs"
-      - "apps/web/tests/comm-ux1-chrome-auth.mjs"
       - "apps/web/tests/rfqh14-2-*.mjs"
       - "apps/web/tests/rfqc1-16-chrome-chat.mjs"
       - "apps/web/tests/bd15-*.mjs"
@@ -139,18 +138,8 @@ jobs:
           echo "LOCAL NEXT FAILED to start"
           tail -n 70 "$RUNNER_TEMP/demotest23-next.log"
           exit 1
-      - name: "COMM-UX1 authenticated navigation: 5 real accounts, 4 isolated tenants, desktop and 390px"
-        working-directory: apps/web
-        timeout-minutes: 12
-        run: node tests/comm-ux1-chrome-auth.mjs
-      - name: "Save visual QA evidence from synthetic identities only"
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: comm-ux1-synthetic-visual-qa
-          path: ${{ runner.temp }}/comm-ux1-safe-screenshots/*.png
-          if-no-files-found: ignore
-          retention-days: 7
+      # COMM-DEALS1: the COMM-UX1 suite (old Commerciale desk) is retired; the deal
+      # list is covered by COMM-UX6.B / COMM-AI-NATIVE1.B in product-flow1-e2e.
       - name: "COMM-UX1C Chrome authenticated search, roles, categories and 390px"
         working-directory: apps/web
         timeout-minutes: 12

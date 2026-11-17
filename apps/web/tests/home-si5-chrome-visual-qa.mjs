@@ -97,7 +97,8 @@ try {
       check((await primaryHeroAction.getAttribute("href")) ===
         "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi",
         "Hero calculator must remain public and live");
-      const publicDistinta = hero.getByRole("link", { name: /Crea una distinta gratis/ });
+      // HOME-MOBILE-B: under 700px the same link shows the short label «Distinta gratis».
+      const publicDistinta = hero.getByRole("link", { name: /Crea una distinta gratis|Distinta gratis/ });
       check(await publicDistinta.count() === 1 &&
         await publicDistinta.getAttribute("href") === "/distinta", "Public bill CTA missing");
       check(await page.locator("#home-tools a").count() === 5,

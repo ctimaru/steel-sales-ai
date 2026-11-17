@@ -104,7 +104,8 @@ try {
       // worklist replaces the truthful loading state, so wait for it instead of counting at once.
       await page.locator("#commercial-worklist").waitFor({ state: "visible", timeout: 60000 });
       assert.equal(await page.locator("#commercial-worklist").count(), 1);
-      assert.equal(await page.locator("#commercial-worklist input[name=q]").inputValue(), "P265GH");
+      // COMM-DEALS1: the deal list keeps the search in its header field.
+      assert.equal(await page.locator("#commercial-deals-q").inputValue(), "P265GH");
       if (id === "buyerViewer") {
         assert.equal(await page.getByRole("link", { name: /Nuova richiesta/ }).count(), 0);
       }

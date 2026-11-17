@@ -48,40 +48,18 @@ try {
       const page = await context.newPage();
       await login(page);
       await page.goto(origin + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
-      // Current COMM-SIMPLE2 contract: accessible h1 is the hero itself,
-      // the actionable priorities are conditional, and the AI/create
-      // workspace precedes the private deal list on every viewport.
-      const hero = page.getByTestId("comm-cine1-hero");
-      const creation = page.getByTestId("comm-cine13-first-workspace");
-      const attention = page.getByTestId("commercial-compact-actions");
-      const ai = page.getByTestId("commercial-ai-first");
-      const deals = page.getByTestId("comm-cine2-deal-cockpit");
-      await hero.waitFor({ state: "attached", timeout: 60000 });
-      assert.equal(await hero.evaluate(el => el.tagName), "H1");
-      await creation.waitFor({ state: "visible", timeout: 60000 });
-      await ai.waitFor({ state: "visible", timeout: 60000 });
-      await deals.waitFor({ state: "attached", timeout: 60000 });
-      const [creationBox, aiBox, dealBox] = await Promise.all(
-        [creation, ai, deals].map(x => x.boundingBox()));
-      assert.ok(creationBox && aiBox && dealBox, "Commerciale must render creation, AI and private deals");
-      assert.ok(creationBox.y < dealBox.y,
-        "Creation workspace must precede deals");
-      if (await attention.count()) {
-        const alertBox = await attention.boundingBox();
-        assert.ok(alertBox && alertBox.y < creationBox.y,
-          "Only verified priorities appear before creation");
-      }
-      if (width === 1440) {
-        assert.ok(dealBox.y < 900, "Worklist must start in the desktop first screen: " + dealBox.y);
-      } else {
-        assert.ok(aiBox.y < height,
-          "Mobile AI assistant must enter the first viewport: " + aiBox.y);
-        if (width === 320) {
-          const aiCta = page.getByTestId("commercial-ai-first-cta");
-          assert.equal(await aiCta.count(), 1,
-            "Buyer must have exactly one explicit chat handoff, never an automatic send");
-        }
-      }
+      // COMM-DEALS1: Commerciale is the deal list; the assistant is closed in one row
+      // above the table so the deals start in the first viewport on every width.
+      await page.getByRole("heading", { name: "Trattative", exact: true, level: 1 })
+        .waitFor({ state: "visible", timeout: 60000 });
+      const deals = page.getByTestId("commercial-deals-list");
+      await deals.waitFor({ state: "visible", timeout: 60000 });
+      assert.equal(await page.getByTestId("commercial-ai-native-shell").isVisible(), false,
+        "The assistant starts closed above the deals");
+      const dealBox = await deals.boundingBox();
+      assert.ok(dealBox && dealBox.y < height, "Deals must start in the first viewport at " + width + ": " + dealBox?.y);
+      assert.equal(await page.getByTestId("commercial-new-request").count(), 1,
+        "Buyer has exactly one entry to a new request, never an automatic send");
       await noOverflow(page, "Commerciale " + width);
       // Avoid modifying the SSR search field before hydration. Playwright's
       // default caret:"hide" can temporarily insert caret-color:transparent

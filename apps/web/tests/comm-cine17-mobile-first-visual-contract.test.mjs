@@ -5,7 +5,8 @@ import test from "node:test";
 const page = readFileSync(new URL("../app/(italian)/(workspace)/commercial/page.tsx", import.meta.url), "utf8");
 const ai = readFileSync(new URL("../components/commercial-ai-companion.tsx", import.meta.url), "utf8");
 const css = readFileSync(new URL("../components/commercial-cinematic.module.css", import.meta.url), "utf8");
-const chrome = readFileSync(new URL("./comm-ux1-chrome-auth.mjs", import.meta.url), "utf8");
+// COMM-DEALS1: the retired COMM-UX1 Chrome suite is replaced by COMM-UX6.B on the deal list.
+const chrome = readFileSync(new URL("./comm-ux6b-chrome-acceptance.mjs", import.meta.url), "utf8");
 const legacy = readFileSync(new URL("./demotest23-chrome-auth.mjs", import.meta.url), "utf8");
 
 test("COMM-UX6.A reduces the industrial hero and keeps AI accessible on small screens", () => {
@@ -19,11 +20,11 @@ test("COMM-UX6.A reduces the industrial hero and keeps AI accessible on small sc
   assert.ok(page.indexOf("commercial-primary-quick-actions") < page.indexOf("<CommercialUnifiedWorklist"));
 });
 
-test("COMM-CINE17 authenticated Chrome evidence covers the owner, viewer and a 320px layout", () => {
-  assert.match(chrome, /verifyCinematic\(page, "Commerciale mobile 320px buyer"\)/);
-  assert.match(chrome, /commercial-owner-mobile-320\.png/);
-  assert.match(chrome, /commercial-owner-deals-desktop\.png/);
+test("COMM-CINE17 authenticated Chrome evidence covers the owner, viewer and mobile widths", () => {
+  assert.match(chrome, /async function inspectViewer\(page, width\)/);
+  assert.match(chrome, /"worklist-" \+ persona\.id \+ "-" \+ width \+ "px\.png"/);
+  assert.match(chrome, /"deal-detail-" \+ persona\.id \+ "-" \+ width \+ "px\.png"/);
   assert.match(chrome, /getByTestId\("comm-cine11-prompt"\)/);
-  assert.match(legacy, /name: "Le mie trattative", exact: true/);
-  assert.doesNotMatch(legacy, /name: "Richieste, offerte e ordini"/);
+  assert.match(legacy, /name: "Trattative", exact: true, level: 1/);
+  assert.doesNotMatch(legacy, /name: "Le mie trattative"/);
 });
