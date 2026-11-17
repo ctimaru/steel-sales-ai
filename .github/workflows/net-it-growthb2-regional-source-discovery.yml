@@ -1,0 +1,51 @@
+name: "NET-IT-GROWTH.B2 — Two Italian regions daily, CC0 sources"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/net-it-growthb2-regional-source-discovery.yml"
+      - "services/worker/app/net_it_growthb2_regional_discovery.py"
+  schedule:
+    # Two sequential geographic/industrial queries daily; no site scraping.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-it-growthb2-cc0-region-discovery
+  cancel-in-progress: false
+
+jobs:
+  discover:
+    name: "Wikidata CC0 region-by-sector pointers (unverified, no publication)"
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install existing worker package
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Check NET-LAUNCH2 authorized database connection
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+        run: |
+          set -euo pipefail
+          test "$CRAWL_IT65B_SUPABASE_URL" = "https://ecrafjdummcdfycznitx.supabase.co" || exit 1
+          case "$CRAWL_IT65B_SUPABASE_SECRET_KEY" in sb_secret_*) ;; *) exit 1 ;; esac
+          echo "::add-mask::$CRAWL_IT65B_SUPABASE_SECRET_KEY"
+      - name: Discover company website pointers from two regions
+        working-directory: services/worker
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+        run: python -m app.net_it_growthb2_regional_discovery
