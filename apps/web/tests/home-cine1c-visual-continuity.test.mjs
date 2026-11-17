@@ -13,7 +13,7 @@ const trust = read("../components/public-registration-trust.tsx");
 const deps = JSON.parse(read("../package.json")).dependencies;
 
 test("HOME-CINE1C provides bilingual public geometry and commercial flow proof", () => {
-  assert.match(it, /<PublicSteelGeometryProof locale="it" \/>/);
+  assert.match(it, /<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/); // HOME-MOBILE-B6
   assert.match(en, /<PublicSteelGeometryProof locale="en" \/>/);
   assert.match(en, /<PublicCinematicAccessBand locale="en" \/>/);
   for (const token of ["CHS", "SHS", "RHS", "EN", "Tondo", "Quadro", "Rettangolare", "Circular", "Square", "Rectangular"]) {
@@ -59,7 +59,8 @@ test("HOME-CINE1C uses no hydrated motion, remote media, new runtime or fake KPI
 
 test("HOME-CINE1C retains original useful headings, roles and access disclosures", () => {
   assert.match(pillars, /Tre forme di intelligence. Un solo ecosistema./);
-  for (const title of ["Prima utilità, poi prodotto.", "Cercala per nome o Partita IVA."]) assert.ok(it.includes(title));
+  for (const title of ["Cercala per nome o Partita IVA."]) assert.ok(it.includes(title));
+  assert.match(proof, /Strumenti pubblici · senza account/); // HOME-MOBILE-B6: shelf merged into the geometry section
   for (const title of ["From a steel requirement to a better-informed decision.", "One network, four business profiles.", "Technical knowledge should be easier to find."]) assert.ok(en.includes(title));
   for (const role of ["Commerciante", "Produttore", "Terzista", "Utilizzatore"]) assert.match(network, new RegExp(role));
   assert.match(network, /type="radio"/);
@@ -68,6 +69,6 @@ test("HOME-CINE1C retains original useful headings, roles and access disclosures
   assert.match(pillars, /Steel Knowledge/);
   assert.match(trust, /Fonti, correzioni e rimozioni/);
   assert.match(trust, /Privacy/);
-  assert.match(it, /<PublicNetworkRoleExplorer \/>[\s\S]*<PublicIntelligencePillars \/>[\s\S]*<PublicSteelGeometryProof locale="it" \/>/);
+  assert.match(it, /<PublicNetworkRoleExplorer \/>[\s\S]*<PublicIntelligencePillars \/>[\s\S]*<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/);
   assert.match(en, /<PublicSteelGeometryProof locale="en" \/>[\s\S]*<PublicCinematicAccessBand locale="en" \/>/);
 });

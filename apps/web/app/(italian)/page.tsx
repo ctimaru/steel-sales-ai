@@ -44,6 +44,7 @@ export const dynamic = "force-static";
 // HOME-NETPRO-PUBLIC1: regenerate at most hourly so the Network totals stay fresh.
 export const revalidate = 3600;
 
+// HOME-MOBILE-B6: rendered inside the geometry section (the former separate tools shelf).
 const publicTools = [
   {
     label: "Calcolo pesi",
@@ -112,36 +113,8 @@ export default function PublicHomePage() {
 
       <HomeCinematicTools locale="it" />
 
-      <PublicSteelGeometryProof locale="it" />
+      <PublicSteelGeometryProof locale="it" tools={publicTools} />
 
-      <section className={cineStyles.toolSection}>
-        <div className="mx-auto max-w-[1120px] px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="max-w-sm">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">Strumenti pubblici · senza account</p>
-              <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-[#1d2824]">
-                Prima utilità, poi prodotto.
-              </h2>
-              <p className="mt-2 text-xs leading-5 text-[#52615b]">
-                Calcola, consulta o prepara una distinta. Puoi iniziare subito, senza registrarti.
-              </p>
-            </div>
-
-            <div className={`${cineStyles.toolShelf} grid flex-1 gap-px overflow-hidden rounded-xl border sm:grid-cols-2 lg:max-w-4xl lg:grid-cols-4`}>
-              {publicTools.map((tool) => (
-                <Link
-                  key={tool.label}
-                  href={tool.href}
-                  className={`${cineStyles.toolTile} bg-white px-4 py-3.5 transition hover:bg-[#f7faf8]`}
-                >
-                  <p className="text-sm font-semibold text-[#173f35]">{tool.label}</p>
-                  <p className="mt-1 text-xs leading-5 text-[#66736e]">{tool.description}</p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section id="aziende" className={cineStyles.companySection}>
         <div className="mx-auto max-w-[920px] px-4 py-11 sm:px-6 sm:py-14 lg:px-8">

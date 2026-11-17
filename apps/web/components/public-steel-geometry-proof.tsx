@@ -49,7 +49,14 @@ function ShapeMark({ shape }: { shape: "circle" | "square" | "rectangle" }) {
   );
 }
 
-export function PublicSteelGeometryProof({ locale }: { locale: Locale }) {
+type QuickTool = { label: string; description: string; href: string };
+
+/**
+ * HOME-MOBILE-B6: the Italian home passes its public tools here, so geometry proof
+ * and the former "Prima utilità, poi prodotto" shelf are one section: the four tool
+ * tiles replace the two buttons. English keeps the original two actions.
+ */
+export function PublicSteelGeometryProof({ locale, tools }: { locale: Locale; tools?: readonly QuickTool[] }) {
   const en = locale === "en";
   const calcHref = en ? "/en/knowledge/tubes" : "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi";
   const billHref = en ? "/en/distinta" : "/distinta";
@@ -58,7 +65,7 @@ export function PublicSteelGeometryProof({ locale }: { locale: Locale }) {
     <section id="steel-tools-proof" className={styles.proof} aria-labelledby="home-cine-proof-heading">
       <div className={styles.proofInner}>
         <div className={styles.proofLead}>
-          <p className={styles.kicker}>02 / {en ? "REAL TOOLS · NO ACCOUNT" : "STRUMENTI REALI · SENZA ACCOUNT"}</p>
+          <p className={styles.kicker}>{tools ? "Strumenti pubblici · senza account" : <>02 / {en ? "REAL TOOLS · NO ACCOUNT" : "STRUMENTI REALI · SENZA ACCOUNT"}</>}</p>
           <h2 id="home-cine-proof-heading" className={styles.proofTitle}>
             {en ? "From steel geometry to a clearer request." : "Dalla geometria a una richiesta più chiara."}
           </h2>
@@ -67,14 +74,25 @@ export function PublicSteelGeometryProof({ locale }: { locale: Locale }) {
               ? "Start with steel grades, standards and real theoretical-weight tools. Keep the technical details together when preparing your bill of materials."
               : "Parti da norme, gradi e calcoli di peso teorico reali. Mantieni i dati tecnici ordinati quando prepari la tua distinta."}
           </p>
-          <div className={styles.proofActions}>
-            <Link href={calcHref} className={styles.proofPrimary}>
-              {en ? "Open tube calculator" : "Apri il calcolatore"} <span aria-hidden="true">↗</span>
-            </Link>
-            <Link href={billHref} className={styles.proofSecondary}>
-              {en ? "Create a bill" : "Crea una distinta"} <span aria-hidden="true">→</span>
-            </Link>
-          </div>
+          {tools ? (
+            <div className={styles.quickTools} data-testid="home-public-tools">
+              {tools.map((tool) => (
+                <Link key={tool.label} href={tool.href} className={styles.quickTool}>
+                  <strong>{tool.label} <span aria-hidden="true">→</span></strong>
+                  <span>{tool.description}</span>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.proofActions}>
+              <Link href={calcHref} className={styles.proofPrimary}>
+                {en ? "Open tube calculator" : "Apri il calcolatore"} <span aria-hidden="true">↗</span>
+              </Link>
+              <Link href={billHref} className={styles.proofSecondary}>
+                {en ? "Create a bill" : "Crea una distinta"} <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          )}
           <p className={styles.accessNote}>
             {en
               ? "Technical tools are public. Sending private RFQs and supplier collaboration follow company access controls."

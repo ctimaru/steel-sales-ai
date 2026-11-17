@@ -78,3 +78,15 @@
 
 /* HOME-MOBILE-A4: phone readability floor. */
 @media (max-width:700px){.kicker{font-size:11px}.cardTop,.cardFoot{font-size:11px;letter-spacing:.08em}.description{font-size:13px}.footnote{font-size:12px}}
+
+/* HOME-MOBILE-B7: on phones the five tools are a horizontal, snap-scrolling row
+   (cards ~80% wide, the next one peeks in). Still five real links, no JS. */
+.swipeHint{display:none}
+@media(max-width:700px){
+  .inner{padding-inline:18px}
+  .gallery{display:flex;grid-template-columns:none;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:18px;margin-inline:-18px;padding:2px 18px 6px;scrollbar-width:none}
+  .gallery::-webkit-scrollbar{display:none}
+  .card,.card:nth-child(4),.card:nth-child(5){flex:0 0 min(80%,300px);min-height:0;scroll-snap-align:start}
+  .heading{margin-bottom:16px}
+  .swipeHint{display:flex;align-items:center;gap:6px;margin:0 0 10px;font-size:12px;font-weight:700;color:#9fdcbb}
+}

@@ -33,7 +33,7 @@ test("UXF4 prioritizes registration while keeping a no-account utility CTA", () 
 
 test("UXF4 keeps a focused homepage value path and existing public sections", () => {
   assert.match(hero, /Super Intelligence Ready/);
-  assert.match(home, /Prima utilità, poi prodotto/);
+  assert.match(home, /<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/); // HOME-MOBILE-B6: tools shelf merged into the geometry section
   assert.match(home, /id="aziende"/);
   assert.match(home, /<PublicNetworkRoleExplorer \/>/);
   assert.doesNotMatch(home, /Trust by design/);

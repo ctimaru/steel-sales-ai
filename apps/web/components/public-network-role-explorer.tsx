@@ -135,6 +135,9 @@ export function PublicNetworkRoleExplorer() {
               aria-label={persona.question}
             >
               <p className="text-lg font-semibold text-[#1d2824]">{persona.question}</p>
+              {/* HOME-MOBILE-B8: phones show "Che beneficio hai" first; the rest opens with
+                  "Scopri di più" (CSS-only checkbox, no hydration). Desktop shows everything. */}
+              <input type="checkbox" id={`network-persona-more-${key}`} className={`${cineStyles.personaMoreToggle} sr-only`} />
               <div className="mt-4 grid gap-4 lg:grid-cols-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
@@ -142,21 +145,24 @@ export function PublicNetworkRoleExplorer() {
                   </p>
                   <p className="mt-1.5 text-sm leading-6 text-[#52615b]">{persona.benefit}</p>
                 </div>
-                <div>
+                <div className={cineStyles.personaMore}>
                   <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
                     Chi puoi trovare
                   </p>
                   <p className="mt-1.5 text-sm leading-6 text-[#52615b]">{persona.who}</p>
                 </div>
-                <div>
+                <div className={cineStyles.personaMore}>
                   <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#1a5144]">
                     Cosa puoi cercare
                   </p>
                   <p className="mt-1.5 text-sm leading-6 text-[#52615b]">{persona.search}</p>
                 </div>
               </div>
+              <label htmlFor={`network-persona-more-${key}`} className={`${cineStyles.personaMoreLabel} mt-3 min-h-11 cursor-pointer items-center gap-1.5 text-sm font-bold text-[#1a5144] underline decoration-[#b8d2c8] underline-offset-4`}>
+                Scopri di più: chi trovi e cosa cerchi <span aria-hidden="true">↓</span>
+              </label>
               {persona.emphasis ? (
-                <div className="mt-4 rounded-xl border border-[#c7ddd5] bg-white px-4 py-3 text-sm font-semibold text-[#173f35]">
+                <div className={`${cineStyles.personaMore} mt-4 rounded-xl border border-[#c7ddd5] bg-white px-4 py-3 text-sm font-semibold text-[#173f35]`}>
                   {persona.emphasis}
                 </div>
               ) : null}
