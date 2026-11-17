@@ -193,7 +193,7 @@ export default function PublicHomePage() {
             <Link href="/register" className={footerLink}>Registra azienda</Link>
             <Link href="/investitori" className={footerLink}>Investitori</Link>
             <a href="https://www.linkedin.com/company/smart-steel-sales" target="_blank" rel="noopener noreferrer" className={footerLink}>LinkedIn ↗</a>
-            <a href="mailto:hello@smartsteelsales.com" className={footerLink}>hello@smartsteelsales.com</a>
+            <a href="mailto:hello@smartsteelsales.com" className={`${footerLink} max-sm:col-span-2`}>hello@smartsteelsales.com</a>
             <Link href="/privacy" className={footerLink}>Privacy</Link>
             <Link href="/company-data" className={footerLink}>Dati aziendali</Link>
             <Link href="/cookies" className={footerLink}>Cookie</Link>
