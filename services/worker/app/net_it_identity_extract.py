@@ -41,7 +41,7 @@ _VAT_AFTER = re.compile(
 _STOP_CHARS = "|•·©®™:;\"«»()[]{}<>\n\r\t?!"
 _CONNECTORS = {"&", "e", "di", "de", "del", "della", "dei", "degli", "c.", "&c.", "f.lli", "fratelli"}
 _LEADING_NOISE = {"copyright", "tutti", "i", "diritti", "riservati", "all", "rights", "reserved",
-                  "l'azienda", "l’azienda", "l'azienda",
+                  "l'azienda", "l’azienda",
                   "la", "il", "lo", "società", "societa", "azienda", "ditta", "ragione", "sociale"}
 # Navigation, cookie/privacy and contact words: a ragione sociale never
 # contains them, so the name stops there (footers flatten menus and privacy
@@ -164,7 +164,7 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
     if not picked or len(picked) > MAX_NAME_WORDS:
         return None
     core = " ".join(picked).strip(" ,-–")
-    if core.endswith(".") and not re.fullmatch(r"(?:[A-Z]\\.){2,}", core):
+    if core.endswith(".") and not re.fullmatch(r"(?:[A-Z]\.){2,}", core):
         core = core[:-1]
     if core[:1].islower():
         core = core[0].upper() + core[1:]
