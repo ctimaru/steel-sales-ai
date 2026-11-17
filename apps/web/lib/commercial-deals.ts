@@ -92,7 +92,9 @@ async function loadPurchase(db: Db, organizationId: string) {
     .order("created_at", { ascending: false }).order("id", { ascending: false })
     .limit(DEALS_WINDOW);
   if (campaigns.error) {
-    campaigns = await db.from("buyer_rfq_campaigns").select("id,title,status,due_at,created_at,source_distinta_id")
+    // Stesso tipo di risultato della lettura completa: select dinamica, righe non tipizzate.
+    const bare: string = "id,title,status,due_at,created_at,source_distinta_id";
+    campaigns = await db.from("buyer_rfq_campaigns").select(bare)
       .eq("organization_id", organizationId)
       .order("created_at", { ascending: false }).order("id", { ascending: false })
       .limit(DEALS_WINDOW);
