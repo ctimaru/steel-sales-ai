@@ -15,7 +15,7 @@ test("DASH-NEXT1A Home places a truthful action-first entry above feed", () => {
   assert.equal(home.indexOf('aria-labelledby="daily-priorities"'), -1, "no attention strip on the Home");
   assert.ok(home.indexOf("<HomeFeed ") > home.indexOf('data-testid="home-center"'));
   assert.doesNotMatch(home, /orderedQuickActions|quick-action-shortcuts|<WorkspaceHomePanels/);
-  assert.match(home, /href=\{appRoutes\.commercial\.home \+ "\?compose=1#commercial-compose"\}/);
+  assert.match(home, /href=\{newRequestHref\(\)\}/);
 });
 
 test("DASH-NEXT1A keeps network discovery and primary action role-aware", () => {

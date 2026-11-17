@@ -16,7 +16,7 @@ const fmt = (value: number, digits: number) =>
 export function CommercialRfqLivePreview({
   title, onTitleChange, proposals, approvedLines, savedId,
   ready, savePending, rfqPending, saveMessage, rfqMessage,
-  onSave, onCreateRfq, onOpenEditor, onEditLine,
+  onSave, onCreateRfq, onOpenEditor, onEditLine, onAddMeasure, measureOpen = false,
 }: {
   title: string;
   onTitleChange: (value: string) => void;
@@ -32,6 +32,9 @@ export function CommercialRfqLivePreview({
   onCreateRfq: () => void;
   onOpenEditor: () => void;
   onEditLine: (lineId: string) => void;
+  /** DISTINTA-ONE1: apre il pannello «Aggiungi una misura» (calcolatrice e catalogo). */
+  onAddMeasure?: () => void;
+  measureOpen?: boolean;
 }) {
   const calculated = approvedLines.map(calculateBuyerDistintaLine);
   const totals = calculateBuyerDistintaTotals(calculated);
@@ -93,6 +96,13 @@ export function CommercialRfqLivePreview({
             <h4 className="text-xs font-bold uppercase tracking-[0.07em] text-[#315e49]">In distinta</h4>
             <span className="text-xs font-semibold text-[#315e49]">{approvedLines.length} righe</span>
           </div>
+          {onAddMeasure ? (
+            <button type="button" onClick={onAddMeasure} data-testid="distinta-add-measure"
+              aria-expanded={measureOpen} aria-controls="commercial-rfq-manual-tools"
+              className="mt-2 inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[#9fc3ae] bg-[#f6fbf8] px-3 text-sm font-semibold text-[#175640] hover:bg-[#ecf6f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+              <span aria-hidden="true">＋</span> {measureOpen ? "Calcolatrice aperta sotto" : "Aggiungi una misura"}
+            </button>
+          ) : null}
           {approvedLines.length === 0 ? (
             <div className="mt-3 rounded-xl bg-[#f3f7f4] px-3 py-4 text-center">
               <p className="text-sm font-semibold text-[#36584a]">Ancora nessun articolo</p>
@@ -155,17 +165,19 @@ export function CommercialRfqLivePreview({
         ) : null}
         {approvedLines.length === 0 ? (
           <p data-testid="commercial-rfq-save-hint" className="mt-3 flex items-center gap-2 rounded-lg bg-[#f3f7f4] px-3 py-2 text-xs font-medium text-[#36584a]">
-            <span aria-hidden="true">🔒</span> Conferma almeno un articolo per salvare o creare la RFQ.
+            <span aria-hidden="true">🔒</span> Conferma almeno un articolo per scegliere i fornitori.
           </p>
         ) : null}
+        {/* DISTINTA-ONE1: il passo successivo sono le aziende. Il pulsante crea la
+            RFQ privata (nessun invio) e apre la scelta dei fornitori. */}
         <div className="mt-3 grid gap-2">
-          <button type="button" onClick={onSave} disabled={!canSave || Boolean(savedId)}
+          <button type="button" onClick={onCreateRfq} disabled={!canSave} data-testid="distinta-choose-suppliers"
             className="min-h-11 rounded-lg bg-[#175640] px-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:bg-[#e8eeea] disabled:text-[#7b8f83]">
-            {savePending ? "Salvataggio…" : savedId ? "Distinta salvata ✓" : "Salva distinta privata"}
+            {rfqPending ? "Preparazione…" : "Scegli i fornitori →"}
           </button>
-          <button type="button" onClick={onCreateRfq} disabled={!canSave}
-            className="min-h-11 rounded-lg border border-[#175640] bg-white px-3 text-sm font-bold text-[#175640] disabled:cursor-not-allowed disabled:border-[#dbe4de] disabled:text-[#9aaba1]">
-            {rfqPending ? "Creazione…" : "Crea RFQ privata →"}
+          <button type="button" onClick={onSave} disabled={!canSave || Boolean(savedId)}
+            className="min-h-10 rounded-lg px-3 text-xs font-semibold text-[#175640] underline underline-offset-4 disabled:cursor-not-allowed disabled:text-[#9aaba1] disabled:no-underline">
+            {savePending ? "Salvataggio…" : savedId ? "Distinta salvata ✓" : "Salva solo la distinta"}
           </button>
         </div>
         {saveMessage ? <p role="status" className="mt-2 text-xs text-[#315e49]">{saveMessage}</p> : null}
@@ -177,7 +189,7 @@ export function CommercialRfqLivePreview({
         ) : null}
         {rfqMessage ? <p role="alert" className="mt-2 text-xs text-[#8c511c]">{rfqMessage}</p> : null}
         <p className="mt-3 text-[11px] leading-4 text-[#53675b]">
-          Salvare o creare una RFQ privata non invia messaggi ai fornitori.
+          Scegliere i fornitori non invia nulla: l’invio parte solo dopo la tua conferma.
         </p>
       </div>
     </aside>

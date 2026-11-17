@@ -55,8 +55,8 @@ test("COMM-RFQ-UX2.A reuses authorized saving and explicit RFQ creation without 
   assert.match(builder, /onCreateRfq=\{createRfqHub\}/);
   assert.match(builder, /saveBuyerDistinta\(\{ title, lines, documents \}\)/);
   assert.match(builder, /createBuyerRfqCampaign\(savedId\)/);
-  assert.match(preview, /Salva distinta privata/);
-  assert.match(preview, /Crea RFQ privata/);
+  assert.match(preview, /Salva solo la distinta/);
+  assert.match(preview, /Scegli i fornitori →/);
   assert.match(preview, /Salvare o creare una RFQ privata non invia messaggi ai fornitori/);
   assert.match(preview, /disabled=\{!canSave \|\| Boolean\(savedId\)\}/);
   assert.doesNotMatch(preview, /sendBuyerDistinta|sendDistinta|sendEmail\(/);

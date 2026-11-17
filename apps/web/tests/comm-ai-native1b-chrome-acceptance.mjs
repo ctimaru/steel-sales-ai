@@ -71,7 +71,7 @@ try {
         }
         const manual = shell.getByTestId("commercial-ai-native-manual-entry");
         assert.equal(await manual.count(), person.id === "buyer" ? 1 : 0);
-        if (person.id === "buyer") assert.equal(await manual.getAttribute("href"), "/commercial?compose=1#commercial-compose");
+        if (person.id === "buyer") assert.equal(await manual.getAttribute("href"), "/rfq-hub/distinta?aggiungi=misura");
         const input = shell.getByLabel("Domanda o richiesta commerciale");
         await input.waitFor({ state: "visible" });
         // Capture the REAL viewport before geometry assertions, including the

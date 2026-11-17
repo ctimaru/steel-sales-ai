@@ -1,8 +1,8 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { PilotEvent } from "@/components/pilot-event";
 import { FocusPage } from "@/components/focus-ui";
-import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { CommercialCalculatorQuickAccess } from "@/components/commercial-calculator-quick-access";
 import { CommercialAiCompanion } from "@/components/commercial-ai-companion";
 import { CommercialAiNativeShell } from "@/components/commercial-ai-native-shell";
@@ -14,12 +14,12 @@ import { CommercialDealsDesk, DEALS_PAGE_SIZE } from "@/components/commercial-de
 import { loadCommercialDealsPage } from "@/lib/commercial-deals";
 import { parseDealDeskState } from "@/lib/commercial-deal-model";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
-import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
 import { includeSelectedCommercialCampaign, isCommercialPagedView, loadCommercialPagedData, parseCommercialPage } from "@/lib/commercial-unified-paged";
 import { withDealLabels } from "@/lib/commercial-deal-labels";
 import { isStreamView, loadCommercialRequestSummary, loadCommercialStreams, parseCommercialFocus } from "@/lib/commercial-unified-streams";
-import { listBuyerDistintaPublicDimensions, listPublicTubeDimensionPages } from "@/lib/public-knowledge";
+import { listPublicTubeDimensionPages } from "@/lib/public-knowledge";
+import { legacyComposeRedirect, newRequestHref } from "@/lib/new-request-href";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
@@ -37,9 +37,12 @@ export const dynamic = "force-dynamic";
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ experience?: string; tools?: string; view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string; seg?: string; f?: string; p?: string }>;
+  searchParams: Promise<{ experience?: string; tools?: string; view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string; seg?: string; f?: string; p?: string; source?: string }>;
 }) {
   const params = await searchParams;
+  // DISTINTA-ONE1: la creazione della richiesta ha un solo indirizzo. I vecchi
+  // link ?compose=1 (con o senza method=ai, network, source) portano lì.
+  if (params.compose === "1") redirect(legacyComposeRedirect(params));
   const context = await getWorkspaceContext();
   const canWrite = canWriteWorkspace(context.role);
   // COMM-DEALS1: la pagina Commerciale è l'elenco delle trattative, una riga per
@@ -95,9 +98,7 @@ export default async function CommercialHomePage({
   const selected = typeof params.item === "string" ? params.item.slice(0, 90) : "";
   const allowedTabs: CommercialOperationsTab[] = ["compare", "negotiate", "award", "po"];
   const tab: CommercialOperationsTab = allowedTabs.includes(params.tab as CommercialOperationsTab) ? params.tab as CommercialOperationsTab : "compare";
-  const composing = canWrite && params.compose === "1";
-  const aiFocused = composing && params.method === "ai";
-  const [procurement, unified, catalogOptions, networkContext, calculatorReferences, requestSummary] = await Promise.all([
+  const [procurement, unified, networkContext, calculatorReferences, requestSummary] = await Promise.all([
     canWrite
       ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 4 }))
           .catch(() => ({ data: null, error: true }))
@@ -107,11 +108,10 @@ export default async function CommercialHomePage({
       : isStreamView(view)
         ? loadCommercialStreams({ organizationId: context.organizationId, view, query, cursor: params.cursor, focus })
         : loadUnifiedCommercialData(context.organizationId),
-    composing ? listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions) : Promise.resolve(null),
     // Explicit GET-only handoff; invalid/locked Network ids never trigger a profile read.
     getCommercialNetworkContext(context.organizationId, params.network),
     listPublicTubeDimensionPages(),
-    aiFocused ? Promise.resolve(null) : loadCommercialRequestSummary(context.organizationId).catch(() => null),
+    loadCommercialRequestSummary(context.organizationId).catch(() => null),
   ]);
   const [prospect, possibleCompanies, inquiries] = networkContext
     ? await Promise.all([
@@ -154,27 +154,7 @@ export default async function CommercialHomePage({
   return (
     <FocusPage compact className={"max-w-[1480px] " + cinematic.page}>
       <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: aiDeskLanding ? "commercial_ai_native" : "commercial_home" }} />
-      {aiFocused ? (
-        <header data-testid="commercial-rfq-ai-focused-header" aria-labelledby="commercial-rfq-ai-focused-heading"
-          className={"relative " + cinematic.hero}>
-          <div className={"flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6 " + cinematic.heroGrid}>
-            <div className="flex min-w-0 items-center gap-3">
-              <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-lg text-white">✦</span>
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#b4dec2]">Commerciale / Nuova richiesta</p>
-                <h1 id="commercial-rfq-ai-focused-heading" className="mt-0.5 text-lg font-bold tracking-tight text-white sm:text-xl">
-                  Crea una richiesta di offerta
-                </h1>
-                <p className="mt-0.5 text-xs text-[#d5eadc]">Descrivi i materiali, conferma gli articoli in distinta, poi crea la RFQ privata.</p>
-              </div>
-            </div>
-            <Link href={appRoutes.commercial.home}
-              className={"inline-flex min-h-10 items-center rounded-xl border border-white/40 bg-white/10 px-3 text-xs font-semibold text-white hover:bg-white/20 " + cinematic.heroAction}>
-              ← Torna alla scrivania
-            </Link>
-          </div>
-        </header>
-      ) : (<>
+      <>
       <h1 className="sr-only" data-testid="comm-cine1-hero">Commerciale · Le tue trattative</h1>
 
       {/* COMM-NAV9.M: director decisions must precede tools on the mobile first
@@ -205,7 +185,7 @@ export default async function CommercialHomePage({
               Scrivi cosa ti serve e l’assistente prepara la distinta, oppure compilala tu riga per riga. Nulla parte senza la tua conferma.
             </p>
             {canWrite ? (
-              <Link href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
+              <Link href={newRequestHref({ measure: true })}
                 data-testid="commercial-manual-entry"
                 className={"mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/50 bg-white/15 px-4 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/25 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white " + cinematic.heroAction}>
                 <span aria-hidden="true">▤</span> Crea dalla distinta →
@@ -236,46 +216,9 @@ export default async function CommercialHomePage({
         </details>
       } />
 
-      </>)}
+      </>
 
-      {composing && catalogOptions ? (
-        <section id="commercial-compose" aria-labelledby="commercial-compose-heading" className={aiFocused ? "min-w-0" : "scroll-mt-36 space-y-3 rounded-2xl border border-[var(--border-strong)] bg-white p-3 sm:p-5"}>
-          {!aiFocused ? (
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">La tua nuova richiesta</p>
-              <h2 id="commercial-compose-heading" className="text-lg font-semibold text-[var(--brand-deep)]">{aiFocused ? "Verifica gli articoli e prepara la distinta" : "Crea distinta e RFQ senza lasciare Commerciale"}</h2>
-              <p className="mt-1 text-xs text-[var(--text-secondary)]">La creazione genera una bozza privata. Nessun invio ai fornitori avviene automaticamente.</p>
-              {networkContext ? (
-                <p className="mt-1 text-xs font-medium leading-5 text-[#175640]" data-testid="commercial-network-draft-disclaimer">
-                  Provenienza: Network · {networkContext.name}. Compila la distinta e scegli i destinatari manualmente: questo contesto non precompila, collega né invia richieste all’azienda.
-                </p>
-              ) : null}
-            </div>
-            {canWrite && !aiFocused ? (
-             <Link href={appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake"}
-               className="inline-flex min-h-10 items-center rounded-lg border border-[#a9cbb9] bg-[#edf7f1] px-3 text-xs font-semibold text-[#175640] hover:bg-[#dcefe4]"
-               data-testid="commercial-ai-intake-link">
-               Assistente AI · prepara distinta
-             </Link>
-           ) : null}
-           <Link href={appRoutes.commercial.home + "#commercial-worklist"} className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-semibold">Chiudi editor</Link>
-          </div>
-          ) : <h2 id="commercial-compose-heading" className="sr-only">Nuova distinta conversazionale</h2>}
-          <BuyerDistintaBuilder
-            workspace
-            authenticated
-            returnToCommercial
-            focusAiIntake={aiFocused}
-            userId={context.userId}
-            organizationId={context.organizationId}
-            emailConfigured={Boolean(process.env.RESEND_API_KEY)}
-            catalogOptions={catalogOptions}
-          />
-        </section>
-      ) : null}
-
-      {!aiFocused ? (<>
+      <>
       <CommercialUnifiedWorklist
         data={displayedUnified}
         page={page}
@@ -431,7 +374,7 @@ export default async function CommercialHomePage({
             >Cerca nello storico →</Link>
             {canWrite ? (
               <Link
-                href={appRoutes.commercial.home + "?network=" + encodeURIComponent(networkContext.id) + "&compose=1#commercial-compose"}
+                href={newRequestHref({ network: networkContext.id, measure: true })}
                 className="inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-3 text-xs font-semibold text-white hover:bg-[#246c53] focus-visible:outline-2 focus-visible:outline-offset-2"
               >Prepara RFQ privata →</Link>
             ) : (
@@ -499,7 +442,7 @@ export default async function CommercialHomePage({
       <p className="px-2 pb-2 text-[11px] leading-5 text-[#647568]">
         Commerciale riunisce i tuoi flussi di lavoro, ma i confini dei dati restano distinti: la memoria privata, le RFQ buyer, il Network e il Marketplace non condividono automaticamente prezzi, contatti o documenti.
       </p>
-      </>) : null}
+      </>
     </FocusPage>
   );
 }

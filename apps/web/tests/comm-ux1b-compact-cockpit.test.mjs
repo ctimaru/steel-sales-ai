@@ -58,10 +58,10 @@ test("COMM-UX1B uses natural document scrolling and dense activity rows", () => 
 });
 
 test("COMM-UX1B retains private RFQ, explicit manual actions and tenant isolation", () => {
-  assert.match(commercial, /<BuyerDistintaBuilder/);
+  assert.doesNotMatch(commercial, /<BuyerDistintaBuilder/);
   assert.match(commercial, /<CommercialUnifiedWorklist/);
   assert.match(commercial, /canWriteWorkspace\(context\.role\)/);
-  assert.match(commercial, /Nessun invio ai fornitori avviene automaticamente/);
+  assert.match(commercial, /redirect\(legacyComposeRedirect\(params\)\)/);
   assert.match(data, /\.eq\("organization_id", organizationId\)/);
   assert.match(worklist, /Attività non trovata nella vista corrente o non autorizzata/);
   assert.doesNotMatch(worklist, /service_role|SUPABASE_SERVICE_ROLE_KEY/);

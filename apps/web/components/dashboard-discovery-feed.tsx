@@ -1,3 +1,4 @@
+import { newRequestHref } from "@/lib/new-request-href";
 import Link from "next/link";
 import { DashboardTrackedLink } from "@/components/dashboard-tracked-link";
 
@@ -108,8 +109,8 @@ export function DashboardDiscoveryFeed({
                             Profilo Network →
                           </DashboardTrackedLink>
                           <Link
-                            href={appRoutes.commercial.home + "?network=" + encodeURIComponent(company.id) +
-                              (canWriteCommercial ? "&compose=1#commercial-compose" : "#network-commercial-context")}
+                            href={canWriteCommercial ? newRequestHref({ network: company.id, measure: true })
+                              : appRoutes.commercial.home + "?network=" + encodeURIComponent(company.id) + "#network-commercial-context"}
                             className="inline-flex min-h-10 items-center rounded-lg border border-[#a9cdb7] bg-[#eff7f2] px-2.5 text-xs font-semibold text-[#175640] hover:bg-[#e2f0e7] focus-visible:outline-2 focus-visible:outline-offset-2"
                           >
                             {canWriteCommercial ? "Prepara richiesta →" : "Consulta in Commerciale →"}

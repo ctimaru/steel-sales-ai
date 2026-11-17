@@ -55,7 +55,7 @@ test("COMM-AI-NATIVE1.B/C keeps honest evidence labels and the authorized Distin
   assert.match(shell, /cronologia solo in questa scheda, nessuna memoria persistente/);
   assert.match(shell, /commercialAiNativeResponse/);
   assert.match(shell, /sss:commercial-ai-intake-handoff/);
-  assert.match(shell, /\?compose=1&method=ai#commercial-ai-intake/);
+  assert.match(shell, /newRequestHref\(\)/);
   assert.match(shell, /onClick=\{\(\) => startDistinta\(turn\.question\)\}/);
   assert.match(shell, /if \(!canWrite \|\| !ready/);
   assert.match(shell, /data-testid="commercial-ai-native-mobile-drawer"/);

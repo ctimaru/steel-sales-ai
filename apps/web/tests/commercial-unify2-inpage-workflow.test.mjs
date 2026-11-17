@@ -30,15 +30,15 @@ test("COMMERCIAL-UNIFY2 is one Commerciale page with filters, query and in-place
 
 test("COMMERCIAL-UNIFY2 reuses existing builder inline and returns after saving private RFQ", () => {
   assert.match(commercial, /params\.compose === "1"/);
-  assert.match(commercial, /composing \? listBuyerDistintaPublicDimensions\(\)/);
-  assert.match(commercial, /<BuyerDistintaBuilder/);
-  assert.match(commercial, /returnToCommercial/);
-  assert.match(builder, /returnToCommercial = false/);
+  assert.doesNotMatch(commercial, /listBuyerDistintaPublicDimensions/);
+  assert.doesNotMatch(commercial, /<BuyerDistintaBuilder/);
+  // DISTINTA-ONE1: one creation screen; after the private RFQ every entry
+  // continues to the same step 2, choosing the suppliers on the RFQ page.
+  assert.doesNotMatch(builder, /returnToCommercial/);
   assert.match(builder, /existingDistintaId: savedId/);
   assert.match(builder, /createBuyerRfqCampaign\(savedId\)/);
-  assert.match(builder, /if \(returnToCommercial\)/);
-  assert.match(builder, /\?item=campaign:/);
-  assert.match(commercial, /canWrite && params\.compose/);
+  assert.match(builder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
+  assert.doesNotMatch(commercial, /canWrite && params\.compose/);
   assert.match(worklist, /canWrite \? \(/);
 });
 
@@ -79,7 +79,7 @@ test("COMMERCIAL-UNIFY2 preserves deep links, ownership and explicit action boun
   assert.match(routes, /campaign: \(id: string\) => \`\/rfq-hub\/\$\{id\}\`/);
   assert.match(routes, /savedDistinta: \(id: string\)/);
   assert.match(worklist, /Confronto, negoziazione e ordini/);
-  assert.match(commercial, /Nessun invio ai fornitori avviene automaticamente/);
+  assert.match(commercial, /redirect\(legacyComposeRedirect\(params\)\)/);
   assert.match(worklist, /nessuna pubblicazione automatica/);
   assert.match(worklist, /getOperationalEntityData\(inboundKind, item\.id\)/);
   assert.match(data, /validId/);

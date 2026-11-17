@@ -67,7 +67,7 @@ test("CPOST2 detail rows are readable Italian and dates do not drift", () => {
 
 test("CPOST2 'Chiedi un'offerta' only on other companies' capacity and stock, through the RFQ page", () => {
   const post = m.parseCompanyPost(row());
-  assert.equal(m.companyPostOfferHref(post), "/commercial?network=" + CO + "&compose=1#commercial-compose");
+  assert.equal(m.companyPostOfferHref(post), "/rfq-hub/distinta?aggiungi=misura&network=" + CO);
   assert.equal(m.companyPostOfferHref({ ...post, isOwnCompany: true }), null);
   assert.equal(m.companyPostOfferHref({ ...post, postType: "news" }), null);
   assert.equal(m.companyPostOfferHref({ ...post, postType: "event" }), null);

@@ -19,5 +19,5 @@ test("COMM-CALC1 Commerciale exposes the shared calculator without a second calc
   assert.match(access, /document\.addEventListener\("focusin", onFocusIn\)/);
   assert.match(access, /data-commercial-calculator-panel/);
   assert.doesNotMatch(access, /<iframe|\/knowledge\/tubes|<BuyerDistintaBuilder/);
-  assert.match(commercial, /<BuyerDistintaBuilder/);
+  assert.doesNotMatch(commercial, /<BuyerDistintaBuilder/);
 });

@@ -1,5 +1,6 @@
 "use server";
 
+import { newRequestHref } from "@/lib/new-request-href";
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import {getNetworkAccessState} from "@/lib/network-access";
 import {isNetworkFreeReadEnabled,isNetworkFrontendEnabled} from "@/lib/network-flags";
@@ -182,7 +183,7 @@ export async function askNetworkConversation(
       answer:"Hai descritto una possibile richiesta di tubi con quantità o specifiche. "+
         "Apri Commerciale → Nuova RFQ per preparare una distinta. "+
         "Nessuna richiesta o ordine è stato creato.",
-      href:"/commercial?compose=1#commercial-compose",
+      href:newRequestHref({measure:true}),
     };
   }
   // Material / geometry qualifiers cannot be silently replaced by a generic steel tier.
@@ -289,7 +290,7 @@ export async function askNetworkConversation(
         status:"rfq",mode:"ai",
         answer:"La richiesta riguarda una possibile distinta o RFQ. "+
           "Puoi aprire Commerciale per prepararla: nessuna azione viene eseguita automaticamente.",
-        href:"/commercial?compose=1#commercial-compose",
+        href:newRequestHref({measure:true}),
       };
     }
     const resolved=validateNetworkAIOutput(candidate,query,taxonomy);
@@ -326,7 +327,7 @@ async function answerSpecRequest(
   if(filters.role)params.set("role",filters.role);
   if(filters.region)params.set("region",filters.region);
   const href="/network?"+params.toString()+"#network-results";
-  const rfqHref=specIntent.rfqDetails.length?"/commercial?compose=1#commercial-compose":undefined;
+  const rfqHref=specIntent.rfqDetails.length?newRequestHref({measure:true}):undefined;
   const chips=[summary,...context.chips.filter(chip=>chip!=="Tubi (prodotti dichiarati)")].filter(Boolean);
   const notes=[
     specIntent.rfqDetails.length?" "+describeRfqDetails(specIntent.rfqDetails)+": restano per la richiesta d'offerta, non sono filtri del Network.":"",

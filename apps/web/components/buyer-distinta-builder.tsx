@@ -32,7 +32,6 @@ import {networkReviewedHandoffKey,parseNetworkReviewedHandoff,type NetworkReview
 import {
   createBuyerRfqCampaign,
   saveBuyerDistinta,
-  sendBuyerDistinta,
 } from "@/app/(public)/distinta/actions";
 import {
   buildBuyerDistintaHtml,
@@ -86,25 +85,28 @@ function formatNumber(value: number | null, digits: number) {
 
 export function BuyerDistintaBuilder({
   authenticated,
-  emailConfigured,
   catalogOptions,
   workspace = false,
   userId = null,
   organizationId = null,
-  returnToCommercial = false,
   focusAiIntake = false,
+  openMeasure = false,
   locale = "it",
   compactLanding = false,
 }: {
   authenticated: boolean;
-  emailConfigured: boolean;
   catalogOptions: BuyerDistintaCatalogOption[];
   workspace?: boolean;
   userId?: string | null;
   organizationId?: string | null;
-  returnToCommercial?: boolean;
-  /** Explicit AI entry from the Commerciale companion, never inferred from compose=1. */
+  /**
+   * DISTINTA-ONE1: the single «Nuova richiesta» screen (/rfq-hub/distinta) is
+   * chat + Distinta. The calculator lives in the «Aggiungi una misura» panel.
+   * The public /distinta calculator keeps the classic layout (false).
+   */
   focusAiIntake?: boolean;
+  /** Open «Aggiungi una misura» on arrival (manual entry, calculator handoff). */
+  openMeasure?: boolean;
   locale?: BuyerUiLocale;
   /** Compact only the public /distinta landing, not authenticated RFQ Hub. */
   compactLanding?: boolean;
@@ -117,7 +119,7 @@ export function BuyerDistintaBuilder({
   const [previewDraft, setPreviewDraft] = useState<GuidedTubeDraft | null>(null);
   const [wizardRestoreSerial, setWizardRestoreSerial] = useState(0);
   const [intakeMode, setIntakeMode] = useState<RfqAiIntakeMode>(focusAiIntake && workspace ? "text" : "manual");
-  const [showManualTools, setShowManualTools] = useState(!focusAiIntake);
+  const [showManualTools, setShowManualTools] = useState(!focusAiIntake || openMeasure);
   const [aiPreview, setAiPreview] = useState<RfqAiTextDraftResult | null>(null);
   const [quickQuery, setQuickQuery] = useState("");
   const [quickGrade, setQuickGrade] = useState("");
@@ -138,6 +140,7 @@ export function BuyerDistintaBuilder({
       if (item.family === "round_tube" && (!dim(item.outerDiameter) || Number(item.outerDiameter) <= 2*t)) return;
       if (item.family !== "round_tube" && (!dim(item.width) || Number(item.width) <= 2*t)) return;
       if (item.family === "rectangular_tube" && (!dim(item.height) || Number(item.height) <= 2*t)) return;
+      setShowManualTools(true);
       setSearchCalculatorPrefill({
         family: item.family as "round_tube" | "square_tube" | "rectangular_tube",
         standard: item.standard as "en10210" | "en10219",
@@ -192,12 +195,7 @@ export function BuyerDistintaBuilder({
   const [networkHandoffError,setNetworkHandoffError]=useState("");
   const [savedId, setSavedId] = useState<string | null>(null);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
-  const [recipientInput, setRecipientInput] = useState("");
-  const [emailSubject, setEmailSubject] = useState("Richiesta di offerta");
-  const [emailMessage, setEmailMessage] = useState(
-    "Buongiorno,\nvi chiediamo cortesemente la vostra migliore offerta per i materiali indicati nella distinta seguente.",
-  );
-  const [sendMessage, setSendMessage] = useState<string | null>(null);
+
   const [rfqMessage, setRfqMessage] = useState<string | null>(null);
   // Only a same-tab session draft; no cookie, URL payload, remote autosave or email data.
   const [draftReady, setDraftReady] = useState(false);
@@ -206,7 +204,6 @@ export function BuyerDistintaBuilder({
   const networkHandoffKey = authenticated&&userId&&organizationId
     ? networkReviewedHandoffKey(userId,organizationId):null;
   const [savePending, startSaveTransition] = useTransition();
-  const [sendPending, startSendTransition] = useTransition();
   const [rfqPending, startRfqTransition] = useTransition();
 
   const calculated = useMemo(
@@ -319,7 +316,6 @@ export function BuyerDistintaBuilder({
     setCopyState("idle");
     setSavedId(null);
     setSaveMessage(null);
-    setSendMessage(null);
     setRfqMessage(null);
   // Run once when the existing draft decision is complete. The queue is
   // consumed synchronously; StrictMode effect replay cannot double-import.
@@ -359,7 +355,6 @@ export function BuyerDistintaBuilder({
       setCopyState("idle");
       setSavedId(null);
       setSaveMessage(null);
-      setSendMessage(null);
       setRfqMessage(null);
     }
     consumeUsPipeRfqIds(window.sessionStorage,accepted.map(v=>v.id));
@@ -379,10 +374,8 @@ export function BuyerDistintaBuilder({
     setSelectedCatalog(recovered.selectedCatalog);
     setPreviewDraft(recovered.wizardDraft);
     setWizardRestoreSerial((current) => current + 1);
-    setEmailSubject(recovered.title);
     setSavedId(null);
     setSaveMessage(null);
-    setSendMessage(null);
     setRfqMessage(null);
     try {
       // Transfer ownership into the authenticated user's tab-scoped key only
@@ -419,7 +412,6 @@ export function BuyerDistintaBuilder({
   ) {
     setSavedId(null);
     setSaveMessage(null);
-    setSendMessage(null);
     setRfqMessage(null);
     setLines((current) =>
       current.map((line) => (line.id === id ? { ...line, ...patch } : line)),
@@ -467,7 +459,6 @@ export function BuyerDistintaBuilder({
     setExpandedRows((current) => ({ ...current, [id]: false }));
     setSavedId(null);
     setSaveMessage(null);
-    setSendMessage(null);
     setRfqMessage(null);
     setCopyState("idle");
     // NEXT1D: never auto-open or scroll to the cart after adding.
@@ -484,7 +475,6 @@ export function BuyerDistintaBuilder({
     setGuidedSpecsByLine((current) => ({ ...current, [id]: { ...draft } }));
     setSavedId(null);
     setSaveMessage(null);
-    setSendMessage(null);
     setRfqMessage(null);
     setCompactMode(true);
     setExpandedRows((current) => ({ ...current, [id]: false }));
@@ -511,7 +501,6 @@ export function BuyerDistintaBuilder({
     });
     setSavedId(null);
     setSaveMessage(null);
-    setSendMessage(null);
     setRfqMessage(null);
     setCopyState("idle");
     setCompactMode(true);
@@ -573,7 +562,6 @@ export function BuyerDistintaBuilder({
     }));
     setSavedId(null);
     setSaveMessage(null);
-    setSendMessage(null);
     setRfqMessage(null);
     setQuickQuery("");
     setCompactMode(true);
@@ -604,7 +592,6 @@ export function BuyerDistintaBuilder({
     }
     setSavedId(null);
     setSaveMessage(null);
-    setSendMessage(null);
     setRfqMessage(null);
   }
 
@@ -768,49 +755,15 @@ export function BuyerDistintaBuilder({
           setRfqMessage(result.error);
           return;
         }
-        if (returnToCommercial) {
-          router.push(appRoutes.commercial.home + "?item=campaign:" + encodeURIComponent(result.rfqId) + "#commercial-detail");
-        } else {
-          // Existing public and RFQ Hub flows keep their canonical deep link.
-          router.push(appRoutes.rfqHub.campaign(result.rfqId));
-        }
+        // DISTINTA-ONE1: every entry continues to the same step 2, choosing the suppliers.
+        router.push(appRoutes.rfqHub.campaign(result.rfqId));
       } finally {
         rfqInFlightRef.current = false;
       }
     });
   }
 
-  function sendDistinta() {
-    if (!savedId) {
-      setSendMessage("Salva prima la distinta, poi puoi inviarla ai fornitori.");
-      return;
-    }
 
-    const recipients = recipientInput
-      .split(/[\n,;]+/)
-      .map((value) => value.trim())
-      .filter(Boolean);
-
-    setSendMessage(null);
-    startSendTransition(async () => {
-      const result = await sendBuyerDistinta({
-        distintaId: savedId,
-        recipients,
-        subject: emailSubject,
-        message: emailMessage,
-      });
-
-      if (!result.ok) {
-        setSendMessage(result.error ?? "Invio non riuscito.");
-        return;
-      }
-      setSendMessage(
-        "Distinta inviata a " +
-          String(result.sentCount ?? recipients.length) +
-          ((result.sentCount ?? recipients.length) === 1 ? " fornitore." : " fornitori."),
-      );
-    });
-  }
 
   // The composer is server-rendered after a router.push with a hash. When the
   // target mounts after navigation, replay only the intended hash scroll.
@@ -1001,7 +954,6 @@ export function BuyerDistintaBuilder({
               onTitleChange={(value) => {
                 setTitle(value);
                 setSavedId(null);
-                setEmailSubject(value || "Richiesta di offerta");
               }}
               proposals={aiPreview}
               approvedLines={activeLineCount ? lines : []}
@@ -1015,6 +967,12 @@ export function BuyerDistintaBuilder({
               onCreateRfq={createRfqHub}
               onOpenEditor={() => { setShowManualTools(true); openPrivateCart(); }}
               onEditLine={editApprovedLine}
+              onAddMeasure={() => {
+                setShowManualTools(true);
+                window.requestAnimationFrame(() => document.getElementById("commercial-rfq-manual-tools")
+                  ?.scrollIntoView({ block: "start", behavior: "smooth" }));
+              }}
+              measureOpen={showManualTools}
             />
           }
         />
@@ -1100,7 +1058,6 @@ export function BuyerDistintaBuilder({
               onChange={(event) => {
                 setTitle(event.target.value);
                 setSavedId(null);
-                setEmailSubject(event.target.value || "Richiesta di offerta");
               }}
               className="mt-1 h-10 w-full rounded-lg border border-[var(--border-strong)] bg-white px-3 text-sm font-semibold text-[var(--text-primary)]"
             />
@@ -1135,7 +1092,7 @@ export function BuyerDistintaBuilder({
           </div>
           {/* The focused chat already exposes its editable Distinta preview. Do not
               overlay a second fixed cart CTA on top of mobile navigation. */}
-          <TechnicalCartShell visible={activeLineCount > 0 && !focusAiIntake} open={cartOpen}
+          <TechnicalCartShell visible={activeLineCount > 0 && (!focusAiIntake || cartOpen)} open={cartOpen}
             onOpen={openPrivateCart} onClose={() => setCartOpen(false)}
             count={activeLineCount} title={t("La tua distinta")} eyebrow={t("Commerciale · Carrello privato")}
             summary={`${formatNumber(totals.totalMeters, 2)} m · ${formatNumber(totals.totalTonnes, 3)} t · ${totals.completeLines}/${activeLineCount} ${t("righe pronte")}`}
@@ -1521,7 +1478,7 @@ export function BuyerDistintaBuilder({
                 <button type="button" onClick={createRfqHub}
                   disabled={!allComplete || !draftReady || Boolean(restoreCandidate) || rfqPending || savePending}
                   className="platform-primary flex min-h-12 w-full items-center justify-center rounded-lg px-3 text-sm font-extrabold disabled:cursor-not-allowed disabled:opacity-50">
-                  {rfqPending ? t("Salvataggio e creazione…") : t("Crea RFQ privata →")}
+                  {rfqPending ? t("Salvataggio e creazione…") : focusAiIntake ? "Scegli i fornitori →" : t("Crea RFQ privata →")}
                 </button>
                 <p className="mt-2 text-[11px] leading-4 text-[#34594c]">
                   Salva la distinta e crea la RFQ con un clic. Bozza privata: nessun invio ai fornitori.
@@ -1584,132 +1541,8 @@ export function BuyerDistintaBuilder({
 
       </section>
 
-      <details hidden={focusAiIntake} className="rounded-2xl border border-[#d8e1dd] bg-white shadow-sm">
-        <summary className="flex min-h-12 cursor-pointer items-center px-4 py-3 text-sm font-bold text-[#174e40]">
-          {t("Altre opzioni · salva solo la distinta o invia direttamente via email")}
-        </summary>
-        <div className="grid gap-6 border-t border-[#d8e1dd] p-4 lg:grid-cols-2">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              {t("Spazio privato")}
-            </p>
-            <h3 className="mt-2 text-xl font-semibold text-[#1d2824]">
-              {t("Salva soltanto la distinta.")}
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Lo snapshot resta privato e separato dai contenuti pubblici. Potrai usarlo come base per richieste e invii ai fornitori.
-            </p>
-
-            {authenticated ? (
-              <button
-                type="button"
-                disabled={!allComplete || savePending || rfqPending}
-                onClick={saveDistinta}
-                className="platform-primary mt-4 inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {t(savePending ? "Salvataggio…" : savedId ? "Salvata ✓" : "Salva distinta")}
-              </button>
-            ) : (
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                  href={"/login?next=" + encodeURIComponent(appRoutes.rfqHub.createDistinta)}
-                  onClick={persistBrowserDraft}
-                  className="platform-primary inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-bold"
-                >
-                  Accedi per salvare
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={persistBrowserDraft}
-                  className="app-secondary inline-flex min-h-11 items-center justify-center rounded-xl px-5 text-sm font-semibold"
-                >
-                  Registra azienda
-                </Link>
-              </div>
-            )}
-
-            {savedId ? (
-              <p className="mt-3 rounded-xl bg-[#edf5f2] px-3 py-2 text-xs font-semibold text-[#173f35]">
-                Distinta salvata ✓ · per creare la RFQ usa il pulsante principale qui sopra.
-              </p>
-            ) : null}
-
-            {saveMessage ? (
-              <p className="mt-3 text-xs font-semibold text-[#52615b]">{saveMessage}</p>
-            ) : null}
-            {rfqMessage ? (
-              <p className="mt-2 text-xs font-semibold text-[#7b6a43]">{rfqMessage}</p>
-            ) : null}
-          </div>
-
-          <div className="border-t border-[#e5eae8] pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-              {t("Invio fornitori")}
-            </p>
-            <h3 className="mt-2 text-xl font-semibold text-[#1d2824]">
-              {t("Invia direttamente a più fornitori.")}
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              Gli indirizzi vengono gestiti separatamente: ogni fornitore riceve la propria email e può rispondere direttamente al tuo indirizzo.
-            </p>
-
-            {authenticated ? (
-              <div className="mt-4 space-y-3">
-                <label className="block text-xs font-semibold text-[#52615b]">
-                  {t("Email fornitori")}
-                  <textarea
-                    value={recipientInput}
-                    onChange={(event) => setRecipientInput(event.target.value)}
-                    placeholder={"acquisti@fornitore1.it\nofferte@fornitore2.it"}
-                    rows={3}
-                    className="mt-1.5 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
-                  />
-                </label>
-                <label className="block text-xs font-semibold text-[#52615b]">
-                  {t("Oggetto")}
-                  <input
-                    value={emailSubject}
-                    onChange={(event) => setEmailSubject(event.target.value)}
-                    className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
-                  />
-                </label>
-                <label className="block text-xs font-semibold text-[#52615b]">
-                  {t("Messaggio")}
-                  <textarea
-                    value={emailMessage}
-                    onChange={(event) => setEmailMessage(event.target.value)}
-                    rows={4}
-                    className="mt-1.5 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
-                  />
-                </label>
-
-                <button
-                  type="button"
-                  disabled={!savedId || sendPending || rfqPending || savePending}
-                  onClick={sendDistinta}
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#b8d2c8] bg-[#edf5f2] px-5 text-sm font-bold text-[#173f35] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {t(sendPending ? "Invio…" : "Invia ai fornitori")}
-                </button>
-
-                {!emailConfigured ? (
-                  <p className="text-[11px] leading-5 text-[#7b6a43]">
-                    Il flusso è pronto; il server richiede la chiave del provider email per effettuare l&apos;invio reale.
-                  </p>
-                ) : null}
-              </div>
-            ) : (
-              <p className="mt-4 rounded-xl bg-[#f7f9f8] px-4 py-3 text-xs leading-5 text-[#66736e]">
-                L&apos;invio diretto è un servizio privato: accedi o registra la tua azienda per utilizzarlo.
-              </p>
-            )}
-
-            {sendMessage ? (
-              <p className="mt-3 text-xs font-semibold text-[#52615b]">{sendMessage}</p>
-            ) : null}
-          </div>
-        </div>
-      </details>
+      {/* DISTINTA-ONE1: niente invio diretto della distinta per email. Ogni richiesta
+          ai fornitori passa dalla RFQ, con revisione dei destinatari e conferma. */}
     </div>
   );
 }

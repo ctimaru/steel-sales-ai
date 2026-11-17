@@ -71,7 +71,7 @@ test("COMPACT6D reuses existing verified RFQAI3 parser and human approval UI",()
  assert.match(bridge,/<RfqAiTextReview/);
  assert.match(bridge,/serializeNetworkReviewedHandoff\(lines\)/);
  assert.match(bridge,/parseNetworkReviewedHandoff\(window.sessionStorage.getItem\(key\)\)/);
- assert.match(bridge,/router.push\("\/commercial\?compose=1&source=network#commercial-compose"\)/);
+ assert.match(bridge,/router.push\(newRequestHref\(\{fromNetwork:true\}\)\)/);
  assert.match(chat,/sourceText:query/);
  assert.match(chat,/<NetworkRfqBridge key=\{latestAssistant\?\.id\} sourceText=\{rfqSource\}/);
  assert.match(chat,/const rfqSource=latestAssistant\?\.result\?\.status==="rfq"/);

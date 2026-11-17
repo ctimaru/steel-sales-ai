@@ -191,9 +191,9 @@ try {
           const input = page.getByLabel("Descrivi il materiale", { exact: true });
           await input.fill("40 tubi quadri 100x100x6 S355J2H EN 10219 da 12 m");
           await page.getByTestId("commercial-ai-first-cta").click();
-          await page.waitForURL(url => url.searchParams.get("compose") === "1" &&
-            url.searchParams.get("method") === "ai", { timeout: 60000 });
-          const focused = page.getByTestId("commercial-rfq-ai-focused-header");
+          // DISTINTA-ONE1: the Commerciale CTA opens the single «Nuova richiesta» screen.
+          await page.waitForURL(url => url.pathname === "/rfq-hub/distinta", { timeout: 60000 });
+          const focused = page.getByTestId("new-request-steps");
           await focused.waitFor({ state: "visible", timeout: 60000 });
           const textField = page.locator("#rfqai2-text-input");
           await textField.waitFor({ state: "visible", timeout: 60000 });
@@ -304,7 +304,9 @@ try {
           // COMM-RFQ-CREATE2: la calcolatrice separata non è più nella pagina di creazione richiesta.
           assert.equal(await page.getByTestId("commercial-ai-manual-tools-toggle").count(), 0);
           if (width !== 320) {
+            // Old manual-entry links redirect to the same screen with «Aggiungi una misura» open.
             await page.goto(base + "/commercial?compose=1", { waitUntil: "domcontentloaded", timeout: 90000 });
+            await page.waitForURL(url => url.pathname === "/rfq-hub/distinta" && url.searchParams.get("aggiungi") === "misura", { timeout: 60000 });
             await page.locator("#commercial-rfq-manual-tools").waitFor({ state: "visible", timeout: 60000 });
             assert.equal(await page.getByTestId("commercial-rfq-ai-focused-header").count(), 0,
               "Manual New Request does not force an AI-focused screen");

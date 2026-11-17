@@ -25,7 +25,7 @@ test("COMM-DESK-AI1 compact chat has no fixed viewport height and keeps the manu
   assert.match(shell, /max-h-\[min\(46dvh,440px\)\]/);
   assert.match(shell, /data-testid="commercial-ai-native-collapse"/);
   assert.match(shell, /data-testid="commercial-ai-native-manual-entry"/);
-  assert.match(shell, /\?compose=1#commercial-compose/);
+  assert.match(shell, /newRequestHref\(\{ measure: true \}\)/);
 });
 
 test("COMM-DESK-AI1 keeps the Commerciale sidebar visible next to the compact chat", () => {

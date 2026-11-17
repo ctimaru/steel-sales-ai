@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
-import { safeBuyerUiLocale, buyerUiText } from "@/lib/buyer-ui-locale";
+import { safeBuyerUiLocale } from "@/lib/buyer-ui-locale";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
+import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
 import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { appRoutes } from "@/lib/routes";
 import { privateNoIndexRobots } from "@/lib/seo";
@@ -11,44 +12,70 @@ import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Nuova distinta · RFQ Hub",
+  title: "Nuova richiesta",
   robots: privateNoIndexRobots,
 };
 
-export default async function PrivateBuyerDistintaPage({searchParams}: {searchParams: Promise<{lang?:string}>}) {
+const steps = ["Cosa ti serve", "A chi lo chiedi", "Invia"] as const;
+
+/**
+ * DISTINTA-ONE1 (founder decision, 17 Nov 2026): the ONLY screen to create a
+ * request. Commerciale, dashboard, Network, RFQ Hub, Marketplace and search all
+ * link here (lib/new-request-href.ts); old /commercial?compose=1 links redirect.
+ *
+ * Step 1 is the Distinta: describe the material in the chat or add a measure
+ * with the calculator. «Scegli i fornitori» creates the private RFQ (no send)
+ * and opens step 2, the suppliers. Sending (step 3) always needs a confirmation.
+ */
+export default async function NewRequestPage({ searchParams }: {
+  searchParams: Promise<{ lang?: string; aggiungi?: string; network?: string; source?: string }>;
+}) {
   // UI gate is not the authorization boundary. Existing server actions and
   // Supabase policies independently verify the authenticated data owner.
   const context = await requireWorkspaceWriteRole(appRoutes.rfqHub.home);
-  const locale=safeBuyerUiLocale((await searchParams).lang);
-  const t=(key:Parameters<typeof buyerUiText>[0])=>buyerUiText(key,locale);
-  const catalogOptions = buildBuyerDistintaCatalogOptions(await listBuyerDistintaPublicDimensions());
+  const params = await searchParams;
+  const locale = safeBuyerUiLocale(params.lang);
+  const [catalogOptions, networkContext] = await Promise.all([
+    listBuyerDistintaPublicDimensions().then(buildBuyerDistintaCatalogOptions),
+    // Provenance only: the Network company is never added as a recipient automatically.
+    getCommercialNetworkContext(context.organizationId, params.network).catch(() => null),
+  ]);
 
   return (
-    <div className="space-y-4" lang={locale}>
-      <nav aria-label="Percorso RFQ Hub" className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]">
-        <Link href={appRoutes.rfqHub.home} className="hover:text-[var(--brand-deep)]">RFQ Hub</Link>
-        <span aria-hidden="true">/</span>
-        <span className="text-[var(--brand-deep)]">{t("Nuova distinta")}</span>
-      </nav>
-      <header className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-strong)] bg-white px-4 py-3">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-primary)]">{t("Workspace aziendale · acquisti")}</p>
-          <h1 className="mt-1 text-xl font-extrabold text-[var(--brand-deep)]">{t("Nuova distinta")}</h1>
-          <p className="mt-1 text-xs text-[var(--text-secondary)]">
-            Parti dalla calcolatrice, aggiungi le misure in un clic e rivedi la distinta sempre visibile. Gli altri metodi di inserimento restano opzionali.
-          </p>
+    <div className="space-y-3" lang={locale}>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold tracking-tight text-[#143f30]">Nuova richiesta</h1>
+          <ol aria-label="Passaggi della richiesta" className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs" data-testid="new-request-steps">
+            {steps.map((step, index) => (
+              <li key={step} aria-current={index === 0 ? "step" : undefined}
+                className={"flex items-center gap-1.5 " + (index === 0 ? "font-semibold text-[#143f30]" : "text-[#5c7063]")}>
+                <span aria-hidden="true" className={"flex h-5 w-5 items-center justify-center rounded-full text-[11px] " +
+                  (index === 0 ? "bg-[#175640] text-white" : "border border-[#c9d9cf] text-[#5c7063]")}>{index + 1}</span>
+                {step}
+                {index < steps.length - 1 ? <span aria-hidden="true" className="ml-1.5 text-[#b3c4ba]">—</span> : null}
+              </li>
+            ))}
+          </ol>
         </div>
-        <Link href={appRoutes.rfqHub.home} className="app-secondary inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold">
-          Le mie RFQ
+        <Link href={appRoutes.commercial.home} className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] bg-white px-3 text-sm font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
+          Trattative
         </Link>
       </header>
+      {networkContext ? (
+        <p data-testid="new-request-network-provenance"
+          className="rounded-lg border border-[#cfe3d7] bg-[#f4faf6] px-3 py-2 text-xs leading-5 text-[#315c49]">
+          Dal Network · <span className="font-semibold">{networkContext.name}</span>. Potrai sceglierla tra i fornitori al passo 2: non viene aggiunta in automatico.
+        </p>
+      ) : null}
       <BuyerDistintaBuilder
         workspace
+        focusAiIntake
+        openMeasure={params.aggiungi === "misura"}
         locale={locale}
         authenticated
         userId={context.userId}
         organizationId={context.organizationId}
-        emailConfigured={Boolean(process.env.RESEND_API_KEY)}
         catalogOptions={catalogOptions}
       />
     </div>

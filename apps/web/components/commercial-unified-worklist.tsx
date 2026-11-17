@@ -1,3 +1,4 @@
+import { newRequestHref } from "@/lib/new-request-href";
 import Link from "next/link";
 import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
@@ -204,7 +205,7 @@ async function SelectedDetail({
         </div>
       )}
 
-      <CommercialDealQuickActions canWrite={canWrite} composeHref={appRoutes.commercial.home + "?compose=1#commercial-compose"} originalHref={item.href} />
+      <CommercialDealQuickActions canWrite={canWrite} composeHref={newRequestHref({ measure: true })} originalHref={item.href} />
       <section aria-labelledby="commercial-deal-memory-heading" data-testid="commercial-deal-memory-entry"
         className="overflow-hidden rounded-2xl border border-[#c9e1d3] bg-[#f3faf5]">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#dbece1] px-3 py-3 sm:px-4">
@@ -305,7 +306,7 @@ export async function CommercialUnifiedWorklist({
     : emptyCause === "filtered"
       ? { href: focus && !query ? appRoutes.commercial.home + "#commercial-worklist" : commercialHref(view), label: "Rimuovi filtro" }
       : (view === "drafts" || view === "all") && canWrite
-        ? { href: appRoutes.commercial.home + "?compose=1&method=ai#commercial-ai-intake", label: "Prepara con la chat" }
+        ? { href: newRequestHref(), label: "Prepara con la chat" }
         : { href: commercialHref("all"), label: "Mostra tutte le trattative" };
 
   // COMM-DESK-AI1.B: dentro la pagina caricata, prima ciò che chiede un'azione.

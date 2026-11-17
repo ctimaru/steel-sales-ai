@@ -13,7 +13,7 @@ test("Commerciale puts one quick-action rail above one canonical worklist filter
   }
   assert.match(worklist, /aria-current=\{key === view \? "page" : undefined\}/);
   assert.match(worklist, /aria-label="Filtra attività commerciali"/);
-  assert.match(page, /commercial-worklist/);
+  assert.match(page, /<CommercialUnifiedWorklist/);
   assert.match(page, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.match(page, /<CommercialCalculatorQuickAccess references=\{calculatorReferences\}/);
 });
