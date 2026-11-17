@@ -230,4 +230,4 @@ GRANT EXECUTE ON FUNCTION public.net_it_growthb2_claim_daily() TO service_role;
 GRANT EXECUTE ON FUNCTION public.net_it_growthb2_commit_daily(uuid,jsonb,jsonb) TO service_role;
 REVOKE ALL ON FUNCTION private.net_it_growthb2_source_active()
   FROM PUBLIC,anon,authenticated;
-REVOKE ALL ON ALL TABLES IN SCHEMA private FROM anon,authenticated;
+-- No schema-wide privilege changes: existing private objects remain untouched.
