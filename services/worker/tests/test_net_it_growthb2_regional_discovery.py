@@ -113,7 +113,7 @@ async def test_main_uses_exactly_two_regions_then_never_publishes():
     assert fetch.await_args_list[1].args[1:] == ("Q1210", 100)
     sleep.assert_awaited_once_with(8)
     assert rpc.await_count == 2
-    assert rpc.await_args_list[1].args[3] == {
+    assert rpc.await_args_list[1].args[4] == {
         "p_run_id": "test-run", "p_items": [
             {"qid": "Q1234"}, {"qid": "Q1235"}
         ], "p_counts": {"Q1216": 1, "Q1210": 1}
