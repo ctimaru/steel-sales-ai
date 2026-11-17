@@ -187,7 +187,7 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
                          "Tecnomeccanica Biellese S.r.l.")
 
     async def test_v4_does_not_assert_identity_on_page_noise_only(self):
-        dirty = "2026 Tutti i diritti riservati a Esempio S.r.l."
+        dirty = "2026 Privacy Cookie S.r.l."
         with patch("app.net_it_auto2_reviewer._fetch_page",
                    new=AsyncMock(return_value=page(dirty, url="https://altraazienda.it/"))):
             outcome = await inspect_candidate(
