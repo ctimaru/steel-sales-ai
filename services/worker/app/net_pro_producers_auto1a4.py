@@ -38,6 +38,16 @@ SECTION_PRIORITY = re.compile(
 LOW_PRIORITY = re.compile(
     r"(?:drenant|drainage|paladex|paladrain|creep|"
     r"rigidita[- /_]?anulare|sistemi[- /_]?di[- /_]?giunzione)", re.I)
+# Rank explicit *HTML* dimensional tables first, but preserve broad discovery
+# and the existing cap of six. This does not fetch linked PDFs or imply proof.
+DIMENSIONAL_TABLE_PRIORITY = re.compile(
+    r"(?:tabell[ae][- /_]?(?:dimensiona(?:li|le)|misure|spessori)|"
+    r"(?:dimensional|dimension|size|section)[- /_]?(?:tables?|charts?)|"
+    r"(?:tables?|charts?)[- /_]?(?:dimensional|dimension|sizes?)|"
+    r"(?:wall[- /_]?thickness|spessori)[- /_]?(?:tables?|charts?))", re.I)
+NONSTRUCTURAL_PRIORITY = re.compile(
+    r"(?:elastomer|elastomer[oi]|adesiv[oi]|adhesives?|"
+    r"composit[ei]|paladex|drainage|drenagg|giunzione)", re.I)
 
 
 class _Links(HTMLParser):
@@ -94,8 +104,10 @@ def discover_detail_links(html: str, parent_url: str, official_host: str, parent
             # Prioritization changes *which links to visit first* only. It does
             # not change A4 same-row proof, URL trust, source SHA or permissions.
             score = (8 * bool(TECHNICAL_PRIORITY.search(relevance))
+                     + 12 * bool(DIMENSIONAL_TABLE_PRIORITY.search(relevance))
                      + 5 * bool(SECTION_PRIORITY.search(relevance))
-                     - 5 * bool(LOW_PRIORITY.search(relevance)))
+                     - 5 * bool(LOW_PRIORITY.search(relevance))
+                     - 6 * bool(NONSTRUCTURAL_PRIORITY.search(relevance)))
             if url not in unique or score > unique[url][0]:
                 unique[url] = (score, {
                     "url": url, "parent_url": parent_url,
