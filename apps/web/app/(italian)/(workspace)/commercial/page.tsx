@@ -10,6 +10,9 @@ import cinematic from "@/components/commercial-cinematic.module.css";
 import { CommercialRequestSummary } from "@/components/commercial-request-summary";
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
 import { CommercialDirectorPriorityDesk } from "@/components/commercial-director-priority-desk";
+import { CommercialDealsDesk } from "@/components/commercial-deals-desk";
+import { loadCommercialDeals } from "@/lib/commercial-deals";
+import { parseDealDeskState } from "@/lib/commercial-deal-model";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
@@ -34,11 +37,33 @@ export const dynamic = "force-dynamic";
 export default async function CommercialHomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ experience?: string; tools?: string; view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string }>;
+  searchParams: Promise<{ experience?: string; tools?: string; view?: string; q?: string; item?: string; compose?: string; method?: string; tab?: string; page?: string; cursor?: string; focus?: string; network?: string; prospect?: string; prospects?: string; seg?: string; f?: string; p?: string }>;
 }) {
   const params = await searchParams;
   const context = await getWorkspaceContext();
   const canWrite = canWriteWorkspace(context.role);
+  // COMM-DEALS1: la pagina Commerciale è l'elenco delle trattative, una riga per
+  // trattativa. I vecchi parametri (view, focus, item, tab) vengono tradotti, così
+  // sidebar, dashboard, chat e segnalibri restano validi. Composizione, contesto
+  // Network e lista prospect restano schermate dedicate qui sotto.
+  // ?experience=classic e COMM_DEALS_DESK_ENABLED=0 riportano la scrivania precedente.
+  const dealsDesk = process.env.COMM_DEALS_DESK_ENABLED !== "0" && params.experience !== "classic" &&
+    params.compose !== "1" && params.network === undefined && params.prospect === undefined && params.prospects !== "1";
+  if (dealsDesk) {
+    const deskState = parseDealDeskState(params);
+    const operationTabs = ["compare", "negotiate", "award", "po"] as const;
+    const deskTab = operationTabs.find((option) => option === params.tab) ?? null;
+    const [deals, references] = await Promise.all([
+      loadCommercialDeals(context.organizationId),
+      listPublicTubeDimensionPages(),
+    ]);
+    return (
+      <FocusPage compact className="max-w-[1480px]">
+        <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_deals_desk" }} />
+        <CommercialDealsDesk data={deals} state={deskState} tab={deskTab} canWrite={canWrite} calculatorReferences={references} />
+      </FocusPage>
+    );
+  }
   // COMM-AI-NATIVE1.CLEAN1: AI-first is the default Commerciale landing.
   // Explicit classic and all operational deep links preserve the established workbench.
   // COMM_AI_NATIVE_UI_ENABLED=0 remains an emergency rollback switch.

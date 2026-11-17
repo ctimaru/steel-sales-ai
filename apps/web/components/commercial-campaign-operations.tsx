@@ -33,7 +33,7 @@ export function operationsHref(view: CommercialView, query: string, selected: st
  * No alternative mutation endpoint or permission model is introduced.
  */
 export async function CommercialCampaignOperations({
-  rfqId, selected, tab, view, query, page, cursor, focus = "",
+  rfqId, selected, tab, view, query, page, cursor, focus = "", tabHref,
 }: {
   rfqId: string;
   selected: string;
@@ -43,6 +43,8 @@ export async function CommercialCampaignOperations({
   page: number;
   cursor?: string | null;
   focus?: CommercialFocus | "";
+  /** COMM-DEALS1: la lista trattative costruisce i propri link (segmento, filtro, pagina). */
+  tabHref?: (tab: CommercialOperationsTab) => string;
 }) {
   const context = await getWorkspaceContext();
   const db = await createClient();
@@ -217,7 +219,7 @@ export async function CommercialCampaignOperations({
       <h4 className="text-sm font-bold text-[var(--brand-deep)]">Lavora sulla RFQ qui</h4>
       <nav aria-label="Fasi della trattativa" className="flex max-w-full gap-1 overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-1">
         {operationsTabs.map((option) => (
-          <Link key={option.id} href={operationsHref(view, query, selected, option.id, page, cursor, focus)}
+          <Link key={option.id} href={tabHref ? tabHref(option.id) : operationsHref(view, query, selected, option.id, page, cursor, focus)}
             aria-current={tab === option.id ? "page" : undefined}
             className={"inline-flex min-h-10 shrink-0 items-center rounded-lg px-2.5 text-xs font-semibold " +
               (tab === option.id ? "bg-[var(--brand-deep)] text-white" : "text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)]")}>
