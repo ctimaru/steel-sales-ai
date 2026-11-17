@@ -41,6 +41,7 @@ _VAT_AFTER = re.compile(
 _STOP_CHARS = "|•·©®™:;\"«»()[]{}<>\n\r\t?!"
 _CONNECTORS = {"&", "e", "di", "de", "del", "della", "dei", "degli", "c.", "&c.", "f.lli", "fratelli"}
 _LEADING_NOISE = {"copyright", "tutti", "i", "diritti", "riservati", "all", "rights", "reserved",
+                  "l'azienda", "l’azienda", "l'azienda",
                   "la", "il", "lo", "società", "societa", "azienda", "ditta", "ragione", "sociale"}
 # Navigation, cookie/privacy and contact words: a ragione sociale never
 # contains them, so the name stops there (footers flatten menus and privacy
@@ -58,6 +59,7 @@ _BOILERPLATE = {
     "iva", "p.iva", "codice", "fiscale", "regolamento", "copyright", "diritti",
     "riservati", "rights", "reserved", "accetta", "accetto", "rifiuta", "impostazioni",
     "chiudi", "leggi", "scopri", "richiedi", "preventivo", "catalogo", "download", "faq",
+    "approfondisci",
     "careers", "english", "italiano",
     # buttons and widgets flattened into the footer line
     "info", "pulsante", "button", "clicca", "click", "vai", "torna", "top",
@@ -134,13 +136,19 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
         low = word.casefold()
         if not bare:
             break
+        # A footer copyright year or time is not part of the company's name.
+        # An embedded numeral within an independent brand is NOT rewritten.
+        if re.fullmatch(r"(?:19|20)[0-9]{2}(?:[-/](?:19|20)[0-9]{2})?", bare):
+            break
         if bare.casefold().strip("'’") in _BOILERPLATE or "/" in bare or "@" in bare:
             break
         # "Utenti. Titolare ..." — a word closing a previous sentence.
         if (picked and word.endswith(".") and "." not in bare
                 and len(bare) >= 5 and bare.isalpha()):
             break
-        if low in _CONNECTORS or bare[0].isupper() or bare[0].isdigit() or bare.isupper():
+        if (low in _CONNECTORS or bare[0].isupper() or bare[0].isdigit()
+                or bare.isupper() or (not picked and bare[0].islower()
+                and len(bare) >= 3 and bare.casefold() not in _BOILERPLATE)):
             picked.append(word)
             if len(picked) >= 8:
                 break
@@ -156,6 +164,10 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
     if not picked or len(picked) > MAX_NAME_WORDS:
         return None
     core = " ".join(picked).strip(" ,-–")
+    if core.endswith(".") and not re.fullmatch(r"(?:[A-Z]\\.){2,}", core):
+        core = core[:-1]
+    if core[:1].islower():
+        core = core[0].upper() + core[1:]
     if not re.search(r"[A-Za-zÀ-ÿ]", core) or len(core) > 200:
         return None
     start = text.rfind(picked[0], max(0, form_start - 200), form_start)
