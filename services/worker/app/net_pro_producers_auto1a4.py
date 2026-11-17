@@ -41,7 +41,7 @@ LOW_PRIORITY = re.compile(
 # Rank explicit *HTML* dimensional tables first, but preserve broad discovery
 # and the existing cap of six. This does not fetch linked PDFs or imply proof.
 DIMENSIONAL_TABLE_PRIORITY = re.compile(
-    r"(?:tabelle?[- /_]?(?:dimensiona(?:li|le)|misure|spessori)|"
+    r"(?:tabell[ae][- /_]?(?:dimensiona(?:li|le)|misure|spessori)|"
     r"(?:dimensional|dimension|size|section)[- /_]?(?:tables?|charts?)|"
     r"(?:tables?|charts?)[- /_]?(?:dimensional|dimension|sizes?)|"
     r"(?:wall[- /_]?thickness|spessori)[- /_]?(?:tables?|charts?))", re.I)
