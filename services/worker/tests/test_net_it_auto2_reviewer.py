@@ -198,6 +198,45 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
                 self.assertEqual(outcome["p_rights_state"], "unknown")
                 self.assertNotIn("p_approved", outcome)
 
+    async def test_national_backlog_name_recovery_without_forged_approval(self):
+        # The first-party company name is observed in the actual body.
+        # We only trim a year, navigation heading or content AFTER a legal form.
+        cases = (
+            ("arper.com", "2011-2026 Arper SPA",
+             "© 2011-2026 Arper SPA. P.IVA 01234567890", "Arper SPA"),
+            ("carpenteriagrisenti.it", "grisenti.S.n.c.",
+             "© grisenti.S.n.c. P.IVA 01234567890", "Grisenti S.n.c."),
+            ("cdm2022srl.com",
+             "E SERRAMENTI IN ALLUMINIO Approfondisci ZANZARIERE Approfondisci PORTE BLINDATE Approfondisci CDM S.r.l.",
+             "E SERRAMENTI IN ALLUMINIO Approfondisci ZANZARIERE Approfondisci PORTE BLINDATE Approfondisci CDM S.r.l.",
+             "CDM S.r.l."),
+            ("waldem.it", "Waldem Container Shelter Srl Monoblocchi Box dal 1981",
+             "© 2026 Waldem Container Shelter Srl Monoblocchi Box dal 1981",
+             "Waldem Container Shelter Srl"),
+        )
+        for domain, old, body, expected in cases:
+            with self.subTest(domain=domain):
+                with patch("app.net_it_auto2_reviewer._fetch_page",
+                           new=AsyncMock(return_value=page(
+                               body, url=f"https://{domain}/"))):
+                    result = await inspect_candidate(
+                        None, row(name=old, domain=domain))
+                self.assertEqual(result["p_verdict"], "identity_supported")
+                self.assertEqual(result["p_observed_name"], expected)
+                self.assertEqual(result["_identity_correction"]["p_legal_name"], expected)
+                self.assertEqual(result["p_rights_state"], "unknown")
+                self.assertNotIn("p_approved", result)
+
+    async def test_no_correction_for_unrelated_legal_entity_in_website_credit(self):
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=AsyncMock(return_value=page(
+                       "© 2026 Mario Servizi. Powered by Agency Website S.r.l.",
+                       url="https://marioservizi.it/"))):
+            result=await inspect_candidate(
+                None,row(name="Mario Servizi",domain="marioservizi.it"))
+        self.assertNotEqual(result["p_verdict"],"identity_supported")
+        self.assertNotIn("_identity_correction",result)
+
     async def test_clean_first_party_name_does_not_trigger_identity_write(self):
         with patch("app.net_it_auto2_reviewer._fetch_page",
                    new=AsyncMock(return_value=page(
