@@ -22,6 +22,7 @@ from urllib.robotparser import RobotFileParser
 import httpx
 
 from .net_pro_producers_auto1a4 import discover_detail_links, extract_exact_row_candidates
+from .net_pro_producers_auto1a5 import diagnose_detail_html
 
 USER_AGENT = "SmartSteelSalesTechnicalEvidenceBot/1.0"
 MAX_BATCH = 25
@@ -328,6 +329,11 @@ async def fetch_official_page(client: httpx.AsyncClient, lease: dict) -> dict:
             if digest == lease.get("last_sha256") and not (lease.get("needs_detail_discovery") or lease.get("needs_content_reparse")):
                 return {"status": "unchanged", "sha256": digest}
             text = raw.decode("utf-8", errors="replace")
+            # Diagnose only the same first-party depth-two HTML that A4 processes.
+            # Nothing here combines evidence across rows or persists raw HTML.
+            is_detail = bool(lease.get("parent_page_id"))
+            technical_candidates = extract_exact_row_candidates(text, url, digest) if is_detail else []
+            diagnostic = diagnose_detail_html(text, technical_candidates) if is_detail else None
             return {
                 "status": "processed",
                 "sha256": digest,
@@ -340,9 +346,8 @@ async def fetch_official_page(client: httpx.AsyncClient, lease: dict) -> dict:
                 "detail_links": discover_detail_links(
                     text, url, host, digest
                 ) if lease.get("page_id") and not lease.get("parent_page_id") else [],
-                "technical_candidates": extract_exact_row_candidates(
-                    text, url, digest
-                ) if lease.get("parent_page_id") else [],
+                "technical_candidates": technical_candidates,
+                "diagnostic": diagnostic,
             }
     except httpx.HTTPError:
         return {"status": "failed", "error": "http_transport_error"}
@@ -357,6 +362,8 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
 
     # Release flag: never call A4 RPCs before its migration is installed.
     a4_enabled = os.getenv("NETPRODUCERS_A4_ENABLED", "false").lower() == "true"
+    # Explicit rollout flag: SQL A5 migration must exist before calling its RPC.
+    a5_enabled = a4_enabled and os.getenv("NETPRODUCERS_A5_ENABLED", "false").lower() == "true"
 
     # Grow the durable queue automatically as newly published canonical IT
     # producers appear. Only the private service role can invoke this RPC.
@@ -483,9 +490,27 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
                 })
                 if completed.get("contract") != "netproducers-auto1a4-complete-v1":
                     raise ValueError("Invalid depth-two completion response")
+                diagnostic_recorded = False
+                if a5_enabled and outcome["status"] == "processed":
+                    diagnostic = outcome.get("diagnostic")
+                    if not isinstance(diagnostic, dict):
+                        raise ValueError("Missing A5 structural diagnostic on processed HTML")
+                    ack = db_rpc(db, "netproducers1_auto1a5_record_diagnostic", {
+                        "p_page_id": detail["page_id"],
+                        "p_source_sha256": outcome["sha256"],
+                        "p_diagnostic": diagnostic,
+                    })
+                    if (ack.get("contract") != "netproducers-auto1a5-record-v1"
+                            or ack.get("recorded") is not True):
+                        raise ValueError("Invalid A5 diagnostic acknowledgement")
+                    diagnostic_recorded = True
                 detail_outcomes.append({
                     "page_id": detail["page_id"], "status": outcome["status"],
                     "private_technical_candidates": completed.get("candidate_count", 0),
+                    "diagnostic_recorded": diagnostic_recorded,
+                    "diagnostic_reason": (
+                        outcome["diagnostic"]["reason"] if diagnostic_recorded else None
+                    ),
                 })
     # Per-attribute verification is independent from collection. It never
     # publishes manufacturing capability, size/grade combinations or stock.
@@ -501,6 +526,7 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
             "page_verification": page_verification,
             "detail_pages_processed": len(detail_outcomes),
             "private_technical_candidates": sum(x["private_technical_candidates"] for x in detail_outcomes),
+            "a5_diagnostics_recorded": sum(x["diagnostic_recorded"] for x in detail_outcomes),
             "published_claims": 0, "outcomes": outcomes,
             "page_outcomes": page_outcomes, "detail_outcomes": detail_outcomes}
 
@@ -509,10 +535,23 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Incremental first-party producer research")
     parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--persist", action="store_true", help="Lease + fetch + private candidate write")
+    parser.add_argument("--audit-a5", action="store_true",
+                        help="Manual A5.2 read-only historical snapshot audit; never requeue/publish")
+    parser.add_argument("--sample", type=int, default=8,
+                        help="Number of already-processed pages for A5.2 audit (1..12)")
     args = parser.parse_args()
+    if args.audit_a5 and args.persist:
+        parser.error("--audit-a5 is read-only and incompatible with --persist")
+    if not args.audit_a5 and args.sample != 8:
+        parser.error("--sample is only valid with --audit-a5")
     from supabase import create_client
     db = create_client(os.environ["SUPABASE_URL"], os.environ["SUPABASE_SERVICE_ROLE_KEY"])
-    print(json.dumps(asyncio.run(run(db, limit=args.limit, dry_run=not args.persist)), indent=2))
+    if args.audit_a5:
+        from .net_pro_producers_auto1a5_audit import audit_historical_details
+        report = asyncio.run(audit_historical_details(db, limit=args.sample))
+    else:
+        report = asyncio.run(run(db, limit=args.limit, dry_run=not args.persist))
+    print(json.dumps(report, indent=2))
     return 0
 
 

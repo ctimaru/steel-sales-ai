@@ -22,6 +22,22 @@ DETAIL = re.compile(r"(?:scheda[-_/ ]?tecnica|dettagli[oi]?|technical[-_/ ]?(?:d
                     r"tub[io]|pipes?|hollow[-_/ ]?sections?|profil[io]|rhs|shs|chs)", re.I)
 SKIP = re.compile(r"(?:privacy|cookie|login|contact|contatt|about|blog|news|cart|checkout)", re.I)
 NON_HTML = re.compile(r"\.(?:pdf|docx?|xlsx?|zip|csv|jpg|png|webp|svg)(?:$|[?#])", re.I)
+# Only skip unmistakeable corporate/nontechnical path *segments*, not pages
+# containing a relevant product word. Never delete any already indexed URL.
+NONTECHNICAL_PATH = re.compile(
+    r"(?:^|/)(?:sostenibilita(?:-[0-9]+)?|sustainability|"
+    r"lavora-con-noi|posizioni-aperte|careers?|jobs?|job-openings|"
+    r"privacy-policy|cookie-policy|criteri-ambientali-minimi)(?:/|$)", re.I)
+TECHNICAL_PRIORITY = re.compile(
+    r"(?:10219|10210|technical[- /_]?(?:data|details?|specifications?)|"
+    r"scheda[- /_]?tecnica|specifiche[- /_]?tecniche|dimensional|"
+    r"dimensions?|datasheet|grades?|norm[ae]|standards?)", re.I)
+SECTION_PRIORITY = re.compile(
+    r"(?:\bRHS\b|\bSHS\b|\bCHS\b|hollow[- /_]?sections?|"
+    r"tubi[- /_]?strutturali|structural[- /_]?(?:tubes?|pipes?|sections?))", re.I)
+LOW_PRIORITY = re.compile(
+    r"(?:drenant|drainage|paladex|paladrain|creep|"
+    r"rigidita[- /_]?anulare|sistemi[- /_]?di[- /_]?giunzione)", re.I)
 
 
 class _Links(HTMLParser):
@@ -70,15 +86,26 @@ def discover_detail_links(html: str, parent_url: str, official_host: str, parent
             url = urlunsplit(("https", official_host, raw.path, "", ""))
             if url == urlunsplit(("https", official_host, root.path, "", "")):
                 continue
-            if SKIP.search(raw.path):
+            if SKIP.search(raw.path) or NONTECHNICAL_PATH.search(raw.path):
                 continue
-            if not DETAIL.search(raw.path.replace("-", " ") + " " + label):
+            relevance = raw.path.replace("-", " ").replace("_", " ") + " " + label
+            if not DETAIL.search(relevance):
                 continue
-            unique[url] = {"url": url, "parent_url": parent_url,
-                           "parent_sha256": parent_sha256, "depth": 2}
+            # Prioritization changes *which links to visit first* only. It does
+            # not change A4 same-row proof, URL trust, source SHA or permissions.
+            score = (8 * bool(TECHNICAL_PRIORITY.search(relevance))
+                     + 5 * bool(SECTION_PRIORITY.search(relevance))
+                     - 5 * bool(LOW_PRIORITY.search(relevance)))
+            if url not in unique or score > unique[url][0]:
+                unique[url] = (score, {
+                    "url": url, "parent_url": parent_url,
+                    "parent_sha256": parent_sha256, "depth": 2,
+                })
         except (ValueError, TypeError):
             continue
-    return list(unique.values())[:MAX_LINKS]
+    return [item for _, (score, item) in sorted(
+        unique.items(), key=lambda pair: (-pair[1][0], pair[0])
+    )[:MAX_LINKS]]
 
 
 class _Rows(HTMLParser):
