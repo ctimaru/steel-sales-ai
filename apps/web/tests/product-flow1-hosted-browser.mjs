@@ -180,7 +180,7 @@ async function createPrivateDraft(page, session, title) {
     await calculator.getByLabel("Lunghezza barra personalizzata", { exact: true }).fill(length);
     await calculator.getByLabel("Numero barre", { exact: true }).fill(quantity);
     await calculator.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
-    await page.getByTestId("private-cart-trigger").click();
+    await page.getByTestId("private-cart-inline-open").click();
     await page.waitForFunction(count =>
       document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === count, index + 1);
     if (!index) await page.getByRole("dialog", { name: "Carrello della distinta privata" })
@@ -189,7 +189,7 @@ async function createPrivateDraft(page, session, title) {
   const bill = page.locator("#buyer-live-preview");
   assert.match(await bill.innerText(), /42(?:[,.]0+)? m/, "Review must show the complete 42 metres");
   assert.equal(await bill.locator(".bd10-preview-row:not([hidden])").count(), 2);
-  const create = bill.getByRole("button", { name: /Crea RFQ privata/ });
+  const create = bill.getByRole("button", { name: /Crea RFQ privata|Scegli i fornitori/ });
   assert.equal(await create.isEnabled(), true, "Completed rows must be RFQ-ready");
   await usable(page);
   await create.click();

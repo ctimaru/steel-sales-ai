@@ -55,6 +55,7 @@ test("BD5.3 does not alter private save, RFQ, email or previous fast-entry flows
   assert.match(builder, /function addCatalogLine\(option: BuyerDistintaCatalogOption\)/);
   assert.match(builder, /saveBuyerDistinta\(\{ title, lines, documents \}\)/);
   assert.match(builder, /createBuyerRfqCampaign\(savedId\)/);
-  assert.match(builder, /sendBuyerDistinta\(\{/);
+  // DISTINTA-ONE1: no direct email send from the bill of material.
+  assert.doesNotMatch(builder, /sendBuyerDistinta\(\{/);
   assert.match(builder, /buildBuyerDistintaPlainText\(title, valid, documents\)/);
 });

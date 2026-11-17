@@ -30,7 +30,7 @@ test("COMM-CINE13 removes duplicate status and filters while keeping real operat
   assert.doesNotMatch(page, /Vista rapida delle trattative/);
   assert.match(list, /aria-label="Filtra attività commerciali"/);
   assert.match(list, /<SelectedDetail item=\{active\}/);
-  assert.match(page, /<BuyerDistintaBuilder/);
+  assert.doesNotMatch(page, /<BuyerDistintaBuilder/);
   assert.match(page, /\(networkContext \|\| showProspects\)/);
   assert.match(page, /non condividono automaticamente prezzi, contatti o documenti/);
 });

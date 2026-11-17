@@ -69,7 +69,7 @@ test("UX2.B AI suggestions remain editable and separate from human approved Dist
 test("UX2.B preserves explicit save and RFQ governance and never exposes email send in focused workflow", () => {
   assert.match(builder, /onSave=\{saveDistinta\}/);
   assert.match(builder, /onCreateRfq=\{createRfqHub\}/);
-  assert.match(builder, /<details hidden=\{focusAiIntake\}/);
+  assert.doesNotMatch(builder, /sendBuyerDistinta|Invia direttamente a più fornitori/); // DISTINTA-ONE1
   assert.match(builder, /onPreviewChange=\{setAiPreview\}/);
   assert.match(intake, /The focused Commerciale route renders a real conversational surface/);
   assert.match(conversation, /Invio per analizzare/); // COMM-RFQ-CREATE1: un solo avviso, accanto a Crea RFQ

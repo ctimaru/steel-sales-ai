@@ -11,7 +11,7 @@ test("COMM-CINE1 unifies commercial visual hierarchy without losing essential wo
   assert.match(source, /<h1 className="sr-only" data-testid="comm-cine1-hero">Commerciale · Le tue trattative<\/h1>/);
   assert.doesNotMatch(source, /Un’unica visione\./);
   assert.match(source, /max-w-\[1480px\]/);
-  assert.match(source, /\?compose=1&method=ai#commercial-ai-intake/);
+  assert.match(source, /legacyComposeRedirect\(params\)/);
   assert.match(source, /<CommercialAiCompanion canWrite=\{canWrite\}/);
   assert.match(companion, /data-testid="commercial-ai-first"/);
   assert.match(source, /<CommercialCalculatorQuickAccess/);

@@ -63,9 +63,9 @@ test("4.4D supplier email projection removes ALL private buyer target numbers",(
  assert.equal(publicLine.targetEurM,null);
  assert.equal(publicLine.targetTotalEur,null);
  assert.equal(publicLine.weightKgM,priced.weightKgM);
- assert.match(redactionSource,/supplierVisibleBuyerLines\(exportLines\)/);
- assert.match(redactionSource,/buildBuyerDistintaPlainText\(title, supplierVisibleBuyerLines\(exportLines\), documents, false\)/);
- assert.match(redactionSource,/buildBuyerDistintaHtml\(title, supplierVisibleBuyerLines\(exportLines\), documents, false\)/);
+ // DISTINTA-ONE1: the direct supplier email is retired; nothing leaves the
+ // bill of material by email, so no buyer target can reach a supplier that way.
+ assert.doesNotMatch(redactionSource,/api\.resend\.com|buildBuyerDistintaHtml|buildBuyerDistintaPlainText/);
  const formatSrc=read("../lib/buyer-distinta.ts");
  assert.match(formatSrc,/includeBuyerTargets = true/);
  assert.match(formatSrc,/includeBuyerTargets/);

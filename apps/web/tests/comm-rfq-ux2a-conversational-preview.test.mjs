@@ -12,7 +12,8 @@ const intake = read("../components/rfq-ai-intake-ux.tsx");
 const review = read("../components/rfq-ai-text-review.tsx");
 
 test("COMM-RFQ-UX2.A replaces the step form with an integrated conversation and live preview", () => {
-  assert.match(page, /Nuova distinta/);
+  // DISTINTA-ONE1: the screen title lives on the single /rfq-hub/distinta page.
+  assert.match(read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx"), /Nuova richiesta/);
   assert.doesNotMatch(page, /1 · Analizza il materiale/);
   assert.doesNotMatch(page, /2 · Verifica gli articoli/);
   assert.match(builder, /<CommercialRfqWorkspace/);
@@ -55,12 +56,13 @@ test("COMM-RFQ-UX2.A reuses authorized saving and explicit RFQ creation without 
   assert.match(builder, /onCreateRfq=\{createRfqHub\}/);
   assert.match(builder, /saveBuyerDistinta\(\{ title, lines, documents \}\)/);
   assert.match(builder, /createBuyerRfqCampaign\(savedId\)/);
-  assert.match(preview, /Salva distinta privata/);
-  assert.match(preview, /Crea RFQ privata/);
-  assert.match(preview, /Salvare o creare una RFQ privata non invia messaggi ai fornitori/);
+  assert.match(preview, /Salva solo la distinta/);
+  assert.match(preview, /Scegli i fornitori →/);
+  assert.match(preview, /Scegliere i fornitori non invia nulla: l’invio parte solo dopo la tua conferma/);
   assert.match(preview, /disabled=\{!canSave \|\| Boolean\(savedId\)\}/);
   assert.doesNotMatch(preview, /sendBuyerDistinta|sendDistinta|sendEmail\(/);
-  assert.match(builder, /<details hidden=\{focusAiIntake\}/);
+  // DISTINTA-ONE1: the email send section is gone, not just hidden.
+  assert.doesNotMatch(builder, /sendBuyerDistinta|Invia direttamente a più fornitori/);
 });
 
 test("COMM-RFQ-UX2.A all new or changed TSX parses without syntax errors", () => {

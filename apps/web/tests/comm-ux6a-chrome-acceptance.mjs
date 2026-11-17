@@ -99,7 +99,7 @@ async function viewportCheck(page, { width, height, role }) {
   assert.equal(await companion.getByTestId("comm-cine11-prompt").count(), canWrite ? 1 : 0);
   assert.equal(await page.getByRole("link", { name: "+ Nuova richiesta" }).count(), 0);
   if (canWrite) {
-    assert.equal(await manual.getAttribute("href"), "/commercial?compose=1#commercial-compose");
+    assert.equal(await manual.getAttribute("href"), "/rfq-hub/distinta?aggiungi=misura");
     const cta = companion.getByTestId("commercial-ai-first-cta");
     assert.equal(await cta.count(), 1);
     assert.equal(await cta.isDisabled(), true);
@@ -211,7 +211,7 @@ try {
           await input.fill(sample);
           if (width === 390) await page.getByTestId("commercial-ai-first-cta").click();
           else await input.press("Enter");
-          await page.waitForURL(u => u.pathname === "/commercial" && u.searchParams.get("compose") === "1", { timeout: 90000 });
+          await page.waitForURL(u => u.pathname === "/rfq-hub/distinta", { timeout: 90000 }); // DISTINTA-ONE1
           const draft = page.locator("#rfqai2-text-input");
           await draft.waitFor({ state: "visible", timeout: 60000 });
           await page.waitForFunction(expected => document.querySelector("#rfqai2-text-input")?.value === expected, sample);
@@ -233,11 +233,11 @@ try {
             // Explicitly exercise the manual alternative, not merely its href.
             await page.goto(base + "/commercial?experience=classic", { waitUntil: "domcontentloaded", timeout: 90000 });
             await page.getByTestId("commercial-manual-entry").click();
-            await page.waitForURL(u => u.pathname === "/commercial" &&
-              u.searchParams.get("compose") === "1" && u.searchParams.get("method") !== "ai", { timeout: 90000 });
-            await page.locator("#commercial-compose").waitFor({ state: "visible", timeout: 60000 });
-            assert.equal(await page.getByTestId("commercial-rfq-chat-workspace").count(), 0,
-              "Manual entry must not silently start the AI conversation");
+            // DISTINTA-ONE1: manual entry = the single screen with «Aggiungi una misura» open.
+            await page.waitForURL(u => u.pathname === "/rfq-hub/distinta" && u.searchParams.get("aggiungi") === "misura", { timeout: 90000 });
+            await page.locator("#commercial-rfq-manual-tools").waitFor({ state: "visible", timeout: 60000 });
+            assert.equal(await page.getByTestId("commercial-rfq-user-message").count(), 0,
+              "Manual entry must not silently start an AI analysis");
             console.log("COMM-TRUST1.D MANUAL ENTRY PASS");
           }
 

@@ -31,7 +31,8 @@ test("CALC-NEXT1E: public/private IDs and privacy boundaries remain different", 
   // The private cart stays available for the manual workbench, but the
   // conversational workspace uses its canonical preview without a duplicate
   // floating trigger covering the mobile navigation dock.
-  assert.match(privateBuilder, /visible=\{activeLineCount > 0 && !focusAiIntake\}/);
+  // DISTINTA-ONE1: on the single screen the cart is only the editor dialog, never a floating trigger.
+  assert.match(privateBuilder, /visible=\{activeLineCount > 0 && \(!focusAiIntake \|\| cartOpen\)\}/);
   assert.match(privateBuilder, /onEditLine=\{editApprovedLine\}/);
   assert.match(privateBuilder, /pendingFocusRowRef=\{pendingCartRowRef\}/);
   assert.match(privateBuilder, /restoreFocusRef=\{cartReturnFocusRef\}/);

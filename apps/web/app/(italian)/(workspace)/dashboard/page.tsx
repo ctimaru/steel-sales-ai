@@ -1,3 +1,4 @@
+import { newRequestHref } from "@/lib/new-request-href";
 import Link from "next/link";
 
 import { PilotEvent } from "@/components/pilot-event";
@@ -57,7 +58,7 @@ function RfqEmptyState({ canWrite, firstRun }: { canWrite: boolean; firstRun: bo
       {canWrite ? (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <Link
-            href={appRoutes.commercial.home + "?compose=1#commercial-compose"}
+            href={newRequestHref()}
             className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             {firstRun ? "Crea la tua prima RFQ" : "Crea una RFQ"} <span aria-hidden="true">&nbsp;→</span>

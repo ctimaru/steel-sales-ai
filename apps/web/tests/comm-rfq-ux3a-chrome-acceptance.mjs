@@ -50,8 +50,11 @@ try {
         const page = await context.newPage();
         await login(page,p);
         if(p.id === "buyerViewer") {
+          // DISTINTA-ONE1: the old link redirects to /rfq-hub/distinta, which is
+          // write-only; a viewer lands on the read-only RFQ Hub instead.
           await page.goto(base+"/commercial?compose=1&method=ai#commercial-ai-intake",{waitUntil:"domcontentloaded",timeout:90000});
-          await page.getByTestId("comm-cine1-hero").waitFor({state:"visible",timeout:60000});
+          await page.waitForURL(u=>u.pathname==="/rfq-hub",{timeout:60000});
+          await page.getByRole("heading",{name:"RFQ Hub",exact:true}).waitFor({state:"visible",timeout:60000});
           assert.equal(await page.locator("#rfqai2-text-input").count(),0,"Viewer must never receive editable RFQ chat");
           assert.equal(await page.getByTestId("comm-cine11-prompt").count(),0);
           await noOverflow(page,"viewer-"+width);
@@ -72,7 +75,7 @@ try {
         const approved=page.getByTestId("commercial-rfq-approved-lines");
         assert.equal(await proposed.locator("li").count(),10);
         assert.match(await approved.textContent(),/0 righe/);
-        assert.equal(await live.locator("button").filter({hasText:"Salva distinta privata"}).isDisabled(),true);
+        assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),true);
         await noOverflow(page,"ten-candidates-"+width);
         await articles.first().scrollIntoViewIfNeeded();
         await page.screenshot({path:path.join(screens,`ux3a-buyer-${width}-ten-proposals-chat.png`),animations:"disabled"});
@@ -102,7 +105,7 @@ try {
         },{timeout:60000});
         assert.equal(await check2.isChecked(),false,"New correction revokes previous buyer confirmation");
         assert.match(await approved.textContent(),/0 righe/);
-        assert.equal(await live.locator("button").filter({hasText:"Salva distinta privata"}).isDisabled(),true);
+        assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),true);
         await noOverflow(page,"corrected-"+width);
         if(width<1000) await page.getByRole("tab",{name:/Distinta/}).click();
         await page.screenshot({path:path.join(screens,`ux3a-buyer-${width}-corrected-preview.png`),animations:"disabled"});
@@ -118,7 +121,7 @@ try {
         );
         assert.equal(await approved.locator("li").count(),5);
         assert.match(await live.textContent(),/5 righe/);
-        assert.equal(await live.locator("button").filter({hasText:"Salva distinta privata"}).isDisabled(),false);
+        assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),false);
         assert.equal(await proposed.count(),0,"No candidate remains counted as approved automatically");
         await noOverflow(page,"approved-five-"+width);
         if(width<1000) await page.getByRole("tab",{name:/Distinta/}).click();

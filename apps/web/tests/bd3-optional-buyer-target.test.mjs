@@ -19,13 +19,12 @@ test("BD3 accepts missing target but rejects a nonpositive target explicitly ent
   assert.match(actions, /Completa articolo, quantità e peso kg\/m/);
 });
 
-test("BD3 preserves NULL targets through totals, saved snapshots and supplier email", () => {
+test("BD3 preserves NULL targets through totals and saved snapshots", () => {
   assert.match(calc, /everyLineHasTarget/);
   assert.match(calc, /targetTotalEur: everyLineHasTarget/);
   assert.match(calc, /: null,/);
   assert.match(actions, /target_eur_t: line\.targetEurT/);
-  assert.match(actions, /row\.target_eur_t == null \? null : Number\(row\.target_eur_t\)/);
-  assert.match(actions, /row\.target_eur_m == null \? null : Number\(row\.target_eur_m\)/);
+  // DISTINTA-ONE1: the supplier email built from saved rows was retired with the direct send.
   assert.match(builder, /calculated\.filter\(\(line\) => line\.complete\)/);
   assert.match(builder, /Copia distinta/);
   assert.match(builder, /createBuyerRfqCampaign/);

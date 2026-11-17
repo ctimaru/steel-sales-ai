@@ -94,7 +94,9 @@ test("NEXT1C.3 permits only matching published public-profile facts, no contact 
 test("NEXT1C.3 Dashboard offers one-click Commerciale handoff and keeps profile link", () => {
   assert.match(readFileSync(new URL("../components/home-feed.tsx", import.meta.url), "utf8"), /"\/network\/" \+ item\.id \+ "\/connect"/); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
   assert.match(radar, /\?network=" \+ encodeURIComponent\(company\.id\)/);
-  assert.match(radar, /canWriteCommercial \? "&compose=1#commercial-compose" : "#network-commercial-context"/);
+  // DISTINTA-ONE1: writers go to the single «Nuova richiesta» screen with the company as provenance.
+  assert.match(radar, /canWriteCommercial \? newRequestHref\(\{ network: company\.id, measure: true \}\)/);
+  assert.match(radar, /"#network-commercial-context"/);
   assert.match(radar, /Prepara richiesta →/);
   assert.match(radar, /Consulta in Commerciale →/);
   assert.match(radar, /engagementKind="network_profile"/);
@@ -103,7 +105,7 @@ test("NEXT1C.3 Dashboard offers one-click Commerciale handoff and keeps profile 
 
 test("NEXT1C.3 Commerciale displays context only on entitlement + revalidated public company", () => {
   assert.match(commercial, /getCommercialNetworkContext\(context\.organizationId, params\.network\)/);
-  assert.match(commercial, /\[procurement, unified, catalogOptions, networkContext, calculatorReferences, requestSummary\] = await Promise\.all/);
+  assert.match(commercial, /\[procurement, unified, networkContext, calculatorReferences, requestSummary\] = await Promise\.all/);
   assert.match(commercial, /networkContext \? \(/);
   assert.match(commercial, /data-testid="commercial-network-context"/);
   assert.match(commercial, /Rimuovi contesto/);
@@ -112,9 +114,10 @@ test("NEXT1C.3 Commerciale displays context only on entitlement + revalidated pu
   assert.match(commercial, /canWrite \? \(/);
   assert.match(commercial, /Prepara RFQ privata →/);
   assert.match(commercial, /nessuna modifica o invio disponibile/);
-  assert.match(commercial, /data-testid="commercial-network-draft-disclaimer"/);
-  assert.match(commercial, /non precompila, collega né invia richieste/);
-  assert.match(commercial, /Nessun invio ai fornitori avviene automaticamente/);
+  // DISTINTA-ONE1: the draft disclaimer moved to the single screen, as provenance only.
+  const single = readFileSync(new URL("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx", import.meta.url), "utf8");
+  assert.match(single, /data-testid="new-request-network-provenance"/);
+  assert.match(single, /non viene aggiunta in automatico/);
 });
 
 test("NEXT1C.3 is an explicit navigation only, not a mutation or recipient preselection", () => {
@@ -122,6 +125,6 @@ test("NEXT1C.3 is an explicit navigation only, not a mutation or recipient prese
   assert.match(resolver, /getNetworkProfile/);
   assert.doesNotMatch(resolver + radar, /service_role|supabaseAdmin|createClient\(|\.rpc\(|provider\.send/);
   assert.doesNotMatch(commercial, /setSelectedSupplier\(|attachSupplierFromNetwork\(/);
-  assert.match(commercial, /canWrite && params\.compose === "1"/);
+  assert.match(commercial, /if \(params\.compose === "1"\) redirect\(legacyComposeRedirect\(params\)\)/);
   assert.match(resolver, /import "server-only"/);
 });

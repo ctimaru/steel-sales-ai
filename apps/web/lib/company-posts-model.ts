@@ -195,7 +195,8 @@ export function companyPostIsOffer(type: CompanyPostType): boolean {
  */
 export function companyPostOfferHref(item: Pick<CompanyPostItem, "postType" | "companyId" | "isOwnCompany">): string | null {
   if (!companyPostIsOffer(item.postType) || item.isOwnCompany || !UUID.test(item.companyId)) return null;
-  return "/commercial?network=" + encodeURIComponent(item.companyId) + "&compose=1#commercial-compose";
+  // DISTINTA-ONE1: same address as newRequestHref({ network, measure: true }), kept import-free.
+  return "/rfq-hub/distinta?aggiungi=misura&network=" + encodeURIComponent(item.companyId);
 }
 
 export function parseCompanyPostsFeed(value: unknown): { items: CompanyPostItem[]; next: CompanyPostsCursor | null } | null {
