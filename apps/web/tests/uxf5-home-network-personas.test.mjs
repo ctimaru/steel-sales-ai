@@ -13,7 +13,7 @@ test("UXF5 puts the Network value explorer directly after the public hero", () =
   assert.match(hero, /surface=hero#calcolatore-pesi/);
   assert.match(
     home,
-    /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*Prima utilità, poi prodotto/,
+    /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/,
   );
 });
 

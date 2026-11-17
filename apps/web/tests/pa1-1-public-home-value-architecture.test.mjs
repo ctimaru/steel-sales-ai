@@ -20,7 +20,7 @@ const showcase = fs.readFileSync(
 test("PA1.1 public home leads with value before login", () => {
   assert.match(hero, /L’acciaio ha una/);
   assert.match(hero, /Strumenti pubblici senza account/);
-  assert.match(home, /Prima utilità, poi prodotto/);
+  assert.match(home, /<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/); // HOME-MOBILE-B6: tools shelf merged into the geometry section
   assert.match(home, /Cercala per nome o Partita IVA/);
   assert.match(network, /Produttori/);
   assert.match(network, /Commercianti/);
