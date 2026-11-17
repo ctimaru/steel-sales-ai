@@ -34,7 +34,17 @@ try {
         await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
         await page.goto(origin + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
         assert.equal(new URL(page.url()).searchParams.get("experience"), null, "AI-first must now be default");
+        // COMM-DEALS1: la pagina è l'elenco trattative; l'assistente è sulla stessa
+        // pagina, chiuso in una riga, e si apre senza cambiare pagina.
+        const desk = page.getByTestId("commercial-deals-list");
+        await desk.waitFor({ state: "visible", timeout: 60000 });
         const shell = page.getByTestId("commercial-ai-native-shell");
+        assert.equal(await shell.isVisible(), false, "Assistant starts closed above the deals");
+        if (width === 1440) {
+          const closedDesk = await desk.boundingBox();
+          assert.ok(closedDesk && closedDesk.y < 420, "Deals must start high in the desktop viewport: " + Math.round(closedDesk?.y ?? -1));
+        }
+        await page.getByTestId("commercial-desk-assistant").locator("summary").click();
         await shell.waitFor({ state: "visible", timeout: 60000 });
         assert.ok(await shell.getByRole("heading", { name: "Smart Steel Intelligence" }).isVisible());
         // COMM-DESK-AI1: the chat is docked on the desk. Navigation, counters and
@@ -52,14 +62,12 @@ try {
           "The desk is already on the page: no «Gestione completa» detour");
         assert.equal(await shell.getByTestId("commercial-ai-native-mobile-context").count(), 0);
         assert.equal(await shell.getByTestId("commercial-ai-native-desktop-context").count(), 0);
-        assert.equal(await page.getByTestId("commercial-request-summary").count(), 1);
-        const desk = page.getByTestId("comm-cine2-deal-cockpit");
-        assert.equal(await desk.count(), 1, "The deals table must coexist with the chat");
+        assert.equal(await page.getByTestId("commercial-request-summary").count(), 0, "Counters live on the segments, not in cards");
+        assert.equal(await page.getByTestId("comm-cine2-deal-cockpit").count(), 0);
         const [shellOnEmpty, deskBox] = await Promise.all([shell.boundingBox(), desk.boundingBox()]);
-        assert.ok(shellOnEmpty && deskBox && shellOnEmpty.y < deskBox.y, "Chat sits above the desk");
+        assert.ok(shellOnEmpty && deskBox && shellOnEmpty.y < deskBox.y, "Chat sits above the deals");
         if (width === 1440) {
           assert.ok(shellOnEmpty.height <= 240, "Empty docked chat must stay compact: " + Math.round(shellOnEmpty.height));
-          assert.ok(deskBox.y < 620, "Deals table must start in the first desktop viewport: " + Math.round(deskBox.y));
         }
         const manual = shell.getByTestId("commercial-ai-native-manual-entry");
         assert.equal(await manual.count(), person.id === "buyer" ? 1 : 0);
@@ -180,7 +188,8 @@ try {
           await input.press("Enter");
           await page.waitForURL(url => url.pathname === "/commercial" &&
             url.searchParams.get("focus") === "due", { timeout: 60000 });
-          await page.getByTestId("commercial-focus-active").waitFor({ state: "visible", timeout: 60000 });
+          await page.getByTestId("commercial-deal-filters").getByRole("link", { name: /^In scadenza/ })
+            .and(page.locator('[aria-current="true"]')).waitFor({ state: "visible", timeout: 60000 });
           assert.equal(await shell.getByTestId("commercial-ai-native-turn").count(), 1,
             "The conversation must survive the table filter navigation");
           assert.match(await shell.getByTestId("commercial-ai-native-turn").first().innerText(), /In scadenza/);

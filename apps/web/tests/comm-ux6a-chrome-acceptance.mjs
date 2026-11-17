@@ -243,10 +243,11 @@ try {
 
           // COMM-TRUST1.C: a no-match filter is not an empty archive or failed RPC.
           await page.goto(base + "/commercial?view=drafts&q=commtrust1cnomatch", { waitUntil: "domcontentloaded", timeout: 90000 });
-          const empty = page.locator('[data-commercial-empty-state="filtered"]');
+          // COMM-DEALS1: la lista trattative traduce view=drafts nel filtro Bozze.
+          const empty = page.getByTestId("commercial-deals-empty");
           await empty.waitFor({ state: "visible", timeout: 60000 });
-          assert.match(await empty.innerText(), /Nessun risultato per questo filtro/);
-          assert.equal(await empty.getByRole("link", { name: "Rimuovi filtro →" }).count(), 1);
+          assert.match(await empty.innerText(), /Nessuna trattativa per «commtrust1cnomatch»/);
+          assert.equal(await empty.getByRole("link", { name: "Rimuovi filtro" }).count(), 1);
           assert.equal(await page.locator('[aria-label="Pagine attività commerciali"]').count(), 0,
             "Do not show Page 1 when a filter has no results and no navigation");
           await page.screenshot({ path: path.join(screenshotsDir, `commercial-filtered-empty-${width}px.png`), fullPage: false, animations: "disabled" });
@@ -257,11 +258,13 @@ try {
         // Retrieval must never silently start an RFQ or the AI composer.
         // A navigation to a filtered view resets the disclosure; reopen the
         // real "Strumenti" menu before following the history link.
-        const historyMenu = page.getByTestId("commercial-primary-quick-actions");
+        // COMM-DEALS1: sulla lista trattative lo storico è nel menu ⋯ della testata.
+        const deskTools = page.getByTestId("commercial-desk-tools");
+        const historyMenu = (await deskTools.count()) ? deskTools : page.getByTestId("commercial-primary-quick-actions");
         if (!(await historyMenu.evaluate(element => element.hasAttribute("open")))) {
           await historyMenu.locator("summary").click();
         }
-        await page.getByTestId("commercial-history-entry").click();
+        await historyMenu.getByTestId("commercial-history-entry").click();
         await page.waitForURL(u => u.pathname === "/commercial/search", { timeout: 90000 });
         assert.equal(new URL(page.url()).searchParams.get("compose"), null);
         console.log("COMM-TRUST1.D HISTORY RETRIEVAL PASS", p.id, width);
