@@ -51,7 +51,7 @@ test("HOME-SI3 links only to real public routes or safe registration, never a pr
 
 test("HOME-SI3 keeps the homepage static and the initial Network discoverable", () => {
   assert.match(home, /export const dynamic = "force-static"/);
-  assert.match(home, /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*<PublicIntelligencePillars \/>[\s\S]*Prima utilità, poi prodotto/);
+  assert.match(home, /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*<PublicIntelligencePillars \/>[\s\S]*<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/);
   for (const part of [home, showcase]) {
     assert.doesNotMatch(part, /"use client"|useEffect|useState|fetch\s*\(|createClient|cookies\s*\(|getUser\s*\(|next\/image|<Image|<video|<iframe/);
   }

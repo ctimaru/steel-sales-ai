@@ -751,3 +751,8 @@
   .actions { flex-wrap: wrap; }
   .primary, .secondary { flex-basis: 100%; }
 }
+
+/* HOME-MOBILE-B5: the "Un unico percorso" strip repeats the hero promise; phones skip it. */
+@media (max-width: 700px) {
+  .bridge { display: none; }
+}

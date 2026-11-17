@@ -55,6 +55,7 @@ export function HomeCinematicTools({ locale }: { locale: Locale }) {
           </div>
           <p>{en ? "From technical requirements to industry knowledge and governed commercial relationships." : "Dai dati tecnici alla conoscenza e alle relazioni commerciali, senza passaggi inutili."}</p>
         </div>
+        <p className={styles.swipeHint} aria-hidden="true">{en ? "Swipe to see all five" : "Scorri per vederli tutti"} <span>→</span></p>
         <div className={styles.gallery}>
           {toolCards[locale].map((tool) => (
             <Link key={tool.number} href={tool.href} className={styles.card} aria-label={tool.title}>

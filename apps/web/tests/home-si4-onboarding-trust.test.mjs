@@ -12,9 +12,10 @@ const lookup = read("../components/public-company-lookup.tsx");
 const gate = read("../components/network-access-gate.tsx");
 
 test("HOME-SI4 keeps public tools available without registration", () => {
-  assert.match(home, /Strumenti pubblici · senza account/);
-  assert.match(home, /Prima utilità, poi prodotto/);
-  assert.match(home, /Calcola, consulta o prepara una distinta/);
+  // HOME-MOBILE-B6: the public tools shelf now lives inside the geometry section.
+  const proof = read("../components/public-steel-geometry-proof.tsx");
+  assert.match(proof, /Strumenti pubblici · senza account/);
+  assert.match(home, /<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/);
   for (const route of ["/distinta", "/knowledge/norme", "/knowledge/gradi"]) {
     assert.ok(home.includes('href: "' + route + '"') || home.includes('href="' + route + '"'));
   }

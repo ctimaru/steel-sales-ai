@@ -117,57 +117,58 @@ export function PublicIntelligencePillars() {
           </p>
         </div>
 
+        {/* HOME-MOBILE-B9: on phones each pillar keeps label, title, one sentence and its link. */}
         <div className="mt-6 grid gap-3 md:grid-cols-3">
-          <article className={`${cineStyles.pillar} flex min-w-0 flex-col border p-5`}>
+          <article className={`${cineStyles.pillar} flex min-w-0 flex-col border p-5 max-[700px]:p-4`}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#1f6b5a]">01 · Procurement Intelligence</span>
               <span className="rounded-full bg-[#e8f0f4] px-2.5 py-1 text-[10px] font-semibold text-[#315c74]">Workspace</span>
             </div>
-            <h3 className="mt-4 text-lg font-bold tracking-tight text-[#123b34]">Dal materiale all&apos;ordine.</h3>
+            <h3 className="mt-4 max-[700px]:mt-2.5 text-lg font-bold tracking-tight text-[#123b34]">Dal materiale all&apos;ordine.</h3>
             <p className="mt-2 text-sm leading-6 text-[#52615b]">
               RFQ Hub collega distinte, richieste multi-fornitore, confronto delle offerte e ordini,
               con conferme esplicite e supervisione umana.
             </p>
-            <p className="mt-3 text-xs leading-5 text-[#52615b]">
+            <p className="mt-3 text-xs leading-5 text-[#52615b] max-[700px]:hidden">
               Funzioni aziendali in validazione pilota, accessibili secondo ruolo e abilitazione.
             </p>
-            <Link href="/register" className="mt-auto inline-flex min-h-11 items-center pt-5 text-sm font-bold text-[#1f6b5a] underline decoration-[#a8cbbd] underline-offset-4 hover:text-[#123b34]">
+            <Link href="/register" className="mt-auto inline-flex min-h-11 items-center pt-5 max-[700px]:pt-1 text-sm font-bold text-[#1f6b5a] underline decoration-[#a8cbbd] underline-offset-4 hover:text-[#123b34]">
               Registra la tua azienda <span aria-hidden="true" className="ml-2">→</span>
             </Link>
           </article>
 
-          <article className={`${cineStyles.pillar} flex min-w-0 flex-col border p-5`}>
+          <article className={`${cineStyles.pillar} flex min-w-0 flex-col border p-5 max-[700px]:p-4`}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#315c74]">02 · Network Intelligence</span>
               <span className="rounded-full bg-[#e8f0f4] px-2.5 py-1 text-[10px] font-semibold text-[#315c74]">Privato</span>
             </div>
-            <h3 className="mt-4 text-lg font-bold tracking-tight text-[#123b34]">Trova chi può essere utile.</h3>
+            <h3 className="mt-4 max-[700px]:mt-2.5 text-lg font-bold tracking-tight text-[#123b34]">Trova chi può essere utile.</h3>
             <p className="mt-2 text-sm leading-6 text-[#52615b]">
               Esplora la filiera per ruolo, prodotto e territorio. I filtri avanzati e la directory completa
               sono riservati alle aziende registrate e abilitate.
             </p>
-            <p className="mt-3 text-xs leading-5 text-[#52615b]">
+            <p className="mt-3 text-xs leading-5 text-[#52615b] max-[700px]:hidden">
               Profili rivendicabili e relazioni da costruire, senza rendere pubblica la memoria commerciale.
             </p>
-            <Link href="#network" className="mt-auto inline-flex min-h-11 items-center pt-5 text-sm font-bold text-[#1f6b5a] underline decoration-[#a8cbbd] underline-offset-4 hover:text-[#123b34]">
+            <Link href="#network" className="mt-auto inline-flex min-h-11 items-center pt-5 max-[700px]:pt-1 text-sm font-bold text-[#1f6b5a] underline decoration-[#a8cbbd] underline-offset-4 hover:text-[#123b34]">
               Scopri il Network per ruolo <span aria-hidden="true" className="ml-2">→</span>
             </Link>
           </article>
 
-          <article className={`${cineStyles.pillar} flex min-w-0 flex-col border p-5`}>
+          <article className={`${cineStyles.pillar} flex min-w-0 flex-col border p-5 max-[700px]:p-4`}>
             <div className="flex items-center justify-between gap-2">
               <span className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-[#895028]">03 · Steel Knowledge</span>
               <span className="rounded-full bg-[#ddf5ec] px-2.5 py-1 text-[10px] font-semibold text-[#123b34]">Pubblico</span>
             </div>
-            <h3 className="mt-4 text-lg font-bold tracking-tight text-[#123b34]">La competenza, a portata di click.</h3>
+            <h3 className="mt-4 max-[700px]:mt-2.5 text-lg font-bold tracking-tight text-[#123b34]">La competenza, a portata di click.</h3>
             <p className="mt-2 text-sm leading-6 text-[#52615b]">
               Consulta norme, gradi d&apos;acciaio, dimensioni e calcolo dei pesi. La Scuola e gli strumenti
               tecnici rimangono utilizzabili anche senza login.
             </p>
-            <p className="mt-3 text-xs leading-5 text-[#52615b]">
+            <p className="mt-3 text-xs leading-5 text-[#52615b] max-[700px]:hidden">
               Contenuti tecnici pubblici per orientare richieste e scelte di prodotto.
             </p>
-            <Link href="/knowledge" className="mt-auto inline-flex min-h-11 items-center pt-5 text-sm font-bold text-[#1f6b5a] underline decoration-[#a8cbbd] underline-offset-4 hover:text-[#123b34]">
+            <Link href="/knowledge" className="mt-auto inline-flex min-h-11 items-center pt-5 max-[700px]:pt-1 text-sm font-bold text-[#1f6b5a] underline decoration-[#a8cbbd] underline-offset-4 hover:text-[#123b34]">
               Entra nella Scuola <span aria-hidden="true" className="ml-2">→</span>
             </Link>
           </article>
