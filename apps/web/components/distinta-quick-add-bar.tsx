@@ -232,7 +232,9 @@ export function DistintaQuickAddBar({
               {suggestions.map((suggestion, i) => (
                 <li key={suggestion.key} id={listId + "-" + i} role="option" aria-selected={i === activeIndex}
                   onPointerDown={(event) => event.preventDefault()}
-                  onPointerEnter={() => setActive(i)}
+                  // Move, not enter: a list opening under a resting pointer must not
+                  // steal the highlight from the first (best) suggestion.
+                  onPointerMove={() => { if (activeIndex !== i) setActive(i); }}
                   onClick={() => choose(suggestion)}
                   className={"flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2.5 py-1.5 text-sm " +
                     (i === activeIndex ? "bg-[#eaf4ee]" : "") +

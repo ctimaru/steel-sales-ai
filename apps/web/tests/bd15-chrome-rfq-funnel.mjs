@@ -92,6 +92,9 @@ async function fillTwoQuickLines(page, width) {
     await quick.getByRole("button", { name: standard, exact: true }).click();
     await search.fill("quadro 100x100x5");
     await quick.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
+    // The best suggestion must stay first and active even if the pointer rests on the list.
+    assert.equal(await quick.getByRole("option", { selected: true }).getAttribute("id"),
+      await quick.getByRole("option").first().getAttribute("id"));
     await search.press("Enter");
     await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Q.tà");
     await page.keyboard.type("3");
