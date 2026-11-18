@@ -235,6 +235,9 @@ export default async function ManagedNetworkProfilePage({
         <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
           ← Torna alla ricerca
         </Link>
+        <Link href="/network/manage/cataloghi" className={primaryButton}>
+          Cataloghi produttore
+        </Link>
         <Link href="/network/start" className={secondaryButton}>Il mio percorso →</Link>
         <Link href={"/network/" + companyId} className={secondaryButton}>
           Visualizza profilo pubblico
