@@ -202,8 +202,10 @@ try {
         "Independent duplicate stays active");
       await page.getByTestId("rfq-hub-tab-archiviate").click();
       await page.waitForURL(u=>u.searchParams.get("vista")==="archiviate",{timeout:30000});
-      const archivedRow=page.locator('[data-testid="rfq-hub-row"] [data-distinta-id="'+distinctId+'"]');
+      // RFQHUB1: row actions sit in the «⋯» menu of each row.
+      const archivedRow=page.getByTestId("rfq-hub-row").filter({has:page.locator('[data-distinta-id="'+distinctId+'"]')});
       await archivedRow.waitFor({state:"visible",timeout:30000});
+      await archivedRow.getByTestId("rfq-hub-row-more").locator("summary").click();
       assert.equal(await page.locator('[data-testid="rfq-hub-row"] [data-distinta-id="'+copyId+'"]').count(),0,
         "Active duplicate must not appear in archived view");
       await archivedRow.locator("[data-action-archive]").click();
@@ -211,7 +213,7 @@ try {
       await archivedRow.waitFor({state:"detached",timeout:30000});
       await page.getByTestId("rfq-hub-tab-attive").click();
       await page.waitForURL(u=>u.searchParams.get("vista")!=="archiviate",{timeout:30000});
-      await page.locator('[data-testid="rfq-hub-row"] [data-distinta-id="'+distinctId+'"]').waitFor({timeout:30000});
+      await page.locator('[data-testid="rfq-hub-row"] [data-distinta-id="'+distinctId+'"]').waitFor({state:"attached",timeout:30000});
       assert.equal(await page.locator('[data-testid="rfq-hub-row"] [data-distinta-id="'+copyId+'"]').count(),1,
         "Duplicate remains unchanged after original restoration");
       const restored=await readRows(buyerDb.from("buyer_distintas")

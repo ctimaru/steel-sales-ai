@@ -230,11 +230,22 @@ export default async function BuyerRfqHubPage({
                       {facts.previousCount ? <span>· +{facts.previousCount} {facts.previousCount === 1 ? "richiesta precedente" : "richieste precedenti"}</span> : null}
                     </span>
                   </Link>
-                  <span className="flex shrink-0 items-center gap-1.5">
+                  <span className="flex min-w-0 max-w-full items-center gap-1.5">
                     {!campaign && owner && !distinta.archived_at ? <RfqHubStartButton distintaId={distinta.id} /> : (
                       <Link href={href} className="inline-flex min-h-9 items-center rounded-lg bg-[var(--brand-primary-soft)] px-2.5 text-xs font-bold text-[var(--brand-deep)]">Apri</Link>
                     )}
-                    {owner ? <SavedDistintaActions id={distinta.id} title={distinta.title} archived={Boolean(distinta.archived_at)} compact /> : null}
+                    {owner ? (
+                      // Rename, duplicate and archive stay one click away, so the row shows one action.
+                      <details data-testid="rfq-hub-row-more" className="relative">
+                        <summary aria-label={"Altre azioni per " + (distinta.title || "la distinta")}
+                          className="inline-flex min-h-9 cursor-pointer list-none items-center rounded-lg border border-[#d6e5db] bg-white px-2.5 text-xs font-bold text-[#2f5a45] hover:bg-[#f2f8f4] [&::-webkit-details-marker]:hidden">
+                          ⋯
+                        </summary>
+                        <div className="absolute right-0 top-full z-20 mt-1 w-max max-w-[calc(100vw-2rem)] rounded-lg border border-[var(--border)] bg-white p-2 shadow-lg">
+                          <SavedDistintaActions id={distinta.id} title={distinta.title} archived={Boolean(distinta.archived_at)} compact />
+                        </div>
+                      </details>
+                    ) : null}
                   </span>
                 </li>
               );
