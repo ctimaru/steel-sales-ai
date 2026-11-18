@@ -49,7 +49,7 @@ test("RFQ-IA2 uses one engine for public SEO and private Workspace with role enf
   assert.match(login, /safeInternalNext/);
   assert.match(authActions, /nextPath && !isRegistrationNext\(nextPath\)/);
   assert.match(builder, /createBuyerRfqCampaign\(savedId\)/);
-  assert.match(builder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
+  assert.match(builder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)/);
 });
 
 test("RFQ-IA2 same-tab draft preserves mixed EN norms, global documents, wizard and 12m bars", () => {

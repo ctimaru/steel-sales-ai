@@ -58,7 +58,7 @@ test("RFQH1 bridges a saved public Buyer Distinta into the private hub", () => {
   assert.match(distintaActions, /rfqh1_create_campaign_from_distinta/);
   assert.match(distintaBuilder, /Crea RFQ privata →/);
   assert.match(distintaBuilder, /nessun invio ai fornitori/);
-  assert.match(distintaBuilder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
+  assert.match(distintaBuilder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)/);
 });
 
 test("RFQH1 exposes a first-class private RFQ Hub and supports supplier targeting", () => {

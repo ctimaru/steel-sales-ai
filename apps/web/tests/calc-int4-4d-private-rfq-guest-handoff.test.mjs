@@ -78,7 +78,7 @@ test("4.4D browser redaction remains 4.4A while auth is click-only and RFQ never
    assert.match(billSource,/data-create-inline-private-rfq[\s\S]*?onClick=\{\(\)\s*=>\s*\{\s*void createPrivateRfq\(\);\s*\}\}/);
  assert.match(billSource,/savedSnapshotRef\.current\?\.signature === signature/);
  assert.match(billSource,/createBuyerRfqCampaign\(savedId\)/);
- assert.match(billSource,/router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
+ assert.match(billSource,/router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)/);
  assert.ok(billSource.includes('encodeURIComponent(CALCULATOR_ROUTES[locale]+"?resume=rfq")'));
  assert.doesNotMatch(billSource,/sendBuyerDistinta|sendSupplier|launchCampaign|publishMarketplace/);
  assert.doesNotMatch(privateSource,/sessionStorage|localStorage|cookie|fetch\(|sendBuyerDistinta/);

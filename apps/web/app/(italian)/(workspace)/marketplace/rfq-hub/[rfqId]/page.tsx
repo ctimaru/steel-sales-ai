@@ -28,6 +28,7 @@ import {
 import { Rfqh13GovernancePanel } from "@/components/rfqh13-governance-panel";
 import { RfqSupplierAddForm } from "@/components/rfq-supplier-add-form";
 import { RfqSupplierPicker } from "@/components/rfq-supplier-picker";
+import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
 import {
   buildRfqh9SupplierUrl,
   createRfqh9PoSecurity,
@@ -62,8 +63,13 @@ function formatDate(value: string | null) {
   }).format(date);
 }
 
-export default async function BuyerRfqCampaignPage({ params }: { params: Params }) {
+export default async function BuyerRfqCampaignPage({ params, searchParams }: {
+  params: Params;
+  searchParams?: Promise<{ dal?: string | string[] }>;
+}) {
   const { rfqId } = await params;
+  // DISTINTA2B: «?dal=<id>» = the Network company the request started from.
+  const fromNetwork = (await searchParams)?.dal;
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
 
@@ -102,7 +108,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       .order("line_position", { ascending: true }),
     supabase
       .from("buyer_rfq_suppliers")
-      .select("id,identity_key,supplier_name,supplier_email_normalized,status,delivery_channel,identity_source,resolution_status,created_at")
+      .select("id,identity_key,supplier_name,supplier_email_normalized,status,delivery_channel,identity_source,resolution_status,created_at,supplier_network_company_id")
       .eq("rfq_id", campaign.id)
       .order("created_at", { ascending: true }),
     supabase
@@ -365,6 +371,10 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
   // later phases appear once the request has been sent.
   if (isPreparation && canExecuteCritical) {
     const stepNames = ["Cosa ti serve", "A chi lo chiedi", "Invia"] as const;
+    // The UUID in the link is untrusted: re-check Network access and publication.
+    const pinnedNetwork = typeof fromNetwork === "string"
+      ? await getCommercialNetworkContext(campaign.organization_id, fromNetwork).catch(() => null)
+      : null;
     const pickerSelected = supplierRows.map((supplier, index) => ({
       id: supplier.id,
       name: supplier.supplier_name || supplier.supplier_email_normalized || "Fornitore " + String(index + 1),
@@ -372,6 +382,7 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
       channel: (supplier.delivery_channel === "platform" || supplier.delivery_channel === "both"
         ? supplier.delivery_channel : "email") as "email" | "platform" | "both",
       removable: supplier.status === "draft" && !(dispatches ?? []).some((dispatch) => dispatch.supplier_id === supplier.id),
+      networkCompanyId: supplier.supplier_network_company_id ?? null,
     }));
     return (
       <div data-testid="rfq-step2" className="min-w-0 space-y-4 pb-8">
@@ -418,7 +429,9 @@ export default async function BuyerRfqCampaignPage({ params }: { params: Params 
           </ul>
         </details>
 
-        <RfqSupplierPicker rfqId={campaign.id} selected={pickerSelected} canEdit={canExecuteCritical} />
+        <RfqSupplierPicker rfqId={campaign.id} selected={pickerSelected} canEdit={canExecuteCritical}
+          pinned={pinnedNetwork ? { id: pinnedNetwork.id, name: pinnedNetwork.name, country: pinnedNetwork.country,
+            role: pinnedNetwork.role, products: pinnedNetwork.products } : null} />
 
         <div id="rfq-review-send" className="scroll-mt-24">
           <RfqDispatchPanel
