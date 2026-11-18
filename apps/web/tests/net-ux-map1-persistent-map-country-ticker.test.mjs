@@ -71,3 +71,20 @@ test("MAP1: production ACL repair and reviewed HP13 guard are versioned",()=>{
  assert.ok(hp13.includes("'netux_map1_country_stats'"));
  assert.ok(hp13.includes("NET-UX-MAP1 country statistics facade must be pinned"));
 });
+
+test("MAP1: every supported Network country has a local or inline flag on Windows",()=>{
+  const countries=read("../lib/network-eu-countries.ts");
+  const codes=[...countries.matchAll(/\{code:"([A-Z]{2})",name:/g)].map(match=>match[1]);
+  assert.equal(codes.length,30);
+  for(const code of codes){
+    const inline=["IT","RO","DE","FR","ES","US","GB","CH"].includes(code);
+    if(inline)assert.match(flags,new RegExp('case "'+code+'":return'));
+    else{
+      assert.ok(flags.includes('"'+code+'"'),code);
+      const svg=read("../public/network-flags/"+code.toLowerCase()+".svg");
+      assert.match(svg,/<svg[^>]+viewBox=/);
+    }
+  }
+  assert.match(flags,/localSvgFlags\.has\(country\)/);
+  assert.match(flags,/aria-hidden="true"/);
+});
