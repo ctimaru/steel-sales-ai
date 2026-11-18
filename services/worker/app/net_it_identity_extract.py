@@ -65,6 +65,16 @@ _BOILERPLATE = {
     "info", "pulsante", "button", "clicca", "click", "vai", "torna", "top",
     "apri", "chiudi", "invia", "scarica", "visita", "seguici", "condividi",
 }
+# "SNC" is also "senza numero civico" in Italian addresses. A street is
+# never sufficient first-party evidence of a società in nome collettivo.
+_STREET_ADDRESS_SNC = re.compile(
+    r"^\\s*(?:c\\.?\\s*da|contrada|via|viale|piazza|corso|strada|localit[àa])\\b"
+    r".{1,80}\\bs\\.?\\s*n\\.?\\s*c\\.?\\s*$", re.I
+)
+
+def is_civic_snc_address(name: str) -> bool:
+    return bool(_STREET_ADDRESS_SNC.search(name.strip()))
+
 MAX_NAME_WORDS = 6
 _GENERIC = {
     "carpenteria", "carpenterie", "metallica", "metalliche", "metallici", "costruzioni",
@@ -155,6 +165,14 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
             continue
         break
     picked.reverse()
+    # Flattened calls to action: "CONTATTACI ORA VITAL SRL" names Vital,
+    # not "ORA VITAL". Only trim ORA with an adjacent CTA, never a brand ORA.
+    if len(picked) >= 2 and picked[0].casefold().strip(",.") == "ora":
+        before_ora = text.rfind(picked[0], max(0, form_start - 120), form_start)
+        if before_ora >= 0 and re.search(
+                r"\\b(?:contattaci|chiama|richiedi|contact)\\s*$",
+                text[max(0, before_ora - 50):before_ora], re.I):
+            picked.pop(0)
     # Flattened CMS footers can prepend UI controls immediately before the
     # genuine legal entity. Do not mistake "Immagini Coltro Srl" or
     # "Dom Chiuso IN.BRO.FER S.R.L." for a corporate name. Only discard a
@@ -200,6 +218,8 @@ def find_company_identity(page_texts: list[str], domain: str,
             if not found:
                 continue
             core, core_start = found
+            if is_civic_snc_address(f"{core} {match.group(1).strip()}"):
+                continue
             if _CREDIT_CUES.search(text[max(0, core_start - 40):core_start]):
                 continue
             if not _related(core, domain, first_guess):
