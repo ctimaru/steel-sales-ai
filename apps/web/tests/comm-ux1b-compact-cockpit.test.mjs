@@ -26,7 +26,7 @@ test("COMM-UX1B replaces the tall action cards with one accessible task strip", 
   assert.match(priorities, /aria-labelledby="commercial-today-heading"/);
   assert.match(priorities, /Da verificare/);
   assert.match(priorities, /actionableRfqs\.slice\(0, 2\)/);
-  assert.match(priorities, /appRoutes\.rfqHub\.inbox/);
+  assert.match(priorities, /appRoutes\.rfqHub\.attention/);
   // COMM-DECLUTTER1: senza segnalazioni verificate l'avviso non occupa spazio.
   assert.match(priorities, /!canWrite \|\| !procurementAvailable/);
   assert.match(priorities, /nessuna segnalazione da verificare/);

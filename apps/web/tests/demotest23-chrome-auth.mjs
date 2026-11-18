@@ -279,7 +279,7 @@ try {
 
     await step(p.id + " RFQ Hub visibility", async () => {
       await navigate(page, "/rfq-hub");
-      await page.getByRole("heading", { name: "RFQ Hub", exact: true })
+      await page.getByRole("heading", { name: "Centro RFQ", exact: true })
         .waitFor({ state: "visible", timeout: 60000 });
       const primaryNav = page.getByRole("navigation", { name: "Navigazione principale" });
       assert.equal(await primaryNav.getByRole("link", { name: "Commerciale", exact: true }).getAttribute("aria-current"), "page",
@@ -428,7 +428,7 @@ try {
       await navigate(mobilePage, route);
       const heading = route === "/dashboard"
         ? homeHeading(personas[0].name)
-        : route === "/rfq-hub" ? "RFQ Hub" : "Compra o vendi, in un unico spazio";
+        : route === "/rfq-hub" ? "Centro RFQ" : "Compra o vendi, in un unico spazio";
       await mobilePage.getByRole("heading", { name: heading, exact: true })
         .waitFor({ state: "visible", timeout: 60000 });
       const body = await mobilePage.locator("body").innerText();

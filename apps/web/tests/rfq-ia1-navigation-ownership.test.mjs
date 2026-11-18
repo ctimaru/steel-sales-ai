@@ -52,7 +52,6 @@ test("RFQ-IA1 canonical routes reuse the existing private engine and leave legac
   for (const entry of [
     ["../app/(workspace)/rfq-hub/page.tsx", "marketplace/rfq-hub/page"],
     ["../app/(workspace)/rfq-hub/[rfqId]/page.tsx", "marketplace/rfq-hub/[rfqId]/page"],
-    ["../app/(workspace)/rfq-hub/inbox/page.tsx", "marketplace/inbox/page"],
     ["../app/(workspace)/rfq-hub/suppliers/page.tsx", "marketplace/suppliers/page"],
     ["../app/(workspace)/rfq-hub/intelligence/page.tsx", "marketplace/intelligence/page"],
   ]) {
@@ -60,6 +59,8 @@ test("RFQ-IA1 canonical routes reuse the existing private engine and leave legac
     assert.match(source, /export const dynamic = "force-dynamic"/);
     assert.ok(source.includes(`export { default } from "@/app/(workspace)/${entry[1]}"`));
   }
+  // RFQHUB1: Inbox is the «Da gestire» filter of Centro RFQ.
+  assert.match(read("../app/(workspace)/rfq-hub/inbox/page.tsx"), /redirect\(rfqHubHref\("da-gestire"\)\)/);
   assert.match(routeSource, /rfqHub: \{/);
   assert.match(routeSource, /home: "\/rfq-hub"/);
   assert.match(routeSource, /rfqHub: "\/marketplace\/rfq-hub"/);
@@ -99,5 +100,6 @@ test("RFQ-IA1 keeps the public SEO tool separate and explicitly links authentica
   assert.match(publicDistinta, /La bozza può essere ripresa nel Workspace/);
   assert.match(market, /href=\{appRoutes\.rfqHub\.home\}/);
   assert.match(market, /Le campagne RFQ riservate e i confronti tra fornitori/);
-  assert.match(rfqHub, /Marketplace resta un canale opzionale di pubblicazione/);
+  // RFQHUB1/DISTINTA2D: Marketplace publishing is «Presto disponibile» at step 2, not promoted here.
+  assert.doesNotMatch(rfqHub, /appRoutes\.marketplace\./);
 });

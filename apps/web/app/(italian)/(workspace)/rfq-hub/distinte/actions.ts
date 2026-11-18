@@ -14,6 +14,7 @@ const validTitle=(s:string)=>s.trim().length>0 && s.trim().length<=120 && !/[\x0
 
 function revalidateSaved(id?:string) {
   revalidatePath(appRoutes.rfqHub.savedDistinte);
+  revalidatePath(appRoutes.rfqHub.home);
   revalidatePath(appRoutes.commercial.home);
   if(id) revalidatePath(appRoutes.rfqHub.savedDistinta(id));
 }

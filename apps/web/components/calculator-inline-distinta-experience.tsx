@@ -472,7 +472,7 @@ export function CalculatorInlineDistintaExperience({
                 className="mt-1 h-10 w-full min-w-0 rounded-md border border-[#bad5c5] bg-white px-2.5 text-sm font-semibold text-[#123d2d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#14724e]"
                 aria-label={privateSaveCopy.name}/>
             </label>
-            <Link href={appRoutes.rfqHub.savedDistinte} data-commercial-saved-distinte-link
+            <Link href={appRoutes.rfqHub.home} data-commercial-saved-distinte-link
               className="inline-flex min-h-10 shrink-0 items-center rounded-md border border-[#c7dfd0] bg-white px-2 text-[11px] font-semibold text-[#175e43] hover:bg-[#eef7f1]">
               {privateSaveCopy.archive}
             </Link>

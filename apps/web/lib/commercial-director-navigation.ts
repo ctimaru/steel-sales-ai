@@ -10,6 +10,8 @@ export type CommercialDirectorItem = {
   href: string;
   /** Visibile solo alla Direzione Aziendale (amministratori). */
   adminOnly?: boolean;
+  /** RFQHUB1: number of things to do, loaded on the client. */
+  counter?: "purchasing_attention";
 };
 export type CommercialDirectorSection = {
   key: "commercial" | "purchasing";
@@ -62,10 +64,9 @@ export const commercialDirectorGroups: readonly CommercialDirectorGroup[] = [
         key: "purchasing",
         label: "Ufficio acquisti",
         items: [
-          { label: "Centro RFQ", href: appRoutes.rfqHub.home },
-          { label: "Inbox e risposte", href: appRoutes.rfqHub.inbox },
+          // RFQHUB1 (18 Nov 2026): Distinte and «Da gestire» live inside Centro RFQ.
+          { label: "Centro RFQ", href: appRoutes.rfqHub.home, counter: "purchasing_attention" },
           { label: "Fornitori RFQ", href: appRoutes.rfqHub.suppliers },
-          { label: "Distinte", href: appRoutes.rfqHub.savedDistinte },
         ],
       },
     ],
@@ -137,7 +138,7 @@ export function commercialDirectorLinkSelected(
     return path === appRoutes.rfqHub.home;
   }
   if (isPath("/commercial/conversations") || isPath("/conversations")) {
-    return path === appRoutes.rfqHub.inbox;
+    return path === appRoutes.rfqHub.home;
   }
 
   if (pathname === appRoutes.commercial.home && path === pathname) {
@@ -151,15 +152,10 @@ export function commercialDirectorLinkSelected(
   }
   if (path === appRoutes.commercial.home) return false;
 
-  // A campaign, intelligence view or new Distinta belongs to Centro RFQ.
-  // Inbox, suppliers and saved Distinte have their own more specific item:
-  // never highlight both the parent and a child destination.
+  // A campaign, a Distinta (new or saved) and «Da gestire» belong to Centro
+  // RFQ. Suppliers have their own item: never highlight both.
   if (path === appRoutes.rfqHub.home) {
-    return isPath(path) && ![
-      appRoutes.rfqHub.inbox,
-      appRoutes.rfqHub.suppliers,
-      appRoutes.rfqHub.savedDistinte,
-    ].some(isPath);
+    return isPath(path) && ![appRoutes.rfqHub.suppliers].some(isPath);
   }
 
   return isPath(path);

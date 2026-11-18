@@ -30,8 +30,10 @@ test("OFFICE-PROFILES1 exposes Direzione aziendale with the two offices while re
     "Each office stays visible to the other one");
   const primary = commercialDirectorGroups.flatMap(g => [...g.items, ...(g.sections ?? []).flatMap(section => section.items)]);
   const items = commercialDirectorGroups.flatMap(commercialDirectorAllItems);
-  assert.equal(primary.length, 14, "Only 14 immediate destinations");
-  assert.equal(items.length, 20, "Less-used destinations remain under disclosure");
+  // RFQHUB1: «Inbox e risposte» and «Distinte» merged into Centro RFQ.
+  assert.equal(primary.length, 12, "Only 12 immediate destinations");
+  assert.equal(items.length, 18, "Less-used destinations remain under disclosure");
+  assert.deepEqual(direction.sections[1].items.map(item => item.label), ["Centro RFQ", "Fornitori RFQ"]);
   assert.ok(commercialDirectorGroups.every(g => "moreItems" in g));
   assert.ok(!items.some(i => i.href.includes("#commercial-today")));
   assert.ok(!items.some(i => i.href.includes("?view=sent") || i.href.includes("?view=received")
@@ -42,7 +44,8 @@ test("OFFICE-PROFILES1 exposes Direzione aziendale with the two offices while re
     assert.doesNotMatch(href, /^\/marketplace\/rfq-hub/, "No legacy procurement route");
   }
   for (const href of [
-    "/commercial", "/rfq-hub", "/rfq-hub/inbox", "/rfq-hub/distinte",
+    // RFQHUB1: /rfq-hub/inbox and /rfq-hub/distinte redirect into Centro RFQ.
+    "/commercial", "/rfq-hub",
     "/commercial/companies", "/commercial/analysis", "/commercial/search",
     "/commercial/price-intelligence", "/commercial/assistant",
   ]) {
@@ -56,8 +59,9 @@ test("COMM-NAV7 resolves active filtered RFQ tabs, detail routes and independent
   assert.equal(commercialDirectorLinkSelected("/commercial?view=all#commercial-worklist", "/commercial", "received"), true);
   assert.equal(commercialDirectorLinkSelected("/commercial?view=all#commercial-worklist", "/commercial", null), false);
   assert.equal(commercialDirectorLinkSelected("/commercial#commercial-worklist", "/commercial", null), false);
-  assert.equal(commercialDirectorLinkSelected("/rfq-hub/distinte", "/rfq-hub/distinte/abc", null), true);
-  assert.equal(commercialDirectorLinkSelected("/rfq-hub", "/rfq-hub/distinte/abc", null), false);
+  // RFQHUB1: saved Distinte live inside Centro RFQ.
+  assert.equal(commercialDirectorLinkSelected("/rfq-hub", "/rfq-hub/distinte/abc", null), true);
+  assert.equal(commercialDirectorLinkSelected("/rfq-hub", "/rfq-hub/suppliers/abc", null), false);
   assert.equal(commercialDirectorLinkSelected("/commercial/companies", "/commercial/companies/abc", null), true);
   assert.equal(commercialDirectorLinkSelected("/commercial/analysis", "/commercial/analysis", null), true);
 });
@@ -88,14 +92,15 @@ test("COMM-NAV8 keeps a single director destination on deal details and legacy b
   assert.deepEqual(selected("/orders/order-1"), ["Trattative"]);
   assert.deepEqual(selected("/commercial/rfqs/request-1"), ["Centro RFQ"]);
   assert.deepEqual(selected("/rfqs/request-1"), ["Centro RFQ"]);
-  assert.deepEqual(selected("/commercial/conversations/thread-1"), ["Inbox e risposte"]);
-  assert.deepEqual(selected("/conversations/thread-1"), ["Inbox e risposte"]);
+  // RFQHUB1: no Inbox item; conversations belong to Centro RFQ.
+  assert.deepEqual(selected("/commercial/conversations/thread-1"), ["Centro RFQ"]);
+  assert.deepEqual(selected("/conversations/thread-1"), ["Centro RFQ"]);
   assert.deepEqual(selected("/rfq-hub/campaign-1"), ["Centro RFQ"]);
   assert.deepEqual(selected("/rfq-hub/intelligence"), ["Centro RFQ"]);
   assert.deepEqual(selected("/rfq-hub/distinta"), ["Centro RFQ"]);
-  assert.deepEqual(selected("/rfq-hub/inbox"), ["Inbox e risposte"]);
+  assert.deepEqual(selected("/rfq-hub/inbox"), ["Centro RFQ"]);
   assert.deepEqual(selected("/rfq-hub/suppliers/abc"), ["Fornitori RFQ"]);
-  assert.deepEqual(selected("/rfq-hub/distinte/abc"), ["Distinte"]);
+  assert.deepEqual(selected("/rfq-hub/distinte/abc"), ["Centro RFQ"]);
   assert.deepEqual(selected("/commercial?not-a-real-path"), [], "No accidental substring matching");
   assert.deepEqual(selected("/commercial", "offers"), ["Trattative"]);
   assert.deepEqual(selected("/commercial", "orders"), ["Trattative"]);
