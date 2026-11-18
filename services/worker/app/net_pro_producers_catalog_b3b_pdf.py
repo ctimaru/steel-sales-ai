@@ -165,6 +165,17 @@ def stage_authorised_pdf(
     if source["status"] != "licensed_pdf_registered_not_extracted":
         raise CatalogueRejected("B3.B invalid B2 PDF registration")
     pages = _read_pdf_lines(content)
+    # Coordinate inspection is automatic per eligible PDF once enabled.
+    # It is independently isolated and returns diagnostic counts only until
+    # a cell-to-row proof can be validated by the service-side writer.
+    position_metrics = None
+    position_pages = None
+    if os.getenv("NETPRODUCERS_C3_POSITION_OBSERVATION_ENABLED") == "1":
+        from .net_pro_producers_pdf_positions_c3 import (
+            read_pdf_text_origins, position_diagnostics,
+        )
+        position_pages = read_pdf_text_origins(content)
+        position_metrics = position_diagnostics(position_pages)
     candidates, ignored = _candidate_rows(
         pages, manifest, source["document_sha256"],
     )
@@ -175,6 +186,24 @@ def stage_authorised_pdf(
     if os.getenv("NETPRODUCERS_C3_PDF_SIZE_PUBLISH_ENABLED") == "1":
         from .net_pro_producers_pdf_table_sizes_c3 import stage_pdf_table_sizes
         pdf_size_rows = stage_pdf_table_sizes(db, manifest, pages)
+
+    # Stage candidate geometry only after original size rows are present.
+    # No public thickness/grade SKU is inferred from these observations.
+    geometry_stage = None
+    if os.getenv("NETPRODUCERS_C3_GEOMETRY_STAGE_ENABLED") == "1":
+        if position_pages is None or os.getenv("NETPRODUCERS_C3_PDF_SIZE_PUBLISH_ENABLED") != "1":
+            raise CatalogueRejected("C3 geometry requires positional evidence and source rows")
+        from .net_pro_producers_pdf_table_sizes_c3 import extract_pdf_table_sizes
+        from .net_pro_producers_pdf_table_geometry_c3 import (
+            extract_positioned_thickness, stage_positioned_thickness,
+        )
+        geometry = extract_positioned_thickness(
+            position_pages, extract_pdf_table_sizes(pages)["rows"]
+        )
+        geometry_stage = stage_positioned_thickness(
+            db, manifest, source["document_sha256"], geometry["candidate_rows"]
+        )
+        geometry_stage["ambiguous_rows"] = geometry["ambiguous_rows"]
 
     staged = replayed = 0
     for i in range(0, len(candidates), MAX_CHUNK):
@@ -214,4 +243,6 @@ def stage_authorised_pdf(
         "published_claims": 0,
         "published_observed_size_rows": pdf_size_rows["size_rows_new"],
         "observed_size_rows_found": pdf_size_rows["size_rows_found"],
+        "position_observation": position_metrics,
+        "geometry_staged": geometry_stage,
     }
