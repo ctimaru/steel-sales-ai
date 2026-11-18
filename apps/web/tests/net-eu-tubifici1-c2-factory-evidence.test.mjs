@@ -3,7 +3,7 @@ import {readFileSync} from "node:fs";
 import test from "node:test";
 
 const get=p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
-const migration=get("../supabase/migrations/20261118161500_net_eu_tubifici1_c2_factory_evidence_pro.sql");
+const migration=get("../supabase/migrations/20261119030000_net_eu_tubifici1_c2_factory_evidence_pro.sql");
 const library=get("lib/network-producer-technical.ts");
 const page=get("app/(italian)/(workspace)/network/pro/producers/page.tsx");
 
