@@ -634,6 +634,14 @@ def main() -> int:
         report = asyncio.run(audit_historical_products(db, limit=args.sample))
     else:
         report = asyncio.run(run(db, limit=args.limit, dry_run=not args.persist))
+        # B3.C.1: independent verified B2 grants + private, immutable objects
+        # ONLY. This flag is opt-in; never infer licence from discovered PDFs.
+        # Reuse the existing scheduled worker, avoiding extra cron services.
+        if args.persist and os.getenv("NETPRODUCERS_B3C_QUEUE_ENABLED") == "1":
+            from .net_pro_producers_catalog_b3c_queue import drain_authorised_catalogues
+            report["licensed_catalogue_intake"] = asyncio.run(
+                drain_authorised_catalogues(db, limit=2)
+            )
     print(json.dumps(report, indent=2))
     return 0
 
