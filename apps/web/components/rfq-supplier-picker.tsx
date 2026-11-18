@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
 
 import {
   addSupplierToBuyerRfq,
@@ -64,14 +65,14 @@ function channelLabel(channel: SupplierCandidate["delivery_channel"]) {
 }
 
 export function RfqSupplierPicker({
-  rfqId, selected, canEdit, pinned = null, sendPanel = null,
+  rfqId, selected, canEdit, pinned = null, continueHref,
 }: {
   rfqId: string;
   selected: RfqPickerSelectedSupplier[];
   canEdit: boolean;
   pinned?: RfqPickerPinnedCompany | null;
-  /** DISTINTA2D: step 3 (send), shown under the recipients in the right column. */
-  sendPanel?: ReactNode;
+  /** DISTINTA3: step 3 (message and send) is its own screen; step 2 closes here. */
+  continueHref: string;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -241,8 +242,13 @@ export function RfqSupplierPicker({
   // DISTINTA2D: one group at a time (tabs), a few rows at a time.
   const visibleGroups = (["saved", "recent", "contacts", "recommended"] as const)
     .filter((group) => group === "recommended" || sections.some((section) => section.group === group && section.rows.length > 0));
-  const defaultTab: SupplierPickerGroup = (["saved", "recent", "contacts"] as const)
-    .find((group) => sections.some((section) => section.group === group && section.rows.length > 0)) ?? "recommended";
+  // Open the first group with someone who can actually be invited.
+  const hasInvitable = (group: SupplierPickerGroup) =>
+    sections.some((section) => section.group === group && section.rows.some((row) => row.reachable));
+  const defaultTab: SupplierPickerGroup = (["saved", "recent", "contacts", "recommended"] as const).find(hasInvitable)
+    ?? (["saved", "recent", "contacts"] as const)
+      .find((group) => sections.some((section) => section.group === group && section.rows.length > 0))
+    ?? "recommended";
   const activeTab: SupplierPickerGroup = tab && visibleGroups.includes(tab) ? tab : defaultTab;
   const activeRows = searchRows
     ? (sections[0]?.rows ?? [])
@@ -457,8 +463,19 @@ export function RfqSupplierPicker({
           ) : (
             <p className="mt-2 text-xs leading-5 text-[#5c7063]">Ancora nessuno: spunta i fornitori e premi «Aggiungi».</p>
           )}
+          {selected.length ? (
+            <Link href={continueHref} data-testid="rfq-step2-continue"
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-4 text-sm font-bold !text-white hover:bg-[#104632]">
+              Continua: messaggio e invio →
+            </Link>
+          ) : (
+            <span aria-disabled="true"
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#e6ede9] px-4 text-sm font-bold text-[#4b5d53]">
+              Continua: messaggio e invio →
+            </span>
+          )}
+          <p className="mt-2 text-[11px] leading-4 text-[#5c7063]">Al passo 3 scrivi messaggio e scadenza. Nulla parte senza la tua conferma.</p>
         </section>
-        {sendPanel}
       </aside>
     </div>
   );
