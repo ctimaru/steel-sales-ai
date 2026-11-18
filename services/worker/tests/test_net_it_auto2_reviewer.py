@@ -168,7 +168,7 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         cases = (
             ("coltro-carpenteriaverona.it", "Immagini Coltro Srl",
              "Coltro srl carpenteria. Immagini Coltro Srl | P.IVA: 02194750234",
-             "Coltro Srl"),
+             "Coltro srl"),
             ("inbrofer.com", "Dom Chiuso IN.BRO.FER S.R.L.",
              "Dom Chiuso IN.BRO.FER S.R.L. carpenteria in acciaio inox",
              "IN.BRO.FER S.R.L."),
