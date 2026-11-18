@@ -51,12 +51,12 @@ LEGAL_FORMS = {
 
 def normalized(value: str) -> str:
     value = unicodedata.normalize("NFKC", value).casefold()
-    return " ".join(re.sub(r"[^\\w]+", " ", value, flags=re.UNICODE).split())
+    return " ".join(re.sub(r"[^\w]+", " ", value, flags=re.UNICODE).split())
 
 
 def full_name_observed(name: str, body_text: str) -> bool:
     n, t = normalized(name), normalized(body_text)
-    return bool(len(n) >= 6 and re.search(r"(?<!\\w)" + re.escape(n) + r"(?!\\w)", t))
+    return bool(len(n) >= 6 and re.search(r"(?<!\w)" + re.escape(n) + r"(?!\w)", t))
 
 
 def legal_form_present(name: str, country: str) -> bool:
