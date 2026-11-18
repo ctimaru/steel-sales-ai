@@ -329,7 +329,10 @@ export async function getBuyerRfqSupplierPicker(rfqId: string): Promise<Supplier
     .map((item) => ({
       ...(item as unknown as Omit<SupplierPickerCandidate, "preferred">),
       reachable: item.reachable === true,
-      reason: typeof item.reason === "string" ? item.reason : null,
+      // Same role wording as the Network (lib/network-taxonomy-it.ts).
+      reason: typeof item.reason === "string"
+        ? item.reason.replace(/\bDistributore\b/, "Commerciante").replace(/\bLavorazioni\b/, "Terzista")
+        : null,
       preferred: item.group === "saved",
     }));
   return {

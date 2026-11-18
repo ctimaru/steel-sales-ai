@@ -29,6 +29,7 @@ import { Rfqh13GovernancePanel } from "@/components/rfqh13-governance-panel";
 import { RfqSupplierAddForm } from "@/components/rfq-supplier-add-form";
 import { RfqSupplierPicker } from "@/components/rfq-supplier-picker";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
+import { networkNameIt } from "@/lib/network-taxonomy-it";
 import {
   buildRfqh9SupplierUrl,
   createRfqh9PoSecurity,
@@ -431,7 +432,9 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
 
         <RfqSupplierPicker rfqId={campaign.id} selected={pickerSelected} canEdit={canExecuteCritical}
           pinned={pinnedNetwork ? { id: pinnedNetwork.id, name: pinnedNetwork.name, country: pinnedNetwork.country,
-            role: pinnedNetwork.role, products: pinnedNetwork.products } : null} />
+            // Network profile names are stored in English: show the Italian taxonomy labels.
+            role: pinnedNetwork.role ? networkNameIt(pinnedNetwork.role) : null,
+            products: pinnedNetwork.products.map((product) => networkNameIt(product)) } : null} />
 
         <div id="rfq-review-send" className="scroll-mt-24">
           <RfqDispatchPanel
