@@ -472,6 +472,80 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(ValueError):
             await review_batch([row(),row()],pause_seconds=0)
 
+class BoundedAuto2BatchTest(unittest.IsolatedAsyncioTestCase):
+    """Overture5: accelerate AUTO2 without parallel requests to one host."""
+
+    async def test_four_at_most_and_original_order_and_no_record_write(self):
+        import app.net_it_auto2_reviewer as reviewer
+
+        records = [row(domain=f"officina{i}.it",
+                       id=f"00000000-0000-0000-0000-{i + 100:012d}")
+                   for i in range(11)]
+        active = 0
+        peak = 0
+        async def fake_review(client, candidate, *, deep_recovery):
+            nonlocal active, peak
+            self.assertFalse(deep_recovery)
+            active += 1
+            peak = max(peak, active)
+            try:
+                await asyncio.sleep(0.015)
+                return {"p_candidate_id": candidate["id"],
+                        "p_verdict": "identity_supported"}
+            finally:
+                active -= 1
+
+        with patch.object(reviewer, "inspect_candidate", new=fake_review):
+            findings = await reviewer.review_batch(records, pause_seconds=0)
+
+        self.assertGreater(peak, 1)
+        self.assertLessEqual(peak, reviewer.MAX_REVIEW_CONCURRENCY)
+        self.assertEqual([v["p_candidate_id"] for v in findings],
+                         [v["id"] for v in records])
+        self.assertEqual(len(findings), 11)
+
+    async def test_same_domain_never_reviewed_simultaneously(self):
+        import app.net_it_auto2_reviewer as reviewer
+
+        records = [row(domain="oneofficina.it",
+                       id="00000000-0000-0000-0000-000000000401"),
+                   row(domain="anotherofficina.it",
+                       id="00000000-0000-0000-0000-000000000402"),
+                   row(domain="oneofficina.it",
+                       id="00000000-0000-0000-0000-000000000403")]
+        active_by_host = {}
+        max_by_host = {}
+        async def fake_review(client, candidate, *, deep_recovery):
+            host = candidate["domain"]
+            active_by_host[host] = active_by_host.get(host, 0) + 1
+            max_by_host[host] = max(max_by_host.get(host, 0),
+                                    active_by_host[host])
+            try:
+                await asyncio.sleep(0.02)
+                return {"p_candidate_id": candidate["id"],
+                        "p_verdict": "needs_human"}
+            finally:
+                active_by_host[host] -= 1
+
+        with patch.object(reviewer, "inspect_candidate", new=fake_review):
+            findings = await reviewer.review_batch(records, pause_seconds=0)
+        self.assertEqual(max_by_host["oneofficina.it"], 1)
+        self.assertEqual([v["p_candidate_id"] for v in findings],
+                         [v["id"] for v in records])
+
+    async def test_review_failure_does_not_forge_evidence(self):
+        import app.net_it_auto2_reviewer as reviewer
+
+        async def fail_review(client, candidate, *, deep_recovery):
+            raise RuntimeError("first-party crawler unavailable")
+
+        with patch.object(reviewer, "inspect_candidate", new=fail_review):
+            with self.assertRaises(RuntimeError):
+                await reviewer.review_batch(
+                    [row(id="00000000-0000-0000-0000-000000000404")],
+                    pause_seconds=0)
+
+
 if __name__=="__main__":
     unittest.main()
 
