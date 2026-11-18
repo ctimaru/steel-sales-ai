@@ -416,14 +416,15 @@
 .quickTool {
   display: flex; min-height: 64px; flex-direction: column; justify-content: center; gap: 3px;
   padding: 10px 12px; border: 1px solid rgba(154, 233, 188, .3); border-radius: 12px;
-  background: rgba(8, 40, 31, .55); color: #f1fbf5; text-decoration: none;
+  /* Opaque: readable over any hero image (WCAG AA ≥ 4.5:1 for both text lines). */
+  background: #0d3b2c; color: #f1fbf5; text-decoration: none;
   transition: border-color .2s ease, background-color .2s ease;
 }
 .quickTool:first-child { border-color: #39cd93; background: #0c7751; }
 .quickTool strong { font-size: 14px; line-height: 1.25; font-weight: 750; }
 .quickTool span { color: #c3ded0; font-size: 12px; line-height: 1.35; }
 .quickTool:first-child span { color: #e3f7ec; }
-.quickTool:hover { border-color: #91e5b6; background: rgba(18, 70, 52, .7); }
+.quickTool:hover { border-color: #91e5b6; background: #124634; }
 .quickTool:first-child:hover { background: #075c3f; }
 .quickTool:focus-visible { outline: 3px solid #a9f8d5; outline-offset: 3px; }
 @media (max-width: 700px) {
