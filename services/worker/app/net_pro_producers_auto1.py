@@ -638,6 +638,15 @@ def main() -> int:
         # ONLY. This flag is opt-in; never infer licence from discovered PDFs.
         # Reuse the existing scheduled worker, avoiding extra cron services.
         if args.persist and os.getenv("NETPRODUCERS_B3C_QUEUE_ENABLED") == "1":
+            # The trusted issuer runs BEFORE C1, so a new verified producer
+            # document can be parsed in the same existing Railway cron run.
+            # This separate opt-in flag defaults OFF until the audited
+            # C2.B migration and service-image gate have passed.
+            if os.getenv("NETPRODUCERS_B3C2_ISSUER_ENABLED") == "1":
+                from .net_pro_producers_catalog_b3c2b_issuer import verify_pending_catalogues
+                report["catalogue_source_verification"] = asyncio.run(
+                    verify_pending_catalogues(db, limit=2)
+                )
             from .net_pro_producers_catalog_b3c_queue import drain_authorised_catalogues
             report["licensed_catalogue_intake"] = asyncio.run(
                 drain_authorised_catalogues(db, limit=2)

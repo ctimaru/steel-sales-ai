@@ -9,7 +9,11 @@ type State={contract:string;eligible:boolean;items:Item[]};
 const bucket="producer-authorized-catalogs";
 const input="mt-2 w-full rounded-xl border border-[#d1dfd6] bg-white px-3 py-3 text-sm text-[#294c3c] outline-none focus:border-[#1d6b4f] focus:ring-2 focus:ring-[#e1f0e7]";
 const labels:Record<string,string>={
-  awaiting_upload:"Caricamento incompleto",pending_provenance:"In attesa di verifica della fonte",
+  awaiting_upload:"Caricamento incompleto",
+  pending_provenance:"In attesa della verifica automatica",
+  verifying:"Confronto con il documento ufficiale",
+  in_analysis:"Fonte verificata · analisi tecnica in coda",
+  needs_review:"Documento o autorizzazione da chiarire",
   withdrawn:"Revocato"
 };
 const errorMessage=(err:unknown)=>{
