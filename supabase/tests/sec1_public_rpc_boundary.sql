@@ -75,8 +75,8 @@ begin
     where n.nspname='sec1_public'
       and p.proname='netproducers1_catalog_observed_preview_impl'
       and p.prosecdef
-      and pg_get_functiondef(p.oid) like '%publication_status = ''published''%'
-      and pg_get_functiondef(p.oid) like '%rights_status = ''link_only''%'
+      and pg_get_functiondef(p.oid) ~ 'publication_status[[:space:]]*=[[:space:]]*''published'''
+      and pg_get_functiondef(p.oid) ~ 'rights_status[[:space:]]*=[[:space:]]*''link_only'''
       and pg_get_functiondef(p.oid) not like '%network_producer_catalog_submissions%'
       and pg_get_functiondef(p.oid) not like '%network_producer_catalog_grants%'
   ) then
