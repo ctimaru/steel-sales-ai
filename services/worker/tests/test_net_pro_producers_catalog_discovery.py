@@ -120,7 +120,7 @@ def test_sql_queue_service_role_only_and_all_published_producer_leads():
      "and c.publication_status='published'",
      "lease_expires_at>now()",
      "on conflict(company_id,source_url) do nothing",
-     "l.document_type='official_pdf'",
+     "values(v_company,v_title,v_url,'official_pdf','link_only','official_link_observed')",
     ]:
      assert s in SQL,s
     assert "grant execute on function public.netproducers_catalog_discovery(text,jsonb)\n to service_role;" in SQL
