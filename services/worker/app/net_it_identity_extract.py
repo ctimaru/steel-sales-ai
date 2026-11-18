@@ -68,8 +68,8 @@ _BOILERPLATE = {
 # "SNC" is also "senza numero civico" in Italian addresses. A street is
 # never sufficient first-party evidence of a società in nome collettivo.
 _STREET_ADDRESS_SNC = re.compile(
-    r"^\\s*(?:c\\.?\\s*da|contrada|via|viale|piazza|corso|strada|localit[àa])\\b"
-    r".{1,80}\\bs\\.?\\s*n\\.?\\s*c\\.?\\s*$", re.I
+    r"^\s*(?:c\.?\s*da|contrada|via|viale|piazza|corso|strada|localit[àa])\b"
+    r".{1,80}\bs\.?\s*n\.?\s*c\.?\s*$", re.I
 )
 
 def is_civic_snc_address(name: str) -> bool:
@@ -170,7 +170,7 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
     if len(picked) >= 2 and picked[0].casefold().strip(",.") == "ora":
         before_ora = text.rfind(picked[0], max(0, form_start - 120), form_start)
         if before_ora >= 0 and re.search(
-                r"\\b(?:contattaci|chiama|richiedi|contact)\\s*$",
+                r"\b(?:contattaci|chiama|richiedi|contact)\s*$",
                 text[max(0, before_ora - 50):before_ora], re.I):
             picked.pop(0)
     # Flattened CMS footers can prepend UI controls immediately before the
