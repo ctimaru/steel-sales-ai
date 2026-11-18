@@ -5,6 +5,10 @@ on:
     paths:
       - ".github/workflows/net-it-overture5-expanded.yml"
       - "services/worker/scripts/overture5_expanded.py"
+  pull_request:
+    paths:
+      - ".github/workflows/net-it-overture5-expanded.yml"
+      - "services/worker/scripts/overture5_expanded.py"
 permissions:
   contents: read
 concurrency:
