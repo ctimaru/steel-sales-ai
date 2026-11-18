@@ -1,0 +1,68 @@
+name: "NET-EU-TUBIFICI1.D3 — Automatic first-party identity recovery"
+
+# One-time launch after protected merge; weekly evidence re-check for pending
+# legal/group holds. Never contacts buyers or issues company publications.
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/net-eu-tubifici1-d3-recovery.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * 1" # Mondays 04:17 UTC, 7-day cooldown per candidate
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-eu-tubifici1-d3-source-recovery
+  cancel-in-progress: false
+
+jobs:
+  recover-eight:
+    if: github.ref == 'refs/heads/main'
+    name: "Inspect pending EU identities — never publish"
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install established worker dependencies
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: Validate server-side Supabase secrets (no visitor token)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::No server-only credentials available for EU recovery"
+            exit 1
+          fi
+      - name: Run first-party legal/factory recovery and persist private evidence only
+        working-directory: services/worker
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -euo pipefail
+          output="$(python -m app.net_eu_tubifici1_d3_recover --limit 8 --persist)"
+          echo "$output"
+          EU_D3_RESULT="$output" python - <<'PY'
+          import json, os
+          data=json.loads(os.environ["EU_D3_RESULT"])
+          if (data.get("contract")!="net-eu-tubifici1-d3-recovery-report-v1"
+              or data.get("mode")!="persist_private_evidence"
+              or data.get("published")!=0
+              or not 0<=data.get("queued",-1)<=8
+              or data.get("recorded")!=data.get("queued")
+              or data.get("inspected")!=data.get("queued")
+              or data.get("failed")):
+              raise SystemExit("EU D3 recovered fewer source observations than requested")
+          print("EU D3 first-party source recovery passed; no automatic publications")
+          PY
