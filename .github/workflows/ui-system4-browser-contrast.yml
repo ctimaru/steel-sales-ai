@@ -8,6 +8,9 @@ on:
       - "apps/web/components/calculator-inline-distinta-experience.tsx"
       - "apps/web/components/rfq-hub-create-from-snapshot.tsx"
       - "apps/web/app/globals.css"
+      # Public home quick tools (contrast regression found on 18 Nov 2026).
+      - "apps/web/components/public-cinematic-continuity.module.css"
+      - "apps/web/components/public-steel-geometry-proof.tsx"
       - "apps/web/tests/ui-system4-chrome-contrast.mjs"
       - ".github/workflows/ui-system4-browser-contrast.yml"
   workflow_dispatch:
