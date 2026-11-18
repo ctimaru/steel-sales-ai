@@ -53,7 +53,9 @@ def bounded():
     pages = []
     total_chars = 0
     for index, page in enumerate(reader.pages, start=1):
-        content = page.extract_text(extraction_mode="layout") or ""
+        # A valid blank/image-only page may have no /Contents stream.
+        # That means zero documentary text, not a malformed PDF.
+        content = (page.extract_text(extraction_mode="layout") or "") if "/Contents" in page else ""
         if not isinstance(content, str) or len(content) > 20000:
             raise ValueError("page_text_limit")
         total_chars += len(content)
