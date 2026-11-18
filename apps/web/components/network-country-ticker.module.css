@@ -5,7 +5,7 @@
 .track{
   display:flex;
   width:max-content;
-  animation:network-country-marquee 38s linear infinite;
+  animation:network-country-marquee 90s linear infinite;
 }
 .group{
   display:flex;
