@@ -134,3 +134,31 @@ test("RFQHUB1D list and card: star, request link, Italian card without internal 
   assert.match(card, /canWrite && \(companyId \|\| profile\.supplier_network_company_id\)/);
   assert.match(card, /\.eq\("organization_id", context\.organizationId\)/);
 });
+
+test("RFQHUB1D Network channel and e-mail-domain link suggestion", () => {
+  const rows = book.buildSupplierBook({
+    profiles: [
+      profile({ id: "p1", supplier_network_company_id: "n1" }),
+      profile({ id: "p2", display_name: "Andrea Bertozzi", email: "andrea@bronifer.example" }),
+    ],
+    saved: [], companies: [], contacts: [],
+    channels: [{ network_company_id: "n1", display_name: "Ufficio vendite", email: "vendite@n1.example" }],
+    matches: [{ profile_id: "p2", network_company_id: "n2", name: "BRONIFER Spa" }, { profile_id: "p1", network_company_id: "nX", name: "No" }],
+  });
+  const n1 = rows.find((r) => r.key === "network:n1");
+  assert.deepEqual(n1.networkChannel, { displayName: "Ufficio vendite", email: "vendite@n1.example" });
+  assert.equal(n1.linkSuggestion, null, "an already linked supplier never gets a suggestion");
+  const person = rows.find((r) => r.key === "profile:p2");
+  assert.deepEqual(person.linkSuggestion, { networkCompanyId: "n2", name: "BRONIFER Spa" });
+
+  const migration1d = read("../../../supabase/migrations/20261119100000_rfqhub1d_supplier_links.sql");
+  assert.match(migration1d, /private\.rfqh2_best_network_contact\(nc\.id\)/);
+  assert.match(migration1d, /private\.pa1_3_network_access_allowed_for\(p_organization_id\)/);
+  assert.match(migration1d, /'already_linked'/);
+  assert.match(migration1d, /gmail\|googlemail/);
+  assert.doesNotMatch(migration1d, /drop table|delete from public\./i);
+  assert.match(gate, /rfqhub1d_supplier_links\.sql/);
+  assert.match(page, /supabase\.rpc\("rfqhub1d_network_channels"/);
+  assert.match(page, /canWrite && emailOnlyIds\.length \? supabase\.rpc\("rfqhub1d_supplier_domain_matches"/);
+  assert.match(actions, /supabase\.rpc\("rfqhub1d_link_supplier_profile"/);
+});
