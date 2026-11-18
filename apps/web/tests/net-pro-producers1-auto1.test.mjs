@@ -15,7 +15,7 @@ test("Existing producers module includes Intelligence Produttori, no fifth SKU o
   assert.match(bundle,/Cataloghi|cataloghi/);
   assert.match(bundle,/networkProQuote/);
   assert.match(producerPage,/module:"producers"/);
-  assert.match(producerPage,/country:"IT"/);
+  assert.match(producerPage,/country,\s*\n\s*q:query/);
   assert.match(producerPage,/result\.status==="ready"/);
   assert.match(technical,/netproducers1_technical_claims/);
   assert.match(catalogs,/netproducers1_catalog_index/);

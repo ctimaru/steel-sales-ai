@@ -3,6 +3,7 @@
 import Form from "next/form";
 import Link from "next/link";
 import {useState,type ReactNode} from "react";
+import {EU_MEMBER_COUNTRIES,OTHER_NETWORK_COUNTRIES,networkCountryName} from "@/lib/network-eu-countries";
 
 import type {NetworkProDirectoryResult} from "@/lib/network-pro-coverage";
 import type {NetworkProducerCatalogLink} from "@/lib/network-producer-catalogs";
@@ -12,6 +13,7 @@ import type {ProducerSourceMention} from "@/lib/network-producer-source-mentions
 type Props={
   result:NetworkProDirectoryResult;
   query:string;
+  country:string;
   page:number;
   publishedCount:number|null;
   catalogs:NetworkProducerCatalogLink[]|null;
@@ -48,8 +50,8 @@ function Chip({tone,children}:{tone:"tech"|"docs"|"mention"|"none";children:Reac
   return <span className={"inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold "+cls}>{children}</span>;
 }
 
-function PageLink({label,query,page}:{label:string;query:string;page:number}){
-  const params=new URLSearchParams({q:query,p:String(page)});
+function PageLink({label,query,country,page}:{label:string;query:string;country:string;page:number}){
+  const params=new URLSearchParams({q:query,country,p:String(page)});
   return <Link href={"/network/pro/producers?"+params.toString()}
     className="inline-flex min-h-10 items-center rounded-xl border border-[#c9d9ce] bg-white px-4 text-xs font-semibold text-[#18573d] hover:bg-[#f1f7f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18573d]">
     {label}
@@ -79,9 +81,10 @@ function EvidenceValues({items,kind}:{items:NetworkProducerTechnicalClaim[]|null
   </ul>;
 }
 
-export function NetworkProducersExperience({result,query,page,publishedCount,catalogs,technicalClaims,sourceMentions}:Props){
+export function NetworkProducersExperience({result,query,country,page,publishedCount,catalogs,technicalClaims,sourceMentions}:Props){
+  const countryLabel=networkCountryName(country)||country;
   // Search/pagination navigations can preserve this client component: stale ids must never disable the new result list.
-  const selectionScope=JSON.stringify([query,page]);
+  const selectionScope=JSON.stringify([query,page,country]);
   const [selection,setSelection]=useState<{scope:string;ids:string[]}>({scope:selectionScope,ids:[]});
   const selected=selection.scope===selectionScope?selection.ids:[];
   const clearSelection=()=>setSelection({scope:selectionScope,ids:[]});
@@ -104,7 +107,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
 
   return <main className="mx-auto w-full max-w-[1320px] space-y-5 pb-14" data-testid="network-producers-workspace">
     <nav aria-label="Percorso Network" className="flex flex-wrap items-center gap-3 text-xs">
-      <Link href="/network" className="font-semibold text-[#236248] hover:underline">Network</Link>
+      <Link href={"/network?country="+encodeURIComponent(country)} className="font-semibold text-[#236248] hover:underline">Network</Link>
       <span aria-hidden="true" className="text-[#859c8d]">/</span>
       <Link href="/network/pro" className="font-semibold text-[#236248] hover:underline">Moduli PRO</Link>
       <span aria-hidden="true" className="text-[#859c8d]">/</span>
@@ -116,7 +119,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
         <span className="rounded-full bg-[#14543c] px-3 py-1 text-[10px] font-extrabold tracking-wide text-white">NETWORK PRO</span>
         <span className="rounded-full border border-[#b8d6c3] bg-white px-3 py-1 text-[10px] font-bold tracking-wide text-[#275a40]">INTELLIGENCE PRODUTTORI</span>
         <span className="rounded-full border border-[#bddac6] bg-white px-3 py-1 text-[10px] font-bold text-[#175640]">INCLUSO NEL MODULO PRODUTTORI</span>
-        <span className="rounded-full border border-[#d0e3d5] bg-white px-3 py-1 text-[10px] font-semibold text-[#496b56]">Italia</span>
+        <span className="rounded-full border border-[#d0e3d5] bg-white px-3 py-1 text-[10px] font-semibold text-[#496b56]">{countryLabel}</span>
       </div>
       <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
         <div>
@@ -124,13 +127,13 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
             Trova e confronta chi produce acciaio.
           </h1>
           <p className="mt-3 max-w-[780px] text-sm leading-6 text-[#4d6355]">
-            Iniziamo dai tubifici italiani. La prima vista mostra soltanto aziende
-            pubblicate con ruolo produttore; la prova della produzione di tubi,
-            le norme e i cataloghi tecnici sono qualificazioni distinte.
+            Visualizza i produttori pubblicati per Paese, con accessi Italia/Europa distinti.
+            La prova di produzione fisica, le norme, le dimensioni e i cataloghi
+            tecnici restano qualificazioni documentali separate.
           </p>
         </div>
         <div className="rounded-2xl border border-[#cde0d2] bg-white p-4 shadow-[0_7px_24px_rgba(16,65,40,0.06)]">
-          <p className="text-[11px] font-semibold text-[#526d5c]">Produttori industriali IT pubblicati</p>
+          <p className="text-[11px] font-semibold text-[#526d5c]">{"Produttori industriali pubblicati · "+countryLabel}</p>
           <p className="mt-1 text-[34px] font-extrabold tabular-nums text-[#164a32]">
             {publishedCount===null?"—":publishedCount.toLocaleString("it-IT")}
           </p>
@@ -152,14 +155,26 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
         <h2 id="manufacturer-search-title" className="text-base font-extrabold text-[#183d2d]">
           Cerca i produttori nel Network
         </h2>
-        <span className="text-[11px] font-semibold text-[#607669]">Ricerca azienda e dominio · Italia</span>
+        <span className="text-[11px] font-semibold text-[#607669]">{"Ricerca azienda e dominio · "+countryLabel}</span>
       </div>
       {/* NET-PRO-UX2: next/form navigates client-side (no full reload) and prefetches the loading skeleton. */}
       <Form action="/network/pro/producers" className="mt-3 flex flex-col gap-2 sm:flex-row">
         <label htmlFor="manufacturer-query" className="sr-only">Nome del produttore o dominio</label>
         <input id="manufacturer-query" name="q" type="search" maxLength={120}
-          defaultValue={query} placeholder="Nome produttore o dominio, ad esempio Marcegaglia"
+          defaultValue={query} placeholder="Nome produttore o dominio, ad esempio EUROPIPE"
           className="min-h-12 min-w-0 flex-1 rounded-xl border border-[#bacfc1] bg-white px-4 text-sm text-[#183d2d] placeholder:text-[#748879] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]"/>
+        <label htmlFor="manufacturer-country" className="sr-only">Paese del produttore</label>
+        <select id="manufacturer-country" name="country" defaultValue={country}
+          aria-label="Paese del produttore" data-testid="network-producers-country"
+          className="min-h-12 min-w-[148px] rounded-xl border border-[#bacfc1] bg-white px-3 text-sm font-semibold text-[#183d2d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+          <optgroup label="Unione europea">
+            {EU_MEMBER_COUNTRIES.map(item=><option key={item.code} value={item.code}>{item.name}</option>)}
+          </optgroup>
+          <optgroup label="Altri Paesi europei">
+            {OTHER_NETWORK_COUNTRIES.filter(item=>item.code!=="US").map(item=>
+              <option key={item.code} value={item.code}>{item.name}</option>)}
+          </optgroup>
+        </select>
         <button type="submit" className="min-h-12 rounded-xl bg-[#175640] px-6 text-sm font-bold text-white hover:bg-[#10452f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">Cerca</button>
       </Form>
       <p className="mt-3 text-xs leading-5 text-[#5d7262]">
@@ -173,7 +188,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
         <div>
           <h2 className="text-lg font-extrabold text-[#153e2c]">Sblocca Intelligence Produttori</h2>
           <p className="mt-2 max-w-[700px] text-sm leading-6 text-[#546b5c]">
-            Esplora e confronta aziende pubblicate con il modulo Produttori Italia.
+            {"Esplora e confronta aziende pubblicate con il modulo Produttori "+(country==="IT"?"Italia":"Europa")+"."}
             Nessun altro modulo è necessario. L'attivazione avverrà dopo conferma del pagamento,
             quando il checkout sarà operativo.
           </p>
@@ -222,7 +237,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
                 </span>
                 <div className="min-w-0 flex-1 basis-[240px]">
                   <h3 className="break-words text-[15px] font-extrabold leading-5 text-[#173c2c]">{company.name}</h3>
-                  <p className="mt-0.5 truncate text-xs text-[#607769]">Italia · Ruolo produttore registrato{domain?" · "+domain:""}</p>
+                  <p className="mt-0.5 truncate text-xs text-[#607769]">{(networkCountryName(company.countryCode)||company.countryCode)+" · Ruolo produttore registrato"}{domain?" · "+domain:""}</p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {evidence.length>0?<Chip tone="tech">Dati tecnici con fonte · {evidence.length}</Chip>:null}
                     {docs.length>0?<Chip tone="docs">Cataloghi ufficiali · {docs.length}</Chip>:null}
@@ -330,7 +345,7 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
               {selectedCompanies.map(company=><th scope="col" key={company.id} className="min-w-36 border-b border-[#e5ede6] p-4 font-extrabold">{company.name}</th>)}</tr></thead>
             <tbody className="text-[#506557]">
               <tr><th scope="row" className="border-b border-[#e5ede6] p-4 font-bold">Paese</th>
-                {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-4">Italia</td>)}</tr>
+                {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-4">{networkCountryName(c.countryCode)||c.countryCode}</td>)}</tr>
               {technicalKinds.map(group=>
                 <tr key={group.kind}><th scope="row" className="border-b border-[#e5ede6] p-4 font-bold">{group.label}</th>
                   {selectedCompanies.map(c=><td key={c.id} className="border-b border-[#e5ede6] p-3 align-top">
@@ -360,9 +375,9 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
         <button type="button" onClick={clearSelection} className="min-h-9 rounded-xl border border-white/30 px-3 text-xs font-bold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Svuota</button>
       </div>:null}
       <nav aria-label="Navigazione produttori" className="flex items-center justify-between gap-2">
-        {page>1?<PageLink label="← Precedenti" query={query} page={page-1}/>:<span/>}
+        {page>1?<PageLink label="← Precedenti" query={query} country={country} page={page-1}/>:<span/>}
         {result.data.total>page*result.data.limit?
-          <PageLink label="Successive →" query={query} page={page+1}/>:<span/>}
+          <PageLink label="Successive →" query={query} country={country} page={page+1}/>:<span/>}
       </nav>
     </>}
 
