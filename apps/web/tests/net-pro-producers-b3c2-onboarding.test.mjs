@@ -71,7 +71,9 @@ test("B3.C2 exposes a single accessible page without leaking service credentials
 });
 
 test("B3.C2 refuses to present uploaded files as verified manufacturer SKUs",()=>{
-  assert.match(component,/In attesa di verifica della fonte/);
+  assert.match(component,/In attesa della verifica automatica/);
+  assert.match(component,/Fonte verificata · analisi tecnica in coda/);
+  assert.match(component,/Documento o autorizzazione da chiarire/);
   assert.match(page,/Nessun dato equivale automaticamente alla disponibilità/);
   assert.match(component,/Verifica aziendale necessaria/);
   assert.match(component,/Revoca/);
