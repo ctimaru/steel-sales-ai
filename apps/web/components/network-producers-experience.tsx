@@ -141,6 +141,12 @@ export function NetworkProducersExperience({result,query,page,publishedCount,cat
       </div>
     </header>
 
+    <Link href="/network/cataloghi"
+      className="flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-[16px] border border-[#bedac8] bg-[#f2f9f4] px-4 py-3 text-xs font-bold text-[#1b6044] hover:bg-[#e8f4ec]">
+      <span>Cataloghi e dati tecnici pubblici · In attesa di conferma dal produttore</span>
+      <span>Apri anteprima →</span>
+    </Link>
+
     <section className="rounded-[20px] border border-[#dce7df] bg-white p-4 sm:p-5" aria-labelledby="manufacturer-search-title">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 id="manufacturer-search-title" className="text-base font-extrabold text-[#183d2d]">
