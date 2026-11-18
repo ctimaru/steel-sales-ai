@@ -59,7 +59,7 @@ export default async function CataloghiProduttoriPreview({
           {[
             {value:result?.sourcesTotal,label:"Fonti"},
             {value:result?.producersTotal,label:"Aziende"},
-            {value:result?.observationsTotal,label:"Dati"},
+            {value:structured&&pdfSizes ? structured.totalFacts+pdfSizes.total : null,label:"Dati"},
           ].map(item=><div key={item.label} className="min-w-0 text-center">
             <p className="text-2xl font-extrabold tabular-nums text-[#184932]">{item.value??"—"}</p>
             <p className="mt-1 text-[11px] font-semibold text-[#627b69]">{item.label}</p>
