@@ -70,16 +70,20 @@ export function parseProducerTechnicalClaims(input:unknown):NetworkProducerTechn
  * Never use a service role, cache a cross-tenant result, or query the table.
  */
 export async function getProducerTechnicalClaims(
-  organizationId:string,companyIds:readonly string[],
+  organizationId:string,companyIds:readonly string[],country="IT",
 ):Promise<NetworkProducerTechnicalClaim[]|null>{
   if(companyIds.length===0)return [];
   const ids=[...new Set(companyIds)];
   if(ids.length>24)return null;
   try{
     const db=await createClient();
-    const {data,error}=await db.rpc("netproducers1_technical_claims",{
-      p_organization_id:organizationId,p_company_ids:ids,
-    });
+    const {data,error}=country==="IT"
+      ?await db.rpc("netproducers1_technical_claims",{
+        p_organization_id:organizationId,p_company_ids:ids,
+      })
+      :await db.rpc("net_eu_tubifici1_c2_factory_claims",{
+        p_organization_id:organizationId,p_country:country,p_company_ids:ids,
+      });
     if(error)return null;
     const claims=parseProducerTechnicalClaims(data);
     if(!claims)return null;

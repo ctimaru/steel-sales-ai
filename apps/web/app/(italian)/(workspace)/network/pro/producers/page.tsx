@@ -48,9 +48,9 @@ export default async function NetworkProProducersPage({
   const ids=result.status==="ready"?result.data.items.map(company=>company.id):[];
   const [catalogs,technicalClaims,sourceMentions]=result.status==="ready"
     ?await Promise.all([
-      getNetworkProducerCatalogLinks(context.organizationId,ids),
-      getProducerTechnicalClaims(context.organizationId,ids),
-      getProducerSourceMentions(context.organizationId,ids),
+      country==="IT"?getNetworkProducerCatalogLinks(context.organizationId,ids):Promise.resolve([]),
+      getProducerTechnicalClaims(context.organizationId,ids,country),
+      country==="IT"?getProducerSourceMentions(context.organizationId,ids):Promise.resolve([]),
     ])
     :[[],[],[]];
 
