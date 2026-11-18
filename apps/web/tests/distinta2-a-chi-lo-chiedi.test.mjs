@@ -65,3 +65,11 @@ test("DISTINTA2B: the Network company the request started from is proposed at th
   const pinnedBlock = picker.slice(picker.indexOf("DISTINTA2B: the starting company"), picker.indexOf("// Search by name"));
   assert.doesNotMatch(pinnedBlock, /addSupplierToBuyerRfq|addSuppliersToBuyerRfqBulk/);
 });
+
+test("DISTINTA2C: Italian Network labels and no double period after «S.p.A.»", () => {
+  const single = read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx");
+  assert.match(single, /networkContext.name.endsWith\("\."\) \? "" : "\."/);
+  assert.match(page, /networkNameIt\(pinnedNetwork.role\)/);
+  assert.match(page, /pinnedNetwork.products.map\(\(product\) => networkNameIt\(product\)\)/);
+  assert.match(actions, /replace\(\/\\bDistributore\\b\/, "Commerciante"\)/);
+});
