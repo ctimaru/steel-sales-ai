@@ -41,6 +41,9 @@ from .net_it_identity_extract import find_company_identity, is_civic_snc_address
 VERSION = "net-it-auto2-firstparty-v4"
 MAX_BATCH = 50
 MAX_PAGES = 5
+# One-time Overture4 recovery: deeper first-party pages, bounded I/O per run.
+RECOVERY_MAX_BATCH = 12
+RECOVERY_MAX_PAGES = 10
 # Pages where the company's own legal identity is usually printed.
 IDENTITY_PATH_HINTS = (
     "contatt", "contact", "dove-siamo", "privacy", "note-legali", "legal",
@@ -194,7 +197,8 @@ def _same_host_root_fallback(candidate: dict, source: str, domain: str) -> str |
         return None
 
 
-async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
+async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
+                            *, deep_recovery: bool = False) -> dict:
     """Return bounded evidence fields only; never a human approval decision."""
     reasons: list[str] = []
     try:
@@ -224,13 +228,35 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
                   else "robots_blocked_or_unavailable")
         return _finding(candidate, "needs_human", [reason])
     pages.append(home)
-    for link in _identity_links(home, MAX_PAGES - 1):
-        try:
-            page = await _fetch_page(client, link, home.url)
-            if page and canonical_domain(page.url) == domain:
+    if deep_recovery:
+        # Prefer up to six direct links, reserving slots for legal/contact
+        # links discovered one level deeper. Never cross the owning domain.
+        pending = _identity_links(home, RECOVERY_MAX_PAGES - 4)
+        seen = {home.url}
+        while pending and len(pages) < RECOVERY_MAX_PAGES:
+            link = pending.pop(0)
+            if link in seen:
+                continue
+            seen.add(link)
+            try:
+                page = await _fetch_page(client, link, home.url)
+                if not page or canonical_domain(page.url) != domain:
+                    continue
                 pages.append(page)
-        except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
-            pass
+                for nested in _identity_links(page, RECOVERY_MAX_PAGES):
+                    if (nested not in seen and nested not in pending
+                            and len(pending) < RECOVERY_MAX_PAGES * 3):
+                        pending.append(nested)
+            except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
+                pass
+    else:
+        for link in _identity_links(home, MAX_PAGES - 1):
+            try:
+                page = await _fetch_page(client, link, home.url)
+                if page and canonical_domain(page.url) == domain:
+                    pages.append(page)
+            except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
+                pass
 
     # Title/H1/og:site_name may repeat an unverified brand, even when the
     # actual company identity on the page is different. Require the full
@@ -281,10 +307,16 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict) -> dict:
         "identity_supported" if matched and not reasons else "needs_human"
     )
     # Even identity_supported is NOT rights-approved / publishable.
+    # In recovery mode a second-level page may be the *only* place that
+    # prints the legal entity. Save the exact proof URL rather than incorrectly
+    # pointing the evidence back to the homepage.
+    proof_url = (next((p.url for p in pages
+                       if _name_evidenced(name, [str(p.text)])), pages[0].url)
+                 if verdict == "identity_supported" else pages[0].url)
     finding = _finding(
         candidate,verdict,reasons,domain=domain,name_matched=matched,
         observed_name=name if matched else None,
-        page_url=pages[0].url,page_hash=digest,
+        page_url=proof_url,page_hash=digest,
         confidence=0.94 if verdict == "identity_supported" else 0.4,
         rights="restricts_reuse" if restricted else "unknown",
     )
@@ -314,7 +346,8 @@ def _finding(candidate: dict, verdict: str, reasons: list[str],
     }
 
 
-async def review_batch(candidates: list[dict], *, pause_seconds: float = 0.3) -> list[dict]:
+async def review_batch(candidates: list[dict], *, pause_seconds: float = 0.3,
+                       deep_recovery: bool = False) -> list[dict]:
     if not 1 <= len(candidates) <= MAX_BATCH:
         raise ValueError("batch must contain 1 to 50 company records")
     found_ids = [str(c.get("id")) for c in candidates]
@@ -327,7 +360,8 @@ async def review_batch(candidates: list[dict], *, pause_seconds: float = 0.3) ->
         for i, candidate in enumerate(candidates):
             if i:
                 await asyncio.sleep(pause_seconds)
-            results.append(await inspect_candidate(client, candidate))
+            results.append(await inspect_candidate(
+                client, candidate, deep_recovery=deep_recovery))
     return results
 
 
@@ -349,20 +383,39 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
     }
     # Service credential never enters the browser.
     async with httpx.AsyncClient(timeout=httpx.Timeout(35.0)) as client:
-        response = await client.post(f"{url}/rest/v1/rpc/net_it_auto2_queue",
-                                     headers=headers,json={"p_max":limit})
-        response.raise_for_status()
-        payload = response.json()
-        if payload.get("contract") != "net-it-auto2-queue-v1":
-            raise RuntimeError("unexpected queue contract")
-        candidates = payload.get("items", [])
+        # Before ordinary growth, drain the fixed 78-company Overture4
+        # recovery campaign. The private RPC atomically claims <=12 candidates
+        # so another reviewer cannot steal or double-process this same batch.
+        recovery = await client.post(
+            f"{url}/rest/v1/rpc/net_it_auto2_recovery_queue",
+            headers=headers, json={"p_max":min(limit, RECOVERY_MAX_BATCH)})
+        if recovery.status_code == 404:
+            # Railway may deploy a few moments before its SQL migration.
+            recovering, candidates = False, []
+        else:
+            recovery.raise_for_status()
+            recovery_payload = recovery.json()
+            if recovery_payload.get("contract") != "net-it-auto2-recovery-queue-v1":
+                raise RuntimeError("unexpected recovery queue contract")
+            candidates = recovery_payload.get("items", [])
+            recovering = bool(candidates)
+        if not recovering:
+            response = await client.post(f"{url}/rest/v1/rpc/net_it_auto2_queue",
+                                         headers=headers,json={"p_max":limit})
+            response.raise_for_status()
+            payload = response.json()
+            if payload.get("contract") != "net-it-auto2-queue-v1":
+                raise RuntimeError("unexpected queue contract")
+            candidates = payload.get("items", [])
         if not candidates:
             return {"mode":"evidence_recording" if persist else "dry_run",
-                    "reviewed":0,"recorded":0,"published":0,"exceptions":0}
+                    "queue_kind":"standard", "reviewed":0,"recorded":0,
+                    "published":0,"exceptions":0}
 
-        findings = await review_batch(candidates)
+        findings = await review_batch(candidates, deep_recovery=recovering)
         written = 0
         rejected = 0
+        recovery_restored = 0
         if persist:
             for finding in findings:
                 correction = finding.pop("_identity_correction", None)
@@ -422,8 +475,26 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                 if result.get("contract") != "net-it-auto2-review-v1" or result.get("publication_count") != 0:
                     raise RuntimeError("unexpected evidence-only response")
                 written += 1
+                if recovering and result.get("verdict") == "identity_supported":
+                    # A fresh, first-party corporate proof can lift ONLY the
+                    # 'no_company_on_site' AUTO4 discard, after database
+                    # checks. This RPC never publishes or creates approvals.
+                    restore = await client.post(
+                        f"{url}/rest/v1/rpc/net_it_auto2_recovery_restore",
+                        headers=headers,
+                        json={"p_candidate_id":finding["p_candidate_id"]})
+                    if restore.status_code in REJECTED_STATUSES:
+                        continue
+                    restore.raise_for_status()
+                    restored = restore.json()
+                    if (restored.get("contract") != "net-it-auto2-recovery-restore-v1"
+                            or restored.get("published") != 0):
+                        raise RuntimeError("unexpected recovery restore response")
+                    recovery_restored += int(restored.get("restored", 0))
         return {
             "mode":"evidence_recording" if persist else "dry_run",
+            "queue_kind":"overture4_recovery" if recovering else "standard",
+            "recovery_restored":recovery_restored,
             "reviewed":len(findings),"recorded":written,"rejected":rejected,
             "identity_supported":sum(f["p_verdict"]=="identity_supported" for f in findings),
             "exceptions":sum(f["p_verdict"]!="identity_supported" for f in findings),
