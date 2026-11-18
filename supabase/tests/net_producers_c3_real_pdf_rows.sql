@@ -5,12 +5,17 @@ do $contract$
 declare v_count integer;v_facts integer;v_probe jsonb;
 begin
  select count(*) into v_count from private.network_producer_pdf_size_rows;
- if v_count<>15 then raise exception 'Expected 15 real PDF source rows: %',v_count;end if;
+ if v_count<>116 then raise exception 'Expected 116 real PDF source rows from four official catalogues: %',v_count;end if;
  select count(*) into v_facts from private.network_producer_pdf_size_rows
  where shape='RHS' and standard='EN 10219' and width_mm=200
  and height_mm=100 and thickness_mm is null and owner_review='pending'
  and page=3;
  if v_facts<>1 then raise exception 'RHS 200x100 must be exact page-local source row';end if;
+ if (select count(distinct company_id) from private.network_producer_pdf_size_rows)<>4 then
+   raise exception 'Expected four producer catalogues with actual numeric observations';end if;
+ if (select count(*) from private.network_producer_pdf_size_rows
+ where standard='CATALOGUE_UNSPECIFIED')<>72 then
+   raise exception 'Do not infer standards into Padana/CSM dimensional tables';end if;
  if exists(select 1 from private.network_producer_pdf_size_rows
  where thickness_mm is not null) then
    raise exception 'Unproven PDF weight-column thickness was invented';end if;
@@ -24,9 +29,9 @@ set local role anon;
 do $anonymous$
 declare v jsonb;
 begin
- v:=public.netproducers_c3_pdf_public('',70);
+ v:=public.netproducers_c3_pdf_public('',180);
  if v->>'contract'<>'netproducers-c3-pdf-public-v1'
-    or v->>'total'<>'15' or v->>'count'<>'15'
+    or v->>'total'<>'116' or v->>'count'<>'116'
     or v->>'verified_manufacturer_skus'<>'0'
     or v->>'mirrored_pdf_copies'<>'0'
     or exists(select 1 from jsonb_array_elements(v->'items') x
