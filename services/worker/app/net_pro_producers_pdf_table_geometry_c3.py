@@ -14,7 +14,7 @@ import re
 from .net_pro_producers_pdf_table_sizes_c3 import HEADINGS
 
 NUM = re.compile(r"^\d{1,4}(?:[.,]\d{1,2})?$")
-GRADE = re.compile(r"^S(?:235|275|355|420|460)(?:JR|J0|J2|M|ML|N|NL)?H$", re.I)
+GRADE = re.compile(r"(?<![A-Z0-9])S(?:235|275|355|420|460)(?:JR|J0|J2|M|ML|N|NL)?H(?![A-Z0-9])", re.I)
 
 
 def _lines(spans: list[dict]) -> list[list[dict]]:
@@ -47,6 +47,7 @@ def extract_positioned_thickness(pages: list[dict], size_rows: list[dict]) -> di
         pageno = page["page"]
         lines = _lines(page["spans"])
         active = None
+        active_grade = None
         header_y = None
         label_row = None
         last_heading_y = None
@@ -56,12 +57,15 @@ def extract_positioned_thickness(pages: list[dict], size_rows: list[dict]) -> di
                             if rx.match(line)), None)
             if matched:
                 active = matched
+                grades = {m.group(0).upper() for m in GRADE.finditer(line)}
+                active_grade = next(iter(grades)) if len(grades) == 1 else None
                 header_y = None
                 label_row = None
                 last_heading_y = row[0]["y"]
                 continue
             if re.search(r"\b(?:EN\s*10\d{3}|ASTM|API\s*5L)\b", line, re.I):
                 active = None
+                active_grade = None
                 label_row = None
                 continue
             if active is None:
@@ -122,6 +126,7 @@ def extract_positioned_thickness(pages: list[dict], size_rows: list[dict]) -> di
                 found.append({
                     "page": pageno, "source_locator": matches[0]["locator"],
                     "shape": active[0], "standard": active[1],
+                    "grade": active_grade,
                     **({ "diameter_mm":dimension_values[0] } if active[0]=="CHS"
                        else { "width_mm":dimension_values[0],"height_mm":dimension_values[1]}),
                     "thickness_mm": thickness,
