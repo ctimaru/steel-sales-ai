@@ -133,3 +133,30 @@ def extract_positioned_thickness(pages: list[dict], size_rows: list[dict]) -> di
                 raise ValueError("PDF geometry candidate cap")
     return {"candidate_rows":found, "ambiguous_rows":ambiguous,
             "source_verified":0,"manufacturer_confirmed":0}
+
+
+def stage_positioned_thickness(db, manifest: dict, document_sha256: str,
+                               candidates: list[dict]) -> dict:
+    """Stage bounded private source observations; never attest manufacturer SKU."""
+    added = replayed = 0
+    for start in range(0, len(candidates), 30):
+        batch = candidates[start:start + 30]
+        response = db.rpc("netproducers_c3_pdf_stage_geometry", {
+            "p_company": manifest["company_id"],
+            "p_source": manifest["source_url"],
+            "p_document_sha": document_sha256,
+            "p_candidates": batch,
+        }).execute().data
+        if (not isinstance(response, dict)
+                or response.get("contract") != "netproducers-c3-geometry-stage-v1"
+                or response.get("source_verified") != 0
+                or response.get("manufacturer_confirmed") != 0
+                or type(response.get("added")) is not int
+                or type(response.get("replayed")) is not int
+                or response["added"] + response["replayed"] != len(batch)):
+            raise ValueError("Invalid PDF geometry evidence stage reply")
+        added += response["added"]
+        replayed += response["replayed"]
+    return {"pending_geometry_rows": len(candidates), "added": added,
+            "replayed": replayed, "source_verified": 0,
+            "manufacturer_confirmed": 0}
