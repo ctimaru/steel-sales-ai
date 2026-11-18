@@ -3,7 +3,7 @@
 -- verified combinations or manufacturing guarantees. PRO retains intelligent
 -- matching and verified claims; this is a bounded public discovery preview.
 
-create function private.netproducers1_catalog_observed_preview_impl(
+create function sec1_public.netproducers1_catalog_observed_preview_impl(
   p_search text default '', p_limit integer default 24
 ) returns jsonb
 language plpgsql stable security definer set search_path=''
@@ -123,14 +123,14 @@ create function public.netproducers1_catalog_observed_preview(
   p_search text default '',p_limit integer default 24
 ) returns jsonb language sql stable security invoker set search_path=''
 as $body$
- select private.netproducers1_catalog_observed_preview_impl(p_search,p_limit);
+ select sec1_public.netproducers1_catalog_observed_preview_impl(p_search,p_limit);
 $body$;
 
-revoke all on function private.netproducers1_catalog_observed_preview_impl(text,integer)
+revoke all on function sec1_public.netproducers1_catalog_observed_preview_impl(text,integer)
   from public,anon,authenticated;
 revoke all on function public.netproducers1_catalog_observed_preview(text,integer)
   from public,anon,authenticated;
-grant execute on function private.netproducers1_catalog_observed_preview_impl(text,integer)
+grant execute on function sec1_public.netproducers1_catalog_observed_preview_impl(text,integer)
   to anon,authenticated,service_role;
 grant execute on function public.netproducers1_catalog_observed_preview(text,integer)
   to anon,authenticated,service_role;
