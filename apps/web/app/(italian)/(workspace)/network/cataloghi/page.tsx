@@ -5,6 +5,8 @@ import {redirect} from "next/navigation";
 import {getCataloguePreview,type CataloguePreviewObservation} from "@/lib/network-producer-catalog-preview";
 import {getProducerStructuredCatalog} from "@/lib/network-producer-structured-catalog";
 import {ProducerStructuredCatalogue} from "@/components/producer-structured-catalogue";
+import {getPdfDimensions} from "@/lib/network-producer-pdf-dimensions";
+import {ProducerPdfSizeTables} from "@/components/producer-pdf-size-tables";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 
 export const dynamic="force-dynamic";
@@ -26,8 +28,8 @@ export default async function CataloghiProduttoriPreview({
   if(!isNetworkFrontendEnabled())redirect("/dashboard");
   const params=await searchParams;
   const q=(params.q??"").trim().slice(0,80);
-  const [result,structured]=await Promise.all([
-    getCataloguePreview(q),getProducerStructuredCatalog(q),
+  const [result,structured,pdfSizes]=await Promise.all([
+    getCataloguePreview(q),getProducerStructuredCatalog(q),getPdfDimensions(q),
   ]);
 
   return <main className="mx-auto max-w-[1320px] space-y-5 pb-14" data-testid="network-cataloghi-preview">
@@ -90,6 +92,7 @@ export default async function CataloghiProduttoriPreview({
       </p>
     </section>
 
+    <ProducerPdfSizeTables data={pdfSizes}/>
     <ProducerStructuredCatalogue result={structured} query={q}/>
 
     {result===null?

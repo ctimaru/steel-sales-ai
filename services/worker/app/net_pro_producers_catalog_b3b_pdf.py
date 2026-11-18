@@ -8,6 +8,7 @@ An isolated child process enforces time/CPU/address-space and output limits.
 from __future__ import annotations
 
 from datetime import datetime
+import os
 import hashlib
 import json
 import re
@@ -167,6 +168,14 @@ def stage_authorised_pdf(
     candidates, ignored = _candidate_rows(
         pages, manifest, source["document_sha256"],
     )
+    # Separately publish factual, page-local outer sizes. No grade or
+    # thickness association; only after valid producer document B2 rights.
+    # The existing Railway cron stays OFF until its pinned deploy is updated.
+    pdf_size_rows = {"size_rows_found": 0, "size_rows_new": 0}
+    if os.getenv("NETPRODUCERS_C3_PDF_SIZE_PUBLISH_ENABLED") == "1":
+        from .net_pro_producers_pdf_table_sizes_c3 import stage_pdf_table_sizes
+        pdf_size_rows = stage_pdf_table_sizes(db, manifest, pages)
+
     staged = replayed = 0
     for i in range(0, len(candidates), MAX_CHUNK):
         group = candidates[i:i + MAX_CHUNK]
@@ -203,4 +212,6 @@ def stage_authorised_pdf(
         "source_verified": 0,
         "manufacturer_confirmed": 0,
         "published_claims": 0,
+        "published_observed_size_rows": pdf_size_rows["size_rows_new"],
+        "observed_size_rows_found": pdf_size_rows["size_rows_found"],
     }

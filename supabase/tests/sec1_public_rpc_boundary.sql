@@ -29,17 +29,18 @@ begin
         'k7_public_tube_size_hub','k7_public_tube_size_hubs',
         'sp4_public_steel_pulse_feed',
         'netproducers1_catalog_observed_preview',
-        'netproducers1_structured_public')
+        'netproducers1_structured_public',
+        'netproducers_c3_pdf_public')
       and has_function_privilege('anon',p.oid,'EXECUTE')
       and has_function_privilege('authenticated',p.oid,'EXECUTE');
-  if v_published_facades<>13 then
-    raise exception 'SEC1: 13 public stable reader facades required: %',v_published_facades;
+  if v_published_facades<>14 then
+    raise exception 'SEC1: 14 public stable reader facades required: %',v_published_facades;
   end if;
   select count(*) into v_internals
     from pg_proc p join pg_namespace n on n.oid=p.pronamespace
     where n.nspname='sec1_public' and p.prosecdef;
-  if v_internals<>14 then
-    raise exception 'SEC1: 14 reviewed internal privileged published-only implementation functions required: %',v_internals;
+  if v_internals<>15 then
+    raise exception 'SEC1: 15 reviewed internal privileged published-only implementation functions required: %',v_internals;
   end if;
   select count(*) into v_unexpected_private
     from pg_proc p join pg_namespace n on n.oid=p.pronamespace
@@ -55,7 +56,8 @@ begin
         -- only, no contacts/profiles or source-candidate disclosure.
         'public_network_counts_impl',
         'netproducers1_catalog_observed_preview_impl',
-        'netproducers1_structured_public_impl');
+        'netproducers1_structured_public_impl',
+        'netproducers_c3_pdf_public_impl');
   -- The 12th internal facade never sees unpublished companies or private
   -- catalogue data; guard the exact reviewed implementation invariant.
   if not exists(
@@ -98,6 +100,20 @@ begin
   ) then
     raise exception 'SEC1: structured producer preview must honor publication and owner removal';
   end if;
+  -- C3.DATA2: only individual numeric rows from published first-party
+  -- official PDFs; owner-removed rows must never reach the anonymous reader.
+  if not exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='sec1_public'
+      and p.proname='netproducers_c3_pdf_public_impl'
+      and p.prosecdef
+      and pg_get_functiondef(p.oid) ~ 'publication_status[[:space:]]*=[[:space:]]*''published'''
+      and pg_get_functiondef(p.oid) ~ 'owner_review[[:space:]]*<>[[:space:]]*''removed'''
+      and pg_get_functiondef(p.oid) not like '%network_producer_catalog_grants%'
+      and pg_get_functiondef(p.oid) not like '%network_producer_catalog_submissions%'
+  ) then
+    raise exception 'SEC1: PDF row preview must be published-only and owner-removable';
+  end if;
   if v_unexpected_private<>0 then
     raise exception 'SEC1: unexpected private callable routine: %',v_unexpected_private;
   end if;
@@ -134,4 +150,4 @@ select public.netproducers1_catalog_observed_preview('',24)->>'contract' as publ
 select public.netproducers1_structured_public('',160)->>'contract' as structured_producer_facts;
 reset role;
 rollback;
-select 'SEC1.1 PASS — 13 public SECURITY INVOKER readers, 14 reviewed internal definers; no anon privileged RPC; published reads preserved; ROLLBACK' as result;
+select 'SEC1.1 PASS — 14 public SECURITY INVOKER readers, 15 reviewed internal definers; no anon privileged RPC; published reads preserved; ROLLBACK' as result;

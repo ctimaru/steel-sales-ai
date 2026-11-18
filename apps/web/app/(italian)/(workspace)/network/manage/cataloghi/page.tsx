@@ -3,6 +3,7 @@ import {redirect} from "next/navigation";
 
 import {ProducerCatalogueUpload} from "@/components/producer-catalogue-upload";
 import {ProducerStructuredModeration} from "@/components/producer-structured-moderation";
+import {ProducerPdfSizeOwner} from "@/components/producer-pdf-size-owner";
 import {getManagedNetworkCompany} from "@/lib/network";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 import {requireWorkspaceAdmin} from "@/lib/workspace-context";
@@ -45,6 +46,7 @@ export default async function ManagedProducerCataloguesPage(){
       </div>
     </header>
     <ProducerStructuredModeration companyId={managed?.network_company_id??null}/>
+    <ProducerPdfSizeOwner companyId={managed?.network_company_id??null}/>
     <ProducerCatalogueUpload companyId={managed?.network_company_id??null}
       companyName={managed?.company.legal_name??null}/>
   </main>;
