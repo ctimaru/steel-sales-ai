@@ -151,6 +151,9 @@ async def inspect(client: httpx.AsyncClient, candidate: dict) -> dict:
         normalized(x) in factory_text for x in recipe.manufacturing_markers
     )
     rights_restricted = any(RESTRICTED.search(p.text) for p in (legal, factory))
+    # Do not attach a plant city merely because a recipe proposed one.
+    supported_city = (recipe.city if recipe.city and
+                      normalized(recipe.city) in normalized(factory.text) else None)
     return {
         "p_candidate_id": str(candidate["id"]),
         "p_legal_url": legal.url, "p_legal_hash": hash_page(legal),
@@ -158,7 +161,7 @@ async def inspect(client: httpx.AsyncClient, candidate: dict) -> dict:
         "p_name_observed": legal_name_matched,
         "p_manufacturing_observed": manufacturing_observed,
         "p_rights_restricted": rights_restricted,
-        "p_process_code": recipe.process, "p_factory_city": recipe.city,
+        "p_process_code": recipe.process, "p_factory_city": supported_city,
         "p_note": recipe.note,
     }
 
