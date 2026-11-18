@@ -2,6 +2,7 @@ import Link from "next/link";
 import {redirect} from "next/navigation";
 
 import {ProducerCatalogueUpload} from "@/components/producer-catalogue-upload";
+import {ProducerStructuredModeration} from "@/components/producer-structured-moderation";
 import {getManagedNetworkCompany} from "@/lib/network";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 import {requireWorkspaceAdmin} from "@/lib/workspace-context";
@@ -43,6 +44,7 @@ export default async function ManagedProducerCataloguesPage(){
         <div className="rounded-xl bg-[#f2f8f4] px-4 py-3">03 · Intelligence documentata</div>
       </div>
     </header>
+    <ProducerStructuredModeration companyId={managed?.network_company_id??null}/>
     <ProducerCatalogueUpload companyId={managed?.network_company_id??null}
       companyName={managed?.company.legal_name??null}/>
   </main>;
