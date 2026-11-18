@@ -28,17 +28,18 @@ begin
         'k6_public_tube_dimension_pages','k7_public_tube_family_hubs',
         'k7_public_tube_size_hub','k7_public_tube_size_hubs',
         'sp4_public_steel_pulse_feed',
-        'netproducers1_catalog_observed_preview')
+        'netproducers1_catalog_observed_preview',
+        'netproducers1_structured_public')
       and has_function_privilege('anon',p.oid,'EXECUTE')
       and has_function_privilege('authenticated',p.oid,'EXECUTE');
-  if v_published_facades<>12 then
-    raise exception 'SEC1: 12 public stable reader facades required: %',v_published_facades;
+  if v_published_facades<>13 then
+    raise exception 'SEC1: 13 public stable reader facades required: %',v_published_facades;
   end if;
   select count(*) into v_internals
     from pg_proc p join pg_namespace n on n.oid=p.pronamespace
     where n.nspname='sec1_public' and p.prosecdef;
-  if v_internals<>13 then
-    raise exception 'SEC1: 13 reviewed internal privileged published-only implementation functions required: %',v_internals;
+  if v_internals<>14 then
+    raise exception 'SEC1: 14 reviewed internal privileged published-only implementation functions required: %',v_internals;
   end if;
   select count(*) into v_unexpected_private
     from pg_proc p join pg_namespace n on n.oid=p.pronamespace
@@ -53,7 +54,8 @@ begin
         -- HOME-NETPRO PUBLIC1: reviewed aggregate counts of published companies
         -- only, no contacts/profiles or source-candidate disclosure.
         'public_network_counts_impl',
-        'netproducers1_catalog_observed_preview_impl');
+        'netproducers1_catalog_observed_preview_impl',
+        'netproducers1_structured_public_impl');
   -- The 12th internal facade never sees unpublished companies or private
   -- catalogue data; guard the exact reviewed implementation invariant.
   if not exists(
@@ -81,6 +83,20 @@ begin
       and pg_get_functiondef(p.oid) not like '%network_producer_catalog_grants%'
   ) then
     raise exception 'SEC1: catalogue preview must be source-only and published-only';
+  end if;
+  -- NET-PRODUCERS C3.DATA1: exact single-source atomic attribute rows,
+  -- published firms only and owner-hidden facts never exposed.
+  if not exists(
+    select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='sec1_public'
+      and p.proname='netproducers1_structured_public_impl'
+      and p.prosecdef
+      and pg_get_functiondef(p.oid) ~ 'publication_status[[:space:]]*=[[:space:]]*''published'''
+      and pg_get_functiondef(p.oid) ~ 'producer_review[[:space:]]*<>[[:space:]]*''removed'''
+      and pg_get_functiondef(p.oid) not like '%network_producer_catalog_grants%'
+      and pg_get_functiondef(p.oid) not like '%network_producer_catalog_submissions%'
+  ) then
+    raise exception 'SEC1: structured producer preview must honor publication and owner removal';
   end if;
   if v_unexpected_private<>0 then
     raise exception 'SEC1: unexpected private callable routine: %',v_unexpected_private;
@@ -115,6 +131,7 @@ select count(*) as size_hubs from public.k7_public_tube_size_hubs(null);
 select count(*) as one_size_hub from public.k7_public_tube_size_hub('round-tube','non-existent-size');
 select jsonb_typeof(public.sp4_public_steel_pulse_feed(3)) as pulse_cards_json_kind;
 select public.netproducers1_catalog_observed_preview('',24)->>'contract' as public_catalog_preview;
+select public.netproducers1_structured_public('',160)->>'contract' as structured_producer_facts;
 reset role;
 rollback;
-select 'SEC1.1 PASS — 12 public SECURITY INVOKER readers, 13 reviewed internal definers; no anon privileged RPC; published reads preserved; ROLLBACK' as result;
+select 'SEC1.1 PASS — 13 public SECURITY INVOKER readers, 14 reviewed internal definers; no anon privileged RPC; published reads preserved; ROLLBACK' as result;
