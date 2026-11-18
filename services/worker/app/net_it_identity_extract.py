@@ -155,6 +155,20 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
             continue
         break
     picked.reverse()
+    # Flattened CMS footers can prepend UI controls immediately before the
+    # genuine legal entity. Do not mistake "Immagini Coltro Srl" or
+    # "Dom Chiuso IN.BRO.FER S.R.L." for a corporate name. Only discard a
+    # complete leading UI token sequence when a separate name remains.
+    while len(picked) >= 2:
+        head = picked[0].casefold().strip(",.")
+        second = picked[1].casefold().strip(",.")
+        if len(picked) >= 3 and head == "dom" and second == "chiuso":
+            del picked[:2]
+        elif head in {"immagini", "images", "fotografie", "gallery",
+                      "galleria", "foto", "visualizza"}:
+            picked.pop(0)
+        else:
+            break
     while picked and (picked[0].casefold() in _CONNECTORS
                       or picked[0].casefold().strip(",.") in _LEADING_NOISE
                       or picked[0].strip(",.").isdigit()):
