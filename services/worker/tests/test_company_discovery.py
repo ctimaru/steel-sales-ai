@@ -503,3 +503,55 @@ def test_treatment_words_without_steel_evidence_are_rejected() -> None:
     roles, _, _, _, flags = classify_company(
         "Verniciatura industriale e sabbiatura di mobili in legno e plastica.")
     assert roles == [] and flags == ["classification_no_steel_evidence"]
+
+# NET-IT-FAST1: recover real steel companies previously marked no_candidate.
+# These are self-reported manufacturing activities, NOT a source of company
+# identity or justification to bypass first-party AUTO2 evidence gates.
+def test_fast1_tube_processing_inflected_wording_qualifies_without_mill_claim() -> None:
+    roles, subtypes, products, _, _ = classify_company(
+        "CPM Srl: taglio e deformazione dei tubi in barra in acciaio "
+        "per applicazioni industriali.")
+    assert "processor_service_provider" in roles
+    assert "producer" not in roles
+    assert "tube_pipe_producer" not in subtypes
+    assert {"key": "tubes_pipes", "relationship_type": "processes"} in products
+
+
+def test_fast1_fittings_production_is_not_tube_mill() -> None:
+    roles, subtypes, products, _, _ = classify_company(
+        "La Raccordtubi produce da oltre 40 anni raccordi per tubi "
+        "in acciaio per oleodinamica industriale.")
+    assert "producer" in roles
+    assert "tube_pipe_producer" not in subtypes
+    assert {"key": "tubes_pipes", "relationship_type": "produces"} not in products
+
+
+def test_fast1_fittings_catalogue_is_not_manufacturing_evidence() -> None:
+    roles, subtypes, products, _, _ = classify_company(
+        "Catalogo raccordi per tubi in acciaio e accessori di fissaggio.")
+    assert "producer" not in roles
+    assert "tube_pipe_producer" not in subtypes
+    assert {"key": "tubes_pipes", "relationship_type": "produces"} not in products
+
+
+def test_fast1_true_tube_mill_retains_precise_production_claim() -> None:
+    roles, subtypes, products, _, _ = classify_company(
+        "Produzione di tubi saldati in acciaio per impiego strutturale.")
+    assert "producer" in roles
+    assert "tube_pipe_producer" in subtypes
+    assert {"key": "tubes_pipes", "relationship_type": "produces"} in products
+
+
+def test_fast1_flange_producer_does_not_gain_false_tube_capability() -> None:
+    roles, subtypes, products, _, _ = classify_company(
+        "Produzione di flange in acciaio inox e raccordi per tubi.")
+    assert "producer" in roles
+    assert "tube_pipe_producer" not in subtypes
+    assert {"key": "tubes_pipes", "relationship_type": "produces"} not in products
+
+
+def test_fast1_wood_or_plastic_processing_not_newly_qualified() -> None:
+    roles, _, _, _, flags = classify_company(
+        "Taglio e deformazione dei componenti in plastica e legno.")
+    assert roles == []
+    assert flags == ["classification_no_steel_evidence"]
