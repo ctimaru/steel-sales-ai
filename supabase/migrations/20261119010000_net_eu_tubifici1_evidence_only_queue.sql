@@ -39,7 +39,7 @@ set search_path = ''
 as $$
 declare v_items jsonb;
 begin
-  if current_setting('request.jwt.claim.role', true) is distinct from 'service_role'
+  if auth.role() is distinct from 'service_role'
      or auth.uid() is not null or p_max is null or p_max not between 1 and 50 then
     raise exception 'Service-only European identity research required'
       using errcode='42501';
@@ -94,7 +94,7 @@ declare
  v_verdict text := p_verdict;
  v_id uuid;
 begin
- if current_setting('request.jwt.claim.role', true) is distinct from 'service_role'
+ if auth.role() is distinct from 'service_role'
     or auth.uid() is not null then
    raise exception 'Service-only first-party identity research required'
      using errcode='42501';
@@ -146,7 +146,7 @@ begin
   v_verdict,p_reasons,left(p_observed_domain,255),left(p_observed_name,255),
   left(p_page_url,2000),p_hash,coalesce(p_name_matched,false),p_rights_state,p_confidence
  )
- on conflict (candidate_id, reviewer_version, coalesce(page_sha256,''), verdict)
+ on conflict (candidate_id, reviewer_version, (coalesce(page_sha256,'')), verdict)
  do update set last_checked_at=now()
  returning id into v_id;
  return jsonb_build_object(
