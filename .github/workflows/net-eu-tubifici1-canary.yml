@@ -1,11 +1,9 @@
-name: "NET-EU-TUBIFICI1.B2 — One-time European identity canary"
+name: "NET-EU-TUBIFICI1.D1 — Bounded European cohort identity canary"
 
-# Purpose: run the freshly merged, bounded European identity reviewer against
-# the 19 already-staged EU company domains. This is evidence-only, NOT a
-# manufacturer certification or publication route.
-# The first push introducing this file to main triggers one run; subsequent
-# pushes do not, unless this workflow file itself is edited. Manual reruns
-# require workflow_dispatch on main.
+# D1 second cohort: the existing worker will use the source-bound queue
+# for 8 new European producer candidates (batch 02). No publisher is invoked.
+# This file change intentionally schedules a one-time canary on merge to main;
+# subsequent pushes do not retrigger unless this workflow file changes again.
 on:
   push:
     branches: [main]
@@ -17,13 +15,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: net-eu-tubifici1-b2-live-canary
+  group: net-eu-tubifici1-d1-live-canary
   cancel-in-progress: false
 
 jobs:
   first-party-canary:
     if: github.ref == 'refs/heads/main'
-    name: "Inspect up to 19 EU manufacturers without publishing"
+    name: "Inspect up to 8 EU producer candidates, evidence only"
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -47,12 +45,12 @@ jobs:
             echo "::error::Missing project worker secrets; no EU records processed"
             exit 1
           fi
-      - name: Real 19-domain canary — record first-party identity observations only
+      - name: Real D1 8-domain canary — store first-party identity evidence only
         working-directory: services/worker
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          python -m app.net_eu_tubifici1_reviewer --limit 19 --persist
+          python -m app.net_eu_tubifici1_reviewer --limit 8 --persist
           # This worker never publishes records or confirms tube manufacturing.
