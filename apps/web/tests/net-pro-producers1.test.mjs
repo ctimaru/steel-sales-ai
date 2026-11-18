@@ -33,7 +33,7 @@ test("NET-PRO-PRODUCERS1: comparison never invents manufacturer specifications o
   assert.match(experience,/selection\.scope===selectionScope\?selection\.ids:\[\]/);
   assert.match(experience,/Non disponibile in questa vista/);
   assert.match(experience,/La ricerca tecnica per norma, grado e dimensione/);
-  assert.match(experience,/cataloghi tecnici sono qualificazioni distinte/);
+  assert.match(experience,/tecnici restano qualificazioni documentali separate/);
   assert.doesNotMatch(experience,/import \{safeNetworkWebsiteUrl\} from "@\/lib\/network-free"/);
   assert.doesNotMatch(experience,/service_role|stripe\.checkout\.sessions\.create/);
 });
