@@ -186,6 +186,8 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
         second = picked[1].casefold().strip(",.")
         if len(picked) >= 3 and head == "dom" and second == "chiuso":
             del picked[:2]
+        elif head in {"credit", "credits"}:
+            picked.pop(0)
         elif head in {"immagini", "images", "fotografie", "gallery",
                       "galleria", "foto", "visualizza"}:
             picked.pop(0)
@@ -224,7 +226,11 @@ def find_company_identity(page_texts: list[str], domain: str,
             core, core_start = found
             if is_civic_snc_address(f"{core} {match.group(1).strip()}"):
                 continue
-            if _CREDIT_CUES.search(text[max(0, core_start - 40):core_start]):
+            credit_context = text[max(0, core_start - 40):core_start]
+            # 'Credits' as a standalone navigation label is not the name.
+            # 'Credits by Pixel ...' is still third-party agency attribution.
+            if (_CREDIT_CUES.search(credit_context)
+                    and not re.search(r"\bcredits?\s*$", credit_context, re.I)):
                 continue
             if not _related(core, domain, first_guess):
                 continue
