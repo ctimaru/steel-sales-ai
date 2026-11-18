@@ -55,3 +55,17 @@ def test_flattened_multi_value_span_is_not_fabricated_into_columns():
                         if x["y"]!=650]+[
         {"x":10,"y":650,"size":10,"text":"200 100 22,3 26,4"}]
     assert extract_positioned_thickness(pages,sizes)["candidate_rows"]==[]
+
+
+def test_grade_only_when_unique_in_exact_same_table_heading():
+    pages,sizes=fixture()
+    title=next(x for x in pages[0]["spans"] if x["y"]==700)
+    title["text"] += " S355J2H"
+    rows=extract_positioned_thickness(pages,sizes)["candidate_rows"]
+    assert rows and {r["grade"] for r in rows}=={"S355J2H"}
+    title["text"] += " S235JR H"
+    rows=extract_positioned_thickness(pages,sizes)["candidate_rows"]
+    assert all(r["grade"]=="S355J2H" for r in rows)
+    title["text"] += " S235JRH"
+    rows=extract_positioned_thickness(pages,sizes)["candidate_rows"]
+    assert rows and all(r["grade"] is None for r in rows)
