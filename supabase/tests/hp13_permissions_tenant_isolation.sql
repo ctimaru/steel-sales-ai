@@ -308,7 +308,12 @@ select pg_temp.hp13_assert(
         'net_pipeline1b2_preview_batch',
         -- NET-PIPELINE1B.2: guarded platform-only one-candidate publication;
         -- feature flag defaults OFF, source/domain validation, audit ledger.
-        'net_pipeline1b2_publish_one'
+        'net_pipeline1b2_publish_one',
+        -- NET-PRODUCERS B3.C2 reviewed: own verified producer admin only,
+        -- claim approved + independent proof, bounded immutable private
+        -- upload reservations, no B2 licence issue or AI-visible output.
+        -- Only public facade callable; private implementation stays denied.
+        'netproducers1_b3c2_catalog_submission'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
