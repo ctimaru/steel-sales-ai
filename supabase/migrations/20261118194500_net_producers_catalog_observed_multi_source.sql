@@ -141,6 +141,7 @@ and (
   encode(sha256(convert_to(source_line,'UTF8')),'hex'),
   'official_pdf_text_index'
  from safe_source
+ where true
  on conflict(company_id,source_url,locator) do nothing
  returning id,company_id
 )
