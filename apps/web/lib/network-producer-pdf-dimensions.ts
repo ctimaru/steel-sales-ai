@@ -3,7 +3,7 @@ import {createClient} from "@/lib/supabase/server";
 
 export type PdfDimensionRow={
  id:string;companyId:string;companyName:string;
- standard:"EN 10219"|"EN 10210";shape:"RHS"|"SHS"|"CHS";
+ standard:"EN 10219"|"EN 10210"|"CATALOGUE_UNSPECIFIED";shape:"RHS"|"SHS"|"CHS";
  width:number|null;height:number|null;diameter:number|null;thickness:number|null;
  sourcePage:number;sourceUrl:string;review:"pending_producer_confirmation"|"single_row_confirmed";
 };
@@ -16,7 +16,7 @@ export function parsePdfDimensions(raw:unknown):PdfDimensions|null {
  if(r.contract!=="netproducers-c3-pdf-public-v1"||
     r.verified_manufacturer_skus!==0||r.mirrored_pdf_copies!==0||
     !Number.isSafeInteger(r.total)||!Number.isSafeInteger(r.producers)||
-    !Array.isArray(r.items)||r.items.length>70||r.count!==r.items.length)return null;
+    !Array.isArray(r.items)||r.items.length>180||r.count!==r.items.length)return null;
  const rows:PdfDimensionRow[]=[];
  for(const obj of r.items){
    if(!obj||typeof obj!=="object"||Array.isArray(obj))return null;
@@ -24,7 +24,7 @@ export function parsePdfDimensions(raw:unknown):PdfDimensions|null {
    if(typeof x.id!=="string"||!uuid.test(x.id)||
      typeof x.company_id!=="string"||!uuid.test(x.company_id)||
      typeof x.company_name!=="string"||x.company_name.length>220||
-     !["EN 10219","EN 10210"].includes(String(x.standard))||
+     !["EN 10219","EN 10210","CATALOGUE_UNSPECIFIED"].includes(String(x.standard))||
      !["RHS","SHS","CHS"].includes(String(x.shape))||
      x.review_status!=="pending_producer_confirmation"&&x.review_status!=="single_row_confirmed"||
      !Number.isSafeInteger(x.source_page)||Number(x.source_page)<1||Number(x.source_page)>100||
@@ -46,7 +46,7 @@ export async function getPdfDimensions(query:string):Promise<PdfDimensions|null>
  try{
   const db=await createClient();
   const {data,error}=await db.rpc("netproducers_c3_pdf_public",{
-   p_search:query.slice(0,80),p_limit:70,
+   p_search:query.slice(0,80),p_limit:180,
   });
   return error?null:parsePdfDimensions(data);
  }catch{return null;}
