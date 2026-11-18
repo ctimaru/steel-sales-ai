@@ -36,7 +36,7 @@ try {
         assert.ok((await privateSave.getAttribute("aria-label")).length>0);
         assert.ok((await prepare.getAttribute("aria-label")).length>0);
         assert.notEqual(await privateSave.getAttribute("aria-label"),await prepare.getAttribute("aria-label"));
-        assert.equal(await link.getAttribute("href"),"/rfq-hub");
+        assert.equal(await link.getAttribute("href"),"/rfq-hub/distinte");
         await input.fill("Commessa TEST-1029 / tubi sezioni miste");
         assert.equal(await input.inputValue(),"Commessa TEST-1029 / tubi sezioni miste");
         await drawer.screenshot({path:OUT+"/"+locale+"-"+width+"-named-1.png",animations:"disabled"});
