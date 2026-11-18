@@ -48,11 +48,8 @@ insert into public.network_contacts(
 ) values
 ('00000000-0000-0000-0000-0000001d1c01', 'sales', 'Ufficio vendite', 'Vendite@R1D-Tubi.example.test', 'published', 'verified',
  'company_channel', 'not_applicable_company_data', 'not_required', 'not_required',
- now(), '00000000-0000-0000-0000-0000001d1a01', now() + interval '1 year'),
--- Review expired: never shown.
-('00000000-0000-0000-0000-0000001d1c02', 'sales', 'Scaduto', 'scaduto@r1d.example.test', 'published', 'verified',
- 'company_channel', 'not_applicable_company_data', 'not_required', 'not_required',
- now() - interval '2 years', '00000000-0000-0000-0000-0000001d1a01', now() - interval '1 day');
+ now(), '00000000-0000-0000-0000-0000001d1a01', now() + interval '1 year');
+-- R1D Senza Canale has no published contact: it never shows a channel.
 
 -- Supplier profiles: e-mail-only at the Tubi domain, e-mail-only on webmail,
 -- already linked, and a colleague's profile.
