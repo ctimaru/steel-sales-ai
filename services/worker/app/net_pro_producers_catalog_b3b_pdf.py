@@ -165,6 +165,15 @@ def stage_authorised_pdf(
     if source["status"] != "licensed_pdf_registered_not_extracted":
         raise CatalogueRejected("B3.B invalid B2 PDF registration")
     pages = _read_pdf_lines(content)
+    # Coordinate inspection is automatic per eligible PDF once enabled.
+    # It is independently isolated and returns diagnostic counts only until
+    # a cell-to-row proof can be validated by the service-side writer.
+    position_metrics = None
+    if os.getenv("NETPRODUCERS_C3_POSITION_OBSERVATION_ENABLED") == "1":
+        from .net_pro_producers_pdf_positions_c3 import (
+            read_pdf_text_origins, position_diagnostics,
+        )
+        position_metrics = position_diagnostics(read_pdf_text_origins(content))
     candidates, ignored = _candidate_rows(
         pages, manifest, source["document_sha256"],
     )
@@ -214,4 +223,5 @@ def stage_authorised_pdf(
         "published_claims": 0,
         "published_observed_size_rows": pdf_size_rows["size_rows_new"],
         "observed_size_rows_found": pdf_size_rows["size_rows_found"],
+        "position_observation": position_metrics,
     }
