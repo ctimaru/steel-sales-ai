@@ -54,21 +54,30 @@ test("RFQHUB1 views and old addresses map to one canonical Centro RFQ URL", () =
   assert.match(archive, /redirect\(rfqHubHref\(/);
 });
 
-test("RFQHUB1 attention keeps one open action per RFQ and ignores waiting items", () => {
+test("RFQHUB1 attention keeps one open action per RFQ, in Italian, without repeating the row state", () => {
   const map = rows.rfqHubAttentionByRfq({ items: [
-    { rfq_id: "a", requires_action: true, priority: "urgent", action_label: "Confronta offerte", headline: "x" },
-    { rfq_id: "a", requires_action: true, priority: "normal", action_label: "Secondo" },
-    { rfq_id: "b", requires_action: false, priority: "waiting", headline: "Attesa" },
-    { rfq_id: "c", requires_action: true, priority: "normal", headline: "Sollecita fornitore" },
+    { rfq_id: "a", requires_action: true, priority: "urgent", action_code: "launch_rfq", action_label: "Apri e lancia RFQ" },
+    { rfq_id: "a", requires_action: true, priority: "normal", action_code: "recover_dispatch" },
+    { rfq_id: "b", requires_action: false, priority: "waiting", action_code: "monitor_rfq" },
+    { rfq_id: "c", requires_action: true, priority: "normal", action_code: "add_suppliers", action_label: "Aggiungi supplier" },
+    { rfq_id: "d", requires_action: true, priority: "high", action_code: "issue_po" },
+    { rfq_id: "e", requires_action: true, priority: "normal", action_code: "something_new", action_label: "Do it" },
     "junk", null,
   ]});
-  assert.deepEqual([...map.keys()], ["a", "c"]);
-  assert.deepEqual(map.get("a"), { label: "Confronta offerte", urgent: true });
-  assert.deepEqual(map.get("c"), { label: "Sollecita fornitore", urgent: false });
+  assert.deepEqual([...map.keys()], ["a", "c", "d", "e"]);
+  assert.deepEqual(map.get("a"), { label: "Alcuni invii non sono partiti", urgent: true });
+  assert.deepEqual(map.get("c"), { label: null, urgent: false }, "«Fornitori da scegliere» already says it");
+  assert.deepEqual(map.get("d"), { label: "Ordine pronto da emettere", urgent: true });
+  assert.equal(map.get("e").label, null, "unknown codes never show English labels");
+  assert.equal(rows.rfqHubAttentionCount({ items: [{ rfq_id: "x", requires_action: true, action_code: "launch_rfq" }] }), 1,
+    "hidden labels still count as «da gestire»");
   assert.equal(rows.rfqHubAttentionByRfq(null), null);
   assert.equal(rows.rfqHubAttentionByRfq([]), null);
   assert.equal(rows.rfqHubAttentionCount({ items: [] }), 0);
   assert.equal(rows.rfqHubAttentionCount(undefined), 0);
+  const labels = rowsSource.slice(rowsSource.indexOf("const attentionLabels"), rowsSource.indexOf("export function rfqHubAttentionLabel"));
+  assert.doesNotMatch(labels.replace(/^\s*[a-z_]+:/gm, ""), /supplier|RFQ|BAFO|award|PO\b/, "no English or jargon in labels");
+  assert.match(hub, /facts\.attention\?\.label \?/);
 });
 
 test("RFQHUB1 menu: Centro RFQ with counter and Fornitori RFQ, no Inbox or Distinte", () => {
