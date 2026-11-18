@@ -166,3 +166,37 @@ grant execute on function private.net_eu_tubifici1_record(
 
 comment on table private.net_eu_tubifici1_identity_evidence is
  'EU1.B first-party identity observations only. Not a legal verification, producer proof, publication decision or catalog license.';
+
+
+-- PostgREST exposes public RPCs only; mirror the established Italian AUTO2
+-- pattern with invoker wrappers. Both wrappers and private implementations
+-- are denied to browser roles. The private functions re-check service JWT.
+create or replace function public.net_eu_tubifici1_queue(p_max integer default 20)
+returns jsonb language sql security invoker set search_path=''
+as $$
+  select private.net_eu_tubifici1_queue(p_max);
+$$;
+
+create or replace function public.net_eu_tubifici1_record(
+ p_candidate_id uuid, p_reviewer_version text, p_verdict text,
+ p_reasons text[], p_observed_domain text, p_observed_name text,
+ p_page_url text, p_hash text, p_name_matched boolean,
+ p_confidence numeric, p_rights_state text default 'unknown'
+)
+returns jsonb language sql security invoker set search_path=''
+as $$
+  select private.net_eu_tubifici1_record(
+    p_candidate_id,p_reviewer_version,p_verdict,
+    p_reasons,p_observed_domain,p_observed_name,p_page_url,
+    p_hash,p_name_matched,p_confidence,p_rights_state
+  );
+$$;
+
+revoke all on function public.net_eu_tubifici1_queue(integer)
+ from public,anon,authenticated;
+revoke all on function public.net_eu_tubifici1_record(
+ uuid,text,text,text[],text,text,text,text,boolean,numeric,text)
+ from public,anon,authenticated;
+grant execute on function public.net_eu_tubifici1_queue(integer) to service_role;
+grant execute on function public.net_eu_tubifici1_record(
+ uuid,text,text,text[],text,text,text,text,boolean,numeric,text) to service_role;
