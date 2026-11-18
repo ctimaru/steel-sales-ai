@@ -23,7 +23,11 @@ test("RFQC1.5 keeps governed actions visible when PO requires attention", () => 
 });
 test("RFQC1.5 has only one exact RFQ title H1 and no automatic send", () => {
   assert.match(chat, /<h1 className=/);
-  assert.doesNotMatch(route, /<h1 className=/);
+  // DISTINTA2: the route renders its own H1 only in the draft step-2 screen,
+  // where the chat workspace (and its H1) is not rendered.
+  const h1 = route.indexOf("<h1 className=");
+  assert.equal(route.split("<h1 className=").length - 1, 1);
+  assert.ok(h1 > route.indexOf("if (isPreparation && canExecuteCritical) {") && h1 < route.indexOf("<Rfqc1ChatWorkspace"));
   assert.doesNotMatch(chat, /postBuyerRfqNegotiation/);
   assert.match(route, /Gestione RFQ/);
 });

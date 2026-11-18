@@ -92,6 +92,10 @@ async function fillTwoQuickLines(page, width) {
     await quick.getByRole("button", { name: standard, exact: true }).click();
     await search.fill("quadro 100x100x5");
     await quick.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
+    // The best suggestion must stay first and active even if the pointer rests on the list.
+    const results = quick.getByRole("listbox", { name: "Articoli trovati" });
+    assert.equal(await results.getByRole("option", { selected: true }).getAttribute("id"),
+      await results.getByRole("option").first().getAttribute("id"));
     await search.press("Enter");
     await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Q.tà");
     await page.keyboard.type("3");
@@ -150,6 +154,16 @@ try {
       const { bill } = await fillTwoQuickLines(page, width);
       const btn = bill.getByRole("button", { name: /Crea RFQ privata|Scegli i fornitori/ });
       await btn.waitFor({state:"visible"});
+      if (!(await btn.isEnabled())) {
+        // Fixture-only diagnostic (synthetic lines, no credentials or storage).
+        const diagnostic = await page.evaluate(() => ({
+          ready: document.querySelector("[data-private-calculator-page]")?.getAttribute("data-buyer-draft-ready"),
+          quickStatus: document.querySelector('[data-testid="distinta-quick-add"] [role="status"]')?.textContent,
+          approved: Array.from(document.querySelectorAll('[data-testid="commercial-rfq-approved-lines"] li')).map(li => (li.textContent || "").slice(0, 160)),
+          bill: (document.querySelector("#buyer-live-preview")?.textContent || "").replace(/\s+/g, " ").slice(0, 1200),
+        }));
+        console.error("BD15 DISTINTA2 disabled RFQ button diagnostic " + width, JSON.stringify(diagnostic));
+      }
       assert.equal(await btn.isEnabled(),true,"Mixed EN bill must be valid and immediately RFQ-ready");
       await noOverflow(page,"private bill "+width);
     });
@@ -175,10 +189,11 @@ try {
         throw error;
       }
       const body = await page.locator("body").innerText();
-      assert.match(body,/RFQ privata · preparazione/i);
-      assert.match(body,/La RFQ è ancora privata/);
-      assert.match(body,/1 · Scegli i fornitori/);
-      assert.match(body,/2 · Verifica e invia/);
+      // DISTINTA2: one focused step-2 screen while the RFQ is a draft.
+      assert.equal(await page.getByTestId("rfq-step2").count(),1);
+      assert.match(body,/A chi chiedi l'offerta\?/);
+      assert.match(body,/privata, non ancora inviata/);
+      assert.match(body,/Rivedi e invia/);
       assert.ok(!body.includes("Pubblicato nel Marketplace"),"Accidental Marketplace publication");
       await noOverflow(page,"new RFQ draft "+width);
     });
@@ -222,7 +237,7 @@ try {
       await page.getByText(/canale email RFQ non è ancora configurato/).waitFor({state:"visible",timeout:45000});
       assert.equal(await review.count(),0);
       const body=await page.locator("body").innerText();
-      assert.match(body,/RFQ privata · preparazione/i);
+      assert.match(body,/privata, non ancora inviata/);
       await noOverflow(page,"disabled dispatch "+width);
     });
     await ctx.close();
