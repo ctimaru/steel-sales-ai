@@ -45,3 +45,16 @@ test("EU1.D1: private match helper never accessible to clients or service-role d
  assert.match(migration,/revoke all on function private\.net_eu_tubifici1_seed_matches\([\s\S]*?\) from public,anon,authenticated,service_role/);
  assert.match(migration,/language sql stable security definer set search_path=''/);
 });
+
+test("EU1.D1: automatic one-time canary must actually store eight evidence records and zero publications",()=>{
+ const workflow=readFileSync(
+  new URL("../../../.github/workflows/net-eu-tubifici1-canary.yml",import.meta.url),
+  "utf8",
+ );
+ assert.match(workflow,/branches: \[main\]/);
+ assert.match(workflow,/paths:[\s\S]*net-eu-tubifici1-canary\.yml/);
+ assert.match(workflow,/python -m app\.net_eu_tubifici1_reviewer --limit 8 --persist/);
+ for(const x of ['payload.get("queued") != 8','payload.get("inspected") != 8','payload.get("recorded") != 8','payload.get("published") != 0'])
+  assert.ok(workflow.includes(x),x);
+ assert.doesNotMatch(workflow,/net_eu_tubifici1_publish|net_it_auto3_release/);
+});
