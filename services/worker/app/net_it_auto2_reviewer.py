@@ -23,7 +23,7 @@ from .company_discovery import (
     PRIORITY_PATH_HINTS, CompanyDiscoveryError, CrawledPage, _fetch_page,
     canonical_domain, canonicalize_seed_url,
 )
-from .net_it_identity_extract import find_company_identity
+from .net_it_identity_extract import find_company_identity, is_civic_snc_address
 
 # v2 (NET-IT-GROWTH1): reads legal/contact pages where Italian companies print
 # their ragione sociale and P.IVA, matches on the whole extracted page text,
@@ -116,6 +116,9 @@ def _has_bad_name_case_or_spacing(current: str, evidenced: str) -> bool:
 
 
 def _name_evidenced(name: str, page_texts: list[str]) -> bool:
+    # "C.da Piana snc" in an address means no civic number, not a company.
+    if is_civic_snc_address(name):
+        return False
     normalized = _normalize_full_legal_name(name)
     # A corporate suffix on the candidate must ALSO appear on the first-party
     # body text. A brand-only title or partial token match is not enough.

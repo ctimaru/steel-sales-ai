@@ -1,7 +1,7 @@
 """NET-IT-AUTO2 v4: ragione sociale found on the company's own pages."""
 import unittest
 
-from app.net_it_identity_extract import find_company_identity
+from app.net_it_identity_extract import find_company_identity, is_civic_snc_address
 
 
 class FindCompanyIdentityTest(unittest.TestCase):
@@ -30,6 +30,26 @@ class FindCompanyIdentityTest(unittest.TestCase):
             "inbrofer.com", "Dom Chiuso IN.BRO.FER S.R.L.")
         self.assertIsNotNone(found)
         self.assertEqual(found.legal_name, "IN.BRO.FER S.R.L.")
+
+    def test_civic_snc_is_an_address_not_legal_name(self):
+        self.assertTrue(is_civic_snc_address("C.da Piana S.n.c."))
+        self.assertTrue(is_civic_snc_address("Via Roma snc"))
+        self.assertFalse(is_civic_snc_address("Flli Tiana snc"))
+        found = find_company_identity(
+            ["Indirizzo C.da Piana snc Caronia (ME). "
+             "COSTRUZIONI MECCANICHE NIGRELLI SRL P.IVA 03359330838"],
+            "grupponigrelli.it", "C.da Piana S.n.c.")
+        self.assertIsNotNone(found)
+        self.assertEqual(found.legal_name, "COSTRUZIONI MECCANICHE NIGRELLI SRL")
+
+    def test_contact_us_now_is_not_part_of_vital_name(self):
+        found = find_company_identity(
+            ["CONTATTACI ORA VITAL SRL - Via S. Antonio 78 - P.IVA 01291660288"],
+            "vitalsrl.com", "ORA VITAL SRL")
+        self.assertIsNotNone(found)
+        self.assertEqual(found.legal_name, "VITAL SRL")
+        self.assertEqual(find_company_identity(
+            ["ORA Srl P.IVA 01234567890"], "orasrl.it", "ORA").legal_name, "ORA Srl")
 
     def test_real_brand_immagini_alone_is_not_silently_removed(self):
         found = find_company_identity(
