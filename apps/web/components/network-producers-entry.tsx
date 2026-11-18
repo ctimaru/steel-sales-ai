@@ -55,6 +55,10 @@ export function NetworkProducersEntry(){
                 <li className="rounded-full border border-white/15 bg-white/[0.07] px-2.5 py-1">Dati tecnici con fonte</li>
                 <li className="rounded-full border border-white/15 bg-white/[0.07] px-2.5 py-1">Confronto fino a 3</li>
               </ul>
+              <Link href="/network/cataloghi"
+                className="mt-3 inline-flex min-h-9 items-center rounded-lg border border-white/25 px-3 py-1.5 text-[11px] font-extrabold text-white hover:bg-white/10">
+                Vedi i primi cataloghi e dati tecnici →
+              </Link>
             </div>
           </div>
           <Link href="/network/pro/producers"
