@@ -8,7 +8,7 @@ const compact=read("../components/network-compact-experience.tsx");
 const exp=read("../components/network-producers-experience.tsx");
 
 test("NET-PRO-UX2 one PRO strip: Intelligence Produttori + Moduli e prezzi, no data reads",()=>{
-  assert.match(entry,/href=\{\/network\/pro\/producers\?country=/);
+  assert.match(entry,/href=\{"\/network\/pro\/producers\?country=/);
   assert.match(entry,/data-testid="network-pro-plans-entry"/);
   assert.match(entry,/href="\/network\/pro"/);
   assert.match(entry,/NETWORK_PRO_PRICE_BOOK\.IT/);
