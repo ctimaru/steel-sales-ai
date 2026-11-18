@@ -39,7 +39,14 @@ async function noOverflow(page, label) {
     scroll: document.documentElement.scrollWidth,
     client: document.documentElement.clientWidth,
     body: document.body.innerText,
+    // Fixture-only layout diagnostic: the widest elements past the viewport.
+    wide: Array.from(document.querySelectorAll("body *"))
+      .map(el => ({ el, r: el.getBoundingClientRect() }))
+      .filter(({ r }) => r.right > document.documentElement.clientWidth + 1 && r.width > 0)
+      .sort((a, b) => b.r.right - a.r.right).slice(0, 6)
+      .map(({ el, r }) => el.tagName + "." + String(el.className || "").slice(0, 80) + "#" + (el.getAttribute("data-testid") || el.id || "") + " w" + Math.round(r.width) + " r" + Math.round(r.right)),
   }));
+  if (state.scroll > state.client + 12) console.error("BD15 overflow diagnostic " + label, JSON.stringify(state.wide));
   assert.ok(state.scroll <= state.client + 12, label + " horizontal overflow " + state.scroll + "/" + state.client);
   assert.ok(!state.body.includes("Application error: a server-side exception"), label + " server crash");
 }
@@ -192,8 +199,9 @@ try {
       // DISTINTA2: one focused step-2 screen while the RFQ is a draft.
       assert.equal(await page.getByTestId("rfq-step2").count(),1);
       assert.match(body,/A chi chiedi l'offerta\?/);
-      assert.match(body,/privata, non ancora inviata/);
-      assert.match(body,/Rivedi e invia/);
+      assert.match(body,/La tua distinta/);
+      assert.match(body,/Presto disponibile/);
+      assert.equal(await page.getByTestId("rfq-step2-marketplace-locked").count(),1);
       assert.ok(!body.includes("Pubblicato nel Marketplace"),"Accidental Marketplace publication");
       await noOverflow(page,"new RFQ draft "+width);
     });
@@ -237,7 +245,7 @@ try {
       await page.getByText(/canale email RFQ non è ancora configurato/).waitFor({state:"visible",timeout:45000});
       assert.equal(await review.count(),0);
       const body=await page.locator("body").innerText();
-      assert.match(body,/privata, non ancora inviata/);
+      assert.match(body,/A chi chiedi l'offerta\?/);
       await noOverflow(page,"disabled dispatch "+width);
     });
     await ctx.close();
