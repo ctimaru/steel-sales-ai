@@ -13,6 +13,38 @@ class FindCompanyIdentityTest(unittest.TestCase):
         self.assertEqual(found.legal_name, "Mattiolo S.r.l.")
         self.assertEqual(found.vat_id, "01234567890")
 
+
+    def test_coltro_images_widget_is_not_legal_name(self):
+        found = find_company_identity(
+            ["Coltro srl carpenteria metallica a Bovolone. "
+             "Immagini Coltro Srl | P.IVA: 02194750234 | REA: VR222737"],
+            "coltro-carpenteriaverona.it", "Immagini Coltro Srl")
+        self.assertIsNotNone(found)
+        self.assertEqual(found.legal_name, "Coltro Srl")
+        self.assertEqual(found.vat_id, "02194750234")
+
+    def test_inbrofer_closed_dom_ui_prefix_is_not_legal_name(self):
+        found = find_company_identity(
+            ["Home Prodotti Dom Chiuso IN.BRO.FER S.R.L. "
+             "Lavorazioni inox per la nautica"],
+            "inbrofer.com", "Dom Chiuso IN.BRO.FER S.R.L.")
+        self.assertIsNotNone(found)
+        self.assertEqual(found.legal_name, "IN.BRO.FER S.R.L.")
+
+    def test_real_brand_immagini_alone_is_not_silently_removed(self):
+        found = find_company_identity(
+            ["Immagini S.r.l. | P.IVA: 01234567890"],
+            "immaginisrl.it", "Immagini")
+        self.assertIsNotNone(found)
+        self.assertEqual(found.legal_name, "Immagini S.r.l.")
+
+    def test_clean_official_multiword_name_remains_unchanged(self):
+        found = find_company_identity(
+            ["© 2026 Nuova Officina Metallurgica S.r.l. P.IVA 01234567890"],
+            "nuovaofficinametallurgica.it", "Nuova Officina Metallurgica")
+        self.assertIsNotNone(found)
+        self.assertEqual(found.legal_name, "Nuova Officina Metallurgica S.r.l.")
+
     def test_partnership_found_and_kept_whole(self):
         found = find_company_identity(
             ["Contatti: DELLAICA S.N.C. P.IVA IT09876543210"], "dellaicasnc.it", "dellaicasnc")
