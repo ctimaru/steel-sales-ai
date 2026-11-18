@@ -164,6 +164,28 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(outcome["_identity_correction"]["p_reviewer_version"],
                          "net-it-auto2-firstparty-v4")
 
+    async def test_overture_ui_prefix_is_corrected_before_identity_support(self):
+        cases = (
+            ("coltro-carpenteriaverona.it", "Immagini Coltro Srl",
+             "Coltro srl carpenteria. Immagini Coltro Srl | P.IVA: 02194750234",
+             "Coltro Srl"),
+            ("inbrofer.com", "Dom Chiuso IN.BRO.FER S.R.L.",
+             "Dom Chiuso IN.BRO.FER S.R.L. carpenteria in acciaio inox",
+             "IN.BRO.FER S.R.L."),
+        )
+        for domain, bad_name, first_party_text, good_name in cases:
+            with self.subTest(domain=domain):
+                with patch("app.net_it_auto2_reviewer._fetch_page",
+                           new=AsyncMock(return_value=page(
+                               first_party_text, url=f"https://{domain}/"))):
+                    result = await inspect_candidate(
+                        None, row(name=bad_name, domain=domain))
+                self.assertEqual(result["p_verdict"], "identity_supported")
+                self.assertEqual(result["p_observed_name"], good_name)
+                self.assertEqual(result["_identity_correction"]["p_legal_name"], good_name)
+                self.assertEqual(result["p_rights_state"], "unknown")
+                self.assertNotIn("p_approved", result)
+
     async def test_piemonte_v4_recovers_legal_name_even_if_bad_guess_matches(self):
         # Real pending Piemonte patterns, 17 Nov: an old first-party crawler
         # guess includes a year, copyright, privacy or marketing sentence.
