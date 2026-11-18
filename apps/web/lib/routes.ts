@@ -33,7 +33,9 @@ export const appRoutes = {
   rfqHub: {
     home: "/rfq-hub",
     campaign: (id: string) => `/rfq-hub/${id}`,
+    // RFQHUB1: «Inbox e risposte» = Centro RFQ filtered on «Da gestire».
     inbox: "/rfq-hub/inbox",
+    attention: "/rfq-hub?vista=da-gestire",
     suppliers: "/rfq-hub/suppliers",
     supplier: (id: string) => `/rfq-hub/suppliers/${id}`,
     intelligence: "/rfq-hub/intelligence",

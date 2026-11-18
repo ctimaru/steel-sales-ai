@@ -13,7 +13,7 @@ const originalAlias = read("../app/(workspace)/rfq-hub/suppliers/page.tsx");
 test("RFQH11.1 routes supplier list and detail through canonical RFQ Hub", () => {
   assert.match(routes, /suppliers: "\/rfq-hub\/suppliers"/);
   assert.match(routes, /supplier: \(id: string\) => `\/rfq-hub\/suppliers\/\$\{id\}`/);
-  assert.match(directory, /appRoutes\.rfqHub\.supplier\(supplier\.id\)/);
+  assert.match(directory, /appRoutes\.rfqHub\.supplier\(supplier\.profileId\)/);
   assert.match(detail, /appRoutes\.rfqHub\.suppliers/);
   assert.match(detail, /appRoutes\.rfqHub\.campaign\(/);
 });
