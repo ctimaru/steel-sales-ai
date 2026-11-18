@@ -4,6 +4,9 @@
  */
 export type NetworkFlagCountry="IT"|"RO"|"DE"|"FR"|"ES"|"US"|"GB"|"CH";
 const supported=new Set<string>(["IT","RO","DE","FR","ES","US","GB","CH"]);
+// Offline, local SVGs for the remaining 22 EU member states.
+// Source: lipis/flag-icons (MIT); license in public/network-flags/LICENSE.
+const localSvgFlags=new Set<string>(["AT","BE","BG","CY","HR","DK","EE","FI","GR","IE","LV","LT","LU","MT","NL","PL","PT","CZ","SK","SI","SE","HU"]);
 
 function FlagShapes({country}:{country:NetworkFlagCountry}){
   switch(country){
@@ -55,7 +58,13 @@ function FlagShapes({country}:{country:NetworkFlagCountry}){
 
 export function NetworkCountryFlag({code}:{code:string|null|undefined}){
   const country=code?.toUpperCase();
-  if(!country||!supported.has(country))return null;
+  if(!country)return null;
+  if(localSvgFlags.has(country)){
+    return <img src={"/network-flags/"+country.toLowerCase()+".svg"} alt="" aria-hidden="true"
+      width={24} height={16} loading="lazy"
+      className="inline-block h-4 w-6 shrink-0 rounded-[2px] border border-[#c9d7cf] object-fill align-[-2px]"/>;
+  }
+  if(!supported.has(country))return null;
   const square=country==="CH";
   return <svg viewBox={square?"0 0 16 16":"0 0 24 16"}
     aria-hidden="true" focusable="false"
