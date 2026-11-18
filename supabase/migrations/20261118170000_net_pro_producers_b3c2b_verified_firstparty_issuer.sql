@@ -32,6 +32,23 @@ alter table private.network_producer_catalog_submissions
     or (state<>'verifying' and verification_lease_token is null
       and verification_lease_until is null)
   );
+-- C2.A revocation may happen while the issuer holds a transient lease.
+-- Ensure immediate withdrawal clears it, instead of violating the CHECK.
+create function private.netproducers1_b3c2b_clear_lease_on_withdraw()
+returns trigger language plpgsql set search_path=''
+as $body$
+begin
+  if new.state='withdrawn' and old.state<>'withdrawn' then
+    new.verification_lease_token:=null;
+    new.verification_lease_until:=null;
+  end if;
+  return new;
+end;
+$body$;
+create trigger netproducers1_b3c2b_clear_lease_on_withdraw
+  before update of state on private.network_producer_catalog_submissions
+  for each row execute function private.netproducers1_b3c2b_clear_lease_on_withdraw();
+
 create index netproducers1_b3c2b_claim_order
   on private.network_producer_catalog_submissions(
     state,verification_next_attempt_at,created_at
