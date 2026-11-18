@@ -186,7 +186,7 @@ export function DistintaQuickAddBar({
         <p className="hidden text-[11px] text-[#5c7063] sm:block">Misura, quantità, Invio. Per più righe insieme scrivi alla chat qui sotto.</p>
       </div>
 
-      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+      <div className="grid gap-2">
         <div className="relative min-w-0">
           <label htmlFor={DISTINTA_QUICK_ADD_SEARCH_ID} className="sr-only">Cerca una misura o scrivi un articolo</label>
           <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#6b8475]">
@@ -279,33 +279,32 @@ export function DistintaQuickAddBar({
               <span aria-hidden="true" className="text-xs text-[#52695b]">m</span>
             </span>
           ) : null}
+          <div role="group" aria-label="Norma" title="Norma e grado valgono per i prossimi articoli" className="inline-flex h-11 items-center rounded-xl border border-[#c9dccf] bg-white p-1 text-xs">
+            {(["EN 10219", "EN 10210"] as const).map((value) => (
+              <button key={value} type="button" aria-pressed={standard === value} disabled={disabled}
+                onClick={() => setStandard(value)}
+                className={"h-full rounded-lg px-2.5 font-semibold transition " +
+                  (standard === value ? "bg-[#175640] text-white" : "text-[#4f6b5b] hover:text-[#143f30]")}>
+                {value}
+              </button>
+            ))}
+          </div>
+          <label className="inline-flex items-center gap-1.5 text-xs text-[#4f6b5b]">
+            <span aria-hidden="true">Grado</span>
+            <input list={gradeListId} value={grade} disabled={disabled} aria-label="Grado"
+              onChange={(event) => onGradeChange(event.target.value)} onKeyDown={onFieldEnter}
+              placeholder="facoltativo"
+              className={field + " w-28 px-2"} />
+            <datalist id={gradeListId}>{guidedTubeGrades.map((value) => <option key={value} value={value} />)}</datalist>
+          </label>
           <button type="button" onClick={submit} disabled={disabled}
-            className="inline-flex h-11 items-center gap-1.5 rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
+            className="ml-auto inline-flex h-11 items-center gap-1.5 rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:cursor-not-allowed disabled:opacity-50">
             Aggiungi <span aria-hidden="true">↵</span>
           </button>
         </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-[#4f6b5b]">
-        <div role="group" aria-label="Norma" className="inline-flex rounded-full border border-[#d6e5db] bg-white p-0.5">
-          {(["EN 10219", "EN 10210"] as const).map((value) => (
-            <button key={value} type="button" aria-pressed={standard === value} disabled={disabled}
-              onClick={() => setStandard(value)}
-              className={"min-h-7 rounded-full px-2.5 font-semibold transition " +
-                (standard === value ? "bg-[#175640] text-white" : "text-[#4f6b5b] hover:text-[#143f30]")}>
-              {value}
-            </button>
-          ))}
-        </div>
-        <label className="inline-flex items-center gap-1.5">
-          <span>Grado</span>
-          <input list={gradeListId} value={grade} disabled={disabled} aria-label="Grado"
-            onChange={(event) => onGradeChange(event.target.value)} onKeyDown={onFieldEnter}
-            placeholder="facoltativo"
-            className="h-7 w-28 rounded-lg border border-[#d6e5db] bg-white px-2 text-xs text-[#173f35] outline-none focus:border-[#175640]" />
-          <datalist id={gradeListId}>{guidedTubeGrades.map((value) => <option key={value} value={value} />)}</datalist>
-        </label>
-        <span className="hidden text-[11px] text-[#6b7f73] sm:inline">Valgono per i prossimi articoli.</span>
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-[#4f6b5b] empty:hidden">
         {!query.trim() && !message ? (
           <span className="hidden flex-wrap items-center gap-1.5 sm:flex">
             <span className="text-[11px] text-[#6b7f73]">Prova:</span>
