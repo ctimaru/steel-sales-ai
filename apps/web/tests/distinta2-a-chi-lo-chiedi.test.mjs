@@ -19,7 +19,9 @@ test("the picker groups suppliers and never sends", () => {
   assert.match(picker, /role="tablist" aria-label="Gruppi di fornitori"/);
   assert.match(picker, /const ROWS_PER_PAGE = 6;/);
   assert.match(picker, /"Mostra altri " \+/);
-  assert.match(picker, /\{sendPanel\}/);
+  // DISTINTA3: step 2 closes with «Continua»; step 3 (send) is its own screen.
+  assert.match(picker, /href=\{continueHref\} data-testid="rfq-step2-continue"/);
+  assert.doesNotMatch(picker, /sendPanel/);
   assert.match(picker, /aria-label=\{"Seleziona " \+ name\}/);
   assert.match(picker, /"Aggiungi " \+ checkedRows.length \+ " alla RFQ"/);
   assert.match(picker, /fornitori aggiunti alla RFQ/);

@@ -225,6 +225,9 @@ try {
       await page.getByRole("button", { name: "Aggiungi 2 alla RFQ", exact: true }).click();
       recipientCheckpoint = "wait added";
       await page.getByText(/2 fornitori aggiunti alla RFQ/).waitFor({ timeout: 60000 });
+      recipientCheckpoint = "continue to step 3";
+      await page.getByTestId("rfq-step2-continue").click();
+      await page.getByTestId("rfq-step3").waitFor({ timeout: 60000 });
       recipientCheckpoint = "fill buyer message";
       await page.getByLabel("Messaggio ai fornitori", { exact: true }).fill(message);
       recipientCheckpoint = "locate review CTA";

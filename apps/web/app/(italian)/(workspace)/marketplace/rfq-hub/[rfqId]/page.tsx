@@ -66,11 +66,14 @@ function formatDate(value: string | null) {
 
 export default async function BuyerRfqCampaignPage({ params, searchParams }: {
   params: Params;
-  searchParams?: Promise<{ dal?: string | string[] }>;
+  searchParams?: Promise<{ dal?: string | string[]; passo?: string | string[] }>;
 }) {
   const { rfqId } = await params;
+  const query = await searchParams;
   // DISTINTA2B: «?dal=<id>» = the Network company the request started from.
-  const fromNetwork = (await searchParams)?.dal;
+  const fromNetwork = query?.dal;
+  // DISTINTA3: «?passo=invia» = step 3 (message and send), its own screen.
+  const sendStep = query?.passo === "invia";
   const supabase = await createClient();
   const { data: authData } = await supabase.auth.getUser();
 
@@ -385,76 +388,116 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
       removable: supplier.status === "draft" && !(dispatches ?? []).some((dispatch) => dispatch.supplier_id === supplier.id),
       networkCompanyId: supplier.supplier_network_company_id ?? null,
     }));
-    return (
-      <div data-testid="rfq-step2" className="min-w-0 space-y-4 pb-8">
-        <header className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="truncate text-xl font-bold tracking-[-0.02em] text-[#143f30]">{campaign.title}</h1>
-            <ol aria-label="Passaggi della richiesta" className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-              {stepNames.map((step, index) => (
-                <li key={step} aria-current={index === 1 ? "step" : undefined}
-                  className={"flex items-center gap-1.5 " + (index === 1 ? "font-semibold text-[#143f30]" : "text-[#5c7063]")}>
-                  <span aria-hidden="true" className={"flex h-5 w-5 items-center justify-center rounded-full text-[11px] " +
-                    (index === 0 ? "bg-[#dcebe1] text-[#175640]" : index === 1 ? "bg-[#175640] text-white" : "border border-[#c9d9cf] text-[#5c7063]")}>
-                    {index === 0 ? "✓" : index + 1}
-                  </span>
-                  {step}
-                  {index < stepNames.length - 1 ? <span aria-hidden="true" className="ml-1.5 text-[#b3c4ba]">—</span> : null}
-                </li>
-              ))}
-            </ol>
-          </div>
-          <Link href={appRoutes.rfqHub.home}
-            className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] bg-white px-3 text-sm font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
-            Le tue richieste
-          </Link>
-        </header>
-
-        <details className="group rounded-xl border border-[#e1eae4] bg-white">
-          <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs">
-            <span><span className="font-bold text-[#143f30]">La tua distinta</span>
-              <span className="text-[#5c7063]"> · {lineRows.length} {lineRows.length === 1 ? "articolo" : "articoli"} · {formatNumber(distinta?.total_tonnes ?? null, 3)} t · privata</span></span>
-            <span className="font-semibold text-[#175640] group-open:hidden">Vedi articoli</span>
-            <span className="hidden font-semibold text-[#175640] group-open:inline">Chiudi</span>
-          </summary>
-          <ul className="divide-y divide-[#edf2ee] border-t border-[#e7eee9]">
-            {lineRows.map((line) => (
-              <li key={line.id} className="flex flex-wrap items-baseline justify-between gap-2 px-3 py-2 text-xs">
-                <span className="min-w-0 font-semibold text-[#173f35]">{line.line_position}. {line.description}</span>
-                <span className="text-[#5c7063]">
-                  {[line.standard_code, line.grade_code, formatNumber(line.quantity, line.quantity_mode === "tonnes" ? 3 : line.quantity_mode === "bars" ? 0 : 2) + " " +
-                    (line.quantity_mode === "bars" ? "barre" : line.quantity_mode === "tonnes" ? "t" : "m")].filter(Boolean).join(" · ")}
+    const step2Href = appRoutes.rfqHub.campaign(campaign.id);
+    const step3Href = step2Href + "?passo=invia";
+    const currentStep = sendStep && supplierRows.length > 0 ? 2 : 1;
+    const stepsHeader = (
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="truncate text-xl font-bold tracking-[-0.02em] text-[#143f30]">{campaign.title}</h1>
+          <ol aria-label="Passaggi della richiesta" className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+            {stepNames.map((step, index) => (
+              <li key={step} aria-current={index === currentStep ? "step" : undefined}
+                className={"flex items-center gap-1.5 " + (index === currentStep ? "font-semibold text-[#143f30]" : "text-[#5c7063]")}>
+                <span aria-hidden="true" className={"flex h-5 w-5 items-center justify-center rounded-full text-[11px] " +
+                  (index < currentStep ? "bg-[#dcebe1] text-[#175640]" : index === currentStep ? "bg-[#175640] text-white" : "border border-[#c9d9cf] text-[#5c7063]")}>
+                  {index < currentStep ? "✓" : index + 1}
                 </span>
+                {step}
+                {index < stepNames.length - 1 ? <span aria-hidden="true" className="ml-1.5 text-[#b3c4ba]">—</span> : null}
               </li>
             ))}
-          </ul>
-        </details>
+          </ol>
+        </div>
+        <Link href={appRoutes.rfqHub.home}
+          className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] bg-white px-3 text-sm font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
+          Le tue richieste
+        </Link>
+      </header>
+    );
+    const distintaLine = (
+      <details className="group rounded-xl border border-[#e1eae4] bg-white">
+        <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs">
+          <span><span className="font-bold text-[#143f30]">La tua distinta</span>
+            <span className="text-[#5c7063]"> · {lineRows.length} {lineRows.length === 1 ? "articolo" : "articoli"} · {formatNumber(distinta?.total_tonnes ?? null, 3)} t · privata</span></span>
+          <span className="font-semibold text-[#175640] group-open:hidden">Vedi articoli</span>
+          <span className="hidden font-semibold text-[#175640] group-open:inline">Chiudi</span>
+        </summary>
+        <ul className="divide-y divide-[#edf2ee] border-t border-[#e7eee9]">
+          {lineRows.map((line) => (
+            <li key={line.id} className="flex flex-wrap items-baseline justify-between gap-2 px-3 py-2 text-xs">
+              <span className="min-w-0 font-semibold text-[#173f35]">{line.line_position}. {line.description}</span>
+              <span className="text-[#5c7063]">
+                {[line.standard_code, line.grade_code, formatNumber(line.quantity, line.quantity_mode === "tonnes" ? 3 : line.quantity_mode === "bars" ? 0 : 2) + " " +
+                  (line.quantity_mode === "bars" ? "barre" : line.quantity_mode === "tonnes" ? "t" : "m")].filter(Boolean).join(" · ")}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </details>
+    );
+    const approvals = (
+      <details className="min-w-0 rounded-xl border border-[#e1eae4] bg-white">
+        <summary className="min-h-10 cursor-pointer px-3 py-2.5 text-xs font-semibold text-[#173f35]">
+          Autorizzazioni e approvazioni aziendali
+        </summary>
+        <div className="border-t border-[#e1eae5] p-3">
+          <Rfqh13GovernancePanel rfqId={campaign.id} currentUserId={authData.user?.id ?? null} state={governance} />
+        </div>
+      </details>
+    );
+
+    // Step 3: phase 2 is closed into a one-line summary; only message, deadline and send remain.
+    if (currentStep === 2) {
+      const names = pickerSelected.map((supplier) => supplier.name);
+      return (
+        <div data-testid="rfq-step3" className="mx-auto min-w-0 max-w-3xl space-y-3 pb-8">
+          {stepsHeader}
+          <section aria-label="Fornitori scelti" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#cfe3d7] bg-[#f4faf6] px-3 py-2.5">
+            <p className="min-w-0 text-xs text-[#2f5a45]">
+              <span aria-hidden="true" className="mr-1 font-bold text-[#175640]">✓</span>
+              <span className="font-bold text-[#143f30]">{names.length} {names.length === 1 ? "destinatario" : "destinatari"}</span>
+              {" · "}{names.slice(0, 3).join(", ")}{names.length > 3 ? " e altri " + (names.length - 3) : ""}
+            </p>
+            <Link href={step2Href} className="min-h-9 shrink-0 content-center text-xs font-semibold !text-[#175640] underline-offset-2 hover:underline">
+              Modifica
+            </Link>
+          </section>
+          {distintaLine}
+          <div id="rfq-review-send" className="scroll-mt-24">
+            <RfqDispatchPanel
+              layout="side"
+              rfqId={campaign.id}
+              campaignStatus={campaign.status}
+              dueAt={campaign.due_at}
+              buyerMessage={campaign.buyer_message}
+              canExecute={canExecuteCritical}
+              suppliers={supplierRows.map((supplier) => ({
+                id: supplier.id,
+                status: supplier.status,
+                hasEmail: Boolean(supplier.supplier_email_normalized),
+                name: supplier.supplier_name,
+                email: supplier.supplier_email_normalized,
+                deliveryChannel: supplier.delivery_channel,
+              }))}
+            />
+          </div>
+          {approvals}
+        </div>
+      );
+    }
+
+    return (
+      <div data-testid="rfq-step2" className="min-w-0 space-y-4 pb-8">
+        {stepsHeader}
+        {distintaLine}
 
         <RfqSupplierPicker rfqId={campaign.id} selected={pickerSelected} canEdit={canExecuteCritical}
           pinned={pinnedNetwork ? { id: pinnedNetwork.id, name: pinnedNetwork.name, country: pinnedNetwork.country,
             // Network profile names are stored in English: show the Italian taxonomy labels.
             role: pinnedNetwork.role ? networkNameIt(pinnedNetwork.role) : null,
             products: pinnedNetwork.products.map((product) => networkNameIt(product)) } : null}
-          sendPanel={
-            <div id="rfq-review-send" className="scroll-mt-24">
-              <RfqDispatchPanel
-                layout="side"
-                rfqId={campaign.id}
-                campaignStatus={campaign.status}
-                dueAt={campaign.due_at}
-                buyerMessage={campaign.buyer_message}
-                canExecute={canExecuteCritical}
-                suppliers={supplierRows.map((supplier) => ({
-                  id: supplier.id,
-                  status: supplier.status,
-                  hasEmail: Boolean(supplier.supplier_email_normalized),
-                  name: supplier.supplier_name,
-                  email: supplier.supplier_email_normalized,
-                  deliveryChannel: supplier.delivery_channel,
-                }))}
-              />
-            </div>
-          } />
+          continueHref={step3Href} />
 
         {/* Stacked, full width: a closed <details> beside a chip overflowed small screens. */}
         <div className="space-y-2 border-t border-[#e7eee9] pt-3">
@@ -464,14 +507,7 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
             <span aria-hidden="true">🔒</span>
             <span><span className="font-semibold">Pubblica nel Marketplace</span> · Presto disponibile</span>
           </div>
-          <details className="min-w-0 rounded-xl border border-[#e1eae4] bg-white">
-            <summary className="min-h-10 cursor-pointer px-3 py-2.5 text-xs font-semibold text-[#173f35]">
-              Autorizzazioni e approvazioni aziendali
-            </summary>
-            <div className="border-t border-[#e1eae5] p-3">
-              <Rfqh13GovernancePanel rfqId={campaign.id} currentUserId={authData.user?.id ?? null} state={governance} />
-            </div>
-          </details>
+          {approvals}
         </div>
       </div>
     );

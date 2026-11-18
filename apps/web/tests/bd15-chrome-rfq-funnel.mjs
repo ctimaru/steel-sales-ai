@@ -216,6 +216,10 @@ try {
       assert.equal(await bulk.isEnabled(),true);
       await bulk.click();
       await page.getByText(/2 fornitori aggiunti alla RFQ/).waitFor({state:"visible",timeout:60000});
+      // DISTINTA3: step 2 closes; message and send are on their own screen.
+      await page.getByTestId("rfq-step2-continue").click();
+      await page.getByTestId("rfq-step3").waitFor({state:"visible",timeout:60000});
+      assert.match(await page.getByRole("region",{name:"Fornitori scelti"}).innerText(),/2 destinatari/);
       await page.getByRole("button",{name:/Controlla 2 destinatari/})
         .waitFor({state:"visible",timeout:60000});
       await noOverflow(page,"selected suppliers "+width);
@@ -245,7 +249,7 @@ try {
       await page.getByText(/canale email RFQ non è ancora configurato/).waitFor({state:"visible",timeout:45000});
       assert.equal(await review.count(),0);
       const body=await page.locator("body").innerText();
-      assert.match(body,/A chi chiedi l'offerta\?/);
+      assert.equal(await page.getByTestId("rfq-step3").count(),1,"Still the private draft send step");
       await noOverflow(page,"disabled dispatch "+width);
     });
     await ctx.close();
