@@ -420,7 +420,8 @@ jobs:
             crawl_it66c_rna_corporate_tax_source.sql \
             comm_deals2_priority_index.sql \
             distinta2_supplier_picker.sql \
-            rfqhub1b_supplier_contacts.sql; do
+            rfqhub1b_supplier_contacts.sql \
+            rfqhub1d_supplier_links.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
