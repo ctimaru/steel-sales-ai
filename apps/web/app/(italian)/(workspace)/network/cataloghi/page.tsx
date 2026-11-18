@@ -3,6 +3,8 @@ import Form from "next/form";
 import {redirect} from "next/navigation";
 
 import {getCataloguePreview,type CataloguePreviewObservation} from "@/lib/network-producer-catalog-preview";
+import {getProducerStructuredCatalog} from "@/lib/network-producer-structured-catalog";
+import {ProducerStructuredCatalogue} from "@/components/producer-structured-catalogue";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 
 export const dynamic="force-dynamic";
@@ -24,7 +26,9 @@ export default async function CataloghiProduttoriPreview({
   if(!isNetworkFrontendEnabled())redirect("/dashboard");
   const params=await searchParams;
   const q=(params.q??"").trim().slice(0,80);
-  const result=await getCataloguePreview(q);
+  const [result,structured]=await Promise.all([
+    getCataloguePreview(q),getProducerStructuredCatalog(q),
+  ]);
 
   return <main className="mx-auto max-w-[1320px] space-y-5 pb-14" data-testid="network-cataloghi-preview">
     <nav className="flex flex-wrap items-center gap-2 text-xs font-semibold text-[#2b6749]">
@@ -40,10 +44,10 @@ export default async function CataloghiProduttoriPreview({
       <div className="mt-5 grid gap-5 md:grid-cols-[minmax(0,1fr)_minmax(250px,350px)] md:items-end">
         <div>
           <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-[#153f2d] sm:text-4xl">
-            Cataloghi industriali, già consultabili.
+            Dati tecnici industriali, già utilizzabili.
           </h1>
           <p className="mt-3 max-w-[740px] text-sm leading-6 text-[#4b6856]">
-            Fonti originali dei produttori, norme, qualità, lavorazioni e gamme
+            Dati strutturati dai produttori: norme, qualità, lavorazioni e gamme
             dimensionali osservate. Non serve attendere il claim aziendale per esplorare
             le fonti. Ogni informazione è <strong>da confermare dal produttore</strong>
             prima di considerarla una specifica capacità produttiva.
@@ -86,6 +90,8 @@ export default async function CataloghiProduttoriPreview({
       </p>
     </section>
 
+    <ProducerStructuredCatalogue result={structured} query={q}/>
+
     {result===null?
       <section role="alert" className="rounded-xl border border-[#eddbc2] bg-[#fffcf4] p-5 text-sm text-[#795520]">
         Indice temporaneamente non disponibile. Non vengono mostrati dati simulati.
@@ -94,7 +100,11 @@ export default async function CataloghiProduttoriPreview({
       <section className="rounded-xl border border-[#dce6dd] bg-white p-5 text-sm text-[#607364]">
         Nessun catalogo corrisponde alla ricerca. Prova con produttore, norma o qualità.
       </section>
-    :<section aria-label="Cataloghi e pagine prodotto ufficiali">
+    :<details className="rounded-[20px] border border-[#dce6df] bg-[#fafcfb] p-4">
+      <summary className="cursor-pointer py-2 text-sm font-bold text-[#1c5a3d]">
+        Mostra le fonti originali e le schede di provenienza ({result.items.length})
+      </summary>
+      <section aria-label="Cataloghi e pagine prodotto ufficiali" className="mt-4">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="text-lg font-extrabold text-[#173b2d]">Fonti censite</h2>
         <p className="text-xs text-[#6b806f]">{result.items.length} risultati visualizzati · Fonti esterne ufficiali</p>
@@ -149,7 +159,8 @@ export default async function CataloghiProduttoriPreview({
           </article>;
         })}
       </div>
-    </section>}
+      </section>
+    </details>}
     <footer className="rounded-[20px] border border-[#d5e5d9] bg-[#f6faf7] p-5">
       <h2 className="text-sm font-bold text-[#1f5138]">Dalla consultazione all'Intelligence Produttori PRO</h2>
       <p className="mt-2 text-xs leading-6 text-[#577261]">
