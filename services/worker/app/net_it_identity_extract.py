@@ -153,6 +153,10 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
         if bare.casefold().strip("'’") in _BOILERPLATE or "/" in bare or "@" in bare:
             break
         # "Utenti. Titolare ..." — a word closing a previous sentence.
+        # A province code ending an address (e.g. "Caronia ME.") is a
+        # sentence boundary, never a prefix of the following legal entity.
+        if picked and re.fullmatch(r"[A-Z]{2}\\.", word):
+            break
         if (picked and word.endswith(".") and "." not in bare
                 and len(bare) >= 5 and bare.isalpha()):
             break
