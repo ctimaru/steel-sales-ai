@@ -9,7 +9,7 @@ from dataclasses import dataclass
 import hashlib
 import re
 
-NUMBER = re.compile(r"^(?:\\d{1,3})(?:[,.]\\d{1,2})?$")
+NUMBER = re.compile(r"^(?:\d{1,3})(?:[,.]\d{1,2})?$")
 
 
 @dataclass(frozen=True)
