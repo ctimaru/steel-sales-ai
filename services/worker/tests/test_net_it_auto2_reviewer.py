@@ -308,6 +308,76 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(outcome["p_verdict"],"needs_human")
         self.assertIn("legal_form_requires_human_review",outcome["p_reasons"])
 
+    async def test_second_level_legal_page_recovers_only_official_name(self):
+        home = page("Carpenteria Test - lavorazioni metalliche",
+                    url="https://carpenteriatest.it/")
+        home.links = ("/azienda", "/servizi",
+                      "https://unrelated.com/privacy")
+        about = page("La nostra azienda: fabbricazioni su misura",
+                     url="https://carpenteriatest.it/azienda")
+        about.links = ("/dati-societari",)
+        services = page("Taglio e saldatura",
+                        url="https://carpenteriatest.it/servizi")
+        services.links = ()
+        legal = page("Carpenteria Test S.r.l. P.IVA 01234567890",
+                     url="https://carpenteriatest.it/dati-societari")
+        legal.links = ()
+        pages = {p.url: p for p in (home, about, services, legal)}
+        seen = []
+
+        async def fetch(client, url, source):
+            seen.append(url)
+            return pages.get(url)
+
+        with patch("app.net_it_auto2_reviewer._fetch_page", new=fetch):
+            regular = await inspect_candidate(
+                None,row(url="https://carpenteriatest.it/"))
+            recovered = await inspect_candidate(
+                None,row(url="https://carpenteriatest.it/"),
+                deep_recovery=True)
+        self.assertEqual(regular["p_verdict"], "needs_human")
+        self.assertEqual(recovered["p_verdict"], "identity_supported")
+        self.assertNotIn("https://unrelated.com/privacy", seen)
+        self.assertEqual(recovered["p_rights_state"], "unknown")
+        self.assertNotIn("p_approved", recovered)
+        self.assertNotIn("p_commit", recovered)
+
+    async def test_second_level_legal_restriction_remains_blocked(self):
+        home = page("Carpenteria Test S.r.l.",
+                    url="https://carpenteriatest.it/")
+        home.links = ("/azienda",)
+        about = page("Carpenteria Test S.r.l.", url="https://carpenteriatest.it/azienda")
+        about.links = ("/privacy-policy",)
+        policy = page("È vietato il riutilizzo dei dati.",
+                      url="https://carpenteriatest.it/privacy-policy")
+        policy.links = ()
+        pages = {p.url:p for p in (home,about,policy)}
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=AsyncMock(side_effect=lambda client,url,ref: pages.get(url))):
+            recovered = await inspect_candidate(
+                None,row(url="https://carpenteriatest.it/"),deep_recovery=True)
+        self.assertEqual(recovered["p_verdict"], "blocked")
+        self.assertEqual(recovered["p_rights_state"], "restricts_reuse")
+
+    async def test_deep_recovery_pages_capped_at_ten(self):
+        home = page("Officina Test",url="https://carpenteriatest.it/")
+        home.links = tuple(f"/contatti-{i}" for i in range(35))
+        seen = []
+        async def fetch(client,url,source):
+            seen.append(url)
+            if url == home.url:
+                return home
+            child = page("solo marchio senza ragione sociale",url=url)
+            child.links = tuple(f"/azienda-detail-{i}" for i in range(25))
+            return child
+        with patch("app.net_it_auto2_reviewer._fetch_page",new=fetch):
+            recovered = await inspect_candidate(
+                None,row(name="Officina Test",url="https://carpenteriatest.it/"),
+                deep_recovery=True)
+        self.assertLessEqual(len(seen),10)
+        self.assertEqual(recovered["p_verdict"],"needs_human")
+        self.assertIn("legal_form_requires_human_review",recovered["p_reasons"])
+
     async def test_fallback_to_stored_official_home_when_subpath_denied(self):
         fetched = []
         async def first_party_fetch(client, url, base):
@@ -418,6 +488,9 @@ class ExecuteRejectedFindingTest(unittest.IsolatedAsyncioTestCase):
             name = request.url.path.rsplit("/", 1)[-1]
             body = request.content.decode()
             calls.append((name, body))
+            if name == "net_it_auto2_recovery_queue":
+                return httpx.Response(200, json={
+                    "contract":"net-it-auto2-recovery-queue-v1","items":[]})
             if name == "net_it_auto2_queue":
                 return httpx.Response(200, json={"contract": "net-it-auto2-queue-v1",
                                                  "items": [{"id": "a"}, {"id": "b"}, {"id": "c"}]})
