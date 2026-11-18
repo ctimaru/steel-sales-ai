@@ -206,7 +206,9 @@ export function DistintaQuickAddBar({
             disabled={disabled}
             value={query}
             placeholder="Es. quadro 100x100x5, tondo 60,3x3, 120x80x4"
-            onFocus={() => setOpen(true)}
+            // Open on typing, tap or arrows, not on focus: an autofocused, pre-filled
+            // search must not cover quantity and norm on small screens.
+            onClick={() => setOpen(true)}
             onBlur={() => setOpen(false)}
             onChange={(event) => {
               setQuery(event.target.value);
@@ -230,7 +232,9 @@ export function DistintaQuickAddBar({
               {suggestions.map((suggestion, i) => (
                 <li key={suggestion.key} id={listId + "-" + i} role="option" aria-selected={i === activeIndex}
                   onPointerDown={(event) => event.preventDefault()}
-                  onPointerEnter={() => setActive(i)}
+                  // Move, not enter: a list opening under a resting pointer must not
+                  // steal the highlight from the first (best) suggestion.
+                  onPointerMove={() => { if (activeIndex !== i) setActive(i); }}
                   onClick={() => choose(suggestion)}
                   className={"flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2.5 py-1.5 text-sm " +
                     (i === activeIndex ? "bg-[#eaf4ee]" : "") +

@@ -167,6 +167,7 @@ try {
       const search = page.locator("#distinta-quick-add-search");
       const addQuick = async (query, standard, length, bars) => {
         await quick.getByRole("button", { name: standard, exact: true }).click();
+        await search.fill("");
         await search.fill(query);
         await quick.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
         await search.press("Enter");

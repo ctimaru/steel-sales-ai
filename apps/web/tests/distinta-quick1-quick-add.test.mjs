@@ -86,6 +86,11 @@ test("the page has one way to add an article next to the chat", () => {
   assert.match(bar, /buildQuickAddIndex/);
   assert.match(bar, /useDeferredValue/);
   assert.match(bar, /come riga libera/);
+  // A list opening under a resting pointer keeps the first suggestion active.
+  assert.match(bar, /onPointerMove=/);
+  assert.doesNotMatch(bar, /onPointerEnter=/);
+  // Opening on focus would cover quantity and norm on small screens.
+  assert.doesNotMatch(bar, /onFocus=\{\(\) => setOpen\(true\)\}/);
   const page = read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx");
   assert.match(page, /unstable_cache/);
 });

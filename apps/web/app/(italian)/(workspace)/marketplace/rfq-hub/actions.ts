@@ -288,6 +288,86 @@ export async function addSuppliersToBuyerRfqBulk(input: {
   return { ok: failed.length === 0, addedKeys, failed };
 }
 
+// DISTINTA2: step 2 «A chi lo chiedi». Groups of suppliers for a draft RFQ
+// (saved in the Network, already used, private contacts, recommended for the
+// product families of the bill). Read-only; adding still goes through
+// addSupplierToBuyerRfq / addSuppliersToBuyerRfqBulk and their checks.
+export type SupplierPickerGroup = "saved" | "recent" | "contacts" | "recommended";
+export type SupplierPickerCandidate = SupplierCandidate & {
+  group: SupplierPickerGroup;
+  reachable: boolean;
+  reason: string | null;
+};
+export type SupplierPickerResult = {
+  ok: boolean;
+  networkEnabled?: boolean;
+  families?: string[];
+  candidates?: SupplierPickerCandidate[];
+  error?: string;
+};
+
+const pickerGroups = new Set<SupplierPickerGroup>(["saved", "recent", "contacts", "recommended"]);
+
+export async function getBuyerRfqSupplierPicker(rfqId: string): Promise<SupplierPickerResult> {
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) return { ok: false, error: "Accedi per scegliere i fornitori." };
+  const cleanRfqId = rfqId.trim();
+  if (!cleanRfqId) return { ok: false, error: "RFQ non valido." };
+
+  const { data, error } = await supabase.rpc("distinta2_supplier_picker", { p_rfq_id: cleanRfqId });
+  if (error || !data || typeof data !== "object" || Array.isArray(data)) {
+    console.error("DISTINTA2 supplier picker failed:", error?.message);
+    return { ok: false, error: "Non è stato possibile caricare i fornitori." };
+  }
+  const payload = data as { network_enabled?: unknown; families?: unknown; candidates?: unknown };
+  const candidates = (Array.isArray(payload.candidates) ? payload.candidates : [])
+    .filter((item): item is Record<string, unknown> =>
+      Boolean(item && typeof item === "object" && !Array.isArray(item)
+        && typeof (item as Record<string, unknown>).identity_key === "string"
+        && pickerGroups.has((item as Record<string, unknown>).group as SupplierPickerGroup)))
+    .map((item) => ({
+      ...(item as unknown as Omit<SupplierPickerCandidate, "preferred">),
+      reachable: item.reachable === true,
+      reason: typeof item.reason === "string" ? item.reason : null,
+      preferred: item.group === "saved",
+    }));
+  return {
+    ok: true,
+    networkEnabled: payload.network_enabled === true,
+    families: Array.isArray(payload.families) ? payload.families.filter((f): f is string => typeof f === "string") : [],
+    candidates,
+  };
+}
+
+export async function removeSupplierFromBuyerRfq(
+  rfqId: string,
+  supplierId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const supabase = await createClient();
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) return { ok: false, error: "Accedi per modificare la RFQ." };
+  const profileDenied = await officeWriteDenied("purchasing");
+  if (profileDenied) return { ok: false, error: profileDenied };
+  if (!rfqId.trim() || !supplierId.trim()) return { ok: false, error: "Fornitore non valido." };
+
+  const { error } = await supabase.rpc("distinta2_remove_supplier", {
+    p_rfq_id: rfqId.trim(),
+    p_supplier_id: supplierId.trim(),
+  });
+  if (error) {
+    console.error("DISTINTA2 remove supplier failed:", error.message);
+    return {
+      ok: false,
+      error: error.message.includes("before the RFQ is sent") || error.message.includes("already has activity")
+        ? "La richiesta è già partita: questo fornitore non si può più togliere."
+        : "Non è stato possibile togliere il fornitore.",
+    };
+  }
+  revalidatePath("/rfq-hub/" + rfqId.trim());
+  return { ok: true };
+}
+
 // BD16: non-blocking operational funnel signal. Never accepts a supplier list,
 // email, campaign title, quote, recipient address or tracking identifier.
 export async function recordBuyerRfqRecipientReview(rfqId: string): Promise<void> {

@@ -8,14 +8,19 @@ const dispatch = read("../components/rfq-dispatch-panel.tsx");
 
 test("BD13: private preparation has explicit 1 select / 2 verify and send / optional Marketplace", () => {
   assert.match(page, /const isPreparation = campaign.status === "draft" \|\| campaign.status === "ready"/);
+  // DISTINTA2: the owner of a draft gets one focused step-2 screen:
+  // recipients picker -> explicit send confirmation -> optional Marketplace.
+  const branch = page.slice(page.indexOf("if (isPreparation && canExecuteCritical) {"), page.indexOf("<Rfqc1ChatWorkspace"));
+  assert.ok(branch.length > 0, "step-2 branch precedes the chat workspace");
+  assert.match(branch, /"Cosa ti serve", "A chi lo chiedi", "Invia"/);
+  assert.match(branch, /Oppure pubblica la richiesta nel Marketplace/);
+  const suppliers = branch.indexOf("<RfqSupplierPicker");
+  const send = branch.indexOf("<RfqDispatchPanel");
+  const market = branch.indexOf("<RfqMarketplaceBridgePanel");
+  assert.ok(suppliers > 0 && suppliers < send && send < market);
+  // Read-only viewers of a draft keep the previous layout.
   assert.match(page, /1 · Scegli i fornitori/);
   assert.match(page, /2 · Verifica e invia/);
-  assert.match(page, /Oppure usa il Marketplace/);
-  const suppliers = page.indexOf("<RfqSupplierAddForm");
-  const selected = page.indexOf('aria-label="Destinatari selezionati"');
-  const send = page.indexOf("<RfqDispatchPanel");
-  const market = page.indexOf("<RfqMarketplaceBridgePanel");
-  assert.ok(suppliers > 0 && suppliers < selected && selected < send && send < market);
 });
 
 test("BD13: marketplace remains an explicitly opened, voluntary alternative, never auto-published", () => {
