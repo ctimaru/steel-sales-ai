@@ -77,7 +77,7 @@ export default async function NewRequestPage({ searchParams }: {
       {networkContext ? (
         <p data-testid="new-request-network-provenance"
           className="rounded-lg border border-[#cfe3d7] bg-[#f4faf6] px-3 py-2 text-xs leading-5 text-[#315c49]">
-          Dal Network · <span className="font-semibold">{networkContext.name}</span>. La trovi in cima al passo 2, già spuntata: non viene aggiunta in automatico, la aggiungi tu.
+          Dal Network · <span className="font-semibold">{networkContext.name}</span>{networkContext.name.endsWith(".") ? "" : "."} La trovi in cima al passo 2, già spuntata: non viene aggiunta in automatico, la aggiungi tu.
         </p>
       ) : null}
       <BuyerDistintaBuilder
