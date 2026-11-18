@@ -14,7 +14,7 @@ const catalog=read("lib/network-producer-catalogs.ts");
 test("NET-PRO-PRODUCERS1.NAV: visible first-screen entry links to real Producer PRO route",()=>{
   assert.match(entry,/data-testid="network-producers-entry"/);
   assert.match(entry,/aria-label="Intelligence Produttori"/);
-  assert.match(entry,/href=\{\/network\/pro\/producers\?country=/);
+  assert.match(entry,/href=\{"\/network\/pro\/producers\?country=/);
   assert.match(entry,/Esplora produttori/);
   assert.match(entry,/min-h-11/);
   assert.match(entry,/focus-visible:outline/);
