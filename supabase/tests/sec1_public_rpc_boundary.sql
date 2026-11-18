@@ -36,8 +36,8 @@ begin
   select count(*) into v_internals
     from pg_proc p join pg_namespace n on n.oid=p.pronamespace
     where n.nspname='sec1_public' and p.prosecdef;
-  if v_internals<>11 then
-    raise exception 'SEC1: 11 internal privileged published-only implementation required: %',v_internals;
+  if v_internals<>12 then
+    raise exception 'SEC1: 12 reviewed internal privileged published-only implementation functions required: %',v_internals;
   end if;
   select count(*) into v_unexpected_private
     from pg_proc p join pg_namespace n on n.oid=p.pronamespace
@@ -48,7 +48,23 @@ begin
         'k5_public_tube_weight_references','k6_public_tube_dimension_page',
         'k6_public_tube_dimension_pages','k7_public_tube_family_hubs',
         'k7_public_tube_size_hub','k7_public_tube_size_hubs',
-        'sp4_public_steel_pulse_feed');
+        'sp4_public_steel_pulse_feed',
+        -- HOME-NETPRO PUBLIC1: reviewed aggregate counts of published companies
+        -- only, no contacts/profiles or source-candidate disclosure.
+        'public_network_counts_impl');
+  -- The 12th internal facade never sees unpublished companies or private
+  -- catalogue data; guard the exact reviewed implementation invariant.
+  if not exists(
+    select 1 from pg_proc p
+    join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='sec1_public' and p.proname='public_network_counts_impl'
+      and p.prosecdef
+      and coalesce(array_to_string(p.proconfig,','),'') like '%search_path=""%'
+      and pg_get_functiondef(p.oid) like '%publication_status = ''published''%'
+      and pg_get_functiondef(p.oid) like '%archived_at is null%'
+  ) then
+    raise exception 'SEC1: public-network count implementation must aggregate published companies only';
+  end if;
   if v_unexpected_private<>0 then
     raise exception 'SEC1: unexpected private callable routine: %',v_unexpected_private;
   end if;
