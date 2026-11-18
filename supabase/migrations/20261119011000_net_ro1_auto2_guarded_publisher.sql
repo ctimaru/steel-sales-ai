@@ -204,6 +204,27 @@ BEGIN
         v_row.canonical_domain;
     END IF;
 
+    -- Recheck immediately before each insert. The initial cursor can
+    -- contain two different seeds that resolve to the SAME canonical entity;
+    -- an earlier insertion in this very transaction must block the latter.
+    IF EXISTS(
+      SELECT 1 FROM public.network_companies c
+      WHERE c.country_code='RO'
+        AND c.archived_at IS NULL
+        AND (
+          c.website_domain=v_row.canonical_domain OR
+          pg_catalog.regexp_replace(pg_catalog.lower(c.legal_name),
+              '[^[:alnum:]]','','g') =
+          pg_catalog.regexp_replace(pg_catalog.lower(v_row.verified_legal_name),
+              '[^[:alnum:]]','','g')
+        )
+    ) OR EXISTS(
+      SELECT 1 FROM public.network_netfast3_suppressed_domains d
+      WHERE d.domain=v_row.canonical_domain
+    ) THEN
+      CONTINUE;
+    END IF;
+
     INSERT INTO public.network_companies(
       legal_name,country_code,website_url,website_domain,description,
       publication_status,claimed_status,verification_status
