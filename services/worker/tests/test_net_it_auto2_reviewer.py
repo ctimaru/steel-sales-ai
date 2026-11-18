@@ -337,6 +337,8 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
                 deep_recovery=True)
         self.assertEqual(regular["p_verdict"], "needs_human")
         self.assertEqual(recovered["p_verdict"], "identity_supported")
+        self.assertEqual(recovered["p_page_url"],
+                         "https://carpenteriatest.it/dati-societari")
         self.assertNotIn("https://unrelated.com/privacy", seen)
         self.assertEqual(recovered["p_rights_state"], "unknown")
         self.assertNotIn("p_approved", recovered)
