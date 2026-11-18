@@ -91,6 +91,28 @@ class SourceReviewTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(outcome["p_verdict"],"needs_human")
         self.assertIn("corporate_name_not_evidenced",outcome["p_reasons"])
 
+    async def test_nigrelli_address_cannot_be_supported_as_company(self):
+        body = ("C.da Piana snc Caronia ME. "
+                "COSTRUZIONI MECCANICHE NIGRELLI SRL P.IVA 03359330838")
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=AsyncMock(return_value=page(body, url="https://grupponigrelli.it/"))):
+            outcome = await inspect_candidate(None,row(
+                name="C.da Piana S.n.c.",domain="grupponigrelli.it"))
+        self.assertEqual(outcome["p_verdict"],"identity_supported")
+        self.assertEqual(outcome["p_observed_name"],"COSTRUZIONI MECCANICHE NIGRELLI SRL")
+        self.assertEqual(outcome["_identity_correction"]["p_legal_name"],
+                         "COSTRUZIONI MECCANICHE NIGRELLI SRL")
+
+    async def test_vital_contact_button_not_company_name(self):
+        with patch("app.net_it_auto2_reviewer._fetch_page",
+                   new=AsyncMock(return_value=page(
+                       "CONTATTACI ORA VITAL SRL P.IVA 01291660288",
+                       url="https://vitalsrl.com/"))):
+            outcome = await inspect_candidate(None,row(name="ORA VITAL SRL",
+                                                        domain="vitalsrl.com"))
+        self.assertEqual(outcome["p_verdict"],"identity_supported")
+        self.assertEqual(outcome["_identity_correction"]["p_legal_name"],"VITAL SRL")
+
     async def test_sole_trader_context_still_human_exception(self):
         with patch("app.net_it_auto2_reviewer._fetch_page",
                   new=AsyncMock(return_value=page("Carpenteria Test S.r.l."))):
