@@ -138,14 +138,12 @@ begin
   if not found then return; end if;
   select exists(
     select 1 from public.network_companies c
-    join private.network_producer_catalog_links l
-      on l.company_id=c.id and l.source_url=v.source_url
     join public.network_company_role_assignments a on a.company_id=c.id
     join public.network_company_roles r on r.id=a.role_id
     where c.id=v.company_id and c.country_code='IT'
       and c.publication_status='published' and c.archived_at is null
-      and l.rights_status='link_only'
-      and l.source_status='official_link_observed'
+      and c.website_domain is not null
+      and length(c.website_domain)>4
       and r.canonical_key='producer' and r.status='active'
       -- Accept canonical first-party hostname or first-party subdomain only.
       and (
@@ -227,6 +225,9 @@ create trigger netproducers1_structured_auto_publish
   on private.network_producer_technical_claims
   for each row execute function private.netproducers1_structured_claim_trigger();
 
+-- New trusted first-party observations auto-publish without requiring a
+-- separate catalogue-link registration, claim or manual per-record approval.
+-- Website identity, evidence status and publisher role remain checked.
 -- One-off first ingestion of ALREADY OBSERVED single-source facts.
 do $seed$
 declare v_claim uuid;
@@ -400,3 +401,14 @@ grant execute on function private.netproducers1_structured_owner_manage(text,uui
   to authenticated;
 grant execute on function public.netproducers1_structured_owner_manage(text,uuid,uuid)
   to authenticated;
+
+-- Internal writers stay inaccessible to browser roles even when private schema
+-- USAGE is enabled for other reviewed authenticated RPC implementations.
+revoke all on function private.netproducers1_structured_sync_claim(uuid)
+  from public,anon,authenticated;
+revoke all on function private.netproducers1_structure_dimension(text)
+  from public,anon,authenticated;
+revoke all on function private.netproducers1_structured_claim_trigger()
+  from public,anon,authenticated;
+revoke all on function private.netproducers1_structured_events_immutable()
+  from public,anon,authenticated;
