@@ -206,7 +206,9 @@ export function DistintaQuickAddBar({
             disabled={disabled}
             value={query}
             placeholder="Es. quadro 100x100x5, tondo 60,3x3, 120x80x4"
-            onFocus={() => setOpen(true)}
+            // Open on typing, tap or arrows, not on focus: an autofocused, pre-filled
+            // search must not cover quantity and norm on small screens.
+            onClick={() => setOpen(true)}
             onBlur={() => setOpen(false)}
             onChange={(event) => {
               setQuery(event.target.value);

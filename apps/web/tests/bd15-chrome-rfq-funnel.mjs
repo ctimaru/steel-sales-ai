@@ -150,6 +150,16 @@ try {
       const { bill } = await fillTwoQuickLines(page, width);
       const btn = bill.getByRole("button", { name: /Crea RFQ privata|Scegli i fornitori/ });
       await btn.waitFor({state:"visible"});
+      if (!(await btn.isEnabled())) {
+        // Fixture-only diagnostic (synthetic lines, no credentials or storage).
+        const diagnostic = await page.evaluate(() => ({
+          ready: document.querySelector("[data-private-calculator-page]")?.getAttribute("data-buyer-draft-ready"),
+          quickStatus: document.querySelector('[data-testid="distinta-quick-add"] [role="status"]')?.textContent,
+          approved: Array.from(document.querySelectorAll('[data-testid="commercial-rfq-approved-lines"] li')).map(li => (li.textContent || "").slice(0, 160)),
+          bill: (document.querySelector("#buyer-live-preview")?.textContent || "").replace(/\s+/g, " ").slice(0, 1200),
+        }));
+        console.error("BD15 DISTINTA2 disabled RFQ button diagnostic " + width, JSON.stringify(diagnostic));
+      }
       assert.equal(await btn.isEnabled(),true,"Mixed EN bill must be valid and immediately RFQ-ready");
       await noOverflow(page,"private bill "+width);
     });
