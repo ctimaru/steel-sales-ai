@@ -660,6 +660,15 @@ def main() -> int:
         report["catalogue_discovery"] = asyncio.run(
             run_catalogue_discovery(db, limit=3)
         )
+    # B3.E: factual observation of small, indexed official PDF sources.
+    # Independent from B2 producer licence; does not create grants or republish
+    # source text. Both discovery and actual fact staging are default OFF.
+    if args.persist and os.getenv("NETPRODUCERS_B3E_FACT_OBSERVATION_ENABLED") == "1":
+        from .net_pro_producers_pdf_public_facts_b3e import run_b3e_fact_queue
+        report["pdf_fact_observation"] = asyncio.run(run_b3e_fact_queue(
+            db, limit=1,
+            stage=os.getenv("NETPRODUCERS_B3E_FACT_STAGE_ENABLED") == "1",
+        ))
     print(json.dumps(report, indent=2))
     return 0
 
