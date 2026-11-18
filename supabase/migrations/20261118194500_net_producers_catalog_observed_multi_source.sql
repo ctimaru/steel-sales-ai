@@ -116,9 +116,9 @@ with observed(company_id,source_url,page,standard,shape,width_mm,height_mm,diame
   ('52917e21-7beb-4e50-83a9-b80cfd71d4ea','https://www.csmtube.com/wp-content/uploads/2025/12/CSM-TUBE_EN_Brochure.pdf',5,'CATALOGUE_UNSPECIFIED','CHS',NULL,NULL,32,'pdf_page:5:table:chs_catalogue:row:32-00','32,00 1.260')
 ), safe_source as (
 select o.* from observed o
-join public.network_companies c on c.id=o.company_id
+join public.network_companies c on c.id=o.company_id::uuid
 join private.network_producer_catalog_links l
-  on l.company_id=o.company_id and l.source_url=o.source_url
+  on l.company_id=o.company_id::uuid and l.source_url=o.source_url
 join public.network_company_role_assignments a on a.company_id=c.id
 join public.network_company_roles r on r.id=a.role_id
 where c.publication_status='published' and c.archived_at is null
@@ -136,7 +136,7 @@ and (
  insert into private.network_producer_pdf_size_rows(
   company_id,source_url,page,standard,shape,width_mm,height_mm,
   diameter_mm,locator,line_sha256,extraction_basis)
- select company_id,source_url,page,standard,shape,width_mm,height_mm,
+ select company_id::uuid,source_url,page,standard,shape,width_mm,height_mm,
   diameter_mm,locator,
   encode(sha256(convert_to(source_line,'UTF8')),'hex'),
   'official_pdf_text_index'
