@@ -57,6 +57,10 @@ def test_publisher_requires_full_evidence_and_preview_before_commit():
         "'technical_capabilities_verified',false",
     ):
         assert required in sql, required
+    # Each item is rechecked after prior inserts in the same batch,
+    # not just once at cursor creation time.
+    assert sql.count("SELECT 1 FROM public.network_companies c") >= 2
+    assert "CONTINUE;" in sql
     assert sql.count("INSERT INTO public.network_companies") == 1
     assert sql.count("INSERT INTO public.network_data_assertions") == 1
     assert sql.count("INSERT INTO public.network_company_role_assignments") == 1
