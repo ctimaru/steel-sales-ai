@@ -160,8 +160,12 @@ class Anchors(HTMLParser):
             self._text=[]
     def handle_data(self,data):
         if self._skip:return
-        if self._href is not None:self._text.append(data[:120])
-        if len(self.visible)<600:self.visible.append(data[:200])
+        if self._href is not None:
+            # Link labels (even offsite or attacker-controlled) are NOT
+            # proof that the company's own page discusses tube products.
+            self._text.append(data[:120])
+        elif len(self.visible)<600:
+            self.visible.append(data[:200])
     def handle_endtag(self,tag):
         if tag in ("script","style","noscript") and self._skip:
             self._skip-=1
