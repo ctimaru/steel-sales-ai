@@ -18,6 +18,7 @@ test("B3.C2 creates a private pending-provenance intake, never an automatic lice
   assert.match(sql,/rights_declared_at timestamptz/);
   assert.match(sql,/enable row level security/);
   assert.match(sql,/revoke all on private\.network_producer_catalog_submissions/);
+  assert.doesNotMatch(sql,/grant execute on function private\.netproducers1_b3c2_catalog_submission\(text,jsonb\)/);
   assert.doesNotMatch(sql,/insert into private\.network_producer_catalog_grants/i);
   assert.doesNotMatch(sql,/netproducers1_b3c_catalog_queue\('enqueue'/);
   assert.doesNotMatch(sql,/grant execute on function public\.netproducers1_b2_catalog\(text,jsonb\)\s+to authenticated/);
