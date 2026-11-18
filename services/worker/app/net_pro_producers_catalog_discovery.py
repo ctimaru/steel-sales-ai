@@ -190,7 +190,8 @@ def _parse_links(html:bytes,page_url:str,domain:str)->tuple[list[dict],list[str]
             # or tubular AND the link itself must be a likely catalogue/product.
             if industrial and GOOD.search(hint):
                 documents.append({"url":clean,
-                    "title":(" ".join(label.split()) or "Official industrial PDF catalogue")[:220],
+                    "title":(" ".join(label.split()) if len(" ".join(label.split()))>=5
+                        else "Official industrial PDF catalogue")[:220],
                     "discovery_page_url":page_url})
         elif PAGE.search(hint) and len(pages)<MAX_PAGES*3:
             pages.append(clean)
