@@ -71,8 +71,8 @@ begin
        and a.asserted_value->>'process'=m.process_code
    where c.id=any(p_company_ids) and c.country_code=v_country
      and c.publication_status='published' and c.archived_at is null
-     and c.verification_status='unverified'
-     and c.claimed_status='unclaimed'
+     -- Company claiming or later legal verification must not erase an
+     -- independently observed, source-linked physical manufacturing fact.
      and char_length(m.source_url)<=1200
      and m.source_url ~* '^https://'
      and lower(regexp_replace(split_part(split_part(m.source_url,'/',3),':',1),'^www[.]',''))
