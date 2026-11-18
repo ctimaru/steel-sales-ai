@@ -8,7 +8,7 @@ const shapeLabel=(x:PdfDimensionRow)=>x.shape==="CHS"?"Tondo":
  x.shape==="SHS"?"Quadro":"Rettangolare";
 
 export function ProducerPdfSizeTables({data}:{data:PdfDimensions|null}){
- if(data===null)return <section className="rounded-xl border border-[#dfebdf] bg-white p-4 text-xs text-[#6b7c6b]">
+ if(data===null)return <section className="rounded-xl border border-[#dfebdf] bg-white p-4 text-xs text-[#4e6655]">
   Le singole dimensioni dei PDF sono temporaneamente indisponibili.
  </section>;
  if(!data.total)return null;
@@ -41,7 +41,7 @@ export function ProducerPdfSizeTables({data}:{data:PdfDimensions|null}){
     </div>
     <div className="overflow-x-auto">
      <table className="w-full min-w-[380px] text-left text-xs">
-      <thead className="bg-[#f6faf7] text-[#64786b]"><tr>
+      <thead className="bg-[#f6faf7] text-[#4c6653]"><tr>
        <th className="px-3 py-2 font-bold">Norma</th>
        <th className="px-3 py-2 font-bold">Sezione</th>
        <th className="px-3 py-2 font-bold">Misura (mm)</th>
