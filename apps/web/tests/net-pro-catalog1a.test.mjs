@@ -55,7 +55,7 @@ test("NET-PRO-CATALOG1.A remains inside authenticated Network, visible to Free a
   assert.match(route, /NetworkProCatalog/);
   assert.match(routes, /pro: "\/network\/pro"/);
   // NET-PRO-UX2: the link now lives in the PRO strip rendered at the top of the Network page.
-  assert.match(network, /<NetworkProducersEntry \/>/);
+  assert.match(network, /<NetworkProducersEntry country=\{filters\.country\|\|"IT"\}\s*\/>/);
   assert.match(read("components/network-producers-entry.tsx"), /href="\/network\/pro"/);
   assert.match(gate, /appRoutes\.network\.pro/);
   assert.match(gate, /non introduce un checkout fittizio/);
