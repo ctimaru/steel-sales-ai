@@ -72,3 +72,57 @@ def test_company_leases_are_explicitly_validated():
       _lease({**valid,"homepage":"https://evil.com/"})
     with pytest.raises(DiscoveryProblem):
       _lease({**valid,"canonical_domain":"127.0.0.1"})
+
+
+def test_worker_persists_no_catalog_without_fabricated_links(monkeypatch):
+    import asyncio
+    import app.net_pro_producers_catalog_discovery as discovery
+    lease={
+      "company_id":"00000000-0000-4000-8000-000000000001",
+      "lease_token":"00000000-0000-4000-8000-000000000002",
+      "canonical_domain":"tubificio.it","homepage":"https://tubificio.it/",
+    }
+    monkeypatch.setattr(discovery,"_discover_one",lambda _:([],"none_found",None))
+    class FakeDB:
+      def __init__(self):self.calls=[]
+      def rpc(self,name,args):
+        assert name=="netproducers_catalog_discovery"
+        self.calls.append(args)
+        op=args["p_operation"]
+        payload=args["p_payload"]
+        if op=="seed":data={"contract":discovery.CONTRACT,"operation":"seed","added":0}
+        elif op=="claim":data={"contract":discovery.CONTRACT,"operation":"claim","count":1,"items":[lease]}
+        elif op=="complete":
+          assert payload["status"]=="none_found"
+          assert "links" not in payload
+          data={"contract":discovery.CONTRACT,"operation":"complete","added":0}
+        else:raise AssertionError(op)
+        class Result:
+          def execute(self):
+            self.data=data
+            return self
+        return Result()
+    db=FakeDB()
+    result=asyncio.run(discovery.run_catalogue_discovery(db,limit=1))
+    assert result["sites_checked"]==1
+    assert result["catalog_links_added"]==result["claims_of_manufacturing"]==0
+    assert [x["p_operation"] for x in db.calls]==["seed","claim","complete"]
+
+
+def test_sql_queue_service_role_only_and_all_published_producer_leads():
+    for s in [
+     "create table private.network_producer_catalog_discovery_queue",
+     "enable row level security",
+     "revoke all on private.network_producer_catalog_discovery_queue",
+     "for update of q skip locked",
+     "country_code in ('IT','RO')",
+     "r.canonical_key='producer'",
+     "and c.publication_status='published'",
+     "lease_expires_at>now()",
+     "on conflict(company_id,source_url) do nothing",
+     "l.document_type='official_pdf'",
+    ]:
+     assert s in SQL,s
+    assert "grant execute on function public.netproducers_catalog_discovery(text,jsonb)\n to service_role;" in SQL
+    assert "to anon,authenticated;" not in SQL.split("grant execute on function public.netproducers_catalog_discovery(text,jsonb)")[-1]
+    assert "PDF bytes" in SQL
