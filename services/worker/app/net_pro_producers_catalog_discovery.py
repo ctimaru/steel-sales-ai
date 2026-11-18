@@ -268,7 +268,8 @@ async def run_catalogue_discovery(db:Any,*,limit:int=2)->dict:
             links,status,err=await asyncio.to_thread(_discover_one,l)
             completed=_rpc(db,"complete",{
                 "company_id":l["company_id"],"lease_token":l["lease_token"],
-                "status":status,"links":links if status=="discovered" else [],
+                "status":status,
+                **({"links":links} if status=="discovered" else {}),
                 **({"error_code":err} if err else {}),
             })
             if completed.get("operation")!="complete":
