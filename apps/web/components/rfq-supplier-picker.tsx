@@ -28,6 +28,16 @@ export type RfqPickerSelectedSupplier = {
   email: string | null;
   channel: "email" | "platform" | "both";
   removable: boolean;
+  networkCompanyId?: string | null;
+};
+
+/** DISTINTA2B: the Network company the request started from (server-verified). */
+export type RfqPickerPinnedCompany = {
+  id: string;
+  name: string;
+  country: string;
+  role: string | null;
+  products: string[];
 };
 
 type Row = SupplierCandidate & { group: SupplierPickerGroup | "search"; reachable: boolean; reason: string | null };
@@ -53,11 +63,12 @@ function channelLabel(channel: SupplierCandidate["delivery_channel"]) {
 }
 
 export function RfqSupplierPicker({
-  rfqId, selected, canEdit,
+  rfqId, selected, canEdit, pinned = null,
 }: {
   rfqId: string;
   selected: RfqPickerSelectedSupplier[];
   canEdit: boolean;
+  pinned?: RfqPickerPinnedCompany | null;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -73,6 +84,10 @@ export function RfqSupplierPicker({
   const [manualOpen, setManualOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const searchSeq = useRef(0);
+  // DISTINTA2B: the starting company is proposed (and pre-checked once), never added.
+  const [pinnedRow, setPinnedRow] = useState<Row | "unreachable" | null>(null);
+  const pinnedPrechecked = useRef(false);
+  const pinnedAlreadySelected = Boolean(pinned && selected.some((supplier) => supplier.networkCompanyId === pinned.id));
 
   // Reload the groups whenever the recipients change (added or removed).
   const selectedKey = selected.map((supplier) => supplier.id).join(",");
@@ -94,6 +109,27 @@ export function RfqSupplierPicker({
     return () => { cancelled = true; };
   }, [rfqId, selectedKey]);
 
+  useEffect(() => {
+    if (!pinned || loading || pinnedAlreadySelected) return;
+    const inGroups = groups.find((row) => row.supplier_network_company_id === pinned.id);
+    if (inGroups) { setPinnedRow(inGroups); return; }
+    let cancelled = false;
+    searchBuyerRfqSuppliers(rfqId, pinned.name).then((result) => {
+      if (cancelled) return;
+      const match = result.ok
+        ? (result.candidates ?? []).find((candidate) => candidate.supplier_network_company_id === pinned.id)
+        : undefined;
+      setPinnedRow(match ? { ...match, group: "search", reachable: true, reason: null } : "unreachable");
+    });
+    return () => { cancelled = true; };
+  }, [pinned, loading, groups, rfqId, pinnedAlreadySelected]);
+
+  useEffect(() => {
+    if (!pinnedRow || pinnedRow === "unreachable" || pinnedPrechecked.current || !canEdit || !pinnedRow.reachable) return;
+    pinnedPrechecked.current = true;
+    setChecked((current) => ({ ...current, [pinnedRow.identity_key]: pinnedRow }));
+  }, [pinnedRow, canEdit]);
+
   // Search by name, email, VAT or domain across contacts, history and Network.
   useEffect(() => {
     const clean = query.trim();
@@ -111,10 +147,12 @@ export function RfqSupplierPicker({
   }, [query, rfqId]);
 
   const sections = useMemo<Array<{ group: SupplierPickerGroup | "search"; rows: Row[] }>>(() => {
-    if (searchRows) return [{ group: "search" as const, rows: searchRows }];
+    if (searchRows) return [{ group: "search" as const, rows: searchRows
+      .filter((row) => !(pinned && row.supplier_network_company_id === pinned.id)) }];
     return (["saved", "recent", "contacts", "recommended"] as const)
-      .map((group) => ({ group, rows: groups.filter((row) => row.group === group) }));
-  }, [groups, searchRows]);
+      .map((group) => ({ group, rows: groups.filter((row) => row.group === group
+        && !(pinned && row.supplier_network_company_id === pinned.id)) }));
+  }, [groups, searchRows, pinned]);
 
   const checkedRows = Object.values(checked);
   const familyText = families.map((key) => familyLabels[key] ?? key).join(", ");
@@ -216,6 +254,46 @@ export function RfqSupplierPicker({
         {loadError && !searchRows ? <p role="alert" className="mt-4 text-sm font-semibold text-[#8c431e]">{loadError}</p> : null}
 
         <div className="mt-3 space-y-4">
+          {pinned ? (
+            <section aria-label="Da cui sei partito" data-testid="rfq-picker-pinned">
+              <h3 className="mb-1.5 px-1 text-xs font-bold uppercase tracking-[0.08em] text-[#1a5144]">Da cui sei partito</h3>
+              {(() => {
+                const subtitle = ["Dal Network", pinned.role, pinned.products.join(", "), pinned.country !== "—" ? pinned.country : null]
+                  .filter(Boolean).join(" · ");
+                if (pinnedAlreadySelected) {
+                  return (
+                    <p className="rounded-xl border border-[#cfe3d7] bg-[#f4faf6] px-3 py-3 text-sm">
+                      <span className="font-semibold text-[#173f35]">{pinned.name}</span>
+                      <span className="block text-[11px] text-[#2f5a45]">Già tra i destinatari ✓</span>
+                    </p>
+                  );
+                }
+                if (pinnedRow === "unreachable") {
+                  return (
+                    <p className="rounded-xl border border-dashed border-[#d6c9a4] bg-[#fffaf0] px-3 py-3 text-sm">
+                      <span className="font-semibold text-[#173f35]">{pinned.name}</span>
+                      <span className="block text-[11px] leading-4 text-[#6b5520]">
+                        {subtitle} · Nessun contatto verificato: non si può ancora invitare. Se hai la sua email, aggiungila a mano qui sotto.
+                      </span>
+                    </p>
+                  );
+                }
+                if (!pinnedRow) return <p className="px-1 text-xs text-[#5c7063]">Cerco {pinned.name}…</p>;
+                const isChecked = Boolean(checked[pinnedRow.identity_key]);
+                return (
+                  <label className={"flex min-h-14 items-center gap-3 rounded-xl border border-[#b9d3c4] px-3 py-2 " +
+                    (canEdit ? "cursor-pointer" : "cursor-not-allowed opacity-70") + (isChecked ? " bg-[#eaf4ee]" : " bg-white")}>
+                    <input type="checkbox" checked={isChecked} disabled={!canEdit} onChange={() => toggle(pinnedRow)}
+                      aria-label={"Seleziona " + pinned.name} className="h-5 w-5 shrink-0 accent-[#175640]" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold text-[#173f35]">{pinned.name}</span>
+                      <span className="block truncate text-[11px] text-[#5c7063]">{[subtitle, pinnedRow.email].filter(Boolean).join(" · ")}</span>
+                    </span>
+                  </label>
+                );
+              })()}
+            </section>
+          ) : null}
           {sections.map(({ group, rows }) => {
             if (group === "recommended" && !networkEnabled) {
               return (

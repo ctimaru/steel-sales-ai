@@ -51,7 +51,7 @@ test("the single screen: chat + Distinta, measure panel on demand, step 2 = supp
   const builder = read("../components/buyer-distinta-builder.tsx");
   // DISTINTA-QUICK1: «aggiungi=misura» focuses the «Aggiungi articolo» bar above the chat.
   assert.match(builder, /autoFocus=\{openMeasure \|\| Boolean\(quickAddPrefill\)\}/);
-  assert.match(builder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
+  assert.match(builder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)/);
   assert.doesNotMatch(builder, /returnToCommercial/);
   const preview = read("../components/commercial-rfq-live-preview.tsx");
   assert.match(preview, /data-testid="distinta-choose-suppliers"/);

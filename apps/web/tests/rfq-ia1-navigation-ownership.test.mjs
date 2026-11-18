@@ -65,7 +65,7 @@ test("RFQ-IA1 canonical routes reuse the existing private engine and leave legac
   assert.match(routeSource, /rfqHub: "\/marketplace\/rfq-hub"/);
   assert.match(rfqHub, /appRoutes\.rfqHub\.campaign\(campaign\.id\)/);
   assert.match(rfqDetail, /href=\{appRoutes\.rfqHub\.home\}/);
-  assert.match(buyer, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
+  assert.match(buyer, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)/);
 });
 
 test("COMMERCIAL-UNIFY1 exposes procurement under Commerciale independently of Network access", () => {
