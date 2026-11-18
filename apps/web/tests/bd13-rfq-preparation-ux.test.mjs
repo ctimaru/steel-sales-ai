@@ -13,11 +13,14 @@ test("BD13: private preparation has explicit 1 select / 2 verify and send / opti
   const branch = page.slice(page.indexOf("if (isPreparation && canExecuteCritical) {"), page.indexOf("<Rfqc1ChatWorkspace"));
   assert.ok(branch.length > 0, "step-2 branch precedes the chat workspace");
   assert.match(branch, /"Cosa ti serve", "A chi lo chiedi", "Invia"/);
-  assert.match(branch, /Oppure pubblica la richiesta nel Marketplace/);
+  // DISTINTA2D: send (step 3) sits next to the recipients; Marketplace is shown locked.
   const suppliers = branch.indexOf("<RfqSupplierPicker");
   const send = branch.indexOf("<RfqDispatchPanel");
-  const market = branch.indexOf("<RfqMarketplaceBridgePanel");
+  const market = branch.indexOf('data-testid="rfq-step2-marketplace-locked"');
   assert.ok(suppliers > 0 && suppliers < send && send < market);
+  assert.match(branch, /layout="side"/);
+  assert.match(branch, /Pubblica nel Marketplace<\/span> · Presto disponibile/);
+  assert.doesNotMatch(branch, /<RfqMarketplaceBridgePanel/);
   // Read-only viewers of a draft keep the previous layout.
   assert.match(page, /1 · Scegli i fornitori/);
   assert.match(page, /2 · Verifica e invia/);

@@ -192,8 +192,9 @@ try {
       // DISTINTA2: one focused step-2 screen while the RFQ is a draft.
       assert.equal(await page.getByTestId("rfq-step2").count(),1);
       assert.match(body,/A chi chiedi l'offerta\?/);
-      assert.match(body,/privata, non ancora inviata/);
-      assert.match(body,/Rivedi e invia/);
+      assert.match(body,/La tua distinta/);
+      assert.match(body,/Presto disponibile/);
+      assert.equal(await page.getByTestId("rfq-step2-marketplace-locked").count(),1);
       assert.ok(!body.includes("Pubblicato nel Marketplace"),"Accidental Marketplace publication");
       await noOverflow(page,"new RFQ draft "+width);
     });
@@ -237,7 +238,7 @@ try {
       await page.getByText(/canale email RFQ non è ancora configurato/).waitFor({state:"visible",timeout:45000});
       assert.equal(await review.count(),0);
       const body=await page.locator("body").innerText();
-      assert.match(body,/privata, non ancora inviata/);
+      assert.match(body,/A chi chiedi l'offerta\?/);
       await noOverflow(page,"disabled dispatch "+width);
     });
     await ctx.close();

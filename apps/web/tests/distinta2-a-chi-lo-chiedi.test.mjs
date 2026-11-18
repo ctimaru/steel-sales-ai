@@ -12,9 +12,14 @@ const actions = read("../app/(italian)/(workspace)/marketplace/rfq-hub/actions.t
 const migration = read("../../../supabase/migrations/20261118091500_distinta2_supplier_picker.sql");
 
 test("the picker groups suppliers and never sends", () => {
-  for (const title of ["Le tue aziende salvate", "Già usati nelle tue richieste", "I tuoi contatti", "Consigliati per questa distinta"]) {
-    assert.match(picker, new RegExp(title));
+  for (const title of ["Salvati", "Già usati", "Contatti", "Consigliati"]) {
+    assert.match(picker, new RegExp('title: "' + title + '"'));
   }
+  // DISTINTA2D: one group at a time, a few rows at a time, send next to recipients.
+  assert.match(picker, /role="tablist" aria-label="Gruppi di fornitori"/);
+  assert.match(picker, /const ROWS_PER_PAGE = 6;/);
+  assert.match(picker, /"Mostra altri " \+/);
+  assert.match(picker, /\{sendPanel\}/);
   assert.match(picker, /aria-label=\{"Seleziona " \+ name\}/);
   assert.match(picker, /"Aggiungi " \+ checkedRows.length \+ " alla RFQ"/);
   assert.match(picker, /fornitori aggiunti alla RFQ/);
@@ -22,7 +27,7 @@ test("the picker groups suppliers and never sends", () => {
   assert.match(picker, /Nessun contatto verificato/);
   assert.match(picker, /removeSupplierFromBuyerRfq/);
   assert.doesNotMatch(picker, /launchBuyerRfq|rfqh3_launch/);
-  assert.match(picker, /href="#rfq-review-send"/);
+  assert.doesNotMatch(picker, /href="#rfq-review-send"/);
 });
 
 test("the draft owner gets the step-2 screen instead of the chat", () => {
