@@ -95,8 +95,7 @@ $function$
   -- at most 6 words before the legal form
   AND coalesce(array_length(regexp_split_to_array(v_core,'[[:space:]]+'),1),0) <= 6;
 END
-$function$
-
+$function$;
 
 COMMENT ON FUNCTION private.net_it_legal_name_quality_ok(text) IS
   'Rejects UI, legal-name contamination, and address snc vs true legal SNC';
