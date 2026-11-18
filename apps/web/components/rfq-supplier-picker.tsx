@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
 
 import {
   addSupplierToBuyerRfq,
@@ -42,13 +42,14 @@ export type RfqPickerPinnedCompany = {
 
 type Row = SupplierCandidate & { group: SupplierPickerGroup | "search"; reachable: boolean; reason: string | null };
 
-const groupTitles: Record<SupplierPickerGroup | "search", { title: string; empty?: string }> = {
+const groupTitles: Record<SupplierPickerGroup | "search", { title: string }> = {
   search: { title: "Risultati della ricerca" },
-  saved: { title: "Le tue aziende salvate" },
-  recent: { title: "Già usati nelle tue richieste" },
-  contacts: { title: "I tuoi contatti" },
-  recommended: { title: "Consigliati per questa distinta" },
+  saved: { title: "Salvati" },
+  recent: { title: "Già usati" },
+  contacts: { title: "Contatti" },
+  recommended: { title: "Consigliati" },
 };
+const ROWS_PER_PAGE = 6;
 
 const familyLabels: Record<string, string> = {
   tubes_pipes: "tubi",
@@ -63,12 +64,14 @@ function channelLabel(channel: SupplierCandidate["delivery_channel"]) {
 }
 
 export function RfqSupplierPicker({
-  rfqId, selected, canEdit, pinned = null,
+  rfqId, selected, canEdit, pinned = null, sendPanel = null,
 }: {
   rfqId: string;
   selected: RfqPickerSelectedSupplier[];
   canEdit: boolean;
   pinned?: RfqPickerPinnedCompany | null;
+  /** DISTINTA2D: step 3 (send), shown under the recipients in the right column. */
+  sendPanel?: ReactNode;
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -82,6 +85,8 @@ export function RfqSupplierPicker({
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const [removing, setRemoving] = useState<string | null>(null);
   const [manualOpen, setManualOpen] = useState(false);
+  const [tab, setTab] = useState<SupplierPickerGroup | null>(null);
+  const [expanded, setExpanded] = useState(false);
   const [pending, startTransition] = useTransition();
   const searchSeq = useRef(0);
   // DISTINTA2B: the starting company is proposed (and pre-checked once), never added.
@@ -233,132 +238,159 @@ export function RfqSupplierPicker({
     });
   }
 
+  // DISTINTA2D: one group at a time (tabs), a few rows at a time.
+  const visibleGroups = (["saved", "recent", "contacts", "recommended"] as const)
+    .filter((group) => group === "recommended" || sections.some((section) => section.group === group && section.rows.length > 0));
+  const defaultTab: SupplierPickerGroup = (["saved", "recent", "contacts"] as const)
+    .find((group) => sections.some((section) => section.group === group && section.rows.length > 0)) ?? "recommended";
+  const activeTab: SupplierPickerGroup = tab && visibleGroups.includes(tab) ? tab : defaultTab;
+  const activeRows = searchRows
+    ? (sections[0]?.rows ?? [])
+    : (sections.find((section) => section.group === activeTab)?.rows ?? []);
+  const shownRows = expanded ? activeRows : activeRows.slice(0, ROWS_PER_PAGE);
+
+  function renderRow(row: Row) {
+    const name = row.company_name || row.email || "Fornitore";
+    const isChecked = Boolean(checked[row.identity_key]);
+    const disabled = !row.reachable || !canEdit;
+    return (
+      <li key={row.group + ":" + row.identity_key}>
+        <label className={"flex min-h-12 items-center gap-3 px-3 py-2 " +
+          (disabled ? "cursor-not-allowed bg-[#fafbfa] opacity-70" : "cursor-pointer hover:bg-[#f4f9f5]") +
+          (isChecked ? " bg-[#eaf4ee]" : "")}>
+          <input type="checkbox" checked={isChecked} disabled={disabled} onChange={() => toggle(row)}
+            aria-label={"Seleziona " + name}
+            className="h-5 w-5 shrink-0 accent-[#175640]" />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold text-[#173f35]">{name}</span>
+            <span className="block truncate text-[11px] text-[#5c7063]">
+              {row.reachable ? (row.reason ?? channelLabel(row.delivery_channel)) : "Nessun contatto verificato: non si può ancora invitare"}
+            </span>
+          </span>
+          {row.country_code ? <span className="shrink-0 text-[10px] font-semibold text-[#6b7f73]">{row.country_code}</span> : null}
+        </label>
+      </li>
+    );
+  }
+
+  function emptyText() {
+    if (searchRows) return "Nessun risultato. Puoi aggiungerlo a mano con la sua email.";
+    if (activeTab !== "recommended") return "Nessuno in questo gruppo.";
+    return familyText
+      ? "Nessuna azienda contattabile del Network lavora " + familyText + " per ora. Cerca per nome o aggiungi a mano."
+      : "Non riconosco il tipo di prodotto della distinta: cerca per nome o aggiungi a mano.";
+  }
+
   return (
-    <div data-testid="rfq-supplier-picker" className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+    <div data-testid="rfq-supplier-picker" className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
       <section aria-labelledby="rfq-picker-title" className="min-w-0 rounded-2xl border border-[#d6e5db] bg-white p-3 sm:p-4">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h2 id="rfq-picker-title" className="text-base font-bold text-[#143f30]">A chi chiedi l&apos;offerta?</h2>
-          <p className="text-xs text-[#5c7063]">Spunta i fornitori e aggiungili. Niente viene inviato da qui.</p>
+          <p className="text-[11px] text-[#5c7063]">Spunta e aggiungi. Da qui non parte nulla.</p>
         </div>
+
+        {pinned ? (
+          <section aria-label="Da cui sei partito" data-testid="rfq-picker-pinned" className="mt-3">
+            <h3 className="mb-1.5 px-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#1a5144]">Da cui sei partito</h3>
+            {(() => {
+              const subtitle = ["Dal Network", pinned.role, pinned.products.join(", "), pinned.country !== "—" ? pinned.country : null]
+                .filter(Boolean).join(" · ");
+              if (pinnedAlreadySelected) {
+                return (
+                  <p className="rounded-xl border border-[#cfe3d7] bg-[#f4faf6] px-3 py-2.5 text-sm">
+                    <span className="font-semibold text-[#173f35]">{pinned.name}</span>
+                    <span className="block text-[11px] text-[#2f5a45]">Già tra i destinatari ✓</span>
+                  </p>
+                );
+              }
+              if (pinnedRow === "unreachable") {
+                return (
+                  <p className="rounded-xl border border-dashed border-[#d6c9a4] bg-[#fffaf0] px-3 py-2.5 text-sm">
+                    <span className="font-semibold text-[#173f35]">{pinned.name}</span>
+                    <span className="block text-[11px] leading-4 text-[#6b5520]">
+                      Nessun contatto verificato: non si può ancora invitare. Se hai la sua email, aggiungila a mano.
+                    </span>
+                  </p>
+                );
+              }
+              if (!pinnedRow) return <p className="px-1 text-xs text-[#5c7063]">Cerco {pinned.name}…</p>;
+              const isChecked = Boolean(checked[pinnedRow.identity_key]);
+              return (
+                <label className={"flex min-h-12 items-center gap-3 rounded-xl border border-[#b9d3c4] px-3 py-2 " +
+                  (canEdit ? "cursor-pointer" : "cursor-not-allowed opacity-70") + (isChecked ? " bg-[#eaf4ee]" : " bg-white")}>
+                  <input type="checkbox" checked={isChecked} disabled={!canEdit} onChange={() => toggle(pinnedRow)}
+                    aria-label={"Seleziona " + pinned.name} className="h-5 w-5 shrink-0 accent-[#175640]" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-[#173f35]">{pinned.name}</span>
+                    <span className="block truncate text-[11px] text-[#5c7063]">{subtitle}</span>
+                  </span>
+                </label>
+              );
+            })()}
+          </section>
+        ) : null}
 
         <div className="relative mt-3">
           <label htmlFor="rfq-picker-search" className="sr-only">Cerca un fornitore</label>
           <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#6b8475]">⌕</span>
           <input id="rfq-picker-search" type="search" value={query} autoComplete="off"
-            onChange={(event) => { setQuery(event.target.value); setMessage(null); }}
+            onChange={(event) => { setQuery(event.target.value); setMessage(null); setExpanded(false); }}
             placeholder="Cerca per nome, email, P.IVA o sito"
             className="h-11 w-full rounded-xl border border-[#c9dccf] bg-white pl-9 pr-3 text-sm text-[#173f35] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15" />
         </div>
 
-        {loading && !searchRows ? <p className="mt-4 text-sm text-[#5c7063]">Carico i fornitori…</p> : null}
-        {loadError && !searchRows ? <p role="alert" className="mt-4 text-sm font-semibold text-[#8c431e]">{loadError}</p> : null}
-
-        <div className="mt-3 space-y-4">
-          {pinned ? (
-            <section aria-label="Da cui sei partito" data-testid="rfq-picker-pinned">
-              <h3 className="mb-1.5 px-1 text-xs font-bold uppercase tracking-[0.08em] text-[#1a5144]">Da cui sei partito</h3>
-              {(() => {
-                const subtitle = ["Dal Network", pinned.role, pinned.products.join(", "), pinned.country !== "—" ? pinned.country : null]
-                  .filter(Boolean).join(" · ");
-                if (pinnedAlreadySelected) {
-                  return (
-                    <p className="rounded-xl border border-[#cfe3d7] bg-[#f4faf6] px-3 py-3 text-sm">
-                      <span className="font-semibold text-[#173f35]">{pinned.name}</span>
-                      <span className="block text-[11px] text-[#2f5a45]">Già tra i destinatari ✓</span>
-                    </p>
-                  );
-                }
-                if (pinnedRow === "unreachable") {
-                  return (
-                    <p className="rounded-xl border border-dashed border-[#d6c9a4] bg-[#fffaf0] px-3 py-3 text-sm">
-                      <span className="font-semibold text-[#173f35]">{pinned.name}</span>
-                      <span className="block text-[11px] leading-4 text-[#6b5520]">
-                        {subtitle} · Nessun contatto verificato: non si può ancora invitare. Se hai la sua email, aggiungila a mano qui sotto.
-                      </span>
-                    </p>
-                  );
-                }
-                if (!pinnedRow) return <p className="px-1 text-xs text-[#5c7063]">Cerco {pinned.name}…</p>;
-                const isChecked = Boolean(checked[pinnedRow.identity_key]);
-                return (
-                  <label className={"flex min-h-14 items-center gap-3 rounded-xl border border-[#b9d3c4] px-3 py-2 " +
-                    (canEdit ? "cursor-pointer" : "cursor-not-allowed opacity-70") + (isChecked ? " bg-[#eaf4ee]" : " bg-white")}>
-                    <input type="checkbox" checked={isChecked} disabled={!canEdit} onChange={() => toggle(pinnedRow)}
-                      aria-label={"Seleziona " + pinned.name} className="h-5 w-5 shrink-0 accent-[#175640]" />
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold text-[#173f35]">{pinned.name}</span>
-                      <span className="block truncate text-[11px] text-[#5c7063]">{[subtitle, pinnedRow.email].filter(Boolean).join(" · ")}</span>
-                    </span>
-                  </label>
-                );
-              })()}
-            </section>
-          ) : null}
-          {sections.map(({ group, rows }) => {
-            if (group === "recommended" && !networkEnabled) {
+        {!searchRows ? (
+          <div role="tablist" aria-label="Gruppi di fornitori" className="mt-3 flex gap-1.5 overflow-x-auto pb-0.5">
+            {visibleGroups.map((group) => {
+              const count = sections.find((section) => section.group === group)?.rows.length ?? 0;
+              const selectedTab = group === activeTab;
               return (
-                <div key={group} className="rounded-xl border border-dashed border-[#d4c58f] bg-[#fffaf0] p-3 text-xs leading-5 text-[#6b5520]">
-                  <strong className="font-bold">Consigliati dal Network</strong> · disponibili con Network PRO: aziende che lavorano i prodotti della tua distinta.
-                </div>
+                <button key={group} type="button" role="tab" aria-selected={selectedTab}
+                  onClick={() => { setTab(group); setExpanded(false); }}
+                  className={"shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition " +
+                    (selectedTab ? "border-[#175640] bg-[#175640] text-white" : "border-[#d6e5db] bg-white text-[#2f5a45] hover:bg-[#f2f8f4]")}>
+                  {groupTitles[group].title} <span className={selectedTab ? "text-white/80" : "text-[#6b7f73]"}>{count}</span>
+                </button>
               );
-            }
-            if (!rows.length && group !== "search" && group !== "recommended") return null;
-            const title = groupTitles[group].title;
-            return (
-              <section key={group} aria-label={title}>
-                <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-2 px-1">
-                  <h3 className="text-xs font-bold uppercase tracking-[0.08em] text-[#1a5144]">
-                    {title} <span className="font-semibold text-[#6b7f73]">· {rows.length}</span>
-                  </h3>
-                  {group === "recommended" && familyText ? (
-                    <p className="text-[11px] text-[#5c7063]">Aziende del Network che lavorano {familyText}</p>
-                  ) : null}
-                </div>
-                {!rows.length ? (
-                  <p className="rounded-xl bg-[#f6f9f7] px-3 py-3 text-xs text-[#5c7063]">
-                    {group === "search"
-                      ? "Nessun risultato. Puoi aggiungerlo a mano con la sua email."
-                      : familyText
-                        ? "Nessuna azienda contattabile del Network lavora " + familyText + " per ora. Cerca per nome o aggiungi a mano."
-                        : "Non riconosco il tipo di prodotto della distinta: cerca per nome o aggiungi a mano."}
-                  </p>
-                ) : (
-                  <ul className="divide-y divide-[#edf2ee] overflow-hidden rounded-xl border border-[#e1eae4]">
-                    {rows.map((row) => {
-                      const name = row.company_name || row.email || "Fornitore";
-                      const isChecked = Boolean(checked[row.identity_key]);
-                      const disabled = !row.reachable || !canEdit;
-                      return (
-                        <li key={group + ":" + row.identity_key}>
-                          <label className={"flex min-h-14 items-center gap-3 px-3 py-2 " +
-                            (disabled ? "cursor-not-allowed bg-[#fafbfa] opacity-70" : "cursor-pointer hover:bg-[#f4f9f5]") +
-                            (isChecked ? " bg-[#eaf4ee]" : "")}>
-                            <input type="checkbox" checked={isChecked} disabled={disabled} onChange={() => toggle(row)}
-                              aria-label={"Seleziona " + name}
-                              className="h-5 w-5 shrink-0 accent-[#175640]" />
-                            <span className="min-w-0 flex-1">
-                              <span className="block truncate text-sm font-semibold text-[#173f35]">{name}</span>
-                              <span className="block truncate text-[11px] text-[#5c7063]">
-                                {[row.reason, row.reachable ? (row.email ?? channelLabel(row.delivery_channel)) : "Nessun contatto verificato: non si può ancora invitare"]
-                                  .filter(Boolean).join(" · ")}
-                              </span>
-                            </span>
-                            {row.country_code ? <span className="shrink-0 text-[10px] font-semibold text-[#6b7f73]">{row.country_code}</span> : null}
-                          </label>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </section>
-            );
-          })}
+            })}
+          </div>
+        ) : (
+          <p className="mt-3 px-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#1a5144]">
+            {groupTitles.search.title} · {activeRows.length}
+          </p>
+        )}
+
+        <div role={searchRows ? undefined : "tabpanel"} className="mt-2">
+          {loading && !searchRows ? <p className="px-1 py-3 text-sm text-[#5c7063]">Carico i fornitori…</p>
+            : loadError && !searchRows ? <p role="alert" className="px-1 py-3 text-sm font-semibold text-[#8c431e]">{loadError}</p>
+            : !searchRows && activeTab === "recommended" && !networkEnabled ? (
+              <p className="rounded-xl border border-dashed border-[#d4c58f] bg-[#fffaf0] p-3 text-xs leading-5 text-[#6b5520]">
+                <strong className="font-bold">Consigliati dal Network</strong> · disponibili con Network PRO: aziende che lavorano i prodotti della tua distinta.
+              </p>
+            ) : !activeRows.length ? (
+              <p className="rounded-xl bg-[#f6f9f7] px-3 py-3 text-xs text-[#5c7063]">{emptyText()}</p>
+            ) : (
+              <>
+                {!searchRows && activeTab === "recommended" && familyText ? (
+                  <p className="mb-1.5 px-1 text-[11px] text-[#5c7063]">Aziende del Network che lavorano {familyText}</p>
+                ) : null}
+                <ul className="divide-y divide-[#edf2ee] overflow-hidden rounded-xl border border-[#e1eae4]">
+                  {shownRows.map(renderRow)}
+                </ul>
+                {activeRows.length > ROWS_PER_PAGE ? (
+                  <button type="button" onClick={() => setExpanded((value) => !value)}
+                    className="mt-1.5 min-h-9 px-1 text-xs font-semibold text-[#175640] underline-offset-2 hover:underline">
+                    {expanded ? "Mostra meno" : "Mostra altri " + (activeRows.length - ROWS_PER_PAGE)}
+                  </button>
+                ) : null}
+              </>
+            )}
         </div>
 
         {canEdit ? (
-          <div className="mt-4 border-t border-[#e7eee9] pt-3">
+          <div className="mt-3 border-t border-[#e7eee9] pt-2">
             {manualOpen ? (
-              <form onSubmit={addManual} className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+              <form onSubmit={addManual} className="grid gap-2 pt-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
                 <label className="sr-only" htmlFor="rfq-picker-manual-name">Nome del fornitore</label>
                 <input id="rfq-picker-manual-name" name="name" placeholder="Nome azienda (facoltativo)"
                   className="h-11 rounded-xl border border-[#c9dccf] px-3 text-sm outline-none focus:border-[#175640]" />
@@ -372,8 +404,8 @@ export function RfqSupplierPicker({
               </form>
             ) : (
               <button type="button" onClick={() => setManualOpen(true)}
-                className="min-h-11 text-sm font-semibold text-[#175640] underline-offset-2 hover:underline">
-                + Aggiungi un fornitore a mano con la sua email
+                className="min-h-10 text-xs font-semibold text-[#175640] underline-offset-2 hover:underline">
+                + Aggiungi a mano con l&apos;email
               </button>
             )}
           </div>
@@ -399,45 +431,34 @@ export function RfqSupplierPicker({
         </p>
       </section>
 
-      <aside aria-labelledby="rfq-picker-selected" className="rounded-2xl border border-[#d6e5db] bg-white p-3 sm:p-4 lg:sticky lg:top-24">
-        <h2 id="rfq-picker-selected" className="text-sm font-bold text-[#143f30]">
-          Destinatari <span className="font-semibold text-[#6b7f73]">· {selected.length}</span>
-        </h2>
-        {selected.length ? (
-          <ul className="mt-2 space-y-1.5">
-            {selected.map((supplier) => (
-              <li key={supplier.id} className="flex items-center gap-2 rounded-lg bg-[#f5f9f6] px-2.5 py-2">
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-xs font-semibold text-[#173f35]">{supplier.name}</span>
-                  <span className="block truncate text-[10px] text-[#5c7063]">{supplier.email ?? channelLabel(supplier.channel)}</span>
-                </span>
-                {canEdit && supplier.removable ? (
-                  <button type="button" onClick={() => remove(supplier)} disabled={pending}
-                    aria-label={"Togli " + supplier.name}
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#6b5b4a] hover:bg-[#f6ebe4] disabled:opacity-50">
-                    {removing === supplier.id ? "…" : "×"}
-                  </button>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-2 rounded-lg bg-[#f6f9f7] px-3 py-3 text-xs leading-5 text-[#5c7063]">
-            Ancora nessuno. Spunta i fornitori a sinistra e premi «Aggiungi».
-          </p>
-        )}
-        {selected.length ? (
-          <a href="#rfq-review-send" data-testid="rfq-picker-review"
-            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632]">
-            Rivedi e invia →
-          </a>
-        ) : (
-          <span aria-disabled="true"
-            className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#e6ede9] px-4 text-sm font-bold text-[#4b5d53]">
-            Rivedi e invia →
-          </span>
-        )}
-        <p className="mt-2 text-[11px] leading-4 text-[#5c7063]">L&apos;invio parte solo dopo la tua conferma finale.</p>
+      <aside aria-label="Destinatari e invio" className="min-w-0 space-y-3 lg:sticky lg:top-24">
+        <section aria-labelledby="rfq-picker-selected" className="rounded-2xl border border-[#d6e5db] bg-white p-3 sm:p-4">
+          <h2 id="rfq-picker-selected" className="text-sm font-bold text-[#143f30]">
+            Destinatari <span className="font-semibold text-[#6b7f73]">· {selected.length}</span>
+          </h2>
+          {selected.length ? (
+            <ul className="mt-2 max-h-56 space-y-1.5 overflow-y-auto">
+              {selected.map((supplier) => (
+                <li key={supplier.id} className="flex items-center gap-2 rounded-lg bg-[#f5f9f6] px-2.5 py-1.5">
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-xs font-semibold text-[#173f35]">{supplier.name}</span>
+                    <span className="block truncate text-[10px] text-[#5c7063]">{supplier.email ?? channelLabel(supplier.channel)}</span>
+                  </span>
+                  {canEdit && supplier.removable ? (
+                    <button type="button" onClick={() => remove(supplier)} disabled={pending}
+                      aria-label={"Togli " + supplier.name}
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#6b5b4a] hover:bg-[#f6ebe4] disabled:opacity-50">
+                      {removing === supplier.id ? "…" : "×"}
+                    </button>
+                  ) : null}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-xs leading-5 text-[#5c7063]">Ancora nessuno: spunta i fornitori e premi «Aggiungi».</p>
+          )}
+        </section>
+        {sendPanel}
       </aside>
     </div>
   );

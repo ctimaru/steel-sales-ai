@@ -26,6 +26,7 @@ export function RfqDispatchPanel({
   buyerMessage,
   suppliers,
   canExecute = true,
+  layout = "full",
 }: {
   rfqId: string;
   campaignStatus: string;
@@ -33,6 +34,12 @@ export function RfqDispatchPanel({
   buyerMessage: string | null;
   suppliers: SupplierState[];
   canExecute?: boolean;
+  /**
+   * DISTINTA2D: «side» = compact step 3 in the right column of step 2. Same
+   * flow and confirmation; fewer words, one column, fields only once at least
+   * one recipient is chosen.
+   */
+  layout?: "full" | "side";
 }) {
   const router = useRouter();
   const [deadline, setDeadline] = useState(
@@ -49,6 +56,7 @@ export function RfqDispatchPanel({
   const [reminderPending, startReminderTransition] = useTransition();
 
   const isDraft = campaignStatus === "draft" || campaignStatus === "ready";
+  const side = layout === "side" && isDraft;
   const missingEmail = suppliers.filter((supplier) => !supplier.hasEmail).length;
   const failed = suppliers.filter((supplier) => supplier.status === "failed").length;
   const reminderCandidates = suppliers.filter((supplier) =>
@@ -155,7 +163,18 @@ export function RfqDispatchPanel({
   }
 
   return (
-    <section className="rounded-3xl border border-[#b8d2c8] bg-[#f5faf8] p-5 sm:p-6">
+    <section className={side
+      ? "rounded-2xl border border-[#d6e5db] bg-white p-3 sm:p-4"
+      : "rounded-3xl border border-[#b8d2c8] bg-[#f5faf8] p-5 sm:p-6"}>
+      {side ? (
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">3 · Invia</p>
+          <h2 className="mt-1 text-sm font-bold text-[#143f30]">Invia la richiesta ai fornitori scelti</h2>
+          <p className="mt-1 text-[11px] leading-4 text-[#5c7063]">
+            Un&apos;email separata per fornitore, con link personale. I prezzi target restano interni.
+          </p>
+        </div>
+      ) : (
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="max-w-2xl">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
@@ -181,9 +200,12 @@ export function RfqDispatchPanel({
           ))}
         </div>
       </div>
+      )}
 
-      {isDraft && canExecute ? (
-        <div className="mt-5 grid gap-4 border-t border-[#dce7e2] pt-5 lg:grid-cols-[260px_1fr_auto] lg:items-end">
+      {isDraft && canExecute && !(side && suppliers.length === 0) ? (
+        <div className={side
+          ? "mt-3 grid gap-3 border-t border-[#e7eee9] pt-3"
+          : "mt-5 grid gap-4 border-t border-[#dce7e2] pt-5 lg:grid-cols-[260px_1fr_auto] lg:items-end"}>
           <label className="text-xs font-semibold text-[#52615b]">
             Scadenza offerta
             <input
@@ -199,7 +221,7 @@ export function RfqDispatchPanel({
             <textarea
               value={message}
               onChange={(event) => { setMessage(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
-              rows={3}
+              rows={side ? 2 : 3}
               maxLength={4000}
               placeholder="Es. Vi chiediamo la vostra migliore offerta e disponibilità."
               className="mt-1.5 w-full rounded-xl border border-[#cfd8d4] bg-white px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
@@ -259,8 +281,12 @@ export function RfqDispatchPanel({
       ) : null}
 
       {isDraft && canExecute && suppliers.length === 0 ? (
-        <p role="status" className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-[#47675c]">
-          Seleziona almeno un fornitore qui sopra prima dell&apos;invio. Nessuna email parte finché non premi «Invia RFQ».
+        <p role="status" className={side
+          ? "mt-3 rounded-lg bg-[#f6f9f7] px-3 py-2 text-[11px] font-semibold leading-4 text-[#47675c]"
+          : "mt-3 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-[#47675c]"}>
+          {side
+            ? "Aggiungi almeno un destinatario: poi scrivi messaggio e scadenza. Nessuna email parte senza la tua conferma."
+            : "Seleziona almeno un fornitore qui sopra prima dell\u2019invio. Nessuna email parte finché non premi «Invia RFQ»."}
         </p>
       ) : null}
 

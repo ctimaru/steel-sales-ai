@@ -410,16 +410,16 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
           </Link>
         </header>
 
-        <details className="rounded-2xl border border-[#d6e5db] bg-white">
-          <summary className="flex min-h-12 cursor-pointer flex-wrap items-center justify-between gap-2 px-4 py-3 text-sm">
-            <span className="font-bold text-[#143f30]">La tua distinta</span>
-            <span className="text-xs text-[#5c7063]">
-              {lineRows.length} {lineRows.length === 1 ? "articolo" : "articoli"} · {formatNumber(distinta?.total_tonnes ?? null, 3)} t · privata, non ancora inviata
-            </span>
+        <details className="group rounded-xl border border-[#e1eae4] bg-white">
+          <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs">
+            <span><span className="font-bold text-[#143f30]">La tua distinta</span>
+              <span className="text-[#5c7063]"> · {lineRows.length} {lineRows.length === 1 ? "articolo" : "articoli"} · {formatNumber(distinta?.total_tonnes ?? null, 3)} t · privata</span></span>
+            <span className="font-semibold text-[#175640] group-open:hidden">Vedi articoli</span>
+            <span className="hidden font-semibold text-[#175640] group-open:inline">Chiudi</span>
           </summary>
           <ul className="divide-y divide-[#edf2ee] border-t border-[#e7eee9]">
             {lineRows.map((line) => (
-              <li key={line.id} className="flex flex-wrap items-baseline justify-between gap-2 px-4 py-2 text-xs">
+              <li key={line.id} className="flex flex-wrap items-baseline justify-between gap-2 px-3 py-2 text-xs">
                 <span className="min-w-0 font-semibold text-[#173f35]">{line.line_position}. {line.description}</span>
                 <span className="text-[#5c7063]">
                   {[line.standard_code, line.grade_code, formatNumber(line.quantity, line.quantity_mode === "tonnes" ? 3 : line.quantity_mode === "bars" ? 0 : 2) + " " +
@@ -434,67 +434,45 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
           pinned={pinnedNetwork ? { id: pinnedNetwork.id, name: pinnedNetwork.name, country: pinnedNetwork.country,
             // Network profile names are stored in English: show the Italian taxonomy labels.
             role: pinnedNetwork.role ? networkNameIt(pinnedNetwork.role) : null,
-            products: pinnedNetwork.products.map((product) => networkNameIt(product)) } : null} />
+            products: pinnedNetwork.products.map((product) => networkNameIt(product)) } : null}
+          sendPanel={
+            <div id="rfq-review-send" className="scroll-mt-24">
+              <RfqDispatchPanel
+                layout="side"
+                rfqId={campaign.id}
+                campaignStatus={campaign.status}
+                dueAt={campaign.due_at}
+                buyerMessage={campaign.buyer_message}
+                canExecute={canExecuteCritical}
+                suppliers={supplierRows.map((supplier) => ({
+                  id: supplier.id,
+                  status: supplier.status,
+                  hasEmail: Boolean(supplier.supplier_email_normalized),
+                  name: supplier.supplier_name,
+                  email: supplier.supplier_email_normalized,
+                  deliveryChannel: supplier.delivery_channel,
+                }))}
+              />
+            </div>
+          } />
 
-        <div id="rfq-review-send" className="scroll-mt-24">
-          <RfqDispatchPanel
-            rfqId={campaign.id}
-            campaignStatus={campaign.status}
-            dueAt={campaign.due_at}
-            buyerMessage={campaign.buyer_message}
-            canExecute={canExecuteCritical}
-            suppliers={supplierRows.map((supplier) => ({
-              id: supplier.id,
-              status: supplier.status,
-              hasEmail: Boolean(supplier.supplier_email_normalized),
-              name: supplier.supplier_name,
-              email: supplier.supplier_email_normalized,
-              deliveryChannel: supplier.delivery_channel,
-            }))}
-          />
+        {/* Stacked, full width: a closed <details> beside a chip overflowed small screens. */}
+        <div className="space-y-2 border-t border-[#e7eee9] pt-3">
+          {/* DISTINTA2D (founder decision, 18 Nov 2026): Marketplace publishing is shown, locked. */}
+          <div data-testid="rfq-step2-marketplace-locked" aria-disabled="true"
+            className="inline-flex min-h-10 max-w-full items-center gap-2 rounded-xl border border-dashed border-[#cfd8d3] bg-[#f7f9f8] px-3 py-2 text-xs text-[#4f6157]">
+            <span aria-hidden="true">🔒</span>
+            <span><span className="font-semibold">Pubblica nel Marketplace</span> · Presto disponibile</span>
+          </div>
+          <details className="min-w-0 rounded-xl border border-[#e1eae4] bg-white">
+            <summary className="min-h-10 cursor-pointer px-3 py-2.5 text-xs font-semibold text-[#173f35]">
+              Autorizzazioni e approvazioni aziendali
+            </summary>
+            <div className="border-t border-[#e1eae5] p-3">
+              <Rfqh13GovernancePanel rfqId={campaign.id} currentUserId={authData.user?.id ?? null} state={governance} />
+            </div>
+          </details>
         </div>
-
-        <details id="rfq-marketplace-choice" className="rounded-2xl border border-[#cddbd6] bg-white">
-          <summary className="min-h-12 cursor-pointer px-4 py-3 text-sm font-semibold text-[#173f35] sm:px-5">
-            Oppure pubblica la richiesta nel Marketplace (facoltativo)
-          </summary>
-          <p className="border-t border-[#e1eae5] px-4 pt-3 text-xs leading-5 text-[#52615b] sm:px-5">
-            Modalità diversa dall&apos;invio privato: configura la richiesta e conferma esplicitamente la pubblicazione.
-            Non viene pubblicata aprendo questa sezione.
-          </p>
-          <div className="p-3 sm:p-4">
-            <RfqMarketplaceBridgePanel
-              rfqId={campaign.id}
-              campaignStatus={campaign.status}
-              canExecute={canExecuteCritical}
-              sourceLines={lineRows.map((line) => ({
-                id: line.id,
-                line_position: line.line_position,
-                description: line.description,
-                standard_code: line.standard_code,
-                grade_code: line.grade_code,
-                finish_code: line.finish_code,
-                line_tonnes: line.line_tonnes,
-              }))}
-              state={
-                marketplaceBridgeState &&
-                typeof marketplaceBridgeState === "object" &&
-                !Array.isArray(marketplaceBridgeState)
-                  ? (marketplaceBridgeState as Rfqh8BridgeState)
-                  : null
-              }
-            />
-          </div>
-        </details>
-
-        <details className="rounded-2xl border border-[#dce2df] bg-white">
-          <summary className="min-h-12 cursor-pointer px-4 py-3 text-sm font-semibold text-[#173f35]">
-            Autorizzazioni e approvazioni aziendali · apri se necessario
-          </summary>
-          <div className="border-t border-[#e1eae5] p-3 sm:p-4">
-            <Rfqh13GovernancePanel rfqId={campaign.id} currentUserId={authData.user?.id ?? null} state={governance} />
-          </div>
-        </details>
       </div>
     );
   }
