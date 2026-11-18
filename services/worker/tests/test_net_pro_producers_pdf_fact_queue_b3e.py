@@ -1,5 +1,6 @@
 """B3.E durable queue and independent deployment flags."""
 from pathlib import Path
+import asyncio
 import pytest
 
 from app import net_pro_producers_pdf_public_facts_b3e as b3e
@@ -54,8 +55,7 @@ class DB:
         return Exec()
 
 
-@pytest.mark.asyncio
-async def test_dry_run_retains_lease_for_later_stage(monkeypatch):
+def test_dry_run_retains_lease_for_later_stage(monkeypatch):
     row={"company_id":"c","source_url":"https://alessiotubi.it/doc.pdf",
          "canonical_domain":"alessiotubi.it",
          "source_status":"official_link_observed","rights_status":"link_only",
@@ -66,14 +66,13 @@ async def test_dry_run_retains_lease_for_later_stage(monkeypatch):
         return {"dimension_candidates":3,"thickness_candidates":2,
                 "staged_dimensions":0,"staged_thickness":0}
     monkeypatch.setattr(b3e,"observe_pdf_source",mock)
-    result=await b3e.run_b3e_fact_queue(db,limit=1,stage=False)
+    result=asyncio.run(b3e.run_b3e_fact_queue(db,limit=1,stage=False))
     assert result["inspected"]==1 and result["complete"]==0
     assert db.calls[1]==("claim",{"limit":1,"stage":False})
     assert db.calls[2][1]["status"]=="inspected"
 
 
-@pytest.mark.asyncio
-async def test_one_bad_pdf_does_not_fabricate_facts(monkeypatch):
+def test_one_bad_pdf_does_not_fabricate_facts(monkeypatch):
     row={"company_id":"c","source_url":"https://alessiotubi.it/doc.pdf",
          "canonical_domain":"alessiotubi.it",
          "source_status":"official_link_observed","rights_status":"link_only",
@@ -82,7 +81,7 @@ async def test_one_bad_pdf_does_not_fabricate_facts(monkeypatch):
     def reject(*args,**kwargs):
         raise CatalogueRejected("robots denied")
     monkeypatch.setattr(b3e,"observe_pdf_source",reject)
-    result=await b3e.run_b3e_fact_queue(db,stage=True)
+    result=asyncio.run(b3e.run_b3e_fact_queue(db,stage=True))
     assert result["blocked"]==1
     assert result["staged_thickness"]==result["published_claims"]==0
     assert db.calls[-1][1]["status"]=="blocked"
