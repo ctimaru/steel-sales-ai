@@ -19,7 +19,7 @@ resource.setrlimit(resource.RLIMIT_AS,(512*1024*1024,512*1024*1024))
 resource.setrlimit(resource.RLIMIT_CPU,(5,5))
 content=sys.stdin.buffer.read(8*1024*1024+1)
 if not content.startswith(b'%PDF-') or len(content)>8*1024*1024: raise ValueError('invalid_pdf')
-from pypdf import PdfReader
+from pypdf import PdfReader,mult
 reader=PdfReader(io.BytesIO(content),strict=True)
 if reader.is_encrypted or not 1 <= len(reader.pages) <= 15: raise ValueError('invalid_pages')
 pages=[]
@@ -30,7 +30,13 @@ for page_number,page in enumerate(reader.pages,1):
         if len(text)>120:return
         # PDF text matrix applies text-origin; transformation complexity is
         # deliberately not interpreted as verified physical table geometry.
-        x,y=tm[4],tm[5]
+        # Text matrix alone is insufficient inside transformed PDF page content.
+        # pypdf documents mult(tm, cm) as the text-to-user transform.
+        m=mult(tm,cm)
+        if not all(isinstance(v,(float,int)) and math.isfinite(v) for v in m):return
+        # Exclude rotated/sheared glyphs; grouping them as columns is unsafe.
+        if abs(m[1])>1e-5 or abs(m[2])>1e-5:return
+        x,y=m[4],m[5]
         if not all(isinstance(v,(float,int)) and math.isfinite(v) for v in (x,y,font_size)):return
         if not (0<=x<=10000 and 0<=y<=10000 and 0<float(font_size)<=150):return
         stripped=' '.join(text.strip().split())
