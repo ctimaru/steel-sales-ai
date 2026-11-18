@@ -363,15 +363,23 @@ async def review_batch(candidates: list[dict], *, pause_seconds: float = 0.3,
     # No official-site guard is bypassed; evidence is still persisted by
     # execute() only after all reviews finish.
     semaphore = asyncio.Semaphore(MAX_REVIEW_CONCURRENCY)
+    # Multiple candidate identities can reference the same website. Preserve
+    # serial visits for each domain even when candidate identifiers differ.
+    per_domain = {
+        str(candidate.get("domain") or "").strip().lower(): asyncio.Lock()
+        for candidate in candidates
+    }
     async with httpx.AsyncClient(
         timeout=httpx.Timeout(10.0), follow_redirects=False
     ) as client:
         async def one(index: int, candidate: dict) -> dict:
-            async with semaphore:
-                if index and pause_seconds:
-                    await asyncio.sleep(pause_seconds)
-                return await inspect_candidate(
-                    client, candidate, deep_recovery=deep_recovery)
+            domain = str(candidate.get("domain") or "").strip().lower()
+            async with per_domain[domain]:
+                async with semaphore:
+                    if index and pause_seconds:
+                        await asyncio.sleep(pause_seconds)
+                    return await inspect_candidate(
+                        client, candidate, deep_recovery=deep_recovery)
 
         return list(await asyncio.gather(
             *(one(i, candidate) for i, candidate in enumerate(candidates))
