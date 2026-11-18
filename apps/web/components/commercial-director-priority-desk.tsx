@@ -44,9 +44,9 @@ export function CommercialDirectorPriorityDesk({
             <span aria-hidden="true" className="ml-1 shrink-0">→</span>
           </Link>
         ))}
-        <Link href={appRoutes.rfqHub.inbox}
+        <Link href={appRoutes.rfqHub.attention}
           className="inline-flex min-h-8 shrink-0 items-center text-[11px] font-semibold text-[#175640] hover:underline">
-          Apri inbox →
+          Da gestire →
         </Link>
       </div>
     </section>

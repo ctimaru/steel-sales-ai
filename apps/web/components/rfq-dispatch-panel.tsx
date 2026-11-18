@@ -236,7 +236,7 @@ export function RfqDispatchPanel({
           >
             {launchPending
               ? "Invio in corso…"
-              : "Controlla " + String(suppliers.length) + " destinatari →"}
+              : "Controlla " + String(suppliers.length) + (suppliers.length === 1 ? " destinatario →" : " destinatari →")}
           </button>
         </div>
       ) : null}

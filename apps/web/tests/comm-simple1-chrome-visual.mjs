@@ -70,30 +70,21 @@ try {
       });
 
       await page.goto(origin + "/rfq-hub", { waitUntil: "domcontentloaded", timeout: 90000 });
-      await page.getByRole("heading", { name: "RFQ Hub", exact: true }).waitFor({ state: "visible", timeout: 60000 });
+      await page.getByRole("heading", { name: "Centro RFQ", exact: true }).waitFor({ state: "visible", timeout: 60000 });
       if (width < 1000) {
         const header = await page.locator('[data-testid="rfq-hub-simple-workspace"] > header').boundingBox();
         assert.ok(header && header.height <= 155,
-          "COMM-SIMPLE1 mobile RFQ header must not bury campaigns: " + header?.height);
+          "COMM-SIMPLE1 mobile RFQ header must not bury the list: " + header?.height);
       }
-      const summary = page.getByTestId("rfq-hub-compact-summary");
-      const campaigns = page.getByTestId("rfq-hub-primary-campaigns");
-      const distinte = page.getByTestId("rfq-hub-primary-distinte");
-      await campaigns.waitFor({ state: "visible", timeout: 60000 });
-      await distinte.waitFor({ state: "visible", timeout: 60000 });
-      assert.equal(await summary.count(), 1);
-      const summaryBox = await summary.boundingBox();
-      assert.ok(summaryBox && summaryBox.height < (width === 1440 ? 75 : 110),
-        "RFQ Hub KPI strip still too tall: " + JSON.stringify(summaryBox));
-      // These test fixtures have no submitted quotes/PO. Zero stays in the
-      // compact summary, not in two oversized empty sections.
-      assert.equal(await page.locator("section#offerte").count(), 0);
-      assert.equal(await page.locator("section#ordini").count(), 0);
-      const items = await Promise.all([campaigns, distinte].map(x => x.boundingBox()));
-      if (width === 1440) {
-        assert.ok(Math.abs(items[0].y - items[1].y) < 10,
-          "RFQ and saved Distinte should sit on the same desktop row");
+      // RFQHUB1: one list, a row per Distinta with its request state.
+      const list = page.getByTestId("rfq-hub-list");
+      await list.waitFor({ state: "visible", timeout: 60000 });
+      for (const tab of ["attive", "da-gestire", "archiviate"]) {
+        assert.equal(await page.getByTestId("rfq-hub-tab-" + tab).count(), 1, "Missing tab " + tab);
       }
+      const listBox = await list.boundingBox();
+      assert.ok(listBox && listBox.y < height, "Centro RFQ list must start in the first viewport: " + listBox?.y);
+      assert.equal(await page.getByTestId("rfq-hub-compact-summary").count(), 0);
       await noOverflow(page, "RFQ Hub " + width);
       await page.screenshot({
         path: path.join(output, `rfq-hub-${width}.png`),
@@ -101,7 +92,7 @@ try {
       });
       console.log("COMM-SIMPLE1 VISUAL PASS", width, {
         worklistY: dealBox.y,
-        rfqSummaryHeight: summaryBox.height,
+        rfqListY: listBox.y,
       });
     } finally {
       await context.close();

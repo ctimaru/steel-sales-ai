@@ -5,6 +5,7 @@ import {getNetworkProducerCatalogLinks} from "@/lib/network-producer-catalogs";
 import {getProducerTechnicalClaims} from "@/lib/network-producer-technical";
 import {getProducerSourceMentions} from "@/lib/network-producer-source-mentions";
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
+import {isSupportedNetworkCountry} from "@/lib/network-eu-countries";
 import {getNetworkProCoverage,getNetworkProScopedDirectory} from "@/lib/network-pro-coverage";
 import {getWorkspaceContext} from "@/lib/workspace-context";
 
@@ -19,11 +20,15 @@ export const dynamic="force-dynamic";
 export default async function NetworkProProducersPage({
   searchParams,
 }:{
-  searchParams:Promise<{q?:string;p?:string}>;
+  searchParams:Promise<{q?:string;p?:string;country?:string}>;
 }){
   if(!isNetworkFrontendEnabled())redirect("/dashboard");
   const params=await searchParams;
   const query=(params.q||"").trim().slice(0,120);
+  // Explicit country selection; no automatic EU access from an Italy-only plan.
+  const requestedCountry=(params.country||"IT").trim().toUpperCase();
+  const country=isSupportedNetworkCountry(requestedCountry)&&requestedCountry!=="US"
+    ?requestedCountry:"IT";
   const requestedPage=Number(params.p);
   const page=Number.isSafeInteger(requestedPage)&&requestedPage>=1
     ?Math.min(requestedPage,10000):1;
@@ -32,26 +37,27 @@ export default async function NetworkProProducersPage({
     getNetworkProScopedDirectory({
       organizationId:context.organizationId,
       module:"producers",
-      country:"IT",
+      country,
       q:query,
       page,
     }),
     getNetworkProCoverage(context.organizationId),
   ]);
-  const publishedCount=coverage?.countries.find(row=>row.countryCode==="IT")
+  const publishedCount=coverage?.countries.find(row=>row.countryCode===country)
     ?.publishedModules.producers??null;
   const ids=result.status==="ready"?result.data.items.map(company=>company.id):[];
   const [catalogs,technicalClaims,sourceMentions]=result.status==="ready"
     ?await Promise.all([
-      getNetworkProducerCatalogLinks(context.organizationId,ids),
-      getProducerTechnicalClaims(context.organizationId,ids),
-      getProducerSourceMentions(context.organizationId,ids),
+      country==="IT"?getNetworkProducerCatalogLinks(context.organizationId,ids):Promise.resolve([]),
+      getProducerTechnicalClaims(context.organizationId,ids,country),
+      country==="IT"?getProducerSourceMentions(context.organizationId,ids):Promise.resolve([]),
     ])
     :[[],[],[]];
 
   return <NetworkProducersExperience
     result={result}
     query={query}
+    country={country}
     page={page}
     publishedCount={publishedCount}
     catalogs={catalogs}

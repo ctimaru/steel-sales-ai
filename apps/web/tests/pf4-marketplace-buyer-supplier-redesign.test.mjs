@@ -71,5 +71,6 @@ test("PF4 keeps governed buyer and supplier boundaries while using business lang
   assert.match(opportunity, /diritto di risposta viene verificato separatamente/);
   assert.match(requests, /Le RFQ private e i confronti offerte si gestiscono in RFQ Hub/);
   assert.match(responses, /fornitore abilitato/);
-  assert.match(inbox, /non esegue automaticamente invii, solleciti, assegnazioni o emissioni PO/);
+  // RFQHUB1: the procurement inbox is now Centro RFQ «Da gestire» (read-only queue).
+  assert.match(inbox, /redirect\(rfqHubHref\("da-gestire"\)\)/);
 });

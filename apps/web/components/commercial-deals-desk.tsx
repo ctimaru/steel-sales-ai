@@ -268,7 +268,7 @@ export async function CommercialDealsDesk({
             <div className="absolute right-0 top-[calc(100%+6px)] z-30 flex w-[270px] flex-col gap-2 rounded-xl border border-[#d6e5db] bg-white p-3 shadow-lg">
               <CommercialCalculatorQuickAccess references={calculatorReferences} />
               <Link href={commercialSearchHref(state.query)} data-testid="commercial-history-entry" className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Cerca nello storico</Link>
-              <Link href={appRoutes.rfqHub.savedDistinte} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Distinte</Link>
+              <Link href={appRoutes.rfqHub.home} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Distinte</Link>
               <Link href={appRoutes.rfqHub.home} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Centro RFQ</Link>
               <Link href={appRoutes.commercial.home + "?experience=classic"} data-testid="commercial-desk-classic"
                 className="rounded-lg px-2 py-2 text-xs !text-[#5c7063] hover:bg-[#f2f8f4]">Vista precedente</Link>

@@ -199,7 +199,24 @@ jobs:
           cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
       - name: Start and rebuild local Supabase
         run: |
-          supabase start
+          # STRICT probe uses this same ephemeral Docker stack first. On some
+          # hosted runners, Docker holds released Supabase ports for seconds.
+          # Retry only start/cleanup; NEVER skip or relax the db-reset gate.
+          set -euo pipefail
+          started=false
+          for attempt in 1 2 3; do
+            if supabase start; then
+              started=true
+              break
+            fi
+            echo "::warning::Local Supabase start failed (attempt $attempt); cleaning CI-only Docker stack"
+            supabase stop --no-backup || true
+            sleep $((attempt * 5))
+          done
+          if [ "$started" != true ]; then
+            echo "::error::Local Supabase could not start; foundation gate remains failed"
+            exit 1
+          fi
           supabase db reset --local
       - name: Run Foundation + P1 acceptance suite
         env:
@@ -402,7 +419,8 @@ jobs:
             crawl_it66ab_bulk_corporate_intake.sql \
             crawl_it66c_rna_corporate_tax_source.sql \
             comm_deals2_priority_index.sql \
-            distinta2_supplier_picker.sql; do
+            distinta2_supplier_picker.sql \
+            rfqhub1b_supplier_contacts.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done

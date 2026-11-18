@@ -257,7 +257,7 @@ export function NetworkCompactExperience({
       {/* NET-PRO-UX2: "Moduli e prezzi" now lives in the PRO strip below, next to Intelligence Produttori. */}
     </header>
     <div className="mb-3">
-      <NetworkProducersEntry />
+      <NetworkProducersEntry country={filters.country||"IT"} />
     </div>
     <NetworkCountryTicker organizationId={organizationId} accessMode={accessMode}/>
     <div data-testid="network-europe1d-one-screen-shell" className="grid items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">

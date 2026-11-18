@@ -112,7 +112,7 @@ export function CommercialCalculatorQuickAccess({ references }: { references: Pu
         className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-[#17583f] px-2.5 py-1.5 text-xs font-semibold text-white hover:bg-[#0d4630] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#17583f]">
         <span aria-hidden="true">▦</span> Calcolatrice pesi
       </button>
-      <Link href={appRoutes.rfqHub.savedDistinte} data-commercial-saved-distinte-entry
+      <Link href={appRoutes.rfqHub.home} data-commercial-saved-distinte-entry
         className="inline-flex min-h-10 items-center rounded-lg border border-[#bdd7c6] bg-white px-2.5 text-xs font-bold text-[#17583f] hover:bg-[#edf8f1]">
         Distinte →
       </Link>

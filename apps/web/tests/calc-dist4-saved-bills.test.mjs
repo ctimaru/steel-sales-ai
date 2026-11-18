@@ -4,7 +4,9 @@ import test from "node:test";
 import ts from "typescript";
 
 const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
-const archive=read("../app/(italian)/(workspace)/rfq-hub/distinte/page.tsx");
+// RFQHUB1: the Distinte archive lives in Centro RFQ; the old page redirects.
+const archive=read("../app/(italian)/(workspace)/marketplace/rfq-hub/page.tsx");
+const archiveRedirect=read("../app/(italian)/(workspace)/rfq-hub/distinte/page.tsx");
 const detail=read("../app/(italian)/(workspace)/rfq-hub/distinte/[distintaId]/page.tsx");
 const actions=read("../app/(italian)/(workspace)/rfq-hub/distinte/actions.ts");
 const controls=read("../components/saved-distinta-actions.tsx");
@@ -17,10 +19,12 @@ test("CALC-DIST4: typechecked inputs and compact search/pagination preserves act
     const out=ts.transpileModule(code,{compilerOptions:{module:ts.ModuleKind.ESNext,jsx:ts.JsxEmit.Preserve,target:ts.ScriptTarget.ES2022},reportDiagnostics:true});
     assert.deepEqual((out.diagnostics||[]).filter(d=>d.category===ts.DiagnosticCategory.Error).map(d=>d.messageText),[]);
   }
-  for(const x of ["data-dist4-archive","data-dist4-row","data-dist4-active-tab","data-dist4-archived-tab",
-    'name="q"','name="view"','archiveUrl(query,mode,page+1)','archiveUrl(query,mode,page-1)',
-    '.eq("organization_id", context.organizationId)','request.is("archived_at",null)','request.not("archived_at","is",null)'])
+  for(const x of ['data-testid="rfq-hub-list"','data-testid="rfq-hub-row"','"rfq-hub-tab-" + tab.view',
+    'name="q"','name="vista"','rfqHubHref(view, query, page + 1)','rfqHubHref(view, query, page - 1)',
+    '.eq("organization_id", organizationId)','request.is("archived_at", null)','request.not("archived_at", "is", null)'])
     assert.ok(archive.includes(x),x);
+  for(const x of ['view === "archived" ? "archiviate" : "attive"','redirect(rfqHubHref('])
+    assert.ok(archiveRedirect.includes(x),x);
   for(const x of ["SavedDistintaActions","archived_at","Campagne RFQ collegate","owner_user_id===context.userId"])
     assert.ok(detail.includes(x),x);
 });

@@ -14,6 +14,8 @@ const page = fs.readFileSync(
   new URL("../app/(workspace)/marketplace/inbox/page.tsx", import.meta.url),
   "utf8",
 );
+const rows = fs.readFileSync(new URL("../lib/rfq-hub-rows.ts", import.meta.url), "utf8");
+const rfqInbox = fs.readFileSync(new URL("../app/(italian)/(workspace)/rfq-hub/inbox/page.tsx", import.meta.url), "utf8");
 const routes = fs.readFileSync(
   new URL("../lib/routes.ts", import.meta.url),
   "utf8",
@@ -79,30 +81,30 @@ test("RFQH10 is a read-only cockpit and never performs irreversible procurement 
   assert.doesNotMatch(impl, /insert into public\./i);
   assert.doesNotMatch(impl, /update public\./i);
   assert.doesNotMatch(impl, /delete from public\./i);
-  assert.match(page, /non esegue automaticamente invii, solleciti, assegnazioni o emissioni PO/);
+  // RFQHUB1: the queue only feeds «Da gestire» in Centro RFQ and the menu counter.
+  assert.doesNotMatch(hub + rows, /confirmRfqAward|issuePurchaseOrder|sendNegotiation|launchCampaign/);
 });
 
 test("RFQH10 workspace has attention/waiting filters and deterministic priority lanes", () => {
-  assert.match(page, /Cosa richiede attenzione adesso/);
-  assert.match(page, /Da fare/);
-  assert.match(page, /In attesa/);
-  assert.match(page, /Priorità immediata/);
-  assert.match(page, /Prossime decisioni/);
-  assert.match(page, /Monitoraggio/);
-  assert.match(page, /item\.requires_action/);
+  // RFQHUB1 (founder decision, 18 Nov 2026): «Inbox e risposte» is the
+  // «Da gestire» filter of Centro RFQ; actions per RFQ come from the queue.
+  assert.match(rows, /item\.requires_action !== true/);
+  assert.match(rows, /rfqHubAttentionLabel\(item\.action_code\)/);
+  assert.match(hub, /view === "da-gestire"/);
+  assert.match(hub, /label: "Da gestire", count: attentionRfqIds\.length/);
 });
 
 test("RFQH10 actions navigate back to the governed RFQ workflow", () => {
-  assert.match(page, /appRoutes\.rfqHub\.campaign\(item\.rfq_id\)/);
-  assert.match(page, /item\.action_label/);
-  assert.doesNotMatch(page, /confirmRfqAward|issuePurchaseOrder|sendNegotiation|launchCampaign/);
+  assert.match(hub, /appRoutes\.rfqHub\.campaign\(campaign\.id\)/);
+  assert.match(hub, /facts\.attention\?\.label/);
 });
 
 test("RFQH10 keeps legacy routes and is now owned by private RFQ Hub", () => {
   assert.match(routes, /procurementInbox: "\/marketplace\/inbox"/);
   assert.match(ia, /"marketplace:inbox"/);
   assert.match(ia, /appRoutes\.marketplace\.procurementInbox/);
-  assert.match(shell, /label: "Attività"/);
   assert.match(ia, /"rfq:inbox"/);
-  assert.match(hub, /Apri Inbox/);
+  // Old Inbox addresses (emails, notifications, bookmarks) land on «Da gestire».
+  assert.match(page, /redirect\(rfqHubHref\("da-gestire"\)\)/);
+  assert.match(rfqInbox, /redirect\(rfqHubHref\("da-gestire"\)\)/);
 });

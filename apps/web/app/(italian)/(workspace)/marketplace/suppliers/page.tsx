@@ -1,337 +1,249 @@
 import Link from "next/link";
 
-import { FocusHeader, FocusPage } from "@/components/focus-ui";
+import { SupplierContactForm } from "@/components/supplier-contact-form";
+import { canWriteWorkspace } from "@/lib/access-policy";
+import { formatHubDate } from "@/lib/rfq-hub-overview";
+import type { SupplierDirectoryData } from "@/lib/rfqh11-supplier";
+import {
+  buildSupplierBook,
+  supplierBookCanAddContact,
+  supplierBookFilter,
+  supplierBookHref,
+  supplierBookView,
+  type SupplierBookCompany,
+  type SupplierBookContact,
+  type SupplierBookSaved,
+  type SupplierBookView,
+} from "@/lib/rfqhub-suppliers";
 import { appRoutes } from "@/lib/routes";
-import type {
-  SupplierDirectoryData,
-  SupplierDirectoryItem,
-} from "@/lib/rfqh11-supplier";
+import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Fornitori RFQ", robots: privateNoIndexRobots };
 
-type SearchParams = Promise<{
-  q?: string;
-  preferred?: string;
-  tag?: string;
-}>;
+const CONTACTS_SHOWN = 3;
 
-function num(value: unknown) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
+type SavedRow = {
+  network_company_id: string;
+  created_at: string | null;
+  network_companies: { legal_name: string | null; trading_name: string | null; country_code: string | null } | null;
+};
 
-function formatNumber(value: unknown, digits = 1) {
-  return num(value).toLocaleString("it-IT", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: digits,
-  });
-}
-
-function formatDate(value: string | null | undefined) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("it-IT", {
-    timeZone: "Europe/Rome",
-    dateStyle: "medium",
-  }).format(date);
-}
-
-function formatResponseHours(value: unknown) {
-  const hours = num(value);
-  if (!hours) return "—";
-  if (hours < 24) return formatNumber(hours, 1) + " h";
-  return formatNumber(hours / 24, 1) + " gg";
-}
-
-function SupplierCard({ supplier }: { supplier: SupplierDirectoryItem }) {
-  const latest = supplier.latest_price;
-
-  return (
-    <article className="rounded-2xl border border-[#dce2df] bg-white p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            {supplier.preferred ? (
-              <span className="rounded-full bg-[#173f35] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.08em] text-white">
-                Preferito
-              </span>
-            ) : null}
-            {supplier.saved_in_network ? (
-              <span className="rounded-full bg-[#edf5f2] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.08em] text-[#1a5144]">
-                Salvato nel Network
-              </span>
-            ) : null}
-          </div>
-          <h2 className="mt-2 text-lg font-semibold text-[#1d2824]">
-            {supplier.display_name || supplier.email || "Supplier"}
-          </h2>
-          {supplier.email ? (
-            <p className="mt-1 text-xs text-[#66736e]">{supplier.email}</p>
-          ) : null}
-          {supplier.tags.length ? (
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {supplier.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full bg-[#f2f4f3] px-2 py-1 text-[10px] font-semibold text-[#52615b]"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          ) : null}
-        </div>
-
-        <Link
-          href={appRoutes.rfqHub.supplier(supplier.id)}
-          className="inline-flex min-h-10 items-center rounded-xl border border-[#b8d2c8] bg-white px-4 text-xs font-bold text-[#173f35] hover:bg-[#edf5f2]"
-        >
-          Apri CRM →
-        </Link>
-      </div>
-
-      <div className="mt-4 grid gap-2 sm:grid-cols-4">
-        <div className="rounded-xl bg-[#f7f9f8] p-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#718078]">
-            RFQ
-          </p>
-          <p className="mt-1 text-xl font-semibold text-[#1d2824]">
-            {supplier.rfq_count}
-          </p>
-        </div>
-        <div className="rounded-xl bg-[#f7f9f8] p-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#718078]">
-            Response rate
-          </p>
-          <p className="mt-1 text-xl font-semibold text-[#173f35]">
-            {formatNumber(supplier.response_rate_pct, 1)}%
-          </p>
-        </div>
-        <div className="rounded-xl bg-[#f7f9f8] p-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#718078]">
-            Tempo risposta
-          </p>
-          <p className="mt-1 text-xl font-semibold text-[#1d2824]">
-            {formatResponseHours(supplier.avg_response_hours)}
-          </p>
-        </div>
-        <div className="rounded-xl bg-[#f7f9f8] p-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#718078]">
-            Award / PO
-          </p>
-          <p className="mt-1 text-xl font-semibold text-[#1d2824]">
-            {supplier.award_count} / {supplier.po_count}
-          </p>
-        </div>
-      </div>
-
-      {latest ? (
-        <div className="mt-4 rounded-2xl border border-[#d9e8e2] bg-[#f3f8f6] p-4">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#527268]">
-                Ultimo prezzo
-              </p>
-              <p className="mt-1 text-sm font-semibold text-[#1d2824]">
-                {latest.description}
-              </p>
-              <p className="mt-1 text-[10px] text-[#718078]">
-                {[latest.standard_code, latest.grade_code, latest.finish_code]
-                  .filter(Boolean)
-                  .join(" · ") || "Specifiche non disponibili"}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-base font-semibold text-[#173f35]">
-                € {formatNumber(latest.eur_t, 2)}/t
-              </p>
-              <p className="mt-0.5 text-xs font-semibold text-[#52615b]">
-                € {formatNumber(latest.eur_m, 4)}/m
-              </p>
-              <p className="mt-1 text-[10px] text-[#87908c]">
-                {formatDate(latest.at)}
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="mt-4 rounded-xl bg-[#f7f9f8] px-4 py-3 text-xs text-[#718078]">
-          Nessun prezzo strutturato ricevuto ancora.
-        </div>
-      )}
-
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-[#edf0ee] pt-3 text-[10px] text-[#718078]">
-        <span>Ultimo utilizzo {formatDate(supplier.last_used_at)}</span>
-        <span>
-          Award € {formatNumber(supplier.awarded_total_eur, 2)} · Lead medio{" "}
-          {supplier.avg_lead_time_days === null
-            ? "—"
-            : formatNumber(supplier.avg_lead_time_days, 1) + " gg"}
-        </span>
-      </div>
-    </article>
-  );
-}
-
+/**
+ * RFQHUB1B (founder decision, 18 Nov 2026): «Fornitori RFQ» = the supplier
+ * address book. Active suppliers come from the RFQ history (RFQH11 profiles),
+ * saved companies from the Network, contacts from the organization's
+ * Commerciale. Read-only for viewers; nothing is sent from here.
+ */
 export default async function SupplierDirectoryPage({
   searchParams,
 }: {
-  searchParams: SearchParams;
+  searchParams: Promise<{ q?: string; vista?: string }>;
 }) {
   const params = await searchParams;
-  const query = params.q?.trim() || "";
-  const preferredOnly = params.preferred === "1";
-  const tag = params.tag?.trim() || "";
+  const query = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
+  const view: SupplierBookView = supplierBookView(params.vista);
 
+  const context = await getWorkspaceContext();
+  const organizationId = context.organizationId;
+  const canWrite = canWriteWorkspace(context.role);
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("rfqh11_supplier_directory", {
-    p_query: query || null,
-    p_preferred_only: preferredOnly,
-    p_tag: tag || null,
-    p_limit: 200,
-    p_offset: 0,
-  });
 
-  const directory =
-    data && typeof data === "object" && !Array.isArray(data)
-      ? (data as SupplierDirectoryData)
-      : null;
+  const [directory, savedResult] = await Promise.all([
+    supabase.rpc("rfqh11_supplier_directory", {
+      p_query: null, p_preferred_only: false, p_tag: null, p_limit: 200, p_offset: 0,
+    }),
+    supabase.from("network_saved_companies")
+      .select("network_company_id,created_at,network_companies(legal_name,trading_name,country_code)")
+      .eq("organization_id", organizationId)
+      .eq("user_id", context.userId)
+      .order("created_at", { ascending: false })
+      .limit(200),
+  ]);
 
-  const items = directory?.items ?? [];
-  const summary = directory?.summary ?? {};
+  const directoryData = directory.data && typeof directory.data === "object" && !Array.isArray(directory.data)
+    ? (directory.data as SupplierDirectoryData) : null;
+  const profiles = directoryData?.items ?? [];
+  const saved: SupplierBookSaved[] = ((savedResult.data ?? []) as unknown as SavedRow[]).map((row) => ({
+    network_company_id: row.network_company_id,
+    name: row.network_companies?.trading_name?.trim() || row.network_companies?.legal_name || null,
+    country_code: row.network_companies?.country_code ?? null,
+    saved_at: row.created_at,
+  }));
+
+  const networkIds = [...new Set([
+    ...profiles.map((p) => p.supplier_network_company_id).filter((id): id is string => Boolean(id)),
+    ...saved.map((s) => s.network_company_id),
+  ])];
+  const profileCompanyIds = [...new Set(profiles.map((p) => p.supplier_company_id).filter((id): id is string => Boolean(id)))];
+
+  let companies: SupplierBookCompany[] = [];
+  let contacts: SupplierBookContact[] = [];
+  let contactsError = false;
+  if (networkIds.length || profileCompanyIds.length) {
+    const filters = [
+      networkIds.length ? "network_company_id.in.(" + networkIds.join(",") + ")" : null,
+      profileCompanyIds.length ? "id.in.(" + profileCompanyIds.join(",") + ")" : null,
+    ].filter(Boolean).join(",");
+    const companyResult = await supabase.from("companies")
+      .select("id,name,network_company_id")
+      .eq("organization_id", organizationId)
+      .or(filters)
+      .limit(500);
+    contactsError = Boolean(companyResult.error);
+    companies = (companyResult.data ?? []) as SupplierBookCompany[];
+    const companyIds = companies.map((c) => c.id);
+    if (companyIds.length) {
+      const contactResult = await supabase.from("contacts")
+        .select("id,company_id,full_name,email,phone,role")
+        .eq("organization_id", organizationId)
+        .in("company_id", companyIds)
+        .limit(1000);
+      contactsError ||= Boolean(contactResult.error);
+      contacts = (contactResult.data ?? []) as SupplierBookContact[];
+    }
+  }
+
+  const book = buildSupplierBook({ profiles, saved, companies, contacts });
+  const rows = supplierBookFilter(book, view, query);
+  const tabs: { view: SupplierBookView; label: string; count: number }[] = [
+    { view: "attivi", label: "Attivi", count: book.filter((r) => r.active).length },
+    { view: "salvati", label: "Salvati", count: book.filter((r) => r.saved).length },
+  ];
 
   return (
-    <FocusPage>
-      <FocusHeader
-        eyebrow="Acquisti · Fornitori"
-        title="La tua rubrica fornitori"
-        description={
-          <>
-            Ogni fornitore usato nelle RFQ entra in una rubrica unica. Preferiti, tag e note sono gestiti dal buyer; prezzi, tempi di risposta, assegnazioni e PO arrivano direttamente dallo storico RFQ.
-            <span className="mt-2 block text-xs font-semibold text-[#78857f]">
-              {num(summary.supplier_count)} supplier · {num(summary.with_quotes_count)} con quote ·{" "}
-              {num(summary.with_awards_count)} con award
-            </span>
-          </>
-        }
-        actions={
-          <>
-            <Link
-              href={appRoutes.rfqHub.inbox}
-              className="app-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
-            >
-              Inbox acquisti
-            </Link>
-            <Link
-              href={appRoutes.rfqHub.home}
-              className="app-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
-            >
-              RFQ Hub
-            </Link>
-          </>
-        }
-      />
+    <div className="mx-auto w-full min-w-0 max-w-[1180px] space-y-3 pb-8" data-testid="supplier-book">
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--brand-primary)]">Ufficio acquisti</p>
+          <h1 className="mt-0.5 text-xl font-extrabold text-[var(--brand-deep)]">Fornitori</h1>
+          <p className="mt-0.5 text-xs text-[var(--text-secondary)]">La tua rubrica fornitori: chi usi nelle richieste, le aziende salvate e i tuoi contatti per ciascuna.</p>
+        </div>
+        <Link href={appRoutes.network.directory}
+          className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-bold">
+          Cerca nel Network →
+        </Link>
+      </header>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        {[
-          ["Supplier", summary.supplier_count ?? 0],
-          ["Preferiti", summary.preferred_count ?? 0],
-          ["Con quote", summary.with_quotes_count ?? 0],
-          ["Con award", summary.with_awards_count ?? 0],
-          ["PO confermati", summary.with_confirmed_po_count ?? 0],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-2xl border border-[#dce2df] bg-white p-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#718078]">
-              {label}
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-[#1d2824]">{num(value)}</p>
-          </div>
-        ))}
+      <section aria-label="Rubrica fornitori" data-testid="supplier-book-list"
+        className="min-w-0 rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <nav aria-label="Filtra fornitori" className="flex flex-wrap gap-1.5">
+            {tabs.map((tab) => (
+              <Link key={tab.view} href={supplierBookHref(tab.view, query)} aria-current={view === tab.view ? "page" : undefined}
+                data-testid={"supplier-book-tab-" + tab.view}
+                className={"inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold " +
+                  (view === tab.view ? "border-[#175640] bg-[#175640] text-white" : "border-[#d6e5db] bg-white text-[#2f5a45] hover:bg-[#f2f8f4]")}>
+                {tab.label}
+                {tab.count ? <span className={"rounded-full px-1.5 text-[10px] font-bold " + (view === tab.view ? "bg-white/20" : "bg-[#eef2f0] text-[#3f544a]")}>{tab.count}</span> : null}
+              </Link>
+            ))}
+          </nav>
+          <form method="get" action="/rfq-hub/suppliers" role="search" className="flex min-w-0 items-center gap-1.5">
+            {view !== "attivi" ? <input type="hidden" name="vista" value={view} /> : null}
+            <label className="sr-only" htmlFor="supplier-book-search">Cerca fornitore o contatto</label>
+            <input id="supplier-book-search" name="q" type="search" defaultValue={query} maxLength={80} placeholder="Cerca fornitore o contatto"
+              className="h-9 w-44 min-w-0 rounded-lg border border-[#d6e5db] bg-white px-2.5 text-xs text-[var(--brand-deep)] sm:w-56" />
+          </form>
+        </div>
+
+        {directory.error ? (
+          <p role="status" className="mt-2 text-[11px] text-[var(--text-secondary)]">Lo storico delle richieste non è disponibile in questo momento.</p>
+        ) : null}
+        {contactsError ? (
+          <p role="status" className="mt-2 text-[11px] text-[var(--text-secondary)]">I contatti non sono disponibili in questo momento.</p>
+        ) : null}
+
+        {!rows.length ? (
+          <p className="py-6 text-center text-sm text-[var(--text-secondary)]">
+            {query ? "Nessun fornitore corrisponde alla ricerca."
+              : view === "salvati" ? "Nessuna azienda salvata. Salvale dal Network con «Salva»."
+              : "I fornitori compaiono qui quando li scegli in una richiesta."}
+          </p>
+        ) : (
+          <ul className="mt-2 divide-y divide-[var(--border)]">
+            {rows.map((supplier) => {
+              const shown = supplier.contacts.slice(0, CONTACTS_SHOWN);
+              const hidden = supplier.contacts.slice(CONTACTS_SHOWN);
+              return (
+                <li key={supplier.key} data-testid="supplier-book-row" className="min-w-0 py-3">
+                  <div className="flex min-w-0 flex-wrap items-start justify-between gap-x-3 gap-y-1.5">
+                    <div className="min-w-0 flex-1">
+                      <p className="flex min-w-0 flex-wrap items-center gap-1.5">
+                        <span className="min-w-0 truncate text-sm font-bold text-[var(--brand-deep)]">{supplier.name}</span>
+                        {supplier.preferred ? <span className="rounded-full bg-[#175640] px-2 py-0.5 text-[10px] font-bold text-white">Preferito</span> : null}
+                        {supplier.saved ? <span className="rounded-full bg-[#e8f0f6] px-2 py-0.5 text-[10px] font-semibold text-[#284f6b]">Salvato nel Network</span> : null}
+                      </p>
+                      <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">
+                        {supplier.active
+                          ? supplier.rfqCount + (supplier.rfqCount === 1 ? " richiesta" : " richieste")
+                            + (supplier.responseRatePct !== null ? " · risponde al " + Math.round(supplier.responseRatePct) + "%" : "")
+                            + (supplier.lastUsedAt ? " · ultima " + formatHubDate(supplier.lastUsedAt) : "")
+                          : "Salvata" + (supplier.savedAt ? " il " + formatHubDate(supplier.savedAt) : "") + " · non ancora usata nelle richieste"}
+                      </p>
+                    </div>
+                    <span className="flex shrink-0 items-center gap-1.5">
+                      {supplier.profileId ? (
+                        <Link href={appRoutes.rfqHub.supplier(supplier.profileId)}
+                          className="inline-flex min-h-9 items-center rounded-lg bg-[var(--brand-primary-soft)] px-2.5 text-xs font-bold text-[var(--brand-deep)]">Scheda</Link>
+                      ) : supplier.networkCompanyId ? (
+                        <Link href={appRoutes.network.company(supplier.networkCompanyId)}
+                          className="inline-flex min-h-9 items-center rounded-lg bg-[var(--brand-primary-soft)] px-2.5 text-xs font-bold text-[var(--brand-deep)]">Profilo</Link>
+                      ) : null}
+                    </span>
+                  </div>
+
+                  <div className="mt-1.5 min-w-0" data-testid="supplier-book-contacts">
+                    {shown.length ? (
+                      <ul className="space-y-0.5">
+                        {shown.map((contact) => (
+                          <li key={contact.id} className="min-w-0 break-words text-xs text-[var(--brand-deep)]">
+                            <span className="font-semibold">{contact.full_name}</span>
+                            {contact.role ? <span className="text-[var(--text-secondary)]"> · {contact.role}</span> : null}
+                            {contact.email ? <> · <a href={"mailto:" + contact.email} className="text-[#175e43] underline-offset-2 hover:underline">{contact.email}</a></> : null}
+                            {contact.phone ? <span className="text-[var(--text-secondary)]"> · {contact.phone}</span> : null}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-[11px] text-[var(--text-secondary)]">
+                        {supplier.fallbackEmail ? "Email usata nelle richieste: " + supplier.fallbackEmail : "Nessun contatto salvato."}
+                      </p>
+                    )}
+                    {hidden.length ? (
+                      <details className="mt-0.5">
+                        <summary className="cursor-pointer text-[11px] font-semibold text-[#2f5a45]">+{hidden.length} {hidden.length === 1 ? "altro contatto" : "altri contatti"}</summary>
+                        <ul className="mt-0.5 space-y-0.5">
+                          {hidden.map((contact) => (
+                            <li key={contact.id} className="min-w-0 break-words text-xs text-[var(--brand-deep)]">
+                              <span className="font-semibold">{contact.full_name}</span>
+                              {contact.role ? <span className="text-[var(--text-secondary)]"> · {contact.role}</span> : null}
+                              {contact.email ? <> · <a href={"mailto:" + contact.email} className="text-[#175e43] hover:underline">{contact.email}</a></> : null}
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    ) : null}
+                    {canWrite && supplierBookCanAddContact(supplier) ? (
+                      <div className="mt-1.5">
+                        <SupplierContactForm supplierName={supplier.name}
+                          networkCompanyId={supplier.companyId ? null : supplier.networkCompanyId}
+                          companyId={supplier.companyId} />
+                      </div>
+                    ) : null}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
 
-      <form
-        method="get"
-        className="grid gap-3 rounded-2xl border border-[#dce2df] bg-white p-4 md:grid-cols-[1.6fr_0.8fr_auto_auto] md:items-end"
-      >
-        <label className="text-xs font-semibold text-[#52615b]">
-          Cerca supplier
-          <input
-            type="search"
-            name="q"
-            defaultValue={query}
-            placeholder="Nome, email o tag"
-            className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
-          />
-        </label>
-
-        <label className="text-xs font-semibold text-[#52615b]">
-          Tag / gruppo
-          <input
-            name="tag"
-            defaultValue={tag}
-            placeholder="es. strategico"
-            className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
-          />
-        </label>
-
-        <label className="flex h-11 items-center gap-2 rounded-xl border border-[#d7dfdb] px-3 text-xs font-semibold text-[#52615b]">
-          <input
-            type="checkbox"
-            name="preferred"
-            value="1"
-            defaultChecked={preferredOnly}
-          />
-          Solo preferiti
-        </label>
-
-        <button className="h-11 rounded-xl bg-[#173f35] px-5 text-sm font-bold text-white">
-          Filtra
-        </button>
-      </form>
-
-      {error ? (
-        <section className="rounded-2xl border border-[#ead0cb] bg-[#fff7f5] p-5 text-sm font-semibold text-[#8a3e35]">
-          La rubrica supplier non è temporaneamente disponibile.
-        </section>
-      ) : items.length === 0 ? (
-        <section className="rounded-3xl border border-[#cfe1da] bg-[#f3f8f6] p-7 text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#527268]">
-            Rubrica supplier
-          </p>
-          <h2 className="mt-2 text-xl font-semibold text-[#173f35]">
-            Nessun supplier in questa vista
-          </h2>
-          <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#66736e]">
-            I supplier entrano automaticamente qui quando vengono aggiunti a una RFQ. Nessuna
-            anagrafica parallela da mantenere.
-          </p>
-          <Link
-            href={appRoutes.rfqHub.home}
-            className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[#173f35] px-4 text-xs font-bold text-white"
-          >
-            Apri RFQ Hub
-          </Link>
-        </section>
-      ) : (
-        <section className="grid gap-4 xl:grid-cols-2">
-          {items.map((supplier) => (
-            <SupplierCard key={supplier.id} supplier={supplier} />
-          ))}
-        </section>
-      )}
-
-      <section className="rounded-2xl border border-[#dce2df] bg-white px-5 py-4">
-        <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#718078]">
-          Identity resolution
-        </p>
-        <p className="mt-1 text-xs leading-5 text-[#66736e]">
-          Organization → Network company → company privata → email normalizzata. La rubrica non
-          copia il Network e non sostituisce i contatti privati: conserva i collegamenti e usa lo
-          storico procurement come fonte delle metriche.
-        </p>
-      </section>
-    </FocusPage>
+      <p className="px-1 text-[11px] text-[var(--text-secondary)]">
+        I contatti restano nella tua azienda e compaiono nel passo «A chi lo chiedi» di ogni nuova richiesta.
+      </p>
+    </div>
   );
 }

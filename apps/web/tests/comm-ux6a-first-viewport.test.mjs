@@ -33,7 +33,7 @@ test("COMM-UX6.A exposes calculator, private Distinte, new request before the ac
   assert.match(page, /data-testid="commercial-manual-entry"/);
   assert.match(page, /data-testid="commercial-history-entry"/);
   assert.doesNotMatch(page, /\+ Nuova richiesta/);
-  assert.match(calculator, /appRoutes\.rfqHub\.savedDistinte/);
+  assert.match(calculator, /<Link href=\{appRoutes\.rfqHub\.home\} data-commercial-saved-distinte-entry/);
   assert.match(calculator, /<CalculatorRegionSwitch locale="it" initialRegion="eu"/);
 });
 
