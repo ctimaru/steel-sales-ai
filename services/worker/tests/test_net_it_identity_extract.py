@@ -20,7 +20,7 @@ class FindCompanyIdentityTest(unittest.TestCase):
              "Immagini Coltro Srl | P.IVA: 02194750234 | REA: VR222737"],
             "coltro-carpenteriaverona.it", "Immagini Coltro Srl")
         self.assertIsNotNone(found)
-        self.assertEqual(found.legal_name, "Coltro Srl")
+        self.assertEqual(found.legal_name, "Coltro srl")
         self.assertEqual(found.vat_id, "02194750234")
 
     def test_inbrofer_closed_dom_ui_prefix_is_not_legal_name(self):
