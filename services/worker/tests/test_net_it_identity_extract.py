@@ -81,6 +81,20 @@ class FindCompanyIdentityTest(unittest.TestCase):
             ["Sito realizzato da Pixel Mattiolo Studio S.r.l."], "mattiolosrl.it", "Mattiolo")
         self.assertIsNone(found)
 
+    def test_credits_footer_navigation_is_not_company_name(self):
+        found = find_company_identity(
+            ["Home | Credits G.M.C. S.r.l. | P.IVA 01189480393"],
+            "gmcra.it", "Credits G.M.C. S.r.l.")
+        self.assertIsNotNone(found)
+        self.assertEqual(found.legal_name, "G.M.C. S.r.l.")
+        self.assertEqual(found.vat_id, "01189480393")
+
+    def test_real_company_named_credits_is_not_stripped(self):
+        found = find_company_identity(
+            ["Credits S.r.l. P.IVA 01234567890"], "creditssrl.it", "Credits")
+        self.assertIsNotNone(found)
+        self.assertEqual(found.legal_name, "Credits S.r.l.")
+
     def test_unrelated_company_is_ignored(self):
         found = find_company_identity(
             ["Distributore ufficiale Arcelor Steel S.p.A. P.IVA 12345678901"],
