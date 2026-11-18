@@ -135,3 +135,70 @@ def observe_pdf_source(db, *, company_id: str, source_url: str,
         )
         result["staged_thickness"] = thickness_outcome["added"]
     return result
+
+
+async def run_b3e_fact_queue(db, *, limit: int = 1, stage: bool = False) -> dict:
+    """Drain a bounded persistent queue only when Railway opts in.
+
+    Failures are per-source, recorded as short error codes. A bad document
+    cannot block the remaining sources or silently grant any rights.
+    """
+    import asyncio
+    if type(limit) is not int or not 1 <= limit <= 3:
+        raise ValueError("B3.E limit must be 1-3")
+    def rpc(operation, payload):
+        result = db.rpc("netproducers_b3e_pdf_fact_queue", {
+            "p_operation": operation, "p_payload": payload
+        }).execute().data
+        if (not isinstance(result, dict)
+            or result.get("contract") != "netproducers-b3e-pdf-queue-v1"
+            or result.get("operation") != operation):
+            raise CatalogueRejected("B3.E queue RPC contract failure")
+        return result
+    seeded=rpc("seed", {"limit":40})
+    claimed=rpc("claim", {"limit":limit})
+    items=claimed.get("items")
+    if (not isinstance(items,list) or len(items)>limit
+        or claimed.get("count")!=len(items)):
+        raise CatalogueRejected("B3.E unexpected source lease")
+    report={"contract":"netproducers-b3e-worker-v1",
+            "seeded":seeded.get("added",0),"leased":len(items),
+            "complete":0,"blocked":0,"retry":0,
+            "dimension_candidates":0,"thickness_candidates":0,
+            "staged_dimensions":0,"staged_thickness":0,
+            "published_claims":0}
+    for item in items:
+        if (not isinstance(item,dict)
+            or not item.get("company_id") or not item.get("lease_token")
+            or item.get("source_status")!="official_link_observed"
+            or item.get("rights_status")!="link_only"):
+            raise CatalogueRejected("B3.E invalid trusted source lease")
+        try:
+            output=await asyncio.to_thread(observe_pdf_source, db,
+                company_id=item["company_id"],
+                source_url=item["source_url"],
+                canonical_domain=item["canonical_domain"],
+                source_status=item["source_status"],
+                rights_status=item["rights_status"],
+                allow_factual_observation=True, dry_run=not stage)
+            status="complete"
+            info={key:output[key] for key in (
+                "dimension_candidates","thickness_candidates",
+                "staged_dimensions","staged_thickness")}
+            for key,value in info.items():
+                report[key]+=value
+        except CatalogueRejected as exc:
+            status="blocked"
+            info={"error_code":"source_rejected"}
+            # Source-specific policy errors cannot be converted into grants.
+        except Exception:
+            status="retry"
+            info={"error_code":"extractor_or_stage_error"}
+        rpc("complete", {
+            "company_id":item["company_id"],
+            "source_url":item["source_url"],
+            "lease_token":item["lease_token"],
+            "status":status,**info
+        })
+        report[status]+=1
+    return report
