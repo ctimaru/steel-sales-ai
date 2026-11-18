@@ -156,14 +156,14 @@ async def run_b3e_fact_queue(db, *, limit: int = 1, stage: bool = False) -> dict
             raise CatalogueRejected("B3.E queue RPC contract failure")
         return result
     seeded=rpc("seed", {"limit":40})
-    claimed=rpc("claim", {"limit":limit})
+    claimed=rpc("claim", {"limit":limit, "stage":stage})
     items=claimed.get("items")
     if (not isinstance(items,list) or len(items)>limit
         or claimed.get("count")!=len(items)):
         raise CatalogueRejected("B3.E unexpected source lease")
     report={"contract":"netproducers-b3e-worker-v1",
             "seeded":seeded.get("added",0),"leased":len(items),
-            "complete":0,"blocked":0,"retry":0,
+            "complete":0,"inspected":0,"blocked":0,"retry":0,
             "dimension_candidates":0,"thickness_candidates":0,
             "staged_dimensions":0,"staged_thickness":0,
             "published_claims":0}
@@ -181,7 +181,7 @@ async def run_b3e_fact_queue(db, *, limit: int = 1, stage: bool = False) -> dict
                 source_status=item["source_status"],
                 rights_status=item["rights_status"],
                 allow_factual_observation=True, dry_run=not stage)
-            status="complete"
+            status="complete" if stage else "inspected"
             info={key:output[key] for key in (
                 "dimension_candidates","thickness_candidates",
                 "staged_dimensions","staged_thickness")}
