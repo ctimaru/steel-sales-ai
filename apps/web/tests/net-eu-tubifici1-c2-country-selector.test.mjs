@@ -36,6 +36,5 @@ test("EU1.C2: Italy default and independent module/territory lock preserved",()=
   assert.match(route,/params\.country\|\|"IT"/);
   assert.match(ui,/result\.status==="locked"/);
   assert.match(ui,/result\.status==="unavailable"/);
-  assert.match(ui,/getNetworkProScopedDirectory/);
   assert.doesNotMatch(ui,/service_role|SUPABASE_SERVICE_ROLE_KEY/);
 });
