@@ -31,36 +31,36 @@ test("facts are auto-published individually from official published first-party 
     "diameter_min_mm","width_max_mm","height_min_mm",
     "thickness_min_mm",
   ]) assert.ok(sql.includes(term),term);
-  assert.doesNotMatch(sql,/join private\\.network_producer_catalog_grants/i);
+  assert.doesNotMatch(sql,/join private\.network_producer_catalog_grants/i);
   assert.doesNotMatch(sql,/manufacturer_confirmed/);
-  assert.match(sql,/on conflict\\(source_claim_id\\) do update set/);
+  assert.match(sql,/on conflict\(source_claim_id\) do update set/);
 });
 
 test("company withdrawal cannot be undone by future automatic scans",()=>{
-  assert.match(sql,/private\\.network_producer_structured_facts\\.producer_review<>'removed'/);
-  assert.match(sql,/s\\.producer_review<>'removed'/);
+  assert.match(sql,/private\.network_producer_structured_facts\.producer_review<>'removed'/);
+  assert.match(sql,/s\.producer_review<>'removed'/);
   assert.match(sql,/visibility='published'/);
   assert.match(sql,/source_withdrawn/);
   assert.match(sql,/netproducers1_structured_events_append_only/);
-  assert.match(sql,/private\\.netproducers1_b3c2_is_authorized_company_admin\\(p_company\\)/);
+  assert.match(sql,/private\.netproducers1_b3c2_is_authorized_company_admin\(p_company\)/);
   assert.match(sql,/where id=p_fact and company_id=p_company/);
   assert.match(sql,/when 'confirm' then 'confirmed'/);
   assert.match(sql,/when 'remove' then 'removed'/);
   assert.match(sql,/when 'restore' then 'pending'/);
-  assert.doesNotMatch(sql,/grant execute on function public\\.netproducers1_structured_owner_manage\\(text,uuid,uuid\\)\\s+to anon/);
+  assert.doesNotMatch(sql,/grant execute on function public\.netproducers1_structured_owner_manage\(text,uuid,uuid\)\s+to anon/);
 });
 
 test("public catalog response remains atomic, scoped and never an exact SKU",()=>{
-  assert.match(sql,/create function sec1_public\\.netproducers1_structured_public_impl/);
-  assert.match(sql,/create function public\\.netproducers1_structured_public/);
+  assert.match(sql,/create function sec1_public\.netproducers1_structured_public_impl/);
+  assert.match(sql,/create function public\.netproducers1_structured_public/);
   assert.match(sql,/security invoker set search_path=''/);
   assert.match(sql,/p_limit not between 1 and 160/);
-  assert.match(sql,/source_url',q\\.source_url/);
+  assert.match(sql,/source_url',q\.source_url/);
   assert.match(sql,/exact_skus_confirmed',0/);
   assert.match(sql,/source_pdf_copies',0/);
-  assert.match(sql,/visibility='published' and s\\.producer_review<>'removed'/);
-  assert.match(reader,/data\\.exact_skus_confirmed!==0/);
-  assert.match(reader,/data\\.source_pdf_copies!==0/);
+  assert.match(sql,/visibility='published' and s\.producer_review<>'removed'/);
+  assert.match(reader,/data\.exact_skus_confirmed!==0/);
+  assert.match(reader,/data\.source_pdf_copies!==0/);
   assert.match(reader,/getProducerStructuredCatalog/);
   assert.match(sec,/netproducers1_structured_public_impl/);
   assert.match(sec,/if v_published_facades<>13 then/);
@@ -68,7 +68,7 @@ test("public catalog response remains atomic, scoped and never an exact SKU",()=
 });
 
 test("web/mobile page displays numeric ranges ahead of source links",()=>{
-  assert.match(page,/ProducerStructuredCatalogue result=\\{structured\\}/);
+  assert.match(page,/ProducerStructuredCatalogue result=\{structured\}/);
   assert.match(page,/Mostra le fonti originali e le schede di provenienza/);
   assert.match(page,/<details className=/);
   assert.match(catalogue,/Dati già disponibili · Senza aprire PDF/);
