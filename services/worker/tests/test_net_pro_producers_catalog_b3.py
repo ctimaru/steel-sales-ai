@@ -162,6 +162,20 @@ def test_b3_has_no_pdf_fallback_and_no_rights_escalation(kind):
     assert len(db.verified) == 0
 
 
+def test_b3_no_exact_rows_reports_zero_evidence_without_stage_or_verify():
+    content = (
+        "standard,grade,shape,dimensions_mm\n"
+        "EN 10219,S355J2H,RHS,100-200x100x6\n"
+    ).encode()
+    manifest = document(content)
+    db = FakeB3ServiceDb(manifest)
+    result = verify_authorised_csv(db, manifest, content, now=NOW)
+    assert result["status"] == "no_exact_source_rows"
+    assert result["source_verified"] == result["published_claims"] == 0
+    assert db.staged == {}
+    assert all(op == "get" for _, op in db.calls)
+
+
 def test_b3_revocation_between_staging_and_verification_fails_closed():
     manifest = document(CSV)
     db = FakeB3ServiceDb(manifest)
