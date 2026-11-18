@@ -307,7 +307,7 @@ revoke all on function public.netproducers1_b3c2_catalog_submission(text,jsonb)
   from public,anon,authenticated;
 grant execute on function public.netproducers1_b3c2_catalog_submission(text,jsonb)
   to authenticated;
-grant execute on function private.netproducers1_b3c2_catalog_submission(text,jsonb)
-  to authenticated;
+-- Private function remains unexposed; the public facade executes as the
+-- reviewed definer and rechecks the user's verified company admin identity.
 -- Do not expose direct private submission-table SELECT or file reads.
 -- This intake never grants B2 rights or enqueues B3.C1 jobs.
