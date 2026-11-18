@@ -79,6 +79,19 @@ def verify_authorised_csv(
         raise CatalogueRejected("B3 cannot verify non-CSV documents")
     candidates = parsed["candidates"]
     _source_bound_row_check(content, candidates)
+    if not candidates:
+        return {
+            "contract": RESULT_CONTRACT,
+            "status": "no_exact_source_rows",
+            "source_verified": 0,
+            "replayed": 0,
+            "candidate_rows": 0,
+            "rejected_rows": parsed["rejected_rows"],
+            "document_sha256": parsed["document_sha256"],
+            "catalog_id": parsed["catalog_id"],
+            "published_claims": 0,
+            "manufacturer_confirmed": 0,
+        }
 
     # SQL checks staged row, source SHA, exact tuple and current rights again.
     # Keep B2 candidate quarantine if a later chunk is rejected.
