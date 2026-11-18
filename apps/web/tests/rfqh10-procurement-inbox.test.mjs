@@ -89,14 +89,14 @@ test("RFQH10 workspace has attention/waiting filters and deterministic priority 
   // RFQHUB1 (founder decision, 18 Nov 2026): «Inbox e risposte» is the
   // «Da gestire» filter of Centro RFQ; actions per RFQ come from the queue.
   assert.match(rows, /item\.requires_action !== true/);
-  assert.match(rows, /item\.action_label/);
+  assert.match(rows, /rfqHubAttentionLabel\(item\.action_code\)/);
   assert.match(hub, /view === "da-gestire"/);
   assert.match(hub, /label: "Da gestire", count: attentionRfqIds\.length/);
 });
 
 test("RFQH10 actions navigate back to the governed RFQ workflow", () => {
   assert.match(hub, /appRoutes\.rfqHub\.campaign\(campaign\.id\)/);
-  assert.match(hub, /facts\.attention\.label/);
+  assert.match(hub, /facts\.attention\?\.label/);
 });
 
 test("RFQH10 keeps legacy routes and is now owned by private RFQ Hub", () => {
