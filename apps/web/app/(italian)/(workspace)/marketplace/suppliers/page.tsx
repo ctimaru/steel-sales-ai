@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SupplierContactForm } from "@/components/supplier-contact-form";
+import { SupplierLinkButton } from "@/components/supplier-link-button";
 import { SupplierPreferredToggle } from "@/components/supplier-preferred-toggle";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { formatHubDate } from "@/lib/rfq-hub-overview";
@@ -13,7 +14,9 @@ import {
   supplierBookUsageLabel,
   supplierBookView,
   supplierRequestHref,
+  type SupplierBookChannel,
   type SupplierBookCompany,
+  type SupplierBookMatch,
   type SupplierBookContact,
   type SupplierBookSaved,
   type SupplierBookUsage,
@@ -122,7 +125,20 @@ export default async function SupplierDirectoryPage({
     : { data: [] };
   const usage = ((usageResult.data ?? []) as unknown as SupplierBookUsage[]);
 
-  const book = buildSupplierBook({ profiles, saved, companies, contacts, usage });
+  // RFQHUB1D: the Network company channel (privacy-reviewed) and, for
+  // e-mail-only suppliers, the Network company of their e-mail domain.
+  const emailOnlyIds = profiles.filter((p) => !p.supplier_network_company_id && !p.supplier_company_id && !p.supplier_organization_id)
+    .map((p) => p.id);
+  const [channelsResult, matchesResult] = await Promise.all([
+    networkIds.length ? supabase.rpc("rfqhub1d_network_channels", { p_organization_id: organizationId, p_network_company_ids: networkIds.slice(0, 200) })
+      : Promise.resolve({ data: [] }),
+    canWrite && emailOnlyIds.length ? supabase.rpc("rfqhub1d_supplier_domain_matches", { p_profile_ids: emailOnlyIds.slice(0, 200) })
+      : Promise.resolve({ data: [] }),
+  ]);
+  const channels = Array.isArray(channelsResult.data) ? (channelsResult.data as SupplierBookChannel[]) : [];
+  const matches = Array.isArray(matchesResult.data) ? (matchesResult.data as SupplierBookMatch[]) : [];
+
+  const book = buildSupplierBook({ profiles, saved, companies, contacts, usage, channels, matches });
   const rows = supplierBookFilter(book, view, query);
   const tabs: { view: SupplierBookView; label: string; count: number }[] = [
     { view: "attivi", label: "Attivi", count: book.filter((r) => r.active).length },
@@ -247,6 +263,19 @@ export default async function SupplierDirectoryPage({
                           ))}
                         </ul>
                       </details>
+                    ) : null}
+                    {supplier.networkChannel ? (
+                      <p className="mt-0.5 min-w-0 break-words text-[11px] text-[var(--text-secondary)]" data-testid="supplier-book-network-channel">
+                        Dal Network: {supplier.networkChannel.displayName ? supplier.networkChannel.displayName + " · " : ""}
+                        <a href={"mailto:" + supplier.networkChannel.email} className="text-[#175e43] hover:underline">{supplier.networkChannel.email}</a>
+                      </p>
+                    ) : null}
+                    {canWrite && supplier.linkSuggestion && supplier.profileId ? (
+                      <div className="mt-1.5">
+                        <SupplierLinkButton profileId={supplier.profileId}
+                          networkCompanyId={supplier.linkSuggestion.networkCompanyId}
+                          companyName={supplier.linkSuggestion.name} />
+                      </div>
                     ) : null}
                     {canWrite && supplierBookCanAddContact(supplier) ? (
                       <div className="mt-1.5">

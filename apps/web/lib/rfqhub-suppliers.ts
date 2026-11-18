@@ -79,7 +79,14 @@ export type SupplierBookRow = {
   draftCount: number;
   tags: string[];
   notes: string | null;
+  /** RFQHUB1D: the company channel reviewed in the Network (not a private contact). */
+  networkChannel: { displayName: string | null; email: string } | null;
+  /** RFQHUB1D: e-mail-only supplier whose domain matches a Network company. */
+  linkSuggestion: { networkCompanyId: string; name: string } | null;
 };
+
+export type SupplierBookChannel = { network_company_id: string; display_name: string | null; email: string };
+export type SupplierBookMatch = { profile_id: string; network_company_id: string; name: string };
 
 /** One line of a supplier's RFQ use (buyer_rfq_suppliers), owner-scoped. */
 export type SupplierBookUsage = {
@@ -137,6 +144,8 @@ export function buildSupplierBook(input: {
   companies: SupplierBookCompany[];
   contacts: SupplierBookContact[];
   usage?: SupplierBookUsage[];
+  channels?: SupplierBookChannel[];
+  matches?: SupplierBookMatch[];
 }): SupplierBookRow[] {
   const rows = new Map<string, SupplierBookRow>();
   const usage = usageByIdentity(input.usage ?? []);
@@ -190,6 +199,8 @@ export function buildSupplierBook(input: {
       draftCount: 0,
       tags: profile.tags ?? [],
       notes: profile.notes ?? null,
+      networkChannel: null,
+      linkSuggestion: null,
     });
   }
 
@@ -223,7 +234,18 @@ export function buildSupplierBook(input: {
       draftCount: 0,
       tags: [],
       notes: null,
+      networkChannel: null,
+      linkSuggestion: null,
     });
+  }
+
+  const channelByNetwork = new Map((input.channels ?? []).map((c) => [c.network_company_id, c]));
+  const matchByProfile = new Map((input.matches ?? []).map((m) => [m.profile_id, m]));
+  for (const row of rows.values()) {
+    const channel = row.networkCompanyId ? channelByNetwork.get(row.networkCompanyId) : undefined;
+    if (channel?.email) row.networkChannel = { displayName: channel.display_name, email: channel.email };
+    const match = !row.networkCompanyId && !row.companyId && row.profileId ? matchByProfile.get(row.profileId) : undefined;
+    if (match) row.linkSuggestion = { networkCompanyId: match.network_company_id, name: match.name };
   }
 
   for (const [key, sets] of rowUsage) {
