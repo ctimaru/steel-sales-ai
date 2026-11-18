@@ -37,7 +37,7 @@ test("COMMERCIAL-UNIFY2 reuses existing builder inline and returns after saving 
   assert.doesNotMatch(builder, /returnToCommercial/);
   assert.match(builder, /existingDistintaId: savedId/);
   assert.match(builder, /createBuyerRfqCampaign\(savedId\)/);
-  assert.match(builder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
+  assert.match(builder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)/);
   assert.doesNotMatch(commercial, /canWrite && params\.compose/);
   assert.match(worklist, /canWrite \? \(/);
 });

@@ -80,7 +80,7 @@ test("RFQ-IA3 archived snapshot has RLS-gated details and owner-only campaign co
   assert.match(savedPage, /RfqHubCreateFromSnapshot/);
   assert.match(savedPage, /!campaignError && \(relatedCampaigns\?\.length \?\? 0\) === 0/);
   assert.match(button, /createBuyerRfqCampaign\(distintaId\)/);
-  assert.match(button, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)\)/);
+  assert.match(button, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)/);
   assert.match(savedPage, /Lo snapshot è immutabile/);
   assert.match(overview, /appRoutes\.rfqHub\.savedDistinta\(draft\.id\)/);
 });

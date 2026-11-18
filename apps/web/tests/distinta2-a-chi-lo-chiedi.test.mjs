@@ -49,3 +49,19 @@ test("migration: owner-only, draft-only removal, no anonymous access", () => {
   // Reachability reuses the privacy-reviewed RFQH2 contact rules.
   assert.match(migration, /private.rfqh2_best_network_contact/);
 });
+
+test("DISTINTA2B: the Network company the request started from is proposed at the top, never added", () => {
+  const single = read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx");
+  const builder = read("../components/buyer-distinta-builder.tsx");
+  assert.match(single, /stepTwoNetworkCompanyId=\{networkContext\?\.id \?\? null\}/);
+  assert.match(single, /non viene aggiunta in automatico/);
+  assert.match(builder, /"\?dal=" \+ encodeURIComponent\(stepTwoNetworkCompanyId\)/);
+  // The link's UUID is re-checked server-side (Network access + publication).
+  assert.match(page, /getCommercialNetworkContext\(campaign.organization_id, fromNetwork\)/);
+  assert.match(picker, /data-testid="rfq-picker-pinned"/);
+  assert.match(picker, /Già tra i destinatari/);
+  assert.match(picker, /pinnedPrechecked/);
+  // Pre-checking is local state only: adding still needs «Aggiungi … alla RFQ».
+  const pinnedBlock = picker.slice(picker.indexOf("DISTINTA2B: the starting company"), picker.indexOf("// Search by name"));
+  assert.doesNotMatch(pinnedBlock, /addSupplierToBuyerRfq|addSuppliersToBuyerRfqBulk/);
+});

@@ -41,7 +41,7 @@ test("CALC-DIST3: saving a private named bill is not the supplier dispatch opera
   assert.ok(prepareFn.includes("createPrivateRfqOneStep("));
   assert.ok(prepareFn.includes("createBuyerRfqCampaign(savedId)"));
   assert.ok(prepareFn.includes("privateRfqSnapshotSignature(snapshot)"));
-  assert.ok(prepareFn.includes("router.push(appRoutes.rfqHub.campaign(result.rfqId))"));
+  assert.ok(prepareFn.includes("router.push(appRoutes.rfqHub.campaign(result.rfqId)"));
   assert.ok(panel.includes("Prepara invio ai fornitori"));
   assert.ok(panel.includes("Nessun fornitore contattato"));
   assert.ok(panel.includes("includePrivateTargets"));

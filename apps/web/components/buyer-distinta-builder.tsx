@@ -93,6 +93,7 @@ export function BuyerDistintaBuilder({
   organizationId = null,
   focusAiIntake = false,
   openMeasure = false,
+  stepTwoNetworkCompanyId = null,
   locale = "it",
   compactLanding = false,
 }: {
@@ -108,6 +109,12 @@ export function BuyerDistintaBuilder({
    * The public /distinta calculator keeps the classic layout (false).
    */
   focusAiIntake?: boolean;
+  /**
+   * DISTINTA2B: the Network company the request started from (already checked
+   * server-side against the organization's Network access). It is proposed at
+   * the top of step 2, never added automatically.
+   */
+  stepTwoNetworkCompanyId?: string | null;
   /** Focus «Aggiungi articolo» on arrival (manual entry, calculator handoff). */
   openMeasure?: boolean;
   locale?: BuyerUiLocale;
@@ -818,7 +825,8 @@ export function BuyerDistintaBuilder({
           return;
         }
         // DISTINTA-ONE1: every entry continues to the same step 2, choosing the suppliers.
-        router.push(appRoutes.rfqHub.campaign(result.rfqId));
+        router.push(appRoutes.rfqHub.campaign(result.rfqId) +
+          (stepTwoNetworkCompanyId ? "?dal=" + encodeURIComponent(stepTwoNetworkCompanyId) : ""));
       } finally {
         rfqInFlightRef.current = false;
       }
