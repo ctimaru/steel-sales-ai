@@ -5,7 +5,7 @@ create table private.network_producer_pdf_fact_queue (
  source_url text not null,
  canonical_domain text not null,
  status text not null default 'pending'
-   check (status in ('pending','leased','complete','blocked','retry')),
+   check (status in ('pending','leased','inspected','complete','blocked','retry')),
  attempts int not null default 0 check (attempts between 0 and 10),
  next_attempt_at timestamptz not null default now(),
  lease_token uuid,
@@ -71,6 +71,7 @@ begin
   with selected as (
    select company_id,source_url from private.network_producer_pdf_fact_queue
    where ((status in ('pending','retry') and next_attempt_at<=now())
+          or(status='inspected' and p_payload->>'stage'='true')
           or(status='leased' and lease_until<now()))
     and attempts<10
    order by attempts,next_attempt_at,company_id
@@ -96,12 +97,12 @@ begin
   v_token:=(p_payload->>'lease_token')::uuid;
   v_status:=p_payload->>'status';
   if v_company is null or v_token is null or v_url is null
-   or v_status not in ('complete','blocked','retry')
+   or v_status not in ('complete','blocked','retry','inspected')
    or length(coalesce(p_payload->>'error_code',''))>80
   then raise exception 'Invalid B3E completion' using errcode='22023';end if;
   update private.network_producer_pdf_fact_queue q set
    status=v_status,lease_token=null,lease_until=null,
-   last_error=case when v_status='complete' then null else p_payload->>'error_code' end,
+   last_error=case when v_status in ('complete','inspected') then null else p_payload->>'error_code' end,
    observed_dimensions=case when v_status='complete' then
     least(120,greatest(0,coalesce((p_payload->>'dimension_candidates')::int,0)))
     else q.observed_dimensions end,
