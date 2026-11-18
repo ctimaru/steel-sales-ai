@@ -21,7 +21,7 @@ export type RfqHubRowFacts = {
   /** Latest purchase order status for the campaign, if any. */
   orderStatus: string | null;
   /** First open action from the procurement queue for this RFQ. */
-  attention: { label: string; urgent: boolean } | null;
+  attention: { label: string | null; urgent: boolean } | null;
 };
 
 export type RfqHubRowTone = "draft" | "todo" | "waiting" | "offers" | "done" | "closed";
@@ -98,21 +98,53 @@ export function rfqHubHref(view: RfqHubView, query = "", page = 1): string {
 }
 
 /**
- * Open actions from the procurement queue (rfqh10_procurement_inbox), first
- * per RFQ (the queue is already ordered by priority).
+ * What the row asks you to do, from the procurement queue's action_code.
+ * null = the row state already says it (e.g. «Da inviare», «Offerte da
+ * confrontare») or there is nothing to do: no repeated or English text.
  */
-export function rfqHubAttentionByRfq(value: unknown): Map<string, { label: string; urgent: boolean }> | null {
+const attentionLabels: Record<string, string | null> = {
+  add_suppliers: null,
+  launch_rfq: null,
+  review_quotes: null,
+  monitor_rfq: null,
+  monitor_po: null,
+  monitor_negotiation: null,
+  recover_dispatch: "Alcuni invii non sono partiti",
+  follow_up_rfq: "Scaduta: sollecita i fornitori",
+  review_po_change: "Il fornitore chiede di modificare l'ordine",
+  review_po_rejection: "Ordine rifiutato: rivedilo",
+  recover_po_delivery: "Invio dell'ordine non riuscito",
+  issue_po: "Ordine pronto da emettere",
+  follow_up_po: "Conferma dell'ordine scaduta: sollecita",
+  review_bafo: "Offerta finale ricevuta: valutala",
+  respond_negotiation: "Il fornitore aspetta una tua risposta",
+  follow_up_negotiation: "Trattativa scaduta: sollecita",
+};
+
+export function rfqHubAttentionLabel(actionCode: unknown): string | null {
+  return typeof actionCode === "string" ? attentionLabels[actionCode] ?? null : null;
+}
+
+/**
+ * Open actions from the procurement queue (rfqh10_procurement_inbox), one per
+ * RFQ. The queue is already ordered by priority: the first open item decides
+ * urgency; the label is the first one that adds something to the row state.
+ */
+export function rfqHubAttentionByRfq(value: unknown): Map<string, { label: string | null; urgent: boolean }> | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const items = (value as { items?: unknown }).items;
   if (!Array.isArray(items)) return null;
-  const byRfq = new Map<string, { label: string; urgent: boolean }>();
+  const byRfq = new Map<string, { label: string | null; urgent: boolean }>();
   for (const raw of items) {
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
     const item = raw as Record<string, unknown>;
-    if (item.requires_action !== true || typeof item.rfq_id !== "string" || byRfq.has(item.rfq_id)) continue;
-    const label = typeof item.action_label === "string" && item.action_label.trim()
-      ? item.action_label.trim().slice(0, 80)
-      : typeof item.headline === "string" ? item.headline.trim().slice(0, 80) : "Da verificare";
+    if (item.requires_action !== true || typeof item.rfq_id !== "string") continue;
+    const label = rfqHubAttentionLabel(item.action_code);
+    const existing = byRfq.get(item.rfq_id);
+    if (existing) {
+      if (!existing.label && label) existing.label = label;
+      continue;
+    }
     byRfq.set(item.rfq_id, { label, urgent: item.priority === "urgent" || item.priority === "high" });
   }
   return byRfq;

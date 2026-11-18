@@ -222,7 +222,7 @@ export default async function BuyerRfqHubPage({
                     <span className="block truncate text-sm font-bold text-[var(--brand-deep)] group-hover:underline">{distinta.title || "Distinta"}</span>
                     <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[var(--text-secondary)]">
                       <span className={"rounded-full px-2 py-0.5 font-semibold " + rfqHubToneClass[state.tone]}>{state.label}</span>
-                      {facts.attention ? (
+                      {facts.attention?.label ? (
                         <span className={"font-semibold " + (facts.attention.urgent ? "text-[#8c431e]" : "text-[#7a4d0e]")}>→ {facts.attention.label}</span>
                       ) : null}
                       <span>{distinta.line_count} {distinta.line_count === 1 ? "articolo" : "articoli"} · {tonnes(distinta.total_tonnes)} t · {formatHubDate(campaign?.created_at ?? distinta.created_at)}</span>
