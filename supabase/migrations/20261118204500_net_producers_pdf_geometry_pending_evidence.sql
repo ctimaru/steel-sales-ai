@@ -12,7 +12,7 @@ create table private.network_producer_pdf_thickness_evidence (
  evidence_status text not null default 'pending_producer_confirmation'
   check(evidence_status='pending_producer_confirmation'),
  created_at timestamptz not null default now(),
- unique(size_row_id,document_sha256,thickness_mm)
+ unique (size_row_id,document_sha256,thickness_mm)
 );
 alter table private.network_producer_pdf_thickness_evidence enable row level security;
 revoke all on private.network_producer_pdf_thickness_evidence from public,anon,authenticated,service_role;
