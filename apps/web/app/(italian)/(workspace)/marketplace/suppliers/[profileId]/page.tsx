@@ -1,397 +1,224 @@
 import Link from "next/link";
 
-import { FocusHeader, FocusPage } from "@/components/focus-ui";
 import { Rfqh11SupplierProfileEditor } from "@/components/rfqh11-supplier-profile-editor";
-import { appRoutes } from "@/lib/routes";
+import { SupplierContactForm } from "@/components/supplier-contact-form";
+import { canWriteWorkspace } from "@/lib/access-policy";
+import { formatHubDate, rfqOrderStatusLabel } from "@/lib/rfq-hub-overview";
 import type { SupplierDetailData } from "@/lib/rfqh11-supplier";
+import {
+  supplierRequestHref,
+  supplierRequestStatusLabel,
+  type SupplierBookContact,
+} from "@/lib/rfqhub-suppliers";
+import { appRoutes } from "@/lib/routes";
+import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Fornitore · Fornitori RFQ", robots: privateNoIndexRobots };
 
-type Params = Promise<{ profileId: string }>;
+const PRICES_SHOWN = 8;
 
-function num(value: unknown) {
+function num(value: unknown): number {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function formatNumber(value: unknown, digits = 2) {
-  return num(value).toLocaleString("it-IT", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: digits,
-  });
+function euro(value: unknown, digits = 0): string {
+  return num(value).toLocaleString("it-IT", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
-function formatDate(value: string | null | undefined) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (!Number.isFinite(date.getTime())) return "—";
-  return new Intl.DateTimeFormat("it-IT", {
-    timeZone: "Europe/Rome",
-    dateStyle: "medium",
-  }).format(date);
-}
-
-function formatResponseHours(value: unknown) {
+function responseTime(value: unknown): string | null {
   const hours = num(value);
-  if (!hours) return "—";
-  if (hours < 24) return formatNumber(hours, 1) + " h";
-  return formatNumber(hours / 24, 1) + " gg";
+  if (!hours) return null;
+  if (hours < 24) return Math.round(hours) + " ore";
+  const days = Math.round(hours / 24);
+  return days + (days === 1 ? " giorno" : " giorni");
 }
 
-function statusLabel(value: string) {
-  return value.replaceAll("_", " ");
-}
-
-export default async function SupplierDetailPage({
-  params,
-}: {
-  params: Params;
-}) {
+/**
+ * RFQHUB1D (founder decision, 18 Nov 2026): the supplier card in the same
+ * style as Centro RFQ and Fornitori. Contacts first, then the requests that
+ * were sent (plain Italian states), the prices received and private notes.
+ * Read model: rfqh11_supplier_detail (owner-scoped); contacts from the
+ * organization's Commerciale. Nothing is sent from here.
+ */
+export default async function SupplierDetailPage({ params }: { params: Promise<{ profileId: string }> }) {
   const { profileId } = await params;
+  const context = await getWorkspaceContext();
+  const canWrite = canWriteWorkspace(context.role);
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("rfqh11_supplier_detail", {
-    p_profile_id: profileId,
-  });
-
-  const detail =
-    data && typeof data === "object" && !Array.isArray(data)
-      ? (data as SupplierDetailData)
-      : null;
-
+  const { data, error } = await supabase.rpc("rfqh11_supplier_detail", { p_profile_id: profileId });
+  const detail = data && typeof data === "object" && !Array.isArray(data) ? (data as SupplierDetailData) : null;
   const profile = detail?.profile;
-  const summary = detail?.summary ?? {};
-  const rfqHistory = detail?.rfq_history ?? [];
-  const priceHistory = detail?.price_history ?? [];
 
   if (error || !profile) {
     return (
-      <FocusPage>
-        <section className="rounded-3xl border border-[#ead0cb] bg-[#fff7f5] p-7">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8a3e35]">
-            Fornitore
-          </p>
-          <h1 className="mt-2 text-2xl font-semibold text-[#1d2824]">
-            Supplier non disponibile
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-[#66736e]">
-            Il profilo non esiste oppure non appartiene alla tua rubrica procurement.
-          </p>
-          <Link
-            href={appRoutes.rfqHub.suppliers}
-            className="mt-4 inline-flex min-h-10 items-center rounded-xl bg-[#173f35] px-4 text-xs font-bold text-white"
-          >
-            Torna alla rubrica
-          </Link>
+      <div className="mx-auto w-full max-w-[880px] space-y-3 pb-8">
+        <Link href={appRoutes.rfqHub.suppliers} className="text-xs font-semibold text-[#2f5a45] hover:underline">← Fornitori</Link>
+        <section className="rounded-xl border border-[#ead0cb] bg-[#fff7f5] p-5">
+          <h1 className="text-lg font-bold text-[#5a2a24]">Fornitore non disponibile</h1>
+          <p className="mt-1 text-sm text-[#66736e]">La scheda non esiste oppure non è nella tua rubrica.</p>
         </section>
-      </FocusPage>
+      </div>
     );
   }
 
+  const name = profile.display_name || profile.email || "Fornitore";
+  const summary = detail?.summary ?? {};
+  const history = detail?.rfq_history ?? [];
+  const sent = history.filter((item) => item.sent_at);
+  const drafts = history.length - sent.length;
+  const prices = (detail?.price_history ?? []).slice(0, PRICES_SHOWN);
+
+  // Contacts: the organization's Commerciale company for this supplier.
+  const companyFilter = [
+    profile.supplier_company_id ? "id.eq." + profile.supplier_company_id : null,
+    profile.supplier_network_company_id ? "network_company_id.eq." + profile.supplier_network_company_id : null,
+  ].filter(Boolean).join(",");
+  let companyId: string | null = profile.supplier_company_id;
+  let contacts: SupplierBookContact[] = [];
+  if (companyFilter) {
+    const { data: companies } = await supabase.from("companies")
+      .select("id")
+      .eq("organization_id", context.organizationId)
+      .or(companyFilter)
+      .limit(5);
+    const ids = (companies ?? []).map((row) => row.id as string);
+    companyId = companyId ?? ids[0] ?? null;
+    if (ids.length) {
+      const { data: contactRows } = await supabase.from("contacts")
+        .select("id,company_id,full_name,email,phone,role")
+        .eq("organization_id", context.organizationId)
+        .in("company_id", ids)
+        .order("full_name", { ascending: true })
+        .limit(100);
+      contacts = (contactRows ?? []) as SupplierBookContact[];
+    }
+  }
+
+  const facts = [
+    sent.length ? sent.length + (sent.length === 1 ? " richiesta inviata" : " richieste inviate") : "Nessuna richiesta inviata",
+    sent.length ? "ha risposto a " + num(summary.responded_rfq_count) : null,
+    responseTime(summary.avg_response_hours) ? "risponde in media in " + responseTime(summary.avg_response_hours) : null,
+    num(summary.award_count) ? num(summary.award_count) + (num(summary.award_count) === 1 ? " aggiudicazione" : " aggiudicazioni") : null,
+    num(summary.po_count) ? num(summary.po_count) + (num(summary.po_count) === 1 ? " ordine" : " ordini") : null,
+  ].filter(Boolean).join(" · ");
+
   return (
-    <FocusPage>
-      <FocusHeader
-        eyebrow="Fornitori"
-        title={profile.display_name || profile.email || "Supplier"}
-        description={
-          <>
-            Profilo acquisti consolidato: storico RFQ, prezzi ricevuti, tempi di risposta, assegnazioni e Purchase Order restano collegati allo stesso fornitore.
-            <span className="mt-2 block text-xs font-semibold text-[#78857f]">
-              Ultimo utilizzo {formatDate(profile.last_used_at)}
-              {profile.email ? " · " + profile.email : ""}
-            </span>
-          </>
-        }
-        actions={
-          <>
-            {profile.supplier_network_company_id ? (
-              <Link
-                href={appRoutes.network.company(profile.supplier_network_company_id)}
-                className="app-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
-              >
-                Apri Network
-              </Link>
-            ) : null}
-            <Link
-              href={appRoutes.rfqHub.home}
-              className="app-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
-            >
-              RFQ Hub
-            </Link>
-            <Link
-              href={appRoutes.rfqHub.suppliers}
-              className="app-primary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
-            >
-              Rubrica supplier
-            </Link>
-          </>
-        }
-      />
+    <div className="mx-auto w-full min-w-0 max-w-[880px] space-y-3 pb-8" data-testid="supplier-card">
+      <Link href={appRoutes.rfqHub.suppliers} className="text-xs font-semibold text-[#2f5a45] hover:underline">← Fornitori</Link>
 
-      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-        {[
-          ["RFQ", summary.rfq_count ?? 0],
-          ["Response rate", formatNumber(summary.response_rate_pct, 1) + "%"],
-          ["Tempo risposta", formatResponseHours(summary.avg_response_hours)],
-          ["Award", summary.award_count ?? 0],
-          ["PO", summary.po_count ?? 0],
-          ["PO confermati", summary.confirmed_po_count ?? 0],
-        ].map(([label, value]) => (
-          <div key={String(label)} className="rounded-2xl border border-[#dce2df] bg-white p-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#718078]">
-              {label}
-            </p>
-            <p className="mt-1 text-xl font-semibold text-[#1d2824]">{value}</p>
-          </div>
-        ))}
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
-        <Rfqh11SupplierProfileEditor
-          profileId={profile.id}
-          preferred={profile.preferred}
-          tags={profile.tags}
-          notes={profile.notes}
-        />
-
-        <div className="rounded-2xl border border-[#dce2df] bg-white p-5">
-          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#1a5144]">
-            Identità collegata
-          </p>
-          <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
-            Company e contatti
-          </h2>
-
-          <dl className="mt-4 space-y-3 text-sm">
-            <div>
-              <dt className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#87908c]">
-                Identity key
-              </dt>
-              <dd className="mt-1 break-all font-semibold text-[#52615b]">
-                {profile.identity_key}
-              </dd>
-            </div>
-
-            {detail?.private_company ? (
-              <div className="rounded-xl bg-[#f7f9f8] p-3">
-                <dt className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#87908c]">
-                  Company privata
-                </dt>
-                <dd className="mt-1 font-semibold text-[#1d2824]">
-                  {detail.private_company.name}
-                </dd>
-                <dd className="mt-1 text-xs text-[#66736e]">
-                  {[detail.private_company.country, detail.private_company.vat_number]
-                    .filter(Boolean)
-                    .join(" · ") || "Dati anagrafici disponibili nella memoria privata"}
-                </dd>
-              </div>
-            ) : null}
-
-            {detail?.private_contact ? (
-              <div className="rounded-xl bg-[#f7f9f8] p-3">
-                <dt className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#87908c]">
-                  Contatto privato
-                </dt>
-                <dd className="mt-1 font-semibold text-[#1d2824]">
-                  {detail.private_contact.full_name}
-                </dd>
-                <dd className="mt-1 text-xs text-[#66736e]">
-                  {[detail.private_contact.role, detail.private_contact.email]
-                    .filter(Boolean)
-                    .join(" · ") || "Contatto collegato"}
-                </dd>
-              </div>
-            ) : null}
-
-            {profile.supplier_network_company_id ? (
-              <div className="rounded-xl border border-[#cfe1da] bg-[#f3f8f6] p-3">
-                <dt className="text-[10px] font-bold uppercase tracking-[0.08em] text-[#527268]">
-                  Network
-                </dt>
-                <dd className="mt-1 text-sm font-semibold text-[#173f35]">
-                  Profilo Network collegato
-                </dd>
-                <dd className="mt-1 text-xs text-[#66736e]">
-                  La rubrica conserva il link, non duplica il profilo Network.
-                </dd>
-              </div>
-            ) : null}
-          </dl>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--brand-primary)]">Fornitore</p>
+          <h1 className="mt-0.5 flex flex-wrap items-center gap-2 text-xl font-extrabold text-[var(--brand-deep)]">
+            <span className="min-w-0 break-words">{name}</span>
+            {profile.preferred ? <span className="rounded-full bg-[#fff6dc] px-2 py-0.5 text-[11px] font-bold text-[#7a4d0e]">★ Preferito</span> : null}
+          </h1>
+          <p className="mt-0.5 text-xs text-[var(--text-secondary)]" data-testid="supplier-card-facts">{facts}</p>
+          {drafts > 0 ? (
+            <p className="text-[11px] text-[var(--text-secondary)]">Anche in {drafts} {drafts === 1 ? "bozza" : "bozze"} non ancora {drafts === 1 ? "inviata" : "inviate"}.</p>
+          ) : null}
         </div>
-      </section>
+        <span className="flex flex-wrap items-center gap-1.5">
+          {canWrite && profile.supplier_network_company_id ? (
+            <Link href={supplierRequestHref(profile.supplier_network_company_id)}
+              className="inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-3 text-xs font-bold text-white hover:bg-[#104632]">
+              Chiedi un&apos;offerta
+            </Link>
+          ) : null}
+          {profile.supplier_network_company_id ? (
+            <Link href={appRoutes.network.company(profile.supplier_network_company_id)}
+              className="app-secondary inline-flex min-h-10 items-center rounded-lg px-3 text-xs font-bold">
+              Profilo nel Network
+            </Link>
+          ) : null}
+        </span>
+      </header>
 
-      <section className="rounded-2xl border border-[#dce2df] bg-white">
-        <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#e7ece9] px-5 py-4">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#1a5144]">
-              Procurement history
-            </p>
-            <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
-              RFQ, quote, award e PO
-            </h2>
-          </div>
-          <span className="text-xs text-[#718078]">
-            Award € {formatNumber(summary.awarded_total_eur, 2)} ·{" "}
-            {formatNumber(summary.awarded_total_tonnes, 3)} t
-          </span>
-        </div>
-
-        {rfqHistory.length === 0 ? (
-          <p className="px-5 py-6 text-sm text-[#66736e]">
-            Nessuno storico RFQ disponibile.
-          </p>
-        ) : (
-          <div className="divide-y divide-[#edf0ee]">
-            {rfqHistory.map((item) => (
-              <article key={item.rfq_id} className="px-5 py-4">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <Link
-                      href={appRoutes.rfqHub.campaign(item.rfq_id)}
-                      className="text-sm font-semibold text-[#173f35] hover:underline"
-                    >
-                      {item.rfq_title}
-                    </Link>
-                    <p className="mt-1 text-[10px] uppercase tracking-[0.08em] text-[#87908c]">
-                      {statusLabel(item.rfq_status)} · supplier {statusLabel(item.supplier_status)}
-                    </p>
-                  </div>
-                  <p className="text-xs text-[#718078]">
-                    {formatDate(item.rfq_created_at)}
-                  </p>
-                </div>
-
-                <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                  <div className="rounded-xl bg-[#f7f9f8] p-3">
-                    <p className="text-[10px] uppercase text-[#87908c]">Risposta</p>
-                    <p className="mt-1 text-xs font-semibold">
-                      {item.responded_at ? formatDate(item.responded_at) : "—"}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-[#f7f9f8] p-3">
-                    <p className="text-[10px] uppercase text-[#87908c]">Quote</p>
-                    <p className="mt-1 text-xs font-semibold">
-                      {item.quote
-                        ? "Rev. " + item.quote.revision_no + " · " + statusLabel(item.quote.status)
-                        : "—"}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-[#f7f9f8] p-3">
-                    <p className="text-[10px] uppercase text-[#87908c]">Award</p>
-                    <p className="mt-1 text-xs font-semibold">
-                      {item.awarded_at ? "Aggiudicato" : "—"}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-[#f7f9f8] p-3">
-                    <p className="text-[10px] uppercase text-[#87908c]">Purchase Order</p>
-                    <p className="mt-1 text-xs font-semibold">
-                      {item.purchase_order
-                        ? item.purchase_order.ref + " · " + statusLabel(item.purchase_order.status)
-                        : "—"}
-                    </p>
-                    {item.purchase_order ? (
-                      <p className="mt-1 text-[10px] text-[#718078]">
-                        € {formatNumber(item.purchase_order.total_eur, 2)}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </article>
+      <section aria-labelledby="supplier-contacts" className="rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4" data-testid="supplier-card-contacts">
+        <h2 id="supplier-contacts" className="text-sm font-bold text-[var(--brand-deep)]">Contatti</h2>
+        {contacts.length ? (
+          <ul className="mt-1.5 space-y-1">
+            {contacts.map((contact) => (
+              <li key={contact.id} className="min-w-0 break-words text-xs text-[var(--brand-deep)]">
+                <span className="font-semibold">{contact.full_name}</span>
+                {contact.role ? <span className="text-[var(--text-secondary)]"> · {contact.role}</span> : null}
+                {contact.email ? <> · <a href={"mailto:" + contact.email} className="text-[#175e43] hover:underline">{contact.email}</a></> : null}
+                {contact.phone ? <span className="text-[var(--text-secondary)]"> · {contact.phone}</span> : null}
+              </li>
             ))}
-          </div>
-        )}
-      </section>
-
-      <section className="rounded-2xl border border-[#dce2df] bg-white">
-        <div className="border-b border-[#e7ece9] px-5 py-4">
-          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#1a5144]">
-            Price history
-          </p>
-          <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
-            Storico prezzi ricevuti
-          </h2>
-        </div>
-
-        {priceHistory.length === 0 ? (
-          <p className="px-5 py-6 text-sm text-[#66736e]">
-            Nessuna riga prezzo strutturata disponibile.
-          </p>
+          </ul>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-[980px] w-full border-collapse text-left text-xs">
-              <thead>
-                <tr className="border-b border-[#dce2df] text-[#66736e]">
-                  <th className="px-5 py-3">Data</th>
-                  <th className="px-3 py-3">RFQ</th>
-                  <th className="px-3 py-3">Articolo</th>
-                  <th className="px-3 py-3">Norma / grado</th>
-                  <th className="px-3 py-3 text-right">€/t</th>
-                  <th className="px-3 py-3 text-right">€/m</th>
-                  <th className="px-3 py-3 text-right">Lead gg</th>
-                  <th className="px-5 py-3">Condizioni</th>
-                </tr>
-              </thead>
-              <tbody>
-                {priceHistory.map((row) => (
-                  <tr
-                    key={row.quote_id + ":" + String(row.line_position)}
-                    className="border-b border-[#edf0ee]"
-                  >
-                    <td className="px-5 py-3">{formatDate(row.submitted_at)}</td>
-                    <td className="px-3 py-3">
-                      <Link
-                        href={appRoutes.rfqHub.campaign(row.rfq_id)}
-                        className="font-semibold text-[#173f35] hover:underline"
-                      >
-                        {row.rfq_title}
-                      </Link>
-                      <p className="mt-0.5 text-[9px] text-[#87908c]">
-                        Rev. {row.revision_no}
-                      </p>
-                    </td>
-                    <td className="px-3 py-3">
-                      <p className="font-semibold text-[#1d2824]">{row.description}</p>
-                      <p className="mt-0.5 text-[9px] text-[#87908c]">
-                        {row.finish_code || "—"}
-                      </p>
-                    </td>
-                    <td className="px-3 py-3">
-                      {[row.standard_code, row.grade_code].filter(Boolean).join(" · ") || "—"}
-                    </td>
-                    <td className="px-3 py-3 text-right font-semibold text-[#173f35]">
-                      € {formatNumber(row.eur_t, 2)}
-                    </td>
-                    <td className="px-3 py-3 text-right font-semibold text-[#173f35]">
-                      € {formatNumber(row.eur_m, 4)}
-                    </td>
-                    <td className="px-3 py-3 text-right">
-                      {row.lead_time_days ?? "—"}
-                    </td>
-                    <td className="px-5 py-3">
-                      {[row.incoterm, row.payment_terms].filter(Boolean).join(" · ") || "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">
+            {profile.email ? "Nessun contatto salvato. Email usata nelle richieste: " + profile.email : "Nessun contatto salvato."}
+          </p>
+        )}
+        {canWrite && (companyId || profile.supplier_network_company_id) ? (
+          <div className="mt-2">
+            <SupplierContactForm supplierName={name}
+              networkCompanyId={companyId ? null : profile.supplier_network_company_id}
+              companyId={companyId} />
           </div>
+        ) : null}
+      </section>
+
+      <section aria-labelledby="supplier-requests" className="rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4" data-testid="supplier-card-requests">
+        <h2 id="supplier-requests" className="text-sm font-bold text-[var(--brand-deep)]">Richieste</h2>
+        {history.length ? (
+          <ul className="mt-1 divide-y divide-[var(--border)]">
+            {history.map((item) => (
+              <li key={item.rfq_id} className="flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 py-2">
+                <Link href={appRoutes.rfqHub.campaign(item.rfq_id)} className="min-w-0 flex-1">
+                  <span className="block truncate text-xs font-bold text-[var(--brand-deep)] hover:underline">{item.rfq_title || "Richiesta"}</span>
+                  <span className="text-[11px] text-[var(--text-secondary)]">
+                    {item.sent_at ? "inviata il " + formatHubDate(item.sent_at) : "creata il " + formatHubDate(item.rfq_created_at)}
+                    {item.quote ? " · offerta" + (item.quote.revision_no > 1 ? " rev. " + item.quote.revision_no : "")
+                      + (item.quote.lead_time_days ? " · consegna in " + item.quote.lead_time_days + " gg" : "") : ""}
+                    {item.purchase_order ? " · ordine " + item.purchase_order.ref + " (" + rfqOrderStatusLabel(item.purchase_order.status).toLowerCase() + ")"
+                      + " · € " + euro(item.purchase_order.total_eur) : ""}
+                  </span>
+                </Link>
+                <span className="rounded-full bg-[#eef2f0] px-2 py-0.5 text-[11px] font-semibold text-[#3f544a]">{supplierRequestStatusLabel(item.supplier_status)}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">Nessuna richiesta finora.</p>
         )}
       </section>
 
-      <section className="rounded-2xl border border-[#cddbd6] bg-[#f7faf8] p-5">
-        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#1a5144]">
-          Rubrica fornitori
-        </p>
-        <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
-          Storico fornitore collegato
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          Questa è la vista acquisti che unisce
-          identità, utilizzo RFQ, prezzi, award e PO. I tag sono anche gruppi operativi riutilizzabili
-          nella ricerca della rubrica.
-        </p>
+      <section aria-labelledby="supplier-prices" className="rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4" data-testid="supplier-card-prices">
+        <h2 id="supplier-prices" className="text-sm font-bold text-[var(--brand-deep)]">Prezzi ricevuti</h2>
+        {prices.length ? (
+          <ul className="mt-1 divide-y divide-[var(--border)]">
+            {prices.map((price) => (
+              <li key={price.quote_id + ":" + price.line_position} className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 py-1.5 text-xs">
+                <span className="min-w-0 flex-1">
+                  <span className="font-semibold text-[var(--brand-deep)]">{price.description}</span>
+                  <span className="text-[var(--text-secondary)]">
+                    {[price.standard_code, price.grade_code].filter(Boolean).length ? " · " + [price.standard_code, price.grade_code].filter(Boolean).join(" ") : ""}
+                    {" · " + formatHubDate(price.submitted_at)}
+                  </span>
+                </span>
+                <span className="font-bold text-[#175640]">{price.eur_t !== null ? "€ " + euro(price.eur_t) + "/t" : "—"}</span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="mt-1 text-xs text-[var(--text-secondary)]">Nessun prezzo ricevuto finora.</p>
+        )}
       </section>
-    </FocusPage>
+
+      {canWrite ? (
+        <Rfqh11SupplierProfileEditor profileId={profile.id} preferred={profile.preferred} tags={profile.tags} notes={profile.notes} />
+      ) : null}
+
+      <p className="px-1 text-[11px] text-[var(--text-secondary)]">
+        Collegata al profilo nel Network. La rubrica conserva il link, non duplica il profilo Network.
+      </p>
+    </div>
   );
 }

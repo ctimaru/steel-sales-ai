@@ -12,6 +12,7 @@ import {
   type BuyerDistintaDocumentRequirements,
 } from "@/lib/buyer-distinta-documents";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
+import { distintaAutoTitle } from "@/lib/rfq-hub-rows";
 import { createClient } from "@/lib/supabase/server";
 
 type SaveBuyerDistintaInput = {
@@ -116,7 +117,9 @@ export async function saveBuyerDistinta(
 
   const totals = calculateBuyerDistintaTotals(calculated);
   const payload = {
-    title: input.title.trim() || "Richiesta di offerta",
+    // RFQHUB1D: the default name becomes the first article, so the Distinte
+    // in Centro RFQ can be told apart.
+    title: distintaAutoTitle(input.title, calculated.map((line) => line.description)),
     total_meters: totals.totalMeters,
     total_tonnes: totals.totalTonnes,
     target_total_eur: totals.targetTotalEur,
