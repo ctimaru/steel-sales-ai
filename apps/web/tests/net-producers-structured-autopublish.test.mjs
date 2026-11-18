@@ -63,8 +63,8 @@ test("public catalog response remains atomic, scoped and never an exact SKU",()=
   assert.match(reader,/data\.source_pdf_copies!==0/);
   assert.match(reader,/getProducerStructuredCatalog/);
   assert.match(sec,/netproducers1_structured_public_impl/);
-  assert.match(sec,/if v_published_facades<>13 then/);
-  assert.match(sec,/if v_internals<>14 then/);
+  assert.match(sec,/if v_published_facades<>14 then/);
+  assert.match(sec,/if v_internals<>15 then/);
 });
 
 test("web/mobile page displays numeric ranges ahead of source links",()=>{
