@@ -94,16 +94,17 @@ test("RFQH11 exposes transparent last-price and detailed price history", () => {
   assert.match(readModels, /normalized_eur_m/);
   assert.match(readModels, /RFQH11-supplier-detail-v1/);
   assert.match(readModels, /'price_history'/);
-  assert.match(detailPage, /Storico prezzi ricevuti/);
-  assert.match(detailPage, /€ \{formatNumber\(row\.eur_t, 2\)\}/);
+  // RFQHUB1D: compact card, «Prezzi ricevuti» in €/t.
+  assert.match(detailPage, /Prezzi ricevuti/);
+  assert.match(detailPage, /"€ " \+ euro\(price\.eur_t\) \+ "\/t"/);
 });
 
 test("RFQH11 supports preferred suppliers tags groups and private notes", () => {
   assert.match(foundation, /preferred boolean not null default false/);
   assert.match(foundation, /tags text\[\] not null/);
   assert.match(foundation, /notes text/);
-  assert.match(editor, /Supplier preferito/);
-  assert.match(editor, /Tag \/ gruppi/);
+  assert.match(editor, /Fornitore preferito/);
+  assert.match(editor, /Gruppi/);
   assert.match(editor, /Note private/);
   assert.match(actions, /rfqh11_update_supplier_profile/);
 });

@@ -41,70 +41,41 @@ export function Rfqh11SupplierProfileEditor({
         return;
       }
 
-      setFeedback("Profilo supplier aggiornato.");
+      setFeedback("Salvato.");
       router.refresh();
     });
   }
 
   return (
-    <section className="rounded-2xl border border-[#dce2df] bg-white p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.1em] text-[#1a5144]">
-            Rubrica buyer
-          </p>
-          <h2 className="mt-1 text-lg font-semibold text-[#1d2824]">
-            Preferenza, gruppi e note
-          </h2>
-        </div>
-
-        <label className="flex items-center gap-2 rounded-xl border border-[#d7dfdb] bg-[#f7f9f8] px-3 py-2 text-xs font-semibold text-[#52615b]">
-          <input
-            type="checkbox"
-            checked={isPreferred}
-            onChange={(event) => setIsPreferred(event.target.checked)}
-          />
-          Supplier preferito
+    <section aria-labelledby="supplier-notes" className="rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4" data-testid="supplier-card-notes">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 id="supplier-notes" className="text-sm font-bold text-[var(--brand-deep)]">Note e preferenze</h2>
+        <label className="flex items-center gap-2 text-xs font-semibold text-[var(--brand-deep)]">
+          <input type="checkbox" checked={isPreferred} onChange={(event) => setIsPreferred(event.target.checked)} />
+          Fornitore preferito
         </label>
       </div>
 
-      <label className="mt-4 block text-xs font-semibold text-[#52615b]">
-        Tag / gruppi
-        <input
-          value={tagInput}
-          onChange={(event) => setTagInput(event.target.value)}
-          placeholder="strategico, tubi, s355"
-          className="mt-1.5 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm outline-none focus:border-[#438d7a]"
-        />
-        <span className="mt-1 block text-[10px] font-normal text-[#87908c]">
-          Massimo 10 tag, separati da virgola.
-        </span>
+      <label className="mt-2 block text-[11px] font-semibold text-[var(--text-secondary)]">
+        Gruppi
+        <input value={tagInput} onChange={(event) => setTagInput(event.target.value)} placeholder="es. strategico, tubi, S355"
+          className="mt-1 h-10 w-full min-w-0 rounded-lg border border-[#d6e5db] bg-white px-2.5 text-sm text-[var(--brand-deep)]" />
+        <span className="mt-0.5 block font-normal">Fino a 10, separati da virgola. Puoi cercarli nella rubrica.</span>
       </label>
 
-      <label className="mt-4 block text-xs font-semibold text-[#52615b]">
+      <label className="mt-2 block text-[11px] font-semibold text-[var(--text-secondary)]">
         Note private
-        <textarea
-          value={noteInput}
-          onChange={(event) => setNoteInput(event.target.value)}
-          rows={4}
-          maxLength={4000}
-          placeholder="Preferenze commerciali, qualità del servizio, annotazioni buyer…"
-          className="mt-1.5 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 py-2.5 text-sm outline-none focus:border-[#438d7a]"
-        />
+        <textarea value={noteInput} onChange={(event) => setNoteInput(event.target.value)} rows={3} maxLength={4000}
+          placeholder="Qualità del servizio, condizioni, cose da ricordare…"
+          className="mt-1 w-full min-w-0 rounded-lg border border-[#d6e5db] bg-white px-2.5 py-2 text-sm text-[var(--brand-deep)]" />
       </label>
 
-      <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={save}
-          disabled={pending}
-          className="inline-flex min-h-10 items-center rounded-xl bg-[#173f35] px-4 text-xs font-bold text-white disabled:opacity-50"
-        >
-          {pending ? "Salvo…" : "Salva profilo supplier"}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <button type="button" onClick={save} disabled={pending}
+          className="inline-flex min-h-9 items-center rounded-lg bg-[#175640] px-3 text-xs font-bold text-white hover:bg-[#104632] disabled:opacity-50">
+          {pending ? "Salvataggio…" : "Salva"}
         </button>
-        {feedback ? (
-          <span className="text-xs font-semibold text-[#66736e]">{feedback}</span>
-        ) : null}
+        {feedback ? <span role="status" className="text-xs font-semibold text-[var(--text-secondary)]">{feedback}</span> : null}
       </div>
     </section>
   );

@@ -1,18 +1,23 @@
 "use server";
 
-import { rfqHubAttentionCount } from "@/lib/rfq-hub-rows";
+import { canWriteWorkspace } from "@/lib/access-policy";
+import { loadPurchasingAttention } from "@/lib/rfq-hub-attention";
 import { createClient } from "@/lib/supabase/server";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 /**
- * RFQHUB1: how many requests need an action (offers arrived, deadlines,
- * orders to confirm). Shown next to «Centro RFQ» in the menu. Read-only;
- * the procurement queue applies its own owner and team visibility rules.
+ * RFQHUB1D: how many Distinte wait for you (offers arrived, deadlines,
+ * failed sends, orders). Same source and rules as «Da gestire» in Centro RFQ,
+ * so the number in the menu always matches the list. Read-only.
  */
 export async function getPurchasingAttentionCount(): Promise<number> {
-  const supabase = await createClient();
-  const { data: authData } = await supabase.auth.getUser();
-  if (!authData.user) return 0;
-  const { data, error } = await supabase.rpc("rfqh10_procurement_inbox", { p_limit: 200 });
-  if (error) return 0;
-  return rfqHubAttentionCount(data);
+  try {
+    const context = await getWorkspaceContext();
+    if (!canWriteWorkspace(context.role)) return 0;
+    const supabase = await createClient();
+    const attention = await loadPurchasingAttention(supabase, context.organizationId);
+    return attention?.distintaIds.length ?? 0;
+  } catch {
+    return 0;
+  }
 }

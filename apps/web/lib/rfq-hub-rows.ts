@@ -22,6 +22,8 @@ export type RfqHubRowFacts = {
   orderStatus: string | null;
   /** First open action from the procurement queue for this RFQ. */
   attention: { label: string | null; urgent: boolean } | null;
+  /** RFQHUB1D: archived Distinte show «Archiviata», whatever their RFQ says. */
+  archived?: boolean;
 };
 
 export type RfqHubRowTone = "draft" | "todo" | "waiting" | "offers" | "done" | "closed";
@@ -44,6 +46,7 @@ const orderLabels: Record<string, string> = {
 
 export function rfqHubRowState(facts: RfqHubRowFacts): RfqHubRowState {
   const { campaign } = facts;
+  if (facts.archived) return { label: "Archiviata", tone: "closed", target: campaign ? "rfq" : "distinta" };
   if (!campaign) return { label: "Bozza · fornitori da scegliere", tone: "draft", target: "distinta" };
 
   switch (campaign.status) {
@@ -121,6 +124,13 @@ const attentionLabels: Record<string, string | null> = {
   follow_up_negotiation: "Trattativa scaduta: sollecita",
 };
 
+/**
+ * RFQHUB1D (founder decision, 18 Nov 2026): «Da gestire» = something waits
+ * for you (offers, deadlines, failed sends, orders, negotiations). A draft
+ * still to prepare or send stays in «Attive».
+ */
+const draftOnlyCodes = new Set(["add_suppliers", "launch_rfq"]);
+
 export function rfqHubAttentionLabel(actionCode: unknown): string | null {
   return typeof actionCode === "string" ? attentionLabels[actionCode] ?? null : null;
 }
@@ -139,6 +149,7 @@ export function rfqHubAttentionByRfq(value: unknown): Map<string, { label: strin
     if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
     const item = raw as Record<string, unknown>;
     if (item.requires_action !== true || typeof item.rfq_id !== "string") continue;
+    if (typeof item.action_code === "string" && draftOnlyCodes.has(item.action_code)) continue;
     const label = rfqHubAttentionLabel(item.action_code);
     const existing = byRfq.get(item.rfq_id);
     if (existing) {
@@ -154,4 +165,36 @@ export function rfqHubAttentionByRfq(value: unknown): Map<string, { label: strin
 export function rfqHubAttentionCount(value: unknown): number {
   const map = rfqHubAttentionByRfq(value);
   return map ? map.size : 0;
+}
+
+/** «a Alessio Tubi», «a Alessio Tubi e altri 2»: who the request goes to. */
+export function rfqHubRecipientsLabel(names: string[]): string | null {
+  const clean = [...new Set(names.map((n) => n.trim()).filter(Boolean))];
+  if (!clean.length) return null;
+  const first = clean[0].length > 40 ? clean[0].slice(0, 39) + "…" : clean[0];
+  return clean.length === 1 ? "a " + first : "a " + first + " e " + (clean.length === 2 ? "1 altro" : "altri " + (clean.length - 1));
+}
+
+/** First articles of a Distinta, so rows with the same name can be told apart. */
+export function rfqHubArticlesLabel(descriptions: string[], lineCount: number): string | null {
+  const clean = descriptions.map((d) => d.replace(/\s+/g, " ").trim()).filter(Boolean).slice(0, 2);
+  if (!clean.length) return null;
+  const rest = Math.max(0, lineCount - clean.length);
+  return clean.join(" · ") + (rest ? " + " + rest + (rest === 1 ? " altro" : " altri") : "");
+}
+
+const DEFAULT_DISTINTA_TITLE = "Richiesta di offerta";
+
+/**
+ * A Distinta saved with the default name takes its name from the first
+ * article: «RHS 200x100x6 + 1 articolo». A name typed by the user is kept.
+ */
+export function distintaAutoTitle(title: string, descriptions: string[]): string {
+  const typed = title.trim();
+  if (typed && typed !== DEFAULT_DISTINTA_TITLE) return typed;
+  const first = descriptions.map((d) => d.replace(/\s+/g, " ").trim()).find(Boolean);
+  if (!first) return typed || DEFAULT_DISTINTA_TITLE;
+  const others = descriptions.filter((d) => d.trim()).length - 1;
+  const head = first.length > 80 ? first.slice(0, 79) + "…" : first;
+  return head + (others > 0 ? " + " + others + (others === 1 ? " articolo" : " articoli") : "");
 }
