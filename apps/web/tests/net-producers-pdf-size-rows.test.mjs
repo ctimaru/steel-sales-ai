@@ -16,7 +16,7 @@ test("PDF-derived sizes are buyer-visible first, the original link only provides
  assert.match(page,/ProducerPdfSizeTables data=\{pdfSizes\}/);
  assert.ok(page.indexOf("<ProducerPdfSizeTables")<page.indexOf("<ProducerStructuredCatalogue"));
  assert.match(user,/Cataloghi PDF convertiti in dati/);
- assert.match(user,/Misure estratte dalle tabelle originali/);
+ assert.match(user,/Misure tecniche disponibili nel Network/);
  assert.match(user,/data-testid="pdf-size-producer-card"/);
  assert.match(user,/Da confermare dal produttore/);
  assert.match(user,/Da verificare/);

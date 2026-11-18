@@ -21,9 +21,9 @@ export function ProducerPdfSizeTables({data}:{data:PdfDimensions|null}){
   <div className="flex flex-wrap items-center justify-between gap-3 rounded-[20px] border border-[#c3dccb] bg-[linear-gradient(120deg,#e6f5e9,#ffffff)] p-4 sm:p-5">
    <div>
     <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#2b7352]">Cataloghi PDF convertiti in dati</p>
-    <h2 className="mt-1 text-xl font-extrabold text-[#194831]">Misure estratte dalle tabelle originali</h2>
+    <h2 className="mt-1 text-xl font-extrabold text-[#194831]">Misure tecniche disponibili nel Network</h2>
     <p className="mt-1 max-w-[740px] text-xs leading-5 text-[#607464]">
-     Ogni riga è associata alla sua tabella e norma. Gli spessori sono lasciati non indicati
+     Ogni riga è associata alla sua tabella originale; la norma è indicata soltanto quando presente nella stessa tabella. Gli spessori restano non indicati
      se non è stata verificata la corrispondenza con la colonna del PDF.
      Nessuna conferma automatica di producibilità.
     </p>
@@ -49,7 +49,7 @@ export function ProducerPdfSizeTables({data}:{data:PdfDimensions|null}){
       </tr></thead>
       <tbody className="divide-y divide-[#e8efe9]">
        {rows.map(row=><tr key={row.id}>
-        <td className="px-3 py-2.5 font-semibold text-[#315a43]">{row.standard}</td>
+        <td className="px-3 py-2.5 font-semibold text-[#315a43]">{row.standard==="CATALOGUE_UNSPECIFIED"?"Non indicata":row.standard}</td>
         <td className="px-3 py-2.5 text-[#41604a]">{shapeLabel(row)}</td>
         <td className="px-3 py-2.5 font-extrabold tabular-nums text-[#1b4b32]">{sizes(row)}</td>
         <td className="px-3 py-2.5 text-[#7c887d]">Da verificare</td>
