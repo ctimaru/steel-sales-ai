@@ -40,8 +40,8 @@ def test_first_party_pdf_table_rows_exact_shape_and_standard():
     ]}]
     result=extract_pdf_table_sizes(pages)
     entries=result["rows"]
-    assert len(entries)==6
-    assert [x["shape"] for x in entries]==["RHS","RHS","RHS","RHS","SHS","CHS"] or len(entries)==6
+    assert len(entries)==7
+    assert [x["shape"] for x in entries]==["RHS","RHS","RHS","RHS","SHS","CHS","CHS"]
     look={(x["shape"],x["standard"],x.get("width_mm",x.get("diameter_mm"))):x for x in entries}
     assert ("RHS","EN 10219",200.0) in look
     assert ("RHS","EN 10210",200.0) in look
