@@ -1,4 +1,5 @@
 -- B3.D.3: private observations; never manufacturer-confirmed.
+-- Evidence is pending and source-bound; no grade, stock, or capability is made public.
 create table private.network_producer_pdf_thickness_evidence (
  id uuid primary key default gen_random_uuid(),
  company_id uuid not null references public.network_companies(id),
