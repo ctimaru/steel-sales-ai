@@ -373,7 +373,8 @@ begin
     set producer_review=case p_operation
       when 'confirm' then 'confirmed'
       when 'remove' then 'removed'
-      else 'pending' end,
+      when 'restore' then 'pending'
+      else producer_review end,
       reviewed_at=now(),reviewed_by=(select auth.uid()),updated_at=now()
     where id=p_fact;
   v_action:=case p_operation
