@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SupplierContactForm } from "@/components/supplier-contact-form";
+import { SupplierPreferredToggle } from "@/components/supplier-preferred-toggle";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { formatHubDate } from "@/lib/rfq-hub-overview";
 import type { SupplierDirectoryData } from "@/lib/rfqh11-supplier";
@@ -9,10 +10,13 @@ import {
   supplierBookCanAddContact,
   supplierBookFilter,
   supplierBookHref,
+  supplierBookUsageLabel,
   supplierBookView,
+  supplierRequestHref,
   type SupplierBookCompany,
   type SupplierBookContact,
   type SupplierBookSaved,
+  type SupplierBookUsage,
   type SupplierBookView,
 } from "@/lib/rfqhub-suppliers";
 import { appRoutes } from "@/lib/routes";
@@ -106,7 +110,19 @@ export default async function SupplierDirectoryPage({
     }
   }
 
-  const book = buildSupplierBook({ profiles, saved, companies, contacts });
+  // RFQHUB1D: which requests were really sent to each supplier (drafts apart).
+  const identityKeys = [...new Set(profiles.map((p) => p.identity_key).filter((key): key is string => Boolean(key)))];
+  const usageResult = identityKeys.length
+    ? await supabase.from("buyer_rfq_suppliers")
+      .select("identity_key,rfq_id,sent_at,responded_at,buyer_rfq_campaigns!inner(organization_id)")
+      .eq("owner_user_id", context.userId)
+      .eq("buyer_rfq_campaigns.organization_id", organizationId)
+      .in("identity_key", identityKeys.slice(0, 300))
+      .limit(2000)
+    : { data: [] };
+  const usage = ((usageResult.data ?? []) as unknown as SupplierBookUsage[]);
+
+  const book = buildSupplierBook({ profiles, saved, companies, contacts, usage });
   const rows = supplierBookFilter(book, view, query);
   const tabs: { view: SupplierBookView; label: string; count: number }[] = [
     { view: "attivi", label: "Attivi", count: book.filter((r) => r.active).length },
@@ -173,18 +189,24 @@ export default async function SupplierDirectoryPage({
                     <div className="min-w-0 flex-1">
                       <p className="flex min-w-0 flex-wrap items-center gap-1.5">
                         <span className="min-w-0 truncate text-sm font-bold text-[var(--brand-deep)]">{supplier.name}</span>
-                        {supplier.preferred ? <span className="rounded-full bg-[#175640] px-2 py-0.5 text-[10px] font-bold text-white">Preferito</span> : null}
+                        {supplier.preferred && !(canWrite && supplier.profileId) ? <span className="rounded-full bg-[#175640] px-2 py-0.5 text-[10px] font-bold text-white">Preferito</span> : null}
                         {supplier.saved ? <span className="rounded-full bg-[#e8f0f6] px-2 py-0.5 text-[10px] font-semibold text-[#284f6b]">Salvato nel Network</span> : null}
                       </p>
-                      <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]">
-                        {supplier.active
-                          ? supplier.rfqCount + (supplier.rfqCount === 1 ? " richiesta" : " richieste")
-                            + (supplier.responseRatePct !== null ? " · risponde al " + Math.round(supplier.responseRatePct) + "%" : "")
-                            + (supplier.lastUsedAt ? " · ultima " + formatHubDate(supplier.lastUsedAt) : "")
-                          : "Salvata" + (supplier.savedAt ? " il " + formatHubDate(supplier.savedAt) : "") + " · non ancora usata nelle richieste"}
+                      <p className="mt-0.5 text-[11px] text-[var(--text-secondary)]" data-testid="supplier-book-usage">
+                        {supplierBookUsageLabel(supplier, formatHubDate)}
                       </p>
                     </div>
-                    <span className="flex shrink-0 items-center gap-1.5">
+                    <span className="flex shrink-0 flex-wrap items-center gap-1.5">
+                      {canWrite && supplier.profileId ? (
+                        <SupplierPreferredToggle profileId={supplier.profileId} supplierName={supplier.name}
+                          preferred={supplier.preferred} tags={supplier.tags} notes={supplier.notes} />
+                      ) : null}
+                      {canWrite && supplier.networkCompanyId ? (
+                        <Link href={supplierRequestHref(supplier.networkCompanyId)} data-testid="supplier-book-request"
+                          className="inline-flex min-h-9 items-center rounded-lg bg-[#175640] px-2.5 text-xs font-bold text-white hover:bg-[#104632]">
+                          Chiedi un&apos;offerta
+                        </Link>
+                      ) : null}
                       {supplier.profileId ? (
                         <Link href={appRoutes.rfqHub.supplier(supplier.profileId)}
                           className="inline-flex min-h-9 items-center rounded-lg bg-[var(--brand-primary-soft)] px-2.5 text-xs font-bold text-[var(--brand-deep)]">Scheda</Link>

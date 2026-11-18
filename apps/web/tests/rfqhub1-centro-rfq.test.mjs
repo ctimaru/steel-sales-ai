@@ -64,18 +64,20 @@ test("RFQHUB1 attention keeps one open action per RFQ, in Italian, without repea
     { rfq_id: "e", requires_action: true, priority: "normal", action_code: "something_new", action_label: "Do it" },
     "junk", null,
   ]});
-  assert.deepEqual([...map.keys()], ["a", "c", "d", "e"]);
-  assert.deepEqual(map.get("a"), { label: "Alcuni invii non sono partiti", urgent: true });
-  assert.deepEqual(map.get("c"), { label: null, urgent: false }, "«Fornitori da scegliere» already says it");
+  // RFQHUB1D: drafts to prepare or send stay in «Attive», not «Da gestire».
+  assert.deepEqual([...map.keys()], ["a", "d", "e"]);
+  assert.deepEqual(map.get("a"), { label: "Alcuni invii non sono partiti", urgent: false });
   assert.deepEqual(map.get("d"), { label: "Ordine pronto da emettere", urgent: true });
   assert.equal(map.get("e").label, null, "unknown codes never show English labels");
-  assert.equal(rows.rfqHubAttentionCount({ items: [{ rfq_id: "x", requires_action: true, action_code: "launch_rfq" }] }), 1,
-    "hidden labels still count as «da gestire»");
+  assert.equal(rows.rfqHubAttentionCount({ items: [{ rfq_id: "x", requires_action: true, action_code: "launch_rfq" }] }), 0,
+    "a draft ready to send is not «da gestire»");
+  assert.equal(rows.rfqHubAttentionCount({ items: [{ rfq_id: "x", requires_action: true, action_code: "review_quotes" }] }), 1,
+    "offers to compare count even without a label");
   assert.equal(rows.rfqHubAttentionByRfq(null), null);
   assert.equal(rows.rfqHubAttentionByRfq([]), null);
   assert.equal(rows.rfqHubAttentionCount({ items: [] }), 0);
   assert.equal(rows.rfqHubAttentionCount(undefined), 0);
-  const labels = rowsSource.slice(rowsSource.indexOf("const attentionLabels"), rowsSource.indexOf("export function rfqHubAttentionLabel"));
+  const labels = rowsSource.slice(rowsSource.indexOf("const attentionLabels"), rowsSource.indexOf("RFQHUB1D (founder"));
   assert.doesNotMatch(labels.replace(/^\s*[a-z_]+:/gm, ""), /supplier|RFQ|BAFO|award|PO\b/, "no English or jargon in labels");
   assert.match(hub, /facts\.attention\?\.label \?/);
 });
@@ -87,7 +89,8 @@ test("RFQHUB1 menu: Centro RFQ with counter and Fornitori RFQ, no Inbox or Disti
   assert.match(shell, /item\.counter === "purchasing_attention" \? <PurchasingAttentionCount \/> : null/);
   assert.match(badge, /data-testid="purchasing-attention-count"/);
   assert.match(attention, /"use server"/);
-  assert.match(attention, /rfqHubAttentionCount/);
+  assert.match(attention, /loadPurchasingAttention\(supabase, context\.organizationId\)/);
+  assert.match(attention, /attention\?\.distintaIds\.length \?\? 0/);
 });
 
 test("RFQHUB1 list is read-only, tenant scoped and creates RFQs only through the owner action", () => {
@@ -97,4 +100,25 @@ test("RFQHUB1 list is read-only, tenant scoped and creates RFQs only through the
   assert.match(hub, /request\.not\("archived_at", "is", null\)/);
   assert.match(start, /createBuyerRfqCampaign\(distintaId\)/);
   assert.doesNotMatch(hub + start + attention, /service_role|createAdminClient|autoDispatch|issuePurchaseOrder|launchCampaign/);
+});
+
+test("RFQHUB1D rows: archived state, recipients, first articles and automatic names", () => {
+  assert.deepEqual(rows.rfqHubRowState(facts({ campaign: campaign("draft"), supplierCount: 1, archived: true })),
+    { label: "Archiviata", tone: "closed", target: "rfq" });
+  assert.equal(rows.rfqHubRecipientsLabel([]), null);
+  assert.equal(rows.rfqHubRecipientsLabel(["Alessio Tubi S.p.A."]), "a Alessio Tubi S.p.A.");
+  assert.equal(rows.rfqHubRecipientsLabel(["A", "B", "A"]), "a A e 1 altro");
+  assert.equal(rows.rfqHubRecipientsLabel(["A", "B", "C"]), "a A e altri 2");
+  assert.equal(rows.rfqHubArticlesLabel(["RHS 200x100x6", "CHS 168,3x6,3"], 4), "RHS 200x100x6 · CHS 168,3x6,3 + 2 altri");
+  assert.equal(rows.rfqHubArticlesLabel(["RHS 200x100x6"], 1), "RHS 200x100x6");
+  assert.equal(rows.rfqHubArticlesLabel([], 0), null);
+  assert.equal(rows.distintaAutoTitle("Richiesta di offerta", ["RHS 200x100x6", "CHS 168,3x6,3"]), "RHS 200x100x6 + 1 articolo");
+  assert.equal(rows.distintaAutoTitle(" Richiesta di offerta ", ["A", "B", "C"]), "A + 2 articoli");
+  assert.equal(rows.distintaAutoTitle("Commessa Rossi", ["RHS"]), "Commessa Rossi", "a typed name is kept");
+  assert.equal(rows.distintaAutoTitle("Richiesta di offerta", []), "Richiesta di offerta");
+  assert.match(hub, /data-testid="rfq-hub-row-articles"/);
+  assert.match(hub, /data-testid="rfq-hub-row-recipients"/);
+  assert.match(hub, /archived: Boolean\(distinta\.archived_at\)/);
+  const distintaActions = read("../app/(italian)/(public)/distinta/actions.ts");
+  assert.match(distintaActions, /title: distintaAutoTitle\(input\.title, calculated\.map\(\(line\) => line\.description\)\)/);
 });
