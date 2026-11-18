@@ -13,6 +13,9 @@ SEED1 crawler, AUTO2 legal identity and AUTO3 release.
 from __future__ import annotations
 
 import json
+import csv
+from pathlib import Path
+
 import duckdb
 import overture4_national_next as upstream
 
@@ -93,8 +96,27 @@ def main() -> None:
         "distinct_selected": len(selected),
         "candidates": list(selected.values()),
     }
+    # Durable, auditable website-pointer input for controlled Supabase
+    # ingestion. No names, locations, addresses, PII or contacts.
+    audit_path = (Path(__file__).resolve().parents[1] /
+                  "audits/net_it_overture5_20261118_gers.csv")
+    audit_path.parent.mkdir(parents=True, exist_ok=True)
+    with audit_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(("domain", "gers_id", "area_bucket",
+                         "overture_taxonomy", "source_licenses", "release"))
+        for domain in sorted(selected):
+            lead = selected[domain]
+            assert lead["licenses"] == [LICENSE]
+            assert upstream.company_domain("https://" + domain + "/") == domain
+            writer.writerow((domain, lead["gers"], lead["region_bucket"],
+                             lead["category"], LICENSE, RELEASE))
+    assert sum(1 for _ in audit_path.open(encoding="utf-8")) == len(selected) + 1
     print("OVERTURE5_RESULT=" + json.dumps(
         results, separators=(",", ":"), ensure_ascii=False))
+    print("OVERTURE5_AUDIT=" + json.dumps({
+        "path": str(audit_path.relative_to(Path(__file__).resolve().parents[1])),
+        "rows": len(selected), "rights": LICENSE}, separators=(",", ":")))
 
 if __name__ == "__main__":
     main()
