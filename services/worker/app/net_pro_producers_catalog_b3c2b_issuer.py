@@ -22,7 +22,7 @@ from urllib.parse import urlsplit
 
 from .net_pro_producers_catalog_b3c_queue import (
     BUCKET, MAX_CSV_BYTES, MAX_PDF_BYTES,
-    VALID_SHA, VALID_UUID, _download_private_catalogue,
+    VALID_SHA, VALID_UUID, IntakeFailure, _download_private_catalogue,
 )
 from .supabase_credentials import get_supabase_admin_key
 
@@ -81,9 +81,10 @@ def _verified_source_url(source_url: str) -> tuple[str, str]:
         # Names can be first-party domains, not raw IP addresses.
         try:
             ipaddress.ip_address(host)
-            raise VerifiedIssuerError("unsafe_source")
         except ValueError:
             pass
+        else:
+            raise VerifiedIssuerError("unsafe_source")
         path = url.path or "/"
         if not path.startswith("/") or any(ord(c)<33 for c in path):
             raise VerifiedIssuerError("unsafe_source")
@@ -173,6 +174,11 @@ async def _verify_claimed_submission(submission: dict) -> str:
     }
     try:
         private_bytes = await _download_private_catalogue(private_lease)
+    except IntakeFailure as exc:
+        raise VerifiedIssuerError(
+            "hash_mismatch" if exc.error_code == "size_or_digest" else
+            "storage_unavailable"
+        ) from exc
     except Exception as exc:
         raise VerifiedIssuerError("storage_unavailable") from exc
     actual_private = hashlib.sha256(private_bytes).hexdigest()
