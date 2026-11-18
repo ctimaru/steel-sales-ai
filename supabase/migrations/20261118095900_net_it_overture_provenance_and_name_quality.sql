@@ -606,8 +606,7 @@ BEGIN
   -- at most 6 words before the legal form
   AND coalesce(array_length(regexp_split_to_array(v_core,'[[:space:]]+'),1),0) <= 6;
 END
-$function$
-
+$function$;
 
 -- Migration sanity: all 6 + 87 + 302 Overture seed records must have
 -- immutable GERS provenance. Fail the migration if source evidence is missing.
