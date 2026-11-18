@@ -162,3 +162,7 @@ test("RFQHUB1D Network channel and e-mail-domain link suggestion", () => {
   assert.match(page, /canWrite && emailOnlyIds\.length \? supabase\.rpc\("rfqhub1d_supplier_domain_matches"/);
   assert.match(actions, /supabase\.rpc\("rfqhub1d_link_supplier_profile"/);
 });
+
+test("RFQHUB1E shows the request e-mail only when it differs from the Network channel", () => {
+  assert.match(page, /supplier\.networkChannel && supplier\.fallbackEmail\?\.toLowerCase\(\) === supplier\.networkChannel\.email\.toLowerCase\(\) \? null/);
+});

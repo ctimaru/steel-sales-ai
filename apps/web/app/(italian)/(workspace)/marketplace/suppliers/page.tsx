@@ -245,7 +245,8 @@ export default async function SupplierDirectoryPage({
                           </li>
                         ))}
                       </ul>
-                    ) : (
+                    ) : supplier.networkChannel && supplier.fallbackEmail?.toLowerCase() === supplier.networkChannel.email.toLowerCase() ? null : (
+                      // RFQHUB1E: the same address is shown once, as the Network channel below.
                       <p className="text-[11px] text-[var(--text-secondary)]">
                         {supplier.fallbackEmail ? "Email usata nelle richieste: " + supplier.fallbackEmail : "Nessun contatto salvato."}
                       </p>
