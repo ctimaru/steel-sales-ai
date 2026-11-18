@@ -13,12 +13,18 @@ test("BD13: private preparation has explicit 1 select / 2 verify and send / opti
   const branch = page.slice(page.indexOf("if (isPreparation && canExecuteCritical) {"), page.indexOf("<Rfqc1ChatWorkspace"));
   assert.ok(branch.length > 0, "step-2 branch precedes the chat workspace");
   assert.match(branch, /"Cosa ti serve", "A chi lo chiedi", "Invia"/);
-  // DISTINTA2D: send (step 3) sits next to the recipients; Marketplace is shown locked.
-  const suppliers = branch.indexOf("<RfqSupplierPicker");
-  const send = branch.indexOf("<RfqDispatchPanel");
-  const market = branch.indexOf('data-testid="rfq-step2-marketplace-locked"');
-  assert.ok(suppliers > 0 && suppliers < send && send < market);
-  assert.match(branch, /layout="side"/);
+  // DISTINTA3: step 3 (send) is its own screen once at least one recipient exists;
+  // step 2 = picker + «Continua»; Marketplace is shown locked.
+  assert.match(branch, /const sendStep = query\?\.passo === "invia"|sendStep && supplierRows.length > 0/);
+  const step3 = branch.slice(branch.indexOf('data-testid="rfq-step3"'), branch.indexOf('data-testid="rfq-step2"'));
+  assert.match(step3, /<RfqDispatchPanel/);
+  assert.match(step3, /layout="side"/);
+  assert.match(step3, /aria-label="Fornitori scelti"/);
+  assert.doesNotMatch(step3, /<RfqSupplierPicker/);
+  const step2 = branch.slice(branch.indexOf('data-testid="rfq-step2"'));
+  assert.ok(step2.indexOf("<RfqSupplierPicker") > 0 && step2.indexOf("<RfqSupplierPicker") < step2.indexOf('data-testid="rfq-step2-marketplace-locked"'));
+  assert.match(step2, /continueHref=\{step3Href\}/);
+  assert.doesNotMatch(step2, /<RfqDispatchPanel/);
   assert.match(branch, /Pubblica nel Marketplace<\/span> · Presto disponibile/);
   assert.doesNotMatch(branch, /<RfqMarketplaceBridgePanel/);
   // Read-only viewers of a draft keep the previous layout.
