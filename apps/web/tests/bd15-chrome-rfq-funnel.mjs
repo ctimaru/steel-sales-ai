@@ -39,7 +39,14 @@ async function noOverflow(page, label) {
     scroll: document.documentElement.scrollWidth,
     client: document.documentElement.clientWidth,
     body: document.body.innerText,
+    // Fixture-only layout diagnostic: the widest elements past the viewport.
+    wide: Array.from(document.querySelectorAll("body *"))
+      .map(el => ({ el, r: el.getBoundingClientRect() }))
+      .filter(({ r }) => r.right > document.documentElement.clientWidth + 1 && r.width > 0)
+      .sort((a, b) => b.r.right - a.r.right).slice(0, 6)
+      .map(({ el, r }) => el.tagName + "." + String(el.className || "").slice(0, 80) + "#" + (el.getAttribute("data-testid") || el.id || "") + " w" + Math.round(r.width) + " r" + Math.round(r.right)),
   }));
+  if (state.scroll > state.client + 12) console.error("BD15 overflow diagnostic " + label, JSON.stringify(state.wide));
   assert.ok(state.scroll <= state.client + 12, label + " horizontal overflow " + state.scroll + "/" + state.client);
   assert.ok(!state.body.includes("Application error: a server-side exception"), label + " server crash");
 }

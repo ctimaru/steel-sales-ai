@@ -431,7 +431,7 @@ export function RfqSupplierPicker({
         </p>
       </section>
 
-      <aside aria-label="Destinatari e invio" className="space-y-3 lg:sticky lg:top-24">
+      <aside aria-label="Destinatari e invio" className="min-w-0 space-y-3 lg:sticky lg:top-24">
         <section aria-labelledby="rfq-picker-selected" className="rounded-2xl border border-[#d6e5db] bg-white p-3 sm:p-4">
           <h2 id="rfq-picker-selected" className="text-sm font-bold text-[#143f30]">
             Destinatari <span className="font-semibold text-[#6b7f73]">· {selected.length}</span>
