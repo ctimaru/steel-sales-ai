@@ -1,15 +1,14 @@
-name: "NET-EU-TUBIFICI1.D3 — Automatic first-party identity recovery"
+name: "NET-EU-TUBIFICI1.D3 — Bounded first-party identity recovery"
 
-# One-time launch after protected merge; weekly evidence re-check for pending
-# legal/group holds. Never contacts buyers or issues company publications.
+# One-time launch after protected merge; on-demand reruns are explicit.
+# An explicitly restricted site must not be re-crawled on a timer.
+# Never contacts buyers or issues company publications.
 on:
   push:
     branches: [main]
     paths:
       - ".github/workflows/net-eu-tubifici1-d3-recovery.yml"
   workflow_dispatch:
-  schedule:
-    - cron: "17 4 * * 1" # Mondays 04:17 UTC, 7-day cooldown per candidate
 
 permissions:
   contents: read
