@@ -47,7 +47,7 @@ begin
  begin
  perform public.netproducers_c3_pdf_owner(
    'remove','51100000-0000-5000-8000-000000000002'::uuid,
-   (select id from private.network_producer_pdf_size_rows limit 1));
+   '00000000-0000-4000-8000-000000000001'::uuid);
  exception when sqlstate '42501' then denied:=true;
  end;
  if not denied then raise exception 'Unverified admin removed PDF factual row';end if;
