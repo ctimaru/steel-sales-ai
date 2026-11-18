@@ -62,7 +62,7 @@ test("source cards are searchable, linked and responsive with honest no-data sta
 
 test("SEC1 specifically audits the new anonymous published-only reader",()=>{
   assert.match(sec,/netproducers1_catalog_observed_preview_impl/);
-  assert.match(sec,/netproducers1_catalog_observed_preview'\)/);
+  assert.match(sec,/netproducers1_catalog_observed_preview',/);
   assert.match(sec,/if v_published_facades<>13 then/);
   assert.match(sec,/if v_internals<>14 then/);
   assert.match(sec,/SEC1: catalogue preview must be source-only and published-only/);
