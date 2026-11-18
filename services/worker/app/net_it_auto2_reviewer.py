@@ -307,10 +307,16 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
         "identity_supported" if matched and not reasons else "needs_human"
     )
     # Even identity_supported is NOT rights-approved / publishable.
+    # In recovery mode a second-level page may be the *only* place that
+    # prints the legal entity. Save the exact proof URL rather than incorrectly
+    # pointing the evidence back to the homepage.
+    proof_url = (next((p.url for p in pages
+                       if _name_evidenced(name, [str(p.text)])), pages[0].url)
+                 if verdict == "identity_supported" else pages[0].url)
     finding = _finding(
         candidate,verdict,reasons,domain=domain,name_matched=matched,
         observed_name=name if matched else None,
-        page_url=pages[0].url,page_hash=digest,
+        page_url=proof_url,page_hash=digest,
         confidence=0.94 if verdict == "identity_supported" else 0.4,
         rights="restricts_reuse" if restricted else "unknown",
     )
