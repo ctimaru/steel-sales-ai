@@ -651,13 +651,14 @@ def main() -> int:
             report["licensed_catalogue_intake"] = asyncio.run(
                 drain_authorised_catalogues(db, limit=2)
             )
-    # C3.DATA2.B: discover official PDF SOURCES across IT and RO producer-role
-    # leads. This is link-only, role-independent of licensed PDF byte parsing,
-    # and disabled until the SQL migration + pinned Railway deploy are live.
+    # C3.DATA2.B: independently drain the persistent first-party catalogue
+    # discovery queue. Data acquisition must not depend on company claims or
+    # a manual approval per catalog. A failed site is retried independently.
+    # Keep a runtime flag for staged deployments / emergency stop.
     if args.persist and os.getenv("NETPRODUCERS_CATALOG_DISCOVERY_ENABLED") == "1":
         from .net_pro_producers_catalog_discovery import run_catalogue_discovery
         report["catalogue_discovery"] = asyncio.run(
-            run_catalogue_discovery(db, limit=2)
+            run_catalogue_discovery(db, limit=3)
         )
     print(json.dumps(report, indent=2))
     return 0
