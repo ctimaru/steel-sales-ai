@@ -16,9 +16,12 @@ test("HOME-SI3 grounds the preview in genuine RFQ Hub labels, without tenant dat
   assert.match(hero, /Illustrativo — non sono dati reali/);
   assert.match(showcase, /export function PublicProductPreview/);
   assert.match(showcase, /Nuova distinta/);
-  for (const label of ["Distinte", "Campagne RFQ", "Offerte ricevute", "Purchase Order"]) {
+  // RFQHUB1: the four preview steps are grounded in the real row states of Centro RFQ.
+  const rows = read("../lib/rfq-hub-rows.ts");
+  for (const [label, real] of [["Distinte", "Distinte"], ["Campagne RFQ", "Fornitori da scegliere"],
+    ["Offerte ricevute", "Offerte da confrontare"], ["Purchase Order", "Ordine emesso"]]) {
     assert.ok(showcase.includes(label), "Missing grounded preview label " + label);
-    assert.ok(rfqPage.includes(label), "Not present in actual RFQ Hub " + label);
+    assert.ok((rfqPage + rows).includes(real), "Not present in actual RFQ Hub " + real);
   }
   assert.match(showcase, /non uno screenshot né dati reali/);
   assert.match(showcase, /senza dati aziendali/);

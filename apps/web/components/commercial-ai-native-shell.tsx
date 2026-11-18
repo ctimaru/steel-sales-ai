@@ -38,7 +38,7 @@ const contextCopy: Record<CommercialAiNativeTopic, { heading: string; descriptio
   general: {
     heading: "Il tuo spazio di lavoro",
     description: "Fai una domanda liberamente. Le risposte AI sono orientative: nessuna scrittura o invio viene eseguito automaticamente.",
-    link: appRoutes.rfqHub.savedDistinte, label: "Apri le Distinte",
+    link: appRoutes.rfqHub.home, label: "Apri le Distinte",
   },
   network: {
     heading: "Ricerca produttori",
@@ -48,7 +48,7 @@ const contextCopy: Record<CommercialAiNativeTopic, { heading: string; descriptio
   distinta: {
     heading: "Distinta in preparazione",
     description: "Le richieste vengono riconosciute e trasferite solo su tua conferma alla Distinta canonica. Le proposte non vengono approvate automaticamente.",
-    link: appRoutes.rfqHub.savedDistinte, label: "Le tue Distinte",
+    link: appRoutes.rfqHub.home, label: "Le tue Distinte",
   },
   knowledge: {
     heading: "Conoscenza tecnica",

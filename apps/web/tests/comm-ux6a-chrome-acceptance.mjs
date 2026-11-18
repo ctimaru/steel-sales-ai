@@ -74,7 +74,7 @@ async function viewportCheck(page, { width, height, role }) {
     const alertBox = await alerts.boundingBox();
     assert.ok(alertBox && alertBox.y < creationBox.y,
       "Confirmed actionable work precedes the creation workspace");
-    assert.equal(await alerts.getByRole("link", { name: "Apri inbox →" }).count(), 1);
+    assert.equal(await alerts.getByRole("link", { name: "Da gestire →" }).count(), 1);
     assert.equal(await alerts.getByTestId("commercial-director-attention-summary").count(), 1);
   }
   if (role === "buyerViewer") assert.equal(await alerts.count(), 0);

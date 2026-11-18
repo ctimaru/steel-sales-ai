@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 
+import { PurchasingAttentionCount } from "@/components/purchasing-attention-count";
+
 import {
   commercialDirectorAllItems,
   commercialDirectorGroups,
@@ -58,6 +60,7 @@ function DirectorLink({
         current ? "bg-current opacity-90" : nested ? "bg-[#b7cfc1] group-hover/link:bg-[#175640]" : "bg-[#9fbdac] group-hover/link:bg-[#175640]",
       ].join(" ")} />
       <span className="min-w-0 truncate">{item.label}</span>
+      {item.counter === "purchasing_attention" ? <PurchasingAttentionCount /> : null}
     </Link>
   );
 }

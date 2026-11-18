@@ -157,7 +157,13 @@ try {
     assert.ok(body.includes("735"),"Normalized submitted supplier quote not shown");
     assert.ok(body.includes("DEMO Steel Manufacturing"),"Supplier missing");
   });
-  for (const route of ["/rfq-hub/inbox","/rfq-hub/suppliers","/rfq-hub/intelligence"]) {
+  // RFQHUB1: the old Inbox address lands on Centro RFQ «Da gestire».
+  await step("buyer old inbox address redirects to Centro RFQ",async()=>{
+    await visit(buyerPage,"/rfq-hub/inbox");
+    await buyerPage.waitForURL(u=>u.pathname==="/rfq-hub"&&u.searchParams.get("vista")==="da-gestire",{timeout:60000});
+    await buyerPage.getByTestId("rfq-hub-list").waitFor({state:"visible",timeout:60000});
+  });
+  for (const route of ["/rfq-hub?vista=da-gestire","/rfq-hub/suppliers","/rfq-hub/intelligence"]) {
     await step("buyer own procurement page "+route,async()=>{
       await visit(buyerPage,route);
       const body=await buyerPage.locator("body").innerText();
@@ -190,7 +196,7 @@ try {
     });
     const page=await mctx.newPage();
     await step("Chrome mobile "+width+" buyer real login",()=>realLogin(page,buyer));
-    for (const route of [rfqPath,"/rfq-hub/inbox","/rfq-hub/suppliers","/rfq-hub/intelligence"]) {
+    for (const route of [rfqPath,"/rfq-hub","/rfq-hub/suppliers","/rfq-hub/intelligence"]) {
       await step("Chrome mobile "+width+" buyer "+route,async()=>{
         await visit(page,route);
         await checkMobile(page,route);

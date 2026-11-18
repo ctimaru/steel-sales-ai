@@ -62,7 +62,7 @@ export default async function SavedBuyerDistintaPage({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {canCreateRfq && !snapshot.archived_at ? <RfqHubCreateFromSnapshot distintaId={snapshot.id}/>:null}
-          <Link href={appRoutes.rfqHub.savedDistinte}
+          <Link href={appRoutes.rfqHub.home}
             className="app-secondary inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-semibold">Tutte le distinte</Link>
         </div>
       </header>

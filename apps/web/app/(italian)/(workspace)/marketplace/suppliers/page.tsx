@@ -219,10 +219,10 @@ export default async function SupplierDirectoryPage({
         actions={
           <>
             <Link
-              href={appRoutes.rfqHub.inbox}
+              href={appRoutes.rfqHub.attention}
               className="app-secondary inline-flex h-10 items-center rounded-xl px-4 text-sm font-semibold"
             >
-              Inbox acquisti
+              Da gestire
             </Link>
             <Link
               href={appRoutes.rfqHub.home}

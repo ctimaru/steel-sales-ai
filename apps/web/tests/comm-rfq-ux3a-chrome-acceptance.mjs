@@ -54,7 +54,7 @@ try {
           // write-only; a viewer lands on the read-only RFQ Hub instead.
           await page.goto(base+"/commercial?compose=1&method=ai#commercial-ai-intake",{waitUntil:"domcontentloaded",timeout:90000});
           await page.waitForURL(u=>u.pathname==="/rfq-hub",{timeout:60000});
-          await page.getByRole("heading",{name:"RFQ Hub",exact:true}).waitFor({state:"visible",timeout:60000});
+          await page.getByRole("heading",{name:"Centro RFQ",exact:true}).waitFor({state:"visible",timeout:60000});
           assert.equal(await page.locator("#rfqai2-text-input").count(),0,"Viewer must never receive editable RFQ chat");
           assert.equal(await page.getByTestId("comm-cine11-prompt").count(),0);
           await noOverflow(page,"viewer-"+width);

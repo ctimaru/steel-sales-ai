@@ -1,136 +1,159 @@
 import Link from "next/link";
 
 import { PilotEvent } from "@/components/pilot-event";
+import { RfqHubStartButton } from "@/components/rfq-hub-start-button";
 import { RfqNetworkSupplierReceiver } from "@/components/rfq-network-supplier-receiver";
+import { SavedDistintaActions } from "@/components/saved-distinta-actions";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
+import { formatHubDate } from "@/lib/rfq-hub-overview";
 import {
-  formatHubDate,
-  parseHubInboxItems,
-  rfqCampaignStatusLabel,
-  rfqOrderStatusLabel,
-} from "@/lib/rfq-hub-overview";
+  rfqHubAttentionByRfq,
+  rfqHubHref,
+  rfqHubRowState,
+  rfqHubToneClass,
+  rfqHubView,
+  type RfqHubRowCampaign,
+  type RfqHubView,
+} from "@/lib/rfq-hub-rows";
+import { privateNoIndexRobots } from "@/lib/seo";
 import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Centro RFQ", robots: privateNoIndexRobots };
 
-function countText(count: number | null, error: unknown): string {
-  return error || count === null ? "—" : new Intl.NumberFormat("it-IT").format(count);
+const PAGE_SIZE = 25;
+
+function pageNumber(raw: unknown): number {
+  if (typeof raw !== "string" || !/^[1-9]\d{0,3}$/.test(raw)) return 1;
+  return Math.min(Number(raw), 1000);
 }
-function value(value: number | null | undefined, digits = 2): string {
-  return typeof value === "number" && Number.isFinite(value)
-    ? value.toLocaleString("it-IT", { minimumFractionDigits: digits, maximumFractionDigits: digits })
-    : "—";
-}
-function Tile({ label, number, foot, href, inactive = false }: { label: string; number: string; foot: string; href: string; inactive?: boolean }) {
-  const content = (
-    <>
-      <span className="shrink-0 text-base font-extrabold tabular-nums text-[var(--brand-deep)]">{number}</span>
-      <span className="min-w-0 text-[11px] font-semibold text-[var(--text-secondary)]">{label}</span>
-      <span className="sr-only">{foot}</span>
-    </>
-  );
-  const style = "flex min-h-9 min-w-0 items-center gap-2 rounded-lg px-2 py-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--brand-primary)]";
-  return inactive ? (
-    <div className={style} aria-label={label + ": " + number}>{content}</div>
-  ) : (
-    <Link href={href} className={style + " hover:bg-[var(--brand-primary-soft)]"}>{content}</Link>
-  );
-}
-function BlockHeading({ title, href, action }: { title: string; href?: string; action?: string }) {
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-2">
-      <h2 className="text-sm font-bold text-[var(--brand-deep)]">{title}</h2>
-      {href && action ? (
-        <Link href={href} className="inline-flex min-h-9 items-center rounded-lg px-2 text-xs font-semibold text-[var(--brand-deep)] hover:bg-[var(--brand-primary-soft)]">{action} →</Link>
-      ) : null}
-    </div>
-  );
+function tonnes(value: number | string | null): string {
+  const number = Number(value);
+  return value === null || !Number.isFinite(number) ? "—"
+    : number.toLocaleString("it-IT", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
 }
 
-export default async function BuyerRfqHubPage() {
-  // Always scope to the selected workspace organization. RLS is also enforced
-  // by Supabase for direct and team-level visibility of individual records.
+type DistintaRow = {
+  id: string;
+  title: string;
+  owner_user_id: string;
+  created_at: string;
+  line_count: number;
+  total_tonnes: number | string | null;
+  archived_at: string | null;
+};
+
+/**
+ * RFQHUB1 (founder decision, 18 Nov 2026): Centro RFQ is the Distinta and its
+ * history in ONE list. One row per Distinta with the state its request reached
+ * (draft, suppliers to choose, to send, waiting, offers, awarded/order).
+ * «Inbox e risposte» and the separate «Distinte» page are folded in here:
+ * «Da gestire» is a filter of the same list.
+ */
+export default async function BuyerRfqHubPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ vista?: string; q?: string; page?: string }>;
+}) {
+  const params = (await searchParams) ?? {};
+  const view: RfqHubView = rfqHubView(params.vista);
+  const query = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
+  const page = pageNumber(params.page);
+
   const context = await getWorkspaceContext();
   const canWrite = canWriteWorkspace(context.role);
   const supabase = await createClient();
   const organizationId = context.organizationId;
 
-  const [
-    saved, campaigns, quotes, orders,
-    savedCount, campaignCount, quoteCount, orderCount,
-  ] = await Promise.all([
-    supabase.from("buyer_distintas")
-      .select("id,title,owner_user_id,line_count,total_meters,total_tonnes,created_at")
-      .eq("organization_id", organizationId)
-      .order("created_at", { ascending: false }).limit(8),
-    supabase.from("buyer_rfq_campaigns")
-      .select("id,title,status,due_at,created_at,source_distinta_id")
-      .eq("organization_id", organizationId)
-      .order("created_at", { ascending: false }).limit(120),
-    supabase.from("buyer_rfq_quotes")
-      .select("id,rfq_id,status,revision_no,submitted_at")
-      .eq("organization_id", organizationId).eq("status", "submitted")
-      .order("submitted_at", { ascending: false }).limit(8),
-    supabase.from("buyer_purchase_order_drafts")
-      .select("id,rfq_id,po_draft_ref,status,supplier_name_snapshot,total_eur,created_at")
-      .eq("organization_id", organizationId)
-      .order("created_at", { ascending: false }).limit(8),
-    supabase.from("buyer_distintas")
-      .select("id", { count: "exact", head: true }).eq("organization_id", organizationId),
-    supabase.from("buyer_rfq_campaigns")
-      .select("id", { count: "exact", head: true }).eq("organization_id", organizationId),
-    supabase.from("buyer_rfq_quotes")
-      .select("id", { count: "exact", head: true })
-      .eq("organization_id", organizationId).eq("status", "submitted"),
-    supabase.from("buyer_purchase_order_drafts")
-      .select("id", { count: "exact", head: true }).eq("organization_id", organizationId),
-  ]);
+  // Open actions per RFQ: drives «Da gestire» and the row badges.
+  const queue = canWrite ? await supabase.rpc("rfqh10_procurement_inbox", { p_limit: 200 }) : null;
+  const attention = queue && !queue.error ? rfqHubAttentionByRfq(queue.data) : null;
+  const attentionRfqIds = attention ? [...attention.keys()] : [];
 
-  const campaignsList = campaigns.data ?? [];
-  const visibleRfqIds = new Set(campaignsList.map((campaign) => campaign.id));
-  const relatedRfq = new Map<string, string>();
-  for (const campaign of campaignsList) {
-    if (campaign.source_distinta_id && !relatedRfq.has(campaign.source_distinta_id)) {
-      relatedRfq.set(campaign.source_distinta_id, campaign.id);
+  // Which Distinte belong to «Da gestire».
+  let todoDistintaIds: string[] | null = null;
+  if (view === "da-gestire") {
+    if (!attentionRfqIds.length) todoDistintaIds = [];
+    else {
+      const { data } = await supabase.from("buyer_rfq_campaigns")
+        .select("source_distinta_id")
+        .eq("organization_id", organizationId)
+        .in("id", attentionRfqIds.slice(0, 200));
+      todoDistintaIds = [...new Set((data ?? []).map((row) => row.source_distinta_id).filter(Boolean))];
     }
   }
-  // Inbox RPC is a scoped, existing procurement engine. Display only items
-  // belonging to visible RFQs of the active organization; never publish it.
-  const inboxResult = canWrite
-    ? await supabase.rpc("rfqh10_procurement_inbox", { p_limit: 100 })
-    : null;
-  const attention = inboxResult?.error
-    ? null
-    : inboxResult ? parseHubInboxItems(inboxResult.data, visibleRfqIds) : null;
-  const problems = [
-    saved.error, campaigns.error, quotes.error, orders.error,
-    savedCount.error, campaignCount.error, quoteCount.error, orderCount.error,
-  ].some(Boolean);
 
-  const recentCampaigns = campaignsList.slice(0, 7);
-  const recentSaved = saved.data ?? [];
-  const recentQuotes = quotes.data ?? [];
-  const recentOrders = orders.data ?? [];
-  const campaignName = new Map(campaignsList.map((campaign) => [campaign.id, campaign.title]));
+  let request = supabase.from("buyer_distintas")
+    .select("id,title,owner_user_id,created_at,line_count,total_tonnes,archived_at", { count: "exact" })
+    .eq("organization_id", organizationId);
+  if (view === "archiviate") request = request.not("archived_at", "is", null);
+  else request = request.is("archived_at", null);
+  if (todoDistintaIds) request = request.in("id", todoDistintaIds.length ? todoDistintaIds : ["00000000-0000-0000-0000-000000000000"]);
+  if (query) request = request.ilike("title", "%" + query.replace(/[%_]/g, "") + "%");
+  const { data: distinteData, error, count } = await request
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+  const distinte = (distinteData ?? []) as DistintaRow[];
+  const pages = count === null ? 1 : Math.max(1, Math.ceil(count / PAGE_SIZE));
+
+  // Requests of the visible rows, their recipients, answers and orders.
+  const distintaIds = distinte.map((row) => row.id);
+  const { data: campaignData } = distintaIds.length
+    ? await supabase.from("buyer_rfq_campaigns")
+      .select("id,status,due_at,created_at,source_distinta_id")
+      .eq("organization_id", organizationId)
+      .in("source_distinta_id", distintaIds)
+      .order("created_at", { ascending: false })
+    : { data: [] as Array<RfqHubRowCampaign & { source_distinta_id: string }> };
+  const campaignsByDistinta = new Map<string, Array<RfqHubRowCampaign>>();
+  for (const campaign of campaignData ?? []) {
+    const list = campaignsByDistinta.get(campaign.source_distinta_id) ?? [];
+    list.push(campaign);
+    campaignsByDistinta.set(campaign.source_distinta_id, list);
+  }
+  const latestIds = [...campaignsByDistinta.values()].map((list) => list[0].id);
+  const [suppliersResult, quotesResult, ordersResult] = latestIds.length ? await Promise.all([
+    supabase.from("buyer_rfq_suppliers").select("rfq_id").in("rfq_id", latestIds),
+    supabase.from("buyer_rfq_quotes").select("rfq_id,supplier_id")
+      .eq("organization_id", organizationId).in("rfq_id", latestIds).eq("status", "submitted"),
+    supabase.from("buyer_purchase_order_drafts").select("rfq_id,status,created_at")
+      .eq("organization_id", organizationId).in("rfq_id", latestIds)
+      .order("created_at", { ascending: false }),
+  ]) : [{ data: [] }, { data: [] }, { data: [] }] as const;
+  const supplierCount = new Map<string, number>();
+  for (const row of suppliersResult.data ?? []) supplierCount.set(row.rfq_id, (supplierCount.get(row.rfq_id) ?? 0) + 1);
+  const responded = new Map<string, Set<string>>();
+  for (const row of quotesResult.data ?? []) {
+    const set = responded.get(row.rfq_id) ?? new Set<string>();
+    set.add(row.supplier_id);
+    responded.set(row.rfq_id, set);
+  }
+  const orderStatus = new Map<string, string>();
+  for (const row of ordersResult.data ?? []) if (!orderStatus.has(row.rfq_id)) orderStatus.set(row.rfq_id, row.status);
+
+  const tabs: Array<{ view: RfqHubView; label: string; count?: number }> = [
+    { view: "attive", label: "Attive" },
+    ...(canWrite ? [{ view: "da-gestire" as const, label: "Da gestire", count: attentionRfqIds.length }] : []),
+    { view: "archiviate", label: "Archiviate" },
+  ];
 
   return (
     <div className="min-w-0 max-w-full space-y-3 pb-8" data-testid="rfq-hub-simple-workspace">
       <PilotEvent eventName="rfq_hub_viewed" metadata={{ surface: "rfq_hub_dashboard" }} />
-      <header className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-strong)] bg-white px-3 py-3 sm:px-4">
+      <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--brand-primary)]">Workspace aziendale · Acquisti</p>
-          <h1 className="mt-0.5 text-xl font-extrabold text-[var(--brand-deep)]">RFQ Hub</h1>
-          <p className="hidden max-w-2xl text-xs text-[var(--text-secondary)] sm:mt-0.5 sm:block">
-            Le tue richieste e Distinte in un unico spazio. Marketplace resta un canale opzionale di pubblicazione.
-          </p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-[var(--brand-primary)]">Ufficio acquisti</p>
+          <h1 className="mt-0.5 text-xl font-extrabold text-[var(--brand-deep)]">Centro RFQ</h1>
+          <p className="mt-0.5 text-xs text-[var(--text-secondary)]">Ogni distinta con la sua richiesta: a che punto è e cosa fare.</p>
           <p className="sr-only">Distinte, richieste ai fornitori, offerte e ordini.</p>
         </div>
         {canWrite ? (
           <Link href={appRoutes.rfqHub.createDistinta}
             className="platform-primary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-bold">
-            + Nuova distinta
+            + Nuova richiesta
           </Link>
         ) : <span className="text-xs font-semibold text-[var(--text-secondary)]">Consultazione</span>}
       </header>
@@ -138,167 +161,108 @@ export default async function BuyerRfqHubPage() {
       {/* Keep Network's explicit, org-scoped supplier handoff unchanged. */}
       <RfqNetworkSupplierReceiver userId={context.userId} organizationId={organizationId} />
 
-      {problems ? (
-        <p role="status" className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-          Alcuni dati non sono temporaneamente disponibili. I conteggi mancanti sono indicati con —; riprova più tardi.
-        </p>
-      ) : null}
-
-      {/* COMM-SIMPLE1: figures support the worklist instead of occupying four cards. */}
-      <section aria-label="Riepilogo acquisti"
-        data-testid="rfq-hub-compact-summary"
-        className="grid min-w-0 grid-cols-2 gap-x-3 gap-y-1 rounded-xl border border-[var(--border)] bg-white px-2 py-1.5 sm:grid-cols-4">
-        <Tile label="Distinte" number={countText(savedCount.count, savedCount.error)} foot="Snapshot aziendali visibili" href="#distinte" />
-        <Tile label="Campagne RFQ" number={countText(campaignCount.count, campaignCount.error)} foot="Private e condivise" href="#campagne" />
-        <Tile label="Offerte ricevute" number={countText(quoteCount.count, quoteCount.error)} foot="Revisioni attualmente inviate" href="#offerte"
-          inactive={!quotes.error && quoteCount.count === 0} />
-        <Tile label="Purchase Order" number={countText(orderCount.count, orderCount.error)} foot="Bozze e ordini in gestione" href="#ordini"
-          inactive={!orders.error && orderCount.count === 0} />
-      </section>
-
-      {canWrite && attention && attention.length > 0 ? (
-        <section aria-label="Da gestire" data-testid="rfq-hub-actionable"
-          className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-[#cfdfd5] bg-[#f5faf6] px-3 py-2">
-          <h2 className="shrink-0 text-xs font-bold text-[var(--brand-deep)]">Da gestire</h2>
-          <div className="flex min-w-0 flex-1 flex-wrap gap-x-3 gap-y-1">
-            {attention.slice(0, 3).map((item) => (
-              <Link key={item.item_id} href={appRoutes.rfqHub.campaign(item.rfq_id)}
-                className="inline-flex min-h-8 min-w-0 max-w-full items-center gap-1 text-xs font-semibold text-[#175640] hover:underline">
-                <span className="max-w-[20rem] truncate">{item.headline}</span>
-                {item.priority === "urgent" || item.priority === "high" ?
-                  <span className="shrink-0 text-[10px] font-medium text-[#8a5818]">{item.priority === "urgent" ? "Urgente" : "Alta"}</span> : null}
-                <span aria-hidden="true">→</span>
+      <section aria-label="Distinte e richieste" data-testid="rfq-hub-list"
+        className="min-w-0 rounded-xl border border-[var(--border)] bg-white p-3 sm:p-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <nav aria-label="Filtra richieste" className="flex flex-wrap gap-1.5">
+            {tabs.map((tab) => (
+              <Link key={tab.view} href={rfqHubHref(tab.view, query)} aria-current={view === tab.view ? "page" : undefined}
+                data-testid={"rfq-hub-tab-" + tab.view}
+                className={"inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold " +
+                  (view === tab.view ? "border-[#175640] bg-[#175640] text-white" : "border-[#d6e5db] bg-white text-[#2f5a45] hover:bg-[#f2f8f4]")}>
+                {tab.label}
+                {typeof tab.count === "number" && tab.count > 0 ? (
+                  <span className={"rounded-full px-1.5 text-[10px] font-bold " + (view === tab.view ? "bg-white/20" : "bg-[#fff1d6] text-[#7a4d0e]")}>{tab.count}</span>
+                ) : null}
               </Link>
             ))}
-          </div>
-          <Link href={appRoutes.rfqHub.inbox} className="inline-flex min-h-8 items-center text-xs font-semibold text-[#175640] hover:underline">
-            Apri Inbox →
-          </Link>
-        </section>
-      ) : !canWrite ? (
-        <p className="sr-only">Le attività operative sono disponibili ai ruoli autorizzati. Le RFQ condivise restano consultabili.</p>
-      ) : attention === null ? (
-        <p role="status" className="text-xs text-[var(--text-secondary)]">
-          Coda acquisti temporaneamente non disponibile. Apri Inbox per verificare le attività.
-        </p>
-      ) : null}
-
-      <div className="grid min-w-0 items-start gap-3 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)]">
-        <section id="campagne" aria-label="Campagne RFQ" data-testid="rfq-hub-primary-campaigns"
-          className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white px-3 py-3 sm:px-4">
-          <BlockHeading title="Campagne RFQ" />
-          {campaigns.error ? (
-            <p role="status" className="py-3 text-sm text-[var(--text-secondary)]">Elenco RFQ non disponibile.</p>
-          ) : recentCampaigns.length === 0 ? (
-            <div className="py-4 text-sm text-[var(--text-secondary)]">
-              Nessuna campagna visibile. {canWrite ? "Crea e salva una distinta, poi avvia la prima RFQ." : "Le richieste condivise compariranno qui."}
-            </div>
-          ) : (
-            <div className="divide-y divide-[var(--border)]">
-              {recentCampaigns.map((campaign) => (
-                <Link key={campaign.id} href={appRoutes.rfqHub.campaign(campaign.id)}
-                  className="flex min-h-14 items-center justify-between gap-3 py-2.5 hover:text-[var(--brand-primary)]">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-[var(--brand-deep)]">{campaign.title}</p>
-                    <p className="mt-0.5 break-words text-xs text-[var(--text-secondary)]">
-                      {rfqCampaignStatusLabel(campaign.status)} · {formatHubDate(campaign.created_at)}
-                      {campaign.due_at ? " · Scadenza " + formatHubDate(campaign.due_at) : ""}
-                    </p>
-                  </div>
-                  <span aria-hidden="true" className="shrink-0 text-[var(--brand-primary)]">→</span>
-                </Link>
-              ))}
-            </div>
-          )}
-          {campaignCount.count !== null && campaignCount.count > recentCampaigns.length ? (
-            <p className="mt-2 text-[11px] text-[var(--text-secondary)]">Ultime 7 campagne della tua azienda.</p>
-          ) : null}
-        </section>
-
-        <div className="min-w-0 space-y-3">
-          <section id="distinte" aria-label="Distinte" data-testid="rfq-hub-primary-distinte"
-            className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white px-3 py-3 sm:px-4">
-            <BlockHeading title="Distinte" href={appRoutes.rfqHub.savedDistinte} action="Archivio completo" />
-            {saved.error ? (
-              <p role="status" className="py-3 text-sm text-[var(--text-secondary)]">Archivio distinte non disponibile.</p>
-            ) : recentSaved.length === 0 ? (
-              <p className="py-4 text-sm text-[var(--text-secondary)]">
-                Nessuna distinta salvata. Le bozze locali non sono ancora nell’archivio.
-              </p>
-            ) : (
-              <div className="divide-y divide-[var(--border)]">
-                {recentSaved.map((draft) => (
-                  <div key={draft.id} className="flex min-h-14 items-center justify-between gap-3 py-2.5">
-                    <div className="min-w-0">
-                      <Link href={appRoutes.rfqHub.savedDistinta(draft.id)}
-                        className="block truncate text-sm font-bold text-[var(--brand-deep)] hover:underline">
-                        {draft.title || "Distinta"}
-                      </Link>
-                      <p className="mt-0.5 break-words text-xs text-[var(--text-secondary)]">
-                        {draft.line_count} righe · {value(Number(draft.total_tonnes), 3)} t · {formatHubDate(draft.created_at)}
-                      </p>
-                    </div>
-                    <Link href={relatedRfq.has(draft.id) ? appRoutes.rfqHub.campaign(relatedRfq.get(draft.id)!) : appRoutes.rfqHub.savedDistinta(draft.id)}
-                      className="inline-flex min-h-9 shrink-0 items-center rounded-lg bg-[var(--brand-primary-soft)] px-2.5 text-xs font-bold text-[var(--brand-deep)]">
-                      {relatedRfq.has(draft.id) ? "Apri RFQ" : "Apri"}
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            )}
-            {savedCount.count !== null && savedCount.count > recentSaved.length ? (
-              <Link href={appRoutes.rfqHub.savedDistinte} className="mt-2 inline-flex text-[11px] font-semibold text-[var(--brand-deep)] hover:underline">
-                Vedi tutte le Distinte →
-              </Link>
-            ) : null}
-          </section>
-
-          {/* Non riempire la schermata con card vuote. Un conteggio zero rimane nel riepilogo. */}
-          {(quotes.error || recentQuotes.length > 0) ? (
-            <section id="offerte" aria-label="Offerte ricevute" className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white px-3 py-3 sm:px-4">
-              <BlockHeading title="Offerte ricevute" href={appRoutes.rfqHub.home + "#campagne"} action="Vai alle RFQ" />
-              {quotes.error ? (
-                <p role="status" className="py-3 text-sm text-[var(--text-secondary)]">Offerte non disponibili.</p>
-              ) : (
-                <div className="divide-y divide-[var(--border)]">
-                  {recentQuotes.map((quote) => (
-                    <Link key={quote.id} href={appRoutes.rfqHub.campaign(quote.rfq_id)}
-                      className="flex min-h-12 items-center justify-between gap-2 py-2 hover:text-[var(--brand-primary)]">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-[var(--brand-deep)]">{campaignName.get(quote.rfq_id) || "Apri RFQ"}</p>
-                        <p className="text-xs text-[var(--text-secondary)]">Offerta ricevuta · Revisione {quote.revision_no} · {formatHubDate(quote.submitted_at)}</p>
-                      </div>
-                      <span aria-hidden="true">→</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </section>
-          ) : null}
-
-          {(orders.error || recentOrders.length > 0) ? (
-            <section id="ordini" aria-label="Ordini di acquisto" className="min-w-0 scroll-mt-28 rounded-xl border border-[var(--border)] bg-white px-3 py-3 sm:px-4">
-              <BlockHeading title="Ordini di acquisto" href={appRoutes.rfqHub.home + "#campagne"} action="Vai alle RFQ" />
-              {orders.error ? (
-                <p role="status" className="py-3 text-sm text-[var(--text-secondary)]">Ordini non disponibili.</p>
-              ) : (
-                <div className="divide-y divide-[var(--border)]">
-                  {recentOrders.map((order) => (
-                    <Link key={order.id} href={appRoutes.rfqHub.campaign(order.rfq_id)}
-                      className="flex min-h-12 items-center justify-between gap-2 py-2 hover:text-[var(--brand-primary)]">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-[var(--brand-deep)]">{order.po_draft_ref} · {order.supplier_name_snapshot}</p>
-                        <p className="text-xs text-[var(--text-secondary)]">{rfqOrderStatusLabel(order.status)} · {value(Number(order.total_eur))} €</p>
-                      </div>
-                      <span aria-hidden="true">→</span>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </section>
-          ) : null}
+          </nav>
+          <form method="get" action="/rfq-hub" role="search" className="flex min-w-0 items-center gap-1.5">
+            {view !== "attive" ? <input type="hidden" name="vista" value={view} /> : null}
+            <label className="sr-only" htmlFor="rfq-hub-search">Cerca per nome</label>
+            <input id="rfq-hub-search" name="q" type="search" defaultValue={query} maxLength={80} placeholder="Cerca per nome"
+              className="h-9 w-44 min-w-0 rounded-lg border border-[#d6e5db] bg-white px-2.5 text-xs text-[var(--brand-deep)] sm:w-56" />
+          </form>
         </div>
-      </div>
+
+        {queue?.error ? (
+          <p role="status" className="mt-2 text-[11px] text-[var(--text-secondary)]">Le attività da gestire non sono disponibili in questo momento.</p>
+        ) : null}
+
+        {error ? (
+          <p role="status" className="py-4 text-sm text-[var(--text-secondary)]">Elenco temporaneamente non disponibile. Riprova più tardi.</p>
+        ) : !distinte.length ? (
+          <p className="py-6 text-center text-sm text-[var(--text-secondary)]">
+            {query ? "Nessuna distinta corrisponde alla ricerca."
+              : view === "da-gestire" ? "Niente da gestire adesso."
+              : view === "archiviate" ? "Nessuna distinta archiviata."
+              : canWrite ? "Ancora nessuna richiesta. Inizia con «+ Nuova richiesta»." : "Le richieste condivise compariranno qui."}
+          </p>
+        ) : (
+          <ul className="mt-2 divide-y divide-[var(--border)]">
+            {distinte.map((distinta) => {
+              const campaigns = campaignsByDistinta.get(distinta.id) ?? [];
+              const campaign = campaigns[0] ?? null;
+              const facts = {
+                campaign,
+                previousCount: Math.max(0, campaigns.length - 1),
+                supplierCount: campaign ? supplierCount.get(campaign.id) ?? 0 : 0,
+                respondedCount: campaign ? responded.get(campaign.id)?.size ?? 0 : 0,
+                orderStatus: campaign ? orderStatus.get(campaign.id) ?? null : null,
+                attention: campaign ? attention?.get(campaign.id) ?? null : null,
+              };
+              const state = rfqHubRowState(facts);
+              const owner = canWrite && distinta.owner_user_id === context.userId;
+              const href = !campaign ? appRoutes.rfqHub.savedDistinta(distinta.id)
+                : state.target === "step3" ? appRoutes.rfqHub.campaign(campaign.id) + "?passo=invia"
+                : appRoutes.rfqHub.campaign(campaign.id);
+              return (
+                <li key={distinta.id} data-testid="rfq-hub-row" className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5 py-2.5">
+                  <Link href={href} className="group min-w-0 flex-1">
+                    <span className="block truncate text-sm font-bold text-[var(--brand-deep)] group-hover:underline">{distinta.title || "Distinta"}</span>
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[var(--text-secondary)]">
+                      <span className={"rounded-full px-2 py-0.5 font-semibold " + rfqHubToneClass[state.tone]}>{state.label}</span>
+                      {facts.attention ? (
+                        <span className={"font-semibold " + (facts.attention.urgent ? "text-[#8c431e]" : "text-[#7a4d0e]")}>→ {facts.attention.label}</span>
+                      ) : null}
+                      <span>{distinta.line_count} {distinta.line_count === 1 ? "articolo" : "articoli"} · {tonnes(distinta.total_tonnes)} t · {formatHubDate(campaign?.created_at ?? distinta.created_at)}</span>
+                      {campaign?.due_at ? <span>· scadenza {formatHubDate(campaign.due_at)}</span> : null}
+                      {facts.previousCount ? <span>· +{facts.previousCount} {facts.previousCount === 1 ? "richiesta precedente" : "richieste precedenti"}</span> : null}
+                    </span>
+                  </Link>
+                  <span className="flex min-w-0 max-w-full items-center gap-1.5">
+                    {!campaign && owner && !distinta.archived_at ? <RfqHubStartButton distintaId={distinta.id} /> : (
+                      <Link href={href} className="inline-flex min-h-9 items-center rounded-lg bg-[var(--brand-primary-soft)] px-2.5 text-xs font-bold text-[var(--brand-deep)]">Apri</Link>
+                    )}
+                    {owner ? (
+                      // Rename, duplicate and archive stay one click away, so the row shows one action.
+                      <details data-testid="rfq-hub-row-more" className="relative">
+                        <summary aria-label={"Altre azioni per " + (distinta.title || "la distinta")}
+                          className="inline-flex min-h-9 cursor-pointer list-none items-center rounded-lg border border-[#d6e5db] bg-white px-2.5 text-xs font-bold text-[#2f5a45] hover:bg-[#f2f8f4] [&::-webkit-details-marker]:hidden">
+                          ⋯
+                        </summary>
+                        <div className="absolute right-0 top-full z-20 mt-1 w-max max-w-[calc(100vw-2rem)] rounded-lg border border-[var(--border)] bg-white p-2 shadow-lg">
+                          <SavedDistintaActions id={distinta.id} title={distinta.title} archived={Boolean(distinta.archived_at)} compact />
+                        </div>
+                      </details>
+                    ) : null}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {!error && pages > 1 ? (
+          <nav aria-label="Pagine" className="mt-3 flex items-center justify-between gap-3 border-t border-[var(--border)] pt-3">
+            <span className="text-[11px] text-[var(--text-secondary)]">Pagina {page} di {pages} · {count ?? "—"} distinte</span>
+            <span className="flex items-center gap-2">
+              {page > 1 ? <Link href={rfqHubHref(view, query, page - 1)} className="app-secondary inline-flex min-h-9 items-center rounded-lg px-3 text-xs font-bold">← Precedente</Link> : null}
+              {page < pages ? <Link href={rfqHubHref(view, query, page + 1)} className="app-secondary inline-flex min-h-9 items-center rounded-lg px-3 text-xs font-bold">Successiva →</Link> : null}
+            </span>
+          </nav>
+        ) : null}
+      </section>
     </div>
   );
 }
