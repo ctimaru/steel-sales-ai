@@ -139,7 +139,7 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
         </div>
       </div>
       <p className="mt-3 border-t border-[#edf2ed] pt-2.5 text-[11px] leading-4 text-[#698071]">
-        Le norme, le misure e i cataloghi tecnici restano qualificazioni documentali separate: una caratteristica osservata non conferma una combinazione producibile.
+        Le norme, le misure e i cataloghi tecnici restano qualificazioni documentali separate. Nessuna combinazione norma, grado, dimensione e spessore viene dedotta.
       </p>
     </header>
 
