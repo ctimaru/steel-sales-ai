@@ -353,16 +353,36 @@ async def review_batch(candidates: list[dict], *, pause_seconds: float = 0.3,
     found_ids = [str(c.get("id")) for c in candidates]
     if len(set(found_ids)) != len(found_ids):
         raise ValueError("duplicate candidate identifiers")
-    results = []
+    # Bound concurrency to four DISTINCT company websites. Serialise visits
+    # to the same domain and preserve the input order for evidence recording.
+    semaphore = asyncio.Semaphore(4)
+    host_locks = {
+        str(c.get("domain") or "").strip().lower(): asyncio.Lock()
+        for c in candidates
+    }
     async with httpx.AsyncClient(
         timeout=httpx.Timeout(10.0), follow_redirects=False
     ) as client:
-        for i, candidate in enumerate(candidates):
-            if i:
-                await asyncio.sleep(pause_seconds)
-            results.append(await inspect_candidate(
-                client, candidate, deep_recovery=deep_recovery))
-    return results
+        async def one(index: int, candidate: dict) -> dict:
+            host = str(candidate.get("domain") or "").strip().lower()
+            async with host_locks[host]:
+                async with semaphore:
+                    if index and pause_seconds:
+                        await asyncio.sleep(pause_seconds)
+                    try:
+                        return await inspect_candidate(
+                            client, candidate, deep_recovery=deep_recovery)
+                    except (ValueError, CompanyDiscoveryError) as exc:
+                        # One malformed official site's URL/body must not
+                        # abort the *other* companies' first-party reviews.
+                        # Do NOT persist any fabricated verdict for this site.
+                        return {
+                            "p_candidate_id": str(candidate.get("id")),
+                            "_review_error": type(exc).__name__,
+                        }
+        return list(await asyncio.gather(
+            *(one(i, candidate) for i, candidate in enumerate(candidates))
+        ))
 
 
 # PostgREST answers 400 (22023 invalid parameter) when a database contract
@@ -413,6 +433,16 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                     "published":0,"exceptions":0}
 
         findings = await review_batch(candidates, deep_recovery=recovering)
+        # No evidence is written for a failed individual site; all successful
+        # verifications from the same bounded batch continue to persistence.
+        failures = [f for f in findings if "_review_error" in f]
+        for failure in failures:
+            print(json.dumps({
+                "status": "candidate_review_error",
+                "candidate_id": failure["p_candidate_id"],
+                "error_type": failure["_review_error"],
+            }))
+        findings = [f for f in findings if "_review_error" not in f]
         written = 0
         rejected = 0
         recovery_restored = 0
@@ -495,7 +525,9 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
             "mode":"evidence_recording" if persist else "dry_run",
             "queue_kind":"overture4_recovery" if recovering else "standard",
             "recovery_restored":recovery_restored,
-            "reviewed":len(findings),"recorded":written,"rejected":rejected,
+            "reviewed":len(findings),"attempted":len(candidates),
+            "site_errors":len(failures),
+            "recorded":written,"rejected":rejected,
             "identity_supported":sum(f["p_verdict"]=="identity_supported" for f in findings),
             "exceptions":sum(f["p_verdict"]!="identity_supported" for f in findings),
             "published":0,

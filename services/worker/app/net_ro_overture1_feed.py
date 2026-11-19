@@ -32,7 +32,7 @@ ALLOWED_TLDS = frozenset({"ro", "com", "eu", "net", "org", "de", "it", "fr",
 SOURCE = re.compile(r"^[a-zA-Z0-9_-]{2,60}$")
 # Romanian bounding-box prefilter. Address.country must ALSO be RO.
 ROMANIA_BOX = (20.0, 30.3, 43.5, 48.4)
-MAX_RESULTS = 500
+MAX_RESULTS = 8 * 160  # upper bound across eight geographic tiles
 MAX_BATCH = 100
 
 
@@ -96,37 +96,116 @@ def parse_place(row: tuple) -> dict | None:
     }
 
 
+# Spatial buckets ensure national coverage instead of favoring dense cities.
+# These are search tiles, NOT administrative counties or verified company regions.
+MAX_PER_TILE = 160
+LON_BANDS = (22.5, 25.0, 27.5)
+LAT_SPLIT = 45.8
+
+
+def tile_for(lon: float, lat: float) -> str:
+    column = sum(lon >= split for split in LON_BANDS)
+    return ("north" if lat >= LAT_SPLIT else "south") + "-" + str(column)
+
+
 def query_places() -> list[tuple]:
-    import duckdb  # lazy import makes the pure parsing tests independent
+    """One parquet scan, eight balanced Romanian geographic search tiles.
+
+    Include taxonomy.primary, hierarchy and alternates so that companies
+    with a broader primary category are not invisible to industrial search.
+    The place record remains a research hint, never legal identity proof.
+    """
+    import duckdb  # lazy import keeps pure tests network-independent
     con = duckdb.connect(config={"threads": 2})
     try:
         con.execute("INSTALL httpfs; LOAD httpfs;")
         con.execute("SET s3_region='us-west-2';")
         con.execute("SET enable_progress_bar=false;")
         con.execute("SET memory_limit='3GB';")
-        # Use the current Overture v2 schema, not removed categories.primary.
-        # Select no emails, phones, socials, street addresses or artwork.
+        # Overture Places v2.0.0: taxonomy.alternates (NOT categories.alternate).
+        # Do not select addresses, personal contacts, emails, phones or logos.
         return con.execute(
             """
-            SELECT id::VARCHAR, names.primary, websites[1],
-                   taxonomy.primary, sources[1].dataset,
-                   sources[1].license,
-                   bbox.xmin, bbox.ymin, confidence
-            FROM read_parquet(?, hive_partitioning=true)
-            WHERE bbox.xmin BETWEEN 20.0 AND 30.3
-              AND bbox.ymin BETWEEN 43.5 AND 48.4
-              AND addresses[1].country='RO'
-              AND taxonomy.primary IN (
-                'metal_fabricator','sheet_metal_fabricator',
-                'metal_supplier','steel_mill','steel_supplier',
-                'machine_shop','welding_service','metal_processing',
-                'metalworking'
-              )
-              AND websites[1] IS NOT NULL AND names.primary IS NOT NULL
-              AND confidence>=0.75
-              AND coalesce(operating_status, 'open')<>'permanently_closed'
-            LIMIT ?
-            """, [S3_PATH, MAX_RESULTS]
+            WITH scope AS (
+              SELECT id::VARCHAR AS gers,
+                     names.primary AS label,
+                     websites[1] AS website,
+                     CASE
+                       WHEN taxonomy.primary IN (
+                         'metal_fabricator','sheet_metal_fabricator',
+                         'metal_supplier','steel_mill','steel_supplier',
+                         'machine_shop','welding_service',
+                         'metal_processing','metalworking'
+                       ) THEN taxonomy.primary
+                       WHEN coalesce(list_has_any(taxonomy.hierarchy, [
+                         'metal_fabricator','sheet_metal_fabricator',
+                         'metal_supplier','steel_mill','steel_supplier',
+                         'machine_shop','welding_service',
+                         'metal_processing','metalworking'
+                       ]),false) THEN list_extract(list_intersect(
+                         taxonomy.hierarchy, [
+                         'metal_fabricator','sheet_metal_fabricator',
+                         'metal_supplier','steel_mill','steel_supplier',
+                         'machine_shop','welding_service',
+                         'metal_processing','metalworking'
+                       ]),1)
+                       ELSE list_extract(list_intersect(
+                         taxonomy.alternates, [
+                         'metal_fabricator','sheet_metal_fabricator',
+                         'metal_supplier','steel_mill','steel_supplier',
+                         'machine_shop','welding_service',
+                         'metal_processing','metalworking'
+                       ]),1)
+                     END AS category,
+                     sources[1].dataset AS source_dataset,
+                     sources[1].license AS source_license,
+                     bbox.xmin AS lon,bbox.ymin AS lat,confidence,
+                     CASE
+                       WHEN bbox.xmin < 22.5 THEN 0
+                       WHEN bbox.xmin < 25.0 THEN 1
+                       WHEN bbox.xmin < 27.5 THEN 2
+                       ELSE 3
+                     END AS lon_tile,
+                     CASE WHEN bbox.ymin < 45.8 THEN 0 ELSE 1 END AS lat_tile
+              FROM read_parquet(?, hive_partitioning=true)
+              WHERE bbox.xmin BETWEEN 20.0 AND 30.3
+                AND bbox.ymin BETWEEN 43.5 AND 48.4
+                AND addresses[1].country='RO'
+                AND (
+                   taxonomy.primary IN (
+                     'metal_fabricator','sheet_metal_fabricator',
+                     'metal_supplier','steel_mill','steel_supplier',
+                     'machine_shop','welding_service',
+                     'metal_processing','metalworking'
+                   )
+                   OR coalesce(list_has_any(taxonomy.hierarchy, [
+                     'metal_fabricator','sheet_metal_fabricator',
+                     'metal_supplier','steel_mill','steel_supplier',
+                     'machine_shop','welding_service',
+                     'metal_processing','metalworking'
+                   ]),false)
+                   OR coalesce(list_has_any(taxonomy.alternates, [
+                     'metal_fabricator','sheet_metal_fabricator',
+                     'metal_supplier','steel_mill','steel_supplier',
+                     'machine_shop','welding_service',
+                     'metal_processing','metalworking'
+                   ]),false)
+                )
+                AND websites[1] IS NOT NULL
+                AND names.primary IS NOT NULL
+                AND confidence >= 0.75
+                AND coalesce(operating_status, 'open') <> 'permanently_closed'
+            ), ranked AS (
+              SELECT *,row_number() OVER (
+                PARTITION BY lat_tile,lon_tile ORDER BY confidence DESC,gers
+              ) AS tile_rank FROM scope
+              WHERE category IS NOT NULL
+            )
+            SELECT gers,label,website,category,source_dataset,
+                   source_license,lon,lat,confidence
+            FROM ranked WHERE tile_rank <= ?
+            ORDER BY lat_tile,lon_tile,tile_rank
+            """, [S3_PATH, MAX_PER_TILE]
         ).fetchall()
     finally:
         con.close()
@@ -181,6 +260,11 @@ def main() -> dict:
         "release": RELEASE,
         "overture_places_inspected": len(observed),
         "candidate_website_domains": len(leads),
+        "geographic_tiles": dict(sorted({
+            tile: sum(1 for row in leads if tile_for(row["longitude"], row["latitude"]) == tile)
+            for tile in {tile_for(row["longitude"], row["latitude"]) for row in leads}
+        }.items())),
+        "max_per_tile": MAX_PER_TILE,
         **stats,
         "published": 0,
         "first_party_auto2_required": True,
