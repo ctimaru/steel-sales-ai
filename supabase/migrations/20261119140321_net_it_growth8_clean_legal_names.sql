@@ -47,7 +47,7 @@ BEGIN
   AND lower(v_name) !~ '(^|[^[:alpha:]])(home|homepage|contatti|contattaci|news|privacy|cookie|cookies|gdpr|titolare|trattamento|informativa|copyright|messaggio|politica|ditta|azienda|località|localita|scegli|preventivi|preventivo|fornirvi|qualità|qualita|benvenuti|telefono|tel|fax|email|pec|sede|menu|info|pulsante|button|clicca|click|scarica|download|vai|torna)([^[:alpha:]]|$)'
   -- GROWTH8: no flattened page controls, editorial prefixes or addresses.
   AND lower(v_name) !~ '^(continua|leggere[[:space:]]+di[[:space:]]+pi[uù]|rivista|dal[[:space:]]+(19|20)[0-9]{2})([^[:alpha:]]|$)'
-  AND lower(v_name) !~ '(^|[[:space:]])(zona[[:space:]]+artigianale|zona[[:space:]]+industriale|contrada|c[.]?[[:space:]]*da|via[[:space:]]+[[:alpha:]]+|viale[[:space:]]+[[:alpha:]]+)([[:space:]]|$)'
+  AND lower(v_name) !~ '(^|[[:space:]])(zona[[:space:]]+artigianale|zona[[:space:]]+industriale|contrada|c[.]?[[:space:]]*da|via[[:space:]]+[[:alpha:]]{3,}|viale[[:space:]]+[[:alpha:]]{3,})([[:space:]]|$)'
   AND lower(v_name) !~ '^(abruzzo|piemonte|lombardia|veneto|lazio|puglia|calabria|campania|toscana|sicilia|sardegna)[[:space:]]+(la|il|lo|le|i|gli)[[:space:]]+'
   -- at most 6 words before the legal form
   AND coalesce(array_length(regexp_split_to_array(v_core,'[[:space:]]+'),1),0) <= 6;
