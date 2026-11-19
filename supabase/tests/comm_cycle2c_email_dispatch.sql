@@ -30,6 +30,14 @@ begin
 exception when others then return sqlerrm;
 end;
 $f$;
+create or replace function pg_temp.c2c_manual_mark_error(org uuid,offer uuid)
+returns text language plpgsql as $f$
+begin
+  perform public.comm_cycle1_apply(org,'offer',offer,'offer_sent');
+  return 'ACCEPTED';
+exception when others then return sqlerrm;
+end;
+$f$;
 create or replace function pg_temp.c2c_confirm_error(org uuid, dispatch uuid)
 returns text language plpgsql as $f$
 begin
@@ -103,6 +111,9 @@ insert into c2c_results values ('double',pg_temp.c2c_reserve_error(
 insert into c2c_results values ('frozen',pg_temp.c2c_save_error(
   '00000000-0000-0000-0000-00000000c4f1',
   (select value::uuid from c2c_results where label='offer')));
+insert into c2c_results values ('manual_while_reserved',pg_temp.c2c_manual_mark_error(
+  '00000000-0000-0000-0000-00000000c4f1',
+  (select value::uuid from c2c_results where label='offer')));
 -- The authenticated application role must never attest provider acceptance:
 -- only the server (service role) may record the verified Resend response.
 insert into c2c_results values ('forged_acceptance',pg_temp.c2c_finish_error(
@@ -174,6 +185,8 @@ select pg_temp.c2c_assert((select value='draft' from c2c_results
   where label='provider_recorded_before_status'), 'verified provider alone does not bypass authenticated cycle');
 select pg_temp.c2c_assert((select value like '%invio già avviato%' from c2c_results where label='double'),
   'duplicate concurrent send refused');
+select pg_temp.c2c_assert((select value like '%bloccata durante l''invio%' from c2c_results where label='manual_while_reserved'),
+  'even an external sent action cannot spoof delivery while provider outcome is reserved');
 select pg_temp.c2c_assert((select value like '%bloccate durante l''invio%' or value like '%bloccata durante l''invio%' from c2c_results where label='frozen'),
   'quote snapshot frozen while sending');
 select pg_temp.c2c_assert((select count(*)=2 from public.comm_offer_email_dispatches
