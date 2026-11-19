@@ -87,7 +87,8 @@ def parse_place(row: tuple) -> dict | None:
             (category not in CATEGORIES and category != NAME_HINT_CATEGORY)):
         return None
     label = " ".join(label.split())
-    if category == NAME_HINT_CATEGORY and (\n            not NAME_HINT.search(label) or NONINDUSTRIAL.search(label)):
+    if category == NAME_HINT_CATEGORY and (
+            not NAME_HINT.search(label) or NONINDUSTRIAL.search(label)):
         return None
     if not (3 <= len(label) <= 180) or any(c in label for c in "@<>"):
         return None
