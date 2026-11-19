@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { CommercialDealCycleActions } from "@/components/commercial-deal-cycle-actions";
+import { outcomesFromEvents } from "@/lib/commercial-cycle";
 import { Rfqc1ChatWorkspace } from "@/components/rfqc1-chat-workspace";
 import { buildRfqc1SupplierTimeline } from "@/lib/rfqc1-timeline";
 import { rfqc1RecipientState, rfqc1ResponseSummary } from "@/lib/rfqc1-recipient-status";
@@ -175,6 +177,17 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
     purchasingWrite &&
     (governance?.current_user?.role === "owner" ||
       campaign.owner_user_id === authData.user?.id);
+
+  // COMM-CYCLE1: «Chiudi senza aggiudicare» con motivo, e «Riapri» (Ufficio acquisti o Direzione).
+  const { data: cycleEvents } = await supabase.from("comm_deal_events")
+    .select("deal_kind,deal_id,action,reason,note,created_at")
+    .eq("organization_id", campaign.organization_id).eq("deal_kind", "campaign").eq("deal_id", campaign.id)
+    .in("action", ["close_lost", "reopen"]).order("created_at", { ascending: false }).limit(5);
+  const campaignOutcome = outcomesFromEvents(cycleEvents).get("campaign:" + campaign.id) ?? null;
+  const campaignClose = purchasingWrite && (campaign.status === "launched" || campaign.status === "collecting")
+    ? { action: "close_lost" as const, recordKind: "campaign" as const, recordId: campaign.id, label: "Chiudi senza aggiudicare" } : null;
+  const campaignReopen = purchasingWrite && campaign.status === "closed" && campaignOutcome
+    ? { action: "reopen" as const, recordKind: "campaign" as const, recordId: campaign.id, label: "Riapri la RFQ" } : null;
 
   const supplierRows = suppliers ?? [];
   const isPreparation = campaign.status === "draft" || campaign.status === "ready";
@@ -546,6 +559,13 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
           {campaign.status}
         </span>
       </div>
+
+      {campaignClose || campaignReopen || (campaign.status === "closed" && campaignOutcome) ? (
+        <section aria-label="Esito della RFQ" data-testid="campaign-cycle" className="rounded-2xl border border-[#e7d9c7] bg-white p-3 sm:p-4">
+          <CommercialDealCycleActions primary={null} secondary={[]} canClose={campaignClose} reopen={campaignReopen}
+            outcome={campaign.status === "closed" ? campaignOutcome : null} subject="La RFQ" />
+        </section>
+      ) : null}
 
       <header className="rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-7">
         <p className="text-xs font-bold uppercase tracking-[0.14em] text-[#1a5144]">

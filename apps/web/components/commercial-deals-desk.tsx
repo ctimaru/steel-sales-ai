@@ -4,7 +4,9 @@ import Link from "next/link";
 import { CommercialAiNativeShell } from "@/components/commercial-ai-native-shell";
 import { CommercialCalculatorQuickAccess } from "@/components/commercial-calculator-quick-access";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
+import { CommercialDealCycleActions } from "@/components/commercial-deal-cycle-actions";
 import { CommercialDealLabelForm } from "@/components/commercial-deal-label-form";
+import { dealCycleActions, outcomeText } from "@/lib/commercial-cycle";
 import {
   dealDeskHref, isDealDue,
   type CommercialDeal, type DealDeskState, type DealFilter,
@@ -32,7 +34,7 @@ const filters: ReadonlyArray<{ key: DealFilter; label: string }> = [
   { key: "todo", label: "Da fare" },
   { key: "waiting", label: "In attesa" },
   { key: "due", label: "In scadenza" },
-  { key: "closed", label: "Chiuse" },
+  { key: "closed", label: "Archiviate" },
 ];
 const emptyCopy: Record<DealFilter | "", { title: string; body: string }> = {
   "": { title: "Ancora nessuna richiesta d'offerta", body: "Le richieste dei clienti compariranno qui, una riga per richiesta, con offerte e ordini collegati." },
@@ -41,7 +43,7 @@ const emptyCopy: Record<DealFilter | "", { title: string; body: string }> = {
   due: { title: "Niente in scadenza", body: "Nessuna richiesta aperta scade nei prossimi 7 giorni." },
   // Le bozze di distinta stanno nel Centro RFQ: qui il filtro non esiste più.
   drafts: { title: "Nessuna bozza", body: "Le distinte salvate sono nel Centro RFQ." },
-  closed: { title: "Nessuna richiesta chiusa", body: "Le richieste vinte, perse, consegnate o annullate compaiono qui." },
+  closed: { title: "Nessuna richiesta archiviata", body: "Qui compaiono le trattative vinte e quelle chiuse come non concluse, con il motivo." },
 };
 
 const actionTone: Record<CommercialDeal["bucket"], string> = {
@@ -100,6 +102,13 @@ function dueText(deal: CommercialDeal, now: number) {
   return (due < now ? "Scaduta il " : "Scade il ") + formatHubDate(deal.dueAt);
 }
 
+/** «l'ordine», «l'offerta», «la richiesta»: il documento più recente. */
+function primaryDocLabel(deal: CommercialDeal): string {
+  const latest = [...deal.documents].sort((a, b) => (Date.parse(b.at ?? "") || 0) - (Date.parse(a.at ?? "") || 0))[0];
+  const kind = latest?.key.split(":")[0];
+  return kind === "inbound-order" ? "l'ordine" : kind === "inbound-offer" ? "l'offerta" : "la richiesta";
+}
+
 /** Si lavora sul documento più recente della richiesta (richiesta, offerta o ordine). */
 function primaryAction(deal: CommercialDeal): { href: string; label: string } {
   const latest = [...deal.documents].sort((a, b) => (Date.parse(b.at ?? "") || 0) - (Date.parse(a.at ?? "") || 0))[0];
@@ -113,6 +122,8 @@ async function DealDetail({ deal, state, canWrite }: {
   const now = Date.now();
   const due = dueText(deal, now);
   const primary = primaryAction(deal);
+  const cycle = dealCycleActions(deal.cycle, deal.outcome);
+  const hasCycle = canWrite && Boolean(cycle.primary || cycle.secondary.length || cycle.canClose || cycle.reopen);
   const labelKind = deal.kind === "inbound-rfq" ? "rfq" : deal.kind === "inbound-offer" ? "offer" : deal.kind === "inbound-order" ? "order" : null;
   const closeHref = dealDeskHref({ ...state, segment: "all", item: "" });
   return (
@@ -142,12 +153,23 @@ async function DealDetail({ deal, state, canWrite }: {
           <span className="text-[11px] font-semibold text-[#3f5248]">{deal.stage}</span>
         </div>
         <div className="mt-2"><Steps deal={deal} labelled /></div>
-        <h3 id="commercial-deal-next" className={"mt-1 text-base font-semibold " + actionTone[deal.bucket]}>{deal.action}</h3>
+        <h3 id="commercial-deal-next" className={"mt-1 text-base font-semibold " + actionTone[deal.bucket]}>{outcomeText(deal.outcome) || deal.action}</h3>
         {due ? <p className={"mt-0.5 text-xs " + (isDealDue(deal, now) ? "font-semibold text-[#9a3412]" : "text-[#5c7063]")}>{due}</p> : null}
-        <Link href={primary.href} data-testid="commercial-deal-primary-action"
-          className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
-          {primary.label} →
-        </Link>
+        {hasCycle ? (
+          // COMM-CYCLE1: le azioni si fanno qui; il documento resta a un clic.
+          <div className="mt-3 space-y-2">
+            <CommercialDealCycleActions {...cycle} outcome={deal.outcome ?? null} subject="La richiesta" />
+            <Link href={primary.href} data-testid="commercial-deal-primary-action"
+              className="inline-flex min-h-9 items-center text-xs font-semibold !text-[#175640] underline underline-offset-2">
+              Apri {primaryDocLabel(deal)} ↗
+            </Link>
+          </div>
+        ) : (
+          <Link href={primary.href} data-testid="commercial-deal-primary-action"
+            className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+            {primary.label} →
+          </Link>
+        )}
       </section>
 
       <section aria-labelledby="commercial-deal-documents">
@@ -354,7 +376,7 @@ export async function CommercialDealsDesk({
                         {/* Prossima azione: cosa fare e da quanto aspetta. */}
                         <span className="min-w-0">
                           <span className={"flex items-center gap-1 text-sm font-semibold " + (dueSoon && deal.bucket !== "closed" ? "text-[#9a3412]" : actionTone[deal.bucket])}>
-                            <span className="truncate">{deal.action}</span>
+                            <span className="truncate">{outcomeText(deal.outcome) || deal.action}</span>
                             {deal.bucket === "todo" ? <span aria-hidden="true" className="shrink-0 transition group-hover:translate-x-0.5">→</span> : null}
                           </span>
                           <span className={"block truncate text-xs tabular-nums " + (dueSoon ? "font-semibold text-[#9a3412]" : "text-[#5c7063]")}>
