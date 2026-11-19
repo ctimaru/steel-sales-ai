@@ -76,7 +76,7 @@ _BOILERPLATE = {
 _GROWTH8_NOISE = re.compile(
     r"(?i)(?:^(?:continua|leggere\s+di\s+pi[uù]|rivista|dal\s+(?:19|20)\d{2})\b|"
     r"\b(?:zona\s+artigianale|zona\s+industriale|contrada|c\.?\s*da|"
-    r"via\s+[A-Za-zÀ-ÿ]|viale\s+[A-Za-zÀ-ÿ])\b|"
+    r"via\s+[A-Za-zÀ-ÿ]{3,}|viale\s+[A-Za-zÀ-ÿ]{3,})\b|"
     r"^(?:abruzzo|piemonte|lombardia|veneto|lazio|puglia|calabria|"
     r"campania|toscana|sicilia|sardegna)\s+(?:la|il|lo|le|i|gli)\s+)"
 )
