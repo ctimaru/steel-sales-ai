@@ -23,7 +23,8 @@ from .company_discovery import (
     PRIORITY_PATH_HINTS, CompanyDiscoveryError, CrawledPage, _fetch_page,
     canonical_domain, canonicalize_seed_url,
 )
-from .net_it_identity_extract import find_company_identity, is_civic_snc_address
+from .net_it_identity_extract import (find_company_identity, is_civic_snc_address,
+                                       legal_name_is_clean)
 
 # v2 (NET-IT-GROWTH1): reads legal/contact pages where Italian companies print
 # their ragione sociale and P.IVA, matches on the whole extracted page text,
@@ -263,7 +264,7 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
     # corporate name in first-party BODY text, not merely page metadata.
     texts = [str(p.text) for p in pages]
     name = str(candidate.get("company_name") or "")
-    matched = _name_evidenced(name, texts)
+    matched = _name_evidenced(name, texts) and legal_name_is_clean(name)
     correction = None
     # A crawler guess can literally occur in the official footer but include
     # copyright years, cookie notices or nearby marketing prose. A positive
@@ -271,10 +272,13 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
     # AUTO3 will correctly reject these contaminated names, starving growth.
     # Reconsider only a shorter, domain-related first-party company name when
     # the old name ENDS with that exact legal name (never an unrelated alias).
-    found = find_company_identity(texts, domain, name)
-    if (found and _is_capital_company(found.legal_name)
+    structured = [node for p in pages for node in getattr(p, "structured_data", ())][:20]
+    found = find_company_identity(texts, domain, name, structured)
+    if (found and legal_name_is_clean(found.legal_name)
+            and _is_capital_company(found.legal_name)
             and _name_evidenced(found.legal_name, texts)
-            and (not matched or not _is_capital_company(name)
+            and (not matched or not legal_name_is_clean(name)
+                 or not _is_capital_company(name)
                  or _has_contaminated_name_prefix(name, found.legal_name)
                  or _has_bad_name_case_or_spacing(name, found.legal_name))):
         page_url = next((p.url for p in pages
@@ -286,6 +290,8 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
         name, matched = found.legal_name, True
     if not matched:
         reasons.append("corporate_name_not_evidenced")
+        if not legal_name_is_clean(name):
+            reasons.append("legal_name_contaminated")
     if not _is_capital_company(name):
         reasons.append("legal_form_requires_human_review")
     if not matched or not _is_capital_company(name):
