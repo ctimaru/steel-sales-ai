@@ -38,8 +38,12 @@ test("MAP1: banner precedes the two-column layout and retains safe motion",()=>{
   assert.ok(ui.indexOf("<NetworkCountryTicker ")<ui.indexOf('data-testid="network-europe1d-one-screen-shell"'));
   assert.match(ticker,/getNetworkCountryStats\(organizationId,accessMode\)/);
   assert.match(ticker,/encodeURIComponent\(item.countryCode\)/);
-  for(const label of ["produttori","commercianti","terzisti","utilizzatori","aziende nel Network"])
-    assert.ok(ticker.includes(label),label);
+  assert.match(ticker,/<strong className="text-\[#173f35\]">\{name\}<\/strong>/);
+  assert.match(ticker,/item\.total\.toLocaleString\("it-IT"\)/);
+  assert.match(ticker,/<span>aziende<\/span>/);
+  for(const label of ["produttori","commercianti","terzisti","utilizzatori","Espansione in corso"])
+    assert.ok(!ticker.includes(label),label);
+  assert.match(css,/90s linear infinite/);
   assert.match(css,/prefers-reduced-motion:reduce/);
   assert.match(css,/focus-within/);
   assert.match(ticker,/aria-hidden="true"/);
@@ -66,4 +70,21 @@ test("MAP1: production ACL repair and reviewed HP13 guard are versioned",()=>{
  assert.ok(acl.includes("grant execute on function public.netux_map1_country_stats(uuid,text)"));
  assert.ok(hp13.includes("'netux_map1_country_stats'"));
  assert.ok(hp13.includes("NET-UX-MAP1 country statistics facade must be pinned"));
+});
+
+test("MAP1: every supported Network country has a local or inline flag on Windows",()=>{
+  const countries=read("../lib/network-eu-countries.ts");
+  const codes=[...countries.matchAll(/\{code:"([A-Z]{2})",name:/g)].map(match=>match[1]);
+  assert.equal(codes.length,30);
+  for(const code of codes){
+    const inline=["IT","RO","DE","FR","ES","US","GB","CH"].includes(code);
+    if(inline)assert.match(flags,new RegExp('case "'+code+'":return'));
+    else{
+      assert.ok(flags.includes('"'+code+'"'),code);
+      const svg=read("../public/network-flags/"+code.toLowerCase()+".svg");
+      assert.match(svg,/<svg[^>]+viewBox=/);
+    }
+  }
+  assert.match(flags,/localSvgFlags\.has\(country\)/);
+  assert.match(flags,/aria-hidden="true"/);
 });

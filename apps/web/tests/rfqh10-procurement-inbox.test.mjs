@@ -91,7 +91,7 @@ test("RFQH10 workspace has attention/waiting filters and deterministic priority 
   assert.match(rows, /item\.requires_action !== true/);
   assert.match(rows, /rfqHubAttentionLabel\(item\.action_code\)/);
   assert.match(hub, /view === "da-gestire"/);
-  assert.match(hub, /label: "Da gestire", count: attentionRfqIds\.length/);
+  assert.match(hub, /label: "Da gestire", count: loadedAttention\?\.distintaIds\.length \?\? 0/);
 });
 
 test("RFQH10 actions navigate back to the governed RFQ workflow", () => {

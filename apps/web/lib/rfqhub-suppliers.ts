@@ -21,6 +21,9 @@ export function supplierBookHref(view: SupplierBookView, query = ""): string {
 
 export type SupplierBookProfile = {
   id: string;
+  identity_key?: string | null;
+  tags?: string[];
+  notes?: string | null;
   display_name: string | null;
   email: string | null;
   preferred: boolean;
@@ -70,7 +73,60 @@ export type SupplierBookRow = {
   lastUsedAt: string | null;
   savedAt: string | null;
   contacts: SupplierBookContact[];
+  /** RFQHUB1D: only requests actually sent count; drafts are counted apart. */
+  sentCount: number;
+  respondedCount: number;
+  draftCount: number;
+  tags: string[];
+  notes: string | null;
+  /** RFQHUB1D: the company channel reviewed in the Network (not a private contact). */
+  networkChannel: { displayName: string | null; email: string } | null;
+  /** RFQHUB1D: e-mail-only supplier whose domain matches a Network company. */
+  linkSuggestion: { networkCompanyId: string; name: string } | null;
 };
+
+export type SupplierBookChannel = { network_company_id: string; display_name: string | null; email: string };
+export type SupplierBookMatch = { profile_id: string; network_company_id: string; name: string };
+
+/** One line of a supplier's RFQ use (buyer_rfq_suppliers), owner-scoped. */
+export type SupplierBookUsage = {
+  identity_key: string | null;
+  rfq_id: string;
+  sent_at: string | null;
+  responded_at: string | null;
+};
+
+type UsageSets = { sent: Set<string>; responded: Set<string>; all: Set<string> };
+
+function usageByIdentity(usage: SupplierBookUsage[]): Map<string, UsageSets> {
+  const map = new Map<string, UsageSets>();
+  for (const row of usage) {
+    if (!row.identity_key) continue;
+    const sets = map.get(row.identity_key) ?? { sent: new Set(), responded: new Set(), all: new Set() };
+    sets.all.add(row.rfq_id);
+    if (row.sent_at) sets.sent.add(row.rfq_id);
+    if (row.responded_at) sets.responded.add(row.rfq_id);
+    map.set(row.identity_key, sets);
+  }
+  return map;
+}
+
+/**
+ * «2 richieste inviate · ha risposto a 1» / «Solo in 3 bozze, mai inviato» /
+ * «Salvata il …». Drafts never count as requests nor lower the answer rate.
+ */
+export function supplierBookUsageLabel(row: SupplierBookRow, formatDate: (value: string) => string): string {
+  if (row.sentCount > 0) {
+    return row.sentCount + (row.sentCount === 1 ? " richiesta inviata" : " richieste inviate")
+      + " · " + (row.respondedCount ? "ha risposto a " + row.respondedCount : "nessuna risposta finora")
+      + (row.lastUsedAt ? " · ultima " + formatDate(row.lastUsedAt) : "");
+  }
+  if (row.active) {
+    const drafts = row.draftCount || row.rfqCount;
+    return "In " + drafts + (drafts === 1 ? " bozza" : " bozze") + ", non ancora inviato";
+  }
+  return "Salvata" + (row.savedAt ? " il " + formatDate(row.savedAt) : "") + " · non ancora usata nelle richieste";
+}
 
 function rate(value: number | string | null | undefined): number | null {
   const n = typeof value === "string" ? Number(value) : value;
@@ -87,8 +143,22 @@ export function buildSupplierBook(input: {
   saved: SupplierBookSaved[];
   companies: SupplierBookCompany[];
   contacts: SupplierBookContact[];
+  usage?: SupplierBookUsage[];
+  channels?: SupplierBookChannel[];
+  matches?: SupplierBookMatch[];
 }): SupplierBookRow[] {
   const rows = new Map<string, SupplierBookRow>();
+  const usage = usageByIdentity(input.usage ?? []);
+  const rowUsage = new Map<string, UsageSets>();
+  const addUsage = (key: string, identity: string | null | undefined) => {
+    const sets = identity ? usage.get(identity) : undefined;
+    if (!sets) return;
+    const target = rowUsage.get(key) ?? { sent: new Set<string>(), responded: new Set<string>(), all: new Set<string>() };
+    sets.sent.forEach((id) => target.sent.add(id));
+    sets.responded.forEach((id) => target.responded.add(id));
+    sets.all.forEach((id) => target.all.add(id));
+    rowUsage.set(key, target);
+  };
   const companyByNetwork = new Map<string, SupplierBookCompany>();
   for (const company of input.companies) {
     if (company.network_company_id) companyByNetwork.set(company.network_company_id, company);
@@ -99,6 +169,7 @@ export function buildSupplierBook(input: {
     const key = network ? "network:" + network
       : profile.supplier_company_id ? "company:" + profile.supplier_company_id
       : "profile:" + profile.id;
+    addUsage(key, profile.identity_key);
     const existing = rows.get(key);
     if (existing) {
       // Two profiles of the same supplier (e.g. two e-mails): sum the usage.
@@ -123,6 +194,13 @@ export function buildSupplierBook(input: {
       lastUsedAt: profile.last_used_at,
       savedAt: null,
       contacts: [],
+      sentCount: 0,
+      respondedCount: 0,
+      draftCount: 0,
+      tags: profile.tags ?? [],
+      notes: profile.notes ?? null,
+      networkChannel: null,
+      linkSuggestion: null,
     });
   }
 
@@ -151,7 +229,31 @@ export function buildSupplierBook(input: {
       lastUsedAt: null,
       savedAt: saved.saved_at,
       contacts: [],
+      sentCount: 0,
+      respondedCount: 0,
+      draftCount: 0,
+      tags: [],
+      notes: null,
+      networkChannel: null,
+      linkSuggestion: null,
     });
+  }
+
+  const channelByNetwork = new Map((input.channels ?? []).map((c) => [c.network_company_id, c]));
+  const matchByProfile = new Map((input.matches ?? []).map((m) => [m.profile_id, m]));
+  for (const row of rows.values()) {
+    const channel = row.networkCompanyId ? channelByNetwork.get(row.networkCompanyId) : undefined;
+    if (channel?.email) row.networkChannel = { displayName: channel.display_name, email: channel.email };
+    const match = !row.networkCompanyId && !row.companyId && row.profileId ? matchByProfile.get(row.profileId) : undefined;
+    if (match) row.linkSuggestion = { networkCompanyId: match.network_company_id, name: match.name };
+  }
+
+  for (const [key, sets] of rowUsage) {
+    const row = rows.get(key);
+    if (!row) continue;
+    row.sentCount = sets.sent.size;
+    row.respondedCount = sets.responded.size;
+    row.draftCount = [...sets.all].filter((id) => !sets.sent.has(id)).length;
   }
 
   const contactsByCompany = new Map<string, SupplierBookContact[]>();
@@ -200,4 +302,30 @@ const saveErrors: Record<string, string> = {
 
 export function supplierContactError(code: unknown): string {
   return (typeof code === "string" && saveErrors[code]) || "Salvataggio non riuscito. Riprova.";
+}
+
+const supplierStatusLabels: Record<string, string> = {
+  draft: "Bozza, non inviata",
+  queued: "In invio",
+  sent: "Inviata",
+  delivered: "Consegnata",
+  opened: "Letta",
+  responded: "Ha risposto",
+  declined: "Ha rinunciato",
+  bounced: "Email non consegnata",
+  complained: "Segnalata come indesiderata",
+  failed: "Invio non riuscito",
+  cancelled: "Annullata",
+  awarded: "Aggiudicata",
+  not_awarded: "Non aggiudicata",
+};
+
+/** What happened to the request for this supplier, in plain Italian. */
+export function supplierRequestStatusLabel(status: string): string {
+  return supplierStatusLabels[status] ?? "Stato da verificare";
+}
+
+/** Link to start a new request already pointed at this Network company. */
+export function supplierRequestHref(networkCompanyId: string): string {
+  return "/rfq-hub/distinta?network=" + encodeURIComponent(networkCompanyId);
 }

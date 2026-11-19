@@ -33,7 +33,7 @@ test("RFQ-IA3 summarizes actual saved snapshots, campaigns, submitted quotes and
 test("RFQ-IA3 scopes every data source to active org and preserves Supabase RLS", () => {
   assert.match(overview, /const context = await getWorkspaceContext\(\)/);
   assert.match(overview, /const organizationId = context\.organizationId/);
-  assert.equal((overview.match(/\.eq\("organization_id", organizationId\)/g) || []).length, 5);
+  assert.equal((overview.match(/\.eq\("organization_id", organizationId\)/g) || []).length, 4);
   assert.doesNotMatch(overview + savedPage, /serviceRole|service_role|createAdminClient/);
   assert.match(savedPage, /\.eq\("id", distintaId\)\.eq\("organization_id", context\.organizationId\)/);
   assert.match(savedPage, /if \(error \|\| !snapshot\) notFound\(\)/);
@@ -45,8 +45,11 @@ test("RFQ-IA3 scopes every data source to active org and preserves Supabase RLS"
 
 test("RFQ-IA3 uses a scoped existing inbox engine, not an invented activity score", () => {
   // RFQHUB1: «Da gestire» reuses rfqh10, restricted to this organization's campaigns.
-  assert.match(overview, /supabase\.rpc\("rfqh10_procurement_inbox", \{ p_limit: 200 \}\)/);
-  assert.match(overview, /rfqHubAttentionByRfq\(queue\.data\)/);
+  const attentionLoader = read("../lib/rfq-hub-attention.ts");
+  assert.match(attentionLoader, /supabase\.rpc\("rfqh10_procurement_inbox", \{ p_limit: 200 \}\)/);
+  assert.match(attentionLoader, /rfqHubAttentionByRfq\(queue\.data\)/);
+  assert.equal((attentionLoader.match(/\.eq\("organization_id", organizationId\)/g) || []).length, 2);
+  assert.match(overview, /loadPurchasingAttention\(supabase, organizationId\)/);
   const ids = new Set(["own1"]);
   const data = { items: [
     {item_id:"1",rfq_id:"own1",requires_action:true,priority:"urgent",headline:"Rispondi",detail:"Preventivo"},

@@ -6,9 +6,11 @@ import { RfqNetworkSupplierReceiver } from "@/components/rfq-network-supplier-re
 import { SavedDistintaActions } from "@/components/saved-distinta-actions";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { appRoutes } from "@/lib/routes";
+import { loadPurchasingAttention } from "@/lib/rfq-hub-attention";
 import { formatHubDate } from "@/lib/rfq-hub-overview";
 import {
-  rfqHubAttentionByRfq,
+  rfqHubArticlesLabel,
+  rfqHubRecipientsLabel,
   rfqHubHref,
   rfqHubRowState,
   rfqHubToneClass,
@@ -67,23 +69,12 @@ export default async function BuyerRfqHubPage({
   const supabase = await createClient();
   const organizationId = context.organizationId;
 
-  // Open actions per RFQ: drives «Da gestire» and the row badges.
-  const queue = canWrite ? await supabase.rpc("rfqh10_procurement_inbox", { p_limit: 200 }) : null;
-  const attention = queue && !queue.error ? rfqHubAttentionByRfq(queue.data) : null;
-  const attentionRfqIds = attention ? [...attention.keys()] : [];
-
-  // Which Distinte belong to «Da gestire».
-  let todoDistintaIds: string[] | null = null;
-  if (view === "da-gestire") {
-    if (!attentionRfqIds.length) todoDistintaIds = [];
-    else {
-      const { data } = await supabase.from("buyer_rfq_campaigns")
-        .select("source_distinta_id")
-        .eq("organization_id", organizationId)
-        .in("id", attentionRfqIds.slice(0, 200));
-      todoDistintaIds = [...new Set((data ?? []).map((row) => row.source_distinta_id).filter(Boolean))];
-    }
-  }
+  // Open actions per RFQ: drives «Da gestire», its counter and the row badges.
+  // Same loader as the menu counter, so the numbers always match.
+  const loadedAttention = canWrite ? await loadPurchasingAttention(supabase, organizationId) : null;
+  const attentionUnavailable = canWrite && !loadedAttention;
+  const attention = loadedAttention?.byRfq ?? null;
+  const todoDistintaIds: string[] | null = view === "da-gestire" ? loadedAttention?.distintaIds ?? [] : null;
 
   let request = supabase.from("buyer_distintas")
     .select("id,title,owner_user_id,created_at,line_count,total_tonnes,archived_at", { count: "exact" })
@@ -115,28 +106,44 @@ export default async function BuyerRfqHubPage({
     campaignsByDistinta.set(campaign.source_distinta_id, list);
   }
   const latestIds = [...campaignsByDistinta.values()].map((list) => list[0].id);
-  const [suppliersResult, quotesResult, ordersResult] = latestIds.length ? await Promise.all([
-    supabase.from("buyer_rfq_suppliers").select("rfq_id").in("rfq_id", latestIds),
-    supabase.from("buyer_rfq_quotes").select("rfq_id,supplier_id")
-      .eq("organization_id", organizationId).in("rfq_id", latestIds).eq("status", "submitted"),
-    supabase.from("buyer_purchase_order_drafts").select("rfq_id,status,created_at")
+  const [suppliersResult, quotesResult, ordersResult, linesResult] = await Promise.all([
+    latestIds.length ? supabase.from("buyer_rfq_suppliers").select("rfq_id,supplier_name,supplier_email_normalized")
+      .in("rfq_id", latestIds).order("created_at", { ascending: true }) : Promise.resolve({ data: [] }),
+    latestIds.length ? supabase.from("buyer_rfq_quotes").select("rfq_id,supplier_id")
+      .eq("organization_id", organizationId).in("rfq_id", latestIds).eq("status", "submitted") : Promise.resolve({ data: [] }),
+    latestIds.length ? supabase.from("buyer_purchase_order_drafts").select("rfq_id,status,created_at")
       .eq("organization_id", organizationId).in("rfq_id", latestIds)
-      .order("created_at", { ascending: false }),
-  ]) : [{ data: [] }, { data: [] }, { data: [] }] as const;
+      .order("created_at", { ascending: false }) : Promise.resolve({ data: [] }),
+    // RFQHUB1D: the first articles tell rows with the same name apart.
+    distintaIds.length ? supabase.from("buyer_distinta_lines").select("distinta_id,description,line_position")
+      .in("distinta_id", distintaIds).lte("line_position", 2).order("line_position", { ascending: true }) : Promise.resolve({ data: [] }),
+  ]);
   const supplierCount = new Map<string, number>();
-  for (const row of suppliersResult.data ?? []) supplierCount.set(row.rfq_id, (supplierCount.get(row.rfq_id) ?? 0) + 1);
+  const supplierNames = new Map<string, string[]>();
+  for (const row of (suppliersResult.data ?? []) as Array<{ rfq_id: string; supplier_name: string | null; supplier_email_normalized: string | null }>) {
+    supplierCount.set(row.rfq_id, (supplierCount.get(row.rfq_id) ?? 0) + 1);
+    const names = supplierNames.get(row.rfq_id) ?? [];
+    names.push(row.supplier_name || row.supplier_email_normalized || "");
+    supplierNames.set(row.rfq_id, names);
+  }
+  const articlesByDistinta = new Map<string, string[]>();
+  for (const row of (linesResult.data ?? []) as Array<{ distinta_id: string; description: string | null }>) {
+    const list = articlesByDistinta.get(row.distinta_id) ?? [];
+    if (row.description) list.push(row.description);
+    articlesByDistinta.set(row.distinta_id, list);
+  }
   const responded = new Map<string, Set<string>>();
-  for (const row of quotesResult.data ?? []) {
+  for (const row of (quotesResult.data ?? []) as Array<{ rfq_id: string; supplier_id: string }>) {
     const set = responded.get(row.rfq_id) ?? new Set<string>();
     set.add(row.supplier_id);
     responded.set(row.rfq_id, set);
   }
   const orderStatus = new Map<string, string>();
-  for (const row of ordersResult.data ?? []) if (!orderStatus.has(row.rfq_id)) orderStatus.set(row.rfq_id, row.status);
+  for (const row of (ordersResult.data ?? []) as Array<{ rfq_id: string; status: string }>) if (!orderStatus.has(row.rfq_id)) orderStatus.set(row.rfq_id, row.status);
 
   const tabs: Array<{ view: RfqHubView; label: string; count?: number }> = [
     { view: "attive", label: "Attive" },
-    ...(canWrite ? [{ view: "da-gestire" as const, label: "Da gestire", count: attentionRfqIds.length }] : []),
+    ...(canWrite ? [{ view: "da-gestire" as const, label: "Da gestire", count: loadedAttention?.distintaIds.length ?? 0 }] : []),
     { view: "archiviate", label: "Archiviate" },
   ];
 
@@ -185,7 +192,7 @@ export default async function BuyerRfqHubPage({
           </form>
         </div>
 
-        {queue?.error ? (
+        {attentionUnavailable ? (
           <p role="status" className="mt-2 text-[11px] text-[var(--text-secondary)]">Le attività da gestire non sono disponibili in questo momento.</p>
         ) : null}
 
@@ -209,8 +216,11 @@ export default async function BuyerRfqHubPage({
                 supplierCount: campaign ? supplierCount.get(campaign.id) ?? 0 : 0,
                 respondedCount: campaign ? responded.get(campaign.id)?.size ?? 0 : 0,
                 orderStatus: campaign ? orderStatus.get(campaign.id) ?? null : null,
-                attention: campaign ? attention?.get(campaign.id) ?? null : null,
+                attention: campaign && !distinta.archived_at ? attention?.get(campaign.id) ?? null : null,
+                archived: Boolean(distinta.archived_at),
               };
+              const articles = rfqHubArticlesLabel(articlesByDistinta.get(distinta.id) ?? [], distinta.line_count);
+              const recipients = campaign && !distinta.archived_at ? rfqHubRecipientsLabel(supplierNames.get(campaign.id) ?? []) : null;
               const state = rfqHubRowState(facts);
               const owner = canWrite && distinta.owner_user_id === context.userId;
               const href = !campaign ? appRoutes.rfqHub.savedDistinta(distinta.id)
@@ -220,8 +230,12 @@ export default async function BuyerRfqHubPage({
                 <li key={distinta.id} data-testid="rfq-hub-row" className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5 py-2.5">
                   <Link href={href} className="group min-w-0 flex-1">
                     <span className="block truncate text-sm font-bold text-[var(--brand-deep)] group-hover:underline">{distinta.title || "Distinta"}</span>
+                    {articles && articles !== distinta.title ? (
+                      <span data-testid="rfq-hub-row-articles" className="block truncate text-[11px] text-[var(--brand-deep)]/80">{articles}</span>
+                    ) : null}
                     <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-[var(--text-secondary)]">
                       <span className={"rounded-full px-2 py-0.5 font-semibold " + rfqHubToneClass[state.tone]}>{state.label}</span>
+                      {recipients ? <span data-testid="rfq-hub-row-recipients" className="font-semibold text-[var(--brand-deep)]">{recipients}</span> : null}
                       {facts.attention?.label ? (
                         <span className={"font-semibold " + (facts.attention.urgent ? "text-[#8c431e]" : "text-[#7a4d0e]")}>→ {facts.attention.label}</span>
                       ) : null}

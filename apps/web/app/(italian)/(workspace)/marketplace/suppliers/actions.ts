@@ -109,3 +109,37 @@ export async function saveSupplierContact(input: {
   revalidatePath(appRoutes.rfqHub.suppliers);
   return { ok: true };
 }
+
+/**
+ * RFQHUB1D: link the caller's own e-mail-only supplier to the Network company
+ * suggested by the e-mail domain. Owner-only and never overwrites a link
+ * (checked again by the database).
+ */
+export async function linkSupplierToNetworkCompany(input: {
+  profileId: string;
+  networkCompanyId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const context = await getWorkspaceContext();
+  if (!canWriteWorkspace(context.role)) {
+    return { ok: false, error: "Il tuo ruolo può consultare la rubrica, non modificarla." };
+  }
+  if (!UUID.test(input.profileId) || !UUID.test(input.networkCompanyId)) {
+    return { ok: false, error: "Fornitore non valido." };
+  }
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("rfqhub1d_link_supplier_profile", {
+    p_profile_id: input.profileId,
+    p_network_company_id: input.networkCompanyId,
+  });
+  if (error) {
+    console.error("RFQHUB1D supplier link failed:", error.message);
+    return { ok: false, error: "Collegamento non riuscito. Riprova." };
+  }
+  const result = data && typeof data === "object" && !Array.isArray(data) ? (data as { ok?: boolean; error?: string }) : null;
+  if (!result?.ok) {
+    return { ok: false, error: result?.error === "already_linked" ? "Il fornitore è già collegato a un'azienda." : "Azienda non più disponibile nel Network." };
+  }
+  revalidatePath(appRoutes.rfqHub.suppliers);
+  revalidatePath(appRoutes.rfqHub.supplier(input.profileId));
+  return { ok: true };
+}

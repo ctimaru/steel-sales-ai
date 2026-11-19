@@ -10,7 +10,7 @@ export async function getReviewedCompanyEvidence(organizationId:string,companyId
  });
  if(error||data?.contract!=="netprofile1d-evidence-v1"||!Array.isArray(data.items))return [];
  return (data.items as ReviewedCompanyEvidence[]).filter(x=>
-  ["description","products","services","industry","city","region","website"].includes(x.field_key)
+  ["description","products","services","industry","city","region","website","industrial_source"].includes(x.field_key)
   && typeof x.evidence_url==="string" && /^https:\/\//.test(x.evidence_url)
  ).slice(0,20);
 }
@@ -33,9 +33,14 @@ export function summarizeReviewedCompanyEvidence(entries:readonly ReviewedCompan
  const seenServices=new Set<string>();
  for(const item of entries.slice(0,20)){
    if(!["description","products","services"].includes(item.field_key)
+     && item.field_key!=="industrial_source"
      ||typeof item.evidence_url!=="string"
      ||!/^https:\/\//i.test(item.evidence_url))continue;
    const src=item.evidence_url;
+   if(item.field_key==="industrial_source"){
+     if(!facts.evidenceSourceUrl) facts.evidenceSourceUrl=src;
+     continue;
+   }
    const strings=typeof item.field_value==="string" ? [item.field_value]:
      Array.isArray(item.field_value) ? item.field_value.filter((v):v is string=>typeof v==="string"):[];
    const values=strings.map(x=>x.trim()).filter(x=>x.length>0&&x.length<=320);

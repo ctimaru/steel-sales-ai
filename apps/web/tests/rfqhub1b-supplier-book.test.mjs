@@ -90,3 +90,79 @@ test("RFQHUB1B migration adds one link column and a write-member-only save funct
   assert.doesNotMatch(migration, /drop table|delete from public\./i);
   assert.match(gate, /rfqhub1b_supplier_contacts\.sql/);
 });
+
+test("RFQHUB1D counts only requests actually sent; drafts never lower the answer rate", () => {
+  const rows = book.buildSupplierBook({
+    profiles: [
+      profile({ id: "p1", identity_key: "network_company:n1", supplier_network_company_id: "n1", rfq_count: 3, tags: ["tubi"], notes: "ok" }),
+      profile({ id: "p2", identity_key: "email:a@b.example", supplier_network_company_id: null, rfq_count: 2 }),
+    ],
+    saved: [{ network_company_id: "n9", name: "Salvata", country_code: "IT", saved_at: "2026-11-15T09:00:00Z" }],
+    companies: [], contacts: [],
+    usage: [
+      { identity_key: "network_company:n1", rfq_id: "r1", sent_at: "2026-11-01T09:00:00Z", responded_at: "2026-11-02T09:00:00Z" },
+      { identity_key: "network_company:n1", rfq_id: "r2", sent_at: "2026-11-05T09:00:00Z", responded_at: null },
+      { identity_key: "network_company:n1", rfq_id: "r3", sent_at: null, responded_at: null },
+      { identity_key: "email:a@b.example", rfq_id: "r4", sent_at: null, responded_at: null },
+      { identity_key: "email:a@b.example", rfq_id: "r5", sent_at: null, responded_at: null },
+    ],
+  });
+  const fmt = () => "1 nov";
+  const n1 = rows.find((r) => r.key === "network:n1");
+  assert.deepEqual([n1.sentCount, n1.respondedCount, n1.draftCount], [2, 1, 1]);
+  assert.deepEqual(n1.tags, ["tubi"]);
+  assert.equal(book.supplierBookUsageLabel(n1, fmt), "2 richieste inviate · ha risposto a 1 · ultima 1 nov");
+  const email = rows.find((r) => r.key === "profile:p2");
+  assert.equal(book.supplierBookUsageLabel(email, fmt), "In 2 bozze, non ancora inviato");
+  const savedOnly = rows.find((r) => r.key === "network:n9");
+  assert.equal(book.supplierBookUsageLabel(savedOnly, fmt), "Salvata il 1 nov · non ancora usata nelle richieste");
+  assert.equal(book.supplierRequestStatusLabel("draft"), "Bozza, non inviata");
+  assert.equal(book.supplierRequestStatusLabel("responded"), "Ha risposto");
+  assert.equal(book.supplierRequestStatusLabel("weird"), "Stato da verificare");
+  assert.equal(book.supplierRequestHref("n1"), "/rfq-hub/distinta?network=n1");
+});
+
+test("RFQHUB1D list and card: star, request link, Italian card without internal identifiers", () => {
+  const card = read("../app/(italian)/(workspace)/marketplace/suppliers/[profileId]/page.tsx");
+  assert.match(page, /\.eq\("owner_user_id", context\.userId\)/);
+  assert.match(page, /\.eq\("buyer_rfq_campaigns\.organization_id", organizationId\)/);
+  assert.match(page, /<SupplierPreferredToggle/);
+  assert.match(page, /data-testid="supplier-book-request"/);
+  for (const id of ["supplier-card-contacts", "supplier-card-requests", "supplier-card-prices"]) assert.ok(card.includes(id), id);
+  assert.doesNotMatch(card, /identity_key|IDENTITY KEY|Response rate|Procurement history|Award|Purchase Order/);
+  assert.match(card, /supplierRequestStatusLabel\(item\.supplier_status\)/);
+  assert.match(card, /canWrite && \(companyId \|\| profile\.supplier_network_company_id\)/);
+  assert.match(card, /\.eq\("organization_id", context\.organizationId\)/);
+});
+
+test("RFQHUB1D Network channel and e-mail-domain link suggestion", () => {
+  const rows = book.buildSupplierBook({
+    profiles: [
+      profile({ id: "p1", supplier_network_company_id: "n1" }),
+      profile({ id: "p2", display_name: "Andrea Bertozzi", email: "andrea@bronifer.example" }),
+    ],
+    saved: [], companies: [], contacts: [],
+    channels: [{ network_company_id: "n1", display_name: "Ufficio vendite", email: "vendite@n1.example" }],
+    matches: [{ profile_id: "p2", network_company_id: "n2", name: "BRONIFER Spa" }, { profile_id: "p1", network_company_id: "nX", name: "No" }],
+  });
+  const n1 = rows.find((r) => r.key === "network:n1");
+  assert.deepEqual(n1.networkChannel, { displayName: "Ufficio vendite", email: "vendite@n1.example" });
+  assert.equal(n1.linkSuggestion, null, "an already linked supplier never gets a suggestion");
+  const person = rows.find((r) => r.key === "profile:p2");
+  assert.deepEqual(person.linkSuggestion, { networkCompanyId: "n2", name: "BRONIFER Spa" });
+
+  const migration1d = read("../../../supabase/migrations/20261119100000_rfqhub1d_supplier_links.sql");
+  assert.match(migration1d, /private\.rfqh2_best_network_contact\(nc\.id\)/);
+  assert.match(migration1d, /private\.pa1_3_network_access_allowed_for\(p_organization_id\)/);
+  assert.match(migration1d, /'already_linked'/);
+  assert.match(migration1d, /gmail\|googlemail/);
+  assert.doesNotMatch(migration1d, /drop table|delete from public\./i);
+  assert.match(gate, /rfqhub1d_supplier_links\.sql/);
+  assert.match(page, /supabase\.rpc\("rfqhub1d_network_channels"/);
+  assert.match(page, /canWrite && emailOnlyIds\.length \? supabase\.rpc\("rfqhub1d_supplier_domain_matches"/);
+  assert.match(actions, /supabase\.rpc\("rfqhub1d_link_supplier_profile"/);
+});
+
+test("RFQHUB1E shows the request e-mail only when it differs from the Network channel", () => {
+  assert.match(page, /supplier\.networkChannel && supplier\.fallbackEmail\?\.toLowerCase\(\) === supplier\.networkChannel\.email\.toLowerCase\(\) \? null/);
+});

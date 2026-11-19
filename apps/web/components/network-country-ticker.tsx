@@ -15,16 +15,7 @@ function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplica
     <strong className="text-[#173f35]">{name}</strong>
     <span className="text-[#7a9386]" aria-hidden="true">·</span>
     <strong className="tabular-nums text-[#173f35]">{item.total.toLocaleString("it-IT")}</strong>
-    <span>aziende nel Network</span>
-    <span className="text-[#7a9386]" aria-hidden="true">·</span>
-    <span>{item.producer.toLocaleString("it-IT")} produttori</span>
-    <span className="text-[#7a9386]" aria-hidden="true">·</span>
-    <span>{item.trader.toLocaleString("it-IT")} commercianti</span>
-    <span className="text-[#7a9386]" aria-hidden="true">·</span>
-    <span>{item.processor.toLocaleString("it-IT")} terzisti</span>
-    <span className="text-[#7a9386]" aria-hidden="true">·</span>
-    <span>{item.endUser.toLocaleString("it-IT")} utilizzatori</span>
-    {item.other>0?<span>· {item.other.toLocaleString("it-IT")} ruoli da precisare</span>:null}
+    <span>aziende</span>
 
   </Link>;
 }
@@ -32,12 +23,7 @@ function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplica
 function Messages({items,duplicate=false}:{items:NetworkCountryStats[];duplicate?:boolean}){
   return <>
     {items.map(item=><CountryMessage key={item.countryCode} item={item} duplicate={duplicate}/>)}
-    {!items.some(item=>item.countryCode==="RO")?<span className="inline-flex min-h-9 shrink-0 items-center gap-2 text-xs text-[#466455]">
-      <NetworkCountryFlag code="RO"/> <strong>Romania</strong> · Espansione in corso, profili pubblici in preparazione
-    </span>:null}
-    <span className="inline-flex min-h-9 shrink-0 items-center gap-2 text-xs font-medium text-[#466455]">
-      <span aria-hidden="true">✦</span> Smart Steel Sales · Il Network europeo continua a crescere
-    </span>
+
   </>;
 }
 
@@ -47,7 +33,7 @@ export async function NetworkCountryTicker({organizationId,accessMode}:{
 }){
   const items=await getNetworkCountryStats(organizationId,accessMode);
   return <section
-    aria-label="Numeri del Network per Paese e ruolo"
+    aria-label="Numero di aziende nel Network per Paese"
     data-testid="network-country-ticker"
     className="mb-3 flex min-h-11 items-center gap-3 rounded-xl border border-[#d7e3dc] bg-white px-3 sm:px-4">
     <span className="shrink-0 border-r border-[#d7e3dc] pr-3 text-[10px] font-bold uppercase tracking-wider text-[#175640]">

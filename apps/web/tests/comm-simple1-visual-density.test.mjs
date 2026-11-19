@@ -45,9 +45,9 @@ test("COMM-SIMPLE1: tenant scope, read-only viewer and explicit next action rema
   assert.match(hub, /getWorkspaceContext\(\)/);
   assert.match(hub, /canWriteWorkspace\(context\.role\)/);
   assert.match(hub, /const organizationId = context\.organizationId/);
-  assert.equal((hub.match(/\.eq\("organization_id", organizationId\)/g) ?? []).length, 5);
-  assert.match(hub, /rfqHubAttentionByRfq\(queue\.data\)/);
-  assert.match(hub, /canWrite \? await supabase\.rpc\("rfqh10_procurement_inbox"/);
+  assert.equal((hub.match(/\.eq\("organization_id", organizationId\)/g) ?? []).length, 4);
+  // RFQHUB1D: «Da gestire» and the menu counter share one org-scoped loader.
+  assert.match(hub, /canWrite \? await loadPurchasingAttention\(supabase, organizationId\)/);
   assert.match(hub, /appRoutes\.rfqHub\.campaign\(campaign\.id\)/);
   assert.match(hub, /appRoutes\.rfqHub\.savedDistinta\(distinta\.id\)/);
   assert.doesNotMatch(hub, /service_role|createAdminClient|autoDispatch/);
