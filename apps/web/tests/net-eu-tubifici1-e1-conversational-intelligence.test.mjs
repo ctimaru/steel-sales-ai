@@ -66,6 +66,25 @@ test("EU1.E1 does not treat common Italian words as ISO country codes",()=>{
   assert.equal(parse.parseEuProducerSearchIntent("Cerco produttori in Italia EN 10219").country,"IT");
 });
 
+test("EU1.E1 follow-ups preserve standard while grade and country are refined",()=>{
+  const base=parse.parseEuProducerSearchIntent("Chi produce tubi EN 10219?");
+  const grade=parse.refineEuProducerSearchFollowup(
+    "e S355J2H?",parse.parseEuProducerSearchIntent("e S355J2H?"),base);
+  assert.equal(grade.standard,"EN 10219");
+  assert.equal(grade.grade,"S355J2H");
+  const country=parse.refineEuProducerSearchFollowup(
+    "in Serbia",parse.parseEuProducerSearchIntent("in Serbia"),grade);
+  assert.equal(country.standard,"EN 10219");
+  assert.equal(country.grade,"S355J2H");
+  assert.equal(country.country,"RS");
+  const newSearch=parse.refineEuProducerSearchFollowup(
+    "Produttori inox AISI 316 in Serbia",
+    parse.parseEuProducerSearchIntent("Produttori inox AISI 316 in Serbia"),grade);
+  assert.equal(newSearch.standard,null,"independent searches must reset prior standard");
+  assert.equal(newSearch.grade,"AISI 316");
+  assert.equal(newSearch.country,"RS");
+});
+
 test("EU1.E1 country follow-up is no permission grant",()=>{
   assert.equal(parse.parseEuProducerSearchIntent("in Italia EN 10219").country,"IT");
   assert.match(action,/intent\.country==="IT"/);
@@ -74,6 +93,7 @@ test("EU1.E1 country follow-up is no permission grant",()=>{
   assert.match(action,/country:"DE"/);
   assert.match(action,/getWorkspaceContext\(\)/);
   assert.match(action,/getNetworkProScopedDirectory\([\s\S]+extractViaAi\(question\)/);
+  assert.match(action,/refineEuProducerSearchFollowup\(question,intent,previous\)/);
   assert.doesNotMatch(action,/SUPABASE_SERVICE_ROLE_KEY|service_role/);
 });
 test("EU1.E1 RPC uses existing actual paid EU entitlement, denies anonymous",()=>{
