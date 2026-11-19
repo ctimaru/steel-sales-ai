@@ -68,6 +68,7 @@ def test_company_leases_are_explicitly_validated():
       "homepage":"https://tubificio.it/",
     }
     assert _lease(valid) is valid
+    assert _lease({**valid,"canonical_domain":"ims.it","homepage":"https://ims.it/"})["canonical_domain"]=="ims.it"
     with pytest.raises(DiscoveryProblem):
       _lease({**valid,"homepage":"https://evil.com/"})
     with pytest.raises(DiscoveryProblem):
