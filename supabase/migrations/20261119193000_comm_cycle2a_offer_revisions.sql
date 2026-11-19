@@ -104,14 +104,16 @@ begin
         is distinct from (to_jsonb(old) - 'status') then
       raise exception 'comm_cycle2a: contenuto di revisione inviata immutabile' using errcode = '42501';
     end if;
-    if new.status = 'accepted' and old.status is distinct from 'accepted'
-      and exists (
-        select 1 from public.offers newer
-        where newer.organization_id = new.organization_id
-          and newer.rfq_id = new.rfq_id and newer.revision_no > new.revision_no
-      ) then
-      raise exception 'comm_cycle2a: solo l''ultima revisione può essere accettata' using errcode = '22023';
-    end if;
+  end if;
+  -- Also protects a legacy imported predecessor when a new managed revision
+  -- exists: it cannot be accepted after the customer received a newer version.
+  if new.status = 'accepted' and old.status is distinct from 'accepted'
+    and new.rfq_id is not null and exists (
+      select 1 from public.offers newer
+      where newer.organization_id = new.organization_id
+        and newer.rfq_id = new.rfq_id and newer.revision_no > new.revision_no
+    ) then
+    raise exception 'comm_cycle2a: solo l''ultima revisione può essere accettata' using errcode = '22023';
   end if;
   return new;
 end;
