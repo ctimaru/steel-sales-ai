@@ -125,7 +125,7 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
             Quale tubo cerchi?
           </h1>
           <p className="mt-1 max-w-[760px] text-[13px] leading-5 text-[#536a5c]">
-            Chiedi all’AI di trovare produttori con fonti consultabili. Dal risultato puoi preparare una Distinta / RFQ.
+            Descrivi il tubo: l’AI trova produttori e prove, poi puoi preparare la Distinta / RFQ.
           </p>
         </div>
         <div className="flex shrink-0 items-center gap-2 self-start rounded-xl border border-[#dce9df] bg-[#f7faf8] px-3 py-2 sm:self-center"
@@ -138,9 +138,16 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
           </span>
         </div>
       </div>
-      <p className="mt-3 border-t border-[#edf2ed] pt-2.5 text-[11px] leading-4 text-[#698071]">
-        Le norme, le misure e i cataloghi tecnici restano qualificazioni documentali separate. Nessuna combinazione norma, grado, dimensione e spessore viene dedotta.
-      </p>
+      <details className="group mt-2 border-t border-[#edf2ed] pt-2">
+        <summary className="min-h-7 cursor-pointer list-none text-[11px] font-semibold text-[#5b7864] underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden">
+          <span className="inline-flex items-center gap-1.5">Come leggere le evidenze tecniche
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-3.5 w-3.5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
+          </span>
+        </summary>
+        <p className="pb-1 text-[11px] leading-4 text-[#698071]">
+          Le norme, le misure e i cataloghi tecnici restano qualificazioni documentali separate. Nessuna combinazione norma, grado, dimensione e spessore viene dedotta.
+        </p>
+      </details>
     </header>
 
     {country!=="IT"&&technicalClaims!==null&&technicalClaims.length>0?
@@ -201,7 +208,7 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
             quando il checkout sarà operativo.
           </p>
         </div>
-        <Link href="/network/pro"
+        <Link href="/network/pro" style={{color:"#ffffff",WebkitTextFillColor:"#ffffff"}}
           className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#175640] px-5 text-sm font-bold text-white">
           Scopri il modulo Produttori
         </Link>
