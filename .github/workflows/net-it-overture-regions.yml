@@ -1,19 +1,19 @@
-name: "NET-IT-FAST1 — Overture Italy regional read-only pilot"
+name: "NET-IT-CARP-MASS1 — Overture carpenterie 7 aree (read-only)"
 on:
   push:
-    branches: ["net-it-overture-canary20-20261117"]
+    branches: ["net-it-carp-mass1-20261119"]
     paths:
       - ".github/workflows/net-it-overture-regions.yml"
       - "services/worker/scripts/overture_regions_canary.py"
 permissions:
   contents: read
 concurrency:
-  group: net-it-overture-regions-readonly
+  group: net-it-carp-mass1-regions-readonly
   cancel-in-progress: false
 jobs:
   regions-readonly:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
