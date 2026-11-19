@@ -65,6 +65,27 @@ class RomaniaOvertureTests(unittest.TestCase):
         nonindustrial[1] = "Restaurant Cafe"
         self.assertIsNone(parse_place(tuple(nonindustrial)))
 
+    def test_no_hotel_motel_or_bare_otel_keyword_leads(self) -> None:
+        row = (
+            "00000000-0000-4000-8000-000000000043",
+            "Hotel Continental", "https://continentalhotels.ro/",
+            NAME_HINT_CATEGORY, "meta", None, 23.1, 46.2, 0.99,
+        )
+        self.assertIsNone(parse_place(row))
+        for label in (
+            "Motel Steel Bar", "Cushman Echinox",
+            "Aftar Stube", "Teaverse.bubbletea",
+            "Epilare Laser Salon", "Muzeul Portilor de Fier",
+        ):
+            updated = list(row)
+            updated[1] = label
+            self.assertIsNone(parse_place(tuple(updated)), label)
+        good = list(row)
+        good[1] = "Rheinmetall Automecanica SRL"
+        self.assertIsNotNone(parse_place(tuple(good)))
+        good[1] = "Inoxprim SRL"
+        self.assertIsNotNone(parse_place(tuple(good)))
+
     def test_eight_spatial_search_tiles(self) -> None:
         # Romanian bounding-box points are divided into eight nonoverlapping
         # retrieval tiles. The tiles are not legal administrative regions.
