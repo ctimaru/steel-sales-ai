@@ -75,9 +75,9 @@ test("MAP1: production ACL repair and reviewed HP13 guard are versioned",()=>{
 test("MAP1: every supported Network country has a local or inline flag on Windows",()=>{
   const countries=read("../lib/network-eu-countries.ts");
   const codes=[...countries.matchAll(/\{code:"([A-Z]{2})",name:/g)].map(match=>match[1]);
-  assert.equal(codes.length,30);
+  assert.equal(codes.length,33);
   for(const code of codes){
-    const inline=["IT","RO","DE","FR","ES","US","GB","CH"].includes(code);
+    const inline=["IT","RO","DE","FR","ES","US","GB","CH","RS","TR","UA"].includes(code);
     if(inline)assert.match(flags,new RegExp('case "'+code+'":return'));
     else{
       assert.ok(flags.includes('"'+code+'"'),code);
