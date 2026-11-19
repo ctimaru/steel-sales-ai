@@ -72,7 +72,7 @@ BEGIN
     OR char_length(v_name) NOT BETWEEN 3 AND 255
     OR v_name !~* '(^|[^[:alnum:]])(s[.]?[[:space:]]*r[.]?[[:space:]]*l[.]?([[:space:]]*s[.]?)?|s[.]?[[:space:]]*p[.]?[[:space:]]*a[.]?|s[.]?[[:space:]]*n[.]?[[:space:]]*c[.]?|s[.]?[[:space:]]*a[.]?[[:space:]]*s[.]?)([^[:alnum:]]|$)'
     OR NOT private.net_it_legal_name_quality_ok(v_name)
-    OR (v_vat IS NOT NULL AND v_vat !~ '^[0-9]{11}
+    OR (v_vat IS NOT NULL AND v_vat !~ '^[0-9]{11}$')
     OR p_page_url IS NULL OR p_page_url !~* '^https://' THEN
   RAISE EXCEPTION 'Invalid identity correction' USING ERRCODE='22023';
  END IF;
