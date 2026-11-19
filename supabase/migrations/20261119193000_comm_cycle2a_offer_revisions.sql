@@ -228,28 +228,50 @@ begin
   insert into public.offers (
     organization_id,owner_id,created_by_user_id,assigned_to_user_id,
     rfq_id,conversation_id,company_id,deal_label,status,currency,
+    delivery_term,payment_terms,valid_until,notes,
     revision_no,previous_offer_id,revision_managed
   ) values (
     p_organization_id,v_uid,v_uid,coalesce(v_rfq.assigned_to_user_id,v_uid),
     v_rfq.id,v_rfq.conversation_id,v_rfq.company_id,v_rfq.deal_label,
-    'draft','EUR',v_revision,v_prev.id,true
+    'draft',coalesce(v_prev.currency,'EUR'),
+    v_prev.delivery_term,v_prev.payment_terms,v_prev.valid_until,v_prev.notes,
+    v_revision,v_prev.id,true
   ) returning id into v_id;
 
-  -- Draft prices are intentionally empty. Private buying costs/targets cannot
-  -- leak into customer-facing offers. Editor/pricing comes in COMM-CYCLE2.B.
-  insert into public.offer_lines (
-    organization_id,owner_id,offer_id,rfq_line_id,product_id,
-    quantity,quantity_unit,canonical_product_id,canonical_product_key,
-    raw_spec_text
-  )
-  select p_organization_id,v_uid,v_id,l.id,l.product_id,
-    l.requested_quantity,l.quantity_unit,l.canonical_product_id,l.canonical_product_key,
-    coalesce(nullif(btrim(l.raw_spec_text),''),
-      nullif(concat_ws(' · ',nullif(btrim(l.requested_standard),''),
-        nullif(btrim(l.requested_grade),'')),''))
-  from public.rfq_lines l
-  where l.organization_id = p_organization_id and l.rfq_id = p_rfq_id
-  order by l.created_at,l.id;
+  if v_prev.id is null then
+    -- First draft: copy the requested industrial specifications, never internal
+    -- buying prices or target costs. No invented weight, €/t or €/m.
+    insert into public.offer_lines (
+      organization_id,owner_id,offer_id,rfq_line_id,product_id,
+      quantity,quantity_unit,canonical_product_id,canonical_product_key,
+      raw_spec_text
+    )
+    select p_organization_id,v_uid,v_id,l.id,l.product_id,
+      l.requested_quantity,l.quantity_unit,l.canonical_product_id,l.canonical_product_key,
+      coalesce(nullif(btrim(l.raw_spec_text),''),
+        nullif(concat_ws(' · ',nullif(btrim(l.requested_standard),''),
+          nullif(btrim(l.requested_grade),'')),''))
+    from public.rfq_lines l
+    where l.organization_id = p_organization_id and l.rfq_id = p_rfq_id
+    order by l.created_at,l.id;
+  else
+    -- Negotiated revision: start from the last customer offer (not a blank
+    -- request). Copy customer-facing prices/conditions so the seller changes
+    -- only what is being negotiated. The sent predecessor remains frozen.
+    insert into public.offer_lines (
+      organization_id,owner_id,offer_id,rfq_line_id,product_id,
+      quantity,quantity_unit,price_value,price_unit,price_type,
+      discount_percentage,availability_status,available_from,
+      canonical_product_id,canonical_product_key,raw_spec_text
+    )
+    select p_organization_id,v_uid,v_id,l.rfq_line_id,l.product_id,
+      l.quantity,l.quantity_unit,l.price_value,l.price_unit,l.price_type,
+      l.discount_percentage,l.availability_status,l.available_from,
+      l.canonical_product_id,l.canonical_product_key,l.raw_spec_text
+    from public.offer_lines l
+    where l.organization_id = p_organization_id and l.offer_id = v_prev.id
+    order by l.created_at,l.id;
+  end if;
   get diagnostics v_count = row_count;
 
   insert into public.comm_deal_events (
