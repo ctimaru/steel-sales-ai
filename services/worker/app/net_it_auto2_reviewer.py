@@ -277,22 +277,58 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
     # A legal suffix appearing as a substring of a flattened CTA is NOT
     # independent proof. Require company/legal context (e.g. P.IVA) within
     # the bounded first-party extract, or corroborated Organization.legalName.
-    structured_names = [
-        str(node.get("legalName")) for node in structured if isinstance(node, dict)
-        and isinstance(node.get("legalName"), str)
-        and node.get("@type") in ("Organization", "Corporation", "LocalBusiness")
-        and (not node.get("url") or (
-            isinstance(node.get("url"), str)
-            and urlsplit(node["url"]).scheme == "https"
-            and canonical_domain(node["url"]) == domain))
-    ]
-    independently_evidenced = bool(
-        found and (
-            found.score >= 4
-            or any(_normalize_full_legal_name(s) ==
-                   _normalize_full_legal_name(found.legal_name)
-                   for s in structured_names)
+    # A repeated flattened CTA isn't proof even if the stripped substring
+    # appears several times. Accept independent evidence only when the full
+    # legal name has company-identifying metadata on the same page, OR when
+    # the company's own structured Organization.legalName corroborates it.
+    def _has_legal_context(full_name: str) -> bool:
+        full = re.escape(_normalize_full_legal_name(full_name))
+        cues = re.compile(
+            r"(?i)(?:p\\.?\\s*iva|partita\\s+iva|ragione\\s+sociale|"
+            r"codice\\s+fiscale|sede\\s+legale|capitale\\s+sociale)"
         )
+        for page in texts:
+            norm = _normalize_full_legal_name(page)
+            for match in re.finditer(full, norm):
+                if cues.search(norm[max(0, match.start() - 120):
+                                    min(len(norm), match.end() + 120)]):
+                    return True
+        return False
+
+    def _structured_corrob(full_name: str) -> bool:
+        for node in structured:
+            if not isinstance(node, dict):
+                continue
+            types = node.get("@type", [])
+            types = [types] if isinstance(types, str) else types
+            if not isinstance(types, list) or not any(
+                str(t).casefold() in ("organization", "corporation", "localbusiness")
+                for t in types
+            ):
+                continue
+            raw = node.get("legalName")
+            if not isinstance(raw, str) or (
+                _normalize_full_legal_name(raw) !=
+                    _normalize_full_legal_name(full_name)
+            ):
+                continue
+            url = node.get("url")
+            if url:
+                if not isinstance(url, str):
+                    continue
+                try:
+                    parsed = urlsplit(url)
+                    if (parsed.scheme != "https" or not parsed.hostname
+                            or parsed.hostname.casefold().removeprefix("www.") != domain):
+                        continue
+                except ValueError:
+                    continue
+            return True
+        return False
+
+    independently_evidenced = bool(
+        found and (_has_legal_context(found.legal_name)
+                   or _structured_corrob(found.legal_name))
     )
     if (found and legal_name_is_clean(found.legal_name)
             and _is_capital_company(found.legal_name)
