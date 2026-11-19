@@ -310,9 +310,13 @@ export async function purchaseItemHref(organizationId: string, item: string): Pr
   if (!["campaign", "quote", "purchase-order", "distinta"].includes(prefix)) return null;
   const db = await createClient();
   const key = await dealKeyFor(db, organizationId, item).catch(() => null);
-  if (key?.kind === "campaign") return routes.campaign(key.id);
-  if (key?.kind === "distinta") return routes.distinta(key.id);
-  return appRoutes.rfqHub.home;
+  if (key?.kind !== "campaign" && key?.kind !== "distinta") return appRoutes.rfqHub.home;
+  // Only a record the caller can read gets a deep link: an unknown key or one
+  // of another company lands on Centro RFQ, with no hint about what exists.
+  const table = key.kind === "campaign" ? "buyer_rfq_campaigns" : "buyer_distintas";
+  const { data } = await db.from(table).select("id").eq("organization_id", organizationId).eq("id", key.id).maybeSingle();
+  if (!data) return appRoutes.rfqHub.home;
+  return key.kind === "campaign" ? routes.campaign(key.id) : routes.distinta(key.id);
 }
 
 export async function loadCommercialDealsPage(organizationId: string, state: DealDeskState, pageSize: number): Promise<CommercialDealsPage> {

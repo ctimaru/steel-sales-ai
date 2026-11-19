@@ -40,73 +40,44 @@ async function assertNoOverflow(page, name) {
   assert.ok(size.scroll <= size.client + 12, name + " has horizontal overflow: " + JSON.stringify(size));
 }
 // COMM-DEALS1: la lista Commerciale è un elenco di trattative (una riga per trattativa).
-// I vecchi parametri ?view=sent restano validi e aprono il segmento Acquisti.
+// COMM-CLIENTS1 (19 nov 2026): /commercial è «Richieste d'offerta», solo vendite.
+// Le RFQ ai fornitori (le otto campagne locali COMMUX6B) vivono nel Centro RFQ:
+// i vecchi link ?view=sent portano lì.
 async function inspectList(page, width, persona) {
-  const href = "/commercial?view=sent&q=COMMUX6B";
-  const response = await page.goto(base + href, { waitUntil: "domcontentloaded", timeout: 90000 });
+  const legacy = await page.goto(base + "/commercial?view=sent&q=COMMUX6B", { waitUntil: "domcontentloaded", timeout: 90000 });
+  assert.equal(legacy?.status(), 200);
+  await page.waitForURL(u => u.pathname === "/rfq-hub", { timeout: 60000 });
+
+  const response = await page.goto(base + "/commercial?q=COMMUX6B", { waitUntil: "domcontentloaded", timeout: 90000 });
   assert.equal(response?.status(), 200);
-  await page.getByRole("heading", { name: "Trattative", exact: true, level: 1 })
+  await page.getByRole("heading", { name: "Richieste d'offerta", exact: true, level: 1 })
     .waitFor({ state: "visible", timeout: 60000 });
-  const purchase = page.getByTestId("commercial-deal-segments").getByRole("link", { name: /^Acquisti/ });
-  assert.equal(await purchase.getAttribute("aria-current"), "page", "Legacy view=sent must open the Acquisti segment");
+  assert.equal(await page.getByTestId("commercial-deal-segments").count(), 0, "No Vendite/Acquisti segments any more");
   const list = page.getByTestId("commercial-deals-list");
   await list.waitFor({ state: "visible", timeout: 60000 });
-  const entries = list.getByTestId("commercial-deal-row");
-  await entries.first().waitFor({ state: "visible", timeout: 60000 });
-  const count = await entries.count();
-  assert.equal(count, 8, "Expected exactly eight local RFQ deals, got " + count);
+  const listText = await list.innerText();
+  assert.doesNotMatch(listText, /COMMUX6B RFQ \d{2}/, "Purchase RFQs live in Centro RFQ, not in Richieste d'offerta");
+  assert.doesNotMatch(listText, /Acquisto/);
+  assert.doesNotMatch(listText, /DEMOTEST23 PRODUCER PRIVATE RFQ/, "No cross-tenant records");
   // L'assistente resta sulla pagina ma chiuso: la tabella parte nel primo schermo.
   assert.equal(await page.getByTestId("commercial-ai-native-shell").isVisible(), false);
-  let maxHeight = 0;
-  for (let i = 0; i < count; i++) {
-    const entry = entries.nth(i);
-    const dimensions = await entry.boundingBox();
-    assert.ok(dimensions, "Deal row " + i + " must have layout");
-    assert.ok(dimensions.height >= 44 && dimensions.height <= (width === 1440 ? 80 : 180),
-      "Deal row " + i + " is not compact at " + width + "px: " + dimensions.height);
-    maxHeight = Math.max(maxHeight, dimensions.height);
-    const text = await entry.innerText();
-    assert.match(text, /COMMUX6B RFQ \d{2}/);
-    assert.match(text, /Acquisto/);
-    assert.match(text, /RFQ-[0-9A-F]{6}/);
-    assert.match(text, /Bozza/);
-    assert.match(text, /Completa e invia ai fornitori/);
-    const destination = await entry.getAttribute("href") ?? "";
-    assert.match(destination, /seg=purchase/);
-    assert.match(destination, /item=campaign%3A|item=campaign:/);
-    assert.doesNotMatch(destination, /view=/, "New rows must use the deal desk parameters");
-  }
-  const listText = await list.innerText();
-  // Una riga per trattativa: le distinte già usate dalle RFQ non tornano come righe.
-  assert.doesNotMatch(listText, /COMMUX6B Distinta/);
-  assert.doesNotMatch(listText, /DEMOTEST23 PRODUCER PRIVATE RFQ/, "No cross-tenant records");
-  if (width === 1440) {
-    const first = await entries.first().boundingBox();
-    const last = await entries.last().boundingBox();
-    assert.ok(first && first.y < 420, "First deal must sit high in the desktop viewport: " + Math.round(first?.y ?? -1));
-    assert.ok(first && last && last.y - first.y <= 8 * 80, "Rows must stay dense: " + Math.round((last?.y ?? 0) - (first?.y ?? 0)));
-  }
   await assertNoOverflow(page, persona.id + " at " + width);
   await page.screenshot({
     path: path.join(dir, "worklist-" + persona.id + "-" + width + "px.png"),
     fullPage: false, animations: "disabled"
   });
-  console.log("COMM-DEALS1 WORKLIST PASS", persona.id, width, "rows", count, "maxRowPx", maxHeight);
-  return entries;
+  console.log("COMM-CLIENTS1 RICHIESTE D'OFFERTA PASS", persona.id, width);
 }
 
 async function inspectViewer(page, width) {
-  const response = await page.goto(base + "/commercial?view=sent&q=COMMUX6B", {
+  const response = await page.goto(base + "/commercial?q=COMMUX6B", {
     waitUntil: "domcontentloaded", timeout: 90000
   });
   assert.equal(response?.status(), 200);
-  await page.getByRole("heading", { name: "Trattative", exact: true, level: 1 })
+  await page.getByRole("heading", { name: "Richieste d'offerta", exact: true, level: 1 })
     .waitFor({ state: "visible", timeout: 60000 });
   const list = page.getByTestId("commercial-deals-list");
   await list.waitFor({ state: "visible", timeout: 60000 });
-  // A viewer is read-only; tenant RLS may deny campaign rows entirely.
-  const count = await list.getByTestId("commercial-deal-row").count();
-  assert.ok(count <= 8, "Viewer cannot gain synthetic records from other tenants");
   assert.doesNotMatch(await list.innerText(), /DEMOTEST23 PRODUCER PRIVATE RFQ/);
   assert.equal(await page.getByTestId("commercial-new-request").count(), 0);
   assert.equal(await page.getByTestId("comm-cine11-prompt").count(), 0);
@@ -115,7 +86,7 @@ async function inspectViewer(page, width) {
     path: path.join(dir, "read-only-viewer-" + width + "px.png"),
     fullPage: false, animations: "disabled"
   });
-  console.log("COMM-DEALS1 READ-ONLY VIEWER PASS", width, "visibleRows", count);
+  console.log("COMM-CLIENTS1 READ-ONLY VIEWER PASS", width);
 }
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
@@ -134,55 +105,14 @@ try {
           await inspectViewer(page, width);
           continue;
         }
-        const entries = await inspectList(page, width, persona);
-        const firstUrl = await entries.first().getAttribute("href");
-        assert.ok(firstUrl);
-        await entries.first().click();
-        await page.waitForURL(u => u.searchParams.has("item"), { timeout: 60000 });
-        const detail = page.locator("#commercial-detail");
-        await detail.waitFor({ state: "visible", timeout: 60000 });
-        const content = detail.getByTestId("commercial-deal-detail");
-        await content.getByRole("heading", { level: 2, name: /COMMUX6B RFQ \d{2}/ }).waitFor({ state: "visible" });
-        const next = detail.getByTestId("commercial-deal-next-step");
-        assert.match(await next.innerText(), /Completa e invia ai fornitori/);
-        const documents = detail.getByTestId("commercial-deal-documents");
-        assert.match(await documents.innerText(), /RFQ ai fornitori/);
-        assert.match(await documents.innerText(), /Bozza/);
-        // Righe articolo: norma, grado e quantità della distinta originale, nessun prezzo.
-        const detailText = await detail.innerText();
-        assert.match(detailText, /(?:SHS 100x100x5|RHS 200x100x6)/);
-        assert.match(detailText, /EN 10219 · S355J2H/);
-        assert.doesNotMatch(detailText, /DEMO Steel Manufacturing/);
-        assert.doesNotMatch(detailText, /€/);
-        // Una bozza resta sul documento originale: nessun salto a confronto o ordini.
-        const primary = detail.getByTestId("commercial-deal-primary-action");
-        const draftTarget = await primary.getAttribute("href");
-        assert.ok(draftTarget && draftTarget.startsWith("/rfq-hub/") && !draftTarget.includes("#commercial-operations") && !draftTarget.includes("tab="),
-          "Draft RFQ CTA must remain on the governed original document: " + draftTarget);
-        const actualColors = await primary.evaluate(el => ({
-          foreground: getComputedStyle(el).color,
-          fill: getComputedStyle(el).webkitTextFillColor
-        }));
-        assert.equal(actualColors.foreground, "rgb(255, 255, 255)", "Selected deal CTA must be white on green");
-        assert.equal(actualColors.fill, "rgb(255, 255, 255)", "Selected deal CTA WebKit text fill must be white");
-        assert.equal(await detail.getByTestId("commercial-deal-next-step").locator("button").count(), 0,
-          "The next-step summary never executes RFQ/PO operations");
-
-        await assertNoOverflow(page, "selected deal " + width);
-        await detail.scrollIntoViewIfNeeded();
-        await page.screenshot({
-          path: path.join(dir, "deal-detail-" + persona.id + "-" + width + "px.png"),
-          fullPage: false, animations: "disabled"
-        });
-        await detail.getByRole("link", { name: "Chiudi il dettaglio" }).click();
-        await page.waitForURL(u => !u.searchParams.has("item"), { timeout: 60000 });
-        assert.equal(await page.getByTestId("commercial-deals-list").getByTestId("commercial-deal-row").count(), 8,
-          "Closing the detail must keep segment and search");
+        await inspectList(page, width, persona);
         if (persona.id === "buyer") {
+          // A purchase link of another tenant never opens anything: it lands on
+          // Centro RFQ without the record.
           const alien = "/commercial?view=sent&q=COMMUX6B&item=campaign:" + producer.rfq;
           await page.goto(base + alien, { waitUntil: "domcontentloaded", timeout: 90000 });
-          await page.getByTestId("commercial-deal-not-found").waitFor({ state: "visible", timeout: 60000 });
-          assert.equal(await page.locator("#commercial-detail").count(), 0);
+          await page.waitForURL(u => u.pathname === "/rfq-hub", { timeout: 60000 });
+          assert.doesNotMatch(await page.locator("body").innerText(), /DEMOTEST23 PRODUCER PRIVATE RFQ/);
 
           // COMM-RFQ-UX1: actual authenticated browser handoff. The text
           // must appear before the calculator without any implicit AI call.
