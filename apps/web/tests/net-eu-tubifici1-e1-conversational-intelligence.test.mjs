@@ -56,6 +56,16 @@ test("EU1.E1 understands Serbia and AISI grade but cannot infer grade from model
   assert.equal(unexpected.shape,null);
   assert.equal(unexpected.country,null);
 });
+test("EU1.E1 does not treat common Italian words as ISO country codes",()=>{
+  assert.equal(parse.parseEuProducerSearchIntent("Si producono tubi EN 10219?").country,null);
+  assert.equal(parse.parseEuProducerSearchIntent("Se cerco S355J2H?").country,null);
+  assert.equal(parse.parseEuProducerSearchIntent("Is it EN 10219?").country,null);
+  assert.equal(parse.parseEuProducerSearchIntent("Cerco produttori in SI EN 10219").country,"SI");
+  assert.equal(parse.parseEuProducerSearchIntent("Cerco produttori in Serbia EN 10219").country,"RS");
+  assert.equal(parse.parseEuProducerSearchIntent("Cerco produttori in Germania EN 10219").country,"DE");
+  assert.equal(parse.parseEuProducerSearchIntent("Cerco produttori in Italia EN 10219").country,"IT");
+});
+
 test("EU1.E1 country follow-up is no permission grant",()=>{
   assert.equal(parse.parseEuProducerSearchIntent("in Italia EN 10219").country,"IT");
   assert.match(action,/intent\.country==="IT"/);
@@ -69,6 +79,9 @@ test("EU1.E1 country follow-up is no permission grant",()=>{
 test("EU1.E1 RPC uses existing actual paid EU entitlement, denies anonymous",()=>{
   for(const term of [
     "private.netpro1b_allowed_for(p_organization_id,'producers','DE')",
+    "not coalesce(private.netpro1b_allowed_for(p_organization_id,'producers','DE'),false)",
+    "(select auth.uid()) is null",
+    "else null end website_url",
     "errcode='42501'","c.publication_status='published'",
     "c.archived_at is null","private.netpro1b_europe_country",
     "tc.evidence_status='first_party_observed'",
