@@ -5,7 +5,7 @@ import {readRfqAiGatewayOutput} from "@/lib/rfq-ai-gateway-protocol";
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import {getNetworkProScopedDirectory} from "@/lib/network-pro-coverage";
 import {
- parseEuProducerSearchIntent,reconcileEuProducerModelIntent,
+ parseEuProducerSearchIntent,reconcileEuProducerModelIntent,refineEuProducerSearchFollowup,
  type EuProducerSearchIntent,
 } from "@/lib/eu-producer-intelligence-intent";
 import {
@@ -100,15 +100,9 @@ export async function searchEuropeanTubeProducers(
       "Verifica dei permessi temporaneamente non disponibile.",
   };
   let intent=parseEuProducerSearchIntent(question);
-  if(!intent.standard&&!intent.grade&&!intent.shape &&
-     typeof previousQuestion==="string"&&previousQuestion.length<=LIMIT){
+  if(typeof previousQuestion==="string"&&previousQuestion.length<=LIMIT){
     const previous=parseEuProducerSearchIntent(previousQuestion);
-    // A follow-up may refine the country or shape only; every technical
-    // criterion still derives from a previous literal user question.
-    if(previous.standard||previous.grade||previous.shape)
-      intent={...previous,country:intent.country??previous.country,
-        requestedSize:intent.requestedSize||previous.requestedSize,
-        unverifiedConditions:[...new Set([...previous.unverifiedConditions,...intent.unverifiedConditions])].slice(0,5)};
+    intent=refineEuProducerSearchFollowup(question,intent,previous);
   }
   if(intent.country==="IT")
     return {ok:true,status:"clarify",message:"Per i produttori italiani utilizza il filtro Italia. Questa ricerca riguarda l'Intelligence Produttori Europa."};
