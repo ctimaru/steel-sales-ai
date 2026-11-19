@@ -27,6 +27,8 @@ EXCLUDED = frozenset({
     "linktr.ee", "wix.com", "wordpress.com", "blogspot.com",
 })
 DOMAIN = re.compile(r"^[a-z0-9][a-z0-9.-]*\.[a-z]{2,24}$")
+ALLOWED_TLDS = frozenset({"ro", "com", "eu", "net", "org", "de", "it", "fr",
+                           "co", "info", "biz", "global", "group", "industry"})
 SOURCE = re.compile(r"^[a-zA-Z0-9_-]{2,60}$")
 # Romanian bounding-box prefilter. Address.country must ALSO be RO.
 ROMANIA_BOX = (20.0, 30.3, 43.5, 48.4)
@@ -47,7 +49,8 @@ def canonical_website(value: object) -> tuple[str, str] | None:
     except ValueError:
         return None
     domain = host.lower().removeprefix("www.")
-    if (not DOMAIN.fullmatch(domain) or ".." in domain\n            or domain.rsplit(".", 1)[-1] not in ALLOWED_TLDS):
+    if (not DOMAIN.fullmatch(domain) or ".." in domain
+            or domain.rsplit(".", 1)[-1] not in ALLOWED_TLDS):
         return None
     if domain in EXCLUDED or any(domain.endswith("." + bad) for bad in EXCLUDED):
         return None
