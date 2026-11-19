@@ -115,85 +115,81 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
       <span className="font-semibold text-[#193d2e]">Produttori</span>
     </nav>
 
-    <header className="overflow-hidden rounded-[24px] border border-[#d7e5db] bg-[linear-gradient(125deg,#eef7f0,#ffffff)] p-5 sm:p-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full bg-[#14543c] px-3 py-1 text-[10px] font-extrabold tracking-wide text-white">NETWORK PRO</span>
-        <span className="rounded-full border border-[#b8d6c3] bg-white px-3 py-1 text-[10px] font-bold tracking-wide text-[#275a40]">INTELLIGENCE PRODUTTORI</span>
-        <span className="rounded-full border border-[#bddac6] bg-white px-3 py-1 text-[10px] font-bold text-[#175640]">INCLUSO NEL MODULO PRODUTTORI</span>
-        <span className="rounded-full border border-[#d0e3d5] bg-white px-3 py-1 text-[10px] font-semibold text-[#496b56]">{countryLabel}</span>
-      </div>
-      <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1fr)_260px] lg:items-end">
-        <div>
-          <h1 className="max-w-[780px] text-[26px] font-extrabold leading-[1.13] tracking-[-0.04em] text-[#123c2c] sm:text-[32px]">
-            Trova e confronta chi produce acciaio.
+    <header className="rounded-[20px] border border-[#dae6de] bg-white px-4 py-4 sm:px-6 sm:py-5">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#43745a]">
+            Network <span className="font-extrabold text-[#14543c]">PRO</span> · Intelligence produttori
+          </p>
+          <h1 className="mt-1.5 text-[24px] font-extrabold leading-tight tracking-[-0.035em] text-[#123c2c] sm:text-[29px]">
+            Quale tubo cerchi?
           </h1>
-          <p className="mt-3 max-w-[780px] text-sm leading-6 text-[#4d6355]">
-            Visualizza i produttori pubblicati per Paese, con accessi Italia/Europa distinti.
-            La prova di produzione fisica, le norme, le dimensioni e i cataloghi
-            tecnici restano qualificazioni documentali separate.
+          <p className="mt-1 max-w-[760px] text-[13px] leading-5 text-[#536a5c]">
+            Chiedi all’AI di trovare produttori con fonti consultabili. Dal risultato puoi preparare una Distinta / RFQ.
           </p>
         </div>
-        <div className="rounded-2xl border border-[#cde0d2] bg-white p-4 shadow-[0_7px_24px_rgba(16,65,40,0.06)]">
-          <p className="text-[11px] font-semibold text-[#526d5c]">{"Produttori industriali pubblicati · "+countryLabel}</p>
-          <p className="mt-1 text-[34px] font-extrabold tabular-nums text-[#164a32]">
-            {publishedCount===null?"—":publishedCount.toLocaleString("it-IT")}
-          </p>
-          <p className="text-[11px] leading-4 text-[#61786a]">
-            Non equivalgono a tubifici verificati. Nessuna candidatura è conteggiata.
-          </p>
+        <div className="flex shrink-0 items-center gap-2 self-start rounded-xl border border-[#dce9df] bg-[#f7faf8] px-3 py-2 sm:self-center"
+          aria-label={"Elenco produttori nel Paese "+countryLabel}>
+          <span className="text-[11px] text-[#5b7464]">Elenco</span>
+          <strong className="text-xs font-extrabold text-[#24563f]">{countryLabel}</strong>
+          <span className="h-4 w-px bg-[#cfded2]" aria-hidden="true"/>
+          <span className="text-[11px] font-bold tabular-nums text-[#24563f]">
+            {publishedCount===null?"—":publishedCount.toLocaleString("it-IT")} aziende
+          </span>
         </div>
       </div>
+      <p className="mt-3 border-t border-[#edf2ed] pt-2.5 text-[11px] leading-4 text-[#698071]">
+        Le norme, le misure e i cataloghi tecnici restano qualificazioni documentali separate: una caratteristica osservata non conferma una combinazione producibile.
+      </p>
     </header>
 
     {country!=="IT"&&technicalClaims!==null&&technicalClaims.length>0?
-      <div className="rounded-xl border border-[#c9dfd0] bg-[#f2f9f4] px-4 py-3 text-xs leading-5 text-[#20533b]" data-testid="network-producers-eu-evidence">
-        <strong>Intelligence Europa · {technicalClaims.length} evidenze con fonte in questa pagina.</strong>
-        {" "}Osservate sul sito ufficiale, non ancora confermate dal produttore; nessuna combinazione norma, grado, dimensione e spessore viene dedotta.
-      </div>:null}
+      <p data-testid="network-producers-eu-evidence" className="text-xs leading-5 text-[#496b56]">
+        {technicalClaims.length} evidenze tecniche ufficiali per le aziende nell’elenco · Dati osservati, in attesa di conferma del produttore.
+      </p>:null}
 
     <EuProducerIntelligenceChat/>
 
-    <Link href="/network/cataloghi"
-      className="flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-[16px] border border-[#bedac8] bg-[#f2f9f4] px-4 py-3 text-xs font-bold text-[#1b6044] hover:bg-[#e8f4ec]">
-      <span>Cataloghi e dati tecnici pubblici · In attesa di conferma dal produttore</span>
-      <span>Apri anteprima →</span>
-    </Link>
-
-    <section className="rounded-[20px] border border-[#dce7df] bg-white p-4 sm:p-5" aria-labelledby="manufacturer-search-title">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 id="manufacturer-search-title" className="text-base font-extrabold text-[#183d2d]">
-          Cerca i produttori nel Network
-        </h2>
-        <span className="text-[11px] font-semibold text-[#607669]">{"Ricerca azienda e dominio · "+countryLabel}</span>
-      </div>
-      {/* NET-PRO-UX2: next/form navigates client-side (no full reload) and prefetches the loading skeleton. */}
-      <Form action="/network/pro/producers" className="mt-3 flex flex-col gap-2 sm:flex-row">
-        <label htmlFor="manufacturer-query" className="sr-only">Nome del produttore o dominio</label>
-        <input id="manufacturer-query" name="q" type="search" maxLength={120}
-          defaultValue={query} placeholder="Nome produttore o dominio, ad esempio EUROPIPE"
-          className="min-h-12 min-w-0 flex-1 rounded-xl border border-[#bacfc1] bg-white px-4 text-sm text-[#183d2d] placeholder:text-[#748879] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]"/>
-        <label htmlFor="manufacturer-country" className="sr-only">Paese del produttore</label>
-        <select id="manufacturer-country" name="country" defaultValue={country}
-          aria-label="Paese del produttore" data-testid="network-producers-country"
-          className="min-h-12 min-w-[148px] rounded-xl border border-[#bacfc1] bg-white px-3 text-sm font-semibold text-[#183d2d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-          <optgroup label="Unione europea">
-            {EU_MEMBER_COUNTRIES.map(item=><option key={item.code} value={item.code}>{item.name}</option>)}
-          </optgroup>
-          <optgroup label="Altri Paesi europei">
-            {OTHER_NETWORK_COUNTRIES.filter(item=>item.code!=="US").map(item=>
-              <option key={item.code} value={item.code}>{item.name}</option>)}
-          </optgroup>
-        </select>
-        <button type="submit" className="min-h-12 rounded-xl bg-[#175640] px-6 text-sm font-bold text-white hover:bg-[#10452f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">Cerca</button>
-      </Form>
-      <p className="mt-3 text-xs leading-5 text-[#5d7262]">
-        La ricerca tecnica per norma, grado e dimensione esatta richiede cataloghi con
-        combinazioni esplicite. Cerca ora per azienda o dominio, poi confronta norme, gradi,
-        sezioni e intervalli osservati sulle fonti ufficiali: non equivalgono a SKU disponibili
-        né a conferme del produttore. La ricerca trasversale per specifiche esatte richiede
-        ancora documenti che le associno esplicitamente.
-      </p>
-    </section>
+    <details className="group overflow-hidden rounded-[17px] border border-[#dce7df] bg-white" open={Boolean(query)}>
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-bold text-[#22543c] hover:bg-[#f7faf8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden"
+        data-testid="network-producers-browse-toggle">
+        <span>Sfoglia per azienda o Paese</span>
+        <span className="flex shrink-0 items-center gap-2 text-[11px] font-medium text-[#647a6b]">
+          {countryLabel}
+          <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
+        </span>
+      </summary>
+      <section className="border-t border-[#edf3ee] px-4 pb-4 pt-3 sm:px-5" aria-labelledby="manufacturer-search-title">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 id="manufacturer-search-title" className="text-sm font-bold text-[#254c37]">Ricerca diretta nel Network</h2>
+          <Link href="/network/cataloghi" className="text-[11px] font-semibold text-[#276949] underline-offset-2 hover:underline">
+            Cataloghi e dati tecnici ↗
+          </Link>
+        </div>
+        <Form action="/network/pro/producers" className="mt-3 flex flex-col gap-2 sm:flex-row">
+          <label htmlFor="manufacturer-query" className="sr-only">Nome del produttore o dominio</label>
+          <input id="manufacturer-query" name="q" type="search" maxLength={120}
+            defaultValue={query} placeholder="Nome produttore o dominio, ad esempio EUROPIPE"
+            className="min-h-12 min-w-0 flex-1 rounded-xl border border-[#bacfc1] bg-white px-4 text-sm text-[#183d2d] placeholder:text-[#748879] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]"/>
+          <label htmlFor="manufacturer-country" className="sr-only">Paese del produttore</label>
+          <select id="manufacturer-country" name="country" defaultValue={country}
+            aria-label="Paese del produttore" data-testid="network-producers-country"
+            className="min-h-12 min-w-[148px] rounded-xl border border-[#bacfc1] bg-white px-3 text-sm font-semibold text-[#183d2d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+            <optgroup label="Unione europea">
+              {EU_MEMBER_COUNTRIES.map(item=><option key={item.code} value={item.code}>{item.name}</option>)}
+            </optgroup>
+            <optgroup label="Altri Paesi europei">
+              {OTHER_NETWORK_COUNTRIES.filter(item=>item.code!=="US").map(item=>
+                <option key={item.code} value={item.code}>{item.name}</option>)}
+            </optgroup>
+          </select>
+          <button type="submit" className="min-h-12 rounded-xl bg-[#175640] px-6 text-sm font-bold text-white hover:bg-[#10452f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">Cerca aziende</button>
+        </Form>
+        <p className="mt-2 text-[11px] leading-4 text-[#718474]">
+          La ricerca tecnica per norma, grado e dimensione è disponibile nella chat AI sopra; qui puoi filtrare soltanto per nome, dominio o Paese.
+        </p>
+      </section>
+    </details>
 
     {result.status==="locked"?
       <section role="status" className="grid gap-4 rounded-[22px] border border-[#d7e2d8] bg-white p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-7">
@@ -223,9 +219,9 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
               {total?.toLocaleString("it-IT")} risultati{pages>1?" · pagina "+page+" di "+pages:""} · Seleziona fino a tre aziende da confrontare
             </p>
           </div>
-          <span className="rounded-lg border border-[#c9ddcf] bg-[#f4f9f5] px-3 py-2 text-xs font-bold text-[#275a40]">
+          {selectedCompanies.length>0?<span className="rounded-lg border border-[#c9ddcf] bg-[#f4f9f5] px-3 py-2 text-xs font-bold text-[#275a40]">
             {selectedCompanies.length} / 3 selezionati
-          </span>
+          </span>:null}
         </div>
         {companies.length===0?
           <div className="rounded-xl border border-[#dce7df] bg-white p-6 text-sm text-[#64776a]">
@@ -244,7 +240,7 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
             const hasDetails=evidence.length>0||docs.length>0||mentions.length>0;
             return <li key={company.id} data-testid="network-producer-row" className={"min-w-0 transition-colors "+(active?"bg-[#f1f8f3]":"hover:bg-[#fafcfb]")}>
               <article className="flex flex-wrap items-center gap-x-4 gap-y-3 px-4 py-3.5">
-                <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#e8eefb] text-[13px] font-extrabold text-[#2f4b8f]">
+                <span aria-hidden="true" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#edf4ee] text-[13px] font-extrabold text-[#285641]">
                   {initials(company.name)}
                 </span>
                 <div className="min-w-0 flex-1 basis-[240px]">
@@ -393,15 +389,6 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
       </nav>
     </>}
 
-    <section className="grid gap-3 md:grid-cols-3" aria-label="Funzioni in arricchimento">
-      {[
-        {title:"Cataloghi e fonti",text:"Link ufficiali e dati tecnici documentati; nessun PDF copiato o licenza presunta."},
-        {title:"Ricerca per misura",text:"Stiamo costruendo la ricerca esatta per norma, grado e dimensioni; i range da soli non confermano la producibilità."},
-        {title:"Dal produttore alla RFQ",text:"Dalla ricerca alla Distinta e alla richiesta commerciale mantenendo il contesto."},
-      ].map(x=><article key={x.title} className="rounded-[18px] border border-[#dbe6de] bg-[#f7faf8] p-4">
-        <h2 className="text-sm font-extrabold text-[#17402e]">{x.title}</h2>
-        <p className="mt-2 text-xs leading-5 text-[#5e7564]">{x.text}</p>
-      </article>)}
-    </section>
+
   </main>;
 }
