@@ -77,15 +77,23 @@ declare
   v_id uuid;
   v_org uuid;
 begin
-  if tg_op = 'DELETE' then v_id := old.offer_id; v_org := old.organization_id;
-  else v_id := new.offer_id; v_org := new.organization_id; end if;
+  if tg_op in ('UPDATE','DELETE') then
+    select o.revision_managed, o.status into v_is_managed, v_status
+    from public.offers o where o.id = old.offer_id and o.organization_id = old.organization_id;
+    if v_is_managed and v_status = 'draft' and current_user <> 'postgres' then
+      raise exception 'comm_cycle2b: usa Salva bozza per modificare le righe'
+        using errcode = '42501';
+    end if;
+  end if;
+  if tg_op = 'DELETE' then return old; end if;
+  v_id := new.offer_id; v_org := new.organization_id;
   select o.revision_managed, o.status into v_is_managed, v_status
   from public.offers o where o.id = v_id and o.organization_id = v_org;
   if v_is_managed and v_status = 'draft' and current_user <> 'postgres' then
     raise exception 'comm_cycle2b: usa Salva bozza per modificare le righe'
       using errcode = '42501';
   end if;
-  return case when tg_op = 'DELETE' then old else new end;
+  return new;
 end;
 $draft_lines$;
 
