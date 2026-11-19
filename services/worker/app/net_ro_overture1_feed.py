@@ -29,13 +29,13 @@ NAME_HINT_CATEGORY = "keyword_industrial_hint"
 # This is a RE2-compatible expression, shared by DuckDB and PostgreSQL.
 NAME_HINT_REGEX = (
     r"(metal|metall|steel|sider|profil|carpenter|sudur|forjat|prelucr"
-    r"|(^|[^a-z])(inox|tub|teav|țeav|laser|fier|oțel))"
+    r"|(^|[^a-z])(inox|tub|teav|țeav|fier|oțel))"
 )
 NONINDUSTRIAL_REGEX = (
     r"(hotel|motel|resort|hostel|restaurant|pensiun|cafenea|cafe"
     r"|bubble.?tea|salon|cosmetic|beauty|epil|gym|fitness"
     r"|muze|museum|biseric|church|scoal|școal|school"
-    r"|laser.?tag|barber|spa)"
+    r"|laser.?tag|barber|spa|dent|stomat|clinic|dermat|chirurg"\n    r"|estet|fotbal|football|stadion|printer|imprimant|toner|cartu"\n    r"|detecto|laser.?game|lasertime|metalul.?buz)"
 )
 NAME_HINT = re.compile(NAME_HINT_REGEX, re.I)
 NONINDUSTRIAL = re.compile(NONINDUSTRIAL_REGEX, re.I)
@@ -186,7 +186,7 @@ def query_places() -> list[tuple]:
                          'metal_processing','metalworking'
                        ]),1)
                        WHEN regexp_matches(lower(names.primary),
-                         '(metal|metall|steel|sider|profil|carpenter|sudur|forjat|prelucr|(^|[^a-z])(inox|tub|teav|țeav|laser|fier|oțel))')
+                         '(metal|metall|steel|sider|profil|carpenter|sudur|forjat|prelucr|(^|[^a-z])(inox|tub|teav|țeav|fier|oțel))')
                        THEN 'keyword_industrial_hint'
                      END AS category,
                      sources[1].dataset AS source_dataset,
@@ -223,7 +223,7 @@ def query_places() -> list[tuple]:
                      'metal_processing','metalworking'
                    ]),false)
                    OR regexp_matches(lower(names.primary),
-                     '(metal|metall|steel|sider|profil|carpenter|sudur|forjat|prelucr|(^|[^a-z])(inox|tub|teav|țeav|laser|fier|oțel))')
+                     '(metal|metall|steel|sider|profil|carpenter|sudur|forjat|prelucr|(^|[^a-z])(inox|tub|teav|țeav|fier|oțel))')
                 )
                 AND NOT regexp_matches(lower(names.primary),
                   '(hotel|motel|resort|hostel|restaurant|pensiun|cafenea|cafe|bubble.?tea|salon|cosmetic|beauty|epil|gym|fitness|muze|museum|biseric|church|scoal|școal|school|laser.?tag|barber|spa)')
