@@ -58,18 +58,15 @@ export function EuProducerIntelligenceChat(){
   }
   return <section className="overflow-hidden rounded-[22px] border border-[#bdd9c9] bg-white shadow-[0_7px_26px_rgba(19,64,44,0.06)]"
     data-testid="eu-producer-intelligence-chat" aria-labelledby="eu-producer-chat-title">
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#dcebe2] bg-[#f1f8f3] px-4 py-3 sm:px-5">
-      <div>
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#52745f]">Intelligence Produttori · Europa</span>
-        <h2 id="eu-producer-chat-title" className="mt-0.5 text-base font-extrabold text-[#133f2c]">Chiedi quali produttori sono documentati</h2>
-      </div>
-      <span className="rounded-full border border-[#b9d6c2] bg-white px-3 py-1 text-[10px] font-semibold text-[#245941]">Risposte con fonti · PRO</span>
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e4eee7] bg-[#f8fbf9] px-4 py-3 sm:px-5">
+      <h2 id="eu-producer-chat-title" className="text-[15px] font-extrabold text-[#133f2c]">
+        Ricerca tecnica AI
+      </h2>
+      <span className="text-[11px] font-semibold text-[#47735a]">Europa · fonti ufficiali</span>
     </div>
     <div className="space-y-3 px-4 py-4 sm:px-5">
       <p className="max-w-3xl text-xs leading-5 text-[#5c7364]">
-        Scrivi una domanda naturale. La ricerca AI interpreta i requisiti, ma soltanto
-        le fonti delle aziende possono motivare una risposta. I dati osservati non
-        certificano combinazioni norma × grado × misura × spessore né stock.
+        Descrivi il tubo che cerchi: norma, acciaio, sezione o misura. Visualizza produttori e prove consultabili.
       </p>
       {turns.length===0?<div className="flex flex-wrap gap-2" aria-label="Domande di esempio">
         {examples.map(prompt=><button type="button" key={prompt} onClick={()=>setDraft(prompt)}
@@ -159,7 +156,6 @@ export function EuProducerIntelligenceChat(){
           {busy?"Cerco sulle fonti…":"Cerca produttori"}
         </button>
       </form>
-      <p className="text-[11px] leading-4 text-[#728477]">Solo operatori pubblicati, dati con provenienza e accesso Produttori Europa. Nessuna misura viene dichiarata producibile per deduzione.</p>
     </div>
   </section>;
 }
