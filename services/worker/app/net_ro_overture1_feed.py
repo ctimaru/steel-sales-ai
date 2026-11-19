@@ -24,8 +24,21 @@ CATEGORIES = frozenset({
 # Secondary *discovery hint* for misclassified Overture Places; never a role claim.
 # The service-only stage RPC enforces the same expression independently.
 NAME_HINT_CATEGORY = "keyword_industrial_hint"
-NAME_HINT_REGEX = r"(metal|metall|steel|inox|sider|tub|teav|țeav|profil|carpenter|sudur|forjat|prelucr|laser|fier|oțel|otel)"
+# Bare "otel" matched hotel/motel, and substring matching confused
+# "teaverse", "equinox" and "stube" with steel industry terms.
+# This is a RE2-compatible expression, shared by DuckDB and PostgreSQL.
+NAME_HINT_REGEX = (
+    r"(metal|metall|steel|sider|profil|carpenter|sudur|forjat|prelucr"
+    r"|(^|[^a-z])(inox|tub|teav|țeav|laser|fier|oțel))"
+)
+NONINDUSTRIAL_REGEX = (
+    r"(hotel|motel|resort|hostel|restaurant|pensiun|cafenea|cafe"
+    r"|bubble.?tea|salon|cosmetic|beauty|epil|gym|fitness"
+    r"|muze|museum|biseric|church|scoal|școal|school"
+    r"|laser.?tag|barber|spa)"
+)
 NAME_HINT = re.compile(NAME_HINT_REGEX, re.I)
+NONINDUSTRIAL = re.compile(NONINDUSTRIAL_REGEX, re.I)
 
 EXCLUDED = frozenset({
     "facebook.com", "instagram.com", "linkedin.com", "google.com",
@@ -74,7 +87,7 @@ def parse_place(row: tuple) -> dict | None:
             (category not in CATEGORIES and category != NAME_HINT_CATEGORY)):
         return None
     label = " ".join(label.split())
-    if category == NAME_HINT_CATEGORY and not NAME_HINT.search(label):
+    if category == NAME_HINT_CATEGORY and (\n            not NAME_HINT.search(label) or NONINDUSTRIAL.search(label)):
         return None
     if not (3 <= len(label) <= 180) or any(c in label for c in "@<>"):
         return None
@@ -172,7 +185,7 @@ def query_places() -> list[tuple]:
                          'metal_processing','metalworking'
                        ]),1)
                        WHEN regexp_matches(lower(names.primary),
-                         '(metal|metall|steel|inox|sider|tub|teav|țeav|profil|carpenter|sudur|forjat|prelucr|laser|fier|oțel|otel)')
+                         '(metal|metall|steel|sider|profil|carpenter|sudur|forjat|prelucr|(^|[^a-z])(inox|tub|teav|țeav|laser|fier|oțel))')
                        THEN 'keyword_industrial_hint'
                      END AS category,
                      sources[1].dataset AS source_dataset,
@@ -209,8 +222,10 @@ def query_places() -> list[tuple]:
                      'metal_processing','metalworking'
                    ]),false)
                    OR regexp_matches(lower(names.primary),
-                     '(metal|metall|steel|inox|sider|tub|teav|țeav|profil|carpenter|sudur|forjat|prelucr|laser|fier|oțel|otel)')
+                     '(metal|metall|steel|sider|profil|carpenter|sudur|forjat|prelucr|(^|[^a-z])(inox|tub|teav|țeav|laser|fier|oțel))')
                 )
+                AND NOT regexp_matches(lower(names.primary),
+                  '(hotel|motel|resort|hostel|restaurant|pensiun|cafenea|cafe|bubble.?tea|salon|cosmetic|beauty|epil|gym|fitness|muze|museum|biseric|church|scoal|școal|school|laser.?tag|barber|spa)')
                 AND websites[1] IS NOT NULL
                 AND names.primary IS NOT NULL
                 AND confidence >= 0.75
