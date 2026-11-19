@@ -75,6 +75,27 @@ export function parseEuProducerSearchIntent(input:string):EuProducerSearchIntent
     unverifiedConditions:existing.notApplied.slice(0,5),
   };
 }
+/** A short follow-up can refine the prior result, but an independent new
+ * question starts from zero. Only user-visible literal constraints are carried;
+ * no company, source, stock or right is ever supplied by the conversation.
+ */
+export function refineEuProducerSearchFollowup(
+ question:string,current:EuProducerSearchIntent,previous:EuProducerSearchIntent,
+):EuProducerSearchIntent{
+ const trimmed=question.trim();
+ const isFollowup=/^(?:e|anche|solo|in|nel|nella|con|per|invece)\b/i.test(trimmed)||
+   /^(?:[SPLE]\d{3}[A-Z0-9+]{0,8}|AISI\s+\d{3,4}[A-Z]{0,3})$/i.test(trimmed);
+ if(!isFollowup)return current;
+ return {
+  standard:current.standard??previous.standard,
+  grade:current.grade??previous.grade,
+  shape:current.shape??previous.shape,
+  country:current.country??previous.country,
+  requestedSize:current.requestedSize||previous.requestedSize,
+  unverifiedConditions:[...new Set([...previous.unverifiedConditions,...current.unverifiedConditions])].slice(0,5),
+ };
+}
+
 function sourceContains(question:string,token:string):boolean{
   const q=question.toUpperCase().replace(/[^A-Z0-9]/g,"");
   const x=token.toUpperCase().replace(/[^A-Z0-9]/g,"");
