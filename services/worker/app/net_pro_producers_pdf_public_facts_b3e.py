@@ -13,9 +13,10 @@ from __future__ import annotations
 import hashlib
 import http.client
 import ipaddress
+import re
 import socket
 import ssl
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit, parse_qs
 
 from .net_pro_producers_catalog_b1 import CatalogueRejected
 from .net_pro_producers_catalog_discovery import (
@@ -31,6 +32,37 @@ from .net_pro_producers_pdf_table_geometry_c3 import (
 
 MAX_PDF = 8 * 1024 * 1024
 
+def _is_official_pdf_url(value: str, domain: str) -> bool:
+    """Allow exact-host .pdf paths; one known first-party dynamic endpoint.
+
+    The Tenaris parameter is a *relative media path*, never an absolute URL.
+    No redirects, arbitrary API endpoints, external query URLs or traversal.
+    """
+    if not _official_url(value, domain):
+        return False
+    parsed = urlsplit(value)
+    if parsed.path.lower().endswith(".pdf") and not parsed.query:
+        return True
+    if (domain not in ("tenaris.com", "www.tenaris.com")
+            or parsed.hostname not in ("tenaris.com", "www.tenaris.com")
+            or parsed.path != "/umbraco/surface/downloads/pdf"
+            or len(parsed.query) > 250):
+        return False
+    try:
+        params = parse_qs(parsed.query, strict_parsing=True,
+                          keep_blank_values=True, max_num_fields=1)
+    except ValueError:
+        return False
+    if set(params) != {"url"} or len(params["url"]) != 1:
+        return False
+    target = params["url"][0]
+    if not re.fullmatch(r"/media/[a-zA-Z0-9_.-]+(?:/[a-zA-Z0-9_.-]+)*[.]pdf",
+                        target):
+        return False
+    return all(part not in ("..", ".") for part in target.split("/"))
+
+
+
 
 def bounded_official_pdf(url: str, domain: str) -> bytes:
     """DNS-pinned TLS PDF fetch with no redirects, cookies, proxy or disk.
@@ -38,7 +70,7 @@ def bounded_official_pdf(url: str, domain: str) -> bytes:
     The upstream robots/terms eligibility is checked by observe_pdf_source;
     this low-level reader never decides licensing or public publication.
     """
-    if not _official_url(url, domain) or not urlsplit(url).path.lower().endswith(".pdf"):
+    if not _is_official_pdf_url(url, domain):
         raise CatalogueRejected("B3.E invalid first-party PDF URL")
     parsed = urlsplit(url)
     host = parsed.hostname or ""
@@ -101,7 +133,7 @@ def observe_pdf_source(db, *, company_id: str, source_url: str,
     """
     if (source_status != "official_link_observed"
         or rights_status != "link_only"
-        or not _official_url(source_url, canonical_domain)
+        or not _is_official_pdf_url(source_url, canonical_domain)
         or not allow_factual_observation):
         raise CatalogueRejected("B3.E public fact observation not eligible")
     if not _robots_allows(source_url, canonical_domain, {}):
