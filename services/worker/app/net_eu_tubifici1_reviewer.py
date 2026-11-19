@@ -34,6 +34,9 @@ LEGAL_PATH_HINTS = (
 # one necessary signal; a full first-party body-text match is mandatory too.
 LEGAL_FORMS = {
     "AT": ("gmbh", "ag", "kg"),
+    "BE": ("n v", "nv", "b v", "bv", "sa", "s a", "srl"),
+    "CH": ("sa", "ag", "gmbh", "sarl"),
+    "NL": ("b v", "bv", "n v", "nv"),
     "CZ": ("a s", "s r o"),
     "DE": ("gmbh", "ag", "kg"),
     "ES": ("s a", "s a u", "s l", "s l u"),
