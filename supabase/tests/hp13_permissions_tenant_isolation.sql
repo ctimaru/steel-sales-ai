@@ -332,7 +332,15 @@ select pg_temp.hp13_assert(
         -- customer line IDs and numeric rates, optimistic version, exact row
         -- coverage and append-only offer_edited audit. Empty search_path,
         -- anonymous execute revoked, no supplier/target price access.
-        'comm_cycle2b_save_offer'
+        'comm_cycle2b_save_offer',
+        -- COMM-CYCLE2.C reviewed: all public entrypoints require an active
+        -- writer membership, Ufficio commerciale, row locks and same-org
+        -- offer/dispatch. Reservation is an immutable customer-email
+        -- snapshot fingerprint with per-revision idempotent attempt count;
+        -- completion records the provider outcome and invokes COMM-CYCLE1
+        -- only on accepted, no anon execute and pinned search_path.
+        'comm_cycle2c_reserve_email',
+        'comm_cycle2c_complete_email'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
