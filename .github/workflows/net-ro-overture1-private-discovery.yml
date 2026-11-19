@@ -1,0 +1,53 @@
+name: "NET-RO-OVERTURE1 — Romania industrial discovery (private only)"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/net-ro-overture1-private-discovery.yml"
+      - "services/worker/app/net_ro_overture1_feed.py"
+      - "supabase/migrations/20261119095500_net_ro_overture1_private_discovery.sql"
+  workflow_dispatch:
+  schedule:
+    # Weekly acquisition; existing RO AUTO2 checks first-party identity daily.
+    - cron: "31 6 * * 4"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-ro-overture1-private-discovery
+  cancel-in-progress: false
+
+jobs:
+  romania:
+    name: "Overture 2026-11-18 Places / RO -> private candidate queue"
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned Overture reader and API client
+        run: python -m pip install --disable-pip-version-check duckdb==1.4.4 httpx==0.28.1
+      - name: Confirm authorized Smart Steel Sales production access
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+        run: |
+          set -euo pipefail
+          test "$CRAWL_IT65B_SUPABASE_URL" = "https://ecrafjdummcdfycznitx.supabase.co"
+          case "$CRAWL_IT65B_SUPABASE_SECRET_KEY" in
+            sb_secret_*) ;; *) exit 1 ;;
+          esac
+          echo "::add-mask::$CRAWL_IT65B_SUPABASE_SECRET_KEY"
+      - name: Overture Romania first-party research pointers (never publish)
+        env:
+          CRAWL_IT65B_SUPABASE_URL: ${{ vars.CRAWL_IT65B_SUPABASE_URL }}
+          CRAWL_IT65B_SUPABASE_SECRET_KEY: ${{ secrets.CRAWL_IT65B_SUPABASE_SECRET_KEY }}
+          PYTHONPATH: services/worker
+        run: python -m app.net_ro_overture1_feed
