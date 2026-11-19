@@ -98,33 +98,6 @@ BEGIN
   'candidate_id',p_candidate_id,'legal_name',v_name,
   'previous_legal_name',v_c.legal_name,'publication_count',0);
 END
-$function$
-)
-    OR p_page_url IS NULL OR p_page_url !~* '^https://' THEN
-  RAISE EXCEPTION 'Invalid identity correction' USING ERRCODE='22023';
- END IF;
- SELECT * INTO v_c FROM public.network_company_discovery_candidates
-  WHERE id=p_candidate_id FOR UPDATE;
- IF NOT FOUND OR v_c.country_code<>'IT' OR v_c.review_status<>'pending_review'
-    OR v_c.governance_status<>'unreviewed' THEN
-  RAISE EXCEPTION 'Candidate not available for identity correction' USING ERRCODE='22023';
- END IF;
- IF v_host NOT IN (lower(btrim(v_c.canonical_domain)),'www.'||lower(btrim(v_c.canonical_domain))) THEN
-  RAISE EXCEPTION 'Identity must come from the company-owned domain' USING ERRCODE='22023';
- END IF;
- UPDATE public.network_company_discovery_candidates
- SET legal_name=v_name,
-     vat_id=coalesce(vat_id,v_vat),
-     enrichment_quality=coalesce(enrichment_quality,'{}'::jsonb)||jsonb_build_object(
-       'net_it_auto4_identity_correction',jsonb_build_object(
-         'previous_legal_name',left(v_c.legal_name,255),'legal_name',v_name,
-         'vat_id_found',v_vat,'page_url',left(p_page_url,1024),
-         'reviewer_version',p_reviewer_version,'at',now()))
- WHERE id=p_candidate_id;
- RETURN jsonb_build_object('contract','net-it-auto2-identity-v1',
-  'candidate_id',p_candidate_id,'legal_name',v_name,
-  'previous_legal_name',v_c.legal_name,'publication_count',0);
-END
 $function$;
 
 DO $growth8_test$
