@@ -35,6 +35,9 @@ export const EU_MEMBER_COUNTRIES = [
 export const OTHER_NETWORK_COUNTRIES = [
   {code:"CH",name:"Svizzera"},
   {code:"GB",name:"Regno Unito"},
+  {code:"RS",name:"Serbia"},
+  {code:"TR",name:"Turchia"},
+  {code:"UA",name:"Ucraina"},
   {code:"US",name:"Stati Uniti"},
 ] as const;
 
