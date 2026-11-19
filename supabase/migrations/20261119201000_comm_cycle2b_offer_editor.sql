@@ -94,6 +94,41 @@ create trigger comm_cycle2b_draft_lines_guard
 before insert or update or delete on public.offer_lines
 for each row execute function private.comm_cycle2b_draft_lines_guard();
 
+-- The existing COMM-CYCLE1 "Segna inviata" path is still authoritative for
+-- status changes; deny sending a half-priced generated draft even from that RPC.
+create or replace function private.comm_cycle2b_send_readiness()
+returns trigger language plpgsql security invoker set search_path = ''
+as $send_readiness$
+begin
+  if old.revision_managed and old.status = 'draft' and new.status = 'sent' then
+    if new.valid_until is null or new.valid_until < current_date
+      or nullif(btrim(coalesce(new.delivery_term,'')),'') is null
+      or nullif(btrim(coalesce(new.payment_terms,'')),'') is null then
+      raise exception 'comm_cycle2b: completa validità, resa e pagamento'
+        using errcode = '22023';
+    end if;
+    if not exists (
+      select 1 from public.offer_lines l
+      where l.organization_id = old.organization_id and l.offer_id = old.id
+    ) or exists (
+      select 1 from public.offer_lines l
+      where l.organization_id = old.organization_id and l.offer_id = old.id
+        and (l.price_value is null or l.price_value <= 0
+          or coalesce(l.price_unit,'') not in ('EUR/t','EUR/m'))
+    ) then
+      raise exception 'comm_cycle2b: completa i prezzi di tutte le righe'
+        using errcode = '22023';
+    end if;
+  end if;
+  return new;
+end;
+$send_readiness$;
+
+drop trigger if exists comm_cycle2b_send_readiness on public.offers;
+create trigger comm_cycle2b_send_readiness
+before update on public.offers
+for each row execute function private.comm_cycle2b_send_readiness();
+
 -- Draft saves are events (not status changes): exact changes=[] lets existing
 -- close_lost/reopen logic restore only actual statuses.
 alter table public.comm_deal_events
@@ -267,3 +302,5 @@ grant execute on function public.comm_cycle2b_save_offer(
 revoke all on function private.comm_cycle2b_inherit_weight() from public,anon,authenticated;
 revoke all on function private.comm_cycle2b_draft_header_guard() from public,anon,authenticated;
 revoke all on function private.comm_cycle2b_draft_lines_guard() from public,anon,authenticated;
+
+revoke all on function private.comm_cycle2b_send_readiness() from public,anon,authenticated;
