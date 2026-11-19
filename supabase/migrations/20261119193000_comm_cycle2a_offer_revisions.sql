@@ -69,6 +69,16 @@ returns trigger language plpgsql security invoker set search_path = ''
 as $$
 begin
   if tg_op = 'INSERT' then
+    -- Imported offers remain accepted by the legacy pipeline. Assign a
+    -- fresh number under the parent RFQ lock so the new unique revision index
+    -- does not turn subsequent imports into duplicate-key failures.
+    if not new.revision_managed and new.rfq_id is not null then
+      perform 1 from public.rfqs r where r.id = new.rfq_id
+        and r.organization_id = new.organization_id for update;
+      select coalesce(max(o.revision_no),0)+1 into new.revision_no
+      from public.offers o where o.organization_id = new.organization_id
+        and o.rfq_id = new.rfq_id;
+    end if;
     if new.revision_managed and current_user <> 'postgres' then
       raise exception 'comm_cycle2a: usa Prepara offerta' using errcode = '42501';
     end if;
