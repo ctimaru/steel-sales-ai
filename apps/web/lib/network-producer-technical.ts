@@ -67,7 +67,8 @@ export function parseProducerTechnicalClaims(input:unknown):NetworkProducerTechn
 /**
  * Caller must pass IDs from the authorized scoped producer directory.
  * Supabase checks tenant/organization plus current producer+country access again.
- * EU includes source-observed technical claims but never infers orderable SKUs.\n * Never use a service role, cache a cross-tenant result, or query the table.
+ * EU includes source-observed technical claims but never infers orderable SKUs.
+ * Never use a service role, cache a cross-tenant result, or query the table.
  */
 export async function getProducerTechnicalClaims(
   organizationId:string,companyIds:readonly string[],country="IT",
