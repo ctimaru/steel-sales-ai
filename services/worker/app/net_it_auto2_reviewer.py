@@ -284,8 +284,8 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
     def _has_legal_context(full_name: str) -> bool:
         full = re.escape(_normalize_full_legal_name(full_name))
         cues = re.compile(
-            r"(?i)(?:p\\.?\\s*iva|partita\\s+iva|ragione\\s+sociale|"
-            r"codice\\s+fiscale|sede\\s+legale|capitale\\s+sociale)"
+            r"(?i)(?:p\.?\s*iva|partita\s+iva|ragione\s+sociale|"
+            r"codice\s+fiscale|sede\s+legale|capitale\s+sociale)"
         )
         for page in texts:
             norm = _normalize_full_legal_name(page)
