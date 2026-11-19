@@ -29,12 +29,19 @@ export function EuProducerIntelligenceChat(){
   const [draft,setDraft]=useState("");
   const [busy,setBusy]=useState(false);
   const [turns,setTurns]=useState<Turn[]>([]);
-  const last=turns.at(-1);
   async function submit(event:FormEvent<HTMLFormElement>){
     event.preventDefault();
     if(busy||!draft.trim())return;
     const question=draft.trim().slice(0,400);
-    const prior=[...turns].reverse().find(t=>t.response.ok&&t.response.status==="ready")?.question;
+    const preceding=[...turns].reverse().find(t=>t.response.ok&&t.response.status==="ready");
+    const previousIntent=preceding?.response.ok&&preceding.response.status==="ready"
+      ?preceding.response.intent:null;
+    // Preserve the last resolved user-requested filters, not model-generated
+    // evidence or an old answer's source list.
+    const prior=previousIntent?[
+      previousIntent.standard,previousIntent.grade,previousIntent.shape,
+      previousIntent.country?"in "+previousIntent.country:null,
+    ].filter(Boolean).join(" "):undefined;
     setBusy(true);
     try{
       const response=await searchEuropeanTubeProducers(question,prior);
