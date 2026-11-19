@@ -29,7 +29,7 @@ test("EU1.C2.B only attributed first-party industrial process, never an exact gr
 test("EU1.C2.B UI uses existing Italy path and separate EU gated firstparty claim path",()=>{
  assert.match(library,/country="IT"/);
  assert.match(library,/country==="IT"\s*\?await db\.rpc\("netproducers1_technical_claims"/);
- assert.match(library,/db\.rpc\("net_eu_tubifici1_c2_factory_claims"/);
+ assert.match(library,/db\.rpc\("net_eu_tubifici1_d5d_technical_claims"/);
  assert.match(library,/p_country:country/);
  assert.match(page,/getProducerTechnicalClaims\(context\.organizationId,ids,country\)/);
  assert.match(page,/country==="IT"\?getNetworkProducerCatalogLinks/);
