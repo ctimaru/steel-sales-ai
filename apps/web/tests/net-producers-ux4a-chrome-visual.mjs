@@ -133,6 +133,28 @@ try{
           checks+=2;
         }
       }
+      if(width===390){
+        // Real local Server Actions: the latest answer stays on screen, earlier
+        // questions collapse without leaking anything across authenticated tenants.
+        const question=page.locator("#eu-producer-technical-question");
+        const search=page.getByRole("button",{name:"Cerca produttori",exact:true});
+        await question.fill("Chi produce tubi EN 10219 S355J2H?");
+        await search.click();
+        await page.getByTestId("eu-producer-chat-answer").last().waitFor({state:"visible",timeout:90000});
+        await question.fill("e S355J2H?");
+        await search.click();
+        const history=page.getByTestId("eu-producer-chat-history");
+        await history.waitFor({state:"visible",timeout:90000});
+        assert.equal(await history.locator("summary").count(),1);
+        const answers=page.getByTestId("eu-producer-chat-answer");
+        assert.equal(await answers.count(),2);
+        assert.equal(await answers.first().isVisible(),false);
+        assert.equal(await answers.last().isVisible(),true);
+        await history.locator("summary").click();
+        assert.equal(await answers.first().isVisible(),true);
+        await screenshot(page,width,"chat-history");
+        checks+=5;
+      }
       assert.deepEqual(errors,[],"Chrome page errors at "+width);
       checks++;
     }finally{await context.close();}
