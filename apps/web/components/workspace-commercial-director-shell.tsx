@@ -59,9 +59,10 @@ function DirectorLink({
         "h-1.5 w-1.5 shrink-0 rounded-full transition",
         current ? "bg-current opacity-90" : nested ? "bg-[#b7cfc1] group-hover/link:bg-[#175640]" : "bg-[#9fbdac] group-hover/link:bg-[#175640]",
       ].join(" ")} />
-      <span className="min-w-0 truncate">{item.label}</span>
-      {item.counter === "purchasing_attention" ? <PurchasingAttentionCount /> : null}
-      {item.counter === "sales_attention" ? <SalesAttentionCount /> : null}
+      {/* COMM-RDO2: the label wraps instead of «Richieste d'off…» when a counter is shown. */}
+      <span className="min-w-0 flex-1 break-words leading-tight">{item.label}</span>
+      {item.counter === "purchasing_attention" ? <PurchasingAttentionCount onDark={current} /> : null}
+      {item.counter === "sales_attention" ? <SalesAttentionCount onDark={current} /> : null}
     </Link>
   );
 }

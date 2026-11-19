@@ -86,7 +86,7 @@ test("RFQHUB1 menu: Centro RFQ with counter and Fornitori RFQ, no Inbox or Disti
   assert.match(nav, /\{ label: "Centro RFQ", href: appRoutes\.rfqHub\.home, counter: "purchasing_attention" \}/);
   assert.match(nav, /\{ label: "Fornitori RFQ", href: appRoutes\.rfqHub\.suppliers \}/);
   assert.doesNotMatch(nav, /label: "Inbox e risposte"|label: "Distinte"/);
-  assert.match(shell, /item\.counter === "purchasing_attention" \? <PurchasingAttentionCount \/> : null/);
+  assert.match(shell, /item\.counter === "purchasing_attention" \? <PurchasingAttentionCount onDark=\{current\} \/> : null/);
   assert.match(badge, /data-testid="purchasing-attention-count"/);
   assert.match(attention, /"use server"/);
   assert.match(attention, /loadPurchasingAttention\(supabase, context\.organizationId\)/);
