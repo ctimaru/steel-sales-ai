@@ -274,9 +274,30 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
     # the old name ENDS with that exact legal name (never an unrelated alias).
     structured = [node for p in pages for node in getattr(p, "structured_data", ())][:20]
     found = find_company_identity(texts, domain, name, structured)
+    # A legal suffix appearing as a substring of a flattened CTA is NOT
+    # independent proof. Require company/legal context (e.g. P.IVA) within
+    # the bounded first-party extract, or corroborated Organization.legalName.
+    structured_names = [
+        str(node.get("legalName")) for node in structured if isinstance(node, dict)
+        and isinstance(node.get("legalName"), str)
+        and node.get("@type") in ("Organization", "Corporation", "LocalBusiness")
+        and (not node.get("url") or (
+            isinstance(node.get("url"), str)
+            and urlsplit(node["url"]).scheme == "https"
+            and canonical_domain(node["url"]) == domain))
+    ]
+    independently_evidenced = bool(
+        found and (
+            found.score >= 4
+            or any(_normalize_full_legal_name(s) ==
+                   _normalize_full_legal_name(found.legal_name)
+                   for s in structured_names)
+        )
+    )
     if (found and legal_name_is_clean(found.legal_name)
             and _is_capital_company(found.legal_name)
             and _name_evidenced(found.legal_name, texts)
+            and (legal_name_is_clean(name) or independently_evidenced)
             and (not matched or not legal_name_is_clean(name)
                  or not _is_capital_company(name)
                  or _has_contaminated_name_prefix(name, found.legal_name)
