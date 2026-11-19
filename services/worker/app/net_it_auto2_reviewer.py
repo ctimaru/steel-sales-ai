@@ -40,6 +40,10 @@ from .net_it_identity_extract import find_company_identity, is_civic_snc_address
 # discards the candidate automatically instead of waiting for a human.
 VERSION = "net-it-auto2-firstparty-v4"
 MAX_BATCH = 50
+# Bound simultaneous official-site reviews: one company per worker slot.
+# Mirrors SEED1's cautious same-lot concurrency; HTTP/robots/SSRF checks
+# inside _fetch_page remain mandatory for every page.
+MAX_REVIEW_CONCURRENCY = 4
 MAX_PAGES = 5
 # One-time Overture4 recovery: deeper first-party pages, bounded I/O per run.
 RECOVERY_MAX_BATCH = 12
@@ -353,16 +357,33 @@ async def review_batch(candidates: list[dict], *, pause_seconds: float = 0.3,
     found_ids = [str(c.get("id")) for c in candidates]
     if len(set(found_ids)) != len(found_ids):
         raise ValueError("duplicate candidate identifiers")
-    results = []
+    # Sequential 50-company batches can exceed an entire cron interval when
+    # sites are slow or refuse connections. Only four DISTINCT company sites
+    # may be inspected concurrently, and result order stays deterministic.
+    # No official-site guard is bypassed; evidence is still persisted by
+    # execute() only after all reviews finish.
+    semaphore = asyncio.Semaphore(MAX_REVIEW_CONCURRENCY)
+    # Multiple candidate identities can reference the same website. Preserve
+    # serial visits for each domain even when candidate identifiers differ.
+    per_domain = {
+        str(candidate.get("domain") or "").strip().lower(): asyncio.Lock()
+        for candidate in candidates
+    }
     async with httpx.AsyncClient(
         timeout=httpx.Timeout(10.0), follow_redirects=False
     ) as client:
-        for i, candidate in enumerate(candidates):
-            if i:
-                await asyncio.sleep(pause_seconds)
-            results.append(await inspect_candidate(
-                client, candidate, deep_recovery=deep_recovery))
-    return results
+        async def one(index: int, candidate: dict) -> dict:
+            domain = str(candidate.get("domain") or "").strip().lower()
+            async with per_domain[domain]:
+                async with semaphore:
+                    if index and pause_seconds:
+                        await asyncio.sleep(pause_seconds)
+                    return await inspect_candidate(
+                        client, candidate, deep_recovery=deep_recovery)
+
+        return list(await asyncio.gather(
+            *(one(i, candidate) for i, candidate in enumerate(candidates))
+        ))
 
 
 # PostgREST answers 400 (22023 invalid parameter) when a database contract
