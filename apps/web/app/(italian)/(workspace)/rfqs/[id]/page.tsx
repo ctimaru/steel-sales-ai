@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { OperationalEntityDetail } from "@/components/operational-entity-detail";
+import { CommercialCustomerOfferPanel } from "@/components/commercial-customer-offer-panel";
 import { getOperationalEntityData } from "@/lib/commercial-data";
 
 export default async function RFQDetailPage({
@@ -13,5 +14,10 @@ export default async function RFQDetailPage({
 
   if (!entity) notFound();
 
-  return <OperationalEntityDetail entity={entity} />;
+  return (
+    <>
+      <CommercialCustomerOfferPanel rfqId={id} />
+      <OperationalEntityDetail entity={entity} />
+    </>
+  );
 }
