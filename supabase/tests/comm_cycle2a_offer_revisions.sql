@@ -66,6 +66,16 @@ insert into cc2_results values ('same',
 insert into cc2_results values ('initial_events',
   (select count(*)::text from public.comm_deal_events
      where action='offer_prepared' and organization_id='00000000-0000-0000-0000-00000000c2f1'));
+insert into cc2_results values ('blank_first_draft',
+  (select count(*)::text from public.offer_lines
+    where offer_id=(select value::uuid from cc2_results where label='offer1')
+      and price_value is null));
+-- Simulate customer-facing draft prices and terms before sending revision 1.
+update public.offer_lines set price_value=1250, price_unit='EUR/t'
+  where offer_id=(select value::uuid from cc2_results where label='offer1')
+    and rfq_line_id='00000000-0000-0000-0000-00000000c221';
+update public.offers set delivery_term='EXW',payment_terms='30 giorni'
+  where id=(select value::uuid from cc2_results where label='offer1');
 select public.comm_cycle1_apply('00000000-0000-0000-0000-00000000c2f1',
   'offer',(select value::uuid from cc2_results where label='offer1'),'offer_sent');
 insert into cc2_results values ('offer2',
@@ -146,11 +156,22 @@ select pg_temp.cc2_assert(
     ((select value::uuid from cc2_results where label='offer1'),
      (select value::uuid from cc2_results where label='offer2'))), 'RFQ lines copied twice');
 select pg_temp.cc2_assert(
+  (select value='2' from cc2_results where label='blank_first_draft'),
+  'first draft has no invented buying price or customer rate');
+select pg_temp.cc2_assert(
   (select count(*)=4 from public.offer_lines where offer_id in
     ((select value::uuid from cc2_results where label='offer1'),
      (select value::uuid from cc2_results where label='offer2'))
-    and rfq_line_id is not null and price_value is null and price_unit is null),
-  'all lines linked and no private price copied');
+    and rfq_line_id is not null), 'all lines linked to source RFQ');
+select pg_temp.cc2_assert(
+  (select price_value=1250 and price_unit='EUR/t' from public.offer_lines
+    where offer_id=(select value::uuid from cc2_results where label='offer2')
+      and rfq_line_id='00000000-0000-0000-0000-00000000c221'),
+  'negotiated revision copies customer-facing rate');
+select pg_temp.cc2_assert(
+  (select delivery_term='EXW' and payment_terms='30 giorni'
+    from public.offers where id=(select value::uuid from cc2_results where label='offer2')),
+  'negotiated revision copies commercial terms');
 select pg_temp.cc2_assert(
   (select value like '%solo l''ultima revisione%' from cc2_results where label='accept_old'),
   'obsolete revision cannot be accepted');
