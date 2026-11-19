@@ -21,8 +21,7 @@ from .net_pro_producers_catalog_b1 import CatalogueRejected
 from .net_pro_producers_catalog_discovery import (
     _official_url, _robots_allows, _resolve_public_ip, USER_AGENT,
 )
-from .net_pro_producers_catalog_b3b_pdf import _read_pdf_lines
-from .net_pro_producers_pdf_positions_c3 import read_pdf_text_origins
+from .net_pro_producers_pdf_windows_b3e import read_pdf_fact_window, MAX_TOTAL_PAGES
 from .net_pro_producers_pdf_table_sizes_c3 import (
     extract_pdf_table_sizes, stage_pdf_table_sizes,
 )
@@ -109,31 +108,54 @@ def observe_pdf_source(db, *, company_id: str, source_url: str,
         raise CatalogueRejected("B3.E robots unavailable or denied")
     content = bounded_official_pdf(source_url, canonical_domain)
     digest = hashlib.sha256(content).hexdigest()
-    pages = _read_pdf_lines(content)
-    positions = read_pdf_text_origins(content)
-    dimensions = extract_pdf_table_sizes(pages)
-    geometry = extract_positioned_thickness(positions, dimensions["rows"])
-    # No raw PDF, copied tables, or source text ever returned or staged.
+    # Parse each bounded PDF window, retaining absolute physical page numbers.
+    # Extract all windows BEFORE staging: a rejected later page cannot leave a
+    # partially observed document behind. No source text is written to DB.
+    windows = []
+    total_pages = None
+    next_page = 1
+    while total_pages is None or next_page <= total_pages:
+        window = read_pdf_fact_window(content, start_page=next_page)
+        if total_pages is None:
+            total_pages = window["total_pages"]
+        elif total_pages != window["total_pages"]:
+            raise CatalogueRejected("B3.E PDF changed during window inspection")
+        pages = window["pages"]
+        if not pages or pages[0]["page"] != next_page:
+            raise CatalogueRejected("B3.E noncontiguous PDF window")
+        dimensions = extract_pdf_table_sizes(pages)
+        geometry = extract_positioned_thickness(
+            window["positions"], dimensions["rows"]
+        )
+        windows.append((pages, dimensions, geometry))
+        next_page += len(pages)
+        if len(windows) > (MAX_TOTAL_PAGES + 14) // 15:
+            raise CatalogueRejected("B3.E PDF window count exceeded")
+
     result = {
         "contract": "netproducers-b3e-factual-observation-v1",
-        "document_sha256": digest, "pages_inspected": len(pages),
-        "dimension_candidates": len(dimensions["rows"]),
-        "thickness_candidates": len(geometry["candidate_rows"]),
-        "ambiguous_rows": geometry["ambiguous_rows"],
+        "document_sha256": digest, "pages_inspected": total_pages,
+        "dimension_candidates": sum(len(d["rows"]) for _, d, _ in windows),
+        "thickness_candidates": sum(len(g["candidate_rows"]) for _, _, g in windows),
+        "ambiguous_rows": sum(g["ambiguous_rows"] for _, _, g in windows),
         "published_claims": 0, "manufacturer_confirmed": 0,
         "staged_dimensions": 0, "staged_thickness": 0,
         "dry_run": dry_run,
     }
     if dry_run:
         return result
+
     manifest = {"company_id": company_id, "source_url": source_url}
-    size_outcome = stage_pdf_table_sizes(db, manifest, pages)
-    result["staged_dimensions"] = size_outcome["size_rows_new"]
-    if geometry["candidate_rows"]:
-        thickness_outcome = stage_positioned_thickness(
-            db, manifest, digest, geometry["candidate_rows"]
-        )
-        result["staged_thickness"] = thickness_outcome["added"]
+    for pages, dimensions, geometry in windows:
+        if dimensions["rows"]:
+            size_outcome = stage_pdf_table_sizes(db, manifest, pages)
+            result["staged_dimensions"] += size_outcome["size_rows_new"]
+        if geometry["candidate_rows"]:
+            thickness_outcome = stage_positioned_thickness(
+                db, manifest, digest, geometry["candidate_rows"]
+            )
+            result["staged_thickness"] += thickness_outcome["added"]
+
     return result
 
 
