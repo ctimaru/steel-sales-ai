@@ -203,7 +203,7 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
         <div>
           <h2 className="text-lg font-extrabold text-[#153e2c]">Sblocca Intelligence Produttori</h2>
           <p className="mt-2 max-w-[700px] text-sm leading-6 text-[#546b5c]">
-            {"Esplora e confronta aziende pubblicate con il modulo Produttori "+(country==="IT"?"Italia":"Europa")+"."}
+            {"Esplora e confronta aziende pubblicate con il modulo Produttori "+(country==="IT"?"Italia":"Europa")+"."}{" "}
             Nessun altro modulo è necessario. L'attivazione avverrà dopo conferma del pagamento,
             quando il checkout sarà operativo.
           </p>
