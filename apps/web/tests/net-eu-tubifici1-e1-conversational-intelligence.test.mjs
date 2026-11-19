@@ -4,7 +4,7 @@ import test from "node:test";
 import ts from "typescript";
 
 const file=p=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
-const sql=file("../../supabase/migrations/20261119170000_net_eu_tubifici1_e1_source_search.sql");
+const sql=file("../../supabase/migrations/20261119135743_net_eu_tubifici1_e1_source_search.sql");
 const intent=file("lib/eu-producer-intelligence-intent.ts");
 const action=file("app/(italian)/(workspace)/network/pro/producers/ai-actions.ts");
 const service=file("lib/eu-producer-intelligence-search.ts");
