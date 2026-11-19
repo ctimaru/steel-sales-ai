@@ -88,14 +88,14 @@ insert into cc2_results values ('accept_old',
 select pg_temp.cc2_as('00000000-0000-0000-0000-00000000c2a2');
 insert into cc2_results values ('purchasing',
   pg_temp.cc2_denied('00000000-0000-0000-0000-00000000c2f1','00000000-0000-0000-0000-00000000c212'));
-do $
+do $cc2_purchase$
 begin
   update public.offer_lines set quantity=30
     where offer_id=(select value::uuid from cc2_results where label='offer2');
   insert into cc2_results values ('purchasing_edit','ACCEPTED');
 exception when others then
   insert into cc2_results values ('purchasing_edit',sqlerrm);
-end $;
+end $cc2_purchase$;
 select pg_temp.cc2_as('00000000-0000-0000-0000-00000000c2b1');
 insert into cc2_results values ('other_tenant',
   pg_temp.cc2_denied('00000000-0000-0000-0000-00000000c2f1','00000000-0000-0000-0000-00000000c211'));
