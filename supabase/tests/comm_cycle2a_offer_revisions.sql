@@ -70,12 +70,19 @@ insert into cc2_results values ('blank_first_draft',
   (select count(*)::text from public.offer_lines
     where offer_id=(select value::uuid from cc2_results where label='offer1')
       and price_value is null));
--- Simulate customer-facing draft prices and terms before sending revision 1.
-update public.offer_lines set price_value=1250, price_unit='EUR/t'
-  where offer_id=(select value::uuid from cc2_results where label='offer1')
-    and rfq_line_id='00000000-0000-0000-0000-00000000c221';
-update public.offers set delivery_term='EXW',payment_terms='30 giorni'
+-- The 2.B editor closes direct authenticated DML on managed drafts.
+-- The original 2.A fixture simulates the guarded editor as the definer
+-- (with the sales user's JWT still set) before sending the complete offer.
+reset role;
+update public.offer_lines
+  set price_value=case when rfq_line_id='00000000-0000-0000-0000-00000000c221' then 1250 else 85 end,
+      price_unit=case when rfq_line_id='00000000-0000-0000-0000-00000000c221' then 'EUR/t' else 'EUR/m' end
+  where offer_id=(select value::uuid from cc2_results where label='offer1');
+update public.offers set delivery_term='EXW',payment_terms='30 giorni',
+  valid_until=current_date+10
   where id=(select value::uuid from cc2_results where label='offer1');
+set local role authenticated;
+select pg_temp.cc2_as('00000000-0000-0000-0000-00000000c2a1');
 select public.comm_cycle1_apply('00000000-0000-0000-0000-00000000c2f1',
   'offer',(select value::uuid from cc2_results where label='offer1'),'offer_sent');
 insert into cc2_results values ('offer2',
