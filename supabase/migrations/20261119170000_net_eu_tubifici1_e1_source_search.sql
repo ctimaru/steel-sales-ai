@@ -91,7 +91,7 @@ begin
     )
  ), evidence as (
    select o.*,row_number() over(
-     partition by o.company_id order by o.claim_kind,o.claim_value,o.id
+     partition by o.company_id,o.claim_kind order by o.claim_value,o.id
    ) rn
    from observed o
  ), ranked as (
@@ -104,7 +104,7 @@ begin
       'id',e.id,'kind',e.claim_kind,'value',e.claim_value,
       'source_url',e.source_url,'source_title',e.source_title,
       'observed_at',e.observed_at
-     ) order by e.claim_kind,e.claim_value) filter (where e.rn<=8),'[]'::jsonb) evidence
+     ) order by e.claim_kind,e.claim_value) filter (where e.rn<=2),'[]'::jsonb) evidence
    from evidence e group by e.company_id
  ), best as (
    select * from ranked
