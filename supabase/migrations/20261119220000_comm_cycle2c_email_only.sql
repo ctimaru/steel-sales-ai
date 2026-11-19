@@ -192,31 +192,32 @@ begin
 end;
 $body$;
 
--- Called only by the server action after the provider response, still under
--- the same authenticated user + organization + office guard. It delegates
--- every real status transition to COMM-CYCLE1 (including its audit changes).
+-- Provider acceptance is NOT an authenticated/client-callable statement.
+-- This API is service-role only and invoked exclusively by the server action
+-- after an actual Resend HTTP response. Users cannot forge provider acceptance.
+-- It does not bypass human permissions for the offer status transition.
 create or replace function public.comm_cycle2c_complete_email(
   p_organization_id uuid,p_dispatch_id uuid,p_result text,
   p_provider_message_id text default null
 ) returns jsonb language plpgsql security definer set search_path=''
 as $body$
 declare
-  v_uid uuid:=auth.uid();
   v_email public.comm_offer_email_dispatches%rowtype;
   v_offer public.offers%rowtype;
 begin
-  if v_uid is null or not public.is_organization_member(p_organization_id,true)
-    or private.office_write_denied(p_organization_id,'commercial') then
-    raise exception 'comm_cycle2c: non autorizzato' using errcode='42501';
+  if auth.role() is distinct from 'service_role' then
+    raise exception 'comm_cycle2c: server-only provider outcome' using errcode='42501';
   end if;
-  if p_result not in ('accepted','failed','unknown')
-    or (p_result='accepted' and
-      (p_provider_message_id is null or char_length(p_provider_message_id) not between 8 and 128)) then
+  if p_organization_id is null or p_dispatch_id is null
+    or p_result is null or p_result not in ('accepted','failed','unknown')
+    or (p_result='accepted' and (p_provider_message_id is null
+      or char_length(p_provider_message_id) not between 8 and 128))
+    or (p_result<>'accepted' and p_provider_message_id is not null) then
     raise exception 'comm_cycle2c: esito provider non valido' using errcode='22023';
   end if;
+
   select * into v_email from public.comm_offer_email_dispatches
-    where id=p_dispatch_id and organization_id=p_organization_id
-      and actor_user_id=v_uid for update;
+    where id=p_dispatch_id and organization_id=p_organization_id for update;
   if not found then
     raise exception 'comm_cycle2c: invio non trovato' using errcode='P0002';
   end if;
@@ -224,20 +225,66 @@ begin
     raise exception 'comm_cycle2c: esito già registrato' using errcode='23505';
   end if;
   if p_result='accepted' then
-    select * into v_offer from public.offers where id=v_email.offer_id
-      and organization_id=p_organization_id for update;
-    if not found or v_offer.status<>'draft'
+    select * into v_offer from public.offers
+      where id=v_email.offer_id and organization_id=p_organization_id for update;
+    if not found or v_offer.status <> 'draft'
       or v_offer.draft_edit_version<>v_email.draft_edit_version then
       raise exception 'comm_cycle2c: revisione modificata durante l''invio'
         using errcode='40001';
     end if;
-    perform public.comm_cycle1_apply(p_organization_id,'offer',v_email.offer_id,'offer_sent');
   end if;
   update public.comm_offer_email_dispatches set status=p_result,
     provider_message_id=case when p_result='accepted' then p_provider_message_id else null end,
     resolved_at=clock_timestamp()
   where id=p_dispatch_id;
   return jsonb_build_object('dispatch_id',p_dispatch_id,'status',p_result);
+end;
+$body$;
+
+-- Separate authenticated human status transition, after the server-only
+-- provider result is durably stored. No supplied provider id can fool this RPC.
+-- The existing COMM-CYCLE1 workflow remains authoritative for real changes.
+create or replace function public.comm_cycle2c_confirm_sent(
+  p_organization_id uuid,p_dispatch_id uuid
+) returns jsonb language plpgsql security definer set search_path=''
+as $body$
+declare
+  v_uid uuid:=auth.uid();
+  v_email public.comm_offer_email_dispatches%rowtype;
+  v_offer public.offers%rowtype;
+begin
+  if v_uid is null or p_organization_id is null
+    or not public.is_organization_member(p_organization_id,true) then
+    raise exception 'comm_cycle2c: non autorizzato' using errcode='42501';
+  end if;
+  if private.office_write_denied(p_organization_id,'commercial') then
+    raise exception 'office_profile_read_only: serve il profilo Ufficio commerciale'
+      using errcode='42501';
+  end if;
+  select * into v_email from public.comm_offer_email_dispatches
+    where id=p_dispatch_id and organization_id=p_organization_id
+      and actor_user_id=v_uid for update;
+  if not found then
+    raise exception 'comm_cycle2c: invio non trovato' using errcode='P0002';
+  end if;
+  if v_email.status <> 'accepted' or v_email.provider_message_id is null then
+    raise exception 'comm_cycle2c: provider non ha confermato l''invio'
+      using errcode='22023';
+  end if;
+  select * into v_offer from public.offers
+    where id=v_email.offer_id and organization_id=p_organization_id for update;
+  if not found or v_offer.draft_edit_version<>v_email.draft_edit_version then
+    raise exception 'comm_cycle2c: revisione modificata durante l''invio'
+      using errcode='40001';
+  end if;
+  if v_offer.status='sent' then
+    return jsonb_build_object('dispatch_id',p_dispatch_id,'status','sent','already_done',true);
+  end if;
+  if v_offer.status <> 'draft' then
+    raise exception 'comm_cycle2c: offerta non in bozza' using errcode='22023';
+  end if;
+  perform public.comm_cycle1_apply(p_organization_id,'offer',v_email.offer_id,'offer_sent');
+  return jsonb_build_object('dispatch_id',p_dispatch_id,'status','sent','already_done',false);
 end;
 $body$;
 
@@ -248,6 +295,10 @@ grant execute on function public.comm_cycle2c_reserve_email(uuid,uuid,integer,te
 revoke all on function public.comm_cycle2c_complete_email(uuid,uuid,text,text)
   from public,anon,authenticated;
 grant execute on function public.comm_cycle2c_complete_email(uuid,uuid,text,text)
+  to service_role;
+revoke all on function public.comm_cycle2c_confirm_sent(uuid,uuid)
+  from public,anon,authenticated;
+grant execute on function public.comm_cycle2c_confirm_sent(uuid,uuid)
   to authenticated,service_role;
 revoke all on function private.comm_cycle2c_freeze_offer_during_dispatch()
   from public,anon,authenticated;
