@@ -47,7 +47,8 @@ test("COMMERCIAL-UNIFY1 puts workflow, live buyer actions and Network entry befo
   assert.match(commercial, /appRoutes\.commercial\.home/);
   assert.match(commercial, /appRoutes\.network\.directory/);
   assert.match(commercial, /canWriteWorkspace\(context\.role\)/);
-  assert.match(dashboard, /href: appRoutes\.commercial\.home/);
+  // COMM-CLIENTS1: procurement totals on the Home open Centro RFQ (purchase deals left /commercial).
+  assert.match(dashboard, /href: appRoutes\.rfqHub\.home/);
 });
 
 test("COMMERCIAL-UNIFY1 does not promote the private buyer target or review QA as commercial priorities", () => {

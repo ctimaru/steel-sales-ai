@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 
 import { PurchasingAttentionCount } from "@/components/purchasing-attention-count";
+import { SalesAttentionCount } from "@/components/sales-attention-count";
 
 import {
   commercialDirectorAllItems,
@@ -20,7 +21,6 @@ import {
 import { getWorkspaceNavigationContext } from "@/lib/workspace-information-architecture";
 
 const iconPaths: Record<string, string> = {
-  desk: "M3 11.5 12 4l9 7.5M5.5 10v9.5h13V10M10 19.5v-5h4v5",
   direction: "M4 20V8l8-4 8 4v12M9 20v-5h6v5M8.5 10.5h1.5M14 10.5h1.5",
   insights: "M4 19.5h16M7 16v-4.5M12 16V7.5M17 16v-7",
   tools: "M14.5 6.5a4 4 0 0 0-5 5L4.5 16.5l3 3 5-5a4 4 0 0 0 5-5l-2.5 2.5-2-.5-.5-2z",
@@ -61,6 +61,7 @@ function DirectorLink({
       ].join(" ")} />
       <span className="min-w-0 truncate">{item.label}</span>
       {item.counter === "purchasing_attention" ? <PurchasingAttentionCount /> : null}
+      {item.counter === "sales_attention" ? <SalesAttentionCount /> : null}
     </Link>
   );
 }
@@ -96,27 +97,6 @@ function DirectorGroup({
   );
   const [extraOpen, setExtraOpen] = useState(extraActive);
   useEffect(() => { if (extraActive) setExtraOpen(true); }, [extraActive]);
-
-  // Scrivania is an actual destination, not another accordion containing
-  // an identical "Scrivania" link. Keep exactly one primary entry point.
-  if (group.key === "desk") {
-    const item = group.items[0];
-    const current = commercialDirectorLinkSelected(item.href, pathname, view);
-    return (
-      <Link
-        href={item.href}
-        onClick={onNavigate}
-        aria-current={current ? "page" : undefined}
-        className={[
-          "flex min-h-12 items-center gap-3 rounded-xl px-3 py-2 text-sm font-bold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]",
-          current ? "app-selected-solid shadow-sm" : "bg-[#f1f7f3] text-[#1f4a3b] hover:bg-[#e6f1ea]",
-        ].join(" ")}
-      >
-        <NavIcon name="desk" className="h-5 w-5" />
-        {item.label}
-      </Link>
-    );
-  }
 
   return (
     <details
@@ -259,7 +239,7 @@ function CommercialDirectorNavigation({ mobile = false, access }: { mobile?: boo
           </span>
           <div className="min-w-0">
             <h2 className="text-base font-bold leading-tight tracking-tight text-[#173f35]">Commerciale</h2>
-            <p className="text-[11px] leading-4 text-[#687d72]">Trattative, acquisti e analisi</p>
+            <p className="text-[11px] leading-4 text-[#687d72]">Vendite, acquisti e analisi</p>
           </div>
         </div>
         <DirectorMenuGroups access={access} />

@@ -120,7 +120,9 @@ test("pagina: elenco trattative come predefinito, con ritorno alla vista precede
   assert.match(page, /params\.experience !== "classic"/);
   assert.match(page, /<CommercialDealsDesk /);
   const desk = readFileSync(new URL("../components/commercial-deals-desk.tsx", import.meta.url), "utf8");
-  for (const header of ["Trattativa", "Controparte · materiale", "Fase", "Prossima azione"]) assert.ok(desk.includes(header));
+  // COMM-CLIENTS1: «Richieste d'offerta», solo vendite.
+  for (const header of ["Richiesta", "Cliente · materiale", "Fase", "Prossima azione"]) assert.ok(desk.includes(header));
+  assert.match(page, /segment: "sales" as const/);
   // L'assistente resta sulla pagina, chiuso per non spingere giù la tabella.
   assert.match(desk, /<details id="commercial-assistant"/);
   assert.doesNotMatch(desk, /<details id="commercial-assistant"[^>]*\bopen\b/);

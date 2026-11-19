@@ -159,9 +159,9 @@ export default async function DashboardPage({
     ? { href: appRoutes.company.setup + "#company-name" }
     : null;
   const procurementKpis = procurementSummary && [
-    { label: "Azioni da gestire", value: procurementSummary.attention_total, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
-    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
-    { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.commercial.home + "?view=sent#commercial-worklist" },
+    { label: "Azioni da gestire", value: procurementSummary.attention_total, href: appRoutes.rfqHub.home },
+    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.rfqHub.home },
+    { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.rfqHub.home },
   ].flatMap((entry) =>
     typeof entry.value === "number" && Number.isFinite(entry.value) && entry.value >= 0
       ? [{ ...entry, value: entry.value }]

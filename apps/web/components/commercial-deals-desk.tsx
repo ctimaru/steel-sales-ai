@@ -3,12 +3,11 @@ import Link from "next/link";
 
 import { CommercialAiNativeShell } from "@/components/commercial-ai-native-shell";
 import { CommercialCalculatorQuickAccess } from "@/components/commercial-calculator-quick-access";
-import { CommercialCampaignOperations, type CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealLabelForm } from "@/components/commercial-deal-label-form";
 import {
   dealDeskHref, isDealDue,
-  type CommercialDeal, type DealDeskState, type DealFilter, type DealSegment,
+  type CommercialDeal, type DealDeskState, type DealFilter,
 } from "@/lib/commercial-deal-model";
 import { loadDealLines, type CommercialDealsPage } from "@/lib/commercial-deals";
 import { commercialSearchHref } from "@/lib/commercial-search-context";
@@ -17,40 +16,34 @@ import { formatHubDate } from "@/lib/rfq-hub-overview";
 import { appRoutes } from "@/lib/routes";
 
 // COMM-DEALS1 — la pagina Commerciale è un elenco di trattative.
-// Una riga = una trattativa, in colonne come la tabella del Network:
-// Trattativa · Controparte e materiale · Fase · Prossima azione.
-// I documenti (offerte, risposte, ordini) vivono dentro la trattativa, nel
-// pannello laterale. Sopra la tabella: segmenti, filtri e una barra assistente
-// chiusa per impostazione predefinita.
+// COMM-CLIENTS1 (19 nov 2026) — è «Richieste d'offerta» dell'Ufficio
+// commerciale: solo vendite. Le RFQ ai fornitori e le distinte vivono nel
+// Centro RFQ dell'Ufficio acquisti.
+// Una riga = una richiesta del cliente (RDO) con offerte e ordini collegati,
+// in colonne: Richiesta · Cliente e materiale · Fase · Prossima azione.
+// I documenti vivono dentro la richiesta, nel pannello laterale. Sopra la
+// tabella: filtri e una barra assistente chiusa per impostazione predefinita.
 
 export const DEALS_PAGE_SIZE = 20;
 // Nota: globals.css imposta `a { color: inherit }` fuori dai layer di Tailwind,
 // quindi sui link il colore del testo va forzato con `!text-…`.
 
-const segments: ReadonlyArray<{ key: DealSegment; label: string }> = [
-  { key: "all", label: "Tutte" },
-  { key: "sales", label: "Vendite" },
-  { key: "purchase", label: "Acquisti" },
-];
 const filters: ReadonlyArray<{ key: DealFilter; label: string }> = [
   { key: "todo", label: "Da fare" },
   { key: "waiting", label: "In attesa" },
   { key: "due", label: "In scadenza" },
-  { key: "drafts", label: "Bozze" },
   { key: "closed", label: "Chiuse" },
 ];
 const emptyCopy: Record<DealFilter | "", { title: string; body: string }> = {
-  "": { title: "Ancora nessuna trattativa", body: "Le richieste dei clienti e le RFQ ai fornitori compariranno qui, una riga per trattativa." },
-  todo: { title: "Niente da fare adesso", body: "Nessuna trattativa aspetta una tua azione." },
-  waiting: { title: "Niente in attesa", body: "Nessuna offerta o RFQ sta aspettando una risposta." },
-  due: { title: "Niente in scadenza", body: "Nessuna trattativa aperta scade nei prossimi 7 giorni." },
-  drafts: { title: "Nessuna bozza", body: "Le RFQ non ancora inviate e le distinte salvate compaiono qui." },
-  closed: { title: "Nessuna trattativa chiusa", body: "Le trattative vinte, perse, consegnate o annullate compaiono qui." },
+  "": { title: "Ancora nessuna richiesta d'offerta", body: "Le richieste dei clienti compariranno qui, una riga per richiesta, con offerte e ordini collegati." },
+  todo: { title: "Niente da fare adesso", body: "Nessuna richiesta aspetta una tua azione." },
+  waiting: { title: "Niente in attesa", body: "Nessuna offerta sta aspettando la risposta del cliente." },
+  due: { title: "Niente in scadenza", body: "Nessuna richiesta aperta scade nei prossimi 7 giorni." },
+  // Le bozze di distinta stanno nel Centro RFQ: qui il filtro non esiste più.
+  drafts: { title: "Nessuna bozza", body: "Le distinte salvate sono nel Centro RFQ." },
+  closed: { title: "Nessuna richiesta chiusa", body: "Le richieste vinte, perse, consegnate o annullate compaiono qui." },
 };
 
-// Badge per lato: stessa logica dei ruoli nel Network (tinta + testo scuro, contrasto ≥ 7:1).
-const sideTone = { sales: "bg-[#e6f3ec] !text-[#175640]", purchase: "bg-[#ece9fb] text-[#3c3489]" } as const;
-const sideLabel = { sales: "Vendita", purchase: "Acquisto" } as const;
 const actionTone: Record<CommercialDeal["bucket"], string> = {
   todo: "text-[#8a4b00]", waiting: "text-[#3f5248]", drafts: "text-[#6f5a2a]", progress: "text-[#276147]", closed: "text-[#6b7d73]",
 };
@@ -78,39 +71,26 @@ function dueText(deal: CommercialDeal, now: number) {
   return (due < now ? "Scaduta il " : "Scade il ") + formatHubDate(deal.dueAt);
 }
 
-function primaryAction(deal: CommercialDeal, state: DealDeskState): { href: string; label: string } {
-  if (deal.kind === "distinta") return { href: deal.href, label: "Crea la RFQ" };
-  if (deal.side === "purchase") {
-    if (deal.operationTab) {
-      return {
-        href: dealDeskHref({ ...state, item: deal.key, tab: deal.operationTab }, "commercial-operations"),
-        label: deal.operationTab === "compare" ? "Confronta le offerte" : "Gestisci l'ordine",
-      };
-    }
-    return { href: deal.href, label: deal.bucket === "drafts" ? "Completa la RFQ" : "Apri la RFQ" };
-  }
-  // Vendite: si lavora sul documento più recente (richiesta, offerta o ordine).
+/** Si lavora sul documento più recente della richiesta (richiesta, offerta o ordine). */
+function primaryAction(deal: CommercialDeal): { href: string; label: string } {
   const latest = [...deal.documents].sort((a, b) => (Date.parse(b.at ?? "") || 0) - (Date.parse(a.at ?? "") || 0))[0];
   return { href: latest?.href ?? deal.href, label: deal.bucket === "todo" ? deal.action : "Apri " + (latest?.label.toLocaleLowerCase("it-IT") ?? "la richiesta") };
 }
 
-async function DealDetail({ deal, state, tab, canWrite }: {
-  deal: CommercialDeal; state: DealDeskState; tab: CommercialOperationsTab | null; canWrite: boolean;
+async function DealDetail({ deal, state, canWrite }: {
+  deal: CommercialDeal; state: DealDeskState; canWrite: boolean;
 }) {
   const lines = await loadDealLines(deal).catch(() => null);
   const now = Date.now();
   const due = dueText(deal, now);
-  const primary = primaryAction(deal, state);
+  const primary = primaryAction(deal);
   const labelKind = deal.kind === "inbound-rfq" ? "rfq" : deal.kind === "inbound-offer" ? "offer" : deal.kind === "inbound-order" ? "order" : null;
-  const closeHref = dealDeskHref({ ...state, item: "" });
+  const closeHref = dealDeskHref({ ...state, segment: "all", item: "" });
   return (
     <div className="space-y-4" data-testid="commercial-deal-detail">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="flex flex-wrap items-center gap-2 text-xs text-[#5c7063]">
-            <span className={"rounded-full px-2 py-0.5 text-[11px] font-semibold " + sideTone[deal.side]}>{sideLabel[deal.side]}</span>
-            <span className="tabular-nums">{deal.reference}</span>
-          </p>
+          <p className="text-xs tabular-nums text-[#5c7063]">{deal.reference}</p>
           <h2 className="mt-1.5 break-words text-lg font-bold tracking-tight text-[#143f30]">{deal.title}</h2>
           <p className="mt-0.5 text-sm text-[#52685b]">
             {[deal.counterparty, deal.material, deal.quantity].filter(Boolean).join(" · ")}
@@ -135,7 +115,7 @@ async function DealDetail({ deal, state, tab, canWrite }: {
       </section>
 
       <section aria-labelledby="commercial-deal-documents">
-        <h3 id="commercial-deal-documents" className="text-xs font-semibold text-[#3d6b52]">Documenti della trattativa</h3>
+        <h3 id="commercial-deal-documents" className="text-xs font-semibold text-[#3d6b52]">Documenti della richiesta</h3>
         <ol className="mt-2 divide-y divide-[#edf3ef] rounded-xl border border-[#e0eae4] bg-white" data-testid="commercial-deal-documents">
           {deal.documents.map((doc) => (
             <li key={doc.key}>
@@ -171,40 +151,20 @@ async function DealDetail({ deal, state, tab, canWrite }: {
         </section>
       ) : null}
 
-      {deal.campaignId && tab ? (
-        <CommercialCampaignOperations rfqId={deal.campaignId} selected={deal.key} tab={tab}
-          view="all" query={state.query} page={1}
-          tabHref={(next) => dealDeskHref({ ...state, item: deal.key, tab: next }, "commercial-operations")} />
-      ) : null}
-
       <details className="group rounded-xl border border-[#e0eae4] bg-white" data-testid="commercial-deal-more">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between px-3 text-xs font-semibold !text-[#175640] [&::-webkit-details-marker]:hidden">
           Altro <span aria-hidden="true" className="transition group-open:rotate-180">▾</span>
         </summary>
         <div className="space-y-3 border-t border-[#edf3ef] p-3">
           {canWrite && labelKind ? <CommercialDealLabelForm kind={labelKind} id={deal.id} label={deal.label ?? ""} /> : null}
-          {deal.kind !== "distinta" ? (
-            <CommercialDealFactBriefCopy key={deal.key} kind={deal.side === "sales" ? "Vendita" : "Acquisto"} dealId={deal.id}
-              status={deal.stage} title={deal.title} origin={deal.side === "sales" ? "memoria privata" : "acquisti privati"}
-              relatedActivities={deal.documents.slice(0, 4).map((doc) => ({ kind: doc.label, status: doc.status }))} />
-          ) : null}
+          <CommercialDealFactBriefCopy key={deal.key} kind="Vendita" dealId={deal.id}
+            status={deal.stage} title={deal.title} origin="memoria privata"
+            relatedActivities={deal.documents.slice(0, 4).map((doc) => ({ kind: doc.label, status: doc.status }))} />
           <div className="flex flex-wrap gap-2">
-            {deal.campaignId && !tab ? (
-              <Link href={dealDeskHref({ ...state, item: deal.key, tab: "compare" }, "commercial-operations")}
-                className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
-                Confronto, negoziazione e ordini
-              </Link>
-            ) : null}
             <Link href={deal.href}
               className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
               Apri pagina completa ↗
             </Link>
-            {deal.side === "purchase" && canWrite ? (
-              <Link href={appRoutes.network.directory}
-                className="inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
-                Cerca fornitori nel Network ↗
-              </Link>
-            ) : null}
           </div>
         </div>
       </details>
@@ -213,11 +173,10 @@ async function DealDetail({ deal, state, tab, canWrite }: {
 }
 
 export async function CommercialDealsDesk({
-  data, state, tab, canWrite, calculatorReferences,
+  data, state, canWrite, calculatorReferences,
 }: {
   data: CommercialDealsPage;
   state: DealDeskState;
-  tab: CommercialOperationsTab | null;
   canWrite: boolean;
   calculatorReferences: PublicTubeDimensionSummary[];
 }) {
@@ -227,37 +186,31 @@ export async function CommercialDealsDesk({
   const shown = data.rows;
   const active = data.selected;
   const columns = active ? COLUMNS_SPLIT : COLUMNS_WIDE;
-  const keep = { segment: state.segment, filter: state.filter, query: state.query };
+  // Il segmento è sempre «vendite» (lo impone la pagina): non va negli URL.
+  const keep = { filter: state.filter, query: state.query };
 
   return (
     <div className="space-y-3" data-testid="commercial-deals-desk">
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="mr-1 text-xl font-bold tracking-tight text-[#143f30]">Trattative</h1>
-        <nav aria-label="Vendite e acquisti" className="flex gap-1" data-testid="commercial-deal-segments">
-          {segments.map((option) => (
-            <Link key={option.key} href={dealDeskHref({ ...keep, segment: option.key })}
-              aria-current={state.segment === option.key ? "page" : undefined}
-              className={"inline-flex min-h-9 items-center gap-1.5 rounded-full px-3 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
-                (state.segment === option.key ? "bg-[#175640] !text-white" : "!text-[#3f5c4c] hover:bg-[#e8f3ec]")}>
-              {option.label}
-              <span className={"text-xs tabular-nums " + (state.segment === option.key ? "text-[#cfe8da]" : "text-[#7a9184]")}>{counts.segments[option.key]}</span>
-            </Link>
-          ))}
-        </nav>
+        <h1 className="mr-1 text-xl font-bold tracking-tight text-[#143f30]">Richieste d&apos;offerta</h1>
+        <span className="text-xs tabular-nums text-[#5c7063]" data-testid="commercial-deals-open-count">
+          {counts.segments.sales === 1 ? "1 aperta" : counts.segments.sales + " aperte"}
+        </span>
         <div className="ml-auto flex min-w-0 flex-wrap items-center gap-2">
           <form action={appRoutes.commercial.home} method="get" role="search" className="relative min-w-0">
-            {state.segment !== "all" ? <input type="hidden" name="seg" value={state.segment} /> : null}
             {state.filter ? <input type="hidden" name="f" value={state.filter} /> : null}
-            <label htmlFor="commercial-deals-q" className="sr-only">Cerca tra le trattative</label>
+            <label htmlFor="commercial-deals-q" className="sr-only">Cerca tra le richieste d'offerta</label>
             <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#7a9184]">⌕</span>
             <input id="commercial-deals-q" type="search" name="q" maxLength={80} defaultValue={state.query}
-              placeholder="Cliente, fornitore, riferimento…"
+              placeholder="Cliente, riferimento, materiale…"
               className="min-h-9 w-[220px] max-w-full rounded-full border border-[#d6e5db] bg-white pl-8 pr-3 text-sm text-[#143f30] placeholder:text-[#7a9184] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
           </form>
           {canWrite ? (
+            // Le richieste d'offerta arrivano dai clienti: da qui si prepara una
+            // distinta per chiedere il materiale ai fornitori.
             <Link href={newRequestHref()} data-testid="commercial-new-request"
-              className="inline-flex min-h-9 items-center rounded-full bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
-              + Nuova richiesta
+              className="inline-flex min-h-9 items-center rounded-full border border-[#175640] bg-white px-4 text-sm font-semibold !text-[#175640] hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
+              + Nuova distinta
             </Link>
           ) : null}
           <details className="group relative" data-testid="commercial-desk-tools">
@@ -268,10 +221,6 @@ export async function CommercialDealsDesk({
             <div className="absolute right-0 top-[calc(100%+6px)] z-30 flex w-[270px] flex-col gap-2 rounded-xl border border-[#d6e5db] bg-white p-3 shadow-lg">
               <CommercialCalculatorQuickAccess references={calculatorReferences} />
               <Link href={commercialSearchHref(state.query)} data-testid="commercial-history-entry" className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Cerca nello storico</Link>
-              <Link href={appRoutes.rfqHub.home} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Distinte</Link>
-              <Link href={appRoutes.rfqHub.home} className="rounded-lg px-2 py-2 text-sm font-medium !text-[#254f3d] hover:bg-[#f2f8f4]">Centro RFQ</Link>
-              <Link href={appRoutes.commercial.home + "?experience=classic"} data-testid="commercial-desk-classic"
-                className="rounded-lg px-2 py-2 text-xs !text-[#5c7063] hover:bg-[#f2f8f4]">Vista precedente</Link>
             </div>
           </details>
         </div>
@@ -281,7 +230,7 @@ export async function CommercialDealsDesk({
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 text-sm text-[#52685b] [&::-webkit-details-marker]:hidden">
           <span aria-hidden="true" className="flex h-6 w-6 items-center justify-center rounded-md bg-[#175640] text-xs !text-white">✦</span>
           <span className="font-semibold !text-[#175640]">Assistente</span>
-          <span className="hidden truncate sm:inline">cerca aziende, chiarisci una norma, prepara una distinta o filtra le trattative</span>
+          <span className="hidden truncate sm:inline">cerca aziende, chiarisci una norma, prepara una distinta o filtra le richieste</span>
           <span aria-hidden="true" className="ml-auto transition group-open:rotate-180">▾</span>
         </summary>
         <div className="border-t border-[#edf3ef] p-2">
@@ -289,7 +238,7 @@ export async function CommercialDealsDesk({
         </div>
       </details>
 
-      <nav aria-label="Filtra le trattative" className="flex gap-1.5 overflow-x-auto" data-testid="commercial-deal-filters">
+      <nav aria-label="Filtra le richieste d'offerta" className="flex gap-1.5 overflow-x-auto" data-testid="commercial-deal-filters">
         {filters.map((option) => {
           const on = state.filter === option.key;
           const urgent = option.key === "todo" && counts.filters.todo > 0;
@@ -308,12 +257,10 @@ export async function CommercialDealsDesk({
         })}
       </nav>
 
-      {data.salesUnavailable || data.purchaseUnavailable || data.truncated || state.query ? (
+      {data.salesUnavailable || data.truncated || state.query ? (
         <p role="status" className="px-1 text-xs text-[#5c7063]" data-testid="commercial-deals-note">
-          {data.salesUnavailable && data.purchaseUnavailable ? "Trattative non verificabili in questo momento: riprova tra poco. "
-            : data.salesUnavailable ? "Le richieste dei clienti non sono verificabili in questo momento. "
-            : data.purchaseUnavailable ? "Le RFQ ai fornitori non sono verificabili in questo momento. " : ""}
-          {data.truncated ? "Mostro le 200 trattative più recenti per lato. " : ""}
+          {data.salesUnavailable ? "Le richieste dei clienti non sono verificabili in questo momento: riprova tra poco. " : ""}
+          {data.truncated ? "Mostro le 200 richieste più recenti. " : ""}
           {state.query || data.truncated ? (
             <Link href={commercialSearchHref(state.query)} className="font-semibold !text-[#175640] underline underline-offset-2">
               {state.query ? "Cerca «" + state.query + "» in tutto lo storico" : "Cerca nello storico"}
@@ -326,15 +273,15 @@ export async function CommercialDealsDesk({
         // Chiave sconosciuta, scaduta o di un'altra azienda: nessun dettaglio, nessun indizio su cosa esista.
         <p role="status" data-testid="commercial-deal-not-found"
           className="rounded-lg border border-[#e6d3ae] bg-[#fffaf0] px-3 py-2 text-xs text-[#795321]">
-          Trattativa non trovata o non visibile con il tuo accesso.
+          Richiesta non trovata o non visibile con il tuo accesso.
         </p>
       ) : null}
 
-      <section id="commercial-worklist" aria-label="Elenco trattative" className="scroll-mt-28">
+      <section id="commercial-worklist" aria-label="Elenco richieste d'offerta" className="scroll-mt-28">
         <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,.9fr)]" : "min-w-0"}>
           <div className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-2xl border border-[#dce7e0] bg-white"} data-testid="commercial-deals-list">
             <div aria-hidden="true" className={"hidden border-b border-[#e4ece7] bg-[#f7faf8] px-4 py-2 text-[11px] font-semibold text-[#5c7063] " + columns}>
-              <span>Trattativa</span><span>Controparte · materiale</span><span>Fase</span><span>Prossima azione</span>
+              <span>Richiesta</span><span>Cliente · materiale</span><span>Fase</span><span>Prossima azione</span>
             </div>
             {shown.length ? (
               <ul role="list">
@@ -351,10 +298,7 @@ export async function CommercialDealsDesk({
                           columns + " " + (selected ? "bg-[#edf6f0]" : "")}>
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-semibold text-[#143f30]">{deal.title}</span>
-                          <span className="mt-0.5 flex items-center gap-2 text-xs text-[#5c7063]">
-                            <span className={"shrink-0 rounded-full px-2 py-px text-[11px] font-semibold " + sideTone[deal.side]}>{sideLabel[deal.side]}</span>
-                            <span className="truncate tabular-nums">{deal.reference}</span>
-                          </span>
+                          <span className="mt-0.5 block truncate text-xs tabular-nums text-[#5c7063]">{deal.reference}</span>
                         </span>
                         <span className="min-w-0">
                           <span className="block truncate text-sm text-[#173f35]">{deal.counterparty}</span>
@@ -377,24 +321,18 @@ export async function CommercialDealsDesk({
               </ul>
             ) : (
               <div className="px-4 py-6" data-testid="commercial-deals-empty">
-                <p className="text-sm font-semibold text-[#143f30]">{state.query ? "Nessuna trattativa per «" + state.query + "»" : emptyCopy[state.filter].title}</p>
+                <p className="text-sm font-semibold text-[#143f30]">{state.query ? "Nessuna richiesta per «" + state.query + "»" : emptyCopy[state.filter].title}</p>
                 <p className="mt-1 text-xs text-[#5c7063]">{state.query ? "Prova un altro nome o cerca in tutto lo storico." : emptyCopy[state.filter].body}</p>
                 {state.filter || state.query ? (
-                  <Link href={dealDeskHref({ segment: state.segment })}
+                  <Link href={dealDeskHref({})}
                     className="mt-3 inline-flex min-h-10 items-center rounded-lg border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
                     Rimuovi filtro
-                  </Link>
-                ) : null}
-                {!state.filter && !state.query && canWrite ? (
-                  <Link href={newRequestHref()}
-                    className="mt-3 inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-sm font-semibold !text-white hover:bg-[#104632]">
-                    Crea la prima richiesta
                   </Link>
                 ) : null}
               </div>
             )}
             {pages > 1 ? (
-              <nav aria-label="Pagine trattative" className="flex items-center justify-between gap-2 border-t border-[#edf2ef] px-4 py-2.5" data-testid="commercial-deals-pager">
+              <nav aria-label="Pagine richieste d'offerta" className="flex items-center justify-between gap-2 border-t border-[#edf2ef] px-4 py-2.5" data-testid="commercial-deals-pager">
                 {page > 1 ? (
                   <Link href={dealDeskHref({ ...keep, page: page - 1 })} className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] px-3 text-xs font-semibold !text-[#175640] hover:bg-[#eef6f1]">← Precedenti</Link>
                 ) : <span />}
@@ -407,10 +345,10 @@ export async function CommercialDealsDesk({
           </div>
 
           {active ? (
-            <aside id="commercial-detail" aria-label="Dettaglio trattativa"
+            <aside id="commercial-detail" aria-label="Dettaglio richiesta d'offerta"
               className="min-w-0 scroll-mt-24 rounded-2xl border border-[#dce7e0] bg-white p-4 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto">
-              <Link href={dealDeskHref({ ...keep, page })} className="mb-3 inline-flex min-h-9 items-center text-xs font-semibold !text-[#175640] lg:hidden">← Trattative</Link>
-              <DealDetail deal={active} state={{ ...state, page }} tab={tab} canWrite={canWrite} />
+              <Link href={dealDeskHref({ ...keep, page })} className="mb-3 inline-flex min-h-9 items-center text-xs font-semibold !text-[#175640] lg:hidden">← Richieste d&apos;offerta</Link>
+              <DealDetail deal={active} state={{ ...state, page }} canWrite={canWrite} />
             </aside>
           ) : null}
         </div>

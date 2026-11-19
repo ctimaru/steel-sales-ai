@@ -90,7 +90,7 @@ export default async function Company360Page({
     return (
       <div className="mx-auto max-w-5xl space-y-4">
         <p className="text-sm text-[#4f6b5b]">Azienda non trovata nel workspace.</p>
-        <Link href={appRoutes.commercial.companies} className="text-sm font-semibold text-[#175640] underline underline-offset-2">← Torna ad Aziende</Link>
+        <Link href={appRoutes.commercial.companies} className="text-sm font-semibold text-[#175640] underline underline-offset-2">← Torna a Clienti</Link>
       </div>
     );
   }
@@ -113,7 +113,7 @@ export default async function Company360Page({
     <>
       <PilotEvent eventName="company_viewed" entityType="company" entityId={companyId} metadata={{ surface: "company_360" }} />
       <div className="mx-auto max-w-5xl space-y-4" data-testid="company-clean-page">
-        <Link href={appRoutes.commercial.companies} className="inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] hover:underline">← Aziende</Link>
+        <Link href={appRoutes.commercial.companies} className="inline-flex min-h-9 items-center text-xs font-semibold text-[#175640] hover:underline">← Clienti</Link>
 
         <header className="rounded-[22px] bg-[#0b2f25] px-5 py-5 text-white sm:px-7 sm:py-6">
           <div className="flex flex-wrap items-start justify-between gap-4">

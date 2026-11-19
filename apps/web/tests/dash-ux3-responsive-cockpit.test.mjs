@@ -44,8 +44,8 @@ test("DASH-FEED2 retains governed procurement and deep links", () => {
     /procurementSummary\.attention_total/,
     /procurementSummary\.active_rfqs/,
     /procurementSummary\.urgent/,
-    // HOME-FOCUS1: per-RFQ deep links moved to Commerciale with the attention strip.
-    /appRoutes\.commercial\.home \+ "\?view=sent#commercial-worklist"/,
+    // COMM-CLIENTS1: procurement deep links open Centro RFQ (Ufficio acquisti).
+    /href: appRoutes\.rfqHub\.home/,
     /procurement\.error/,
   ]) assert.match(home, pattern);
 });

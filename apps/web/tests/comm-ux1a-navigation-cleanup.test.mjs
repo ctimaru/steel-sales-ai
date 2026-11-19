@@ -31,7 +31,7 @@ test("COMM-NAV7 uses grouped director navigation instead of duplicated Commercia
   assert.match(directorShell, /xl:grid-cols-\[214px_minmax\(0,1fr\)\]/);
   // OFFICE-PROFILES1: Direzione aziendale contains the two offices; the other areas keep their labels.
   for (const title of [
-    'label: "Scrivania"', 'label: "Direzione aziendale"', 'label: "Ufficio commerciale"',
+    'label: "Direzione aziendale"', 'label: "Ufficio commerciale"',
     'label: "Ufficio acquisti"', 'label: "Analisi"', 'label: "Strumenti"',
   ]) assert.ok(directorGroups.includes(title), title);
   assert.match(directorShell, /aria-current=\{current \? "page" : undefined\}/);
