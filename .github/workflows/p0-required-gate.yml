@@ -420,6 +420,7 @@ jobs:
             crawl_it66c_rna_corporate_tax_source.sql \
             comm_deals2_priority_index.sql \
             comm_cycle1_actions.sql \
+            comm_cycle2a_offer_revisions.sql \
             distinta2_supplier_picker.sql \
             rfqhub1b_supplier_contacts.sql \
             rfqhub1d_supplier_links.sql; do
