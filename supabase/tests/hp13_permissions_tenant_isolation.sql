@@ -333,17 +333,30 @@ select pg_temp.hp13_assert(
         -- coverage and append-only offer_edited audit. Empty search_path,
         -- anonymous execute revoked, no supplier/target price access.
         'comm_cycle2b_save_offer',
-        -- COMM-CYCLE2.C reviewed: all public entrypoints require an active
-        -- writer membership, Ufficio commerciale, row locks and same-org
-        -- offer/dispatch. Reservation is an immutable customer-email
-        -- snapshot fingerprint with per-revision idempotent attempt count;
-        -- completion records the provider outcome and invokes COMM-CYCLE1
-        -- only on accepted, no anon execute and pinned search_path.
+        -- COMM-CYCLE2.C reviewed: reservation and the human status
+        -- confirmation require an active writer, commercial office profile,
+        -- row locks, same-org dispatch and an actual server-accepted record.
+        -- The public provider-outcome RPC is NOT authenticated-executable:
+        -- only service_role may attest the result of the Resend HTTP request.
         'comm_cycle2c_reserve_email',
-        'comm_cycle2c_complete_email'
+        'comm_cycle2c_confirm_sent'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
+);
+
+-- COMM-CYCLE2.C: authenticated users may reserve attempts and act only on
+-- a provider-accepted ledger row. They cannot forge accepted status directly.
+select pg_temp.hp13_assert(
+  exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public' and p.proname='comm_cycle2c_complete_email'
+      and p.prosecdef and not has_function_privilege('anon',p.oid,'EXECUTE')
+      and not has_function_privilege('authenticated',p.oid,'EXECUTE')
+      and has_function_privilege('service_role',p.oid,'EXECUTE')
+      and coalesce(array_to_string(p.proconfig,','),'') like '%search_path=""%'
+  ),
+  'COMM-CYCLE2.C Resend outcome must be server-only'
 );
 
 -- NET-UX-MAP1 reviewed facade: explicit tenant guard remains in the private
