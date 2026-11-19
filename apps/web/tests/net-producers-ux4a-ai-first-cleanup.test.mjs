@@ -63,5 +63,8 @@ test("UX4.A: mobile constraints stay fluid, readable and keyboard-accessible",()
   assert.match(view,/focus-visible:outline-2/);
   assert.match(view,/min-h-12/);
   assert.match(view,/overflow-x-auto/);
+  assert.match(view,/flex-nowrap items-center gap-2 rounded-xl bg-\[#123a2e\]/);
+  assert.match(view,/sm:inline-flex">Svuota<\/button>/);
+
   assert.match(chat,/min-h-12/);
 });
