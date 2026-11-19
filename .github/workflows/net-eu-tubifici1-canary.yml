@@ -1,7 +1,7 @@
-name: "NET-EU-TUBIFICI1.D1 — Bounded European cohort identity canary"
+name: "NET-EU-TUBIFICI1.D5.B — Bounded NL/BE/CH identity canary"
 
-# D1 second cohort: the existing worker will use the source-bound queue
-# for 8 new European producer candidates (batch 02). No publisher is invoked.
+# D5.B third cohort: reviewer will use the source-bound EU queue
+# for 4 new European producer candidates (batch 03, NL/BE/CH). No publisher is invoked.
 # This file change intentionally schedules a one-time canary on merge to main;
 # subsequent pushes do not retrigger unless this workflow file changes again.
 on:
@@ -15,13 +15,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: net-eu-tubifici1-d1-live-canary
+  group: net-eu-tubifici1-d5b-live-canary
   cancel-in-progress: false
 
 jobs:
   first-party-canary:
     if: github.ref == 'refs/heads/main'
-    name: "Inspect up to 8 EU producer candidates, evidence only"
+    name: "Inspect 4 NL/BE/CH tube producer candidates, evidence only"
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
@@ -45,25 +45,25 @@ jobs:
             echo "::error::Missing project worker secrets; no EU records processed"
             exit 1
           fi
-      - name: Real D1 8-domain canary — store first-party identity evidence only
+      - name: Real D5.B 4-domain canary — store first-party identity evidence only
         working-directory: services/worker
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           set -euo pipefail
-          report="$(python -m app.net_eu_tubifici1_reviewer --limit 8 --persist)"
+          report="$(python -m app.net_eu_tubifici1_reviewer --limit 4 --persist)"
           echo "$report"
-          EU_D1_REPORT="$report" python - <<'PY'
+          EU_D5B_REPORT="$report" python - <<'PY'
           import json
           import os
-          payload = json.loads(os.environ["EU_D1_REPORT"])
+          payload = json.loads(os.environ["EU_D5B_REPORT"])
           if (payload.get("mode") != "persist_private_evidence"
-              or payload.get("queued") != 8
-              or payload.get("inspected") != 8
-              or payload.get("recorded") != 8
+              or payload.get("queued") != 4
+              or payload.get("inspected") != 4
+              or payload.get("recorded") != 4
               or payload.get("published") != 0):
-              raise SystemExit("EU1.D1 canary did not persist all 8 identity observations")
-          print("EU1.D1 canary passed: 8 first-party observations; 0 publications")
+              raise SystemExit("EU1.D5.B canary did not persist all 4 identity observations")
+          print("EU1.D5.B canary passed: 4 first-party observations; 0 publications")
           PY
           # This worker never publishes records or confirms tube manufacturing.

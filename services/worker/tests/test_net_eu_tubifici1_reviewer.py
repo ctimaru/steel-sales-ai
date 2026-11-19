@@ -26,6 +26,13 @@ def make_candidate(**patch):
 def test_eu_legal_forms_and_unicode_not_italian_only():
     assert eu.legal_form_present("BENTELER Steel/Tube GmbH & Co. KG", "DE")
     assert eu.legal_form_present("Stalatube Oy", "FI")
+    assert eu.legal_form_present("BRT N.V.", "BE")
+    assert eu.legal_form_present("SWISS-TUBE LN Industries SA", "CH")
+    assert eu.legal_form_present("ZM Tubes SA", "CH")
+    assert eu.legal_form_present("Tata Steel Nederland Tubes B.V.", "NL")
+    assert not eu.legal_form_present("BRT Pipes & Profiles", "BE")
+    assert not eu.legal_form_present("ZM Tubes", "CH")
+    assert not eu.legal_form_present("Tata Steel Nederland", "NL")
     assert eu.legal_form_present("Třinecké železárny, a.s.", "CZ")
     assert eu.legal_form_present("Tubacex Tubos Inoxidables S.A.U.", "ES")
     assert eu.legal_form_present("Marcegaglia (UK) Limited", "GB")
