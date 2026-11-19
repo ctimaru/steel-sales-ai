@@ -35,9 +35,9 @@ function countryIn(question:string):string|null{
   const named=countryEntries.filter(row=>
     [row.name,...(aliases[row.code]??[])].some(alias=>mentioned(question,alias))
   );
-  const codes=countryEntries.filter(row=>
-    new RegExp(String.raw`\\b(?:in|nel|nella|paese|country|from|dal)\\s+${row.code}\\b`).test(question)
-  );
+  const explicitCodes=[...question.matchAll(/\b(?:in|nel|nella|paese|country|from|dal)\s+([A-Z]{2})\b/g)]
+    .map(match=>match[1]);
+  const codes=countryEntries.filter(row=>explicitCodes.includes(row.code));
   const matches=new Set([...named,...codes].map(item=>item.code));
   return matches.size===1?[...matches][0]:null;
 }
