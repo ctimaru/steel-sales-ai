@@ -85,6 +85,11 @@ begin
     raise exception 'comm_cycle2a: origine della revisione immutabile' using errcode = '42501';
   end if;
   if old.revision_managed then
+    if not public.is_organization_member(old.organization_id,true)
+      or private.office_write_denied(old.organization_id,'commercial') then
+      raise exception 'office_profile_read_only: serve il profilo Ufficio commerciale'
+        using errcode = '42501';
+    end if;
     if new.revision_no is distinct from old.revision_no
       or new.previous_offer_id is distinct from old.previous_offer_id
       or new.organization_id is distinct from old.organization_id
@@ -129,9 +134,16 @@ begin
   if tg_op in ('UPDATE', 'DELETE') then
     select * into v_offer from public.offers
       where id = old.offer_id and organization_id = old.organization_id;
-    if found and v_offer.revision_managed and v_offer.status <> 'draft' then
-      raise exception 'comm_cycle2a: righe di revisione inviata immutabili'
-        using errcode = '42501';
+    if found and v_offer.revision_managed then
+      if v_offer.status <> 'draft' then
+        raise exception 'comm_cycle2a: righe di revisione inviata immutabili'
+          using errcode = '42501';
+      end if;
+      if not public.is_organization_member(v_offer.organization_id,true)
+        or private.office_write_denied(v_offer.organization_id,'commercial') then
+        raise exception 'office_profile_read_only: serve il profilo Ufficio commerciale'
+          using errcode = '42501';
+      end if;
     end if;
     if tg_op = 'DELETE' then return old; end if;
   end if;
@@ -139,6 +151,11 @@ begin
   select * into v_offer from public.offers
     where id = new.offer_id and organization_id = new.organization_id;
   if found and v_offer.revision_managed then
+    if not public.is_organization_member(v_offer.organization_id,true)
+      or private.office_write_denied(v_offer.organization_id,'commercial') then
+      raise exception 'office_profile_read_only: serve il profilo Ufficio commerciale'
+        using errcode = '42501';
+    end if;
     if v_offer.status <> 'draft' then
       raise exception 'comm_cycle2a: righe di revisione inviata immutabili'
         using errcode = '42501';
