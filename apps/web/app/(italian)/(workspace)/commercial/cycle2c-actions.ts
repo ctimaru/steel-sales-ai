@@ -120,7 +120,8 @@ export async function sendCustomerOfferEmail(
   try {
     const sender = process.env.COMMERCIAL_EMAIL_FROM
       || "Smart Steel Sales <offerte@smartsteelsales.com>";
-    const replyTo = process.env.COMMERCIAL_EMAIL_REPLY_TO;
+    const replyTo = process.env.COMMERCIAL_EMAIL_REPLY_TO
+      || (validCustomerEmailRecipient(scope.viewerLabel) ? scope.viewerLabel : undefined);
     const response = await fetch("https://api.resend.com/emails",{
       method:"POST",
       headers:{
@@ -140,7 +141,7 @@ export async function sendCustomerOfferEmail(
       if (typeof data?.id === "string" && data.id.length >= 8 && data.id.length <= 128) {
         outcome = "accepted"; providerMessageId = data.id;
       }
-    } else if (response.status < 500 && response.status !== 408 && response.status !== 429) {
+    } else if (response.status < 500 && response.status !== 408 && response.status !== 409 && response.status !== 429) {
       // A definitive 4xx rejection can be retried only by an explicit human action.
       outcome = "failed";
     }
