@@ -32,7 +32,8 @@ export function summarizeReviewedCompanyEvidence(entries:readonly ReviewedCompan
  const seenProducts=new Set<string>();
  const seenServices=new Set<string>();
  for(const item of entries.slice(0,20)){
-   if(!["description","products","services","industrial_source"].includes(item.field_key)
+   if(!["description","products","services"].includes(item.field_key)
+     && item.field_key!=="industrial_source"
      ||typeof item.evidence_url!=="string"
      ||!/^https:\/\//i.test(item.evidence_url))continue;
    const src=item.evidence_url;
