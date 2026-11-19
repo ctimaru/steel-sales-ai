@@ -24,7 +24,7 @@ test("menu: Ufficio commerciale = Richieste d'offerta + Clienti, senza Scrivania
     assert.equal(nav.includes(gone), false, gone);
   }
   assert.doesNotMatch(shell, /group\.key === "desk"/);
-  assert.match(shell, /item\.counter === "sales_attention" \? <SalesAttentionCount \/>/);
+  assert.match(shell, /item\.counter === "sales_attention" \? <SalesAttentionCount onDark=\{current\} \/>/);
   // Il contatore usa la stessa fonte del filtro «Da fare» della lista.
   assert.match(attention, /comm_deals2_index/);
   assert.match(attention, /p_segment: "sales", p_filter: "todo"/);

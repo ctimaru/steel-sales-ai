@@ -12,6 +12,7 @@
 
 import { summarizeRowLines } from "./commercial-row-lines.ts";
 import { commercialRowQuantity } from "./commercial-row-facts.ts";
+import { productSummary } from "./commercial-product-key.ts";
 
 export type DealSide = "sales" | "purchase";
 export type DealSegment = "all" | DealSide;
@@ -19,7 +20,8 @@ export type DealFilter = "todo" | "waiting" | "due" | "drafts" | "closed";
 /** Dove sta la trattativa adesso. «due» non è un bucket: è una scadenza sopra un bucket aperto. */
 export type DealBucket = "todo" | "waiting" | "drafts" | "progress" | "closed";
 export type DealKind = "inbound-rfq" | "inbound-offer" | "inbound-order" | "campaign" | "distinta";
-export type DealStep = { label: string; done: boolean };
+/** «skipped»: the step did not happen and never will (an order that came without a request). */
+export type DealStep = { label: string; done: boolean; skipped?: boolean };
 export type DealDocument = { key: string; label: string; status: string; at: string | null; href: string };
 export type DealOperationTab = "compare" | "negotiate" | "award" | "po";
 
@@ -49,6 +51,10 @@ export type CommercialDeal = {
   documents: DealDocument[];
   /** Chiavi dei documenti figli: i vecchi link ?item=quote:… aprono la trattativa giusta. */
   childKeys: string[];
+  /** COMM-RDO2 (solo vendite): come è nata la trattativa, «Richiesta», «Ordine diretto»… */
+  origin?: string;
+  /** COMM-RDO2 (solo vendite): data commerciale del documento di partenza (non quella di importazione). */
+  since?: string | null;
 };
 
 export const DEAL_DUE_WINDOW_DAYS = 7;
@@ -70,6 +76,19 @@ const latest = (list: Row[]) => [...list].sort((a, b) =>
 
 export const dealReference = (side: DealSide, id: string) =>
   (side === "sales" ? "RDO-" : "RFQ-") + id.replace(/-/g, "").slice(0, 6).toUpperCase();
+
+/** COMM-RDO2: an order or offer that arrived without a request is not an «RDO». */
+export const salesReference = (kind: DealKind, id: string) =>
+  (kind === "inbound-order" ? "ORD-" : kind === "inbound-offer" ? "OFF-" : "RDO-") + id.replace(/-/g, "").slice(0, 6).toUpperCase();
+
+/**
+ * public.comm_deals2_index searches the code as «RDO-xxxxxx» for every sales
+ * deal; the list now shows ORD-/OFF- for orders and offers without a request.
+ * Same 6 characters, so the query is translated before it reaches the index.
+ */
+export function salesSearchQuery(query: string): string {
+  return query.replace(/\b(?:ORD|OFF)-([0-9A-F]{6})\b/gi, "RDO-$1");
+}
 
 // Etichette italiane degli stati di database (vincoli verificati sullo schema).
 const rfqStatus: Record<string, string> = {
@@ -118,6 +137,8 @@ function buildSalesDeal(input: SalesInput, routes: DealRoutes): CommercialDeal |
   const id = anchor.id;
   const company = text(parent(anchor.company)?.name) ||
     text(parent(offers[0]?.company)?.name) || text(parent(orders[0]?.company)?.name);
+  // Senza azienda collegata, il nome del contatto della richiesta (dato strutturato).
+  const contact = text(parent(rfq?.contact)?.full_name);
   const dealLabel = text(anchor.deal_label) || text(offers.find((o) => text(o.deal_label))?.deal_label) || "";
   const order = latest(orders);
   const offer = latest(offers);
@@ -157,6 +178,7 @@ function buildSalesDeal(input: SalesInput, routes: DealRoutes): CommercialDeal |
 
   const lines = rows(rfq?.lines ?? anchor.lines);
   const facts = summarizeRowLines(lines);
+  const product = productSummary(lines);
   const customerRef = text(order?.customer_order_ref);
   const documents: DealDocument[] = [];
   if (rfq && isId(rfq.id)) documents.push({ key: "inbound-rfq:" + rfq.id, label: "Richiesta del cliente", status: label(rfqStatus, rfq.status), at: time(rfq.created_at), href: routes.rfq(rfq.id) });
@@ -167,17 +189,25 @@ function buildSalesDeal(input: SalesInput, routes: DealRoutes): CommercialDeal |
   });
   const at = documents.reduce<string | null>((max, d) => d.at && (!max || Date.parse(d.at) > Date.parse(max)) ? d.at : max, null);
 
+  const offered = offers.some((o) => text(o.status) !== "draft");
+  const ordered = orders.some((o) => text(o.status) !== "cancelled");
+  const delivered = orders.some((o) => text(o.status) === "delivered");
+  const sinceRaw = anchorKind === "inbound-rfq" ? anchor.requested_at
+    : anchorKind === "inbound-offer" ? anchor.offered_at : anchor.ordered_at;
+
   return {
     key: anchorKind + ":" + id, kind: anchorKind, side: "sales", id,
-    reference: dealReference("sales", id) + (customerRef ? " · ord. " + customerRef.slice(0, 24) : ""),
-    title: dealLabel || company || "Richiesta cliente",
-    counterparty: company || "Cliente non indicato",
-    material: salesMaterial(lines),
+    // RDO = richiesta del cliente; OFF/ORD = offerta o ordine arrivati senza richiesta.
+    reference: salesReference(anchorKind, id) + (customerRef ? " · ord. " + customerRef.slice(0, 24) : ""),
+    title: dealLabel || product?.name || "Articoli da leggere nel dettaglio",
+    counterparty: company || contact,
+    material: salesMaterial(lines) || product?.spec || "",
     quantity: [facts.lines && facts.lines !== "1 riga" ? facts.lines : "", facts.quantity ?? ""].filter(Boolean).join(" · "),
     steps: [
-      { label: "Richiesta", done: true },
-      { label: "Offerta", done: offers.some((o) => text(o.status) !== "draft") },
-      { label: "Ordine", done: orders.some((o) => text(o.status) !== "cancelled") },
+      { label: "Richiesta", done: Boolean(rfq), skipped: !rfq },
+      { label: "Offerta", done: offered, skipped: !rfq && !offers.length && ordered },
+      { label: "Ordine", done: ordered },
+      { label: "Consegna", done: delivered },
     ],
     stage, action, bucket,
     dueAt: rfq ? time(rfq.due_at) : null,
@@ -188,6 +218,8 @@ function buildSalesDeal(input: SalesInput, routes: DealRoutes): CommercialDeal |
     operationTab: null,
     documents,
     childKeys: documents.map((d) => d.key),
+    origin: anchorKind === "inbound-rfq" ? "Richiesta" : anchorKind === "inbound-offer" ? "Offerta senza richiesta" : "Ordine diretto",
+    since: time(sinceRaw) ?? time(anchor.created_at),
   };
 }
 

@@ -1,7 +1,7 @@
 import "server-only";
 
 import {
-  distintaDealsFromRows, pageFromDeals, parseDealIndex, purchaseDealsFromRows, resolveDealKey, salesDealsFromRows,
+  distintaDealsFromRows, pageFromDeals, parseDealIndex, purchaseDealsFromRows, resolveDealKey, salesDealsFromRows, salesSearchQuery,
   type CommercialDeal, type DealCounts, type DealDeskState, type DealIndexKey, type DealRoutes,
 } from "@/lib/commercial-deal-model";
 import { ROW_LINES_FETCHED } from "@/lib/commercial-row-lines";
@@ -47,21 +47,27 @@ const routes: DealRoutes = {
   distinta: appRoutes.rfqHub.savedDistinta,
 };
 
-const OFFER_FIELDS = "id,status,created_at,deal_label";
-const ORDER_FIELDS = "id,status,created_at,customer_order_ref";
-const LINE_FIELDS = "requested_quantity,quantity_unit,requested_standard,requested_grade,created_at";
+const OFFER_FIELDS = "id,status,created_at,offered_at,deal_label";
+const ORDER_FIELDS = "id,status,created_at,ordered_at,customer_order_ref";
+// COMM-RDO2: canonical_product_key is structured (family, size, grade, standard): no email text.
+const LINE_FIELDS = "requested_quantity,quantity_unit,requested_standard,requested_grade,canonical_product_key,created_at";
+const DOC_LINE_FIELDS = "quantity,quantity_unit,canonical_product_key,created_at";
 const COMPANY = (fk: string) => "company:companies!" + fk + "(name)";
 
 // Select dinamiche (tipo `string`): stesso tipo di risultato per lettura completa e di riserva.
-const SALES_SELECT: string = "id,status,created_at,due_at,deal_label," + COMPANY("rfqs_company_id_fkey") + "," +
+const SALES_SELECT: string = "id,status,created_at,requested_at,due_at,deal_label," + COMPANY("rfqs_company_id_fkey") + "," +
+  "contact:contacts!rfqs_contact_id_fkey(full_name)," +
   "lines:rfq_lines!rfq_lines_rfq_id_fkey(" + LINE_FIELDS + ")," +
   "offers:offers!offers_rfq_id_fkey(" + OFFER_FIELDS + ")," +
   "orders:orders!orders_rfq_id_fkey(" + ORDER_FIELDS + ")";
-const SALES_SELECT_BARE: string = "id,status,created_at,due_at,deal_label," + COMPANY("rfqs_company_id_fkey") + "," +
+const SALES_SELECT_BARE: string = "id,status,created_at,requested_at,due_at,deal_label," + COMPANY("rfqs_company_id_fkey") + "," +
   "offers:offers!offers_rfq_id_fkey(" + OFFER_FIELDS + "),orders:orders!orders_rfq_id_fkey(" + ORDER_FIELDS + ")";
-const ORPHAN_OFFER_SELECT: string = OFFER_FIELDS + "," + COMPANY("offers_company_id_fkey") +
+const ORPHAN_OFFER_BARE: string = OFFER_FIELDS + "," + COMPANY("offers_company_id_fkey") +
   ",orders:orders!orders_offer_id_fkey(" + ORDER_FIELDS + ")";
-const ORPHAN_ORDER_SELECT: string = ORDER_FIELDS + ",deal_label," + COMPANY("orders_company_id_fkey");
+const ORPHAN_ORDER_BARE: string = ORDER_FIELDS + ",deal_label," + COMPANY("orders_company_id_fkey");
+// Righe articolo: un arricchimento. Se non leggibili si torna alla select senza righe.
+const ORPHAN_OFFER_SELECT: string = ORPHAN_OFFER_BARE + ",lines:offer_lines!offer_lines_offer_id_fkey(" + DOC_LINE_FIELDS + ")";
+const ORPHAN_ORDER_SELECT: string = ORPHAN_ORDER_BARE + ",lines:order_lines!order_lines_order_id_fkey(" + DOC_LINE_FIELDS + ")";
 const CAMPAIGN_SELECT: string = "id,title,status,due_at,created_at,source_distinta_id," +
   "distinta:buyer_distintas!buyer_rfq_campaigns_source_distinta_id_fkey(line_count,total_tonnes,total_meters)," +
   "suppliers:buyer_rfq_suppliers!buyer_rfq_suppliers_rfq_id_fkey(status)," +
@@ -93,17 +99,21 @@ async function campaignsByIds(db: Db, organizationId: string, ids: string[]) {
   return { data: (result.data ?? []) as unknown[], error: Boolean(result.error) };
 }
 
-async function simpleByIds(db: Db, table: "offers" | "orders" | "buyer_distintas", select: string, organizationId: string, ids: string[]) {
+async function simpleByIds(db: Db, table: "offers" | "orders" | "buyer_distintas", select: string, organizationId: string, ids: string[], bare?: string) {
   if (!ids.length) return { data: [] as unknown[], error: false };
-  const result = await db.from(table).select(select).eq("organization_id", organizationId).in("id", ids);
+  let result = bare
+    ? await db.from(table).select(select).eq("organization_id", organizationId).in("id", ids)
+      .order("created_at", { referencedTable: "lines", ascending: true }).limit(ROW_LINES_FETCHED, { referencedTable: "lines" })
+    : await db.from(table).select(select).eq("organization_id", organizationId).in("id", ids);
+  if (result.error && bare) result = await db.from(table).select(bare).eq("organization_id", organizationId).in("id", ids);
   return { data: (result.data ?? []) as unknown[], error: Boolean(result.error) };
 }
 
 async function dealsByIds(db: Db, organizationId: string, ids: Ids) {
   const [rfqs, offers, orders, campaigns, distinte] = await Promise.all([
     salesByIds(db, organizationId, ids.rfqs),
-    simpleByIds(db, "offers", ORPHAN_OFFER_SELECT, organizationId, ids.offers),
-    simpleByIds(db, "orders", ORPHAN_ORDER_SELECT, organizationId, ids.orders),
+    simpleByIds(db, "offers", ORPHAN_OFFER_SELECT, organizationId, ids.offers, ORPHAN_OFFER_BARE),
+    simpleByIds(db, "orders", ORPHAN_ORDER_SELECT, organizationId, ids.orders, ORPHAN_ORDER_BARE),
     campaignsByIds(db, organizationId, ids.campaigns),
     simpleByIds(db, "buyer_distintas", DISTINTA_SELECT, organizationId, ids.distinte),
   ]);
@@ -171,9 +181,10 @@ async function dealKeyFor(db: Db, organizationId: string, key: string): Promise<
 
 async function loadFromIndex(db: Db, organizationId: string, state: DealDeskState, pageSize: number): Promise<CommercialDealsPage | null> {
   const offset = (state.page - 1) * pageSize;
+  const query = salesSearchQuery(state.query);
   const { data, error } = await db.rpc("comm_deals2_index", {
     p_organization_id: organizationId, p_segment: state.segment, p_filter: state.filter,
-    p_query: state.query, p_limit: pageSize, p_offset: offset,
+    p_query: query, p_limit: pageSize, p_offset: offset,
   });
   if (error) return null;
   let index = parseDealIndex(data);
@@ -185,7 +196,7 @@ async function loadFromIndex(db: Db, organizationId: string, state: DealDeskStat
     page = pages;
     const retry = await db.rpc("comm_deals2_index", {
       p_organization_id: organizationId, p_segment: state.segment, p_filter: state.filter,
-      p_query: state.query, p_limit: pageSize, p_offset: (page - 1) * pageSize,
+      p_query: query, p_limit: pageSize, p_offset: (page - 1) * pageSize,
     });
     index = retry.error ? null : parseDealIndex(retry.data);
     if (!index) return null;
@@ -225,10 +236,10 @@ async function loadSalesWindow(db: Db, organizationId: string) {
       .limit(DEALS_WINDOW);
   }
   const [offers, orders] = await Promise.all([
-    db.from("offers").select(ORPHAN_OFFER_SELECT)
+    db.from("offers").select(ORPHAN_OFFER_BARE)
       .eq("organization_id", organizationId).is("rfq_id", null)
       .order("created_at", { ascending: false }).limit(ORPHANS_WINDOW),
-    db.from("orders").select(ORPHAN_ORDER_SELECT)
+    db.from("orders").select(ORPHAN_ORDER_BARE)
       .eq("organization_id", organizationId).is("rfq_id", null).is("offer_id", null)
       .order("created_at", { ascending: false }).limit(ORPHANS_WINDOW),
   ]);

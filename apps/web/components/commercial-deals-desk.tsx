@@ -53,15 +53,44 @@ const actionTone: Record<CommercialDeal["bucket"], string> = {
 const COLUMNS_WIDE = "lg:grid lg:items-center lg:gap-x-3 lg:grid-cols-[minmax(220px,1.5fr)_minmax(170px,1.1fr)_minmax(130px,.75fr)_minmax(170px,1fr)]";
 const COLUMNS_SPLIT = "xl:grid xl:items-center xl:gap-x-3 xl:grid-cols-[minmax(200px,1.4fr)_minmax(150px,1fr)_minmax(120px,.7fr)_minmax(150px,1fr)]";
 
-function Steps({ deal }: { deal: CommercialDeal }) {
+// COMM-RDO2: fasi leggibili. Fatta = verde pieno; saltata (un ordine arrivato
+// senza richiesta) = tratteggiata; da fare = grigia. Le etichette sono sempre
+// leggibili dagli screen reader e, con `labelled`, anche a schermo.
+function stepState(step: CommercialDeal["steps"][number]) {
+  return step.done ? "fatta" : step.skipped ? "non presente" : "da fare";
+}
+
+function Steps({ deal, labelled = false }: { deal: CommercialDeal; labelled?: boolean }) {
   return (
-    <span className="flex gap-[3px]" aria-hidden="true">
+    <span className={"flex " + (labelled ? "w-full gap-1" : "gap-[3px]")} data-testid="commercial-deal-steps">
       {deal.steps.map((step) => (
-        <span key={step.label} title={step.label}
-          className={"h-[5px] w-5 rounded-full " + (step.done ? "bg-[#1d9e75]" : "bg-[#d8e3dc]")} />
+        <span key={step.label} className={labelled ? "min-w-0 flex-1" : ""} title={step.label + ": " + stepState(step)}>
+          <span aria-hidden="true" className={"block h-[5px] rounded-full " + (labelled ? "w-full " : "w-5 ") +
+            (step.done ? "bg-[#1d9e75]" : step.skipped ? "border border-dashed border-[#b9c9bf] bg-transparent" : "bg-[#d8e3dc]")} />
+          {labelled ? (
+            <span className={"mt-1 block truncate text-[10px] font-semibold " + (step.done ? "text-[#1f5e45]" : "text-[#6b7d73]")}>{step.label}</span>
+          ) : null}
+          <span className="sr-only">{step.label + ": " + stepState(step) + ". "}</span>
+        </span>
       ))}
     </span>
   );
+}
+
+const DAY_MS = 86_400_000;
+const originDate: Record<string, string> = {
+  "Richiesta": "Ricevuta il ", "Offerta senza richiesta": "Offerta del ", "Ordine diretto": "Ordine del ",
+};
+
+/** «Ordine del 7 set 2026 · 73 gg fa»: la data commerciale, non quella di importazione. */
+function sinceText(deal: CommercialDeal, now: number) {
+  const value = deal.since ?? deal.at;
+  if (!value) return "";
+  const at = Date.parse(value);
+  if (!Number.isFinite(at)) return "";
+  const days = Math.floor((now - at) / DAY_MS);
+  const age = deal.bucket === "closed" || days < 1 ? "" : days === 1 ? " · ieri" : " · " + days + " gg fa";
+  return (originDate[deal.origin ?? ""] ?? "Dal ") + formatHubDate(value) + age;
 }
 
 function dueText(deal: CommercialDeal, now: number) {
@@ -90,11 +119,17 @@ async function DealDetail({ deal, state, canWrite }: {
     <div className="space-y-4" data-testid="commercial-deal-detail">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs tabular-nums text-[#5c7063]">{deal.reference}</p>
+          <p className="text-xs tabular-nums text-[#5c7063]">{[deal.reference, deal.origin].filter(Boolean).join(" · ")}</p>
           <h2 className="mt-1.5 break-words text-lg font-bold tracking-tight text-[#143f30]">{deal.title}</h2>
           <p className="mt-0.5 text-sm text-[#52685b]">
-            {[deal.counterparty, deal.material, deal.quantity].filter(Boolean).join(" · ")}
+            {deal.counterparty || <span className="font-semibold text-[#8a4b00]">Cliente da collegare</span>}
+            {[deal.material, deal.quantity].filter(Boolean).map((part) => " · " + part).join("")}
           </p>
+          {!deal.counterparty && canWrite ? (
+            <Link href={appRoutes.operations.reviewIdentities} className="mt-1 inline-flex text-xs font-semibold !text-[#175640] underline underline-offset-2">
+              Collega il cliente →
+            </Link>
+          ) : null}
         </div>
         <Link href={closeHref} aria-label="Chiudi il dettaglio"
           className="inline-flex min-h-9 min-w-9 shrink-0 items-center justify-center rounded-lg border border-[#d6e5db] text-base !text-[#175640] hover:bg-[#f2f8f4]">×</Link>
@@ -104,8 +139,9 @@ async function DealDetail({ deal, state, canWrite }: {
         className="rounded-xl border border-[#cfe3d7] bg-[#f4faf6] p-3 sm:p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-[11px] font-semibold text-[#3d6b52]">Prossimo passo</p>
-          <span className="flex items-center gap-2 text-[11px] text-[#5c7063]"><Steps deal={deal} /> {deal.stage}</span>
+          <span className="text-[11px] font-semibold text-[#3f5248]">{deal.stage}</span>
         </div>
+        <div className="mt-2"><Steps deal={deal} labelled /></div>
         <h3 id="commercial-deal-next" className={"mt-1 text-base font-semibold " + actionTone[deal.bucket]}>{deal.action}</h3>
         {due ? <p className={"mt-0.5 text-xs " + (isDealDue(deal, now) ? "font-semibold text-[#9a3412]" : "text-[#5c7063]")}>{due}</p> : null}
         <Link href={primary.href} data-testid="commercial-deal-primary-action"
@@ -296,22 +332,33 @@ export async function CommercialDealsDesk({
                         data-testid="commercial-deal-row"
                         className={"group flex min-w-0 flex-col gap-1 border-b border-[#edf2ef] px-4 py-3 transition-colors last:border-b-0 hover:bg-[#f5faf7] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#175640] " +
                           columns + " " + (selected ? "bg-[#edf6f0]" : "")}>
+                        {/* Richiesta: cosa chiede il cliente (prodotto dalle righe) e come è arrivata. */}
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-semibold text-[#143f30]">{deal.title}</span>
-                          <span className="mt-0.5 block truncate text-xs tabular-nums text-[#5c7063]">{deal.reference}</span>
+                          <span className="mt-0.5 block truncate text-xs tabular-nums text-[#5c7063]">
+                            {[deal.reference, deal.origin].filter(Boolean).join(" · ")}
+                          </span>
                         </span>
+                        {/* Cliente · materiale: chi e quanto. Senza cliente lo diciamo, non lo nascondiamo. */}
                         <span className="min-w-0">
-                          <span className="block truncate text-sm text-[#173f35]">{deal.counterparty}</span>
-                          <span className="block truncate text-xs text-[#5c7063]">{[deal.material, deal.quantity].filter(Boolean).join(" · ") || "—"}</span>
+                          {deal.counterparty
+                            ? <span className="block truncate text-sm font-medium text-[#173f35]">{deal.counterparty}</span>
+                            : <span className="block truncate text-sm font-semibold text-[#8a4b00]" data-testid="commercial-deal-unlinked">Cliente da collegare</span>}
+                          <span className="block truncate text-xs text-[#5c7063]">{[deal.material, deal.quantity].filter(Boolean).join(" · ") || "Materiale da leggere nel dettaglio"}</span>
                         </span>
-                        <span className="flex min-w-0 items-center gap-2 lg:flex-col lg:items-start lg:gap-1">
+                        {/* Fase: dove siamo, in parole, e il percorso Richiesta → Offerta → Ordine → Consegna. */}
+                        <span className="flex min-w-0 flex-col gap-1">
+                          <span className="truncate text-xs font-semibold text-[#3f5248]">{deal.stage}</span>
                           <Steps deal={deal} />
-                          <span className="truncate text-xs text-[#5c7063]">{deal.stage}</span>
                         </span>
+                        {/* Prossima azione: cosa fare e da quanto aspetta. */}
                         <span className="min-w-0">
-                          <span className={"block truncate text-sm font-semibold " + (dueSoon && deal.bucket !== "closed" ? "text-[#9a3412]" : actionTone[deal.bucket])}>{deal.action}</span>
-                          <span className={"block truncate text-xs tabular-nums " + (dueSoon ? "text-[#9a3412]" : "text-[#5c7063]")}>
-                            {due ?? (deal.at ? "Agg. " + formatHubDate(deal.at) : "")}
+                          <span className={"flex items-center gap-1 text-sm font-semibold " + (dueSoon && deal.bucket !== "closed" ? "text-[#9a3412]" : actionTone[deal.bucket])}>
+                            <span className="truncate">{deal.action}</span>
+                            {deal.bucket === "todo" ? <span aria-hidden="true" className="shrink-0 transition group-hover:translate-x-0.5">→</span> : null}
+                          </span>
+                          <span className={"block truncate text-xs tabular-nums " + (dueSoon ? "font-semibold text-[#9a3412]" : "text-[#5c7063]")}>
+                            {due ?? sinceText(deal, now)}
                           </span>
                         </span>
                       </Link>
