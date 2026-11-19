@@ -91,7 +91,8 @@ try {
       assert.equal(await page.locator('input[name="scope"]').inputValue(), "companies");
       assert.equal(await page.locator('input[name="query"]').inputValue(), "P265GH");
       assert.equal(await page.locator('input[name="types"]').count(), 0, "Types cannot broaden a scoped search");
-      const bridge = page.getByRole("link", { name: "RFQ fornitori e bozze" });
+      // COMM-CLIENTS1: the bridge opens Richieste d'offerta (sales); RFQ to suppliers live in Centro RFQ.
+      const bridge = page.getByRole("link", { name: "Richieste d'offerta →" });
       assert.equal(await bridge.count(), 1);
       const href = await bridge.getAttribute("href");
       // COMM-DEALS1: the deal list translates view=all; only the search term matters.

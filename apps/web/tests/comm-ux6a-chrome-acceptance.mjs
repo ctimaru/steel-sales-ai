@@ -242,11 +242,12 @@ try {
           }
 
           // COMM-TRUST1.C: a no-match filter is not an empty archive or failed RPC.
-          await page.goto(base + "/commercial?view=drafts&q=commtrust1cnomatch", { waitUntil: "domcontentloaded", timeout: 90000 });
-          // COMM-DEALS1: la lista trattative traduce view=drafts nel filtro Bozze.
+          // COMM-CLIENTS1: Richieste d'offerta (solo vendite) — le bozze di distinta
+          // sono nel Centro RFQ, quindi il filtro vuoto si prova su «Da fare».
+          await page.goto(base + "/commercial?f=todo&q=commtrust1cnomatch", { waitUntil: "domcontentloaded", timeout: 90000 });
           const empty = page.getByTestId("commercial-deals-empty");
           await empty.waitFor({ state: "visible", timeout: 60000 });
-          assert.match(await empty.innerText(), /Nessuna trattativa per «commtrust1cnomatch»/);
+          assert.match(await empty.innerText(), /Nessuna richiesta per «commtrust1cnomatch»/);
           assert.equal(await empty.getByRole("link", { name: "Rimuovi filtro" }).count(), 1);
           assert.equal(await page.locator('[aria-label="Pagine attività commerciali"]').count(), 0,
             "Do not show Page 1 when a filter has no results and no navigation");
