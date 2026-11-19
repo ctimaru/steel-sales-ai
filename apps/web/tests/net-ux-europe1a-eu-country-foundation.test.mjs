@@ -10,7 +10,7 @@ const runtime={exports:{}};
 new Function("module","exports",compiled)(runtime,runtime.exports);
 const {EU_MEMBER_COUNTRIES,OTHER_NETWORK_COUNTRIES,isEuMemberCountry,isSupportedNetworkCountry,networkCountryName}=runtime.exports;
 
-test("EUROPE1A: exactly 27 unique EU members and legacy non-EU countries",()=>{
+test("EUROPE1A: exactly 27 unique EU members and 6 supported non-EU countries",()=>{
   assert.equal(EU_MEMBER_COUNTRIES.length,27);
   const members=EU_MEMBER_COUNTRIES.map(x=>x.code);
   assert.equal(new Set(members).size,27);
@@ -18,11 +18,11 @@ test("EUROPE1A: exactly 27 unique EU members and legacy non-EU countries",()=>{
     assert.equal(isEuMemberCountry(code),true);
     assert.equal(isSupportedNetworkCountry(code),true);
   }
-  for(const code of ["GB","CH","US"]){
+  for(const code of ["GB","CH","US","RS","TR","UA"]){
     assert.equal(isEuMemberCountry(code),false);
     assert.equal(isSupportedNetworkCountry(code),true);
   }
-  assert.equal(OTHER_NETWORK_COUNTRIES.length,3);
+  assert.equal(OTHER_NETWORK_COUNTRIES.length,6);\n  assert.equal(new Set(OTHER_NETWORK_COUNTRIES.map(x=>x.code)).size,6);
   assert.equal(isSupportedNetworkCountry("ZZ"),false);
   assert.equal(networkCountryName("pl"),"Polonia");
 });
