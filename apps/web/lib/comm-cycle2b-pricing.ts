@@ -41,7 +41,7 @@ export function normalizeQuoteLines(input: unknown):
     seen.add(candidate.line_id);
 
     const rate = candidate.rate.trim() ? parseCommercialRate(candidate.rate) : null;
-    if (candidate.rate.trim() && (rate === null || rate <= 0)) {
+    if (candidate.rate.trim() && (rate === null || rate <= 0 || rate >= 100000000)) {
       return { ok: false, message: "Inserisci un prezzo maggiore di zero e valido per ogni riga valorizzata." };
     }
     const weight = readWeight(candidate.weight);
