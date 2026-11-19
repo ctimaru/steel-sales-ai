@@ -313,7 +313,14 @@ select pg_temp.hp13_assert(
         -- claim approved + independent proof, bounded immutable private
         -- upload reservations, no B2 licence issue or AI-visible output.
         -- Only public facade callable; private implementation stays denied.
-        'netproducers1_b3c2_catalog_submission'
+        'netproducers1_b3c2_catalog_submission',
+        -- COMM-CYCLE1 reviewed: the only write path for commercial deal
+        -- actions. Requires auth.uid + active member with write role of the
+        -- given organization, record of that same organization (row locked),
+        -- office profile via private.office_write_denied and an allowed
+        -- status transition; appends to comm_deal_events (no browser writes).
+        -- Empty pinned search_path, anon revoked; no PII, prices or email text returned.
+        'comm_cycle1_apply'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
