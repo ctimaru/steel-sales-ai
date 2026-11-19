@@ -2,6 +2,7 @@
 
 import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 import { canWriteWorkspace } from "@/lib/access-policy";
 import {
@@ -49,7 +50,9 @@ export async function sendCustomerOfferEmail(
     return failure("Oggetto o messaggio non valido.");
 
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return failure("Il canale email non è configurato: nessun invio avviato.");
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!apiKey || !serviceKey)
+    return failure("Il canale email non è ancora configurato completamente: nessun invio avviato.");
 
   const scope = await getWorkspaceContext();
   if (!canWriteWorkspace(scope.role)) return failure("Il tuo ruolo non consente l'invio.");
@@ -151,15 +154,34 @@ export async function sendCustomerOfferEmail(
     outcome = "unknown";
   }
 
-  const {error: finishError} = await db.rpc("comm_cycle2c_complete_email",{
+  // Only this server-side privileged connection can attest a provider result.
+  // The browser/authenticated role has no EXECUTE on this RPC. No admin key
+  // is used to bypass tenant permissions for a sales user.
+  const providerDb = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey,
+    {auth:{persistSession:false,autoRefreshToken:false}},
+  );
+  const {error: finishError} = await providerDb.rpc("comm_cycle2c_complete_email",{
     p_organization_id:scope.organizationId,p_dispatch_id:dispatchId,
     p_result:outcome,p_provider_message_id:providerMessageId,
   });
-  revalidatePath(appRoutes.commercial.rfq(rfqId));
-  revalidatePath(appRoutes.commercial.home);
   if (finishError) {
     return {status:"unknown",
       message:"Esito del provider non riconciliato nello storico. Non reinviare: verifica l'invio prima."};
+  }
+  if (outcome === "accepted") {
+    // Now and only now the user's own authenticated context may move the
+    // exact offer revision to "sent" through the guarded cycle workflow.
+    const {error: statusError} = await db.rpc("comm_cycle2c_confirm_sent",{
+      p_organization_id:scope.organizationId,p_dispatch_id:dispatchId,
+    });
+    revalidatePath(appRoutes.commercial.rfq(rfqId));
+    revalidatePath(appRoutes.commercial.home);
+    if (statusError) return {status:"unknown",
+      message:"Email accettata dal provider, ma stato dell'offerta da riconciliare. NON reinviare: usa lo storico."};
+  } else {
+    revalidatePath(appRoutes.commercial.rfq(rfqId));
+    revalidatePath(appRoutes.commercial.home);
   }
   if (outcome === "accepted") return {
     status:"sent", message:"Offerta inviata al provider email e revisione registrata come inviata."
@@ -169,4 +191,33 @@ export async function sendCustomerOfferEmail(
   };
   return {status:"unknown",
     message:"Esito email incerto. La bozza è bloccata per evitare duplicati; verifica lo storico prima di procedere."};
+}
+
+
+/** Manual reconciliation does not send another message. It only applies
+ * COMM-CYCLE1 to a provider-accepted existing dispatch. */
+export async function reconcileCustomerOfferEmail(
+  _previous: CustomerOfferSendState, form: FormData,
+): Promise<CustomerOfferSendState> {
+  const dispatchId = String(form.get("dispatch_id") ?? "");
+  const rfqId = String(form.get("rfq_id") ?? "");
+  if (!UUID_V4ISH.test(dispatchId) || !UUID_V4ISH.test(rfqId))
+    return failure("Invio non valido.");
+  const scope = await getWorkspaceContext();
+  if (!canWriteWorkspace(scope.role)) return failure("Il tuo ruolo non consente modifiche.");
+  const denied = await officeWriteDenied("commercial");
+  if (denied) return failure(denied);
+  const db = await createClient();
+  const {data: dispatch,error: lookupError} = await db.from("comm_offer_email_dispatches")
+    .select("id,rfq_id,status").eq("id",dispatchId)
+    .eq("organization_id",scope.organizationId).maybeSingle();
+  if (lookupError || !dispatch || dispatch.rfq_id!==rfqId || dispatch.status!=="accepted")
+    return failure("Nessun invio accettato da riconciliare.");
+  const {error} = await db.rpc("comm_cycle2c_confirm_sent",{
+    p_organization_id:scope.organizationId,p_dispatch_id:dispatchId,
+  });
+  if(error) return failure(explanation(error.message));
+  revalidatePath(appRoutes.commercial.rfq(rfqId));
+  revalidatePath(appRoutes.commercial.home);
+  return {status:"sent",message:"Revisione aggiornata come inviata: nessuna nuova email è stata spedita."};
 }
