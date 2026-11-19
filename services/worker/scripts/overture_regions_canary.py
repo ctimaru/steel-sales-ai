@@ -24,17 +24,13 @@ AREAS = {
     "sicilia": (12.30, 15.75, 36.50, 38.45),
     "sardegna": (8.05, 9.85, 38.80, 41.25),
 }
-MAX_RAW_PER_AREA = 250
-MAX_DOMAINS_PER_AREA = 50
-PREFERRED_KEYWORD_QUOTA = 30
+MAX_RAW_PER_AREA = 1600
+MAX_DOMAINS_PER_AREA = 250
+PREFERRED_KEYWORD_QUOTA = 160
 LICENSES = {"CDLA-Permissive-2.0", "Apache-2.0", "CC0-1.0"}
 CATEGORIES = (
-    "iron_and_steel_industry", "steel_fabricators",
-    "steel_supplier", "steel_distributor",
-    "sheet_metal_fabricator", "metal_fabricator", "metal_fabrication",
-    "metal_manufacturer", "metal_processing", "metalworking",
-    "metal_worker", "metal_workshop", "metalworking_shop",
-    "welding_service", "iron_works", "metal_works", "metal_supplier",
+    "metal_fabricator", "sheet_metal_fabricator",
+    "steel_fabricators", "metal_fabrication", "welding_service",
 )
 # An industrial domain name is a discovery hint, NOT role/identity evidence.
 TECHNICAL = re.compile(
@@ -113,9 +109,9 @@ def main() -> None:
         for lead in run["selected"]:
             unique.setdefault(lead["domain"], lead)
     result = {
-        "contract": "net-it-overture-seven-area-readonly-v1",
+        "contract": "net-it-carp-mass1-seven-area-readonly-v1",
         "release": RELEASE,
-        "selection": "convenience tiles; max 50 per area; up to 30 domain-keyword hints per area; not representative",
+        "selection": "carpentry-first discovery; max 250/area; up to 160 technical domain hints/area; category and tile are NOT company evidence",
         "areas": [
             {"name": run["area"], "raw_records": run["raw_records"],
              "licensed_domains": run["distinct_licensed_domains"],
