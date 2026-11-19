@@ -12,6 +12,12 @@ test("UX4.A: one dominant AI search with a compact hero",()=>{
   assert.match(view,/<EuProducerIntelligenceChat\/>/);
   assert.equal((view.match(/<EuProducerIntelligenceChat\/>/g)||[]).length,1);
   assert.match(chat,/Ricerca tecnica AI/);
+  assert.match(view,/Come leggere le evidenze tecniche/);
+  assert.match(view,/Nessuna combinazione norma, grado, dimensione e spessore viene dedotta/);
+  assert.ok(chat.indexOf('<form onSubmit={submit}') < chat.indexOf('Domande di esempio'),
+    "AI query field must precede example chips on mobile");
+  assert.match(chat,/void runSearch\(example\.question\)/);
+
   assert.doesNotMatch(view,/rounded-\[24px\].*bg-\[linear-gradient/);
   assert.doesNotMatch(view,/Funzioni in arricchimento|Dal produttore alla RFQ/);
   assert.doesNotMatch(view,/Apri anteprima →/);
@@ -41,6 +47,9 @@ test("UX4.A: source-bound trust, locked state and comparison are unchanged",()=>
   assert.match(view,/href=\{item\.sourceUrl\}/);
   assert.match(chat,/data-testid="eu-producer-source-match"/);
   assert.match(chat,/Prepara Distinta \/ RFQ/);
+  assert.match(view,/style=\{\{color:"#ffffff",WebkitTextFillColor:"#ffffff"\}\}/);
+  assert.match(chat,/style=\{\{color:"#ffffff",WebkitTextFillColor:"#ffffff"\}\}/);
+
   assert.match(chat,/sourceUrl/);
   assert.match(page,/getNetworkProScopedDirectory/);
   assert.doesNotMatch(view,/service_role|SUPABASE_SERVICE_ROLE_KEY/);
