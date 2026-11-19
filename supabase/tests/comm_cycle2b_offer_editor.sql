@@ -89,9 +89,11 @@ insert into c2b_results values ('stale',pg_temp.c2b_save_error(
 insert into c2b_results values ('duplicate',pg_temp.c2b_save_error(
   '00000000-0000-0000-0000-00000000c3f1',
   (select value::uuid from c2b_results where label='offer1'),1,
-  (select jsonb_agg(jsonb_build_object('line_id',id,'price_value',1200,'price_unit','EUR/t'))
+  (select jsonb_build_array(
+    jsonb_build_object('line_id',id,'price_value',1200,'price_unit','EUR/t'),
+    jsonb_build_object('line_id',id,'price_value',1300,'price_unit','EUR/m'))
     from public.offer_lines where offer_id=(select value::uuid from c2b_results where label='offer1')
-    limit 1)));
+    order by id limit 1)));
 do $c2b_direct$
 begin
   update public.offer_lines set price_value=1
