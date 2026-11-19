@@ -16,17 +16,15 @@ from overture_canary20 import SOURCE, RELEASE, company_domain
 # Macro-area tiles are not precise regional boundaries. They diversify this
 # convenience sample; they do NOT prove Italian legal establishment.
 AREAS = {
-    "piemonte": (7.45, 9.20, 44.20, 45.90),
-    "nord_est": (10.60, 13.75, 45.20, 46.70),
-    "emilia_romagna": (9.20, 12.80, 43.85, 45.20),
-    "centro": (10.00, 13.60, 41.45, 44.30),
-    "sud": (13.40, 18.65, 39.60, 41.80),
-    "sicilia": (12.30, 15.75, 36.50, 38.45),
-    "sardegna": (8.05, 9.85, 38.80, 41.25),
+    # Geographic search tiles only; no assumption that firms have a legal Piemonte address.
+    "piemonte_torino_ovest": (6.65, 8.20, 44.60, 45.85),
+    "piemonte_cuneo_sud": (6.95, 8.50, 44.05, 45.10),
+    "piemonte_novara_biella_vco": (7.80, 9.25, 45.25, 46.45),
+    "piemonte_asti_alessandria": (7.70, 9.25, 44.35, 45.35),
 }
 MAX_RAW_PER_AREA = 1600
-MAX_DOMAINS_PER_AREA = 250
-PREFERRED_KEYWORD_QUOTA = 160
+MAX_DOMAINS_PER_AREA = 350
+PREFERRED_KEYWORD_QUOTA = 180
 LICENSES = {"CDLA-Permissive-2.0", "Apache-2.0", "CC0-1.0"}
 CATEGORIES = (
     "metal_fabricator", "sheet_metal_fabricator",
@@ -109,9 +107,9 @@ def main() -> None:
         for lead in run["selected"]:
             unique.setdefault(lead["domain"], lead)
     result = {
-        "contract": "net-it-carp-mass1-seven-area-readonly-v1",
+        "contract": "net-it-carp-mass1-piemonte-four-tile-readonly-v1",
         "release": RELEASE,
-        "selection": "carpentry-first discovery; max 250/area; up to 160 technical domain hints/area; category and tile are NOT company evidence",
+        "selection": "Piemonte-coverage search tiles, <=350/area; overlapping tiles and IT-neighbors possible; category/tile do NOT establish legal region or activity",
         "areas": [
             {"name": run["area"], "raw_records": run["raw_records"],
              "licensed_domains": run["distinct_licensed_domains"],
