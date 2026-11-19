@@ -220,4 +220,16 @@ select pg_temp.cc2_assert(
       and changes @> '[{"from":null,"to":"draft","record_kind":"offer"}]'::jsonb),
   'exact new revision state persisted in append-only audit');
 
+-- Regression: imported legacy offers may continue to arrive for the same RFQ.
+-- Their version is auto-numbered under the RFQ lock, not rejected by the
+-- managed-revision unique index.
+insert into public.offers (id,owner_id,organization_id,rfq_id,status) values
+ ('00000000-0000-0000-0000-00000000c2e1','00000000-0000-0000-0000-00000000c2a1','00000000-0000-0000-0000-00000000c2f1','00000000-0000-0000-0000-00000000c211','draft'),
+ ('00000000-0000-0000-0000-00000000c2e2','00000000-0000-0000-0000-00000000c2a1','00000000-0000-0000-0000-00000000c2f1','00000000-0000-0000-0000-00000000c211','draft');
+select pg_temp.cc2_assert(
+ (select array_agg(revision_no order by revision_no)=array[1,2,3,4]
+   from public.offers where organization_id='00000000-0000-0000-0000-00000000c2f1'
+     and rfq_id='00000000-0000-0000-0000-00000000c211'),
+ 'legacy arrivals get fresh revision numbers without breaking imports');
+
 rollback;
