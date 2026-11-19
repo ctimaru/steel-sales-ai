@@ -25,7 +25,7 @@ const escapeHtml = (value: string): string => value.replaceAll("&", "&amp;")
   .replaceAll("<", "&lt;").replaceAll(">", "&gt;")
   .replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 const euro = (value: number) => new Intl.NumberFormat("it-IT", {
-  minimumFractionDigits: 2, maximumFractionDigits: 2,
+  minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: "always",
 }).format(value);
 function dateLabel(value: string) {
   const bits = value.split("-");
