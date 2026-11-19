@@ -8,9 +8,9 @@ import {newRequestHref} from "@/lib/new-request-href";
 
 type Turn={id:number;question:string;response:EuProducerChatResult};
 const examples=[
-  "Chi produce tubi EN 10219 S355J2H?",
-  "Cerco tubi EN 10219 S355 RHS 200×100×6",
-  "Produttori di tubi inox AISI 316 in Serbia",
+  {label:"EN 10219 · S355J2H",question:"Chi produce tubi EN 10219 S355J2H?"},
+  {label:"RHS · 200×100×6",question:"Cerco tubi EN 10219 S355 RHS 200×100×6"},
+  {label:"Inox · AISI 316",question:"Produttori di tubi inox AISI 316 in Serbia"},
 ];
 const labels:Record<string,string>={
   technical_standard:"Norma",steel_grade:"Grado",section_shape:"Sezione",
@@ -29,10 +29,9 @@ export function EuProducerIntelligenceChat(){
   const [draft,setDraft]=useState("");
   const [busy,setBusy]=useState(false);
   const [turns,setTurns]=useState<Turn[]>([]);
-  async function submit(event:FormEvent<HTMLFormElement>){
-    event.preventDefault();
-    if(busy||!draft.trim())return;
-    const question=draft.trim().slice(0,400);
+  async function runSearch(questionInput:string){
+    if(busy||!questionInput.trim())return;
+    const question=questionInput.trim().slice(0,400);
     const preceding=[...turns].reverse().find(t=>t.response.ok&&t.response.status==="ready");
     const previousIntent=preceding?.response.ok&&preceding.response.status==="ready"
       ?preceding.response.intent:null;
@@ -56,22 +55,39 @@ export function EuProducerIntelligenceChat(){
       }]);
     }finally{setBusy(false);}
   }
+  function submit(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    void runSearch(draft);
+  }
   return <section className="overflow-hidden rounded-[22px] border border-[#bdd9c9] bg-white shadow-[0_7px_26px_rgba(19,64,44,0.06)]"
     data-testid="eu-producer-intelligence-chat" aria-labelledby="eu-producer-chat-title">
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e4eee7] bg-[#f8fbf9] px-4 py-3 sm:px-5">
       <h2 id="eu-producer-chat-title" className="text-[15px] font-extrabold text-[#133f2c]">
         Ricerca tecnica AI
       </h2>
-      <span className="text-[11px] font-semibold text-[#47735a]">Europa · fonti ufficiali</span>
+      <span className="text-[11px] font-semibold text-[#47735a]">Europa</span>
     </div>
     <div className="space-y-3 px-4 py-4 sm:px-5">
       <p className="max-w-3xl text-xs leading-5 text-[#5c7364]">
-        Descrivi il tubo che cerchi: norma, acciaio, sezione o misura. Visualizza produttori e prove consultabili.
+        Norma, acciaio, forma o misura: chiedi e confronta produttori con fonti.
       </p>
-      {turns.length===0?<div className="flex flex-wrap gap-2" aria-label="Domande di esempio">
-        {examples.map(prompt=><button type="button" key={prompt} onClick={()=>setDraft(prompt)}
-          className="min-h-9 rounded-xl border border-[#c7dccc] bg-[#f7fbf8] px-3 py-1.5 text-left text-[11px] font-semibold text-[#27563f] hover:bg-[#eaf6ed] focus-visible:outline-2 focus-visible:outline-[#185740]">
-          {prompt}
+      <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row" aria-label="Ricerca tecnica conversazionale">
+        <label htmlFor="eu-producer-technical-question" className="sr-only">Domanda tecnica sui produttori europei</label>
+        <input id="eu-producer-technical-question" value={draft} onChange={e=>setDraft(e.target.value)}
+          type="search" maxLength={400} autoComplete="off"
+          placeholder="Es. Chi produce EN 10219 S355J2H?"
+          className="min-h-12 min-w-0 flex-1 rounded-xl border border-[#b9d1c0] bg-white px-4 text-sm text-[#183d2d] placeholder:text-[#798b80] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]"/>
+        <button type="submit" disabled={busy||draft.trim().length<4}
+          className="min-h-12 rounded-xl bg-[#175640] px-6 text-sm font-bold text-white hover:bg-[#104b35] disabled:cursor-not-allowed disabled:opacity-50">
+          {busy?"Cerco sulle fonti…":"Cerca produttori"}
+        </button>
+      </form>
+      {turns.length===0?<div className="flex flex-wrap gap-1.5" aria-label="Domande di esempio">
+        {examples.map(example=><button type="button" key={example.question}
+          disabled={busy} onClick={()=>{void runSearch(example.question);}}
+          title={example.question}
+          className="min-h-9 rounded-lg border border-[#c7dccc] bg-[#f7fbf8] px-2.5 py-1 text-left text-[11px] font-semibold text-[#27563f] hover:bg-[#eaf6ed] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-[#185740]">
+          {example.label}
         </button>)}
       </div>:null}
       <div className="space-y-4" aria-live="polite" data-testid="eu-producer-chat-transcript">
@@ -145,17 +161,7 @@ export function EuProducerIntelligenceChat(){
           </div>;
         })}
       </div>
-      <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row" aria-label="Ricerca tecnica conversazionale">
-        <label htmlFor="eu-producer-technical-question" className="sr-only">Domanda tecnica sui produttori europei</label>
-        <input id="eu-producer-technical-question" value={draft} onChange={e=>setDraft(e.target.value)}
-          type="search" maxLength={400} autoComplete="off"
-          placeholder="Es. Chi produce EN 10219 S355J2H?"
-          className="min-h-12 min-w-0 flex-1 rounded-xl border border-[#b9d1c0] bg-white px-4 text-sm text-[#183d2d] placeholder:text-[#798b80] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]"/>
-        <button type="submit" disabled={busy||draft.trim().length<4}
-          className="min-h-12 rounded-xl bg-[#175640] px-6 text-sm font-bold text-white hover:bg-[#104b35] disabled:cursor-not-allowed disabled:opacity-50">
-          {busy?"Cerco sulle fonti…":"Cerca produttori"}
-        </button>
-      </form>
+
     </div>
   </section>;
 }
