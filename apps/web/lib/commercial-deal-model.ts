@@ -13,6 +13,7 @@
 import { summarizeRowLines } from "./commercial-row-lines.ts";
 import { commercialRowQuantity } from "./commercial-row-facts.ts";
 import { productSummary } from "./commercial-product-key.ts";
+import type { DealCycleState, DealOutcome } from "./commercial-cycle.ts";
 
 export type DealSide = "sales" | "purchase";
 export type DealSegment = "all" | DealSide;
@@ -55,6 +56,10 @@ export type CommercialDeal = {
   origin?: string;
   /** COMM-RDO2 (solo vendite): data commerciale del documento di partenza (non quella di importazione). */
   since?: string | null;
+  /** COMM-CYCLE1 (solo vendite): stato grezzo di richiesta, ultima offerta e ultimo ordine, per le azioni. */
+  cycle?: DealCycleState;
+  /** COMM-CYCLE1: chiusa come non conclusa (motivo e nota), letta da comm_deal_events. */
+  outcome?: DealOutcome | null;
 };
 
 export const DEAL_DUE_WINDOW_DAYS = 7;
@@ -157,6 +162,8 @@ function buildSalesDeal(input: SalesInput, routes: DealRoutes): CommercialDeal |
     const s = text(offer.status);
     stage = "Offerta " + label(offerStatus, s).toLocaleLowerCase("it-IT");
     if (s === "draft") { action = "Completa e invia l'offerta"; bucket = "todo"; }
+    // COMM-CYCLE1: oltre la validità tocca a noi, non al cliente (stessa regola dell'indice SQL).
+    else if (s === "sent" && offerExpired(offer)) { stage = "Offerta scaduta"; action = "Offerta scaduta: rinnova o chiudi"; bucket = "todo"; }
     else if (s === "sent") { action = "In attesa del cliente"; bucket = "waiting"; }
     else if (s === "accepted") { action = "Registra l'ordine"; bucket = "todo"; }
     else if (s === "expired") { action = "Rinnova l'offerta"; bucket = "todo"; }
@@ -191,7 +198,7 @@ function buildSalesDeal(input: SalesInput, routes: DealRoutes): CommercialDeal |
 
   const offered = offers.some((o) => text(o.status) !== "draft");
   const ordered = orders.some((o) => text(o.status) !== "cancelled");
-  const delivered = orders.some((o) => text(o.status) === "delivered");
+  const negotiated = offers.length > 0 || ["in_progress", "qualified", "quoted", "closed_won", "closed_lost"].includes(rfqState);
   const sinceRaw = anchorKind === "inbound-rfq" ? anchor.requested_at
     : anchorKind === "inbound-offer" ? anchor.offered_at : anchor.ordered_at;
 
@@ -203,11 +210,12 @@ function buildSalesDeal(input: SalesInput, routes: DealRoutes): CommercialDeal |
     counterparty: company || contact,
     material: salesMaterial(lines) || product?.spec || "",
     quantity: [facts.lines && facts.lines !== "1 riga" ? facts.lines : "", facts.quantity ?? ""].filter(Boolean).join(" · "),
+    // COMM-CYCLE1: le fasi del ciclo deciso il 19 nov 2026. La consegna resta nello stato a parole.
     steps: [
       { label: "Richiesta", done: Boolean(rfq), skipped: !rfq },
+      { label: "Trattativa", done: negotiated, skipped: !rfq && !offers.length && ordered },
       { label: "Offerta", done: offered, skipped: !rfq && !offers.length && ordered },
       { label: "Ordine", done: ordered },
-      { label: "Consegna", done: delivered },
     ],
     stage, action, bucket,
     dueAt: rfq ? time(rfq.due_at) : null,
@@ -220,7 +228,19 @@ function buildSalesDeal(input: SalesInput, routes: DealRoutes): CommercialDeal |
     childKeys: documents.map((d) => d.key),
     origin: anchorKind === "inbound-rfq" ? "Richiesta" : anchorKind === "inbound-offer" ? "Offerta senza richiesta" : "Ordine diretto",
     since: time(sinceRaw) ?? time(anchor.created_at),
+    cycle: {
+      rfq: rfq && isId(rfq.id) ? { id: rfq.id, status: rfqState } : null,
+      offer: offer && isId(offer.id) ? { id: offer.id, status: text(offer.status), expired: offerExpired(offer) } : null,
+      order: order && isId(order.id) ? { id: order.id, status: text(order.status) } : null,
+    },
   };
+}
+
+/** Un'offerta inviata la cui validità (data, senza ora) è già passata. */
+function offerExpired(offer: Row): boolean {
+  const until = text(offer.valid_until).slice(0, 10);
+  if (text(offer.status) !== "sent" || !/^\d{4}-\d{2}-\d{2}$/.test(until)) return false;
+  return until < new Date().toISOString().slice(0, 10);
 }
 
 /** Richieste cliente con le offerte e gli ordini incorporati (stessa query, RLS). */

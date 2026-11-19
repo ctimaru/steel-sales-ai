@@ -86,6 +86,27 @@ class RomaniaOvertureTests(unittest.TestCase):
         good[1] = "Inoxprim SRL"
         self.assertIsNotNone(parse_place(tuple(good)))
 
+    def test_not_a_manufacturing_laser_or_steel_name(self) -> None:
+        # True false positives found during Romania Overture live canary.
+        row = [
+            "00000000-0000-4000-8000-000000000044",
+            "", "https://sample-metal.ro/",
+            NAME_HINT_CATEGORY, "meta", None, 24.5, 45.0, 0.95,
+        ]
+        for label in (
+            "Laser Time", "Laser Dent Center", "Profiladent",
+            "Clinica Estet Laser", "Metalul Buzau",
+            "Metal Print Toner", "Rodetectors - Detectoare de Metale",
+        ):
+            row[1] = label
+            self.assertIsNone(parse_place(tuple(row)), label)
+
+        for label in ("Prodmetal I&S SRL", "TERRA CYCLE Kromm Metal",
+                      "Dumitriu Metal", "Inoxprim SRL",
+                      "Carpenterie Sudura Industrial"):
+            row[1] = label
+            self.assertIsNotNone(parse_place(tuple(row)), label)
+
     def test_eight_spatial_search_tiles(self) -> None:
         # Romanian bounding-box points are divided into eight nonoverlapping
         # retrieval tiles. The tiles are not legal administrative regions.

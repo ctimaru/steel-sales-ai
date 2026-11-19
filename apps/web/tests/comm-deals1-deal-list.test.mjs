@@ -46,8 +46,8 @@ test("richiesta, offerta e ordine dello stesso cliente sono una sola trattativa"
   assert.equal(deal.material, "EN 10219 S355");
   assert.equal(deal.action, "Conferma l'ordine");
   assert.equal(deal.bucket, "todo");
-  // COMM-RDO2: Richiesta → Offerta → Ordine → Consegna.
-  assert.deepEqual(deal.steps.map((s) => s.done), [true, true, true, false]);
+  // COMM-CYCLE1: Richiesta → Trattativa → Offerta → Ordine.
+  assert.deepEqual(deal.steps.map((s) => s.done), [true, true, true, true]);
   assert.equal(deal.origin, "Richiesta");
   assert.deepEqual(deal.documents.map((d) => d.key), ["inbound-rfq:" + id(1), "inbound-offer:" + id(2), "inbound-order:" + id(3)]);
   assert.match(deal.reference, /^RDO-[0-9A-F]{6} · ord\. PO-77$/);

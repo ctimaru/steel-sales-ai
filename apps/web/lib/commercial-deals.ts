@@ -5,6 +5,7 @@ import {
   type CommercialDeal, type DealCounts, type DealDeskState, type DealIndexKey, type DealRoutes,
 } from "@/lib/commercial-deal-model";
 import { ROW_LINES_FETCHED } from "@/lib/commercial-row-lines";
+import { outcomesFromEvents } from "@/lib/commercial-cycle";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
 
@@ -47,7 +48,7 @@ const routes: DealRoutes = {
   distinta: appRoutes.rfqHub.savedDistinta,
 };
 
-const OFFER_FIELDS = "id,status,created_at,offered_at,deal_label";
+const OFFER_FIELDS = "id,status,created_at,offered_at,valid_until,deal_label";
 const ORDER_FIELDS = "id,status,created_at,ordered_at,customer_order_ref";
 // COMM-RDO2: canonical_product_key is structured (family, size, grade, standard): no email text.
 const LINE_FIELDS = "requested_quantity,quantity_unit,requested_standard,requested_grade,canonical_product_key,created_at";
@@ -129,6 +130,26 @@ async function dealsByIds(db: Db, organizationId: string, ids: Ids) {
   };
 }
 
+/**
+ * COMM-CYCLE1: esito «non conclusa» (motivo, nota) dalle azioni registrate.
+ * Lettura RLS su public.comm_deal_events; se la tabella non c'è ancora la lista
+ * resta uguale, senza esiti.
+ */
+async function attachOutcomes(db: Db, organizationId: string, deals: CommercialDeal[]): Promise<void> {
+  const ids = [...new Set(deals.map((deal) => deal.id))];
+  if (!ids.length) return;
+  const { data, error } = await db.from("comm_deal_events")
+    .select("deal_kind,deal_id,action,reason,note,created_at")
+    .eq("organization_id", organizationId)
+    .in("deal_id", ids)
+    .in("action", ["close_lost", "reopen"])
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error) return;
+  const outcomes = outcomesFromEvents(data);
+  for (const deal of deals) deal.outcome = outcomes.get(deal.kind + ":" + deal.id) ?? null;
+}
+
 function idsOf(keys: readonly DealIndexKey[]): Ids {
   const ids: Ids = { rfqs: [], offers: [], orders: [], campaigns: [], distinte: [] };
   for (const { kind, id } of keys) {
@@ -206,6 +227,7 @@ async function loadFromIndex(db: Db, organizationId: string, state: DealDeskStat
   const keys = [...index.keys];
   if (wanted && !keys.some((k) => k.key === wanted.key)) keys.push(wanted);
   const loaded = await dealsByIds(db, organizationId, idsOf(keys));
+  await attachOutcomes(db, organizationId, loaded.deals).catch(() => undefined);
   const byKey = new Map(loaded.deals.map((deal) => [deal.key, deal]));
   return {
     // L'ordine è quello dell'indice; una riga non più leggibile viene saltata.
@@ -299,6 +321,7 @@ async function loadFromWindow(db: Db, organizationId: string, state: DealDeskSta
   ]);
   const deals = [...sales.deals, ...purchase.deals];
   const view = pageFromDeals(deals, state, pageSize);
+  await attachOutcomes(db, organizationId, view.rows).catch(() => undefined);
   const selectedKey = resolveDealKey(deals, state.item);
   return {
     ...view,

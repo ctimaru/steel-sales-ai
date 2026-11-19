@@ -48,7 +48,8 @@ test("ordine diretto: prodotto, ORD-, cliente da collegare, fasi saltate, data d
   assert.equal(deal.origin, "Ordine diretto");
   assert.equal(deal.since, "2026-09-07T08:00:00Z", "the order date, not the import date");
   assert.deepEqual(deal.steps.map((s) => [s.label, s.done, Boolean(s.skipped)]), [
-    ["Richiesta", false, true], ["Offerta", false, true], ["Ordine", true, false], ["Consegna", false, false],
+    // COMM-CYCLE1: Richiesta → Trattativa → Offerta → Ordine.
+    ["Richiesta", false, true], ["Trattativa", false, true], ["Offerta", false, true], ["Ordine", true, false],
   ]);
   assert.equal(deal.action, "Conferma l'ordine");
 });
