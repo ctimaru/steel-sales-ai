@@ -29,11 +29,17 @@ function mentioned(haystack:string,word:string){
   return h.includes(w);
 }
 function countryIn(question:string):string|null{
-  const mentionedCountries=countryEntries.filter(row=>
-    mentioned(question,row.code) ||
+  // Never treat ordinary Italian/English short words ("si", "se", "it")
+  // as a country. ISO codes require an explicit location preposition and
+  // uppercase letters, while full country names and aliases remain natural.
+  const named=countryEntries.filter(row=>
     [row.name,...(aliases[row.code]??[])].some(alias=>mentioned(question,alias))
   );
-  return mentionedCountries.length===1?mentionedCountries[0].code:null;
+  const codes=countryEntries.filter(row=>
+    new RegExp(String.raw`\\b(?:in|nel|nella|paese|country|from|dal)\\s+${row.code}\\b`).test(question)
+  );
+  const matches=new Set([...named,...codes].map(item=>item.code));
+  return matches.size===1?[...matches][0]:null;
 }
 function productStandard(question:string,parsed:string|undefined){
   const raw=(parsed||"").toUpperCase().replace(/\s+/g," ").trim();
