@@ -345,6 +345,7 @@ export default async function NetworkCompanyProfilePage({
         products={[...productGroups.map((product) => networkNameIt(product.name)), ...reviewedSummary.products]}
         services={[...profile.subtypes.map((subtype) => networkNameIt(subtype.name)), ...capabilities.map((capability) => networkNameIt(capability.name)), ...reviewedSummary.services]}
         evidenceSourceUrl={safeNetworkWebsiteUrl(reviewedSummary.evidenceSourceUrl)}
+        industrialSource={reviewedEvidence.some((fact) => fact.field_key === "industrial_source")}
         identityTrust={profile.trust.verified ? "verified" : profile.trust.claimed ? "claimed" : "unverified"}
         hasCompanyDeclarations={hasCompanyDeclarations}
         hasVerifiedFields={verifiedAssetCount > 0}
