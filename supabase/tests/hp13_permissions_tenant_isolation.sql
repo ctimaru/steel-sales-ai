@@ -320,7 +320,13 @@ select pg_temp.hp13_assert(
         -- office profile via private.office_write_denied and an allowed
         -- status transition; appends to comm_deal_events (no browser writes).
         -- Empty pinned search_path, anon revoked; no PII, prices or email text returned.
-        'comm_cycle1_apply'
+        'comm_cycle1_apply',
+        -- COMM-CYCLE2.A reviewed: prepares a draft/revision only from a same-org
+        -- row-locked RFQ, with auth.uid, active writer membership and Ufficio
+        -- commerciale guard; atomically copies request lines without prices
+        -- and appends exact new-offer state to comm_deal_events. Fixed empty
+        -- search_path; no anonymous execute, cross-tenant lookup or raw email.
+        'comm_cycle2a_prepare_offer'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
