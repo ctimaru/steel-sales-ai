@@ -102,7 +102,11 @@ try{
         const select=list.getByRole("button",{name:"Confronta"}).first();
         if(await select.count()){
           await select.click();
-          await page.getByTestId("producer-compare-bar").waitFor({state:"visible"});
+          const bar=page.getByTestId("producer-compare-bar");
+          await bar.waitFor({state:"visible"});
+          const barBox=await bar.boundingBox();
+          if(width<1024)assert.ok(barBox && barBox.height<70,
+            "Mobile compare must fit a single compact row: "+JSON.stringify(barBox));
           await checkOverflow(page,"compare-"+width);
           await screenshot(page,width,"compare");
           checks+=2;
