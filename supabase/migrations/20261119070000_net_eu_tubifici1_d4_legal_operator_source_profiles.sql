@@ -17,7 +17,7 @@ create table if not exists private.net_eu_tubifici1_d4_operator_sources (
  factory_source_url text not null check(factory_source_url ~* '^https://' and char_length(factory_source_url)<=2000),
  source_kind text not null check(source_kind in ('first_party','government_registry','independent_epd')),
  process_code text not null check(process_code in
-    ('welded_steel_tubes','seamless_hot_rolled_cold_drawn','seamless_hot_rolled')),
+    ('welded_steel_tubes','precision_seamless_and_welded_tubes','seamless_tubes_unspecified')),
  factory_city text check(factory_city is null or char_length(factory_city) between 2 and 160),
  factual_note text not null check(char_length(factual_note) between 24 and 500),
  company_id uuid unique references public.network_companies(id) on delete restrict,
@@ -40,7 +40,7 @@ values
   'Mannesmann Precision Tubes GmbH',null,'HRB 20198',null,
   'https://www.mannesmann.com/en/contact/legal-notice.html',
   'https://www.mannesmann.com/en/locations.html','first_party',
-  'seamless_hot_rolled_cold_drawn','Hamm',
+  'precision_seamless_and_welded_tubes','Hamm',
   'The named German operator has a company imprint and identified steel precision tube manufacturing sites; no size or grade range is inferred.'),
  ('0d9fb502-44e0-4594-bf7c-5cedaedd1863',
   'ARATUBO S.A.U.',null,'A01242627','A01242627',
@@ -73,7 +73,7 @@ values
   'Alleima Tube AB',null,'556234-6832',null,
   'https://www.alleima.com/en/about-this-site/data-privacy-portal/list-of-alleima-entities/',
   'https://www.alleima.com/en/technical-center/material-datasheets/bar-and-hollow-bar/bar/sanmac-2205/',
-  'first_party','seamless_hot_rolled','Sandviken',
+  'first_party','seamless_tubes_unspecified','Sandviken',
   'Alleima corporate entity listing identifies Alleima Tube AB; its first-party manufacturing description locates the operator in Sandviken.')
 on conflict(candidate_id) do nothing;
 
