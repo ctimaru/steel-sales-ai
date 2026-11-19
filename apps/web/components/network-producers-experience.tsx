@@ -252,12 +252,19 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
                 </span>
                 <div className="min-w-0 flex-1 basis-[240px]">
                   <h3 className="break-words text-[15px] font-extrabold leading-5 text-[#173c2c]">{company.name}</h3>
-                  <p className="mt-0.5 truncate text-xs text-[#607769]">{(networkCountryName(company.countryCode)||company.countryCode)+" · Ruolo produttore registrato"}{domain?" · "+domain:""}</p>
+                  <p className="mt-0.5 flex min-w-0 flex-wrap items-center gap-x-1.5 text-xs text-[#607769]">
+                    <span>{networkCountryName(company.countryCode)||company.countryCode} · Produttore</span>
+                    {url&&domain?<a href={url} target="_blank" rel="noopener noreferrer"
+                      aria-label={"Sito ufficiale di "+company.name}
+                      className="max-w-full break-all font-semibold text-[#246348] underline-offset-2 hover:underline">
+                      {domain} ↗
+                    </a>:null}
+                  </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">
-                    {evidence.length>0?<Chip tone="tech">Dati tecnici con fonte · {evidence.length}</Chip>:null}
-                    {docs.length>0?<Chip tone="docs">Cataloghi ufficiali · {docs.length}</Chip>:null}
-                    {mentions.length>0?<Chip tone="mention">Menzioni da qualificare · {mentions.length}</Chip>:null}
-                    {!hasDetails?<Chip tone="none">Norme, gamma e cataloghi in qualificazione</Chip>:null}
+                    {evidence.length>0?<Chip tone="tech">Dati tecnici con fonte · {evidence.length}</Chip>:
+                      docs.length>0?<Chip tone="docs">Cataloghi ufficiali · {docs.length}</Chip>:
+                      mentions.length>0?<Chip tone="mention">Menzioni da qualificare · {mentions.length}</Chip>:
+                      <Chip tone="none">Norme, gamma e cataloghi in qualificazione</Chip>}
                     {technicalClaims===null?<span className="text-[11px] text-[#8b6b45]">Dati tecnici momentaneamente non disponibili.</span>:null}
                   </div>
                 </div>
@@ -271,16 +278,16 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
                     </svg>
                     {active?"Nel confronto":"Confronta"}
                   </button>
-                  {url?<a href={url} target="_blank" rel="noopener noreferrer" aria-label={"Sito ufficiale di "+company.name}
-                    className="inline-flex min-h-10 items-center justify-center gap-1 rounded-xl border border-[#ccddd1] bg-white px-3 text-xs font-bold text-[#175640] hover:bg-[#f3f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-                    Sito <span aria-hidden="true">↗</span>
-                  </a>:null}
+
                 </div>
               </article>
               {hasDetails?<details className="group border-t border-[#eef3ef] bg-[#fbfdfc]">
                 <summary className="flex min-h-10 cursor-pointer list-none items-center gap-1.5 px-4 text-xs font-extrabold text-[#1c573a] hover:bg-[#f3f8f4] [&::-webkit-details-marker]:hidden">
                   <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 transition-transform group-open:rotate-90 motion-reduce:transition-none" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
                   Dettagli tecnici e fonti
+                  <span className="ml-auto text-[11px] font-semibold text-[#607667]">
+                    {evidence.length>0?"Evidenze "+evidence.length:docs.length>0?"Cataloghi "+docs.length:"Fonti "+mentions.length}
+                  </span>
                 </summary>
                 <div className="grid gap-4 px-4 pb-4 pt-1 lg:grid-cols-3">
                   {evidence.length>0?<div className="min-w-0">
@@ -354,7 +361,36 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
             <button type="button" onClick={clearSelection} className="min-h-10 text-xs font-bold text-[#185740] underline">Svuota</button>
           </div>
         </div>
-        <div className="w-full overflow-x-auto">
+        {/* UX4.D: phones get vertical evidence-backed cards, never a 580px table. */}
+        <div className="grid gap-3 p-3 md:hidden" data-testid="producer-compare-mobile">
+          {selectedCompanies.map(company=>{
+            const scopedClaims=technicalClaims?.filter(claim=>claim.companyId===company.id)
+              ??(technicalClaims===null?null:[]);
+            const scopedCatalogs=catalogs?.filter(link=>link.companyId===company.id)??[];
+            return <article key={company.id} className="min-w-0 rounded-xl border border-[#dce7df] bg-white p-3">
+              <h3 className="break-words text-sm font-extrabold text-[#173c2c]">{company.name}</h3>
+              <p className="mt-0.5 text-[11px] text-[#607667]">
+                {networkCountryName(company.countryCode)||company.countryCode} · Dati tecnici osservati
+              </p>
+              <dl className="mt-3 space-y-3">
+                {technicalKinds.map(group=><div key={group.kind}>
+                  <dt className="text-[10px] font-bold uppercase tracking-wide text-[#536c5b]">{group.label}</dt>
+                  <dd className="mt-1 text-xs text-[#506557]">
+                    <EvidenceValues items={scopedClaims} kind={group.kind}/>
+                  </dd>
+                </div>)}
+                <div>
+                  <dt className="text-[10px] font-bold uppercase tracking-wide text-[#536c5b]">Cataloghi ufficiali</dt>
+                  <dd className="mt-1 text-xs text-[#506557]">
+                    {catalogs===null?"Indice non disponibile":scopedCatalogs.length>0
+                      ?scopedCatalogs.length+" collegamenti":"Non ancora indicizzati"}
+                  </dd>
+                </div>
+              </dl>
+            </article>;
+          })}
+        </div>
+        <div className="hidden w-full overflow-x-auto md:block" data-testid="producer-compare-desktop">
           <table className="w-full min-w-[580px] border-collapse text-left text-xs">
             <thead><tr className="bg-white text-[#1b422f]"><th scope="col" className="w-36 border-b border-[#e5ede6] p-4">Criterio</th>
               {selectedCompanies.map(company=><th scope="col" key={company.id} className="min-w-36 border-b border-[#e5ede6] p-4 font-extrabold">{company.name}</th>)}</tr></thead>
