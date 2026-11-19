@@ -95,8 +95,8 @@ begin
       raise exception 'comm_cycle2a: stato modificabile solo dal ciclo' using errcode = '42501';
     end if;
     if old.status is distinct from 'draft'
-      and (to_jsonb(new) - 'status' - 'offered_at')
-        is distinct from (to_jsonb(old) - 'status' - 'offered_at') then
+      and (to_jsonb(new) - 'status')
+        is distinct from (to_jsonb(old) - 'status') then
       raise exception 'comm_cycle2a: contenuto di revisione inviata immutabile' using errcode = '42501';
     end if;
     if new.status = 'accepted' and old.status is distinct from 'accepted'
