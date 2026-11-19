@@ -84,13 +84,13 @@ test("modello: offerta scaduta tocca a noi, fasi Richiesta · Trattativa · Offe
 });
 
 test("contratti: un'unica scrittura (funzione SQL), profilo d'ufficio, UI in vendite e nel Centro RFQ", () => {
-  const migration = read("../../../supabase/migrations/20261119140000_comm_cycle1_actions_outcomes.sql");
+  const migration = read("../../../supabase/migrations/20261119143000_comm_cycle1_actions_outcomes.sql");
   assert.match(migration, /security definer/);
   assert.match(migration, /public\.is_organization_member\(p_organization_id, true\)/);
   assert.match(migration, /private\.office_write_denied\(p_organization_id, v_area\)/);
   assert.match(migration, /revoke insert, update, delete on public\.comm_deal_events from authenticated/);
   assert.match(migration, /revoke all on function public\.comm_cycle1_apply\([^)]*\) from public, anon/);
-  const index = read("../../../supabase/migrations/20261119141000_comm_cycle1_index.sql");
+  const index = read("../../../supabase/migrations/20261119143100_comm_cycle1_index.sql");
   assert.match(index, /s\.offer_status = 'sent' and s\.offer_valid_until is not null and s\.offer_valid_until < current_date then 'todo'/);
   const actions = read("../app/(italian)/(workspace)/commercial/cycle-actions.ts");
   assert.match(actions, /db\.rpc\("comm_cycle1_apply"/);

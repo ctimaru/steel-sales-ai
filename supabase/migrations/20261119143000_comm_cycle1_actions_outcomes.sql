@@ -15,7 +15,7 @@
 -- awarded_elsewhere, other (note required).
 --
 -- The priority index (public.comm_deals2_index) is replaced in
--- 20261119141000_comm_cycle1_index.sql: a sent offer past valid_until is «todo».
+-- 20261119143100_comm_cycle1_index.sql: a sent offer past valid_until is «todo».
 
 create table if not exists public.comm_deal_events (
   id uuid primary key default gen_random_uuid(),
