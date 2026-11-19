@@ -64,6 +64,7 @@ export function NetworkProfileOverview({
   description,
   evidenceSourceUrl,
   sourceUrl,
+  industrialSource = false,
   identityTrust = "unverified",
   hasCompanyDeclarations = false,
   hasVerifiedFields = false,
@@ -92,6 +93,7 @@ export function NetworkProfileOverview({
   description?: string | null;
   evidenceSourceUrl?: string | null;
   sourceUrl?: string | null;
+  industrialSource?: boolean;
   identityTrust?: NetworkIdentityTrust;
   hasCompanyDeclarations?: boolean;
   hasVerifiedFields?: boolean;
@@ -129,7 +131,7 @@ export function NetworkProfileOverview({
   const publicSourceLink = trustSourceUrl ? (
     <a href={trustSourceUrl} target="_blank" rel="noopener noreferrer"
       className="inline-flex min-h-11 items-center rounded-xl border border-[#bad6c3] bg-[#f5faf6] px-4 text-sm font-semibold text-[#19523a] transition hover:bg-[#e9f5ec] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205a40]">
-      Consulta la fonte pubblica <span aria-hidden="true" className="ml-2">↗</span>
+      {industrialSource ? "Consulta la fonte tecnica" : "Consulta la fonte pubblica"} <span aria-hidden="true" className="ml-2">↗</span>
     </a>
   ) : null;
 
@@ -284,6 +286,9 @@ export function NetworkProfileOverview({
             non garantisce capacità di fornitura, stock o certificazioni non pubblicate.
           </p>
           {publicSourceLink || <p className={emptyStateClass}>Nessuna fonte web consultabile pubblicata per questa scheda.</p>}
+          {industrialSource && publicSourceLink ? <p className="text-xs leading-5 text-[#526c60]" data-testid="network-industrial-source-disclaimer">
+            Fonte industriale osservata e collegata alla scheda. Non equivale a conferma dell'azienda, certificazione o disponibilità di una misura.
+          </p> : null}
           {technicalTopics.length ? <div className="border-t border-[#e7ece8] pt-4">
             <p className="text-sm font-semibold text-[#2e5941]">Informazioni presenti nel Network</p>
             <div className="mt-2 flex flex-wrap gap-2">
