@@ -88,6 +88,14 @@ insert into cc2_results values ('accept_old',
 select pg_temp.cc2_as('00000000-0000-0000-0000-00000000c2a2');
 insert into cc2_results values ('purchasing',
   pg_temp.cc2_denied('00000000-0000-0000-0000-00000000c2f1','00000000-0000-0000-0000-00000000c212'));
+do $
+begin
+  update public.offer_lines set quantity=30
+    where offer_id=(select value::uuid from cc2_results where label='offer2');
+  insert into cc2_results values ('purchasing_edit','ACCEPTED');
+exception when others then
+  insert into cc2_results values ('purchasing_edit',sqlerrm);
+end $;
 select pg_temp.cc2_as('00000000-0000-0000-0000-00000000c2b1');
 insert into cc2_results values ('other_tenant',
   pg_temp.cc2_denied('00000000-0000-0000-0000-00000000c2f1','00000000-0000-0000-0000-00000000c211'));
@@ -97,6 +105,7 @@ insert into cc2_results values ('other_visible_events',
   (select count(*)::text from public.comm_deal_events
    where organization_id='00000000-0000-0000-0000-00000000c2f1'));
 reset role;
+select pg_temp.cc2_as('00000000-0000-0000-0000-00000000c2a1');
 
 -- Test immutable stored data as the owner of the tables to isolate trigger
 -- enforcement from RLS. Neither admin nor client may rewrite a sent version.
@@ -178,6 +187,9 @@ select pg_temp.cc2_assert(
 select pg_temp.cc2_assert(
   (select value like 'office_profile_read_only%' from cc2_results where label='purchasing'),
   'purchasing cannot write customer offers');
+select pg_temp.cc2_assert(
+  (select value like 'office_profile_read_only%' from cc2_results where label='purchasing_edit'),
+  'purchasing cannot edit managed draft lines through ordinary RLS');
 select pg_temp.cc2_assert(
   (select value like '%non autorizzato%' from cc2_results where label='other_tenant'),
   'foreign member cannot prepare');
