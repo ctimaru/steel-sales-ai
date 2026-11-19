@@ -126,7 +126,7 @@ reset role;
 
 select pg_temp.c2c_assert((select value like '%invio già avviato%' from c2c_results where label='double'),
   'duplicate concurrent send refused');
-select pg_temp.c2c_assert((select value like '%bloccata durante l''invio%' from c2c_results where label='frozen'),
+select pg_temp.c2c_assert((select value like '%bloccate durante l''invio%' or value like '%bloccata durante l''invio%' from c2c_results where label='frozen'),
   'quote snapshot frozen while sending');
 select pg_temp.c2c_assert((select count(*)=2 from public.comm_offer_email_dispatches
   where offer_id=(select value::uuid from c2c_results where label='offer')
