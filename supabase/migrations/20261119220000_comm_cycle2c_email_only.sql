@@ -55,7 +55,14 @@ begin
     if ((to_jsonb(new)-'status'-'offered_at')
           is distinct from (to_jsonb(old)-'status'-'offered_at'))
       or (new.status is distinct from old.status
-        and not (new.status='sent' and current_user='postgres')) then
+        and not (
+          new.status='sent' and current_user='postgres'
+          and exists (
+            select 1 from public.comm_offer_email_dispatches verified
+            where verified.organization_id=old.organization_id
+              and verified.offer_id=old.id and verified.status='accepted'
+          )
+        )) then
       raise exception 'comm_cycle2c: offerta bloccata durante l''invio'
         using errcode='42501';
     end if;
