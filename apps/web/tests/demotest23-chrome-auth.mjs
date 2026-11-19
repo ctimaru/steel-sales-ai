@@ -229,7 +229,7 @@ try {
           assert.equal(await page.getByTestId("commercial-new-request").count(), 1,
             "Writer has exactly one governed entry to a new request");
           for (const [label, expected] of [
-            ["Da fare", "todo"], ["In attesa", "waiting"], ["In scadenza", "due"], ["Chiuse", "closed"],
+            ["Da fare", "todo"], ["In attesa", "waiting"], ["In scadenza", "due"], ["Archiviate", "closed"],
           ]) {
             await page.getByTestId("commercial-deal-filters").getByRole("link", { name: new RegExp("^" + label) }).click();
             await page.waitForURL((url) => url.pathname === "/commercial" && url.searchParams.get("f") === expected,
