@@ -4,7 +4,7 @@ import { useActionState, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  sendCustomerOfferEmail, type CustomerOfferSendState,
+  sendCustomerOfferEmail, reconcileCustomerOfferEmail, type CustomerOfferSendState,
 } from "@/app/(italian)/(workspace)/commercial/cycle2c-actions";
 import {
   buildCustomerOfferEmail, customerOfferEmailReady, defaultCustomerOfferSubject,
@@ -28,6 +28,7 @@ export function CommercialCustomerOfferEmail({
 }) {
   const router=useRouter();
   const [state,send,pending]=useActionState(sendCustomerOfferEmail,initial);
+  const [reconcileState,reconcileAction,reconcilePending]=useActionState(reconcileCustomerOfferEmail,initial);
   const [recipient,setRecipient]=useState("");
   const [subject,setSubject]=useState(defaultCustomerOfferSubject(snapshot));
   const [message,setMessage]=useState("");
@@ -39,9 +40,11 @@ export function CommercialCustomerOfferEmail({
   const recipientValid=validCustomerEmailRecipient(recipient.trim());
   const existingBlock=history.some(d=>d.revision===snapshot.revision &&
     ["accepted","reserved","unknown"].includes(d.status));
+  const acceptedAwaitingStatus=status==="draft"
+    ? history.find(d=>d.revision===snapshot.revision && d.status==="accepted") : undefined;
   useEffect(()=>{
-    if(state.status==="sent")router.refresh();
-  },[state.status,router]);
+    if(state.status==="sent" || reconcileState.status==="sent")router.refresh();
+  },[state.status,reconcileState.status,router]);
   return (
     <section data-testid="comm-cycle2c-email"
       className="mt-4 rounded-xl border border-[#cfded4] bg-[#f8fbf9] p-3 sm:p-4">
@@ -73,6 +76,22 @@ export function CommercialCustomerOfferEmail({
             ))}
           </div>
         </div>
+      )}
+      {acceptedAwaitingStatus && canWrite && (
+        <form action={reconcileAction} className="mt-3 rounded-lg border border-[#b4d4bd] bg-white p-3">
+          <input type="hidden" name="rfq_id" value={rfqId}/>
+          <input type="hidden" name="dispatch_id" value={acceptedAwaitingStatus.id}/>
+          <p className="mb-2 text-xs text-[#315943]">
+            L'email è stata accettata dal provider, ma la revisione non risulta ancora inviata.
+            Puoi riallineare lo stato senza spedire un secondo messaggio.
+          </p>
+          <button type="submit" disabled={reconcilePending}
+            className="min-h-10 rounded-lg bg-[#175640] px-4 text-xs font-bold text-white disabled:opacity-50">
+            {reconcilePending?"Verifico…":"Conferma invio già accettato"}
+          </button>
+          {reconcileState.message && <p role={reconcileState.status==="error"?"alert":"status"}
+            className="mt-2 text-xs font-semibold text-[#315943]">{reconcileState.message}</p>}
+        </form>
       )}
       {!canWrite && <p className="mt-3 text-xs text-[#7c5b27]">
         Invio disponibile solo per Ufficio commerciale o Direzione.
