@@ -13,16 +13,16 @@ from __future__ import annotations
 import hashlib
 import http.client
 import ipaddress
+import re
 import socket
 import ssl
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import urlsplit, urlunsplit, parse_qs
 
 from .net_pro_producers_catalog_b1 import CatalogueRejected
 from .net_pro_producers_catalog_discovery import (
     _official_url, _robots_allows, _resolve_public_ip, USER_AGENT,
 )
-from .net_pro_producers_catalog_b3b_pdf import _read_pdf_lines
-from .net_pro_producers_pdf_positions_c3 import read_pdf_text_origins
+from .net_pro_producers_pdf_windows_b3e import read_pdf_fact_window, MAX_TOTAL_PAGES
 from .net_pro_producers_pdf_table_sizes_c3 import (
     extract_pdf_table_sizes, stage_pdf_table_sizes,
 )
@@ -32,6 +32,37 @@ from .net_pro_producers_pdf_table_geometry_c3 import (
 
 MAX_PDF = 8 * 1024 * 1024
 
+def _is_official_pdf_url(value: str, domain: str) -> bool:
+    """Allow exact-host .pdf paths; one known first-party dynamic endpoint.
+
+    The Tenaris parameter is a *relative media path*, never an absolute URL.
+    No redirects, arbitrary API endpoints, external query URLs or traversal.
+    """
+    if not _official_url(value, domain):
+        return False
+    parsed = urlsplit(value)
+    if parsed.path.lower().endswith(".pdf") and not parsed.query:
+        return True
+    if (domain not in ("tenaris.com", "www.tenaris.com")
+            or parsed.hostname not in ("tenaris.com", "www.tenaris.com")
+            or parsed.path != "/umbraco/surface/downloads/pdf"
+            or len(parsed.query) > 250):
+        return False
+    try:
+        params = parse_qs(parsed.query, strict_parsing=True,
+                          keep_blank_values=True, max_num_fields=1)
+    except ValueError:
+        return False
+    if set(params) != {"url"} or len(params["url"]) != 1:
+        return False
+    target = params["url"][0]
+    if not re.fullmatch(r"/media/[a-zA-Z0-9_.-]+(?:/[a-zA-Z0-9_.-]+)*[.]pdf",
+                        target):
+        return False
+    return all(part not in ("..", ".") for part in target.split("/"))
+
+
+
 
 def bounded_official_pdf(url: str, domain: str) -> bytes:
     """DNS-pinned TLS PDF fetch with no redirects, cookies, proxy or disk.
@@ -39,7 +70,7 @@ def bounded_official_pdf(url: str, domain: str) -> bytes:
     The upstream robots/terms eligibility is checked by observe_pdf_source;
     this low-level reader never decides licensing or public publication.
     """
-    if not _official_url(url, domain) or not urlsplit(url).path.lower().endswith(".pdf"):
+    if not _is_official_pdf_url(url, domain):
         raise CatalogueRejected("B3.E invalid first-party PDF URL")
     parsed = urlsplit(url)
     host = parsed.hostname or ""
@@ -102,38 +133,61 @@ def observe_pdf_source(db, *, company_id: str, source_url: str,
     """
     if (source_status != "official_link_observed"
         or rights_status != "link_only"
-        or not _official_url(source_url, canonical_domain)
+        or not _is_official_pdf_url(source_url, canonical_domain)
         or not allow_factual_observation):
         raise CatalogueRejected("B3.E public fact observation not eligible")
     if not _robots_allows(source_url, canonical_domain, {}):
         raise CatalogueRejected("B3.E robots unavailable or denied")
     content = bounded_official_pdf(source_url, canonical_domain)
     digest = hashlib.sha256(content).hexdigest()
-    pages = _read_pdf_lines(content)
-    positions = read_pdf_text_origins(content)
-    dimensions = extract_pdf_table_sizes(pages)
-    geometry = extract_positioned_thickness(positions, dimensions["rows"])
-    # No raw PDF, copied tables, or source text ever returned or staged.
+    # Parse each bounded PDF window, retaining absolute physical page numbers.
+    # Extract all windows BEFORE staging: a rejected later page cannot leave a
+    # partially observed document behind. No source text is written to DB.
+    windows = []
+    total_pages = None
+    next_page = 1
+    while total_pages is None or next_page <= total_pages:
+        window = read_pdf_fact_window(content, start_page=next_page)
+        if total_pages is None:
+            total_pages = window["total_pages"]
+        elif total_pages != window["total_pages"]:
+            raise CatalogueRejected("B3.E PDF changed during window inspection")
+        pages = window["pages"]
+        if not pages or pages[0]["page"] != next_page:
+            raise CatalogueRejected("B3.E noncontiguous PDF window")
+        dimensions = extract_pdf_table_sizes(pages)
+        geometry = extract_positioned_thickness(
+            window["positions"], dimensions["rows"]
+        )
+        windows.append((pages, dimensions, geometry))
+        next_page += len(pages)
+        if len(windows) > (MAX_TOTAL_PAGES + 14) // 15:
+            raise CatalogueRejected("B3.E PDF window count exceeded")
+
     result = {
         "contract": "netproducers-b3e-factual-observation-v1",
-        "document_sha256": digest, "pages_inspected": len(pages),
-        "dimension_candidates": len(dimensions["rows"]),
-        "thickness_candidates": len(geometry["candidate_rows"]),
-        "ambiguous_rows": geometry["ambiguous_rows"],
+        "document_sha256": digest, "pages_inspected": total_pages,
+        "dimension_candidates": sum(len(d["rows"]) for _, d, _ in windows),
+        "thickness_candidates": sum(len(g["candidate_rows"]) for _, _, g in windows),
+        "ambiguous_rows": sum(g["ambiguous_rows"] for _, _, g in windows),
         "published_claims": 0, "manufacturer_confirmed": 0,
         "staged_dimensions": 0, "staged_thickness": 0,
         "dry_run": dry_run,
     }
     if dry_run:
         return result
+
     manifest = {"company_id": company_id, "source_url": source_url}
-    size_outcome = stage_pdf_table_sizes(db, manifest, pages)
-    result["staged_dimensions"] = size_outcome["size_rows_new"]
-    if geometry["candidate_rows"]:
-        thickness_outcome = stage_positioned_thickness(
-            db, manifest, digest, geometry["candidate_rows"]
-        )
-        result["staged_thickness"] = thickness_outcome["added"]
+    for pages, dimensions, geometry in windows:
+        if dimensions["rows"]:
+            size_outcome = stage_pdf_table_sizes(db, manifest, pages)
+            result["staged_dimensions"] += size_outcome["size_rows_new"]
+        if geometry["candidate_rows"]:
+            thickness_outcome = stage_positioned_thickness(
+                db, manifest, digest, geometry["candidate_rows"]
+            )
+            result["staged_thickness"] += thickness_outcome["added"]
+
     return result
 
 
