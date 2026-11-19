@@ -13,6 +13,7 @@ import hashlib
 import json
 import os
 import re
+import time
 from datetime import datetime, timezone
 from html import unescape
 from urllib.parse import urljoin, urlsplit
@@ -584,6 +585,29 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                             or restored.get("published") != 0):
                         raise RuntimeError("unexpected recovery restore response")
                     recovery_restored += int(restored.get("restored", 0))
+            # GROWTH10: do NOT create a fabricated needs_human evidence row for
+            # a parse failure. Store ONLY a bounded attempt/backoff ledger.
+            # This is a best-effort performance hint, not an identity verdict:
+            # an unavailable RPC during a rolling migration must never block
+            # the successful evidence already persisted above.
+            for failure in failures:
+                try:
+                    error_response = await client.post(
+                        f"{url}/rest/v1/rpc/net_it_auto2_record_site_error",
+                        headers=headers, json={
+                            "p_candidate_id": failure["p_candidate_id"],
+                            "p_error_type": failure["_review_error"],
+                        })
+                    if error_response.status_code == 404:
+                        print(json.dumps({"status": "error_backoff_not_installed"}))
+                        continue
+                    error_response.raise_for_status()
+                    error_payload = error_response.json()
+                    if (error_payload.get("contract") != "net-it-auto2-site-error-v1"
+                            or error_payload.get("publication_count") != 0):
+                        raise ValueError("Unexpected site-error backoff contract")
+                except (httpx.HTTPError, ValueError):
+                    print(json.dumps({"status": "site_error_backoff_unavailable"}))
         return {
             "mode":"evidence_recording" if persist else "dry_run",
             "queue_kind":"overture4_recovery" if recovering else "standard",
@@ -598,14 +622,64 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
         }
 
 
+async def execute_lots(*, limit: int = 50, lots: int = 4,
+                       persist: bool = False, max_seconds: float = 420) -> dict:
+    """Drain up to four sequential 50-site lots, with only four active hosts.
+
+    A failed batch never spins, and the next cron can continue automatically.
+    No approval or publication is performed here; each lot reuses execute()
+    and the existing first-party security / evidence contracts.
+    """
+    if limit not in range(1, MAX_BATCH + 1) or lots not in range(1, 5):
+        raise ValueError("limit must be 1..50 and lots 1..4")
+    if max_seconds < 30:
+        raise ValueError("max_seconds must be at least 30")
+    start = time.monotonic()
+    # Dry run does not record evidence/cooldowns: repeating would re-read the
+    # same candidates, so a dry run ALWAYS examines a single bounded lot.
+    effective_lots = lots if persist else 1
+    summaries = []
+    summed = {key: 0 for key in ("attempted", "reviewed", "recorded",
+                                  "rejected", "site_errors",
+                                  "identity_supported", "exceptions",
+                                  "recovery_restored", "published")}
+    for lot in range(effective_lots):
+        if lot and time.monotonic() - start >= max_seconds:
+            break
+        result = await execute(limit=limit, persist=persist)
+        summaries.append({"lot": lot + 1,
+                          "queue_kind": result.get("queue_kind", "standard"),
+                          "attempted": result.get("attempted", 0),
+                          "recorded": result.get("recorded", 0),
+                          "site_errors": result.get("site_errors", 0)})
+        for field in summed:
+            summed[field] += int(result.get(field, 0))
+        # Stop on empty queue or zero progress, never retry a malformed site
+        # repeatedly inside the same cron invocation.
+        if not result.get("attempted") or not result.get("recorded"):
+            break
+    return {
+        "mode": "evidence_recording" if persist else "dry_run",
+        "contract": "net-it-auto2-bulk-lots-v1",
+        "max_batch_size": limit,
+        "configured_capacity": limit * effective_lots,
+        "lots_processed": len(summaries),
+        "lots": summaries,
+        **summed,
+    }
+
+
 def main() -> int:
     parser=argparse.ArgumentParser(description="NET-IT-AUTO2 official-site reviewer")
-    parser.add_argument("--limit",type=int,default=25)
+    parser.add_argument("--limit",type=int,default=25,
+                        help="First-party websites per lot, maximum 50")
+    parser.add_argument("--lots",type=int,default=4,
+                        help="Maximum sequential lots per cron (up to 4)")
     parser.add_argument("--persist",action="store_true",
                         help="Record private agent evidence; never publish profiles")
     args=parser.parse_args()
     try:
-        result=asyncio.run(execute(limit=args.limit,persist=args.persist))
+        result=asyncio.run(execute_lots(limit=args.limit,lots=args.lots,persist=args.persist))
     except (ValueError,RuntimeError,httpx.HTTPError) as exc:
         print(json.dumps({"status":"review_failed","error_type":type(exc).__name__}))
         return 1
