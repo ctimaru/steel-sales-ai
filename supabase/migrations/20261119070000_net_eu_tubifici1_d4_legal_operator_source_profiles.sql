@@ -35,7 +35,10 @@ insert into private.net_eu_tubifici1_d4_operator_sources(
  candidate_id,operator_legal_name,operator_trading_name,operator_registration_id,operator_vat_id,
  legal_source_url,factory_source_url,source_kind,process_code,factory_city,factual_note
 )
-values
+select
+ v.candidate_id::uuid,v.operator_legal_name,v.operator_trading_name,v.operator_registration_id,v.operator_vat_id,
+ v.legal_source_url,v.factory_source_url,v.source_kind,v.process_code,v.factory_city,v.factual_note
+from (values
  ('ff0725ba-b894-4833-8bf6-edf453177be5',
   'Mannesmann Precision Tubes GmbH',null,'HRB 20198',null,
   'https://www.mannesmann.com/en/contact/legal-notice.html',
@@ -75,6 +78,13 @@ values
   'https://www.alleima.com/en/technical-center/material-datasheets/bar-and-hollow-bar/bar/sanmac-2205/',
   'first_party','seamless_tubes_unspecified','Sandviken',
   'Alleima corporate entity listing identifies Alleima Tube AB; its first-party manufacturing description locates the operator in Sandviken.')
+) as v(candidate_id,operator_legal_name,operator_trading_name,operator_registration_id,operator_vat_id,
+       legal_source_url,factory_source_url,source_kind,process_code,factory_city,factual_note)
+join public.network_company_discovery_candidates c on c.id=v.candidate_id::uuid
+join private.net_eu_tubifici1_d3_recovery d on d.candidate_id=c.id
+where c.review_status='pending_review'
+  and c.country_code<>'IT'
+  and d.manufacturing_observed
 on conflict(candidate_id) do nothing;
 
 comment on table private.net_eu_tubifici1_d4_operator_sources is
