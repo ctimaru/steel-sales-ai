@@ -22,7 +22,8 @@ test("EUROPE1A: exactly 27 unique EU members and 6 supported non-EU countries",(
     assert.equal(isEuMemberCountry(code),false);
     assert.equal(isSupportedNetworkCountry(code),true);
   }
-  assert.equal(OTHER_NETWORK_COUNTRIES.length,6);\n  assert.equal(new Set(OTHER_NETWORK_COUNTRIES.map(x=>x.code)).size,6);
+  assert.equal(OTHER_NETWORK_COUNTRIES.length,6);
+  assert.equal(new Set(OTHER_NETWORK_COUNTRIES.map(x=>x.code)).size,6);
   assert.equal(isSupportedNetworkCountry("ZZ"),false);
   assert.equal(networkCountryName("pl"),"Polonia");
 });
