@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import unittest
 from app.net_ro_overture1_feed import (
-    canonical_website, parse_place, RELEASE, CATEGORIES, MAX_BATCH
+    canonical_website, parse_place, RELEASE, CATEGORIES, MAX_BATCH, tile_for, MAX_PER_TILE
 )
 
 
@@ -45,6 +45,20 @@ class RomaniaOvertureTests(unittest.TestCase):
             invalid = list(base)
             invalid[index] = replacement
             self.assertIsNone(parse_place(tuple(invalid)))
+
+    def test_eight_spatial_search_tiles(self) -> None:
+        # Romanian bounding-box points are divided into eight nonoverlapping
+        # retrieval tiles. The tiles are not legal administrative regions.
+        tiles = {
+            tile_for(x, y)
+            for y in (44.5, 47.0)
+            for x in (21.3, 23.5, 26.0, 29.0)
+        }
+        self.assertEqual(len(tiles), 8)
+        self.assertEqual(tile_for(26.2, 44.7), "south-2")
+        self.assertEqual(tile_for(22.4, 46.2), "north-0")
+        self.assertGreater(MAX_PER_TILE, 0)
+        self.assertLessEqual(MAX_PER_TILE, 200)
 
     def test_bounded_contract(self) -> None:
         self.assertIn("metal_fabricator", CATEGORIES)
