@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import unittest
 from app.net_ro_overture1_feed import (
-    canonical_website, parse_place, RELEASE, CATEGORIES, MAX_BATCH, tile_for, MAX_PER_TILE
+    canonical_website, parse_place, RELEASE, CATEGORIES, MAX_BATCH, tile_for, MAX_PER_TILE, NAME_HINT_CATEGORY, NAME_HINT
 )
 
 
@@ -45,6 +45,25 @@ class RomaniaOvertureTests(unittest.TestCase):
             invalid = list(base)
             invalid[index] = replacement
             self.assertIsNone(parse_place(tuple(invalid)))
+
+    def test_keyword_hints_never_verify_a_company(self) -> None:
+        # Overture may misclassify a genuinely industrial company. Accept
+        # only its name as a private research hint, not as an industrial proof.
+        row = (
+            "00000000-0000-4000-8000-000000000042",
+            "SIDER METAL CNC SRL", "https://sidermetal-test.ro/",
+            NAME_HINT_CATEGORY, "meta", None, 25.1, 46.2, 0.9,
+        )
+        candidate = parse_place(row)
+        self.assertIsNotNone(candidate)
+        assert candidate is not None
+        self.assertEqual(candidate["category"], NAME_HINT_CATEGORY)
+        self.assertNotIn("identity_checked", candidate)
+        self.assertNotIn("published", candidate)
+        self.assertTrue(NAME_HINT.search("METAL FABRICA"))
+        nonindustrial = list(row)
+        nonindustrial[1] = "Restaurant Cafe"
+        self.assertIsNone(parse_place(tuple(nonindustrial)))
 
     def test_eight_spatial_search_tiles(self) -> None:
         # Romanian bounding-box points are divided into eight nonoverlapping

@@ -21,6 +21,12 @@ CATEGORIES = frozenset({
     "steel_mill", "steel_supplier", "machine_shop", "welding_service",
     "metal_processing", "metalworking",
 })
+# Secondary *discovery hint* for misclassified Overture Places; never a role claim.
+# The service-only stage RPC enforces the same expression independently.
+NAME_HINT_CATEGORY = "keyword_industrial_hint"
+NAME_HINT_REGEX = r"(metal|metall|steel|inox|sider|tub|teav|țeav|profil|carpenter|sudur|forjat|prelucr|laser|fier|oțel|otel)"
+NAME_HINT = re.compile(NAME_HINT_REGEX, re.I)
+
 EXCLUDED = frozenset({
     "facebook.com", "instagram.com", "linkedin.com", "google.com",
     "maps.google.com", "youtube.com", "tiktok.com", "wixsite.com",
@@ -64,9 +70,12 @@ def parse_place(row: tuple) -> dict | None:
     (gers, label, website, category, source_dataset, source_license,
      lon, lat, confidence) = row
     site = canonical_website(website)
-    if site is None or category not in CATEGORIES or not isinstance(label, str):
+    if (site is None or not isinstance(label, str) or
+            (category not in CATEGORIES and category != NAME_HINT_CATEGORY)):
         return None
     label = " ".join(label.split())
+    if category == NAME_HINT_CATEGORY and not NAME_HINT.search(label):
+        return None
     if not (3 <= len(label) <= 180) or any(c in label for c in "@<>"):
         return None
     if not isinstance(source_dataset, str) or not SOURCE.fullmatch(source_dataset):
@@ -149,13 +158,22 @@ def query_places() -> list[tuple]:
                          'machine_shop','welding_service',
                          'metal_processing','metalworking'
                        ]),1)
-                       ELSE list_extract(list_intersect(
+                       WHEN coalesce(list_has_any(taxonomy.alternates, [
+                         'metal_fabricator','sheet_metal_fabricator',
+                         'metal_supplier','steel_mill','steel_supplier',
+                         'machine_shop','welding_service',
+                         'metal_processing','metalworking'
+                       ]),false)
+                       THEN list_extract(list_intersect(
                          taxonomy.alternates, [
                          'metal_fabricator','sheet_metal_fabricator',
                          'metal_supplier','steel_mill','steel_supplier',
                          'machine_shop','welding_service',
                          'metal_processing','metalworking'
                        ]),1)
+                       WHEN regexp_matches(lower(names.primary),
+                         '(metal|metall|steel|inox|sider|tub|teav|țeav|profil|carpenter|sudur|forjat|prelucr|laser|fier|oțel|otel)')
+                       THEN 'keyword_industrial_hint'
                      END AS category,
                      sources[1].dataset AS source_dataset,
                      sources[1].license AS source_license,
@@ -190,6 +208,8 @@ def query_places() -> list[tuple]:
                      'machine_shop','welding_service',
                      'metal_processing','metalworking'
                    ]),false)
+                   OR regexp_matches(lower(names.primary),
+                     '(metal|metall|steel|inox|sider|tub|teav|țeav|profil|carpenter|sudur|forjat|prelucr|laser|fier|oțel|otel)')
                 )
                 AND websites[1] IS NOT NULL
                 AND names.primary IS NOT NULL
@@ -197,7 +217,9 @@ def query_places() -> list[tuple]:
                 AND coalesce(operating_status, 'open') <> 'permanently_closed'
             ), ranked AS (
               SELECT *,row_number() OVER (
-                PARTITION BY lat_tile,lon_tile ORDER BY confidence DESC,gers
+                PARTITION BY lat_tile,lon_tile ORDER BY
+                  CASE WHEN category='keyword_industrial_hint' THEN 1 ELSE 0 END,
+                  confidence DESC,gers
               ) AS tile_rank FROM scope
               WHERE category IS NOT NULL
             )
@@ -265,6 +287,7 @@ def main() -> dict:
             for tile in {tile_for(row["longitude"], row["latitude"]) for row in leads}
         }.items())),
         "max_per_tile": MAX_PER_TILE,
+        "keyword_hint_leads": sum(1 for row in leads if row["category"] == NAME_HINT_CATEGORY),
         **stats,
         "published": 0,
         "first_party_auto2_required": True,
