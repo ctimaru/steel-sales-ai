@@ -47,7 +47,7 @@ def canonical_website(value: object) -> tuple[str, str] | None:
     except ValueError:
         return None
     domain = host.lower().removeprefix("www.")
-    if not DOMAIN.fullmatch(domain) or ".." in domain:
+    if (not DOMAIN.fullmatch(domain) or ".." in domain\n            or domain.rsplit(".", 1)[-1] not in ALLOWED_TLDS):
         return None
     if domain in EXCLUDED or any(domain.endswith("." + bad) for bad in EXCLUDED):
         return None
