@@ -383,11 +383,11 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
         </div>
       </section>:null}
       {selectedCompanies.length>0?<div role="region" aria-label="Produttori selezionati per il confronto" data-testid="producer-compare-bar"
-        className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30 mx-auto flex w-full max-w-[760px] flex-wrap items-center gap-2 rounded-2xl bg-[#123a2e] px-3.5 py-2.5 text-white shadow-[0_14px_34px_rgba(10,32,25,0.3)] lg:bottom-5">
-        <span className="text-xs font-extrabold">{selectedCompanies.length} / 3 nel confronto</span>
+        className="sticky bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30 mx-auto flex w-full max-w-[760px] flex-nowrap items-center gap-2 rounded-xl bg-[#123a2e] px-3 py-2 text-white shadow-[0_10px_22px_rgba(10,32,25,0.22)] lg:bottom-5">
+        <span className="shrink-0 whitespace-nowrap text-[11px] font-extrabold sm:text-xs">{selectedCompanies.length} / 3 nel confronto</span>
         <span className="hidden min-w-0 flex-1 truncate text-[11px] text-[#cfe6db] sm:inline">{selectedCompanies.map(c=>c.name).join(" · ")}</span>
         <a href="#producer-compare" style={{ color: "#2a1c00", WebkitTextFillColor: "#2a1c00" }} className="ml-auto inline-flex min-h-9 items-center rounded-xl bg-[#f2b544] px-3 text-xs font-extrabold text-[#2a1c00] hover:bg-[#f6c460] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Vedi confronto ↓</a>
-        <button type="button" onClick={clearSelection} className="min-h-9 rounded-xl border border-white/30 px-3 text-xs font-bold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Svuota</button>
+        <button type="button" onClick={clearSelection} className="hidden min-h-9 rounded-xl border border-white/30 px-3 text-xs font-bold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:inline-flex">Svuota</button>
       </div>:null}
       <nav aria-label="Navigazione produttori" className="flex items-center justify-between gap-2">
         {page>1?<PageLink label="← Precedenti" query={query} country={country} page={page-1}/>:<span/>}
