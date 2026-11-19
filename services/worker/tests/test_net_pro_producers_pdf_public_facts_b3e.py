@@ -128,3 +128,21 @@ def test_later_window_failure_never_commits_early_rows(monkeypatch):
                         lambda *a: pytest.fail("partial PDF written"))
     with pytest.raises(CatalogueRejected, match="bad page"):
         _call(dry_run=False)
+
+def test_tenaris_known_first_party_dynamic_pdf_query_only():
+    from urllib.parse import quote
+    endpoint = "https://www.tenaris.com/umbraco/surface/downloads/pdf?url="
+    exact = endpoint + quote("/media/v2ucrzhm/tubi-per-installazioni_2026.pdf")
+    assert b3e._is_official_pdf_url(exact, "tenaris.com")
+    assert not b3e._is_official_pdf_url(
+        endpoint + quote("https://outside.example/other.pdf"), "tenaris.com")
+    assert not b3e._is_official_pdf_url(
+        endpoint + quote("/media/../secrets.pdf"), "tenaris.com")
+    assert not b3e._is_official_pdf_url(
+        endpoint + quote("/media/brochure.pdf") + "&another=1", "tenaris.com")
+    assert not b3e._is_official_pdf_url(
+        "https://other.example/umbraco/surface/downloads/pdf?url=/media/x.pdf",
+        "tenaris.com")
+    assert not b3e._is_official_pdf_url(
+        "https://alessiotubi.it/umbraco/surface/downloads/pdf?url=/media/x.pdf",
+        "alessiotubi.it")
