@@ -326,7 +326,13 @@ select pg_temp.hp13_assert(
         -- commerciale guard; atomically copies request lines without prices
         -- and appends exact new-offer state to comm_deal_events. Fixed empty
         -- search_path; no anonymous execute, cross-tenant lookup or raw email.
-        'comm_cycle2a_prepare_offer'
+        'comm_cycle2a_prepare_offer',
+        -- COMM-CYCLE2.B reviewed: authenticated member with active write role,
+        -- commercial office gate, row-locked same-org latest draft, bounded
+        -- customer line IDs and numeric rates, optimistic version, exact row
+        -- coverage and append-only offer_edited audit. Empty search_path,
+        -- anonymous execute revoked, no supplier/target price access.
+        'comm_cycle2b_save_offer'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
