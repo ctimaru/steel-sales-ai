@@ -158,7 +158,7 @@ insert into c2c_results values ('purchasing',pg_temp.c2c_reserve_error(
   '00000000-0000-0000-0000-00000000c4f1',
   (select value::uuid from c2c_results where label='offer')));
 select pg_temp.c2c_as('00000000-0000-0000-0000-00000000c4b1');
-insert into c2c_results values ('foreign',pg_temp.c2c_finish_error(
+insert into c2c_results values ('foreign',pg_temp.c2c_confirm_error(
   '00000000-0000-0000-0000-00000000c4f1',
   (select value::uuid from c2c_results where label='first')));
 insert into c2c_results values ('other_tenant_visibility',
