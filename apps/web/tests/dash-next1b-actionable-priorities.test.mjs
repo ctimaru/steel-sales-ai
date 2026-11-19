@@ -84,7 +84,9 @@ test("NEXT1B Home priorities are actionable, bounded, and open unified Commercia
   // HOME-FOCUS1 (founder decision, 4 Nov 2026): the Home RFQ box and the "Cosa richiede attenzione" strip were removed; superseded checks rewritten.
   // Actionable RFQ priorities now live only in Commerciale; the Home keeps the governed totals.
   assert.match(dashboard, /rfqh10_procurement_inbox/);
-  assert.match(dashboard, /"\?view=sent#commercial-worklist"/);
+  // COMM-CLIENTS1: procurement totals open Centro RFQ, no longer the mixed /commercial list.
+  assert.match(dashboard, /href: appRoutes\.rfqHub\.home/);
+  assert.doesNotMatch(dashboard, /"\?view=sent#commercial-worklist"/);
   assert.doesNotMatch(dashboard, /Da fare adesso|Cosa richiede attenzione|requires_action === true/);
   assert.doesNotMatch(dashboard, /href: appRoutes\.rfqHub\.inbox/);
   assert.match(dashboard, /Nessun dato dimostrativo viene mostrato come reale/);

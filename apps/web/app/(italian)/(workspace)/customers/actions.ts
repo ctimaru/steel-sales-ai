@@ -212,6 +212,64 @@ export async function loadCompanyDirectory(query?: string): Promise<CompanyDirec
   };
 }
 
+// COMM-CLIENTS1 (19 Nov 2026): «Clienti» in Ufficio commerciale.
+// clients = at least one order not cancelled; prospects = requests or offers,
+// no valid order. public.comm_clients1_directory is SECURITY INVOKER (RLS).
+export type ClientSegment = "clients" | "prospects";
+// Not exported: a "use server" module may only export async functions.
+const CLIENTS_PAGE_SIZE = 50;
+
+export type ClientDirectoryItem = {
+  company_id: string;
+  name: string;
+  company_type: string | null;
+  country: string | null;
+  vat_number: string | null;
+  verified: boolean;
+  rfq_count: number;
+  offer_count: number;
+  order_count: number;
+  last_order_at: string | null;
+  last_activity_at: string | null;
+};
+
+export type ClientDirectoryPayload = {
+  total: number;
+  pageSize: number;
+  counts: Record<ClientSegment, number>;
+  companies: ClientDirectoryItem[];
+  error?: string;
+};
+
+function nonNegative(value: unknown) {
+  return Number.isSafeInteger(Number(value)) && Number(value) >= 0 ? Number(value) : 0;
+}
+
+export async function loadClientDirectory(segment: ClientSegment, query: string, page: number): Promise<ClientDirectoryPayload> {
+  const empty = { total: 0, pageSize: CLIENTS_PAGE_SIZE, counts: { clients: 0, prospects: 0 }, companies: [] };
+  const context = await activeOrganizationId();
+  if (!context.client || !context.organizationId) {
+    return { ...empty, error: context.error ?? "Dati non disponibili." };
+  }
+  const { data, error } = await context.client.rpc("comm_clients1_directory", {
+    p_organization_id: context.organizationId,
+    p_segment: segment,
+    p_query: query.trim().slice(0, 80),
+    p_limit: CLIENTS_PAGE_SIZE,
+    p_offset: (Math.max(1, page) - 1) * CLIENTS_PAGE_SIZE,
+  });
+  const payload = data as { contract?: unknown; total?: unknown; counts?: { clients?: unknown; prospects?: unknown }; companies?: unknown } | null;
+  if (error || !payload || payload.contract !== "comm-clients1-v1") {
+    return { ...empty, error: "Impossibile caricare i clienti in questo momento." };
+  }
+  return {
+    total: nonNegative(payload.total),
+    pageSize: CLIENTS_PAGE_SIZE,
+    counts: { clients: nonNegative(payload.counts?.clients), prospects: nonNegative(payload.counts?.prospects) },
+    companies: Array.isArray(payload.companies) ? payload.companies as ClientDirectoryItem[] : [],
+  };
+}
+
 export async function loadCompanyActivationStatus(): Promise<CompanyActivationStatus> {
   const context = await activeOrganizationId();
   if (!context.client || !context.organizationId) {

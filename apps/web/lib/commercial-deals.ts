@@ -280,9 +280,11 @@ async function loadPurchaseWindow(db: Db, organizationId: string) {
 }
 
 async function loadFromWindow(db: Db, organizationId: string, state: DealDeskState, pageSize: number): Promise<CommercialDealsPage> {
+  // COMM-CLIENTS1: Richieste d'offerta reads the sales side only.
+  const skip = { deals: [] as CommercialDeal[], unavailable: false, full: false };
   const [sales, purchase] = await Promise.all([
-    loadSalesWindow(db, organizationId).catch(() => ({ deals: [], unavailable: true, full: false })),
-    loadPurchaseWindow(db, organizationId).catch(() => ({ deals: [], unavailable: true, full: false })),
+    state.segment === "purchase" ? skip : loadSalesWindow(db, organizationId).catch(() => ({ deals: [], unavailable: true, full: false })),
+    state.segment === "sales" ? skip : loadPurchaseWindow(db, organizationId).catch(() => ({ deals: [], unavailable: true, full: false })),
   ]);
   const deals = [...sales.deals, ...purchase.deals];
   const view = pageFromDeals(deals, state, pageSize);
@@ -295,6 +297,26 @@ async function loadFromWindow(db: Db, organizationId: string, state: DealDeskSta
     truncated: sales.full || purchase.full,
     source: "window",
   };
+}
+
+/**
+ * COMM-CLIENTS1: purchase deals live in Centro RFQ. An old link to a purchase
+ * deal or document on /commercial (?item=campaign:…, quote:…, purchase-order:…,
+ * distinta:…) returns the page that now holds it; null for anything else.
+ * The lookup is filtered by organization and RLS like every other read.
+ */
+export async function purchaseItemHref(organizationId: string, item: string): Promise<string | null> {
+  const prefix = item.split(":")[0];
+  if (!["campaign", "quote", "purchase-order", "distinta"].includes(prefix)) return null;
+  const db = await createClient();
+  const key = await dealKeyFor(db, organizationId, item).catch(() => null);
+  if (key?.kind !== "campaign" && key?.kind !== "distinta") return appRoutes.rfqHub.home;
+  // Only a record the caller can read gets a deep link: an unknown key or one
+  // of another company lands on Centro RFQ, with no hint about what exists.
+  const table = key.kind === "campaign" ? "buyer_rfq_campaigns" : "buyer_distintas";
+  const { data } = await db.from(table).select("id").eq("organization_id", organizationId).eq("id", key.id).maybeSingle();
+  if (!data) return appRoutes.rfqHub.home;
+  return key.kind === "campaign" ? routes.campaign(key.id) : routes.distinta(key.id);
 }
 
 export async function loadCommercialDealsPage(organizationId: string, state: DealDeskState, pageSize: number): Promise<CommercialDealsPage> {

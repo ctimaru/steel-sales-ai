@@ -11,7 +11,7 @@ import { CommercialRequestSummary } from "@/components/commercial-request-summar
 import { CommercialUnifiedWorklist } from "@/components/commercial-unified-worklist";
 import { CommercialDirectorPriorityDesk } from "@/components/commercial-director-priority-desk";
 import { CommercialDealsDesk, DEALS_PAGE_SIZE } from "@/components/commercial-deals-desk";
-import { loadCommercialDealsPage } from "@/lib/commercial-deals";
+import { loadCommercialDealsPage, purchaseItemHref } from "@/lib/commercial-deals";
 import { parseDealDeskState } from "@/lib/commercial-deal-model";
 import type { CommercialOperationsTab } from "@/components/commercial-campaign-operations";
 import { loadUnifiedCommercialData, type CommercialView } from "@/lib/commercial-unified-data";
@@ -46,16 +46,22 @@ export default async function CommercialHomePage({
   const context = await getWorkspaceContext();
   const canWrite = canWriteWorkspace(context.role);
   // COMM-DEALS1: la pagina Commerciale è l'elenco delle trattative, una riga per
-  // trattativa. I vecchi parametri (view, focus, item, tab) vengono tradotti, così
+  // trattativa (da COMM-CLIENTS1: solo vendite, «Richieste d'offerta»). I vecchi parametri (view, focus, item, tab) vengono tradotti, così
   // sidebar, dashboard, chat e segnalibri restano validi. Composizione, contesto
   // Network e lista prospect restano schermate dedicate qui sotto.
   // ?experience=classic e COMM_DEALS_DESK_ENABLED=0 riportano la scrivania precedente.
   const dealsDesk = process.env.COMM_DEALS_DESK_ENABLED !== "0" && params.experience !== "classic" &&
     params.compose !== "1" && params.network === undefined && params.prospect === undefined && params.prospects !== "1";
   if (dealsDesk) {
-    const deskState = parseDealDeskState(params);
-    const operationTabs = ["compare", "negotiate", "award", "po"] as const;
-    const deskTab = operationTabs.find((option) => option === params.tab) ?? null;
+    // COMM-CLIENTS1 (19 Nov 2026): this page is «Richieste d'offerta», the
+    // sales side only. Purchase deals live in Centro RFQ: old links to them
+    // (segment, filters, ?item= of a campaign, quote, PO or distinta) go there.
+    const purchaseItem = typeof params.item === "string" ? await purchaseItemHref(context.organizationId, params.item.slice(0, 90)) : null;
+    if (purchaseItem) redirect(purchaseItem);
+    if (params.seg === "purchase" || params.view === "sent" || params.view === "drafts" || params.f === "drafts") {
+      redirect(appRoutes.rfqHub.home);
+    }
+    const deskState = { ...parseDealDeskState(params), segment: "sales" as const };
     const [deals, references] = await Promise.all([
       loadCommercialDealsPage(context.organizationId, deskState, DEALS_PAGE_SIZE),
       listPublicTubeDimensionPages(),
@@ -63,7 +69,7 @@ export default async function CommercialHomePage({
     return (
       <FocusPage compact className="max-w-[1480px]">
         <PilotEvent eventName="commercial_home_viewed" metadata={{ surface: "commercial_deals_desk" }} />
-        <CommercialDealsDesk data={deals} state={deskState} tab={deskTab} canWrite={canWrite} calculatorReferences={references} />
+        <CommercialDealsDesk data={deals} state={deskState} canWrite={canWrite} calculatorReferences={references} />
       </FocusPage>
     );
   }

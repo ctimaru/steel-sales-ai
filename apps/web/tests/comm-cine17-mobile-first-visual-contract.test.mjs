@@ -23,8 +23,8 @@ test("COMM-UX6.A reduces the industrial hero and keeps AI accessible on small sc
 test("COMM-CINE17 authenticated Chrome evidence covers the owner, viewer and mobile widths", () => {
   assert.match(chrome, /async function inspectViewer\(page, width\)/);
   assert.match(chrome, /"worklist-" \+ persona\.id \+ "-" \+ width \+ "px\.png"/);
-  assert.match(chrome, /"deal-detail-" \+ persona\.id \+ "-" \+ width \+ "px\.png"/);
+  // COMM-CLIENTS1: purchase deal details moved to Centro RFQ; no deal-detail capture on /commercial.
   assert.match(chrome, /getByTestId\("comm-cine11-prompt"\)/);
-  assert.match(legacy, /name: "Trattative", exact: true, level: 1/);
+  assert.match(legacy, /name: "Richieste d'offerta", exact: true, level: 1/);
   assert.doesNotMatch(legacy, /name: "Le mie trattative"/);
 });

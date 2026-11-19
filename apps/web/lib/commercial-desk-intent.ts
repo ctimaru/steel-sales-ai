@@ -20,23 +20,23 @@ const notDesk = /(prepara|preparami|crea|creami|aggiungi|nuova richiesta|nuova d
 
 const filters: ReadonlyArray<{ test: RegExp; params: Record<string, string>; label: string; description: string }> = [
   { test: /(in scadenza|scad(e|ono|ranno|enza|enze|ut[ae])|urgent[ei])/iu, params: { focus: "due" },
-    label: "In scadenza", description: "richieste dei clienti e RFQ ai fornitori ancora aperte che scadono entro 7 giorni" },
+    label: "In scadenza", description: "richieste dei clienti ancora aperte che scadono entro 7 giorni" },
   { test: /(da rispondere|devo rispondere|senza risposta|da evadere|devo fare|da fare|c['’]è da fare)/iu, params: { focus: "reply" },
     label: "Da rispondere", description: "richieste e ordini dei clienti ancora aperti" },
   { test: /(in attesa|aspett)/iu, params: { focus: "waiting" },
-    label: "In attesa", description: "offerte inviate, RFQ in raccolta e ordini emessi che aspettano una risposta" },
+    label: "In attesa", description: "offerte inviate che aspettano la risposta del cliente" },
   { test: /(bozz[ae]|distint[ae])/iu, params: { view: "drafts" },
-    label: "Bozze", description: "le distinte salvate" },
+    label: "Bozze", description: "le distinte salvate, nel Centro RFQ" },
   { test: /offert[ae]/iu, params: { view: "offers" },
-    label: "Offerte", description: "offerte commerciali e risposte dei fornitori" },
+    label: "Offerte", description: "offerte commerciali ai clienti" },
   { test: /ordin[ei]/iu, params: { view: "orders" },
-    label: "Ordini", description: "ordini dei clienti e ordini di acquisto" },
+    label: "Ordini", description: "ordini dei clienti" },
   { test: /(ricevut[ae]|dai clienti|dei clienti)/iu, params: { view: "received" },
     label: "Ricevute", description: "le richieste ricevute dai clienti" },
   { test: /(inviat[ae]|ai fornitori|\brfq\b|\brdo\b)/iu, params: { view: "sent" },
-    label: "Inviate", description: "le richieste inviate ai fornitori" },
+    label: "Inviate", description: "le RFQ inviate ai fornitori, nel Centro RFQ" },
   { test: /(tutt[eoi]|trattativ[ae]|attivit[aà]|richiest[ae])/iu, params: {},
-    label: "Tutte", description: "tutte le trattative, senza filtri" },
+    label: "Tutte", description: "tutte le richieste d'offerta, senza filtri" },
 ];
 
 export function commercialDeskIntent(input: string): CommercialDeskIntent | null {
@@ -48,8 +48,8 @@ export function commercialDeskIntent(input: string): CommercialDeskIntent | null
   const match = filters.find((filter) => filter.test.test(cleaned));
   if (!match) return null;
   return {
-    // I filtri «focus» valgono sulla vista predefinita: senza ?view il menu
-    // laterale resta su «Scrivania» invece di saltare a «Trattative».
+    // Richieste d'offerta mostra solo le vendite (COMM-CLIENTS1): bozze e RFQ
+    // inviate portano al Centro RFQ tramite il reindirizzamento di /commercial.
     href: HOME + (Object.keys(match.params).length ? "?" + new URLSearchParams(match.params).toString() : ""),
     label: match.label,
     description: match.description,

@@ -34,7 +34,7 @@ export default async function GlobalSearchPage({
         </div>
         <Link href={operationalSearchHref(initialQuery)}
           className="inline-flex min-h-10 items-center rounded-lg border border-[#cbdad1] bg-white px-3 text-xs font-semibold text-[#173f35] hover:bg-[#edf5f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#246c53]">
-          RFQ fornitori e bozze →
+          Richieste d'offerta →
         </Link>
       </header>
       <nav aria-label="Categorie ricerca commerciale" className="flex gap-1 overflow-x-auto rounded-lg border border-[#dce2df] bg-white p-1">

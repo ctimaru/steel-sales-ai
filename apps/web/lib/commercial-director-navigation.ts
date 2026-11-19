@@ -10,8 +10,8 @@ export type CommercialDirectorItem = {
   href: string;
   /** Visibile solo alla Direzione Aziendale (amministratori). */
   adminOnly?: boolean;
-  /** RFQHUB1: number of things to do, loaded on the client. */
-  counter?: "purchasing_attention";
+  /** Number of things to do, loaded on the client (RFQHUB1, COMM-CLIENTS1). */
+  counter?: "purchasing_attention" | "sales_attention";
 };
 export type CommercialDirectorSection = {
   key: "commercial" | "purchasing";
@@ -30,15 +30,6 @@ export type CommercialDirectorGroup = {
 
 export const commercialDirectorGroups: readonly CommercialDirectorGroup[] = [
   {
-    key: "desk",
-    label: "Scrivania",
-    description: "Situazione e prossime azioni",
-    items: [
-      { label: "Scrivania", href: appRoutes.commercial.home },
-    ],
-    moreItems: [],
-  },
-  {
     // Direzione Aziendale assegna i profili. Ogni ufficio vede anche l'altro:
     // il profilo decide dove si può scrivere, non cosa si può consultare.
     key: "direction",
@@ -53,11 +44,12 @@ export const commercialDirectorGroups: readonly CommercialDirectorGroup[] = [
         key: "commercial",
         label: "Ufficio commerciale",
         items: [
-          // Filter links stay inside the Commerciale worklist, not duplicated in the sidebar.
-          { label: "Trattative", href: appRoutes.commercial.home + "?view=all#commercial-worklist" },
-          { label: "Aziende", href: appRoutes.commercial.companies },
-          { label: "Riattivazione clienti", href: appRoutes.commercial.reengagement },
-          { label: "Relazioni collegate", href: appRoutes.commercial.crossThreadRelationships },
+          // COMM-CLIENTS1 (19 Nov 2026): the office mirrors Ufficio acquisti
+          // (Centro RFQ + Fornitori). «Scrivania» is gone: Commerciale opens on
+          // Richieste d'offerta. Riattivazione clienti and Relazioni collegate
+          // stay reachable from Analisi commerciale.
+          { label: "Richieste d'offerta", href: appRoutes.commercial.home, counter: "sales_attention" },
+          { label: "Clienti", href: appRoutes.commercial.companies },
         ],
       },
       {
@@ -111,44 +103,29 @@ export function commercialDirectorAllItems(group: CommercialDirectorGroup) {
 }
 
 /**
- * Preserve canonical deep links. For filtered worklists only the explicit
- * ?view=... item is selected; anchors are shortcuts to the same homepage.
+ * Preserve canonical deep links. Every screen of /commercial (any ?view=, the
+ * Network prospect screens) and the sales documents (RDO, offers, orders)
+ * belong to «Richieste d'offerta»; campaigns and conversations to Centro RFQ.
  */
 export function commercialDirectorLinkSelected(
   href: string,
   pathname: string,
-  view: string | null,
+  // Kept for callers: worklist filters no longer change the selected item.
+  _view: string | null,
 ): boolean {
   const [pathWithQuery] = href.split("#");
-  const [path, search] = pathWithQuery.split("?");
-  const expectedView = new URLSearchParams(search ?? "").get("view");
+  const [path] = pathWithQuery.split("?");
   const isPath = (base: string) => pathname === base || pathname.startsWith(base + "/");
 
-  // Deal detail pages and legacy bookmarks must retain the correct director
-  // context. Their URLs don't carry the homepage ?view filter.
-  const worklistLink = path === appRoutes.commercial.home
-    && expectedView === "all" && href.endsWith("#commercial-worklist");
-  if (isPath("/commercial/offers") || isPath("/offers")) {
-    return worklistLink;
-  }
-  if (isPath("/commercial/orders") || isPath("/orders")) {
-    return worklistLink;
-  }
-  if (isPath("/commercial/rfqs") || isPath("/rfqs")) {
-    return path === appRoutes.rfqHub.home;
+  const salesDocument = ["/commercial/offers", "/offers", "/commercial/orders", "/orders", "/commercial/rfqs", "/rfqs"]
+    .some(isPath);
+  if (salesDocument || pathname === appRoutes.commercial.home) {
+    // Only the list itself: shortcuts such as «Calcolatrice pesi» (?tools=1)
+    // open a panel on the same page and are never the current location.
+    return href === appRoutes.commercial.home;
   }
   if (isPath("/commercial/conversations") || isPath("/conversations")) {
     return path === appRoutes.rfqHub.home;
-  }
-
-  if (pathname === appRoutes.commercial.home && path === pathname) {
-    // All worklist filters (received/sent/offers/orders/drafts) share one item.
-    // Existing ?view= URLs are unchanged and remain directly bookmarkable.
-    if (worklistLink) {
-      return view !== null && ["all", "received", "sent", "offers", "orders", "drafts"].includes(view);
-    }
-    if (expectedView !== null) return expectedView === view;
-    return view === null && !href.includes("#");
   }
   if (path === appRoutes.commercial.home) return false;
 

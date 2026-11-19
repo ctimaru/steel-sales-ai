@@ -50,7 +50,7 @@ try {
       await page.goto(origin + "/commercial", { waitUntil: "domcontentloaded", timeout: 90000 });
       // COMM-DEALS1: Commerciale is the deal list; the assistant is closed in one row
       // above the table so the deals start in the first viewport on every width.
-      await page.getByRole("heading", { name: "Trattative", exact: true, level: 1 })
+      await page.getByRole("heading", { name: "Richieste d'offerta", exact: true, level: 1 })
         .waitFor({ state: "visible", timeout: 60000 });
       const deals = page.getByTestId("commercial-deals-list");
       await deals.waitFor({ state: "visible", timeout: 60000 });
