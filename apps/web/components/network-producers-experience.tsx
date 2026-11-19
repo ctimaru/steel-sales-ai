@@ -4,6 +4,7 @@ import Form from "next/form";
 import Link from "next/link";
 import {useState,type ReactNode} from "react";
 import {EU_MEMBER_COUNTRIES,OTHER_NETWORK_COUNTRIES,networkCountryName} from "@/lib/network-eu-countries";
+import {EuProducerIntelligenceChat} from "@/components/eu-producer-intelligence-chat";
 
 import type {NetworkProDirectoryResult} from "@/lib/network-pro-coverage";
 import type {NetworkProducerCatalogLink} from "@/lib/network-producer-catalogs";
@@ -149,6 +150,8 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
         <strong>Intelligence Europa · {technicalClaims.length} evidenze con fonte in questa pagina.</strong>
         {" "}Osservate sul sito ufficiale, non ancora confermate dal produttore; nessuna combinazione norma, grado, dimensione e spessore viene dedotta.
       </div>:null}
+
+    <EuProducerIntelligenceChat/>
 
     <Link href="/network/cataloghi"
       className="flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-[16px] border border-[#bedac8] bg-[#f2f9f4] px-4 py-3 text-xs font-bold text-[#1b6044] hover:bg-[#e8f4ec]">
