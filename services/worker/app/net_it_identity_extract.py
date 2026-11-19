@@ -59,12 +59,105 @@ _BOILERPLATE = {
     "iva", "p.iva", "codice", "fiscale", "regolamento", "copyright", "diritti",
     "riservati", "rights", "reserved", "accetta", "accetto", "rifiuta", "impostazioni",
     "chiudi", "leggi", "scopri", "richiedi", "preventivo", "catalogo", "download", "faq",
-    "approfondisci",
+    "approfondisci", "continua", "rivista", "contrada", "via", "viale",
+    "zona", "artigianale", "industriale", "abruzzo", "lombardia", "piemonte",
+    "veneto", "lazio", "toscana", "puglia", "calabria", "campania", "sicilia",
+    "sardegna",
     "careers", "english", "italiano",
     # buttons and widgets flattened into the footer line
     "info", "pulsante", "button", "clicca", "click", "vai", "torna", "top",
     "apri", "chiudi", "invia", "scarica", "visita", "seguici", "condividi",
 }
+
+# GROWTH8: use the same fail-closed quality signals as AUTO3.
+# These phrases arise when a CMS concatenates buttons, place names and
+# addresses into a plausible-looking company name with a legal suffix.
+# Never auto-replace such a string without separate first-party identity proof.
+_GROWTH8_NOISE = re.compile(
+    r"(?i)(?:^(?:continua|leggere\s+di\s+pi[uù]|rivista|dal\s+(?:19|20)\d{2})\b|"
+    r"\b(?:zona\s+artigianale|zona\s+industriale|contrada|c\.?\s*da|"
+    r"via\s+[A-Za-zÀ-ÿ]|viale\s+[A-Za-zÀ-ÿ])\b|"
+    r"^(?:abruzzo|piemonte|lombardia|veneto|lazio|puglia|calabria|"
+    r"campania|toscana|sicilia|sardegna)\s+(?:la|il|lo|le|i|gli)\s+)"
+)
+
+
+def legal_name_is_clean(name: str) -> bool:
+    """Reject flattened UI/addresses, not genuine standalone legal company names.
+
+    This is a conservative quality check, not an identity or rights grant.
+    A rejected name can be replaced only with separately corroborated
+    first-party evidence. Existing AUTO3 corporate/person restrictions apply.
+    """
+    value = " ".join(unescape(name or "").split())
+    return bool(
+        3 <= len(value) <= 255
+        and not _GROWTH8_NOISE.search(value)
+        and not is_civic_snc_address(value)
+        and not re.search(r"(?i)\b(?:contattaci|chiama\s+ora|scarica|"
+                          r"clicca|visualizza|leggere\s+di\s+pi[uù])\b", value)
+        and not re.search(r"(?i)\b(?:www\.|https?://|\.(?:it|com|eu|net)\b)", value)
+    )
+
+
+def _structured_legal_names(pages: list[dict[str, object]], domain: str,
+                            first_guess: str, texts: list[str]) -> list[str]:
+    """Trust only same-domain Organization.legalName corroborated in BODY text."""
+    from urllib.parse import urlsplit
+
+    legal_names: list[str] = []
+    for root in pages[:20]:
+        if not isinstance(root, dict):
+            continue
+        queue = [root]
+        for _ in range(20):  # prevent unbounded nested @graph traversal
+            if not queue:
+                break
+            node = queue.pop(0)
+            if not isinstance(node, dict):
+                continue
+            for key in ("@graph",):
+                nested = node.get(key)
+                if isinstance(nested, list):
+                    queue.extend(x for x in nested[:15] if isinstance(x, dict))
+                elif isinstance(nested, dict):
+                    queue.append(nested)
+            types = node.get("@type", [])
+            types = [types] if isinstance(types, str) else types
+            if not isinstance(types, list) or not any(
+                str(kind).casefold().split("/")[-1] in
+                {"organization", "corporation", "localbusiness"}
+                for kind in types
+            ):
+                continue
+            name = node.get("legalName")
+            if not isinstance(name, str) or not legal_name_is_clean(name):
+                continue
+            name = " ".join(unescape(name).split())
+            if not _FORM.search(name):
+                continue
+            root_url = node.get("url")
+            if root_url:
+                if not isinstance(root_url, str):
+                    continue
+                parsed = urlsplit(root_url)
+                if parsed.scheme != "https" or not parsed.hostname or (
+                        parsed.hostname.casefold().removeprefix("www.")
+                        != domain.casefold().removeprefix("www.")):
+                    continue
+            core = _FORM.sub("", name).strip(" ,.-")
+            if not _related(core, domain, first_guess):
+                continue
+            # JSON-LD alone may describe a partner; corroborate the exact legal
+            # name in the text of the same company's own fetched pages.
+            normalized = " ".join(name.casefold().split())
+            if not any(normalized in " ".join(unescape(t).casefold().split())
+                       for t in texts):
+                continue
+            legal_names.append(name)
+    return legal_names
+
+
 # "SNC" is also "senza numero civico" in Italian addresses. A street is
 # never sufficient first-party evidence of a società in nome collettivo.
 _STREET_ADDRESS_SNC = re.compile(
@@ -213,7 +306,9 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
 
 
 def find_company_identity(page_texts: list[str], domain: str,
-                          first_guess: str) -> CompanyIdentity | None:
+                          first_guess: str,
+                          structured_data: list[dict[str, object]] | None = None
+                          ) -> CompanyIdentity | None:
     """Best company name (with S.r.l./S.r.l.s./S.p.A./S.n.c./S.a.s.) printed on
     the site's own pages that belongs to this domain, or None."""
     totals: dict[str, CompanyIdentity] = {}
@@ -238,6 +333,8 @@ def find_company_identity(page_texts: list[str], domain: str,
             score = 1 + (3 if _IDENTITY_CUES.search(context) else 0)
             vat = _VAT_AFTER.search(text[match.end():match.end() + 200])
             name = f"{core} {match.group(1).strip()}"
+            if not legal_name_is_clean(name):
+                continue
             key = _compact(name)
             previous = totals.get(key)
             if previous:
@@ -246,6 +343,14 @@ def find_company_identity(page_texts: list[str], domain: str,
                                               previous.score + score)
             else:
                 totals[key] = CompanyIdentity(name, vat.group(1) if vat else None, score)
+    # Explicit legalName from same-site JSON-LD outranks noisy text extraction,
+    # but only when the official BODY also corroborates the same full name.
+    for name in _structured_legal_names(structured_data or [], domain,
+                                        first_guess, page_texts):
+        key = _compact(name)
+        previous = totals.get(key)
+        totals[key] = CompanyIdentity(name, previous.vat_id if previous else None,
+                                      (previous.score if previous else 0) + 8)
     if not totals:
         return None
     best = max(totals.values(), key=lambda i: (i.score, len(i.legal_name)))
