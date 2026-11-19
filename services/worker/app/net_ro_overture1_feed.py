@@ -35,7 +35,9 @@ NONINDUSTRIAL_REGEX = (
     r"(hotel|motel|resort|hostel|restaurant|pensiun|cafenea|cafe"
     r"|bubble.?tea|salon|cosmetic|beauty|epil|gym|fitness"
     r"|muze|museum|biseric|church|scoal|școal|school"
-    r"|laser.?tag|barber|spa|dent|stomat|clinic|dermat|chirurg"\n    r"|estet|fotbal|football|stadion|printer|imprimant|toner|cartu"\n    r"|detecto|laser.?game|lasertime|metalul.?buz)"
+    r"|laser.?tag|barber|spa|dent|stomat|clinic|dermat|chirurg"
+    r"|estet|fotbal|football|stadion|printer|imprimant|toner|cartu"
+    r"|detecto|laser.?game|lasertime|metalul.?buz)"
 )
 NAME_HINT = re.compile(NAME_HINT_REGEX, re.I)
 NONINDUSTRIAL = re.compile(NONINDUSTRIAL_REGEX, re.I)
