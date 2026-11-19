@@ -20,6 +20,7 @@ import httpx
 from .net_pro_producers_catalog_b1 import CatalogueRejected
 from .net_pro_producers_catalog_b3 import verify_authorised_csv
 from .net_pro_producers_catalog_b3b_pdf import stage_authorised_pdf
+from .net_pro_producers_catalog_e2_pdf_verify import verify_authorised_pdf
 from .supabase_credentials import get_supabase_admin_key, supabase_admin_headers
 
 QUEUE_NAME = "netproducers1_b3c_catalog_queue"
@@ -121,7 +122,12 @@ async def _consume(db: Any, lease: dict) -> dict:
         if verified["format"] == "csv":
             parsed = verify_authorised_csv(db, manifest, content)
         else:
-            parsed = stage_authorised_pdf(db, manifest, content)
+            # Opt-in only after E2 migration and a pinned Railway worker deploy.
+            # Every job still requires real B2 rights and private Storage bytes.
+            if os.getenv("NETPRODUCERS_E2_PDF_VERIFY_ENABLED") == "1":
+                parsed = verify_authorised_pdf(db, manifest, content)
+            else:
+                parsed = stage_authorised_pdf(db, manifest, content)
     except CatalogueRejected as exc:
         # Do not expose doc content or grant identifiers to logs.
         message = str(exc).lower()
@@ -152,7 +158,7 @@ async def drain_authorised_catalogues(db: Any, *, limit: int = 2) -> dict:
             or response["count"] != len(jobs) or len(jobs) > limit):
         raise IntakeFailure("rpc_rejected")
 
-    completed = failed = pending_rows = verified_csv = 0
+    completed = failed = pending_rows = verified_csv = verified_pdf = 0
     for lease in jobs:
         if not isinstance(lease, dict):
             raise IntakeFailure("rpc_rejected")
@@ -172,7 +178,10 @@ async def drain_authorised_catalogues(db: Any, *, limit: int = 2) -> dict:
                 raise IntakeFailure("rpc_rejected")
             completed += 1
             pending_rows += output["candidate_rows"]
-            verified_csv += output["source_verified"]
+            if output["format"] == "pdf":
+                verified_pdf += output["source_verified"]
+            else:
+                verified_csv += output["source_verified"]
         except IntakeFailure as exc:
             reply = _queue_rpc(db, "fail", {
                 **credentials, "error_code": exc.error_code,
@@ -195,7 +204,7 @@ async def drain_authorised_catalogues(db: Any, *, limit: int = 2) -> dict:
         "jobs_failed": failed,
         "private_candidate_rows": pending_rows,
         "source_verified_csv_rows": verified_csv,
-        "pdf_source_verified_rows": 0,
+        "pdf_source_verified_rows": verified_pdf,
         "published_claims": 0,
         "manufacturer_confirmed": 0,
     }
