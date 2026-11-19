@@ -30,6 +30,14 @@ begin
 exception when others then return sqlerrm;
 end;
 $f$;
+create or replace function pg_temp.c2c_confirm_error(org uuid, dispatch uuid)
+returns text language plpgsql as $f$
+begin
+  perform public.comm_cycle2c_confirm_sent(org,dispatch);
+  return 'ACCEPTED';
+exception when others then return sqlerrm;
+end;
+$f$;
 create or replace function pg_temp.c2c_save_error(org uuid,offer uuid)
 returns text language plpgsql as $f$
 begin
@@ -69,7 +77,7 @@ values('00000000-0000-0000-0000-00000000c421',
  '00000000-0000-0000-0000-00000000c4f1',
  '00000000-0000-0000-0000-00000000c411',10,'t','EN10219 S355');
 create temporary table c2c_results(label text primary key,value text) on commit drop;
-grant all on c2c_results to authenticated;
+grant all on c2c_results to authenticated,service_role;
 
 set local role authenticated;
 select pg_temp.c2c_as('00000000-0000-0000-0000-00000000c4a1');
@@ -95,14 +103,36 @@ insert into c2c_results values ('double',pg_temp.c2c_reserve_error(
 insert into c2c_results values ('frozen',pg_temp.c2c_save_error(
   '00000000-0000-0000-0000-00000000c4f1',
   (select value::uuid from c2c_results where label='offer')));
+-- The authenticated application role must never attest provider acceptance:
+-- only the server (service role) may record the verified Resend response.
+insert into c2c_results values ('forged_acceptance',pg_temp.c2c_finish_error(
+  '00000000-0000-0000-0000-00000000c4f1',
+  (select value::uuid from c2c_results where label='first')));
+
+set local role service_role;
+select set_config('request.jwt.claim.role','service_role',true);
+select set_config('request.jwt.claims','{"role":"service_role"}',true);
 select public.comm_cycle2c_complete_email(
  '00000000-0000-0000-0000-00000000c4f1',
  (select value::uuid from c2c_results where label='first'),'failed');
+set local role authenticated;
+select pg_temp.c2c_as('00000000-0000-0000-0000-00000000c4a1');
+
 insert into c2c_results values ('retry',(
   public.comm_cycle2c_reserve_email(
     '00000000-0000-0000-0000-00000000c4f1',
     (select value::uuid from c2c_results where label='offer'),1,
     'cliente@example.test','Offerta S355',repeat('b',64))->>'dispatch_id'));
+
+-- User cannot change status even if the resend ID is guessed.
+insert into c2c_results values ('unverified_confirm',pg_temp.c2c_confirm_error(
+  '00000000-0000-0000-0000-00000000c4f1',
+  (select value::uuid from c2c_results where label='retry')));
+
+
+set local role service_role;
+select set_config('request.jwt.claim.role','service_role',true);
+select set_config('request.jwt.claims','{"role":"service_role"}',true);
 select public.comm_cycle2c_complete_email(
  '00000000-0000-0000-0000-00000000c4f1',
  (select value::uuid from c2c_results where label='retry'),
@@ -110,6 +140,18 @@ select public.comm_cycle2c_complete_email(
 insert into c2c_results values ('replayed',pg_temp.c2c_finish_error(
   '00000000-0000-0000-0000-00000000c4f1',
   (select value::uuid from c2c_results where label='retry')));
+set local role authenticated;
+select pg_temp.c2c_as('00000000-0000-0000-0000-00000000c4a1');
+
+insert into c2c_results values ('provider_recorded_before_status',
+ (select status from public.offers
+  where id=(select value::uuid from c2c_results where label='offer')));
+select public.comm_cycle2c_confirm_sent(
+  '00000000-0000-0000-0000-00000000c4f1',
+  (select value::uuid from c2c_results where label='retry'));
+select public.comm_cycle2c_confirm_sent(
+  '00000000-0000-0000-0000-00000000c4f1',
+  (select value::uuid from c2c_results where label='retry'));
 
 select pg_temp.c2c_as('00000000-0000-0000-0000-00000000c4a2');
 insert into c2c_results values ('purchasing',pg_temp.c2c_reserve_error(
@@ -124,6 +166,12 @@ insert into c2c_results values ('other_tenant_visibility',
   where organization_id='00000000-0000-0000-0000-00000000c4f1'));
 reset role;
 
+select pg_temp.c2c_assert((select value <> 'ACCEPTED' from c2c_results
+  where label='forged_acceptance'), 'authenticated caller cannot forge provider acceptance');
+select pg_temp.c2c_assert((select value like '%provider non ha confermato%' from c2c_results
+  where label='unverified_confirm'), 'no sent status before verified provider acceptance');
+select pg_temp.c2c_assert((select value='draft' from c2c_results
+  where label='provider_recorded_before_status'), 'verified provider alone does not bypass authenticated cycle');
 select pg_temp.c2c_assert((select value like '%invio già avviato%' from c2c_results where label='double'),
   'duplicate concurrent send refused');
 select pg_temp.c2c_assert((select value like '%bloccate durante l''invio%' or value like '%bloccata durante l''invio%' from c2c_results where label='frozen'),
@@ -148,4 +196,12 @@ select pg_temp.c2c_assert(
   (select not has_function_privilege('anon',oid,'EXECUTE')
    from pg_proc where oid=to_regprocedure('public.comm_cycle2c_reserve_email(uuid,uuid,integer,text,text,text)')),
  'anon cannot reserve');
+select pg_temp.c2c_assert(
+  (select not has_function_privilege('authenticated',oid,'EXECUTE')
+   from pg_proc where oid=to_regprocedure('public.comm_cycle2c_complete_email(uuid,uuid,text,text)')),
+  'provider confirmation not callable by authenticated users');
+select pg_temp.c2c_assert(
+  (select has_function_privilege('service_role',oid,'EXECUTE')
+   from pg_proc where oid=to_regprocedure('public.comm_cycle2c_complete_email(uuid,uuid,text,text)')),
+  'service can register provider results');
 rollback;
