@@ -107,6 +107,27 @@ try{
           const barBox=await bar.boundingBox();
           if(width<1024)assert.ok(barBox && barBox.height<70,
             "Mobile compare must fit a single compact row: "+JSON.stringify(barBox));
+          const mobile=page.getByTestId("producer-compare-mobile");
+          const desktop=page.getByTestId("producer-compare-desktop");
+          if(width<768){
+            assert.equal(await mobile.isVisible(),true,"Phone compare must use vertical cards");
+            assert.equal(await desktop.isVisible(),false,"580px matrix must stay hidden on phones");
+            assert.equal(await mobile.locator("article").count(),1);
+            await mobile.scrollIntoViewIfNeeded();
+            const layout=await mobile.evaluate(el=>({
+              width:el.getBoundingClientRect().width,
+              viewport:document.documentElement.clientWidth,
+              scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,
+            }));
+            assert.ok(layout.width<=layout.viewport&&layout.scrollWidth<=layout.clientWidth+2,
+              "Mobile comparison must not scroll horizontally: "+JSON.stringify(layout));
+            checks+=4;
+          }else{
+            assert.equal(await mobile.isVisible(),false);
+            assert.equal(await desktop.isVisible(),true);
+            await desktop.scrollIntoViewIfNeeded();
+            checks+=2;
+          }
           await checkOverflow(page,"compare-"+width);
           await screenshot(page,width,"compare");
           checks+=2;
