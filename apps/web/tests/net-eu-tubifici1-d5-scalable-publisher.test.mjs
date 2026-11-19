@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-const sql=readFileSync(new URL("../../../supabase/migrations/20261119090000_net_eu_tubifici1_d5_automatic_source_operators.sql",import.meta.url),"utf8");
+const sql=readFileSync(new URL("../../../supabase/migrations/20261119093000_net_eu_tubifici1_d5_automatic_source_operators.sql",import.meta.url),"utf8");
 test("EU1.D5 source verified backlog: eleven canonical factory operators only, no group aliases",()=>{
  const operators=[
 "BENTELER Steel/Tube GmbH & Co. KG",
