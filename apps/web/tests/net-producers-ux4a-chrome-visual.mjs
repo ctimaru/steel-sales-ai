@@ -80,7 +80,12 @@ try{
       const chat=page.getByTestId("eu-producer-intelligence-chat");
       const heading=await chat.boundingBox();
       assert.ok(heading&&heading.y<750,"AI search must remain above fold");
-      checks+=4;
+      const input=page.locator("#eu-producer-technical-question");
+      const inputBox=await input.boundingBox();
+      const viewportHeight=page.viewportSize()?.height??720;
+      assert.ok(inputBox&&inputBox.y+inputBox.height<viewportHeight-55,
+        "Input must be tappable above mobile bottom navigation: "+JSON.stringify({width,inputBox,viewportHeight}));
+      checks+=5;
       await checkOverflow(page,"initial-"+width);
       await screenshot(page,width,"first-screen");
       await screenshot(page,width,"full");
@@ -118,6 +123,9 @@ try{
     });
     assert.equal(await page.getByTestId("network-producers-list").count(),0,
       "Unentitled organization must not see producer list");
+    const unlock=page.getByRole("link",{name:"Scopri il modulo Produttori"});
+    const textFill=await unlock.evaluate(el=>getComputedStyle(el).webkitTextFillColor);
+    assert.equal(textFill,"rgb(255, 255, 255)","Locked CTA text must contrast with green background");
     await screenshot(page,390,"locked");
     assert.deepEqual(errors,[]);
     checks+=3;
