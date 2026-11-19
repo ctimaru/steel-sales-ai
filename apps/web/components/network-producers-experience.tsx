@@ -184,7 +184,8 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
         <button type="submit" className="min-h-12 rounded-xl bg-[#175640] px-6 text-sm font-bold text-white hover:bg-[#10452f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">Cerca</button>
       </Form>
       <p className="mt-3 text-xs leading-5 text-[#5d7262]">
-        La ricerca tecnica per norma, grado e dimensione esatta richiede cataloghi con\n        combinazioni esplicite. Cerca ora per azienda o dominio, poi confronta norme, gradi,
+        La ricerca tecnica per norma, grado e dimensione esatta richiede cataloghi con
+        combinazioni esplicite. Cerca ora per azienda o dominio, poi confronta norme, gradi,
         sezioni e intervalli osservati sulle fonti ufficiali: non equivalgono a SKU disponibili
         né a conferme del produttore. La ricerca trasversale per specifiche esatte richiede
         ancora documenti che le associno esplicitamente.
