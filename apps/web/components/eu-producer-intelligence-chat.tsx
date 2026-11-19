@@ -145,6 +145,7 @@ export function EuProducerIntelligenceChat(){
                     </ul>
                     <div className="mt-2 flex flex-wrap gap-3">
                       <Link href={newRequestHref({network:company.companyId,fromNetwork:true})}
+                        style={{color:"#ffffff",WebkitTextFillColor:"#ffffff"}}
                         onClick={()=>{
                           try{window.sessionStorage.setItem(HANDOFF,requestForDistinta(turn));}
                           catch{/* Receiving editor remains available without automatic import. */}
