@@ -60,7 +60,7 @@ function PageLink({label,query,country,page}:{label:string;query:string;country:
 
 const technicalKinds:{kind:ProducerEvidenceKind;label:string}[]=[
   {kind:"manufacturing_process",label:"Processo produttivo"},
-  {kind:"technical_standard",label:"Norme dichiarate"},
+  {kind:"technical_standard",label:"Norme dalle fonti"},
   {kind:"steel_grade",label:"Gradi indicati"},
   {kind:"section_shape",label:"Sezioni"},
   {kind:"dimension_range",label:"Gamme dimensionali"},
@@ -144,6 +144,12 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
       </div>
     </header>
 
+    {country!=="IT"&&technicalClaims!==null&&technicalClaims.length>0?
+      <div className="rounded-xl border border-[#c9dfd0] bg-[#f2f9f4] px-4 py-3 text-xs leading-5 text-[#20533b]" data-testid="network-producers-eu-evidence">
+        <strong>Intelligence Europa · {technicalClaims.length} evidenze con fonte in questa pagina.</strong>
+        {" "}Osservate sul sito ufficiale, non ancora confermate dal produttore; nessuna combinazione norma, grado, dimensione e spessore viene dedotta.
+      </div>:null}
+
     <Link href="/network/cataloghi"
       className="flex min-h-11 flex-wrap items-center justify-between gap-2 rounded-[16px] border border-[#bedac8] bg-[#f2f9f4] px-4 py-3 text-xs font-bold text-[#1b6044] hover:bg-[#e8f4ec]">
       <span>Cataloghi e dati tecnici pubblici · In attesa di conferma dal produttore</span>
@@ -178,8 +184,11 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
         <button type="submit" className="min-h-12 rounded-xl bg-[#175640] px-6 text-sm font-bold text-white hover:bg-[#10452f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">Cerca</button>
       </Form>
       <p className="mt-3 text-xs leading-5 text-[#5d7262]">
-        La ricerca tecnica per norma, grado e dimensione sarà attiva dopo il
-        collegamento ai cataloghi con fonte. Non vengono inferite capacità o misure.
+        La ricerca tecnica per norma, grado e dimensione esatta richiede cataloghi con
+        combinazioni esplicite. Cerca ora per azienda o dominio, poi confronta norme, gradi,
+        sezioni e intervalli osservati sulle fonti ufficiali: non equivalgono a SKU disponibili
+        né a conferme del produttore. La ricerca trasversale per specifiche esatte richiede
+        ancora documenti che le associno esplicitamente.
       </p>
     </section>
 

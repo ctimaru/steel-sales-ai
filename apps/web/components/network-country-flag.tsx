@@ -2,8 +2,8 @@
  * Chrome/Windows commonly renders 🇮🇹 as the letters "IT".
  * Country names remain the accessible text next to these decorative icons.
  */
-export type NetworkFlagCountry="IT"|"RO"|"DE"|"FR"|"ES"|"US"|"GB"|"CH";
-const supported=new Set<string>(["IT","RO","DE","FR","ES","US","GB","CH"]);
+export type NetworkFlagCountry="IT"|"RO"|"DE"|"FR"|"ES"|"US"|"GB"|"CH"|"RS"|"TR"|"UA";
+const supported=new Set<string>(["IT","RO","DE","FR","ES","US","GB","CH","RS","TR","UA"]);
 // Offline, local SVGs for the remaining 22 EU member states.
 // Source: lipis/flag-icons (MIT); license in public/network-flags/LICENSE.
 const localSvgFlags=new Set<string>(["AT","BE","BG","CY","HR","DK","EE","FI","GR","IE","LV","LT","LU","MT","NL","PL","PT","CZ","SK","SI","SE","HU"]);
@@ -34,6 +34,23 @@ function FlagShapes({country}:{country:NetworkFlagCountry}){
       <rect width="24" height="16" fill="#aa151b"/>
       <rect y="4" width="24" height="8" fill="#f1bf00"/>
       <rect x="8" y="6" width="1.2" height="4" fill="#aa151b"/>
+    </>;
+    case "UA":return <>
+      <rect width="24" height="8" fill="#0057b7"/>
+      <rect y="8" width="24" height="8" fill="#ffd700"/>
+    </>;
+    case "RS":return <>
+      <rect width="24" height="5.34" fill="#c6363c"/>
+      <rect y="5.33" width="24" height="5.34" fill="#0c4076"/>
+      <rect y="10.66" width="24" height="5.34" fill="#fff"/>
+      <path d="M6.3 3h6.2v6l-3.1 3-3.1-3Z" fill="#fff" stroke="#c6363c" strokeWidth=".6"/>
+      <path d="M9.4 5.1V10M7.4 7.2h4" stroke="#c6363c" strokeWidth="1.2"/>
+    </>;
+    case "TR":return <>
+      <rect width="24" height="16" fill="#e30a17"/>
+      <circle cx="10" cy="8" r="5" fill="#fff"/>
+      <circle cx="11.8" cy="8" r="4" fill="#e30a17"/>
+      <path d="m15.8 4.1.8 2.5h2.6l-2.1 1.5.8 2.4-2.1-1.5-2.1 1.5.8-2.4-2.1-1.5H15Z" fill="#fff"/>
     </>;
     case "CH":return <>
       <rect width="16" height="16" fill="#da291c"/>

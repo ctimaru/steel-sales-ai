@@ -66,7 +66,8 @@ export function parseProducerTechnicalClaims(input:unknown):NetworkProducerTechn
 
 /**
  * Caller must pass IDs from the authorized scoped producer directory.
- * Supabase checks tenant/organization and current producer+IT subscription again.
+ * Supabase checks tenant/organization plus current producer+country access again.
+ * EU includes source-observed technical claims but never infers orderable SKUs.
  * Never use a service role, cache a cross-tenant result, or query the table.
  */
 export async function getProducerTechnicalClaims(
@@ -81,7 +82,7 @@ export async function getProducerTechnicalClaims(
       ?await db.rpc("netproducers1_technical_claims",{
         p_organization_id:organizationId,p_company_ids:ids,
       })
-      :await db.rpc("net_eu_tubifici1_c2_factory_claims",{
+      :await db.rpc("net_eu_tubifici1_d5d_technical_claims",{
         p_organization_id:organizationId,p_country:country,p_company_ids:ids,
       });
     if(error)return null;
