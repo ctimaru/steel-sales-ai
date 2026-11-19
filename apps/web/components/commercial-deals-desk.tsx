@@ -155,6 +155,12 @@ async function DealDetail({ deal, state, canWrite }: {
         <div className="mt-2"><Steps deal={deal} labelled /></div>
         <h3 id="commercial-deal-next" className={"mt-1 text-base font-semibold " + actionTone[deal.bucket]}>{outcomeText(deal.outcome) || deal.action}</h3>
         {due ? <p className={"mt-0.5 text-xs " + (isDealDue(deal, now) ? "font-semibold text-[#9a3412]" : "text-[#5c7063]")}>{due}</p> : null}
+        {deal.kind === "inbound-rfq" && canWrite && !deal.outcome && !deal.cycle?.order ? (
+          <Link href={appRoutes.commercial.rfq(deal.id)} data-testid="commercial-offer-editor-link"
+            className="mt-2 inline-flex min-h-10 items-center rounded-lg border border-[#a9d3b9] bg-white px-3 text-xs font-semibold !text-[#175640] hover:bg-[#ebf7ef]">
+            Prepara / modifica l'offerta →
+          </Link>
+        ) : null}
         {hasCycle ? (
           // COMM-CYCLE1: le azioni si fanno qui; il documento resta a un clic.
           <div className="mt-3 space-y-2">
