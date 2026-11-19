@@ -348,18 +348,15 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
       </section>
       {selectedCompanies.length>0?<section id="producer-compare" aria-labelledby="producer-compare-title"
         className="scroll-mt-24 overflow-hidden rounded-[20px] border border-[#c9ded0] bg-white">
-        <div className="border-b border-[#e0ebe3] bg-[#f4f9f5] p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 id="producer-compare-title" className="text-base font-extrabold text-[#153f2d]">Confronto produttori</h2>
-              <p className="mt-1 text-xs leading-5 text-[#5b7463]">
-                Norme, processi e gamme riportati con link alle pagine ufficiali.
-                Le misure sono intervalli indicativi: non dimostrano una specifica combinazione
-                di diametro, spessore e grado, né stock o capacità disponibile.
-              </p>
-            </div>
-            <button type="button" onClick={clearSelection} className="min-h-10 text-xs font-bold text-[#185740] underline">Svuota</button>
+        <div className="border-b border-[#e0ebe3] bg-[#f4f9f5] p-3 sm:p-4">
+          <div className="flex items-center justify-between gap-2">
+            <h2 id="producer-compare-title" className="text-base font-extrabold text-[#153f2d]">Confronto produttori</h2>
+            <button type="button" onClick={clearSelection}
+              className="min-h-10 shrink-0 text-xs font-bold text-[#185740] underline">Svuota</button>
           </div>
+          <p className="mt-1 text-[11px] leading-4 text-[#5b7463]">
+            Dati dalle fonti ufficiali: non dimostrano una specifica combinazione tecnica né disponibilità di magazzino.
+          </p>
         </div>
         {/* UX4.D: phones get vertical evidence-backed cards, never a 580px table. */}
         <div className="grid gap-3 p-3 md:hidden" data-testid="producer-compare-mobile">
