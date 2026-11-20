@@ -220,23 +220,23 @@ export function NetworkProfileOverview({
           </div>
           {location ? <p className="text-sm font-semibold text-[#345c44]">{location}</p> : null}
           {(email || phone || website) ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {email ? <a data-testid="network-company-public-email" href={"mailto:" + email}
-                className="min-w-0 rounded-xl border border-[#dce8df] bg-[#fbfdfb] p-4 text-sm text-[#205b40] hover:border-[#a7c9b0]">
-                <span className="mb-1 block text-xs font-medium text-[#627466]">Email</span>
-                <span className="block break-all font-semibold">{email} ↗</span>
-              </a> : null}
-              {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\d+]/g, "")}
-                className="min-w-0 rounded-xl border border-[#dce8df] bg-[#fbfdfb] p-4 text-sm text-[#205b40] hover:border-[#a7c9b0]">
-                <span className="mb-1 block text-xs font-medium text-[#627466]">Telefono</span>
-                <span className="font-semibold">{phone} ↗</span>
-              </a> : null}
-              {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-                className="min-w-0 rounded-xl border border-[#dce8df] bg-[#fbfdfb] p-4 text-sm text-[#205b40] hover:border-[#a7c9b0]">
-                <span className="mb-1 block text-xs font-medium text-[#627466]">Sito ufficiale</span>
-                <span className="font-semibold">Visita il sito ↗</span>
-              </a> : null}
-            </div>
+            <dl className="divide-y divide-[#e5ece7] border-y border-[#e5ece7] text-sm">
+              {email ? <div className="flex min-w-0 flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-5">
+                <dt className="w-28 shrink-0 text-xs font-semibold text-[#627466]">Email</dt>
+                <dd className="min-w-0"><a data-testid="network-company-public-email" href={"mailto:" + email}
+                  className="break-all font-semibold text-[#205b40] underline-offset-2 hover:underline">{email} ↗</a></dd>
+              </div> : null}
+              {phone ? <div className="flex min-w-0 flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-5">
+                <dt className="w-28 shrink-0 text-xs font-semibold text-[#627466]">Telefono</dt>
+                <dd className="min-w-0"><a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\d+]/g, "")}
+                  className="font-semibold text-[#205b40] underline-offset-2 hover:underline">{phone} ↗</a></dd>
+              </div> : null}
+              {website ? <div className="flex min-w-0 flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-5">
+                <dt className="w-28 shrink-0 text-xs font-semibold text-[#627466]">Sito ufficiale</dt>
+                <dd className="min-w-0"><a href={website} target="_blank" rel="noopener noreferrer"
+                  className="font-semibold text-[#205b40] underline-offset-2 hover:underline">Visita il sito ↗</a></dd>
+              </div> : null}
+            </dl>
           ) : !location ? <p className={emptyStateClass}>Nessun recapito o stabilimento pubblicato per questa azienda.</p> : null}
         </section>
       ),
