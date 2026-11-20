@@ -94,6 +94,6 @@ test("NET-PROFILE-UX7: keyboard, provenance and explicit technical disclosures r
   assert.match(fixture, /name="ASG S\.p\.A\."/);
   assert.match(fixture, /Tubi senza saldatura/);
   assert.match(chrome, /network-profile-asg-concept-fixture/);
-  assert.doesNotMatch(chrome, /network-company-card-connessioni/);
+  assert.match(chrome, /Connections must be actions in the company header/);
   assert.match(chrome, /network-company-card-stock/);
 });
