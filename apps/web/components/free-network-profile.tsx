@@ -89,6 +89,7 @@ export async function FreeNetworkProfileView({
           stockContent={inventory.length ? <NetworkProfileInventory items={inventory} /> : undefined}
           connectionsAvailable={Boolean((status==="available"&&canConnect) || status==="pending" || status==="connected" || canSave)}
           requestHref={!provisional && canWriteWorkspace(workspace.role) ? newRequestHref({network: companyId}) : undefined}
+          requestNetworkCompanyId={!provisional && canWriteWorkspace(workspace.role) ? companyId : undefined}
           primaryConnectionAvailable={Boolean(status==="available"&&canConnect)}
           hasTechnicalDetails={Boolean(reviewedEvidence.length || provisional || profile.products.length || profile.facilities.length)}
           detailsTargetId="network-profile-free-evidence"

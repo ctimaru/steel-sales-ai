@@ -1,6 +1,10 @@
 "use server";
 
 import { createBuyerRfqCampaign } from "@/app/(public)/distinta/actions";
+import { unstable_cache } from "next/cache";
+import { buildBuyerDistintaCatalogOptions, type BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
+import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
+import { listNetworkRdoSavedDistintas, type NetworkRdoSavedDistinta } from "@/lib/network-rdo-saved-distintas";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
 import { appRoutes } from "@/lib/routes";
 import { createClient } from "@/lib/supabase/server";
@@ -80,4 +84,51 @@ export async function prepareSavedNetworkRdo(input: {
     ok: true,
     href: appRoutes.rfqHub.campaign(campaign.id) + "?dal=" + encodeURIComponent(company.id),
   };
+}
+
+
+/** NET-RDO-INLINE2: on-demand modal data; opening a company page makes no extra
+ * private Distinta or public catalog queries. Called only after the buyer clicks. */
+export type NetworkRdoModalContext =
+  | { ok: true; companyName: string; companyId: string; organizationId: string; userId: string;
+      items: NetworkRdoSavedDistinta[]; listError: boolean }
+  | { ok: false; error: string };
+
+export async function loadNetworkRdoModalContext(
+  networkCompanyId: string,
+): Promise<NetworkRdoModalContext> {
+  if (!UUID.test(networkCompanyId)) {
+    return { ok: false, error: "Azienda non valida." };
+  }
+  const context = await requireWorkspaceWriteRole(appRoutes.rfqHub.home);
+  const company = await getCommercialNetworkContext(context.organizationId, networkCompanyId)
+    .catch(() => null);
+  if (!company) return { ok: false, error: "Questa azienda non è disponibile per una richiesta." };
+  const listed = await listNetworkRdoSavedDistintas(context.organizationId, context.userId);
+  return {
+    ok: true, companyId: company.id, companyName: company.name,
+    organizationId: context.organizationId, userId: context.userId,
+    items: listed.items, listError: listed.error,
+  };
+}
+
+/** Public, tenant-independent dimensions are cached just as on the normal
+ * Nuova richiesta page, but are loaded only if the modal's builder is opened. */
+const cachedModalCatalog = unstable_cache(async (): Promise<BuyerDistintaCatalogOption[]> => {
+  const options = buildBuyerDistintaCatalogOptions(await listBuyerDistintaPublicDimensions());
+  if (!options.length) throw new Error("catalog_unavailable");
+  return options;
+}, ["distinta-quick1-public-catalog-v1"], { revalidate: 3600 });
+
+export async function loadNetworkRdoModalCatalog(networkCompanyId: string): Promise<{
+  ok: boolean; options: BuyerDistintaCatalogOption[]; error?: string;
+}> {
+  if (!UUID.test(networkCompanyId)) return { ok: false, options: [], error: "Azienda non valida." };
+  const context = await requireWorkspaceWriteRole(appRoutes.rfqHub.home);
+  const company = await getCommercialNetworkContext(context.organizationId, networkCompanyId)
+    .catch(() => null);
+  if (!company) return { ok: false, options: [], error: "Azienda non disponibile." };
+  // Manual description and dimensions are still usable if Shared Knowledge is down.
+  const options = await cachedModalCatalog().catch(() => []);
+  return { ok: true, options };
 }

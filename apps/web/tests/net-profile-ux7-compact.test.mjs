@@ -37,7 +37,8 @@ test("NET-PROFILE-UX7: switching sections is client-side, keyboard accessible, a
   assert.match(hub, /target\.open = true/);
   assert.match(overview, /data-testid="network-profile-trust-panel"/);
   assert.doesNotMatch(overview, /id: "connessioni"/);
-  assert.match(overview, /data-testid="network-profile-request-rdo"/);
+  assert.match(overview, /<NetworkRdoModalLauncher/);
+  assert.match(read("../components/network-rdo-modal-launcher.tsx"), /data-testid="network-profile-request-rdo"/);
   assert.match(overview, /connectionsAvailable && actions/);
   assert.match(overview, /data-testid="network-company-source-attribution"/);
 });

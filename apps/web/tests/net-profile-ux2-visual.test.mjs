@@ -53,7 +53,8 @@ test("NET-PROFILE-UX7: every tab stays navigable without fabricating business da
   assert.match(overview, /Nessuna disponibilità o produzione pubblicata/);
   assert.match(overview, /Prodotti e specializzazioni non ancora pubblicati/);
   assert.doesNotMatch(overview, /id: "connessioni"/);
-  assert.match(overview, /data-testid="network-profile-request-rdo"/);
+  assert.match(overview, /<NetworkRdoModalLauncher/);
+  assert.match(read("../components/network-rdo-modal-launcher.tsx"), /data-testid="network-profile-request-rdo"/);
   assert.match(overview, /Nessun recapito o stabilimento pubblicato/);
   assert.match(overview, /Nessuna fonte web consultabile/);
   assert.match(overview, /connectionsAvailable && actions/);

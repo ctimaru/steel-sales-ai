@@ -25,12 +25,15 @@ function tonnes(value: number | null): string | null {
  * not added automatically. Sending remains a separate confirmed step.
  */
 export function NetworkRdoDistintaPicker({
-  networkCompanyId, companyName, items, newHref,
+  networkCompanyId, companyName, items, newHref, embedded = false, onCreateNew, onPrepared,
 }: {
   networkCompanyId: string;
   companyName: string;
   items: NetworkRdoSavedDistinta[];
   newHref: string;
+  embedded?: boolean;
+  onCreateNew?: () => void;
+  onPrepared?: (href: string) => void;
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -53,7 +56,8 @@ export function NetworkRdoDistintaPicker({
           setChosenId(null);
           return;
         }
-        router.push(outcome.href);
+        if (onPrepared) onPrepared(outcome.href);
+        else router.push(outcome.href);
       } catch {
         setError("Impossibile aprire la Distinta. Riprova.");
         setChosenId(null);
@@ -63,8 +67,8 @@ export function NetworkRdoDistintaPicker({
 
   return (
     <section aria-label="Scegli una distinta esistente" data-testid="network-rdo-distinta-picker"
-      className="mx-auto max-w-5xl space-y-5 py-1">
-      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+      className={embedded ? "min-w-0 space-y-4" : "mx-auto max-w-5xl space-y-5 py-1"}>
+      {!embedded ? <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
         <Link href={"/network/" + networkCompanyId}
           className="inline-flex min-h-10 items-center gap-1.5 font-semibold text-[#266044] hover:underline">
           <span aria-hidden="true">←</span> Scheda azienda
@@ -72,8 +76,8 @@ export function NetworkRdoDistintaPicker({
         <span className="rounded-full bg-[#edf5ef] px-3 py-1.5 text-xs font-semibold text-[#286347]">
           Richiesta di offerta
         </span>
-      </div>
-      <header className="min-w-0 border-b border-[#dce7df] pb-4">
+      </div> : null}
+      {!embedded ? <header className="min-w-0 border-b border-[#dce7df] pb-4">
         <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#538468]">Dal Network</p>
         <h1 className="mt-1 break-words text-2xl font-semibold tracking-tight text-[#133f30] sm:text-[30px]">
           Richiedi offerta a {companyName}
@@ -82,16 +86,23 @@ export function NetworkRdoDistintaPicker({
           Scegli una Distinta che hai già preparato, oppure creane una nuova.
           La richiesta resta privata e nessuna email viene inviata prima della tua conferma.
         </p>
-      </header>
+      </header> : null}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-[#1a4938]">Le tue Distinte disponibili <span className="tabular-nums text-[#6b7d70]">({items.length})</span></h2>
           <p className="mt-0.5 text-xs text-[#66796c]">Solo bozze con articoli, non archiviate né già inviate.</p>
         </div>
-        <Link href={newHref} data-testid="network-rdo-new-distinta"
-          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#176647] px-4 text-sm font-bold text-white transition-colors hover:bg-[#115436] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]">
-          <span aria-hidden="true">+</span> Nuova Distinta
-        </Link>
+        {embedded && onCreateNew ? (
+          <button type="button" data-testid="network-rdo-new-distinta" onClick={onCreateNew}
+            className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg border border-[#b8d4c0] bg-white px-3.5 text-sm font-bold text-[#1b583c] hover:bg-[#eff7f1] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]">
+            + Nuova Distinta
+          </button>
+        ) : (
+          <Link href={newHref} data-testid="network-rdo-new-distinta"
+            className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#176647] px-4 text-sm font-bold text-white transition-colors hover:bg-[#115436] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]">
+            <span aria-hidden="true">+</span> Nuova Distinta
+          </Link>
+        )}
       </div>
       {items.length > 5 ? (
         <label className="block text-xs font-semibold text-[#4d6857]">
