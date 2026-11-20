@@ -96,8 +96,8 @@ test("COMPACT6D Commerciale shows a separate import decision and only appends to
  assert.match(read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx"),/organizationId=\{context.organizationId\}/);
  assert.match(pro,/canCompose=\{canWriteWorkspace\(context.role\)\}/);
  assert.match(free,/userId=\{userId\} organizationId=\{organizationId\} canCompose=\{canCompose\}/);
-  assert.match(network,/<NetworkAiSearchDock search=\\{<NetworkLiveSearch filters=\\{filters\\}\\/>\\}/);
-  assert.match(network,/assistant=\\{<NetworkConversation userId=\\{userId\\} organizationId=\\{organizationId\\}\\s+canCompose=\\{canCompose\\} embedded\\/>\\}/);
+  assert.match(network,/<NetworkAiSearchDock search=\{<NetworkLiveSearch filters=\{filters\}\/>\}/);
+  assert.match(network,/assistant=\{<NetworkConversation userId=\{userId\} organizationId=\{organizationId\}\s+canCompose=\{canCompose\} embedded\/>\}/);
 });
 test("COMPACT6D text is not exposed in the URL and no RFQ is sent autonomously",()=>{
  const bridge=read("../components/network-rfq-bridge.tsx");
