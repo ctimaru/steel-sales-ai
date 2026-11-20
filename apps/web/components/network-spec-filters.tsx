@@ -29,9 +29,9 @@ export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFil
       <input name={name} inputMode="decimal" defaultValue={filters[name]||""} placeholder={hint}
         disabled={locked} aria-label={label} className={inputStyle}/>
     </label>;
-  return <details open={active} className="group min-w-0 overflow-hidden rounded-2xl border border-[#cbded2] bg-[#f8fbf9]" data-testid="network-spec-panel">
-    <summary data-testid="network-spec-summary" className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-2 px-3 py-3 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden">
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+  return <details open={active} className="group min-w-0 overflow-hidden rounded-xl border border-[#dce7df] bg-[#f8fbf9]" data-testid="network-spec-panel">
+    <summary data-testid="network-spec-summary" className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 py-1.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden">
+      <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-0.5">
         <span className="text-[13px] font-bold leading-4 text-[#173f35]">Specifica tecnica</span>
         <span className="text-[11px] leading-4 text-[#587163]">Norma · grado · misure</span>
       </span>
