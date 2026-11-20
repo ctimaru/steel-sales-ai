@@ -15,6 +15,7 @@ import {NetworkCountryTicker} from "@/components/network-country-ticker";
 import {getNetworkCountryStats} from "@/lib/network-country-stats";
 import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters";
 import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
+import {NetworkFilterRouteForm} from "@/components/network-filter-route-form";
 import {NetworkRfqSelectionBar} from "@/components/network-rfq-selection-bar";
 import {NetworkFilterDrawer} from "@/components/network-filter-drawer";
 import {NetworkSaveToggle} from "@/components/network-save-toggle";
@@ -247,7 +248,8 @@ export async function NetworkCompactExperience({
       {directory.page<directory.pages?<Link rel="next" href={filterUrl(filters,{np:String(directory.page+1)},"#network-results")} className="ui-action ui-action-secondary inline-flex min-h-10 min-w-10 items-center justify-center rounded-none border-0 px-3 font-semibold" aria-label="Pagina successiva">→</Link>:<span className="inline-flex min-h-10 min-w-10 items-center justify-center px-3 text-[#b0bdb4]" aria-hidden="true">→</span>}
     </span>
   </nav>;
-  // NET-UX LOT1: filters in a left column (drawer on phones); the list starts at the top.
+  // NET-FILTERBAR1.P0: the map stays in the left column; search and the
+  // horizontal facet bar live immediately above the results (Free and Pro).
   return <main className="mx-auto w-full max-w-[1560px] pb-8" data-testid="network-compact-experience">
     <header className="mb-3 flex flex-wrap items-end justify-between gap-x-4 gap-y-1" data-testid="network-europe1d-compact-header">
       <h1 className="text-2xl font-bold tracking-tight text-[#173f35]">Cerca aziende
@@ -271,66 +273,52 @@ export async function NetworkCompactExperience({
     </div>
     <NetworkCountryTicker organizationId={organizationId} accessMode={accessMode} items={networkCountries}/>
     <div data-testid="network-europe1d-one-screen-shell" className="grid items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-      <aside aria-label="Filtri delle aziende" className="min-w-0 lg:sticky lg:top-24" data-testid="network-side-column">
+      <aside aria-label="Mappa e assistente del Network" className="min-w-0 lg:sticky lg:top-24" data-testid="network-side-column">
         {/* NET-UX-MAP1: the European map is always visible, including on mobile. */}
         <div className="mb-3" data-testid="network-europe-persistent-map">
           <NetworkEuropeanMap filters={filters} coverage={europeCoverage} fullMapHref={fullMapHref}
             countryCounts={Object.fromEntries(networkCountries.map(item=>[item.countryCode,item.total]))}/>
         </div>
-        <NetworkFilterDrawer activeCount={activeFilterCount}>
-          <section aria-label="Ricerca e filtri delle aziende"
-            className="overflow-hidden rounded-[22px] border border-[#cbded2] bg-white shadow-[0_8px_28px_rgba(20,75,53,0.08)]"
-            data-testid="network-refined-filters">
-            <div className="border-b border-[#dbe9df] bg-[linear-gradient(145deg,#e8f3eb_0%,#f7faf8_76%,#ffffff_100%)] px-4 py-4">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#28674e]">Network · ricerca</p>
-                <span className="inline-flex min-h-6 shrink-0 items-center rounded-full border border-[#c9ded0] bg-white/90 px-2.5 text-[10px] font-bold text-[#205941]">
-                  {activeFilterCount ? activeFilterCount + (activeFilterCount === 1 ? " attivo" : " attivi") : "Ricerca libera"}
+        {/* P1 will move the AI chat into a dedicated drawer; it remains accessible here. */}
+        <div className="mt-3"><NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/></div>
+      </aside>
+      <div className="min-w-0 space-y-3">
+        {accessMode==="pro"&&canCompose?<NetworkSaveConnectGuide/>:null}
+        <div data-testid="network-filter-toolbar" className="min-w-0 space-y-2">
+          <NetworkLiveSearch filters={filters}/>
+          <NetworkFilterDrawer activeCount={activeFilterCount}>
+            <section aria-label="Ricerca e filtri delle aziende"
+              data-testid="network-refined-filters"
+              className="min-w-0 overflow-hidden rounded-2xl border border-[#cbded2] bg-white shadow-[0_3px_16px_rgba(20,75,53,0.05)]">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-[#e3ebe5] bg-[#f7faf8] px-3 py-2 sm:px-4">
+                <h2 className="text-sm font-bold text-[#173f35]">Filtra le aziende</h2>
+                <span className="text-[11px] font-semibold text-[#47705a]">
+                  {activeFilterCount?activeFilterCount+(activeFilterCount===1?" filtro attivo":" filtri attivi"):"Tutta la filiera"}
                 </span>
               </div>
-              <h2 className="mt-1 text-lg font-bold tracking-tight text-[#173f35]">Affina la ricerca</h2>
-              <p className="mt-1 text-xs leading-5 text-[#4b6156]">Trova aziende per ruolo, territorio e competenze.</p>
-            </div>
-            <div className="px-4 py-4">
-              <div className="mb-3 flex items-center gap-2">
-                <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#e5f1e9] text-[11px] font-bold text-[#175640]">1</span>
-                <h3 className="text-sm font-bold text-[#173f35]">Ruolo nella filiera</h3>
-              </div>
-              <nav aria-label="Ruolo nella filiera" className="grid grid-cols-2 gap-2">
+              <nav aria-label="Ruolo nella filiera"
+                className="flex min-w-0 flex-wrap gap-1.5 border-b border-[#e3ebe5] px-3 py-2 sm:px-4">
                 {roles.map(item=>{
                   const selected=(filters.role||"")===item.key;
                   return <Link key={item.key||"all"} href={filterUrl(filters,{role:item.key||null,np:null},"#network-results")}
                     aria-current={selected?"page":undefined}
-                    className={"inline-flex min-h-11 min-w-0 items-center justify-center rounded-xl border px-2.5 py-2 text-center text-xs font-semibold leading-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
-                      (!item.key?"col-span-2 ":"")+
+                    className={"inline-flex min-h-11 min-w-0 items-center justify-center rounded-lg border px-3 py-2 text-center text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
                       (selected?"ui-action ui-action-primary shadow-sm":"border-[#d3e3d9] bg-[#f5f9f6] text-[#20543e] hover:border-[#9fc6af] hover:bg-[#eaf4ed]")}>
-                    {item.key?item.label:"Tutta la filiera"}
+                    {item.label}
                   </Link>;
                 })}
               </nav>
-            </div>
-            <form method="get" action="/network" aria-label="Filtri tecnici e geografici" className="border-t border-[#e2ebe5]">
-              {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
-              {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
-              {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
-              {filters.steel?<input type="hidden" name="steel" value={filters.steel}/>:null}
-              {NETWORK_SPEC_PARAMS.map(key=>filters[key]?<input key={key} type="hidden" name={key} value={filters[key]}/>:null)}
-              <div className="bg-[#f8fbf9] px-4 py-4">
-                <div className="mb-3 flex items-center gap-2">
-                  <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#e5f1e9] text-[11px] font-bold text-[#175640]">2</span>
-                  <h3 className="text-sm font-bold text-[#173f35]">Territorio</h3>
-                </div>
-                <div className="grid grid-cols-1 gap-3">
-                  <NetworkCountryRegionFilters key={(filters.country||"IT")+"|"+(filters.region||"")} country={filters.country||"IT"} region={filters.region||""}/>
-                </div>
-                <p className="mt-2 text-[11px] leading-4 text-[#577065]">Il territorio selezionato si sincronizza con la mappa.</p>
-              </div>
-              <div className="border-t border-[#e2ebe5] px-4 py-4">
-                <div className="mb-3 flex items-center gap-2">
-                  <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#e5f1e9] text-[11px] font-bold text-[#175640]">3</span>
-                  <h3 className="text-sm font-bold text-[#173f35]">Cosa offrono</h3>
-                </div>
-                <div className="grid grid-cols-1 gap-3">
+              <NetworkFilterRouteForm ariaLabel="Filtri tecnici e geografici"
+                className="min-w-0 px-3 py-3 sm:px-4">
+                {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
+                {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
+                {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
+                {filters.steel?<input type="hidden" name="steel" value={filters.steel}/>:null}
+                {NETWORK_SPEC_PARAMS.map(key=>filters[key]?<input key={key} type="hidden" name={key} value={filters[key]}/>:null)}
+                <div className="grid min-w-0 grid-cols-1 items-end gap-2 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5"
+                  data-testid="network-filter-facets">
+                  <NetworkCountryRegionFilters key={(filters.country||"IT")+"|"+(filters.region||"")}
+                    country={filters.country||"IT"} region={filters.region||""}/>
                   {[
                     {name:"product",label:"Prodotti",options:localizeTaxonomyOptions(additionalFilters?.products||[])},
                     {name:"capability",label:"Lavorazioni e servizi",options:localizeTaxonomyOptions(additionalFilters?.capabilities||[])},
@@ -345,32 +333,17 @@ export async function NetworkCompactExperience({
                     </NetworkAutoSubmitSelect>
                   </label>)}
                 </div>
+                <button type="submit" className="ui-action ui-action-secondary sr-only inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold focus:not-sr-only">Applica filtri</button>
+              </NetworkFilterRouteForm>
+              <div className="border-t border-[#e3ebe5] px-3 py-2.5 sm:px-4" data-testid="network-technical-filter-section">
+                <NetworkSpecPanel filters={filters} accessMode={accessMode}/>
               </div>
-              {/* Auto-submit on change; keep a native submit for keyboard and no-JS users. */}
-              <button type="submit" className="ui-action ui-action-secondary sr-only inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold focus:not-sr-only">Applica filtri</button>
-            </form>
-            <div className="border-t border-[#e2ebe5] px-4 py-4" data-testid="network-technical-filter-section">
-              <div className="mb-3 flex items-start gap-2">
-                <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#e5f1e9] text-[11px] font-bold text-[#175640]">4</span>
-                <div className="min-w-0">
-                  <h3 className="text-sm font-bold leading-5 text-[#173f35]">Ricerca tecnica</h3>
-                  <p className="mt-0.5 text-[11px] leading-4 text-[#587163]">Cerca aziende per caratteristiche del tubo.</p>
-                </div>
-              </div>
-              <NetworkSpecPanel filters={filters} accessMode={accessMode}/>
-            </div>
-            <div className="border-t border-[#dce9e0] bg-[#f6faf7] px-4 py-3">
-              {filterActive?<Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 w-full items-center justify-center rounded-xl px-3 text-xs font-semibold">× <span className="ml-1">Azzera tutti i filtri</span></Link>:
-                <p className="text-center text-[11px] leading-4 text-[#567065]">Seleziona un filtro: i risultati si aggiornano automaticamente.</p>}
-            </div>
-          </section>
-        </NetworkFilterDrawer>
-        {/* NET-AUDIT1.4: the chat stays beside the list, which stays visible while chatting. */}
-        <div className="mt-3"><NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/></div>
-      </aside>
-      <div className="min-w-0 space-y-3">
-        {accessMode==="pro"&&canCompose?<NetworkSaveConnectGuide/>:null}
-        <NetworkLiveSearch filters={filters}/>
+              {filterActive?<div className="flex justify-end border-t border-[#e3ebe5] px-3 py-2 sm:px-4">
+                <Link href="/network" className="ui-action ui-action-secondary inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold">× Azzera tutti i filtri</Link>
+              </div>:null}
+            </section>
+          </NetworkFilterDrawer>
+        </div>
       <div className="flex flex-wrap items-center gap-2" data-testid="network-sort">
         <span className="mr-1 text-[11px] font-bold uppercase tracking-wider text-[#175640]">Ordina</span>
         {!specMode&&!filters.product&&!filters.capability&&!filters.market&&(!filters.country||filters.country==="IT")?
