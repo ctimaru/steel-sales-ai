@@ -28,6 +28,7 @@ import { getNetworkRecipientReadiness } from "@/lib/network-recipient-readiness"
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import { networkCountryName } from "@/lib/network-eu-countries";
 import { networkNameIt } from "@/lib/network-taxonomy-it";
+import { materialFamilyLabel, productFamilyLabel } from "@/lib/knowledge-labels";
 import { listPublicGradesPage, listPublicStandardsPage } from "@/lib/public-knowledge";
 import { schoolArticles } from "@/lib/school-articles";
 import { createClient } from "@/lib/supabase/server";
@@ -193,6 +194,16 @@ async function loadCompanyGroup(viewer: HomeFeedViewer, cursor: HomeFeedCursor) 
   return { item: network.item, dm: matched.dm, next: network.next, failed: network.failed };
 }
 
+/** «EN 10210, profilati cavi strutturali finiti a caldo: 11 gradi…» → the part after the code. */
+function italianStandardName(code: string, seoDescription: string | null | undefined): string {
+  const text = clean(seoDescription, 400);
+  const prefix = clean(code, 60) + ", ";
+  if (!text.startsWith(prefix)) return "";
+  const end = text.indexOf(":", prefix.length);
+  const name = (end > 0 ? text.slice(prefix.length, end) : "").trim();
+  return name ? name.charAt(0).toUpperCase() + name.slice(1) : "";
+}
+
 async function loadSchool(cursor: HomeFeedCursor) {
   const want = HOME_FEED_PAGE.school;
   const items: HomeFeedItem[] = [];
@@ -226,14 +237,16 @@ async function loadSchool(cursor: HomeFeedCursor) {
         const rows = await listPublicStandardsPage(offset, need);
         for (const s of rows) {
           if (!s.slug || !s.code) continue;
+          // HOME-REVIEW1: Italian copy, as on /knowledge/norme. title and
+          // short_explanation are English source notes; seo_description is Italian.
           items.push({
             kind: "standard",
             key: "standard:" + s.slug,
             slug: s.slug,
             code: clean(s.code, 60),
-            title: clean(s.title, 160),
-            explanation: clean(s.short_explanation || s.seo_description, 320),
-            families: (s.product_families ?? []).slice(0, 3).map((f) => networkNameIt(f)).filter(Boolean),
+            title: italianStandardName(s.code, s.seo_description),
+            explanation: clean(s.seo_description, 320),
+            families: (s.product_families ?? []).slice(0, 3).map((f) => productFamilyLabel(f)).filter(Boolean),
           });
         }
         offset += rows.length;
@@ -248,8 +261,8 @@ async function loadSchool(cursor: HomeFeedCursor) {
           key: "grade:" + g.slug,
           slug: g.slug,
           designation: clean(g.designation, 60),
-          family: clean(g.material_family, 80) || null,
-          description: clean(g.short_description || g.seo_description, 320),
+          family: g.material_family ? materialFamilyLabel(g.material_family) : null,
+          description: clean(g.seo_description || g.short_description, 320),
           standardSystem: clean(g.standard_system, 40) || null,
         });
       }
