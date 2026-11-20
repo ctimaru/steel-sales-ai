@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {NetworkCountryFlag} from "@/components/network-country-flag";
 import {networkCountryName} from "@/lib/network-eu-countries";
 import {getNetworkCountryStats,type NetworkCountryStats} from "@/lib/network-country-stats";
@@ -5,7 +6,7 @@ import styles from "./network-country-ticker.module.css";
 
 function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplicate?:boolean}){
   const name=networkCountryName(item.countryCode)||item.countryCode;
-  return <a
+  return <Link scroll={false}
     href={"/network?country="+encodeURIComponent(item.countryCode)+"#network-results"}
     tabIndex={duplicate?-1:undefined}
     title={"Esplora "+name+" · "+item.total+" aziende nel Network"}
@@ -16,7 +17,7 @@ function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplica
     <strong className="tabular-nums text-[#173f35]">{item.total.toLocaleString("it-IT")}</strong>
     <span>aziende</span>
 
-  </a>;
+  </Link>;
 }
 
 function Messages({items,duplicate=false}:{items:NetworkCountryStats[];duplicate?:boolean}){
