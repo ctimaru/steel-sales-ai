@@ -234,6 +234,55 @@ try {
       {timeout:60000});
     assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
       "SVG map navigated by reloading the document");
+    // NET-FILTERBAR1.P0 — real React+Chrome acceptance for select and spec
+    // submissions. Neither must navigate the whole document (as the old
+    // GET-form requestSubmit did before this change).
+    const hydratedFacetFixture=async()=>{
+      await fixture();
+      await geoPage.getByRole("button",{name:"Espandi mappa europea"}).click();
+      const modal=geoPage.getByRole("dialog",{name:"Mappa interattiva dell'Europa estesa"});
+      await modal.waitFor({state:"visible"});
+      await modal.getByRole("button",{name:"Chiudi mappa europea"}).click();
+      await modal.waitFor({state:"hidden"});
+      await geoPage.evaluate(()=>{window.__networkGeoSpaProbe="intact";});
+    };
+    await hydratedFacetFixture();
+    await geoPage.getByTestId("network-filter-toolbar").locator('select[name="product"]')
+      .selectOption("tubes_pipes");
+    await geoPage.waitForURL(url=>url.pathname==="/network"&&
+      url.searchParams.get("country")==="IT"&&
+      url.searchParams.get("product")==="tubes_pipes",{timeout:60000});
+    assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
+      "Products facet caused a full document reload");
+
+    await hydratedFacetFixture();
+    await geoPage.getByTestId("network-filter-toolbar").locator('select[name="capability"]')
+      .selectOption("welding_fabrication");
+    await geoPage.waitForURL(url=>url.pathname==="/network"&&
+      url.searchParams.get("country")==="IT"&&
+      url.searchParams.get("capability")==="welding_fabrication",{timeout:60000});
+    assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
+      "Capabilities facet caused a full document reload");
+
+    await hydratedFacetFixture();
+    await geoPage.getByTestId("network-filter-toolbar").locator('select[name="market"]')
+      .selectOption("construction_infrastructure");
+    await geoPage.waitForURL(url=>url.pathname==="/network"&&
+      url.searchParams.get("country")==="IT"&&
+      url.searchParams.get("market")==="construction_infrastructure",{timeout:60000});
+    assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
+      "Market facet caused a full document reload");
+
+    await hydratedFacetFixture();
+    await geoPage.getByTestId("network-spec-panel").getByTestId("network-spec-summary").click();
+    await geoPage.getByRole("textbox",{name:"Norma",exact:true}).fill("EN 10219");
+    await geoPage.getByRole("textbox",{name:"Grado o materiale"}).fill("S355");
+    await geoPage.getByRole("button",{name:"Cerca fornitori compatibili"}).click();
+    await geoPage.waitForURL(url=>url.pathname==="/network"&&
+      url.searchParams.get("std")==="EN 10219"&&
+      url.searchParams.get("grade")==="S355",{timeout:60000});
+    assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
+      "Technical specification search caused a full document reload");
     assert.deepEqual(geoSession.errors,[],"SPA geography caused a browser runtime error");
     assertions+=5;
   } finally { await geoSession.context.close(); }
@@ -256,6 +305,8 @@ try {
       // at 1440 / 390 / 320, with the map still visible outside the mobile drawer.
       const europeMap = page.getByTestId("network-europe-persistent-map");
       const filtersCard = page.getByTestId("network-refined-filters");
+      const toolbar = page.getByTestId("network-filter-toolbar");
+      const mapRail = page.getByTestId("network-side-column");
       const drawer = page.getByTestId("network-filter-drawer");
       const toggle = drawer.getByRole("button", {name:/Affina i filtri/i});
       // An App Router SSR shell can be attached before its visibility transition
@@ -334,6 +385,19 @@ try {
       await screenshot(page,"network-europe-extended-overview",width);
 
       if (width === 1440) {
+        const geometry=await page.evaluate(()=>{
+          const coords=selector=>{
+            const r=document.querySelector(selector)?.getBoundingClientRect();
+            return r?{left:r.left,right:r.right,top:r.top,bottom:r.bottom}:null;
+          };
+          return {map:coords('[data-testid="network-side-column"]'),
+            bar:coords('[data-testid="network-filter-toolbar"]'),
+            list:coords('#network-results')};
+        });
+        assert.ok(geometry.map&&geometry.bar&&geometry.list&&
+          geometry.map.right<=geometry.bar.left+2&&
+          geometry.bar.bottom<=geometry.list.top,
+          "Desktop facet toolbar must be to the right of the map and above the list: "+JSON.stringify(geometry));
         assert.equal(await filtersCard.isVisible(), true, "Desktop filter card must remain open");
         assert.equal(await toggle.isVisible(), false, "Desktop drawer toggle must stay hidden");
       } else {
