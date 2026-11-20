@@ -1,6 +1,7 @@
 "use client";
 
-import {useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState,useTransition} from "react";
+import {useRouter} from "next/navigation";
 import {EU_MEMBER_COUNTRIES,networkCountryName} from "@/lib/network-eu-countries";
 import type {CompactNetworkFilters} from "@/lib/network-compact-directory";
 import {europeRegionsForCountry} from "@/lib/network-eu-regions";
@@ -53,10 +54,11 @@ type CanvasProps={
   zoomCountry:string|null;
   compact:boolean;
   regionShapes:RegionOutline[];
+  onNavigate:(href:string)=>void;
   selectedRegion:string;
   counts:Record<string,number>|null;
 };
-function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,selectedRegion,counts}:CanvasProps){
+function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,onNavigate,selectedRegion,counts}:CanvasProps){
   return <svg viewBox={europeMapViewBox(compact?null:zoomCountry)}
     preserveAspectRatio="xMidYMid meet"
     role="group" aria-label="Mappa europea: scegli uno dei 27 Stati dell'Unione europea"
@@ -75,7 +77,11 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,
         aria-current={isCurrent?"location":undefined}
         data-country={shape.code}
         className="group cursor-pointer outline-none"
-        >
+        onClick={event=>{
+          if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+          event.preventDefault();
+          onNavigate(href);
+        }}>
         <path d={shape.path} fillRule="evenodd"
           fill={isCurrent?"#165b43":"#bfddcd"} stroke="#ffffff"
           strokeWidth={compact?2.2:1.8} vectorEffect="non-scaling-stroke"
@@ -93,7 +99,11 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,
         aria-label={"Filtra "+region.name+" · "+(count===undefined?"copertura geografica non disponibile":count+" aziende con sede pubblicata mappata")}
         title={region.name+" · "+(count===undefined?"Copertura non disponibile":count+" sedi aziendali mappate")}
         className="group cursor-pointer outline-none"
-        >
+        onClick={event=>{
+          if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+          event.preventDefault();
+          onNavigate(europeMapRegionHref(filters,zoomCountry,region.code));
+        }}>
         <path d={region.path} fillRule="evenodd"
           fill={selectedRegion===region.code?"#155c43":count?"#87bda4":"#d4e7da"}
           stroke="#ffffff" strokeWidth={2} vectorEffect="non-scaling-stroke"
@@ -108,6 +118,8 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,
  * Italy's verified-region map remains reachable without rewriting its data.
  */
 export function NetworkEuropeanMap({filters,fullMapHref,coverage}:MapProps){
+  const router=useRouter();
+  const [isPending,startTransition]=useTransition();
   const selectedFromUrl=filters.country||"IT";
   const [zoomCountry,setZoomCountry]=useState<string|null>(
     filters.country && EUROPE_COUNTRY_SHAPES.some(x=>x.code===filters.country)?filters.country:null,
@@ -149,9 +161,14 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage}:MapProps){
       }).catch(()=>{if(!controller.signal.aborted){setRegionShapes([]);setLoadedRegionCountry(null);}});
     return ()=>controller.abort();
   },[expanded,zoomCountry]);
-  // Native country links always refresh the authenticated server-side search.
+  // Next App Router patches the affected Network components without a
+  // document reload, while preserving URL, back/forward and server authorization.
+  const navigate=(href:string)=>{
+    setExpanded(false);
+    startTransition(()=>router.replace(href,{scroll:false}));
+  };
   const canvas=(compact:boolean)=><EuropeCanvas filters={filters} selectedCountry={country}
-    zoomCountry={zoomCountry} compact={compact}
+    zoomCountry={zoomCountry} compact={compact} onNavigate={navigate}
     selectedRegion={selectedRegion} counts={regionCounts}
     regionShapes={!compact&&loadedRegionCountry===zoomCountry?regionShapes:[]}/>;
   const italyDetailHref=europeMapCountryHref(filters,"IT").replace("#network-results","")
@@ -176,7 +193,7 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage}:MapProps){
         <p className="truncate text-[11px] font-medium text-[#365a48]" title={countryLabel}>
           {euSelected?"Filtro: "+countryLabel:"Filtro esterno UE: "+countryLabel}
         </p>
-        <span className="shrink-0 text-[10px] text-[#52615b]">Tocca un Paese</span>
+        <span className="shrink-0 text-[10px] text-[#52615b]" role="status" aria-live="polite">{isPending?"Aggiorno risultati…":"Tocca un Paese"}</span>
       </div>
     </section>
     <dialog ref={dialogRef} onClose={()=>setExpanded(false)}
@@ -215,7 +232,11 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage}:MapProps){
               {availableRegions.map(region=><a key={region.code}
                 href={europeMapRegionHref(filters,country,region.code)}
                 aria-current={selectedRegion===region.code?"page":undefined}
-                
+                onClick={event=>{
+                  if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+                  event.preventDefault();
+                  navigate(europeMapRegionHref(filters,country,region.code));
+                }}
                 className={"flex min-h-9 items-center justify-between gap-2 rounded-lg px-2.5 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
                   (selectedRegion===region.code?"bg-[#165b43] text-white":"bg-[#f0f5f1] text-[#24543f] hover:bg-[#dcece2]")}>
                 <span className="truncate">{region.name}</span>
@@ -229,7 +250,11 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage}:MapProps){
             {EU_MEMBER_COUNTRIES.map(item=><a key={item.code}
               href={europeMapCountryHref(filters,item.code)}
               aria-current={country===item.code?"page":undefined}
-              
+              onClick={event=>{
+                if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+                event.preventDefault();
+                navigate(europeMapCountryHref(filters,item.code));
+              }}
               className={"flex min-h-9 items-center rounded-lg px-3 text-xs font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
                 (country===item.code?"bg-[#165b43] text-white":"bg-[#f0f5f1] text-[#24543f] hover:bg-[#dcece2]")}>
               {item.name}
