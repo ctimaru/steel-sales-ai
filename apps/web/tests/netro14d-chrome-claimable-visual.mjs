@@ -239,9 +239,21 @@ try {
     // GET-form requestSubmit did before this change).
     const hydratedFacetFixture=async()=>{
       await fixture();
-      await geoPage.getByRole("button",{name:"Espandi mappa europea"}).click();
       const modal=geoPage.getByRole("dialog",{name:"Mappa interattiva dell'Europa estesa"});
-      await modal.waitFor({state:"visible"});
+      const expand=geoPage.getByRole("button",{name:"Espandi mappa europea"});
+      // An SSR button can receive its first click before the map's client
+      // handlers are hydrated after repeated SPA test fixture navigations.
+      // Retry only the hydration probe, not the actual facet assertions.
+      let hydrated=false;
+      for(let attempt=0;attempt<3&&!hydrated;attempt++){
+        await expand.click();
+        try{
+          await modal.waitFor({state:"visible",timeout:8000});
+          hydrated=true;
+        } catch(error){
+          if(attempt===2)throw error;
+        }
+      }
       await modal.getByRole("button",{name:"Chiudi mappa europea"}).click();
       await modal.waitFor({state:"hidden"});
       await geoPage.evaluate(()=>{window.__networkGeoSpaProbe="intact";});
@@ -460,7 +472,17 @@ try {
       assertions += 13;
       // NET-UX-TECH1: open the real technical accordion at 1440/390/320 and
       // verify each measurement field remains aligned and at least 44px high.
+      // NET-FILTERBAR2: no technical controls dominate the first viewport
+      // until the user opens them, but the 44px summary remains accessible.
       const specPanel=page.getByTestId("network-spec-panel");
+      assert.equal(await specPanel.getAttribute("open"),null,
+        "Technical specification must start collapsed with no active spec");
+      const compactSummaryHeight=await specPanel.getByTestId("network-spec-summary")
+        .evaluate(element=>element.getBoundingClientRect().height);
+      assert.ok(compactSummaryHeight>=44&&compactSummaryHeight<=56,
+        "Collapsed technical control is not compact and accessible at "+width+": "+compactSummaryHeight);
+      const roleBar=page.getByTestId("network-compact-role-bar");
+      assert.equal(await roleBar.count(),1,"Missing compact role bar at "+width);
       await specPanel.getByTestId("network-spec-summary").click();
       assert.equal(await specPanel.getAttribute("open"),"","Technical panel failed to open at "+width);
       const specLayout=await specPanel.evaluate(panel=>{
