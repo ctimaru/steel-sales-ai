@@ -275,7 +275,8 @@ try {
 
     await hydratedFacetFixture();
     await geoPage.getByTestId("network-spec-panel").getByTestId("network-spec-summary").click();
-    await geoPage.getByRole("textbox",{name:"Norma",exact:true}).fill("EN 10219");
+    // Input with a datalist has the implicit combobox role, not textbox.
+    await geoPage.locator('input[name="std"]').fill("EN 10219");
     await geoPage.getByRole("textbox",{name:"Grado o materiale"}).fill("S355");
     await geoPage.getByRole("button",{name:"Cerca fornitori compatibili"}).click();
     await geoPage.waitForURL(url=>url.pathname==="/network"&&
