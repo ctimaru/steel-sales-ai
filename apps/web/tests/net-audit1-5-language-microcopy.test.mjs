@@ -46,5 +46,5 @@ test("NET-AUDIT1.5 chat microcopy: opening examples, compact disclosure, real bu
   assert.match(chat,/Nessuna RFQ viene inviata/);
   assert.match(bridge,/quando premi “Prepara articoli da rivedere”/);
   assert.doesNotMatch(bridge,/premi Analizza/);
-  assert.match(map,/27 Paesi UE sulla mappa/);
+  assert.match(map,/Europa estesa · \{europeCountryCount\} Paesi selezionabili/);
 });
