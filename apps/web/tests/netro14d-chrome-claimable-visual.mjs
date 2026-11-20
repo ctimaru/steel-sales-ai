@@ -24,7 +24,8 @@ const adminClient = createClient(dbUrl, serviceKey, {
 const people = JSON.parse(readFileSync(path.join(process.env.RUNNER_TEMP, "demotest23-personas.json"), "utf8"));
 const admin = people.find(x => x.id === "buyer");
 const viewer = people.find(x => x.id === "buyerViewer");
-assert.ok(admin && viewer, "Isolated admin and viewer personas required");
+const countryViewer = people.find(x => x.id === "processor");
+assert.ok(admin && viewer && countryViewer, "Isolated admin, viewer and country-browse personas required");
 const out = path.join(process.env.RUNNER_TEMP, "netro14d-synthetic-visual");
 mkdirSync(out, { recursive: true });
 
@@ -48,6 +49,63 @@ const companies = domains.map(({domain,role}) => {
   assert.equal(record.verification_status, "unverified");
   return { ...record, role };
 });
+
+// Create a synthetic active company link for the disposable buyer organization.
+// This exercises NETUX11's real Free membership guard; the existing Pro pilot
+// entitlement alone is intentionally insufficient. Never runs on hosted DB.
+const {data:activeLinks,error:activeLinkError}=await adminClient
+  .from("organization_network_company_links")
+  .select("id").eq("organization_id",countryViewer.org).eq("link_status","active").limit(1);
+assert.ifError(activeLinkError);
+if(!activeLinks?.length){
+  const {data:itCompany,error:itCompanyError}=await adminClient
+    .from("network_companies").select("id")
+    .eq("country_code","IT").eq("publication_status","published").limit(1).single();
+  assert.ifError(itCompanyError);
+  const now=new Date().toISOString();
+  const {data:claim,error:claimError}=await adminClient
+    .from("network_company_claims")
+    .insert({network_company_id:itCompany.id,organization_id:countryViewer.org,
+      requested_by:countryViewer.userId,status:"approved",reviewed_by:countryViewer.userId,
+      reviewed_at:now,proof_method:"manual_review",proof_status:"verified",
+      proof_verified_by:countryViewer.userId,proof_verified_at:now})
+    .select("id").single();
+  assert.ifError(claimError);
+  const {error:linkError}=await adminClient
+    .from("organization_network_company_links")
+    .insert({organization_id:countryViewer.org,network_company_id:itCompany.id,
+      claim_id:claim.id,linked_by:countryViewer.userId,link_status:"active"});
+  assert.ifError(linkError);
+}
+
+// NET-UX-FILTERS3: actual authenticated Free RPC against the disposable SQL
+// fixture. The old Pro-only M6 reader returned zero although RO rows existed.
+const anonKey=process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+assert.ok(anonKey && anonKey.length>20,"Local anon key required");
+const freeClient=createClient(dbUrl,anonKey,{
+  auth:{persistSession:false,autoRefreshToken:false},
+});
+const {error:freeSignInError}=await freeClient.auth.signInWithPassword({
+  email:countryViewer.email,password:countryViewer.password,
+});
+assert.ifError(freeSignInError);
+const {data:countryPage,error:countryError}=await freeClient.rpc("netux_filters3_country_page",{
+  p_organization_id:countryViewer.org,p_access:"free",p_country:"RO",
+  p_page:1,p_limit:18,
+});
+assert.ifError(countryError);
+assert.equal(countryPage?.contract,"netux-filters3-country-v1");
+assert.equal(countryPage?.country,"RO");
+assert.ok(countryPage?.total>=3,"Free Romania must include three seeded published companies");
+assert.ok(countryPage?.items?.some(x=>companies.some(c=>c.id===x.id)),
+  "Country lookup must return actual canonical company rows");
+const {data:unauthorizedPage,error:unauthorizedError}=await freeClient.rpc("netux_filters3_country_page",{
+  p_organization_id:"00000000-0000-4000-8000-000000000000",
+  p_access:"free",p_country:"RO",p_page:1,p_limit:18,
+});
+assert.ok(unauthorizedError,"Unowned company must be rejected");
+assert.equal(unauthorizedPage,null);
+await freeClient.auth.signOut();
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 let assertions = 0;
@@ -125,6 +183,37 @@ async function screenshot(page,slug,width) {
 }
 
 try {
+  // NET-UX-FILTERS3: test the real interactive Network component in the
+  // localhost-only visual fixture. Synthetic login may render the legacy
+  // fallback on /network; the guarded Free RPC was already tested above.
+  // Window identity survives client-side router.replace and Next <Link>, but
+  // would be lost on a full document reload.
+  const geoSession=await session(admin,1440);
+  try {
+    const geoPage=geoSession.page;
+    const fixture=async()=>{
+      await navigate(geoPage,"/network-visual-qa");
+      await geoPage.getByTestId("network-compact-experience")
+        .waitFor({state:"visible",timeout:90000});
+      await geoPage.evaluate(()=>{window.__networkGeoSpaProbe="intact";});
+    };
+    await fixture();
+    await geoPage.getByTestId("network-country-ticker")
+      .getByRole("link",{name:/Romania/}).first().click();
+    await geoPage.waitForURL(url=>url.pathname==="/network"&&url.searchParams.get("country")==="RO",
+      {timeout:60000});
+    assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
+      "Country ticker navigated by reloading the document");
+    // The same check on the SVG map independently verifies the router transition.
+    await fixture();
+    await geoPage.locator('[data-testid="network-eu-map-mini-svg"] a[data-country="RO"]').click();
+    await geoPage.waitForURL(url=>url.pathname==="/network"&&url.searchParams.get("country")==="RO",
+      {timeout:60000});
+    assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
+      "SVG map navigated by reloading the document");
+    assert.deepEqual(geoSession.errors,[],"SPA geography caused a browser runtime error");
+    assertions+=5;
+  } finally { await geoSession.context.close(); }
   for (const width of [1440,390,320]) {
     const {context,page,height,errors}=await session(admin,width);
     try {
