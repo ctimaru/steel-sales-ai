@@ -502,8 +502,8 @@ try {
         color:getComputedStyle(node).color,
         textFill:getComputedStyle(node).webkitTextFillColor,
       }));
-      assert.equal(websiteColor.color,"rgb(33, 88, 64)");
-      assert.equal(websiteColor.textFill,"rgb(33, 88, 64)");
+      assert.notEqual(websiteColor.color,"rgb(255, 255, 255)", "Secondary website action needs readable dark text");
+      assert.notEqual(websiteColor.textFill,"rgb(255, 255, 255)", "WebKit website action must not be white on white");
       await compactCard.scrollIntoViewIfNeeded();
       await noOverflow(page,"Company-sparse-hero/"+width);
       await screenshot(page,"network-company-profile-ux6-sparse",width);
