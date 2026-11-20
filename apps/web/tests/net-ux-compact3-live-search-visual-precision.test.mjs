@@ -61,5 +61,5 @@ test("COMPACT3.4 desktop header and rows use one column contract; mobile remains
   assert.match(page,/lg:grid-cols-\[280px_minmax\(0,1fr\)\]/); // NET-UX LOT1: filters in a left column
   assert.match(page,/h-11 w-full min-w-0 rounded-xl border/); // NET-UX-FILTERS1: 44px selects with rounded focus
   assert.match(page,/aria-label="Pagina successiva"/);
-  assert.match(page,/min-h-10 w-full/);
+  assert.match(page,/min-h-10 items-center justify-center/);
 });
