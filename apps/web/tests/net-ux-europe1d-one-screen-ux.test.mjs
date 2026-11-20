@@ -27,7 +27,7 @@ test("EUROPE1D keeps the map visible on mobile and exposes aligned facet labels"
   assert.match(page,/Rimuovi filtro regione/);
 });
 test("EUROPE1D keeps mini map as European overview, dialog as detail, and country/region navigation distinct",()=>{
-  assert.match(map,/europeMapViewBox\(compact\?null:zoomCountry\)/);
+  assert.match(map,/europeMapViewBox\(zoomCountry\)/);
   assert.match(map,/data-testid="network-europe1d-overview"/);
   // App Router handles map navigation in place without document reload.
   assert.match(map,/href=\{europeMapRegionHref\(filters,country,region.code\)\}/);
