@@ -41,6 +41,15 @@ export const OTHER_NETWORK_COUNTRIES = [
   {code:"US",name:"Stati Uniti"},
 ] as const;
 
+/** The Network map is European, not EU-only: all five European
+ * non-EU countries supported by the directory are selectable on the map.
+ * The US is intentionally excluded from this geographic overview.
+ */
+export const EUROPE_NETWORK_COUNTRIES = [
+  ...OTHER_NETWORK_COUNTRIES.filter(country=>country.code!=="US"),
+  ...EU_MEMBER_COUNTRIES,
+] as ReadonlyArray<{code:string;name:string}>;
+
 const EU_CODES = new Set<string>(EU_MEMBER_COUNTRIES.map(country=>country.code));
 const COUNTRY_LABELS:Record<string,string> = Object.fromEntries(
   [...EU_MEMBER_COUNTRIES,...OTHER_NETWORK_COUNTRIES].map(country=>[country.code,country.name]),
