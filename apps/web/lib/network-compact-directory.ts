@@ -1,6 +1,6 @@
 import "server-only";
 
-import {getNetworkBrowsePage,getNetworkDiscoveredMarketPage,getNetworkSteelRelevancePage, type FreeCompany, type NetworkBrowsePage} from "@/lib/network-free";
+import {getNetworkCountryPage,getNetworkBrowsePage,getNetworkDiscoveredMarketPage,getNetworkSteelRelevancePage, type FreeCompany, type NetworkBrowsePage} from "@/lib/network-free";
 import {parseNetworkPage} from "@/components/network-pagination";
 import {searchNetwork} from "@/lib/network";
 import {withCompactGeoEvidence} from "@/lib/network-compact-geo";
@@ -223,6 +223,33 @@ async function buildCompactNetworkPage(
       capabilityLabels:Object.fromEntries(selected.map(company=>[
         company.id,company.capabilities.map(x=>x.name),
       ])),
+    };
+  }
+  // NET-UX-FILTERS3: foreign-country browsing must use the same authorized
+  // Free/Pro security boundary as the Network banner. The M6 SQL-invoker
+  // search sees restrictive Pro RLS and returns 0 to legitimate Free viewers.
+  // Country results are canonical published companies; do not invent rows from
+  // aggregated ticker totals.
+  if(filters.country && filters.country!=="IT"){
+    const requestedPage=parseNetworkPage(filters.np);
+    const first=await getNetworkCountryPage(organizationId,access,{
+      country:filters.country,q:filters.q,role:filters.role,
+      product:filters.product,capability:filters.capability,market:filters.market,
+      page:requestedPage,
+    });
+    const total=first.total;
+    const pages=Math.max(1,Math.ceil(total/COMPACT_NETWORK_PAGE_SIZE));
+    const page=Math.min(requestedPage,pages);
+    const selected=page===requestedPage?first:await getNetworkCountryPage(organizationId,access,{
+      country:filters.country!,q:filters.q,role:filters.role,
+      product:filters.product,capability:filters.capability,market:filters.market,page,
+    });
+    return {
+      items:selected.items,total,published:total,discovered:0,page,pages,
+      first:total?(page-1)*COMPACT_NETWORK_PAGE_SIZE+1:0,
+      last:Math.min(page*COMPACT_NETWORK_PAGE_SIZE,total),
+      discoveryUnavailable:false,
+      technicalOnly:Boolean(filters.product||filters.capability||filters.market),
     };
   }
   if(technicalOnly){

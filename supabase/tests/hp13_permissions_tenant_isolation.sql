@@ -303,6 +303,10 @@ select pg_temp.hp13_assert(
         -- (Pro). Empty pinned search_path, anonymous EXECUTE revoked; no PII,
         -- private research leads, raw company contacts or mutation side effects.
         'netux_map1_country_stats',
+        -- NET-UX-FILTERS3: read-only canonical country browse for Free/Pro,
+        -- with the same active-member/entitlement checks as the ticker.
+        -- Public facade is authenticated-only and private impl inaccessible.
+        'netux_filters3_country_page',
         -- NET-PIPELINE1B.2: platform discovery.read-guarded bounded dry-run;
         -- no candidate PII exposed to anonymous callers.
         'net_pipeline1b2_preview_batch',
@@ -361,6 +365,27 @@ select pg_temp.hp13_assert(
   'NET-UX-MAP1 country statistics facade must be pinned, guarded, and deny private direct execute'
 );
 
+
+
+-- NET-UX-FILTERS3: the new Free/Pro country-reader must preserve the tenant
+-- gate and never become accessible anonymously or through the private schema.
+select pg_temp.hp13_assert(
+  exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='public' and p.proname='netux_filters3_country_page'
+      and p.prosecdef
+      and has_function_privilege('authenticated',p.oid,'EXECUTE')
+      and not has_function_privilege('anon',p.oid,'EXECUTE')
+      and coalesce(array_to_string(p.proconfig,','),'') like '%search_path=""%'
+  ) and exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+    where n.nspname='private' and p.proname='netux_filters3_country_page_impl'
+      and p.prosecdef
+      and not has_function_privilege('authenticated',p.oid,'EXECUTE')
+      and not has_function_privilege('anon',p.oid,'EXECUTE')
+  ),
+  'NET-UX-FILTERS3 country page must retain Free/Pro guards and private implementation ACL'
+);
 
 select pg_temp.hp13_assert(
   not exists (

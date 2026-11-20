@@ -44,8 +44,8 @@ test("EUROPE1B: country navigation preserves filters but never stale region or p
   assert.doesNotMatch(map,/params\.set\("np"/);
   assert.match(map,/<a key=\{shape.code\} href=\{href\}/);
   assert.match(map,/<a key=\{region.code\} href=\{europeMapRegionHref\(/);
-  assert.doesNotMatch(map,/event\.preventDefault\(\)/);
-  assert.doesNotMatch(map,/router\.replace\(/);
+  assert.match(map,/event\.preventDefault\(\)/);
+  assert.match(map,/router\.replace\(href,\{scroll:false\}\)/);
   assert.match(countryFilters,/router\.replace\(/);
 });
 test("EUROPE1B: compact, full-screen dialog, focus, native links and keyboard list",()=>{
@@ -61,7 +61,7 @@ test("EUROPE1B: compact, full-screen dialog, focus, native links and keyboard li
   assert.match(map,/EU_MEMBER_COUNTRIES\.map/);
   assert.match(map,/setZoomCountry\(null\)/);
   assert.match(map,/20 regioni italiane/);
-  assert.match(map,/Confini europei: © Eurostat/);
+  assert.match(map,/Confini © Eurostat\/GISCO/);
   assert.doesNotMatch(map,/count\(\)|source_role|service_role|supabase|Math\.random\(/);
 });
 test("EUROPE1B: Free/Pro single-screen map always visible, Italy regions retained",()=>{

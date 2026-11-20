@@ -100,9 +100,9 @@ test("MAP1 repair: global Network total is distinct from filtered and currently 
   assert.match(ui,/directory\.items\.length\.toLocaleString\("it-IT"\)/);
   assert.match(ui,/items=\{networkCountries\}/);
 });
-test("MAP1 repair: ticker country selections are native, navigable country filters",()=>{
-  assert.match(ticker,/return <a/);
+test("MAP1 repair: ticker country selections use client-side Next navigation",()=>{
+  assert.match(ticker,/return <Link scroll=\{false\}/);
   assert.match(ticker,/href=\{"\/network\?country="\+encodeURIComponent\(item.countryCode\)\+"#network-results"\}/);
-  assert.doesNotMatch(ticker,/import Link from "next\/link"/);
+  assert.match(ticker,/import Link from "next\/link"/);
   assert.match(ticker,/tabIndex=\{duplicate\?-1:undefined\}/);
 });
