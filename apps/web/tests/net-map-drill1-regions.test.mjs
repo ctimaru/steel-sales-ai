@@ -7,7 +7,7 @@ const map=read("../components/network-europe-map.tsx");
 const regionCatalog=read("../lib/network-eu-regions.ts");
 const extraCatalog=read("../lib/network-europe-extra-regions.ts");
 const regional=read("../lib/network-europe-regional.ts");
-const sql=read("../../../supabase/migrations/20261120115900_net_map_drill1_extra_europe_regions.sql");
+const sql=read("../../../supabase/migrations/20261120114636_net_map_drill1_extra_europe_regions.sql");
 const hp13=read("../../../supabase/tests/hp13_permissions_tenant_isolation.sql");
 const catalogJSON=extraCatalog.match(/EUROPE_EXTRA_REGIONS:[^\n]*=(\[.*\]);/)?.[1];
 assert.ok(catalogJSON,"Missing generated extras catalog");
