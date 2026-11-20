@@ -204,6 +204,37 @@ export async function getNetworkBrowsePage(
     ||!Number.isInteger(page.page)||!Number.isInteger(page.page_size))throw new Error("network_browse_page_invalid_contract");
  return page;
 }
+
+/** NET-UX-FILTERS3: country-filtered canonical directory for authenticated
+ * Free and Pro users. Do not use the M6 SQL-invoker search for Free viewers:
+ * its underlying table RLS is intentionally Pro-only.
+ */
+export async function getNetworkCountryPage(
+  organizationId:string,access:"free"|"pro",
+  filters:{country:string;q?:string;role?:string;product?:string;capability?:string;market?:string;page?:number},
+):Promise<Pick<NetworkBrowsePage,"items"|"total"|"page"|"page_size"|"has_more">>{
+  const supabase=await createClient();
+  const {data,error}=await supabase.rpc("netux_filters3_country_page",{
+    p_organization_id:organizationId,p_access:access,p_country:filters.country,
+    p_query:(filters.q??"").trim().slice(0,120)||null,
+    p_role:filters.role||null,
+    p_product:filters.product||null,p_capability:filters.capability||null,
+    p_market:filters.market||null,
+    p_page:validPage(filters.page),p_limit:18,
+  });
+  if(error || !data || typeof data!=="object")
+    throw new Error("network_country_page_unavailable: "+(error?.code||"no_data"));
+  const page=data as Pick<NetworkBrowsePage,"items"|"total"|"page"|"page_size"|"has_more">&{contract:string;country:string};
+  if(page.contract!=="netux-filters3-country-v1" ||
+     page.country!==filters.country.toUpperCase() ||
+     !Array.isArray(page.items) ||
+     typeof page.total!=="number" || !Number.isSafeInteger(page.total) || page.total<0 ||
+     !Number.isInteger(page.page) || page.page<1 ||
+     page.page_size!==18 || typeof page.has_more!=="boolean")
+    throw new Error("network_country_page_invalid_contract");
+  return page;
+}
+
 export async function getFreeNetworkPagedDirectory(
  organizationId:string,
  filters:{q?:string;role?:string;region?:string;persona?:string;page?:number;discoveryPage?:number},
