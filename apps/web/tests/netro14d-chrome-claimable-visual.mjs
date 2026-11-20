@@ -204,8 +204,16 @@ try {
       {timeout:60000});
     assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
       "Country ticker navigated by reloading the document");
-    // Country drilldown: actual Italian region changes URL without full reload.
+    // Country drilldown: first confirm React has hydrated by actually opening
+    // and closing the client-only dialog; an unhydrated SSR anchor would cause
+    // a false document-reload failure in this disposable Chrome fixture.
     await fixture();
+    await geoPage.getByRole("button",{name:"Espandi mappa europea"}).click();
+    const readyDialog=geoPage.getByRole("dialog",{name:"Mappa interattiva dell'Europa estesa"});
+    await readyDialog.waitFor({state:"visible",timeout:30000});
+    await readyDialog.getByRole("button",{name:"Chiudi mappa europea"}).click();
+    await readyDialog.waitFor({state:"hidden"});
+    await geoPage.evaluate(()=>{window.__networkGeoSpaProbe="intact";});
     await geoPage.getByTestId("network-map-compact-regions")
       .getByRole("link",{name:"Piemonte"}).click();
     await geoPage.waitForURL(url=>url.pathname==="/network"&&
