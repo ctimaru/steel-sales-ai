@@ -50,7 +50,7 @@ function NetworkProfileTrustSignals({
 }
 
 /**
- * NET-PROFILE-UX7 — compact business identity and five accessible tabs.
+ * NET-PROFILE-UX8 — actions live in the header, four compact information tabs.
  * Destinations remain stable for every company, even sparse ones;
  * all visible claims and actions still come only from authorized data.
  */
@@ -77,6 +77,7 @@ export function NetworkProfileOverview({
   phone,
   logoUrl,
   actions,
+  requestHref,
   connectionsAvailable = false,
   primaryConnectionAvailable = false,
   stockCount = 0,
@@ -106,6 +107,8 @@ export function NetworkProfileOverview({
   phone?: string | null;
   logoUrl?: string | null;
   actions?: ReactNode;
+  /** Authorized entry to the single Distinta/RDO flow; does not send anything. */
+  requestHref?: string | null;
   connectionsAvailable?: boolean;
   primaryConnectionAvailable?: boolean;
   stockCount?: number;
@@ -143,39 +146,32 @@ export function NetworkProfileOverview({
       icon: "products",
       content: (
         <section id="attivita" aria-label="Attività e prodotti" className="min-w-0 space-y-4">
-          <div>
-            <h3 className={sectionTitleClass}>Attività e prodotti</h3>
-            <p className="mt-2 text-sm leading-6 text-[#647369]">
-              Prodotti commercializzati o fabbricati, lavorazioni e competenze tecniche pubblicate.
-            </p>
-          </div>
-          {description ? <p className="max-w-3xl whitespace-pre-wrap text-sm leading-7 text-[#45594c]">{description}</p> : null}
-          {visibleProducts.length ? (
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wide text-[#2d6245]">Prodotti</h4>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {visibleProducts.map((product) => <span key={product}
-                  className="rounded-xl border border-[#d5e6d8] bg-[#f3f9f4] px-3 py-2 text-xs font-semibold text-[#24573c]">{product}</span>)}
-              </div>
-            </div>
-          ) : null}
-          {visibleServices.length ? (
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wide text-[#2d6245]">Lavorazioni e specializzazioni</h4>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {visibleServices.map((service) => <span key={service}
-                  className="rounded-xl border border-[#dfe9e0] bg-white px-3 py-2 text-xs font-medium text-[#536a58]">{service}</span>)}
-              </div>
-            </div>
-          ) : null}
-          {visibleStandards.length ? (
-            <div>
-              <h4 className="text-xs font-bold uppercase tracking-wide text-[#2d6245]">Norme pubblicate</h4>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {visibleStandards.map((standard) => <span key={standard}
-                  className="rounded-lg border border-[#d8e5dc] bg-[#f7faf8] px-3 py-1.5 text-xs font-semibold text-[#305d46]">{standard}</span>)}
-              </div>
-            </div>
+          <h3 className={sectionTitleClass}>Attività e prodotti</h3>
+          {description ? <p className="max-w-4xl whitespace-pre-wrap text-sm leading-6 text-[#45594c]">{description}</p> : null}
+          {(visibleProducts.length || visibleServices.length || visibleStandards.length) ? (
+            <dl className="divide-y divide-[#e5ece7] border-y border-[#e5ece7]" data-testid="network-profile-industrial-summary">
+              {visibleProducts.length ? <div className="grid min-w-0 gap-2 py-3 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-4">
+                <dt className="pt-1 text-xs font-bold text-[#37664d]">Prodotti</dt>
+                <dd className="flex min-w-0 flex-wrap gap-1.5">
+                  {visibleProducts.map((product) => <span key={product}
+                    className="rounded-md bg-[#eef6f0] px-2.5 py-1 text-xs font-semibold text-[#24573c]">{product}</span>)}
+                </dd>
+              </div> : null}
+              {visibleServices.length ? <div className="grid min-w-0 gap-2 py-3 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-4">
+                <dt className="pt-1 text-xs font-bold text-[#37664d]">Lavorazioni e specializzazioni</dt>
+                <dd className="flex min-w-0 flex-wrap gap-1.5">
+                  {visibleServices.map((service) => <span key={service}
+                    className="rounded-md bg-[#f4f7f5] px-2.5 py-1 text-xs font-medium text-[#536a58]">{service}</span>)}
+                </dd>
+              </div> : null}
+              {visibleStandards.length ? <div className="grid min-w-0 gap-2 py-3 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-4">
+                <dt className="pt-1 text-xs font-bold text-[#37664d]">Norme pubblicate</dt>
+                <dd className="flex min-w-0 flex-wrap gap-1.5">
+                  {visibleStandards.map((standard) => <span key={standard}
+                    className="rounded-md bg-[#f4f7f5] px-2.5 py-1 text-xs font-semibold text-[#305d46]">{standard}</span>)}
+                </dd>
+              </div> : null}
+            </dl>
           ) : null}
           {!hasActivities ? <p className={emptyStateClass}>
             Prodotti e specializzazioni non ancora pubblicati nel Network.
@@ -242,30 +238,6 @@ export function NetworkProfileOverview({
       ),
     },
     {
-      id: "connessioni",
-      title: "Connessioni",
-      summary: "Relazioni e opportunità",
-      icon: "connections",
-      content: (
-        <section aria-label="Connessioni" className="min-w-0 space-y-4">
-          <div>
-            <h3 className={sectionTitleClass}>Connessioni</h3>
-            <p className="mt-2 text-sm leading-6 text-[#647369]">
-              Gestisci le relazioni commerciali con questa azienda, quando consentite dal tuo accesso.
-            </p>
-          </div>
-          {connectionsAvailable && actions ? <div data-testid="network-profile-quick-actions"
-            aria-label="Azioni commerciali" className="flex max-w-sm flex-col gap-2 [&_form]:w-full [&_button]:min-h-11 [&_a]:min-h-11">
-            {actions}
-          </div> : (
-            <p className={emptyStateClass}>
-              Nessuna azione commerciale disponibile per questo profilo con i permessi attuali.
-            </p>
-          )}
-        </section>
-      ),
-    },
-    {
       id: "approfondimenti",
       title: "Documenti e fonti",
       summary: "Certificazioni e informazioni",
@@ -321,17 +293,27 @@ export function NetworkProfileOverview({
               {!primaryRole && visibleRoles.length ? <p className="mt-1 text-xs text-[#536c5c]">{visibleRoles.join(" · ")}</p> : null}
             </div>
           </div>
-          <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end"
+          <div className="flex min-w-0 flex-wrap items-center gap-2 sm:max-w-[55%] sm:justify-end"
             data-testid="network-profile-hero-actions">
-            <span className="inline-flex min-h-9 items-center rounded-lg bg-[#eef5f0] px-2.5 text-[11px] font-semibold text-[#3f6750]">
+            {requestHref ? <Link href={requestHref} data-testid="network-profile-request-rdo"
+              title="Prepara la Distinta, scegli i fornitori e conferma l'invio"
+              className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#176647] px-3.5 text-[13px] font-bold text-white transition hover:bg-[#115436] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]">
+              Richiedi offerta <span aria-hidden="true">↗</span>
+            </Link> : null}
+            {connectionsAvailable && actions ? <div data-testid="network-profile-quick-actions"
+              aria-label="Azioni commerciali"
+              className="flex min-w-0 flex-wrap items-center gap-2 [&_a]:!w-auto [&_button]:!w-auto [&_a]:min-h-10 [&_button]:min-h-10">
+              {actions}
+            </div> : null}
+            {website ? <a href={website} target="_blank" rel="noopener noreferrer"
+              className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[#a9cbb5] bg-white px-3 text-[13px] font-semibold text-[#215840] transition hover:bg-[#f1f8f3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#276a4d]">
+              Sito aziendale <span aria-hidden="true">↗</span>
+            </a> : null}
+            <span className="inline-flex min-h-8 items-center rounded-lg bg-[#eef5f0] px-2.5 text-[11px] font-semibold text-[#3f6750]">
               {identityTrust === "verified" ? "Azienda verificata" :
                 identityTrust === "claimed" ? "Profilo rivendicato" :
                 identityTrust === "unconfirmed" ? "Identità da confermare" : "Identità non verificata"}
             </span>
-            {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-[#a9cbb5] bg-white px-3.5 text-[13px] font-semibold text-[#215840] transition hover:bg-[#f1f8f3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#276a4d]">
-              Sito aziendale <span aria-hidden="true">↗</span>
-            </a> : null}
           </div>
         </div>
       </header>
