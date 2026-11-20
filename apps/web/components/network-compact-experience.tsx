@@ -290,26 +290,25 @@ export async function NetworkCompactExperience({
             <section aria-label="Ricerca e filtri delle aziende"
               data-testid="network-refined-filters"
               className="min-w-0 overflow-hidden rounded-2xl border border-[#cbded2] bg-white shadow-[0_3px_16px_rgba(20,75,53,0.05)]">
-              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-b border-[#e3ebe5] bg-[#f7faf8] px-3 py-2 sm:px-4">
-                <h2 className="text-sm font-bold text-[#173f35]">Filtra le aziende</h2>
-                <span className="text-[11px] font-semibold text-[#47705a]">
-                  {activeFilterCount?activeFilterCount+(activeFilterCount===1?" filtro attivo":" filtri attivi"):"Tutta la filiera"}
-                </span>
+              {/* NET-FILTERBAR2: one compact role row, no redundant header card. */}
+              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 border-b border-[#e3ebe5] px-3 py-1.5"
+                data-testid="network-compact-role-bar">
+                <span className="shrink-0 text-[11px] font-bold uppercase tracking-wide text-[#47705a]">Filtri</span>
+                <nav aria-label="Ruolo nella filiera" className="flex min-w-0 flex-wrap items-center gap-1">
+                  {roles.map(item=>{
+                    const selected=(filters.role||"")===item.key;
+                    return <Link key={item.key||"all"} href={filterUrl(filters,{role:item.key||null,np:null},"#network-results")}
+                      aria-current={selected?"page":undefined}
+                      className={"inline-flex min-h-11 min-w-0 items-center justify-center rounded-lg border px-2.5 py-1 text-center text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
+                        (selected?"ui-action ui-action-primary":"border-[#d3e3d9] bg-[#f7faf8] text-[#20543e] hover:border-[#9fc6af] hover:bg-[#eaf4ed]")}>
+                      {item.label}
+                    </Link>;
+                  })}
+                </nav>
+                {activeFilterCount>0?<span className="ml-auto text-[11px] font-semibold text-[#47705a]">{activeFilterCount} attivi</span>:null}
               </div>
-              <nav aria-label="Ruolo nella filiera"
-                className="flex min-w-0 flex-wrap gap-1.5 border-b border-[#e3ebe5] px-3 py-2 sm:px-4">
-                {roles.map(item=>{
-                  const selected=(filters.role||"")===item.key;
-                  return <Link key={item.key||"all"} href={filterUrl(filters,{role:item.key||null,np:null},"#network-results")}
-                    aria-current={selected?"page":undefined}
-                    className={"inline-flex min-h-11 min-w-0 items-center justify-center rounded-lg border px-3 py-2 text-center text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
-                      (selected?"ui-action ui-action-primary shadow-sm":"border-[#d3e3d9] bg-[#f5f9f6] text-[#20543e] hover:border-[#9fc6af] hover:bg-[#eaf4ed]")}>
-                    {item.label}
-                  </Link>;
-                })}
-              </nav>
               <NetworkFilterRouteForm ariaLabel="Filtri tecnici e geografici"
-                className="min-w-0 px-3 py-3 sm:px-4">
+                className="min-w-0 px-3 py-2">
                 {filters.q?<input type="hidden" name="q" value={filters.q}/>:null}
                 {filters.role?<input type="hidden" name="role" value={filters.role}/>:null}
                 {filters.persona?<input type="hidden" name="persona" value={filters.persona}/>:null}
@@ -323,7 +322,7 @@ export async function NetworkCompactExperience({
                     {name:"product",label:"Prodotti",options:localizeTaxonomyOptions(additionalFilters?.products||[])},
                     {name:"capability",label:"Lavorazioni e servizi",options:localizeTaxonomyOptions(additionalFilters?.capabilities||[])},
                     {name:"market",label:"Mercato",options:localizeTaxonomyOptions(additionalFilters?.markets||[])},
-                  ].map(group=><label key={group.name} className="flex min-w-0 flex-col gap-1.5">
+                  ].map(group=><label key={group.name} className="flex min-w-0 flex-col gap-1">
                     <span className="text-[11px] font-semibold text-[#315d4a]">{group.label}</span>
                     <NetworkAutoSubmitSelect name={group.name} aria-label={group.label}
                       defaultValue={filters[group.name as "product"|"capability"|"market"]||""}
@@ -335,7 +334,7 @@ export async function NetworkCompactExperience({
                 </div>
                 <button type="submit" className="ui-action ui-action-secondary sr-only inline-flex min-h-10 items-center justify-center rounded-lg px-3 text-xs font-semibold focus:not-sr-only">Applica filtri</button>
               </NetworkFilterRouteForm>
-              <div className="border-t border-[#e3ebe5] px-3 py-2.5 sm:px-4" data-testid="network-technical-filter-section">
+              <div className="border-t border-[#e3ebe5] px-3 py-1.5" data-testid="network-technical-filter-section">
                 <NetworkSpecPanel filters={filters} accessMode={accessMode}/>
               </div>
               {filterActive?<div className="flex justify-end border-t border-[#e3ebe5] px-3 py-2 sm:px-4">
@@ -474,33 +473,35 @@ function NetworkActiveFilters({filters,additionalFilters,specSummary}:{
   </nav>;
 }
 
-/** NET-UX-ROWS1 (founder request, 16 Nov 2026): explain Salva vs Connetti above the list. */
+/** NET-FILTERBAR2: concise guidance in one row; full explanation on demand. */
 function NetworkSaveConnectGuide(){
   return <section aria-label="Salva e Connetti: la differenza" data-testid="network-save-connect-guide"
-    className="grid gap-2 sm:grid-cols-2">
-    <div className="flex gap-3 rounded-2xl border border-[#f0dfb5] bg-[#fffaf0] p-3.5">
-      <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#fde9bd] text-[#8a5200]">
-        <StarIcon filled className="h-5 w-5"/>
-      </span>
-      <div className="min-w-0">
-        <p className="text-sm font-bold text-[#173f35]">Salva <span className="font-semibold text-[#6b5a2e]">· la tua lista privata</span></p>
-        <p className="mt-0.5 text-xs leading-5 text-[#52615b]">
-          Segna con la stellina le aziende su cui lavorare dopo. Le vedi solo tu e l’azienda non riceve nulla.
-          Le ritrovi in <Link href="/network/saved" className="font-semibold text-[#175640] underline underline-offset-2">Salvate</Link>.
-        </p>
+    className="min-w-0 rounded-xl border border-[#dce8e0] bg-white px-3 py-1.5">
+    <details className="group min-w-0">
+      <summary className="flex min-h-9 cursor-pointer list-none flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#3f5c4d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden">
+        <span className="inline-flex items-center gap-1.5">
+          <StarIcon filled className="h-3.5 w-3.5 text-[#a06b13]"/>
+          <strong className="text-[#173f35]">Salva</strong>
+          <span>lista privata</span>
+        </span>
+        <span aria-hidden="true" className="hidden text-[#b4c9bb] sm:inline">·</span>
+        <span className="inline-flex items-center gap-1.5">
+          <UserPlusIcon className="h-3.5 w-3.5 text-[#175640]"/>
+          <strong className="text-[#173f35]">Connetti</strong>
+          <span>richiesta all’azienda</span>
+        </span>
+        <span className="ml-auto inline-flex shrink-0 items-center gap-1 font-semibold text-[#175640]">
+          Come funziona?
+          <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8"
+            className="h-3.5 w-3.5 transition-transform group-open:rotate-180">
+            <path d="m5 7.5 5 5 5-5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </span>
+      </summary>
+      <div className="grid gap-2 border-t border-[#e3ebe5] py-2 text-xs leading-5 text-[#52615b] sm:grid-cols-2">
+        <p><strong className="text-[#173f35]">Salva:</strong> aggiungi aziende alla tua lista privata. Le vedi solo tu e l’azienda non riceve nulla. Le ritrovi in <Link href="/network/saved" className="font-semibold text-[#175640] underline underline-offset-2">Salvate</Link>.</p>
+        <p><strong className="text-[#173f35]">Connetti:</strong> invii all’azienda una richiesta motivata: può accettarla o rifiutarla. Possibile con le aziende già attive sulla piattaforma. Quelle accettate sono in <Link href="/network/connections" className="font-semibold text-[#175640] underline underline-offset-2">Connessioni</Link>.</p>
       </div>
-    </div>
-    <div className="flex gap-3 rounded-2xl border border-[#cfe3d7] bg-[#f3faf6] p-3.5">
-      <span aria-hidden="true" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#175640] text-white">
-        <UserPlusIcon className="h-5 w-5"/>
-      </span>
-      <div className="min-w-0">
-        <p className="text-sm font-bold text-[#173f35]">Connetti <span className="font-semibold text-[#3f6b56]">· una relazione tra aziende</span></p>
-        <p className="mt-0.5 text-xs leading-5 text-[#52615b]">
-          Invii all’azienda una richiesta motivata: può accettarla o rifiutarla. Se accetta, la trovi in <Link href="/network/connections" className="font-semibold text-[#175640] underline underline-offset-2">Connessioni</Link>.
-          Possibile con le aziende già attive sulla piattaforma.
-        </p>
-      </div>
-    </div>
+    </details>
   </section>;
 }
