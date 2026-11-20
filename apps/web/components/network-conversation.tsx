@@ -34,7 +34,7 @@ const EXAMPLES=[
  * messages stored in localStorage, database or analytics. Backend alone may
  * route an eligible request to the capped, audited AI provider.
  */
-export function NetworkConversation({userId,organizationId,canCompose}:{userId:string;organizationId:string;canCompose:boolean}){
+export function NetworkConversation({userId,organizationId,canCompose,embedded=false}:{userId:string;organizationId:string;canCompose:boolean;embedded?:boolean}){
   const [draft,setDraft]=useState("");
   const [turns,setTurns]=useState<Turn[]>([]);
   const [busy,startTransition]=useTransition();
@@ -132,16 +132,9 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
     setTurns([]);setDraft("");setVoiceIssue("");
     latestFilters.current=undefined;
   };
-  return <details className="group mt-2 rounded-xl border border-[#b7d1c4] bg-white"
-    data-testid="network-conversational-discovery">
-    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-      <span className="flex flex-wrap items-center gap-2">
-        <span aria-hidden="true">✦</span> Chiedi al Network
-        <span className="rounded-full bg-[#e4f0e9] px-2 py-0.5 text-[10px] text-[#175640]">AI · voce opzionale</span>
-      </span>
-      <span aria-hidden="true" className="text-base transition-transform group-open:rotate-180">⌄</span>
-    </summary>
-    <div className="border-t border-[#e6efea] px-3 pb-3 pt-3">
+  // Shared conversation body. The toolbar variant avoids a nested accordion:
+  // opening the AI launcher must reveal the input in a single click.
+  const content=<div className={embedded?"min-w-0 px-3 pb-3 pt-3":"border-t border-[#e6efea] px-3 pb-3 pt-3"}>
       <p className="text-xs leading-5 text-[#52615b]">
         Chiedi per ruolo, prodotto, regione, oppure per norma, grado e misure: la chat applica i filtri ai risultati reali.
         Non inventa aziende né numeri. Nessuna RFQ viene inviata senza la tua azione.
@@ -218,6 +211,17 @@ export function NetworkConversation({userId,organizationId,canCompose}:{userId:s
           </button>
         </div>
       </div>
-    </div>
+    </div>;
+  if(embedded)return <div className="min-w-0" data-testid="network-conversational-discovery">{content}</div>;
+  return <details className="group mt-2 rounded-xl border border-[#b7d1c4] bg-white"
+    data-testid="network-conversational-discovery">
+    <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-xs font-semibold text-[#175640] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+      <span className="flex flex-wrap items-center gap-2">
+        <span aria-hidden="true">✦</span> Chiedi al Network
+        <span className="rounded-full bg-[#e4f0e9] px-2 py-0.5 text-[10px] text-[#175640]">AI · voce opzionale</span>
+      </span>
+      <span aria-hidden="true" className="text-base transition-transform group-open:rotate-180">⌄</span>
+    </summary>
+    {content}
   </details>;
 }
