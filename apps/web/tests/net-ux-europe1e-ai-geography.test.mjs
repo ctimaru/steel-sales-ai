@@ -18,7 +18,11 @@ const ai=load(read("../lib/network-ai-contract.ts"),name=>{
  return parser;
 });
 const euCountries=load(read("../lib/network-eu-countries.ts"));
-const euRegions=load(read("../lib/network-eu-regions.ts"));
+const extraRegions=load(read("../lib/network-europe-extra-regions.ts"));
+const euRegions=load(read("../lib/network-eu-regions.ts"),name=>{
+ if(name==="./network-europe-extra-regions")return extraRegions;
+ throw Error("Unexpected module "+name);
+});
 const baseRegions=["Lombardia","Veneto","Piemonte"];
 const countries=[...euCountries.EU_MEMBER_COUNTRIES,...euCountries.OTHER_NETWORK_COUNTRIES].map(item=>({
  code:item.code,name:item.name,aliases:item.code==="DE"?["germany","deutschland"]:

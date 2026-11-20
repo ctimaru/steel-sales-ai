@@ -5,7 +5,16 @@ import ts from "typescript";
 const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
 const catalog=read("../lib/network-eu-regions.ts");
 const js=ts.transpileModule(catalog,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-const runtime={exports:{}};new Function("module","exports",js)(runtime,runtime.exports);
+const extraJs=ts.transpileModule(read("../lib/network-europe-extra-regions.ts"),{
+ compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022},
+}).outputText;
+const extras={exports:{}};
+new Function("module","exports",extraJs)(extras,extras.exports);
+const runtime={exports:{}};
+new Function("module","exports","require",js)(runtime,runtime.exports,name=>{
+ if(name==="./network-europe-extra-regions")return extras.exports;
+ throw Error("Unexpected module "+name);
+});
 const {EUROPE_NUTS2024_REGIONS,europeRegionsForCountry,europeRegionForCountry}=runtime.exports;
 test("EUROPE1C catalogue: 27 countries, unique region identifiers and correct Germany/Belgium levels",()=>{
  assert.equal(new Set(EUROPE_NUTS2024_REGIONS.map(x=>x.country)).size,27);

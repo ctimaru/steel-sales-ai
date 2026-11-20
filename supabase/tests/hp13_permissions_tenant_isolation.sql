@@ -29,6 +29,27 @@ begin
 end;
 $$;
 
+
+-- NET-MAP-DRILL1 source catalog may not be queried by a browser role.
+-- Regional function entrypoints must remain authenticated-only with a
+-- pinned search path; neither Free nor Pro access bypasses the org guard.
+select pg_temp.hp13_assert(
+  exists (
+    select 1 from pg_class c join pg_namespace n on n.oid=c.relnamespace
+    where n.nspname='public' and c.relname='network_europe2_extra_regions'
+      and c.relrowsecurity
+  ) and not has_table_privilege('authenticated','public.network_europe2_extra_regions','SELECT')
+    and not has_table_privilege('anon','public.network_europe2_extra_regions','SELECT')
+    and (select count(*) from pg_proc p join pg_namespace n on n.oid=p.pronamespace
+      where n.nspname='public'
+        and p.proname in ('net_europe2_region_coverage','net_europe2_region_search')
+        and p.prosecdef
+        and has_function_privilege('authenticated',p.oid,'EXECUTE')
+        and not has_function_privilege('anon',p.oid,'EXECUTE')
+        and coalesce(array_to_string(p.proconfig,','),'') like '%search_path=""%')=2,
+  'NET-MAP-DRILL1 non-EU region RPCs and catalog must preserve tenant isolation'
+);
+
 -- ---------------------------------------------------------------------------
 -- 1. Structural exposure audit
 -- ---------------------------------------------------------------------------
@@ -297,6 +318,10 @@ select pg_temp.hp13_assert(
         -- verification writes, claim changes or browser table grants.
         'net_europe1c_region_search',
         'net_europe1c_region_coverage',
+        -- NET-MAP-DRILL1 read-only, authenticated Free/Pro guard;
+        -- non-EU regions are not direct browser-accessible tables.
+        'net_europe2_region_search',
+        'net_europe2_region_coverage',
         -- NET-UX-MAP1: reviewed read-only aggregate country ticker facade.
         -- SECURITY DEFINER required to call private ACL-revoked implementation;
         -- internal guard requires active member (Free) or valid org entitlement
