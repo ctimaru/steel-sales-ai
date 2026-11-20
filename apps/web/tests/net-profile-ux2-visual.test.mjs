@@ -10,10 +10,10 @@ const pro = read("../app/(italian)/(workspace)/network/[id]/page.tsx");
 const fixture = read("../app/(italian)/(workspace)/network-visual-qa/page.tsx");
 const chrome = read("./netro14d-chrome-claimable-visual.mjs");
 
-test("NET-PROFILE-UX6: founder concept is the same real five-card page for Free and PRO", () => {
-  assert.match(overview, /data-profile-layout="concept-five-cards"/);
-  assert.match(overview, /Scheda aziendale · Steel Industry Network/);
-  assert.match(overview, /Profilo attuale/);
+test("NET-PROFILE-UX7: both Free and PRO use the compact company profile", () => {
+  assert.match(overview, /data-profile-layout="compact-tabs"/);
+  assert.match(overview, /Network · Scheda aziendale/);
+  assert.doesNotMatch(overview, /Profilo attuale/);
   assert.match(overview, /Sito aziendale/);
   const ordered = ["Attività e prodotti", "Stock e produzioni", "Contatti e sedi", "Connessioni", "Documenti e fonti"];
   const ids = ['id: "attivita"', 'id: "stock"', 'id: "contatti"', 'id: "connessioni"', 'id: "approfondimenti"'];
@@ -24,9 +24,11 @@ test("NET-PROFILE-UX6: founder concept is the same real five-card page for Free 
     before = after;
     assert.match(overview, new RegExp(ordered[i]));
   }
-  assert.match(hub, /lg:grid-cols-5/);
-  assert.match(hub, /grid-cols-2 gap-2\.5 lg:grid-cols-5/);
-  assert.match(hub, /Esplora le informazioni/);
+  assert.match(hub, /role="tablist"/);
+  assert.match(hub, /role="tab"/);
+  assert.match(hub, /aria-selected=\{current\}/);
+  assert.match(hub, /overflow-x-auto/);
+  assert.doesNotMatch(hub, /min-h-\[160px\]|lg:grid-cols-5/);
   assert.match(hub, /sections\.map\(\(section\) =>/);
   assert.match(hub, /aria-pressed=\{current\}/);
   assert.match(hub, /onClick=\{\(\) => selectSection\(section\.id\)\}/);
@@ -45,7 +47,7 @@ test("NET-PROFILE-UX6: founder concept is the same real five-card page for Free 
   }
 });
 
-test("NET-PROFILE-UX6: every card stays navigable without fabricating business data", () => {
+test("NET-PROFILE-UX7: every tab stays navigable without fabricating business data", () => {
   assert.match(overview, /const hasStock = stockCount > 0 && stockContent !== undefined/);
   assert.match(overview, /Nessuna disponibilità o produzione pubblicata/);
   assert.match(overview, /Prodotti e specializzazioni non ancora pubblicati/);
@@ -66,9 +68,14 @@ test("NET-PROFILE-UX6: every card stays navigable without fabricating business d
   assert.match(pro, /inquiryEligible && canInteract/);
 });
 
-test("NET-PROFILE-UX6: keyboard, provenance and explicit technical disclosures remain accessible", () => {
+test("NET-PROFILE-UX7: keyboard, provenance and explicit technical disclosures remain accessible", () => {
   assert.match(hub, /focus-visible:outline/);
-  assert.match(hub, /role="region"/);
+  assert.match(hub, /role="tabpanel"/);
+  assert.match(hub, /onTabKeyDown/);
+  assert.match(hub, /ArrowRight/);
+  assert.match(hub, /ArrowLeft/);
+  assert.match(hub, /Home/);
+  assert.match(hub, /End/);
   assert.match(hub, /aria-controls=/);
   assert.match(hub, /data-testid="network-profile-open-details"/);
   assert.match(hub, /target\.open = true/);

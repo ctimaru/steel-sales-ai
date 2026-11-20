@@ -50,8 +50,8 @@ function NetworkProfileTrustSignals({
 }
 
 /**
- * NET-PROFILE-UX6 — company page follows the approved five-card concept.
- * The five destinations are stable for every company, even sparse ones;
+ * NET-PROFILE-UX7 — compact business identity and five accessible tabs.
+ * Destinations remain stable for every company, even sparse ones;
  * all visible claims and actions still come only from authorized data.
  */
 export function NetworkProfileOverview({
@@ -126,8 +126,8 @@ export function NetworkProfileOverview({
   const countryName = countryCode === "IT" ? "Italia" : countryCode === "RO" ? "Romania" : countryCode === "DE" ? "Germania"
     : countryCode === "FR" ? "Francia" : countryCode === "ES" ? "Spagna" : countryCode || null;
   const companyMeta = [location || countryName, primaryRole].filter(Boolean).join(" · ");
-  const sectionTitleClass = "text-xl font-semibold tracking-tight text-[#173f35] sm:text-2xl";
-  const emptyStateClass = "rounded-2xl border border-[#e4ebe6] bg-[#f8faf8] px-4 py-5 text-sm leading-6 text-[#53675b]";
+  const sectionTitleClass = "text-lg font-semibold tracking-tight text-[#173f35] sm:text-xl";
+  const emptyStateClass = "border-l-2 border-[#cfe1d4] py-2 pl-3 text-sm leading-6 text-[#53675b]";
   const publicSourceLink = trustSourceUrl ? (
     <a href={trustSourceUrl} target="_blank" rel="noopener noreferrer"
       className="inline-flex min-h-11 items-center rounded-xl border border-[#bad6c3] bg-[#f5faf6] px-4 text-sm font-semibold text-[#19523a] transition hover:bg-[#e9f5ec] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205a40]">
@@ -194,6 +194,7 @@ export function NetworkProfileOverview({
       title: "Stock e produzioni",
       summary: "Magazzino e prossimi arrivi",
       icon: "stock",
+      count: hasStock ? stockCount : undefined,
       content: (
         <section id="stock" aria-label="Stock e produzioni" className="min-w-0 space-y-4">
           <div>
@@ -219,23 +220,23 @@ export function NetworkProfileOverview({
           </div>
           {location ? <p className="text-sm font-semibold text-[#345c44]">{location}</p> : null}
           {(email || phone || website) ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {email ? <a data-testid="network-company-public-email" href={"mailto:" + email}
-                className="min-w-0 rounded-xl border border-[#dce8df] bg-[#fbfdfb] p-4 text-sm text-[#205b40] hover:border-[#a7c9b0]">
-                <span className="mb-1 block text-xs font-medium text-[#627466]">Email</span>
-                <span className="block break-all font-semibold">{email} ↗</span>
-              </a> : null}
-              {phone ? <a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\d+]/g, "")}
-                className="min-w-0 rounded-xl border border-[#dce8df] bg-[#fbfdfb] p-4 text-sm text-[#205b40] hover:border-[#a7c9b0]">
-                <span className="mb-1 block text-xs font-medium text-[#627466]">Telefono</span>
-                <span className="font-semibold">{phone} ↗</span>
-              </a> : null}
-              {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-                className="min-w-0 rounded-xl border border-[#dce8df] bg-[#fbfdfb] p-4 text-sm text-[#205b40] hover:border-[#a7c9b0]">
-                <span className="mb-1 block text-xs font-medium text-[#627466]">Sito ufficiale</span>
-                <span className="font-semibold">Visita il sito ↗</span>
-              </a> : null}
-            </div>
+            <dl className="divide-y divide-[#e5ece7] border-y border-[#e5ece7] text-sm">
+              {email ? <div className="flex min-w-0 flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-5">
+                <dt className="w-28 shrink-0 text-xs font-semibold text-[#627466]">Email</dt>
+                <dd className="min-w-0"><a data-testid="network-company-public-email" href={"mailto:" + email}
+                  className="break-all font-semibold text-[#205b40] underline-offset-2 hover:underline">{email} ↗</a></dd>
+              </div> : null}
+              {phone ? <div className="flex min-w-0 flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-5">
+                <dt className="w-28 shrink-0 text-xs font-semibold text-[#627466]">Telefono</dt>
+                <dd className="min-w-0"><a data-testid="network-company-public-phone" href={"tel:" + phone.replace(/[^\d+]/g, "")}
+                  className="font-semibold text-[#205b40] underline-offset-2 hover:underline">{phone} ↗</a></dd>
+              </div> : null}
+              {website ? <div className="flex min-w-0 flex-col gap-1 py-3 sm:flex-row sm:items-center sm:gap-5">
+                <dt className="w-28 shrink-0 text-xs font-semibold text-[#627466]">Sito ufficiale</dt>
+                <dd className="min-w-0"><a href={website} target="_blank" rel="noopener noreferrer"
+                  className="font-semibold text-[#205b40] underline-offset-2 hover:underline">Visita il sito ↗</a></dd>
+              </div> : null}
+            </dl>
           ) : !location ? <p className={emptyStateClass}>Nessun recapito o stabilimento pubblicato per questa azienda.</p> : null}
         </section>
       ),
@@ -304,28 +305,33 @@ export function NetworkProfileOverview({
   return (
     <article aria-label="Profilo aziendale" data-testid="network-profile-ux1a"
       data-profile-density={hasActivities || hasStock ? "rich" : "compact"}
-      data-profile-layout="concept-five-cards"
-      className="min-w-0 space-y-5">
-      <header className="min-w-0 rounded-[26px] border border-[#dce6df] bg-white p-5 shadow-[0_18px_48px_-42px_rgba(13,70,43,0.4)] sm:p-7 lg:p-9">
-        <div className="flex min-w-0 flex-col gap-6 sm:flex-row sm:items-start">
-          <div className="flex h-[76px] w-[76px] shrink-0 items-center justify-center overflow-hidden rounded-[20px] bg-[#e5f0e9] text-2xl font-extrabold tracking-tight text-[#145b40] sm:h-[92px] sm:w-[92px] sm:text-[28px]">
-            {logoUrl ? <img src={logoUrl} alt={"Logo " + name} className="max-h-full max-w-full object-contain p-2" /> : <span aria-hidden="true">{initials}</span>}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-[#4d8060]">Scheda aziendale · Steel Industry Network</p>
-            <h1 className="mt-2 break-words text-[30px] font-semibold leading-[1.08] tracking-[-0.04em] text-[#173b2b] sm:text-[40px] lg:text-[44px]">{name}</h1>
-            {legalName && legalName !== name ? <p className="mt-1.5 break-words text-sm text-[#6b7c70]">{legalName}</p> : null}
-            {companyMeta ? <p className="mt-3 text-sm font-medium leading-6 text-[#536c5c]">{companyMeta}</p> : null}
-            {!primaryRole && visibleRoles.length ? <p className="mt-1 text-sm text-[#536c5c]">{visibleRoles.join(" · ")}</p> : null}
-            <div className="mt-5 flex flex-wrap items-center gap-2" data-testid="network-profile-hero-actions">
-              {website ? <a href={website} target="_blank" rel="noopener noreferrer"
-                className="app-primary inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold text-white transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#276a4d]">
-                Sito aziendale <span className="ml-2" aria-hidden="true">↗</span>
-              </a> : null}
-              <span className="inline-flex min-h-10 items-center rounded-xl border border-[#dde8df] bg-[#f8faf8] px-3.5 text-xs font-semibold text-[#54705c]">
-                Profilo attuale
-              </span>
+      data-profile-layout="compact-tabs"
+      className="min-w-0 space-y-4">
+      <header className="min-w-0 border-b border-[#dce7df] pb-4 pt-1 sm:pb-5">
+        <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+          <div className="flex min-w-0 flex-1 items-start gap-3 sm:items-center sm:gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[#e6f0e9] text-lg font-extrabold tracking-tight text-[#145b40] sm:h-16 sm:w-16 sm:text-xl">
+              {logoUrl ? <img src={logoUrl} alt={"Logo " + name} className="max-h-full max-w-full object-contain p-1.5" /> : <span aria-hidden="true">{initials}</span>}
             </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#548068]">Network · Scheda aziendale</p>
+              <h1 className="mt-1 break-words text-[25px] font-semibold leading-[1.12] tracking-[-0.03em] text-[#173b2b] sm:text-[32px]">{name}</h1>
+              {legalName && legalName !== name ? <p className="mt-1 break-words text-xs text-[#6b7c70]">{legalName}</p> : null}
+              {companyMeta ? <p className="mt-1.5 text-[13px] font-medium leading-5 text-[#536c5c]">{companyMeta}</p> : null}
+              {!primaryRole && visibleRoles.length ? <p className="mt-1 text-xs text-[#536c5c]">{visibleRoles.join(" · ")}</p> : null}
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2 sm:justify-end"
+            data-testid="network-profile-hero-actions">
+            <span className="inline-flex min-h-9 items-center rounded-lg bg-[#eef5f0] px-2.5 text-[11px] font-semibold text-[#3f6750]">
+              {identityTrust === "verified" ? "Azienda verificata" :
+                identityTrust === "claimed" ? "Profilo rivendicato" :
+                identityTrust === "unconfirmed" ? "Identità da confermare" : "Identità non verificata"}
+            </span>
+            {website ? <a href={website} target="_blank" rel="noopener noreferrer"
+              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-[#a9cbb5] bg-white px-3.5 text-[13px] font-semibold text-[#215840] transition hover:bg-[#f1f8f3] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#276a4d]">
+              Sito aziendale <span aria-hidden="true">↗</span>
+            </a> : null}
           </div>
         </div>
       </header>
