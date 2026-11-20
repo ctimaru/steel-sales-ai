@@ -111,7 +111,8 @@ test("COMPACT6C gateway action must enforce auth, budget, timeout and no private
 test("COMPACT6C UI supports opt-in speech and local transcript with accessible controls",()=>{
  const ui=read("../components/network-conversation.tsx");
  const surface=read("../components/network-compact-experience.tsx");
- assert.match(surface,/<NetworkConversation userId=\{userId\} organizationId=\{organizationId\} canCompose=\{canCompose\}\/>/);
+  assert.match(surface,/<NetworkAiSearchDock search=\\{<NetworkLiveSearch filters=\\{filters\\}\\/>\\}/);
+  assert.match(surface,/assistant=\\{<NetworkConversation userId=\\{userId\\} organizationId=\\{organizationId\\}\\s+canCompose=\\{canCompose\\} embedded\\/>\\}/);
  assert.match(ui,/data-testid="network-conversational-discovery"/);
  assert.match(ui,/window.isSecureContext/);
  assert.match(ui,/webkitSpeechRecognition/);
