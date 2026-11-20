@@ -38,8 +38,11 @@ test("NET-PROFILE-UX8: original saved-company toggle and connection action stay 
 });
 
 test("NET-PROFILE-UX8: RDO is a linked Distinta flow with consent and role gates", () => {
-  assert.match(overview,/data-testid="network-profile-request-rdo"/);
-  assert.match(overview,/href=\{requestHref\}/);
+  const launcher = read("../components/network-rdo-modal-launcher.tsx");
+  assert.match(launcher,/data-testid="network-profile-request-rdo"/);
+  assert.match(launcher,/aria-haspopup="dialog"/);
+  assert.match(overview,/requestHref && requestNetworkCompanyId/);
+  assert.match(overview,/<NetworkRdoModalLauncher/);
   assert.match(free,/!provisional && canWriteWorkspace\(workspace\.role\) \? newRequestHref\(\{network: companyId\}\)/);
   assert.match(pro,/organizationId && canWriteWorkspace\(membershipRole\) \? newRequestHref\(\{network: profile\.company\.id\}\)/);
   assert.match(route,/const BASE = "\/rfq-hub\/distinta"/);
