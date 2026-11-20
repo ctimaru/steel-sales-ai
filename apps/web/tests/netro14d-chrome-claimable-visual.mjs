@@ -204,8 +204,23 @@ try {
       {timeout:60000});
     assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
       "Country ticker navigated by reloading the document");
-    // The same check on the SVG map independently verifies the router transition.
+    // Country drilldown: actual Italian region changes URL without full reload.
     await fixture();
+    await geoPage.getByTestId("network-map-compact-regions")
+      .getByRole("link",{name:"Piemonte"}).click();
+    await geoPage.waitForURL(url=>url.pathname==="/network"&&
+      url.searchParams.get("country")==="IT"&&
+      url.searchParams.get("region")==="Piemonte",{timeout:60000});
+    assert.equal(await geoPage.evaluate(()=>window.__networkGeoSpaProbe),"intact",
+      "Italian region click reloaded the document");
+
+    // The map can return from Italy zoom to overview without touching URL,
+    // then select a different country without a full document reload.
+    await fixture();
+    const europeBack=geoPage.getByTestId("network-map-back-europe");
+    await europeBack.click();
+    assert.equal(await geoPage.getByTestId("network-eu-map-mini-svg").getAttribute("viewBox"),
+      "-240 0 1330 710");
     await geoPage.locator('[data-testid="network-eu-map-mini-svg"] a[data-country="RO"]').click();
     await geoPage.waitForURL(url=>url.pathname==="/network"&&url.searchParams.get("country")==="RO",
       {timeout:60000});
@@ -287,6 +302,13 @@ try {
       // NET-EUROPE-EXT1: real Chrome verifies geographically extended map and
       // keyboard-accessible extra-EU choices at desktop and narrow mobile.
       const miniSvg=europeMap.getByTestId("network-eu-map-mini-svg");
+      assert.notEqual(await miniSvg.getAttribute("viewBox"),"-240 0 1330 710",
+        "The country must be the initial compact view when URL selects Italy");
+      await miniSvg.locator('a[data-nuts-region="Piemonte"]')
+        .waitFor({state:"attached",timeout:45000});
+      assert.equal(await europeMap.getByTestId("network-map-compact-regions").getByRole("link").count(),20);
+      // The overview button only changes map zoom; the Italy filter persists.
+      await europeMap.getByTestId("network-map-back-europe").click();
       assert.equal(await miniSvg.getAttribute("viewBox"),"-240 0 1330 710");
       for(const countryCode of ["GB","CH","RS","UA","TR"]){
         assert.equal(await miniSvg.locator('a[data-country="'+countryCode+'"]').count(),1,
