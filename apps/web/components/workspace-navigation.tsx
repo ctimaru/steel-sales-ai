@@ -230,8 +230,9 @@ export function WorkspaceDesktopPrimaryNavigation({
             href={item.href}
             aria-current={selected ? "page" : undefined}
             className={[
-              "relative flex flex-col items-center justify-center gap-1 rounded-t-xl px-2 text-[11px] font-semibold transition",
-              "badge" in item && item.badge === "soon" ? "min-w-[100px]" : "min-w-[88px]",
+              "relative flex min-w-[88px] flex-col items-center justify-center gap-1 rounded-t-xl px-2 text-[11px] font-semibold transition",
+              // NAV-BADGES1: a bit more room so the two-line Coming soon badge clears the icon.
+              "badge" in item && item.badge === "soon" ? "min-w-[100px]!" : "",
               selected
                 ? "bg-[#f7faf8] text-[#173f35]"
                 : "text-[#5d6a65] hover:bg-[#f4f6f5] hover:text-[#1d2824]",
