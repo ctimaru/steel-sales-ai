@@ -87,7 +87,10 @@ test("NET-AUDIT1.1 server: spec path first, Free locked, ignored filters reporte
 });
 
 test("NET-AUDIT1.1 UI: GET panel, Pro lock, divider, weakest provenance",()=>{
-  assert.match(panel,/<form method="get" action="\/network" aria-label="Ricerca per specifica tecnica"/);
+  assert.match(panel,/<NetworkFilterRouteForm ariaLabel="Ricerca per specifica tecnica"/);
+  const routedForm=read("../components/network-filter-route-form.tsx");
+  assert.match(routedForm,/<form method="get" action="\/network"/);
+  assert.match(routedForm,/event\.preventDefault\(\)/);
   assert.match(panel,/disabled=\{locked\}/);
   assert.match(panel,/Quantità e lunghezze di taglio si indicano nella richiesta d'offerta/);
   assert.match(panel,/Scope tecnico non dichiarato per questa specifica/);
