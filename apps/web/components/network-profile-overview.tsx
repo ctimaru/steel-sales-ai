@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { NetworkProfileHub, type NetworkProfileHubSection } from "@/components/network-profile-hub";
+import { NetworkRdoModalLauncher } from "@/components/network-rdo-modal-launcher";
 
 /**
  * NET-PROFILE-UX2 — the same commercial company experience in Free and Pro.
@@ -78,6 +79,7 @@ export function NetworkProfileOverview({
   logoUrl,
   actions,
   requestHref,
+  requestNetworkCompanyId,
   connectionsAvailable = false,
   primaryConnectionAvailable = false,
   stockCount = 0,
@@ -109,6 +111,7 @@ export function NetworkProfileOverview({
   actions?: ReactNode;
   /** Authorized entry to the single Distinta/RDO flow; does not send anything. */
   requestHref?: string | null;
+  requestNetworkCompanyId?: string | null;
   connectionsAvailable?: boolean;
   primaryConnectionAvailable?: boolean;
   stockCount?: number;
@@ -295,11 +298,9 @@ export function NetworkProfileOverview({
           </div>
           <div className="flex min-w-0 flex-wrap items-center gap-2 sm:max-w-[55%] sm:justify-end"
             data-testid="network-profile-hero-actions">
-            {requestHref ? <Link href={requestHref} data-testid="network-profile-request-rdo"
-              title="Prepara la Distinta, scegli i fornitori e conferma l'invio"
-              className="inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[#176647] px-3.5 text-[13px] font-bold text-white transition hover:bg-[#115436] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176647]">
-              Richiedi offerta <span aria-hidden="true">↗</span>
-            </Link> : null}
+            {requestHref && requestNetworkCompanyId ? (
+              <NetworkRdoModalLauncher companyId={requestNetworkCompanyId} companyName={name} />
+            ) : null}
             {connectionsAvailable && actions ? <div data-testid="network-profile-quick-actions"
               aria-label="Azioni commerciali"
               className="flex min-w-0 flex-wrap items-center gap-2 [&_a]:!w-auto [&_button]:!w-auto [&_a]:min-h-10 [&_button]:min-h-10">
