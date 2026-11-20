@@ -239,9 +239,21 @@ try {
     // GET-form requestSubmit did before this change).
     const hydratedFacetFixture=async()=>{
       await fixture();
-      await geoPage.getByRole("button",{name:"Espandi mappa europea"}).click();
       const modal=geoPage.getByRole("dialog",{name:"Mappa interattiva dell'Europa estesa"});
-      await modal.waitFor({state:"visible"});
+      const expand=geoPage.getByRole("button",{name:"Espandi mappa europea"});
+      // An SSR button can receive its first click before the map's client
+      // handlers are hydrated after repeated SPA test fixture navigations.
+      // Retry only the hydration probe, not the actual facet assertions.
+      let hydrated=false;
+      for(let attempt=0;attempt<3&&!hydrated;attempt++){
+        await expand.click();
+        try{
+          await modal.waitFor({state:"visible",timeout:8000});
+          hydrated=true;
+        } catch(error){
+          if(attempt===2)throw error;
+        }
+      }
       await modal.getByRole("button",{name:"Chiudi mappa europea"}).click();
       await modal.waitFor({state:"hidden"});
       await geoPage.evaluate(()=>{window.__networkGeoSpaProbe="intact";});
