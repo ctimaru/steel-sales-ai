@@ -159,6 +159,8 @@ export function companyPostDetailRows(item: Pick<CompanyPostItem, "postType" | "
     const process = CAPACITY_PROCESSES.find((p) => p.value === str("process"))?.label ?? null;
     rows.push(
       { label: "Lavorazione", value: str("process") === "altro" ? str("process_detail") ?? process : process },
+      // HOME-REVIEW1: what can be worked (diameters, thicknesses, lengths).
+      { label: "Gamma", value: str("range") },
       { label: "Periodo", value: period(d.available_from, d.available_to, "fino al ") },
       { label: "Quantità", value: str("quantity") },
       { label: "Luogo", value: str("location") },
