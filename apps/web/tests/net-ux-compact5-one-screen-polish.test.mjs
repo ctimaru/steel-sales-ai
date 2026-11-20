@@ -35,7 +35,8 @@ test("NET-UX-MAP1 keeps the European map permanently visible above filters",()=>
   // NET-UX-MAP1: exactly one map remains outside the mobile filter drawer.
   assert.ok(page.indexOf('data-testid="network-europe-persistent-map"')<page.indexOf('<NetworkFilterDrawer activeCount='));
   assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,1);
-  assert.match(page,/aria-label="Mappa e assistente del Network"/);
+  assert.match(page,/aria-label="Mappa europea e regioni"/);
+  assert.doesNotMatch(page.slice(page.indexOf('data-testid="network-side-column"'),page.indexOf("</aside>")),/<NetworkConversation/);
   assert.match(page,/aria-label="Ricerca e filtri delle aziende"/);
 });
 
