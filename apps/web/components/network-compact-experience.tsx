@@ -5,6 +5,7 @@ import {networkCountryName} from "@/lib/network-eu-countries";
 import {europeNutsRegionName} from "@/lib/network-eu-regions";
 import type {EuropeRegionCoverage} from "@/lib/network-europe-regional";
 import {NetworkLiveSearch} from "@/components/network-live-search";
+import {NetworkAiSearchDock} from "@/components/network-ai-search-dock";
 import {NetworkConversation} from "@/components/network-conversation";
 import Link from "next/link";
 import {NetworkProducersEntry} from "@/components/network-producers-entry";
@@ -273,19 +274,19 @@ export async function NetworkCompactExperience({
     </div>
     <NetworkCountryTicker organizationId={organizationId} accessMode={accessMode} items={networkCountries}/>
     <div data-testid="network-europe1d-one-screen-shell" className="grid items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-      <aside aria-label="Mappa e assistente del Network" className="min-w-0 lg:sticky lg:top-24" data-testid="network-side-column">
+      <aside aria-label="Mappa europea e regioni" className="min-w-0 lg:sticky lg:top-24" data-testid="network-side-column">
         {/* NET-UX-MAP1: the European map is always visible, including on mobile. */}
         <div className="mb-3" data-testid="network-europe-persistent-map">
           <NetworkEuropeanMap filters={filters} coverage={europeCoverage} fullMapHref={fullMapHref}
             countryCounts={Object.fromEntries(networkCountries.map(item=>[item.countryCode,item.total]))}/>
         </div>
-        {/* P1 will move the AI chat into a dedicated drawer; it remains accessible here. */}
-        <div className="mt-3"><NetworkConversation userId={userId} organizationId={organizationId} canCompose={canCompose}/></div>
       </aside>
       <div className="min-w-0 space-y-3">
         {accessMode==="pro"&&canCompose?<NetworkSaveConnectGuide/>:null}
         <div data-testid="network-filter-toolbar" className="min-w-0 space-y-2">
-          <NetworkLiveSearch filters={filters}/>
+          <NetworkAiSearchDock search={<NetworkLiveSearch filters={filters}/>}
+            assistant={<NetworkConversation userId={userId} organizationId={organizationId}
+              canCompose={canCompose} embedded/>}/>
           <NetworkFilterDrawer activeCount={activeFilterCount}>
             <section aria-label="Ricerca e filtri delle aziende"
               data-testid="network-refined-filters"
