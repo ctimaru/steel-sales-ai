@@ -33,7 +33,7 @@ export function NetworkSaveToggle({
   surface?: NetworkSaveSurface;
   compact?: boolean;
   /** "ghost" matches the Home feed action row. */
-  appearance?: "button" | "ghost";
+  appearance?: "button" | "ghost" | "toolbar";
   /** @deprecated kept for older call sites; the toggle no longer redirects. */
   returnTo?: string;
 }) {
@@ -87,6 +87,7 @@ export function NetworkSaveToggle({
   }
 
   const ghost = appearance === "ghost";
+  const toolbar = appearance === "toolbar";
   const label = saved ? "Salvata" : compact || ghost ? "Salva" : "Salva azienda";
 
   return (
@@ -103,7 +104,7 @@ export function NetworkSaveToggle({
         "relative z-10 inline-flex min-h-10 shrink-0 items-center justify-center gap-1.5 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
         (ghost
           ? "rounded-lg px-3 " + (saved ? "text-[#6e4400] hover:bg-[#fff4d6]" : "text-[#3f5248] hover:bg-[#f1f6f3]")
-          : "rounded-xl border " + (compact ? "px-3 " : "w-full px-4 ") +
+          : "rounded-lg border " + (toolbar ? "px-3 " : compact ? "px-3 " : "w-full px-4 ") +
             (saved
               ? "border-[#e9c46a] bg-[#fff4d6] text-[#6e4400] hover:bg-[#ffecbd]"
               : "border-[#d5dfd9] bg-white text-[#3f5248] hover:border-[#e9c46a] hover:bg-[#fffaf0] hover:text-[#6e4400]"))

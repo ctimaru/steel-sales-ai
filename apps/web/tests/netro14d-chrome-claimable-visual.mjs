@@ -529,9 +529,10 @@ try {
       const companyHub=companyHero.getByTestId("network-company-card-hub");
       await companyHub.waitFor({state:"visible"});
       await companyHub.locator("button:not([disabled])").first().waitFor({state:"visible",timeout:45000});
-      const cards=["attivita","stock","contatti","connessioni","approfondimenti"];
-      const labels=["Attività e prodotti","Stock e produzioni","Contatti e sedi","Connessioni","Documenti e fonti"];
-      assert.equal(await companyHub.getByTestId("network-company-section-nav").locator("button").count(),5);
+      const cards=["attivita","stock","contatti","approfondimenti"];
+      const labels=["Attività e prodotti","Stock e produzioni","Contatti e sedi","Documenti e fonti"];
+      assert.equal(await companyHub.getByTestId("network-company-section-nav").locator("button").count(),4);
+      assert.equal(await companyHero.getByTestId("network-profile-request-rdo").count(),1);
       for(let i=0;i<cards.length;i++){
         assert.equal(await companyHub.getByTestId("network-company-card-"+cards[i]).count(),1);
         assert.match(await companyHub.getByTestId("network-company-card-"+cards[i]).innerText(),
@@ -546,8 +547,8 @@ try {
       await companyHub.getByTestId("network-company-panel-contatti").getByRole("heading",{name:"Contatti e sedi"}).waitFor({state:"visible"});
       assert.equal(await companyHub.getByTestId("network-company-panel-attivita").isVisible(),false,
         "Only one company area should be visible");
-      await companyHub.getByTestId("network-company-card-connessioni").click();
-      const commercialHeaderActions=companyHub.getByTestId("network-profile-quick-actions");
+      assert.equal(await companyHub.getByTestId("network-company-card-connessioni").count(),0);
+      const commercialHeaderActions=companyHero.getByTestId("network-profile-quick-actions");
       assert.equal(await commercialHeaderActions.count(),1);
       assert.equal(await commercialHeaderActions.getByRole("link",{name:/Esplora attività/}).count(),1);
       await companyHub.getByTestId("network-company-card-approfondimenti").click();
@@ -566,7 +567,7 @@ try {
       assert.equal(await technicalDisclosure.isVisible(),true,
         "Explicit Documenti e fonti action must reveal the real dossier");
       await companyHero.scrollIntoViewIfNeeded();
-      await noOverflow(page,"Company-five-cards-hero/"+width);
+      await noOverflow(page,"Company-four-tabs-hero/"+width);
       await screenshot(page,"network-company-profile-ux6-five-cards",width);
 
       // Exact founder concept example is isolated under localhost-only QA.
@@ -574,7 +575,7 @@ try {
       const asgHub=asg.getByTestId("network-company-card-hub");
       assert.equal(await asg.getByRole("heading",{name:"ASG S.p.A."}).count(),1);
       assert.match(await asg.innerText(),/Commerciante di prodotti siderurgici/);
-      assert.equal(await asgHub.getByTestId("network-company-section-nav").locator("button").count(),5);
+      assert.equal(await asgHub.getByTestId("network-company-section-nav").locator("button").count(),4);
       await asgHub.getByTestId("network-company-card-attivita").click();
       assert.match(await asgHub.getByTestId("network-company-panel-attivita").innerText(),/Tubi senza saldatura/);
       assert.match(await asgHub.getByTestId("network-company-panel-attivita").innerText(),/Tubi saldati longitudinali/);
@@ -586,8 +587,8 @@ try {
       });
       await asgHub.getByTestId("network-company-card-stock").click();
       assert.match(await asgHub.getByTestId("network-company-panel-stock").innerText(),/Nessuna disponibilità o produzione pubblicata/);
-      await asgHub.getByTestId("network-company-card-connessioni").click();
-      assert.match(await asgHub.getByTestId("network-company-panel-connessioni").innerText(),/Nessuna azione commerciale disponibile/);
+      assert.equal(await asgHub.getByTestId("network-company-card-connessioni").count(),0);
+      assert.equal(await asg.getByTestId("network-profile-request-rdo").count(),0);
       await asgHub.getByTestId("network-company-card-approfondimenti").click();
       assert.match(await asgHub.getByTestId("network-company-panel-approfondimenti").innerText(),/Identità non verificata/);
       await noOverflow(page,"ASG-founder-concept/"+width);
@@ -608,7 +609,7 @@ try {
       const compactCard=sparseHero.getByTestId("network-profile-ux1a");
       assert.equal(await compactCard.getAttribute("data-profile-density"),"compact");
       const sparseHub=sparseHero.getByTestId("network-company-card-hub");
-      assert.equal(await sparseHub.getByTestId("network-company-section-nav").locator("button").count(),5,
+      assert.equal(await sparseHub.getByTestId("network-company-section-nav").locator("button").count(),4,
         "Sparse entries must still show all five compact tabs");
       await sparseHub.getByTestId("network-company-card-attivita").click();
       assert.match(await sparseHub.getByTestId("network-company-panel-attivita").innerText(),
@@ -627,8 +628,8 @@ try {
       const sparseAction=page.getByTestId("network-profile-sparse-action-fixture");
       const sparseActionHero=sparseAction.getByTestId("network-profile-ux1a");
       const sparseActionHub=sparseActionHero.getByTestId("network-company-card-hub");
-      await sparseActionHub.getByTestId("network-company-card-connessioni").click();
-      assert.equal(await sparseActionHub.getByRole("link",{name:"Connetti"}).count(),1);
+      assert.equal(await sparseActionHub.getByTestId("network-company-card-connessioni").count(),0);
+      assert.equal(await sparseActionHero.getByRole("link",{name:"Connetti"}).count(),1);
       assert.equal(await sparseActionHero.getByRole("link",{name:/Sito aziendale/}).count(),1);
       const provisionalHero=page.getByTestId("network-profile-provisional-fixture").getByTestId("network-profile-ux1a");
       const provisionalHub=provisionalHero.getByTestId("network-company-card-hub");
@@ -679,11 +680,10 @@ try {
         const cardHub=overview.getByTestId("network-company-card-hub");
         if(await cardHub.count()){
           await cardHub.locator("button:not([disabled])").first().waitFor({state:"visible",timeout:45000});
-          assert.equal(await cardHub.getByTestId("network-company-card-connessioni").count(),1,
-            "The connection area must remain reachable from the company tabs");
-          assert.equal(await cardHub.getByTestId("network-company-section-nav").locator("button").count(),5);
-          await cardHub.getByTestId("network-company-card-connessioni").click();
-          assert.match(await cardHub.getByTestId("network-company-panel-connessioni").innerText(),/Connessioni/);
+          assert.equal(await cardHub.getByTestId("network-company-card-connessioni").count(),0,
+            "Connections must be actions in the company header, not a fifth tab");
+          assert.equal(await cardHub.getByTestId("network-company-section-nav").locator("button").count(),4);
+          assert.equal(await overview.getByTestId("network-profile-hero-actions").count(),1);
           const activityCard=cardHub.getByTestId("network-company-card-attivita");
           if(await activityCard.count()){
             await activityCard.click();

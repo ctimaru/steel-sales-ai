@@ -23,7 +23,7 @@ test("NET-PROFILE-UX7: large five-card menu is replaced with dense, responsive t
 });
 
 test("NET-PROFILE-UX7: switching sections is client-side, keyboard accessible, and retains data provenance", () => {
-  for (const id of ["attivita", "stock", "contatti", "connessioni", "approfondimenti"]) {
+  for (const id of ["attivita", "stock", "contatti", "approfondimenti"]) {
     assert.match(overview, new RegExp('id: "' + id + '"'));
     assert.match(hub, /sections\.map/);
   }
@@ -36,6 +36,8 @@ test("NET-PROFILE-UX7: switching sections is client-side, keyboard accessible, a
   assert.match(hub, /hidden=\{activeId !== section\.id\}/);
   assert.match(hub, /target\.open = true/);
   assert.match(overview, /data-testid="network-profile-trust-panel"/);
+  assert.doesNotMatch(overview, /id: "connessioni"/);
+  assert.match(overview, /data-testid="network-profile-request-rdo"/);
   assert.match(overview, /connectionsAvailable && actions/);
   assert.match(overview, /data-testid="network-company-source-attribution"/);
 });

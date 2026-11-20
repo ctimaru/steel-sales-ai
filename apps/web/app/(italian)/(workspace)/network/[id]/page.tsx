@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { NetworkSaveToggle } from "@/components/network-save-toggle";
+import { newRequestHref } from "@/lib/new-request-href";
 import { NetworkProfileOverview, NetworkProfileTopBar } from "@/components/network-profile-overview";
 import { NetworkProfileInventory } from "@/components/network-profile-inventory";
 import { getPublishedNetworkInventory } from "@/lib/network-stock";
@@ -358,6 +359,7 @@ export default async function NetworkCompanyProfilePage({
         stockCount={publishedInventory.length}
         stockContent={publishedInventory.length ? <NetworkProfileInventory items={publishedInventory} /> : undefined}
         connectionsAvailable={Boolean((inquiryEligible && canInteract) || (organizationId && canWriteWorkspace(membershipRole)))}
+        requestHref={organizationId && canWriteWorkspace(membershipRole) ? newRequestHref({network: profile.company.id}) : undefined}
         primaryConnectionAvailable={Boolean(inquiryEligible && canInteract)}
         hasTechnicalDetails={Boolean(profile.facilities.length || profile.markets.length || profile.certifications.length || productGroups.length || technicalStandards.length || technicalGrades.length)}
         detailsTargetId="network-profile-technical-details"
@@ -365,13 +367,13 @@ export default async function NetworkCompanyProfilePage({
           <>
             {inquiryEligible && canInteract ? (
               <Link href={"/network/" + profile.company.id + "/connect"}
-                className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-4 text-sm font-semibold">
+                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#bdd6c3] bg-white px-3 text-[13px] font-semibold text-[#205840] hover:bg-[#eff7f1]">
                 Connetti
               </Link>
             ) : null}
             {organizationId && canWriteWorkspace(membershipRole) ? (
               <NetworkSaveToggle companyId={profile.company.id} name={displayName} saved={isSaved}
-                surface="network_company_profile" />
+                surface="network_company_profile" appearance="toolbar" />
             ) : null}
             {/* An unavailable connection is not an action. Show only usable CTAs. */}
           </>

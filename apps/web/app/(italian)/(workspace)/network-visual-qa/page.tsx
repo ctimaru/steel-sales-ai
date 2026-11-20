@@ -100,6 +100,7 @@ export default async function NetworkVisualQaPage(){
         <NetworkProfileTopBar />
         <NetworkProfileOverview
           name="DEMO Tubi Strutturali"
+          requestHref="/rfq-hub/distinta?network=00000000-0000-0000-0000-0000000000a3"
           legalName="DEMO Tubi Strutturali S.r.l."
           countryCode="IT"
           location="Bergamo, Lombardia"
