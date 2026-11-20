@@ -460,7 +460,17 @@ try {
       assertions += 13;
       // NET-UX-TECH1: open the real technical accordion at 1440/390/320 and
       // verify each measurement field remains aligned and at least 44px high.
+      // NET-FILTERBAR2: no technical controls dominate the first viewport
+      // until the user opens them, but the 44px summary remains accessible.
       const specPanel=page.getByTestId("network-spec-panel");
+      assert.equal(await specPanel.getAttribute("open"),null,
+        "Technical specification must start collapsed with no active spec");
+      const compactSummaryHeight=await specPanel.getByTestId("network-spec-summary")
+        .evaluate(element=>element.getBoundingClientRect().height);
+      assert.ok(compactSummaryHeight>=44&&compactSummaryHeight<=56,
+        "Collapsed technical control is not compact and accessible at "+width+": "+compactSummaryHeight);
+      const roleBar=page.getByTestId("network-compact-role-bar");
+      assert.equal(await roleBar.count(),1,"Missing compact role bar at "+width);
       await specPanel.getByTestId("network-spec-summary").click();
       assert.equal(await specPanel.getAttribute("open"),"","Technical panel failed to open at "+width);
       const specLayout=await specPanel.evaluate(panel=>{
