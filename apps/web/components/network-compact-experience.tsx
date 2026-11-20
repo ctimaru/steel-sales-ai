@@ -499,8 +499,8 @@ function NetworkSaveConnectGuide(){
         </span>
       </summary>
       <div className="grid gap-2 border-t border-[#e3ebe5] py-2 text-xs leading-5 text-[#52615b] sm:grid-cols-2">
-        <p><strong className="text-[#173f35]">Salva:</strong> aggiungi aziende alla tua lista privata. Nessuna notifica è inviata all'azienda. Le ritrovi in <Link href="/network/saved" className="font-semibold text-[#175640] underline underline-offset-2">Salvate</Link>.</p>
-        <p><strong className="text-[#173f35]">Connetti:</strong> invia una richiesta motivata a un’azienda già attiva, che può accettare o rifiutare. Quelle accettate sono in <Link href="/network/connections" className="font-semibold text-[#175640] underline underline-offset-2">Connessioni</Link>.</p>
+        <p><strong className="text-[#173f35]">Salva:</strong> aggiungi aziende alla tua lista privata. Le vedi solo tu e l’azienda non riceve nulla. Le ritrovi in <Link href="/network/saved" className="font-semibold text-[#175640] underline underline-offset-2">Salvate</Link>.</p>
+        <p><strong className="text-[#173f35]">Connetti:</strong> invii all’azienda una richiesta motivata: può accettarla o rifiutarla. Possibile con le aziende già attive sulla piattaforma. Quelle accettate sono in <Link href="/network/connections" className="font-semibold text-[#175640] underline underline-offset-2">Connessioni</Link>.</p>
       </div>
     </details>
   </section>;
