@@ -396,6 +396,36 @@ try {
       await expandedMap.getByRole("button",{name:"Chiudi mappa europea"}).click();
       await expandedMap.waitFor({state:"hidden"});
       await screenshot(page,"network-europe-extended-overview",width);
+      // NET-AI-TOOLBAR1: map-only rail; one-click AI beside company search.
+      const aiToggle=page.getByTestId("network-ai-launcher");
+      const aiPanel=page.getByTestId("network-ai-assistant-panel");
+      const aiInput=aiPanel.locator("#network-chat-input");
+      assert.equal(await mapRail.getByTestId("network-conversational-discovery").count(),0,
+        "AI chat still occupies the map sidebar at "+width);
+      assert.equal(await aiToggle.isVisible(),true,"Search AI launcher missing at "+width);
+      assert.equal(await aiToggle.getAttribute("aria-expanded"),"false");
+      assert.equal(await aiPanel.isVisible(),false,"AI must start collapsed");
+      await aiToggle.click();
+      await aiPanel.waitFor({state:"visible",timeout:15000});
+      assert.equal(await aiToggle.getAttribute("aria-expanded"),"true");
+      assert.equal(await aiPanel.getByTestId("network-conversational-discovery").count(),1,
+        "AI conversation should open directly without a second disclosure");
+      await aiInput.fill("Cerco produttori di tubi in Italia");
+      await screenshot(page,"network-ai-search-open",width);
+      await aiInput.press("Escape");
+      await aiPanel.waitFor({state:"hidden",timeout:15000});
+      assert.equal(await aiToggle.getAttribute("aria-expanded"),"false");
+      assert.equal(await aiToggle.evaluate(el=>document.activeElement===el),true,
+        "Escape should return keyboard focus to the AI launcher");
+      await aiToggle.click();
+      await aiPanel.waitFor({state:"visible",timeout:15000});
+      assert.equal(await aiInput.inputValue(),"Cerco produttori di tubi in Italia",
+        "Closing the AI assistant erased the local draft");
+      await aiPanel.getByRole("button",{name:"Chiudi assistente AI"}).click();
+      await aiPanel.waitFor({state:"hidden",timeout:15000});
+      assert.equal(await europeMap.isVisible(),true,"Map disappeared after AI toggle");
+      await noOverflow(page,"AI-search-closed/"+width);
+      assertions+=11;
 
       if (width === 1440) {
         const geometry=await page.evaluate(()=>{
