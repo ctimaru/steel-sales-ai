@@ -360,6 +360,7 @@ export default async function NetworkCompanyProfilePage({
         stockContent={publishedInventory.length ? <NetworkProfileInventory items={publishedInventory} /> : undefined}
         connectionsAvailable={Boolean((inquiryEligible && canInteract) || (organizationId && canWriteWorkspace(membershipRole)))}
         requestHref={organizationId && canWriteWorkspace(membershipRole) ? newRequestHref({network: profile.company.id}) : undefined}
+        requestNetworkCompanyId={organizationId && canWriteWorkspace(membershipRole) ? profile.company.id : undefined}
         primaryConnectionAvailable={Boolean(inquiryEligible && canInteract)}
         hasTechnicalDetails={Boolean(profile.facilities.length || profile.markets.length || profile.certifications.length || productGroups.length || technicalStandards.length || technicalGrades.length)}
         detailsTargetId="network-profile-technical-details"
