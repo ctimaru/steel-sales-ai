@@ -16,11 +16,11 @@ test("COMPACT5 keeps the dashboard summary compact and free of filler metrics",(
 });
 
 test("COMPACT5 places the region within the single filter form instead of a separate disclosure",()=>{
-  assert.equal((page.match(/<form method="get" action="\/network"/g)||[]).length,1);
+  assert.equal((page.match(/<NetworkFilterRouteForm ariaLabel="Filtri tecnici e geografici"/g)||[]).length,1);
   assert.equal((geo.match(/name="region"/g)||[]).length,1);
   assert.match(geo,/name="region" aria-label="Regione"/);
   assert.match(geo,/Tutte le regioni/);
-  assert.match(page,/className="grid grid-cols-1 gap-3"/); // NET-UX LOT1: one column in the filter pane
+  assert.match(page,/sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5/); // NET-FILTERBAR1.P0: responsive five-facet bar above results
   assert.match(page,/Applica filtri/);
   assert.doesNotMatch(page,/open=\{Boolean\(filters.region\)\}/);
   // Preserve search query, role and persona when submitting all five facets.
@@ -35,7 +35,7 @@ test("NET-UX-MAP1 keeps the European map permanently visible above filters",()=>
   // NET-UX-MAP1: exactly one map remains outside the mobile filter drawer.
   assert.ok(page.indexOf('data-testid="network-europe-persistent-map"')<page.indexOf('<NetworkFilterDrawer activeCount='));
   assert.equal((page.match(/<NetworkEuropeanMap /g)||[]).length,1);
-  assert.match(page,/aria-label="Filtri delle aziende"/);
+  assert.match(page,/aria-label="Mappa e assistente del Network"/);
   assert.match(page,/aria-label="Ricerca e filtri delle aziende"/);
 });
 
