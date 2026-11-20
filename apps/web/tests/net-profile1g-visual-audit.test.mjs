@@ -17,7 +17,7 @@ test("NET-PROFILE-UX1.A: both profile modes use the same identity, products and 
   }
   assert.match(overview,/Profilo aziendale/);
   assert.match(overview,/break-words text-\[25px\]/);
-  assert.match(overview,/max-w-3xl whitespace-pre-wrap text-sm/);
+  assert.match(overview,/max-w-4xl whitespace-pre-wrap text-sm/);
   assert.match(overview,/sm:flex-row sm:items-center/);
   assert.match(overview,/title: "Attività e prodotti"/);
   assert.match(overview,/aria-label="Attività e prodotti"/);
