@@ -1,0 +1,45 @@
+name: "NET-IT-CARP-MASS2 — Italian carpenteria Overture scan"
+on:
+  push:
+    branches: ["net-it-carp-mass2-20261120"]
+    paths:
+      - ".github/workflows/net-it-carp-mass2-overture.yml"
+      - "services/worker/scripts/overture8_carp_mass2.py"
+permissions:
+  contents: write
+concurrency:
+  group: net-it-carp-mass2-20261120-readonly
+  cancel-in-progress: false
+jobs:
+  read-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install bounded free open-data query engine
+        run: python -m pip install "duckdb>=1.4,<2"
+      - name: Search Overture Places using 8 targeted Italian industrial tiles
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: python services/worker/scripts/overture8_carp_mass2.py
+      - name: Store only GERS / domain / taxonomy / license CSV in isolated branch
+        if: github.ref == 'refs/heads/net-it-carp-mass2-20261120'
+        run: |
+          set -euo pipefail
+          audit="services/worker/audits/net_it_carp_mass2_20261120_gers.csv"
+          test -s "$audit"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- "$audit"
+          if git diff --cached --quiet; then
+            echo "Unchanged source audit"
+            exit 0
+          fi
+          test "$(git diff --cached --name-only)" = "$audit"
+          git commit -m "audit(network): CARP-MASS2 licensed Overture website pointers"
+          git push origin HEAD:refs/heads/net-it-carp-mass2-20261120
