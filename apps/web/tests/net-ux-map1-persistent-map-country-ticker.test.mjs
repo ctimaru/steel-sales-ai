@@ -88,3 +88,21 @@ test("MAP1: every supported Network country has a local or inline flag on Window
   assert.match(flags,/localSvgFlags\.has\(country\)/);
   assert.match(flags,/aria-hidden="true"/);
 });
+
+test("MAP1 repair: global Network total is distinct from filtered and currently visible counts",()=>{
+  assert.match(ui,/export async function NetworkCompactExperience/);
+  assert.match(ui,/await getNetworkCountryStats\(organizationId,accessMode\)/);
+  assert.match(ui,/networkCountries\.reduce\(\(sum,item\)=>sum\+item\.total,0\)/);
+  assert.match(ui,/data-testid="network-count-summary"/);
+  assert.match(ui,/globalCount\.toLocaleString\("it-IT"\)/);
+  assert.match(ui,/directory\.total\.toLocaleString\("it-IT"\)/);
+  assert.match(ui,/data-testid="network-count-visible"/);
+  assert.match(ui,/directory\.items\.length\.toLocaleString\("it-IT"\)/);
+  assert.match(ui,/items=\{networkCountries\}/);
+});
+test("MAP1 repair: ticker country selections are native, navigable country filters",()=>{
+  assert.match(ticker,/return <a/);
+  assert.match(ticker,/href=\{"\/network\?country="\+encodeURIComponent\(item.countryCode\)\+"#network-results"\}/);
+  assert.doesNotMatch(ticker,/import Link from "next\/link"/);
+  assert.match(ticker,/tabIndex=\{duplicate\?-1:undefined\}/);
+});
