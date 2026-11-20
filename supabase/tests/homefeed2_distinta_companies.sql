@@ -101,13 +101,33 @@ insert into public.buyer_distinta_lines(distinta_id, line_position, description,
 ('00000000-0000-0000-0000-0000000f2103', 1, 'Tubo tondo Ø 60,3 × 3 mm', 'bars', 10, 4.24, 120, 0.509);
 
 create temporary table hf2_result(label text primary key, payload jsonb) on commit drop;
+create temporary table hf2_seen(company_id uuid primary key) on commit drop;
 grant all on hf2_result to authenticated;
+grant all on hf2_seen to authenticated;
 
 set local role authenticated;
 
 select pg_temp.hf2_as('00000000-0000-0000-0000-0000000f2a01');
 insert into hf2_result values ('pro', public.homefeed2_distinta_companies('00000000-0000-0000-0000-0000000f2f01', 4, 0));
 insert into hf2_result values ('pro_page2', public.homefeed2_distinta_companies('00000000-0000-0000-0000-0000000f2f01', 1, 1));
+
+-- The local database can hold other published companies: walk every page and
+-- check the fixtures by id rather than by exact totals.
+do $$
+declare
+  v_offset integer := 0;
+  v_page jsonb;
+begin
+  loop
+    v_page := public.homefeed2_distinta_companies('00000000-0000-0000-0000-0000000f2f01', 12, v_offset);
+    insert into hf2_seen
+      select (i->>'id')::uuid from jsonb_array_elements(v_page->'items') i
+      on conflict do nothing;
+    v_offset := v_offset + 12;
+    exit when v_offset >= (v_page->>'total')::integer or v_offset > 20000;
+  end loop;
+end;
+$$;
 
 select pg_temp.hf2_as('00000000-0000-0000-0000-0000000f2a02');
 insert into hf2_result values ('free', public.homefeed2_distinta_companies('00000000-0000-0000-0000-0000000f2f02', 4, 0));
@@ -128,22 +148,27 @@ reset role;
 select pg_temp.hf2_assert((select payload->>'contract' from hf2_result where label='pro') = 'HOME-FEED2-distinta-companies-v1', 'contract');
 select pg_temp.hf2_assert((select payload->'families' from hf2_result where label='pro') = '["tubes_pipes"]'::jsonb, 'archived bill ignored, tubes only');
 select pg_temp.hf2_assert((select (payload->>'network_enabled')::boolean from hf2_result where label='pro'), 'Pro has Network access');
-select pg_temp.hf2_assert((select (payload->>'total')::integer from hf2_result where label='pro') = 2, 'two published tube companies, own profile and draft excluded');
 select pg_temp.hf2_assert(
-  (select payload->'items'->0->>'id' from hf2_result where label='pro') = '00000000-0000-0000-0000-0000000f2c01',
-  'verified producer first'
+  (select count(*) from hf2_seen) = (select (payload->>'total')::integer from hf2_result where label='pro'),
+  'pages cover the total without repeats'
 );
-select pg_temp.hf2_assert((select payload->'items'->0->>'role_key' from hf2_result where label='pro') = 'producer', 'role reported');
-select pg_temp.hf2_assert((select payload->'items'->0->'families' from hf2_result where label='pro') = '["tubes_pipes"]'::jsonb, 'reason families reported');
 select pg_temp.hf2_assert(
-  not exists (
-    select 1 from hf2_result r, jsonb_array_elements(r.payload->'items') i
-    where i->>'id' in ('00000000-0000-0000-0000-0000000f2c03', '00000000-0000-0000-0000-0000000f2c04', '00000000-0000-0000-0000-0000000f2c05')
-  ),
+  exists (select 1 from hf2_seen where company_id = '00000000-0000-0000-0000-0000000f2c01')
+  and exists (select 1 from hf2_seen where company_id = '00000000-0000-0000-0000-0000000f2c02'),
+  'published tube companies suggested'
+);
+select pg_temp.hf2_assert(
+  not exists (select 1 from hf2_seen where company_id in (
+    '00000000-0000-0000-0000-0000000f2c03', '00000000-0000-0000-0000-0000000f2c04', '00000000-0000-0000-0000-0000000f2c05')),
   'no flat-products, draft or own company'
 );
 select pg_temp.hf2_assert(
-  (select payload->'items'->0->>'id' from hf2_result where label='pro_page2') = '00000000-0000-0000-0000-0000000f2c02',
+  (select (payload->'items'->0->>'verified')::boolean from hf2_result where label='pro'),
+  'verified companies first'
+);
+select pg_temp.hf2_assert(
+  (select payload->'items'->1->>'id' from hf2_result where label='pro')
+    = (select payload->'items'->0->>'id' from hf2_result where label='pro_page2'),
   'offset pages through the same order'
 );
 select pg_temp.hf2_assert(
@@ -152,7 +177,11 @@ select pg_temp.hf2_assert(
   'no bill content in the payload'
 );
 select pg_temp.hf2_assert(not (select (payload->>'network_enabled')::boolean from hf2_result where label='free'), 'Free has no Network access');
-select pg_temp.hf2_assert((select (payload->>'total')::integer from hf2_result where label='free') = 3, 'Free sees the total only');
+select pg_temp.hf2_assert(
+  (select (payload->>'total')::integer from hf2_result where label='free')
+    = (select (payload->>'total')::integer from hf2_result where label='pro') + 1,
+  'Free sees the total only, including the profile that is Pro''s own'
+);
 select pg_temp.hf2_assert((select jsonb_array_length(payload->'items') from hf2_result where label='free') = 0, 'Free sees no names');
 select pg_temp.hf2_assert((select (payload->>'total')::integer from hf2_result where label='outsider_empty') = 0, 'no bills, no companies');
 
