@@ -42,7 +42,7 @@ test("FILTERBAR2: Save/Connect teaching is one subtle expandable strip with full
   assert.match(block,/<summary className="flex min-h-9 cursor-pointer/);
   assert.match(block,/Come funziona\?/);
   assert.match(block,/Le vedi solo tu e l’azienda non riceve nulla/);
-  assert.match(block,/può accettare o rifiutare/);
+  assert.match(block,/può accettarla o rifiutarla/);
   assert.match(block,/href="\/network\/saved"/);
   assert.match(block,/href="\/network\/connections"/);
   assert.doesNotMatch(block,/bg-\[#fffaf0\]|bg-\[#f3faf6\]|flex h-10 w-10/);
