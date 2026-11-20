@@ -48,7 +48,7 @@ test("FILTERS3: country clicks use client-side App Router updates without a docu
   assert.match(map,/import \{useRouter\} from "next\/navigation"/);
   assert.match(map,/startTransition\(\(\)=>router\.replace\(href,\{scroll:false\}\)\)/);
   assert.match(map,/event\.preventDefault\(\)/);
-  assert.match(map,/onNavigate\(href\)/);
+  assert.match(map,/onNavigate\(href,"country"\)/);
   assert.match(map,/aria-live="polite"/);
   assert.doesNotMatch(map,/window\.location\.(?:href|assign|replace|reload)/);
   assert.match(ui,/data-testid="network-count-summary"/);
