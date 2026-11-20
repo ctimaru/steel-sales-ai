@@ -225,7 +225,8 @@ export function parseDistintaCompanies(raw: unknown): DistintaCompaniesPage | nu
     if (!UUID_RE.test(id) || !name) continue;
     const role = typeof r.role_key === "string" ? ROLE_LABELS[r.role_key] ?? null : null;
     const rowFamilies = Array.isArray(r.families) ? r.families.filter((f): f is string => typeof f === "string") : [];
-    const reason = [homeFeedFamilyText(rowFamilies), role].filter(Boolean).join(" · ") || null;
+    // The role is already on the row's detail line («Produttore · Italia»): the reason is the products.
+    const reason = homeFeedFamilyText(rowFamilies) || null;
     const country = typeof r.country_code === "string" && /^[A-Z]{2}$/.test(r.country_code) ? r.country_code : null;
     rows.push({ id, name, countryCode: country, verified: r.verified === true, role, reason });
   }

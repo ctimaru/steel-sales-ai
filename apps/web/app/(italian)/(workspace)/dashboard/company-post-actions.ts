@@ -30,7 +30,7 @@ function cleanBody(value: unknown): string {
 
 /** Keys each type may send; SQL re-validates and drops anything else. */
 const DETAIL_KEYS: Record<CompanyPostType, readonly string[]> = {
-  capacity: ["process", "process_detail", "available_from", "available_to", "quantity", "location"],
+  capacity: ["process", "process_detail", "range", "available_from", "available_to", "quantity", "location"],
   stock: ["product", "standard", "grade", "dimensions", "quantity", "location", "certificate_31"],
   news: [],
   event: ["name", "date_from", "date_to", "location", "stand"],

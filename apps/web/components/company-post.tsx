@@ -407,6 +407,8 @@ function TypedFields({ type, draft, set, id }: { type: CompanyPostType; draft: D
         ) : (
           <Field id={id + "-quantity"} label="Quantità o capacità" value={v("quantity")} onChange={(x) => set("quantity", x)} placeholder="es. 200 t/mese" maxLength={80} />
         )}
+        {/* HOME-REVIEW1: the range is what a buyer checks first («posso farci il mio tubo?»). */}
+        <Field id={id + "-range"} label="Gamma lavorabile" span="full" value={v("range")} onChange={(x) => set("range", x)} placeholder="es. Ø 20–114 mm, spessore fino a 6 mm" maxLength={80} />
         <Field id={id + "-from"} label="Dal" type="date" span="third" value={v("available_from")} onChange={(x) => set("available_from", x)} />
         <Field id={id + "-to"} label="Al" type="date" span="third" value={v("available_to")} onChange={(x) => set("available_to", x)} />
         <Field id={id + "-location"} label="Luogo" span="thirdWide" value={v("location")} onChange={(x) => set("location", x)} placeholder="es. Brescia" />

@@ -231,7 +231,7 @@ export default async function DashboardPage({
               <h1 className="mt-2 text-lg font-semibold leading-tight tracking-tight text-[#173f35]">
                 {workspaceGreeting()}, {context.organizationName}
               </h1>
-              <p className="mt-0.5 text-xs text-[#53645b]">{workspaceRoleLabel(context.role)} · Workspace privato</p>
+              <p className="mt-0.5 text-xs text-[#53645b]">{workspaceRoleLabel(context.role)}</p>
               {verifiedQuietly ? (
                 <Link href={appRoutes.company.profile} data-testid="home-verified-badge"
                   className="mt-1.5 inline-flex min-h-8 items-center gap-1.5 text-xs font-semibold text-[#176045] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2">

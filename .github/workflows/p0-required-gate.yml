@@ -424,6 +424,7 @@ jobs:
             comm_cycle2b_offer_editor.sql \
             distinta2_supplier_picker.sql \
             homefeed2_distinta_companies.sql \
+            cpost4_capacity_range.sql \
             rfqhub1b_supplier_contacts.sql \
             rfqhub1d_supplier_links.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \

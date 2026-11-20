@@ -54,6 +54,9 @@ test("CPOST2 detail rows are readable Italian and dates do not drift", () => {
   assert.equal(m.companyPostDate("20/11/2026"), null);
   const capacity = m.companyPostDetailRows({ postType: "capacity", details: { process: "laser", available_from: "2026-11-10", available_to: "2026-11-20", location: "Brescia" } });
   assert.deepEqual(Array.from(capacity, (r) => r.label), ["Lavorazione", "Periodo", "Luogo"]);
+  // HOME-REVIEW1: the workable range sits right after the process.
+  const ranged = m.companyPostDetailRows({ postType: "capacity", details: { process: "curvatura", range: "Ø 20–114 mm" } });
+  assert.deepEqual(Array.from(ranged, (r) => [r.label, r.value]), [["Lavorazione", "Curvatura"], ["Gamma", "Ø 20–114 mm"]]);
   assert.equal(capacity[0].value, "Taglio laser");
   assert.equal(capacity[1].value, "10 nov 2026 – 20 nov 2026");
   const other = m.companyPostDetailRows({ postType: "capacity", details: { process: "altro", process_detail: "Calandratura" } });
@@ -87,7 +90,7 @@ test("CPOST2 server actions whitelist details per type and SQL re-validates", ()
   assert.match(actions, /rpc\("cpost2_create_post", \{\s*p_organization_id: context\.organizationId,\s*p_post_type: postType,/);
   assert.match(actions, /p_details: cleanDetails\(postType, details\)/);
   assert.match(actions, /if \(!isCompanyPostType\(postType\)\)/);
-  assert.match(actions, /capacity: \["process", "process_detail", "available_from", "available_to", "quantity", "location"\]/);
+  assert.match(actions, /capacity: \["process", "process_detail", "range", "available_from", "available_to", "quantity", "location"\]/);
   assert.match(actions, /rpc\("cpost2_feed", \{[\s\S]*?p_post_type: postType/);
   assert.match(migration, /private\.cpost2_normalize_details\(p_post_type, p_details\)/);
   assert.match(migration, /revoke all on function private\.cpost2_normalize_details\(text, jsonb\) from public, anon, authenticated;/);

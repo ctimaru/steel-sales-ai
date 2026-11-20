@@ -64,7 +64,8 @@ test("HOME-FEED2 bill matches: strict contract, names only with Network access, 
   const page = m.parseDistintaCompanies(ok);
   assert.equal(page.total, 5);
   assert.equal(page.rows.length, 1, "malformed rows dropped");
-  assert.equal(page.rows[0].reason, "Tubi · Produttore");
+  assert.equal(page.rows[0].reason, "Tubi", "the role is already on the detail line");
+  assert.equal(page.rows[0].role, "Produttore");
   assert.equal(page.rows[0].countryCode, "IT");
   assert.equal(m.parseDistintaCompanies({ ...ok, contract: "other" }), null);
   assert.equal(m.parseDistintaCompanies({ ...ok, total: -1 }), null);
@@ -197,4 +198,12 @@ test("HOME-FEED2 company rows say why they are shown: products, else published c
   // Rows are compact (name, role, place, reason, Salva); the website stays on the profile.
   assert.doesNotMatch(feed, /item\.website/);
   assert.doesNotMatch(feed, /function initials\(/);
+});
+
+test("HOME-REVIEW1 School cards in the feed speak Italian, never internal keys", () => {
+  assert.match(loader, /explanation: clean\(s\.seo_description, 320\)/);
+  assert.match(loader, /title: italianStandardName\(s\.code, s\.seo_description\)/);
+  assert.match(loader, /families: \(s\.product_families \?\? \[\]\)\.slice\(0, 3\)\.map\(\(f\) => productFamilyLabel\(f\)\)/);
+  assert.match(loader, /family: g\.material_family \? materialFamilyLabel\(g\.material_family\) : null/);
+  assert.doesNotMatch(loader, /s\.short_explanation \|\|/);
 });

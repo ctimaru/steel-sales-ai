@@ -36,7 +36,8 @@ test("UXA2 Company Workspace exposes role-aware LinkedIn-style macro navigation"
 
 test("PF1 Company Home is a private daily cockpit with task-oriented exits", () => {
   assert.match(companyHome, /\{workspaceGreeting\(\)\}, \{context\.organizationName\}/);
-  assert.match(companyHome, /Workspace privato/);
+  // HOME-REVIEW1 (founder, 20 Nov 2026): «Workspace privato» was jargon under the company name.
+  assert.doesNotMatch(companyHome, /Workspace privato/);
   // HOME-FOCUS1 (founder decision, 4 Nov 2026): the attention strip left the Home.
   assert.match(companyHome, /Le tue RFQ/);
   assert.match(companyHome, /Ultimi movimenti commerciali/);
