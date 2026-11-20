@@ -2,8 +2,10 @@
 from __future__ import annotations
 
 import unittest
+import os
+from unittest.mock import patch
 from app.net_ro_overture1_feed import (
-    canonical_website, parse_place, RELEASE, CATEGORIES, MAX_BATCH, tile_for, MAX_PER_TILE, NAME_HINT_CATEGORY, NAME_HINT
+    canonical_website, parse_place, stage_batches, RELEASE, CATEGORIES, MAX_BATCH, tile_for, MAX_PER_TILE, NAME_HINT_CATEGORY, NAME_HINT
 )
 
 
@@ -125,6 +127,83 @@ class RomaniaOvertureTests(unittest.TestCase):
         self.assertIn("metal_fabricator", CATEGORIES)
         self.assertEqual(RELEASE, "2026-11-18.0")
         self.assertLessEqual(MAX_BATCH, 200)
+
+
+    def test_stage_isolates_one_rejected_poi_without_bypassing_rpc(self) -> None:
+        class Response:
+            def __init__(self, status, body):
+                self.status_code = status
+                self.body = body
+
+            def json(self):
+                return self.body
+
+        class Client:
+            def __init__(self):
+                self.calls = []
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def post(self, url, headers, json):
+                domains = [item["domain"] for item in json["p_items"]]
+                self.calls.append(domains)
+                if "unrelated-retail.ro" in domains:
+                    return Response(400, {
+                        "message": "RO Overture stage: invalid source/country/domain/item"
+                    })
+                return Response(200, {
+                    "contract": "net-ro-overture1-v1",
+                    "release": RELEASE,
+                    "received": len(domains),
+                    "new_leads": len(domains),
+                    "new_private_seeds": len(domains),
+                    "published": 0,
+                })
+
+        client = Client()
+        rows = [
+            {"domain": "real-steel.ro"},
+            {"domain": "unrelated-retail.ro"},
+            {"domain": "welding-industrial.ro"},
+        ]
+        with patch.dict(os.environ, {
+            "CRAWL_IT65B_SUPABASE_URL": "https://ecrafjdummcdfycznitx.supabase.co",
+            "CRAWL_IT65B_SUPABASE_SECRET_KEY": "sb_secret_test",
+        }), patch("httpx.Client", return_value=client):
+            summary = stage_batches(rows)
+        self.assertEqual(summary["received"], 2)
+        self.assertEqual(summary["new_private_seeds"], 2)
+        self.assertEqual(summary["new_leads"], 2)
+        self.assertEqual(summary["rejected_invalid"], 1)
+        self.assertEqual(summary["rejected_domains_sample"], ["unrelated-retail.ro"])
+        self.assertGreater(len(client.calls), 1)
+
+    def test_stage_fails_closed_on_other_database_error(self) -> None:
+        class InvalidClient:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def post(self, *args, **kwargs):
+                class Response:
+                    status_code = 400
+
+                    def json(self):
+                        return {"message": "permission denied"}
+                return Response()
+
+        with patch.dict(os.environ, {
+            "CRAWL_IT65B_SUPABASE_URL": "https://ecrafjdummcdfycznitx.supabase.co",
+            "CRAWL_IT65B_SUPABASE_SECRET_KEY": "sb_secret_test",
+        }), patch("httpx.Client", return_value=InvalidClient()):
+            with self.assertRaisesRegex(RuntimeError, "RO Overture stage HTTP 400"):
+                stage_batches([{"domain": "steel.ro"}])
 
 
 if __name__ == "__main__":
