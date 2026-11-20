@@ -403,11 +403,11 @@ try {
         await screenshot(page,"network-filters-closed-admin",width);
         assertions += 2;
       }
-      // NET-PROFILE-UX6: the founder's actual five-card company page,
+      // NET-PROFILE-UX7: the founder's compact tabbed company page,
       // with one selected panel, honest empty states and clear navigation.
       const companyHero=page.getByTestId("network-profile-ux1a").first();
       await companyHero.waitFor({state:"visible",timeout:45000});
-      assert.equal(await companyHero.getAttribute("data-profile-layout"),"concept-five-cards");
+      assert.equal(await companyHero.getAttribute("data-profile-layout"),"compact-tabs");
       assert.equal(await companyHero.getByRole("heading",{name:"DEMO Tubi Strutturali"}).count(),1);
       const companyHub=companyHero.getByTestId("network-company-card-hub");
       await companyHub.waitFor({state:"visible"});
@@ -492,7 +492,7 @@ try {
       assert.equal(await compactCard.getAttribute("data-profile-density"),"compact");
       const sparseHub=sparseHero.getByTestId("network-company-card-hub");
       assert.equal(await sparseHub.getByTestId("network-company-section-nav").locator("button").count(),5,
-        "Sparse entries must still show the same five cards as the founder's concept");
+        "Sparse entries must still show all five compact tabs");
       await sparseHub.getByTestId("network-company-card-attivita").click();
       assert.match(await sparseHub.getByTestId("network-company-panel-attivita").innerText(),
         /Prodotti e specializzazioni non ancora pubblicati/);
@@ -502,8 +502,8 @@ try {
         color:getComputedStyle(node).color,
         textFill:getComputedStyle(node).webkitTextFillColor,
       }));
-      assert.equal(websiteColor.color,"rgb(255, 255, 255)");
-      assert.equal(websiteColor.textFill,"rgb(255, 255, 255)");
+      assert.equal(websiteColor.color,"rgb(33, 88, 64)");
+      assert.equal(websiteColor.textFill,"rgb(33, 88, 64)");
       await compactCard.scrollIntoViewIfNeeded();
       await noOverflow(page,"Company-sparse-hero/"+width);
       await screenshot(page,"network-company-profile-ux6-sparse",width);
@@ -563,7 +563,7 @@ try {
         if(await cardHub.count()){
           await cardHub.locator("button:not([disabled])").first().waitFor({state:"visible",timeout:45000});
           assert.equal(await cardHub.getByTestId("network-company-card-connessioni").count(),1,
-            "The connection area must appear in the five-card company hub");
+            "The connection area must remain reachable from the company tabs");
           assert.equal(await cardHub.getByTestId("network-company-section-nav").locator("button").count(),5);
           await cardHub.getByTestId("network-company-card-connessioni").click();
           assert.match(await cardHub.getByTestId("network-company-panel-connessioni").innerText(),/Connessioni/);
