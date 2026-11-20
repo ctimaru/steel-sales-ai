@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NetworkProfileOverview, NetworkProfileTopBar } from "@/components/network-profile-overview";
+import { newRequestHref } from "@/lib/new-request-href";
 import { NetworkProfileInventory } from "@/components/network-profile-inventory";
 import { NetworkSaveToggle } from "@/components/network-save-toggle";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
@@ -87,13 +88,14 @@ export async function FreeNetworkProfileView({
           stockCount={inventory.length}
           stockContent={inventory.length ? <NetworkProfileInventory items={inventory} /> : undefined}
           connectionsAvailable={Boolean((status==="available"&&canConnect) || status==="pending" || status==="connected" || canSave)}
+          requestHref={!provisional && canWriteWorkspace(workspace.role) ? newRequestHref({network: companyId}) : undefined}
           primaryConnectionAvailable={Boolean(status==="available"&&canConnect)}
           hasTechnicalDetails={Boolean(reviewedEvidence.length || provisional || profile.products.length || profile.facilities.length)}
           detailsTargetId="network-profile-free-evidence"
           actions={<>
             {status==="available"&&canConnect ? (
               <Link href={"/network/"+companyId+"/connect"}
-                className="app-primary inline-flex min-h-11 w-full items-center justify-center rounded-xl px-5 text-sm font-semibold">
+                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-[#bdd6c3] bg-white px-3 text-[13px] font-semibold text-[#205840] hover:bg-[#eff7f1]">
                 Connetti →
               </Link>
             ) : status==="pending" ? (
@@ -105,8 +107,8 @@ export async function FreeNetworkProfileView({
             ) : null}
             {/* NET-SAVE-INLINE1: saving needs Network PRO (PA1.3 RLS); free viewers get the offer, not a dead end. */}
             {canSave && accessMode==="pro" ? <NetworkSaveToggle companyId={companyId} name={companyName}
-              saved={isSaved} surface="network_company_profile" /> : canSave ? <Link href="/network/pro" data-testid="network-save-upsell"
-              className="inline-flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl border border-[#e9c46a] bg-[#fffaf0] px-4 text-xs font-bold text-[#6e4400] hover:bg-[#fff4d6]">
+              saved={isSaved} surface="network_company_profile" appearance="toolbar" /> : canSave ? <Link href="/network/pro" data-testid="network-save-upsell"
+              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-[#e9c46a] bg-[#fffaf0] px-4 text-xs font-bold text-[#6e4400] hover:bg-[#fff4d6]">
               <svg aria-hidden="true" viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" /></svg>
               Salva · incluso in Network PRO
             </Link> : null}
