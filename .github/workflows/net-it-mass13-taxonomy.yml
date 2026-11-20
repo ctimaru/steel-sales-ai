@@ -1,0 +1,26 @@
+name: "NET-IT-MASS13 — taxonomy probe"
+on:
+  push:
+    branches: ["net-it-mass13-taxonomy-20261120"]
+    paths:
+      - ".github/workflows/net-it-mass13-taxonomy.yml"
+      - "services/worker/scripts/overture20_mass13_taxonomy_probe.py"
+permissions:
+  contents: read
+concurrency:
+  group: net-it-mass13-taxonomy-20261120
+  cancel-in-progress: false
+jobs:
+  read-only:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install "duckdb>=1.4,<2"
+      - name: Probe Italian Overture taxonomy counts
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: python services/worker/scripts/overture20_mass13_taxonomy_probe.py
