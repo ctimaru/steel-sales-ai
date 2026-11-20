@@ -1,4 +1,7 @@
 import "server-only";
+
+const EXTRA_REGIONAL_COUNTRIES=new Set(["CH","GB","RS","TR","UA"]);
+
 import {createClient} from "@/lib/supabase/server";
 import type {FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters} from "@/lib/network-compact-directory";
@@ -16,7 +19,7 @@ type RegionalResponse={
 };
 export async function getEuropeRegionCoverage(org:string,access:"free"|"pro",country:string):Promise<EuropeRegionCoverage>{
  const db=await createClient();
- const {data,error}=await db.rpc("net_europe1c_region_coverage",{
+ const {data,error}=await db.rpc(EXTRA_REGIONAL_COUNTRIES.has(country)?"net_europe2_region_coverage":"net_europe1c_region_coverage",{
   p_organization_id:org,p_access:access,p_country:country,
  });
  if(error)throw new Error(error.message);
@@ -30,7 +33,7 @@ export async function getEuropeRegionalSearch(
  org:string,access:"free"|"pro",filters:CompactNetworkFilters,page:number,limit:number,
 ):Promise<RegionalResponse>{
  const db=await createClient();
- const {data,error}=await db.rpc("net_europe1c_region_search",{
+ const {data,error}=await db.rpc(EXTRA_REGIONAL_COUNTRIES.has(filters.country||"")?"net_europe2_region_search":"net_europe1c_region_search",{
   p_organization_id:org,p_access:access,
   p_country:filters.country,p_region_code:filters.region,
   p_query:filters.q||null,p_role:filters.role||null,
