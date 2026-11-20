@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {NetworkCountryFlag} from "@/components/network-country-flag";
 import {networkCountryName} from "@/lib/network-eu-countries";
 import {getNetworkCountryStats,type NetworkCountryStats} from "@/lib/network-country-stats";
@@ -6,7 +5,7 @@ import styles from "./network-country-ticker.module.css";
 
 function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplicate?:boolean}){
   const name=networkCountryName(item.countryCode)||item.countryCode;
-  return <Link
+  return <a
     href={"/network?country="+encodeURIComponent(item.countryCode)+"#network-results"}
     tabIndex={duplicate?-1:undefined}
     title={"Esplora "+name+" · "+item.total+" aziende nel Network"}
@@ -17,7 +16,7 @@ function CountryMessage({item,duplicate=false}:{item:NetworkCountryStats;duplica
     <strong className="tabular-nums text-[#173f35]">{item.total.toLocaleString("it-IT")}</strong>
     <span>aziende</span>
 
-  </Link>;
+  </a>;
 }
 
 function Messages({items,duplicate=false}:{items:NetworkCountryStats[];duplicate?:boolean}){
@@ -28,10 +27,10 @@ function Messages({items,duplicate=false}:{items:NetworkCountryStats[];duplicate
 }
 
 /** Access-guarded server component: no hard-coded counts or speculative countries. */
-export async function NetworkCountryTicker({organizationId,accessMode}:{
-  organizationId:string;accessMode:"free"|"pro";
+export async function NetworkCountryTicker({organizationId,accessMode,items:providedItems}:{
+  organizationId:string;accessMode:"free"|"pro";items?:NetworkCountryStats[];
 }){
-  const items=await getNetworkCountryStats(organizationId,accessMode);
+  const items=providedItems??await getNetworkCountryStats(organizationId,accessMode);
   return <section
     aria-label="Numero di aziende nel Network per Paese"
     data-testid="network-country-ticker"
