@@ -49,7 +49,7 @@ test("COMPACT5B mobile rows show a short usable action with descriptive accessib
 });
 
 test("COMPACT5B keeps one form and the existing live search, source and access boundaries",()=>{
-  assert.equal((ui.match(/<form method="get" action="\/network"/g)||[]).length,1);
+  assert.equal((ui.match(/<NetworkFilterRouteForm ariaLabel="Filtri tecnici e geografici"/g)||[]).length,1);
   assert.match(ui,/<NetworkCountryRegionFilters key=/);
   assert.match(ui,/name=\{group.name\}/);
   assert.match(ui,/Località indicativa/);
