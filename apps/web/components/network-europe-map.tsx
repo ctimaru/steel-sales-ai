@@ -231,6 +231,7 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage,countryCounts={
       event.preventDefault();
       navigate(europeMapCountryHref(filters,item.code));
     }}
+    style={{color:country===item.code?"#ffffff":"#24543f",WebkitTextFillColor:country===item.code?"#ffffff":"#24543f"}}
     className={"flex min-h-10 items-center gap-2 rounded-lg border px-2.5 py-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
       (country===item.code?"border-[#165b43] bg-[#165b43] text-white":"border-[#dae7de] bg-[#f6f9f6] text-[#24543f] hover:border-[#83b49e] hover:bg-[#e8f3eb]")}>
     <NetworkCountryFlag code={item.code}/>
@@ -271,6 +272,7 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage,countryCounts={
                 aria-current={selectedRegion===name?"page":undefined}
                 onClick={event=>{if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
                   event.preventDefault();navigate(europeMapRegionHref(filters,"IT",name),"region");}}
+                style={{color:selectedRegion===name?"#ffffff":"#315c49",WebkitTextFillColor:selectedRegion===name?"#ffffff":"#315c49"}}
                 className={"truncate rounded-md px-2 py-1.5 text-[11px] font-semibold "+
                   (selectedRegion===name?"bg-[#165b43] text-white":"bg-[#eef5f0] text-[#315c49] hover:bg-[#dcece2]")}>{name}</a>)
             :europeRegionsForCountry(zoomCountry).map(region=><a key={region.code}
@@ -278,6 +280,7 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage,countryCounts={
                 aria-current={selectedRegion===region.code?"page":undefined}
                 onClick={event=>{if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
                   event.preventDefault();navigate(europeMapRegionHref(filters,zoomCountry,region.code),"region");}}
+                style={{color:selectedRegion===region.code?"#ffffff":"#315c49",WebkitTextFillColor:selectedRegion===region.code?"#ffffff":"#315c49"}}
                 className={"truncate rounded-md px-2 py-1.5 text-[11px] font-semibold "+
                   (selectedRegion===region.code?"bg-[#165b43] text-white":"bg-[#eef5f0] text-[#315c49] hover:bg-[#dcece2]")}>{region.name}</a>)}
         </nav>:null}
@@ -329,6 +332,7 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage,countryCounts={
                   event.preventDefault();
                   navigate(europeMapRegionHref(filters,country,region.code),"region");
                 }}
+                style={{color:selectedRegion===region.code?"#ffffff":"#24543f",WebkitTextFillColor:selectedRegion===region.code?"#ffffff":"#24543f"}}
                 className={"flex min-h-9 items-center justify-between gap-2 rounded-lg px-2.5 text-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] "+
                   (selectedRegion===region.code?"bg-[#165b43] text-white":"bg-[#f0f5f1] text-[#24543f] hover:bg-[#dcece2]")}>
                 <span className="truncate">{region.name}</span>
@@ -343,6 +347,7 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage,countryCounts={
                 aria-current={selectedRegion===name?"page":undefined}
                 onClick={event=>{if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
                   event.preventDefault();navigate(europeMapRegionHref(filters,"IT",name),"region");}}
+                style={{color:selectedRegion===name?"#ffffff":"#315c49",WebkitTextFillColor:selectedRegion===name?"#ffffff":"#315c49"}}
                 className={"rounded-md px-2 py-2 text-xs font-medium "+
                   (selectedRegion===name?"bg-[#165b43] text-white":"bg-[#eef5f0] text-[#315c49] hover:bg-[#dcece2]")}>{name}</a>)}
             </nav>
