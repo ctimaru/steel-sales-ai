@@ -15,8 +15,8 @@ test("NET-PROFILE-UX7: both Free and PRO use the compact company profile", () =>
   assert.match(overview, /Network · Scheda aziendale/);
   assert.doesNotMatch(overview, /Profilo attuale/);
   assert.match(overview, /Sito aziendale/);
-  const ordered = ["Attività e prodotti", "Stock e produzioni", "Contatti e sedi", "Connessioni", "Documenti e fonti"];
-  const ids = ['id: "attivita"', 'id: "stock"', 'id: "contatti"', 'id: "connessioni"', 'id: "approfondimenti"'];
+  const ordered = ["Attività e prodotti", "Stock e produzioni", "Contatti e sedi", "Documenti e fonti"];
+  const ids = ['id: "attivita"', 'id: "stock"', 'id: "contatti"', 'id: "approfondimenti"'];
   let before = -1;
   for (let i = 0; i < ids.length; i++) {
     const after = overview.indexOf(ids[i]);
@@ -41,6 +41,7 @@ test("NET-PROFILE-UX7: both Free and PRO use the compact company profile", () =>
     assert.match(source, /<NetworkProfileTopBar\s*\/>/);
     assert.match(source, /<NetworkProfileOverview/);
     assert.match(source, /connectionsAvailable=/);
+    assert.match(source, /requestHref=/);
     assert.match(source, /detailsTargetId=/);
     assert.match(source, /stockCount=/);
     assert.match(source, /stockContent=/);
@@ -51,7 +52,8 @@ test("NET-PROFILE-UX7: every tab stays navigable without fabricating business da
   assert.match(overview, /const hasStock = stockCount > 0 && stockContent !== undefined/);
   assert.match(overview, /Nessuna disponibilità o produzione pubblicata/);
   assert.match(overview, /Prodotti e specializzazioni non ancora pubblicati/);
-  assert.match(overview, /Nessuna azione commerciale disponibile/);
+  assert.doesNotMatch(overview, /id: "connessioni"/);
+  assert.match(overview, /data-testid="network-profile-request-rdo"/);
   assert.match(overview, /Nessun recapito o stabilimento pubblicato/);
   assert.match(overview, /Nessuna fonte web consultabile/);
   assert.match(overview, /connectionsAvailable && actions/);
@@ -92,6 +94,6 @@ test("NET-PROFILE-UX7: keyboard, provenance and explicit technical disclosures r
   assert.match(fixture, /name="ASG S\.p\.A\."/);
   assert.match(fixture, /Tubi senza saldatura/);
   assert.match(chrome, /network-profile-asg-concept-fixture/);
-  assert.match(chrome, /network-company-card-connessioni/);
+  assert.doesNotMatch(chrome, /network-company-card-connessioni/);
   assert.match(chrome, /network-company-card-stock/);
 });
