@@ -130,6 +130,37 @@ function NavIcon({
   );
 }
 
+/**
+ * NAV-BADGES1 (founder request, 20 Nov 2026): plan badges on the primary navigation.
+ * Network = PRO (yellow), Commerciale and Scuola = FREE (green), Marketplace = Coming soon (grey,
+ * two lines so it never covers the icon). Marketplace stays reachable: the change is visual only.
+ */
+type PrimaryBadge = "pro" | "free" | "soon";
+
+function PrimaryNavBadge({ badge, itemKey, locked, mobile = false }: { badge: PrimaryBadge; itemKey: string; locked: boolean; mobile?: boolean }) {
+  const position = mobile ? "right-[14%] top-1" : "right-1 top-1";
+  if (badge === "soon") {
+    return (
+      <span
+        data-testid={"nav-soon-" + itemKey}
+        className={"absolute " + position + " rounded-[5px] border border-[#d7dfdb] bg-[#eef1f0] px-1 py-[1px] text-center text-[7.5px] font-extrabold leading-[8.5px] tracking-[0.05em] text-[#5d6a65]"}
+      >
+        COMING<br />SOON<span className="sr-only"> · In arrivo</span>
+      </span>
+    );
+  }
+  const tone = badge === "pro" ? "bg-[#f2b544] text-[#3a2600]" : "bg-[#dcefe5] text-[#14523b]";
+  const size = mobile
+    ? "rounded-[4px] px-1 text-[8px] leading-[13px]"
+    : "rounded-[5px] px-1.5 py-[1px] text-[9px] tracking-[0.06em]";
+  return (
+    <span data-testid={"nav-" + badge + "-" + itemKey} className={"absolute " + position + " " + size + " " + tone + " font-extrabold"}>
+      {badge === "pro" ? "PRO" : "FREE"}
+      <span className="sr-only">{badge === "pro" ? (locked ? " · Premium, non attivo" : " · Premium") : " · Incluso gratis"}</span>
+    </span>
+  );
+}
+
 function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
   return [
     {
@@ -145,6 +176,7 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
       label: "Commerciale",
       icon: "commercial" as const,
       locked: false,
+      badge: "free" as const,
     },
     ...(networkEnabled
       ? [
@@ -154,7 +186,7 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
             label: "Network",
             icon: "network" as const,
             locked: !networkEntitled,
-            pro: true,
+            badge: "pro" as const,
           },
           {
             key: "marketplace" as const,
@@ -163,7 +195,7 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
             mobileLabel: "Mercato",
             icon: "marketplace" as const,
             locked: false,
-            pro: true,
+            badge: "soon" as const,
           },
         ]
       : []),
@@ -173,6 +205,7 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
       label: "Scuola",
       icon: "knowledge" as const,
       locked: false,
+      badge: "free" as const,
     },
   ];
 }
@@ -197,7 +230,8 @@ export function WorkspaceDesktopPrimaryNavigation({
             href={item.href}
             aria-current={selected ? "page" : undefined}
             className={[
-              "relative flex min-w-[88px] flex-col items-center justify-center gap-1 rounded-t-xl px-2 text-[11px] font-semibold transition",
+              "relative flex flex-col items-center justify-center gap-1 rounded-t-xl px-2 text-[11px] font-semibold transition",
+              "badge" in item && item.badge === "soon" ? "min-w-[100px]" : "min-w-[88px]",
               selected
                 ? "bg-[#f7faf8] text-[#173f35]"
                 : "text-[#5d6a65] hover:bg-[#f4f6f5] hover:text-[#1d2824]",
@@ -205,12 +239,7 @@ export function WorkspaceDesktopPrimaryNavigation({
           >
             <NavIcon name={item.icon} className="h-[21px] w-[21px]" />
             <span>{item.label}</span>
-            {/* HOME-NETPRO2 (founder request): yellow PRO badge on Network and Marketplace. */}
-            {"pro" in item && item.pro ? (
-              <span data-testid={"nav-pro-" + item.key} className="absolute right-1 top-1 rounded-[5px] bg-[#f2b544] px-1.5 py-[1px] text-[9px] font-extrabold tracking-[0.06em] text-[#3a2600]">
-                PRO<span className="sr-only">{item.locked ? " · Premium, non attivo" : " · Premium"}</span>
-              </span>
-            ) : null}
+            {"badge" in item && item.badge ? <PrimaryNavBadge badge={item.badge} itemKey={item.key} locked={item.locked} /> : null}
             {selected ? (
               <span className="absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-[#173f35]" />
             ) : null}
@@ -258,11 +287,7 @@ export function WorkspaceMobileBottomNavigation({
               {"mobileLabel" in item ? item.mobileLabel : item.label}
               {item.locked ? " · 🔒" : ""}
             </span>
-            {"pro" in item && item.pro ? (
-              <span className="absolute right-[18%] top-1 rounded-[4px] bg-[#f2b544] px-1 text-[8px] font-extrabold leading-[13px] text-[#3a2600]">
-                PRO<span className="sr-only">{item.locked ? " · Premium, non attivo" : " · Premium"}</span>
-              </span>
-            ) : null}
+            {"badge" in item && item.badge ? <PrimaryNavBadge badge={item.badge} itemKey={item.key} locked={item.locked} mobile /> : null}
           </Link>
         );
       })}
