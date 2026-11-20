@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {NetworkFilterRouteForm} from "@/components/network-filter-route-form";
 import type {CompactNetworkFilters} from "@/lib/network-compact-directory";
 import type {SpecMatch} from "@/lib/network-spec-search";
 import {
@@ -42,7 +43,7 @@ export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFil
         </svg>
       </span>
     </summary>
-    <form method="get" action="/network" aria-label="Ricerca per specifica tecnica" className="min-w-0 space-y-3 border-t border-[#d9e8e2] bg-white px-3 py-3">
+    <NetworkFilterRouteForm ariaLabel="Ricerca per specifica tecnica" className="min-w-0 space-y-3 border-t border-[#d9e8e2] bg-white px-3 py-3">
       {PRESERVED.map(key=>filters[key]?<input key={key} type="hidden" name={key} value={filters[key]}/>:null)}
       <fieldset className="min-w-0" data-testid="network-spec-material">
         <legend className="mb-2 text-[10px] font-bold uppercase tracking-[0.1em] text-[#47705a]">Norma e materiale</legend>
@@ -93,7 +94,7 @@ export function NetworkSpecPanel({filters,accessMode}:{filters:CompactNetworkFil
         {locked?"Ricerca per norma, grado e misure disponibile nel Network Pro.":
           "Confronto con lo scope tecnico pubblicato nei profili. Quantità e lunghezze di taglio si indicano nella richiesta d'offerta."}
       </p>
-    </form>
+    </NetworkFilterRouteForm>
   </details>;
 }
 
