@@ -12,6 +12,7 @@ import { loadCompanyPostPublishState } from "@/lib/company-posts";
 import { companyPostComposerMode } from "@/lib/company-posts-model";
 import { canWriteWorkspace } from "@/lib/access-policy";
 import { getDashboardData } from "@/lib/commercial-data";
+import { dealDeskHref, parseDealIndex } from "@/lib/commercial-deal-model";
 import { getCompanySetupState } from "@/lib/company-setup";
 import { loadDashboardPulse } from "@/lib/dashboard-pulse";
 import { loadHomeFeedPage } from "@/lib/home-feed";
@@ -64,7 +65,7 @@ function RfqEmptyState({ canWrite, firstRun }: { canWrite: boolean; firstRun: bo
             {firstRun ? "Crea la tua prima RFQ" : "Crea una RFQ"} <span aria-hidden="true">&nbsp;→</span>
           </Link>
           <Link
-            href="/distinta"
+            href={appRoutes.rfqHub.createDistinta}
             className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2"
           >
             Crea distinta <span aria-hidden="true">&nbsp;→</span>
@@ -113,12 +114,23 @@ export default async function DashboardPage({
   // CPOST1: may this user publish for the session organization? null hides the composer.
   const postPublishPromise = loadCompanyPostPublishState(context.organizationId);
 
-  const [setup, commercial, procurement, pulse, feedPage, coverage] = await Promise.all([
+  const [setup, commercial, procurement, sales, pulse, feedPage, coverage] = await Promise.all([
     isAdmin
       ? getCompanySetupState(context.organizationId).catch(() => null)
       : Promise.resolve(null),
     getDashboardData(),
     canWrite ? createClient().then((db) => db.rpc("rfqh10_procurement_inbox", { p_limit: 5 })).catch(() => ({ data: null, error: true })) : Promise.resolve({ data: null, error: null }),
+    // HOME-REVIEW1: the sales side of the cycle, same source and rules as the
+    // «Richieste d'offerta» menu counter (comm_deals2_index, sales, RLS-scoped).
+    canWrite
+      ? createClient()
+          .then((db) => db.rpc("comm_deals2_index", {
+            p_organization_id: context.organizationId, p_segment: "sales", p_filter: "todo",
+            p_query: "", p_limit: 1, p_offset: 0,
+          }))
+          .then(({ data, error }) => (error ? null : parseDealIndex(data)))
+          .catch(() => null)
+      : Promise.resolve(null),
     loadDashboardPulse(),
     loadHomeFeedPage(feedViewer, initialHomeFeedCursor).catch(() => ({ items: [], nextCursor: null, unavailable: [] })),
     // HOME-NETPRO2: real published counts for the Network PRO card; null simply hides the numbers.
@@ -158,9 +170,10 @@ export default async function DashboardPage({
   const companyNameHint = firstRun.active && organizationNameMatchesPerson(context.organizationName, registrantName)
     ? { href: appRoutes.company.setup + "#company-name" }
     : null;
+  // HOME-REVIEW1: each number opens the matching view of the Centro RFQ.
   const procurementKpis = procurementSummary && [
-    { label: "Azioni da gestire", value: procurementSummary.attention_total, href: appRoutes.rfqHub.home },
-    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.rfqHub.home },
+    { label: "Azioni da gestire", value: procurementSummary.attention_total, href: appRoutes.rfqHub.attention },
+    { label: "Urgenti", value: procurementSummary.urgent, href: appRoutes.rfqHub.attention },
     { label: "RFQ attive", value: procurementSummary.active_rfqs, href: appRoutes.rfqHub.home },
   ].flatMap((entry) =>
     typeof entry.value === "number" && Number.isFinite(entry.value) && entry.value >= 0
@@ -172,12 +185,19 @@ export default async function DashboardPage({
   const procurementAllZero = Boolean(
     procurementKpis && procurementKpis.length === 3 && procurementKpis.every((kpi) => kpi.value === 0),
   );
-  // Real recorded totals from the existing snapshot (never open pipelines).
-  const operationalKpis = mode === "live" ? [
-    { label: "RFQ", value: operational.rfqs },
-    { label: "Offerte", value: operational.offers },
-    { label: "Ordini", value: operational.orders },
-  ] : [];
+  // HOME-REVIEW1: «Richieste d'offerta» (sales side), each number opens the filtered list.
+  const salesKpis = sales ? [
+    { label: "Da fare", value: sales.counts.filters.todo, href: dealDeskHref({ segment: "sales", filter: "todo" }) },
+    { label: "In scadenza", value: sales.counts.filters.due, href: dealDeskHref({ segment: "sales", filter: "due" }) },
+    { label: "In attesa del cliente", value: sales.counts.filters.waiting, href: dealDeskHref({ segment: "sales", filter: "waiting" }) },
+  ] : null;
+  const salesAllZero = Boolean(salesKpis && salesKpis.every((kpi) => kpi.value === 0));
+  // HOME-REVIEW1: the box shows recent movements only; bare history totals said
+  // «non rappresentano attività aperte» and contradicted the empty list.
+  const showRecentMovements = mode === "live" && recent.length > 0;
+  const showFirstImport = canWrite && firstRun.active && mode === "live" && recent.length === 0;
+  // HOME-REVIEW1: once verified, the tick next to the name is enough.
+  const verifiedQuietly = verification?.status === "verified" && !verificationFlash;
   const networkProStats = summarizeNetworkProCoverage(coverage);
   const feedItems = withPulseNews(feedPage.items, pulse.available ? pulseNewsItems(pulse.feed?.items ?? []) : []);
 
@@ -212,15 +232,24 @@ export default async function DashboardPage({
                 {workspaceGreeting()}, {context.organizationName}
               </h1>
               <p className="mt-0.5 text-xs text-[#53645b]">{workspaceRoleLabel(context.role)} · Workspace privato</p>
+              {verifiedQuietly ? (
+                <Link href={appRoutes.company.profile} data-testid="home-verified-badge"
+                  className="mt-1.5 inline-flex min-h-8 items-center gap-1.5 text-xs font-semibold text-[#176045] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2">
+                  <span aria-hidden="true" className="flex h-4 w-4 items-center justify-center rounded-full bg-[#176045] text-[10px] text-white">✓</span>
+                  Azienda verificata
+                </Link>
+              ) : null}
             </div>
           </section>
 
-          <CompanyVerificationCard
-            state={verification}
-            isAdmin={isAdmin}
-            flash={verificationFlash}
-            profileHref={appRoutes.company.profile}
-          />
+          {verifiedQuietly ? null : (
+            <CompanyVerificationCard
+              state={verification}
+              isAdmin={isAdmin}
+              flash={verificationFlash}
+              profileHref={appRoutes.company.profile}
+            />
+          )}
 
           <WorkspaceFirstRunChecklist state={firstRun} companyNameHint={companyNameHint} compact />
 
@@ -244,42 +273,39 @@ export default async function DashboardPage({
             )}
           </section>
 
-          <section aria-labelledby="recent-activity" className="rounded-2xl border border-[#dce5df] bg-white p-4">
-            <h2 id="recent-activity" className="text-sm font-semibold text-[#173f35]">Ultimi movimenti commerciali</h2>
-            {mode === "live" && operationalKpis.length > 0 && operationalKpis.some((kpi) => kpi.value > 0) ? (
-              <>
-                <dl className="mt-2 grid grid-cols-3 gap-1.5">
-                  {operationalKpis.map((kpi) => (
-                    <div key={kpi.label} className="rounded-lg bg-[#f3f8f5] px-1 py-2 text-center">
-                      <dd className="text-base font-semibold tabular-nums text-[#173f35]">{kpi.value.toLocaleString("it-IT")}</dd>
-                      <dt className="text-[10px] text-[#53645b]">{kpi.label}</dt>
-                    </div>
+          {salesKpis ? (
+            <section aria-labelledby="home-sales-heading" data-testid="home-sales-summary" className="rounded-2xl border border-[#dce5df] bg-white p-4">
+              <h2 id="home-sales-heading" className="text-sm font-semibold text-[#173f35]">Richieste d’offerta</h2>
+              {salesAllZero ? (
+                <div role="status" className="mt-2 space-y-1">
+                  <p className="text-xs leading-5 text-[#52615b]">Nessuna richiesta dei clienti da gestire adesso.</p>
+                  <Link href={appRoutes.commercial.home} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2">
+                    Apri Richieste d’offerta <span aria-hidden="true">&nbsp;→</span>
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-2 space-y-1">
+                  {salesKpis.map((kpi) => (
+                    <Link key={kpi.label} href={kpi.href} className="flex min-h-9 items-center justify-between rounded-lg px-2 text-xs text-[#52615b] hover:bg-[#f1f7f3] focus-visible:outline-2 focus-visible:outline-offset-2">
+                      <span>{kpi.label}</span>
+                      <span className="font-semibold tabular-nums text-[#173f35]">{kpi.value.toLocaleString("it-IT")}</span>
+                    </Link>
                   ))}
-                </dl>
-                <p className="mt-1.5 text-[10px] leading-4 text-[#68766d]">Totali registrati · non rappresentano attività aperte.</p>
-              </>
-            ) : null}
-            {mode === "awaiting_assignment" ? (
+                </div>
+              )}
+            </section>
+          ) : null}
+
+          {mode === "awaiting_assignment" ? (
+            <section aria-labelledby="recent-activity" className="rounded-2xl border border-[#dce5df] bg-white p-4">
+              <h2 id="recent-activity" className="text-sm font-semibold text-[#173f35]">Ultimi movimenti commerciali</h2>
               <p role="status" className="mt-2 text-xs leading-5 text-[#52615b]">
                 Storico non ancora associato al workspace. Nessun dato dimostrativo viene mostrato come reale.
               </p>
-            ) : mode !== "live" ? (
-              <p role="status" className="mt-2 text-xs leading-5 text-[#52615b]">I dati commerciali non sono disponibili adesso.</p>
-            ) : recent.length === 0 ? (
-              <div className="mt-2 space-y-1">
-                <p className="text-xs leading-5 text-[#52615b]">
-                  {operational.rfqs + operational.offers + operational.orders > 0
-                    ? "Lo storico contiene dati commerciali, ma non ci sono movimenti recenti in questa vista."
-                    : "Nessun movimento recente nello storico commerciale."}
-                </p>
-                <Link
-                  href={canWrite && firstRun.active ? appRoutes.operations.uploads : appRoutes.commercial.home + "#commercial-worklist"}
-                  className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4"
-                >
-                  {canWrite && firstRun.active ? "Importa i primi documenti →" : "Apri attività commerciali →"}
-                </Link>
-              </div>
-            ) : (
+            </section>
+          ) : showRecentMovements ? (
+            <section aria-labelledby="recent-activity" className="rounded-2xl border border-[#dce5df] bg-white p-4">
+              <h2 id="recent-activity" className="text-sm font-semibold text-[#173f35]">Ultimi movimenti commerciali</h2>
               <div className="mt-2 divide-y divide-[#eaf0eb]">
                 {recent.slice(0, 3).map((row) => (
                   <Link
@@ -292,8 +318,16 @@ export default async function DashboardPage({
                   </Link>
                 ))}
               </div>
-            )}
-          </section>
+            </section>
+          ) : showFirstImport && operational.rfqs + operational.offers + operational.orders === 0 ? (
+            <section aria-labelledby="recent-activity" className="rounded-2xl border border-[#dce5df] bg-white p-4">
+              <h2 id="recent-activity" className="text-sm font-semibold text-[#173f35]">Ultimi movimenti commerciali</h2>
+              <p className="mt-2 text-xs leading-5 text-[#52615b]">Nessun movimento recente nello storico commerciale.</p>
+              <Link href={appRoutes.operations.uploads} className="inline-flex min-h-10 items-center text-xs font-semibold text-[#175640] underline underline-offset-4">
+                Importa i primi documenti →
+              </Link>
+            </section>
+          ) : null}
         </aside>
 
         {/* Centre: company posts composer and the infinite feed. HOME-FOCUS1 (founder decision,

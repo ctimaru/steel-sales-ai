@@ -61,7 +61,7 @@ test("HOME-NETPREVIEW1 Home uses the same free, published browse RPC as /network
   // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
   assert.match(homeFeedViewerSource, /networkEntitled \? "pro" : networkEnabled && isNetworkFreeReadEnabled\(\) \? "free" : null/);
   assert.match(homeFeedSource, /getNetworkBrowsePage\(viewer\.organizationId, viewer\.networkAccess, "published"/);
-  assert.match(home, /\[setup, commercial, procurement, pulse, feedPage, coverage\] = await Promise\.all/);
+  assert.match(home, /\[setup, commercial, procurement, sales, pulse, feedPage, coverage\] = await Promise\.all/);
 });
 
 test("HOME-NETPREVIEW1 radar shows companies instead of claiming the Network is unavailable", () => {

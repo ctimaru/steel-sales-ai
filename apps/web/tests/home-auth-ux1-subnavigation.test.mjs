@@ -22,7 +22,8 @@ test("HOME-AUTH-UX1 routes to actual assistant and existing commercial tools", (
   assert.match(companion, /sss:commercial-ai-intake-handoff/);
   assert.doesNotMatch(companion, /service_role|sendEmail/);
   assert.doesNotMatch(home, /HomeAiComposer/);
-  assert.match(home, /href="\/distinta"/);
+  // HOME-REVIEW1: the workspace Distinta lives at /rfq-hub/distinta (single address, 17 Nov 2026).
+  assert.match(home, /href=\{appRoutes\.rfqHub\.createDistinta\}/);
 });
 
 test("HOME-AUTH-UX1 keeps all permission boundaries at the server and honest KPI/status data", () => {
@@ -30,7 +31,7 @@ test("HOME-AUTH-UX1 keeps all permission boundaries at the server and honest KPI
   assert.match(home, /getNetworkAccessState\(context\.organizationId\)/);
   assert.match(homeFeedSource, /getMarketplaceFeed\(viewer\.organizationId/);
   assert.match(home, /canWriteWorkspace\(context\.role\)/);
-  assert.match(home, /mode === "live" && operationalKpis.length > 0/);
+  assert.match(home, /const showRecentMovements = mode === "live" && recent\.length > 0/);
   assert.match(home, /Nessun dato dimostrativo viene mostrato come reale/);
 });
 

@@ -92,7 +92,7 @@ test("NEXT1C.3 permits only matching published public-profile facts, no contact 
 });
 
 test("NEXT1C.3 Dashboard offers one-click Commerciale handoff and keeps profile link", () => {
-  assert.match(readFileSync(new URL("../components/home-feed.tsx", import.meta.url), "utf8"), /"\/network\/" \+ item\.id \+ "\/connect"/); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
+  assert.match(readFileSync(new URL("../components/home-feed.tsx", import.meta.url), "utf8"), /"\/network\/" \+ row\.id \+ "\/connect"/); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
   assert.match(radar, /\?network=" \+ encodeURIComponent\(company\.id\)/);
   // DISTINTA-ONE1: writers go to the single «Nuova richiesta» screen with the company as provenance.
   assert.match(radar, /canWriteCommercial \? newRequestHref\(\{ network: company\.id, measure: true \}\)/);

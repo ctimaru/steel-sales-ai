@@ -21,7 +21,7 @@ test("HOME-EMPTYSTATE1 both counter surfaces use the empty state and keep their 
 test("HOME-EMPTYSTATE1 creation links are existing routes and only for roles that can write", () => {
   assert.match(home, /data-testid="home-rfq-empty-state"/);
   assert.match(home, /newRequestHref\(\)/);
-  assert.match(home, /href="\/distinta"/);
+  assert.match(home, /href=\{appRoutes\.rfqHub\.createDistinta\}/);
   assert.match(home, /firstRun \? "Crea la tua prima RFQ" : "Crea una RFQ"/);
   assert.match(home, /\{canWrite \? \(\s*<div className="flex flex-wrap items-center gap-x-4 gap-y-1">/);
   assert.match(home, /Quando il tuo team invierà richieste di offerta/);

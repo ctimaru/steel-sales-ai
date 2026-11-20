@@ -15,27 +15,39 @@
 
 import type { CompanyPostItem } from "./company-posts-model";
 
+/**
+ * HOME-FEED2 (founder review, 20 Nov 2026): one row of a companies group.
+ * `reason` says why the company is shown («Tubi · Produttore»).
+ */
 export type HomeFeedConnect = "available" | "connected" | "pending" | "unavailable" | null;
+
+export type HomeFeedCompanyRow = {
+  id: string;
+  name: string;
+  role: string | null;
+  place: string;
+  verified: boolean;
+  saved: boolean;
+  /** Connetti (founder decision, 2 Nov 2026) stays the relationship action in the feed. */
+  connect: HomeFeedConnect;
+  reason: string | null;
+};
 
 export type HomeFeedItem =
   | {
-      kind: "company";
+      /**
+       * HOME-FEED2: Network companies arrive grouped, one card per feed page,
+       * instead of one card per company (the feed read like a directory).
+       * source "distinte": companies working the families of the organization's
+       * own bills; "network": the general published Network.
+       * lockedTotal: without Network PRO, only how many match (no names).
+       */
+      kind: "companies";
       key: string;
-      id: string;
-      name: string;
-      role: string | null;
-      place: string;
-      products: string[];
-      verified: boolean;
-      saved: boolean;
-      connect: HomeFeedConnect;
-      /** HOME-FEED1B: published facility capabilities (same read as /network). */
-      capabilities: string[];
-      /** Validated http(s) website and its display domain. */
-      website: { href: string; domain: string } | null;
-      /** Location comes from a source, not confirmed by the company. */
-      locationIndicative: boolean;
-      market: string | null;
+      source: "distinte" | "network";
+      families: string[];
+      companies: HomeFeedCompanyRow[];
+      lockedTotal: number | null;
     }
   | {
       kind: "article";
@@ -103,25 +115,27 @@ export type HomeFeedCursor = {
   mo: number;
   /** CPOST1 company posts: "" = from the newest, "x" = exhausted, else a keyset token. */
   pc: string;
+  /** HOME-FEED2 companies for the bills of material: offset, -1 = exhausted. */
+  dm: number;
 };
 
-export const HOME_FEED_PAGE = { companies: 6, school: 2, opportunities: 1 } as const;
+export const HOME_FEED_PAGE = { companies: 4, school: 2, opportunities: 1, matched: 4 } as const;
 const MAX_INT = 100_000;
 
-export const initialHomeFeedCursor: HomeFeedCursor = { v: 1, np: 1, ni: 0, sp: "articles", so: 0, mo: 0, pc: "" };
+export const initialHomeFeedCursor: HomeFeedCursor = { v: 1, np: 1, ni: 0, sp: "articles", so: 0, mo: 0, pc: "", dm: 0 };
 
 function clampInt(value: unknown, min: number, max: number, fallback: number): number {
   return typeof value === "number" && Number.isInteger(value) && value >= min && value <= max ? value : fallback;
 }
 
 export function encodeHomeFeedCursor(cursor: HomeFeedCursor): string {
-  return [cursor.v, cursor.np, cursor.ni, cursor.sp, cursor.so, cursor.mo, cursor.pc].join(".");
+  return [cursor.v, cursor.np, cursor.ni, cursor.sp, cursor.so, cursor.mo, cursor.pc, cursor.dm].join(".");
 }
 
 /** Tamper-tolerant: anything malformed restarts from the beginning, never throws. */
 export function decodeHomeFeedCursor(value: unknown): HomeFeedCursor {
   if (typeof value !== "string" || value.length > 200) return initialHomeFeedCursor;
-  const [v, np, ni, sp, so, mo, pc] = value.split(".");
+  const [v, np, ni, sp, so, mo, pc, dm] = value.split(".");
   if (v !== "1") return initialHomeFeedCursor;
   const phase: SchoolPhase = sp === "articles" || sp === "standards" || sp === "grades" || sp === "done" ? sp : "articles";
   return {
@@ -133,33 +147,104 @@ export function decodeHomeFeedCursor(value: unknown): HomeFeedCursor {
     mo: clampInt(Number(mo), -1, MAX_INT, 0),
     // Only the escaped keyset alphabet survives; anything else restarts the posts.
     pc: typeof pc === "string" && pc.length <= 120 && /^(x|[0-9T:_+Z-]+~[0-9a-f-]{36})?$/i.test(pc) ? pc : "",
+    // Cursors issued before HOME-FEED2 have no 8th part: start from the bills.
+    dm: dm === undefined ? 0 : clampInt(Number(dm), -1, MAX_INT, 0),
   };
 }
 
 export function homeFeedExhausted(cursor: HomeFeedCursor): boolean {
-  return cursor.np === 0 && cursor.sp === "done" && cursor.mo === -1 && cursor.pc === "x";
+  return cursor.np === 0 && cursor.sp === "done" && cursor.mo === -1 && cursor.pc === "x" && cursor.dm === -1;
 }
 
 /**
- * Interleave one page: companies form the backbone, School and Marketplace
- * posts are spaced through it so no source dominates a screen.
- * Pattern for 6 companies: C C S C O C S C C (school after 2nd and 4th,
- * opportunity after 3rd). Leftovers are appended in source order.
+ * HOME-FEED2: one page = at most one companies group, spaced between the
+ * other sources so no source dominates a screen: S G O S (School, group,
+ * opportunity, School). Missing sources simply close the gap.
  */
 export function interleaveHomeFeed(
-  companies: readonly HomeFeedItem[],
+  group: HomeFeedItem | null,
   school: readonly HomeFeedItem[],
   opportunities: readonly HomeFeedItem[],
 ): HomeFeedItem[] {
-  const out: HomeFeedItem[] = [];
   const s = [...school];
-  const o = [...opportunities];
-  companies.forEach((company, index) => {
-    out.push(company);
-    if ((index === 1 || index === 3) && s.length) out.push(s.shift()!);
-    if (index === 2 && o.length) out.push(o.shift()!);
-  });
-  return [...out, ...s, ...o];
+  const out: HomeFeedItem[] = [];
+  if (s.length) out.push(s.shift()!);
+  if (group) out.push(group);
+  out.push(...opportunities);
+  return [...out, ...s];
+}
+
+const FAMILY_LABELS: Record<string, string> = {
+  tubes_pipes: "Tubi",
+  flat_products: "Prodotti piani",
+  long_products: "Prodotti lunghi",
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  producer: "Produttore",
+  trader_distributor: "Commerciante",
+  processor_service_provider: "Terzista",
+  end_user: "Utilizzatore",
+};
+
+/** «Tubi», «Tubi e prodotti piani»: the families of the bills, in Italian. */
+export function homeFeedFamilyText(keys: readonly string[]): string {
+  const labels = keys.map((key) => FAMILY_LABELS[key]).filter(Boolean);
+  if (labels.length === 0) return "";
+  if (labels.length === 1) return labels[0];
+  const lower = labels.map((label, index) => (index === 0 ? label : label.toLowerCase()));
+  return lower.slice(0, -1).join(", ") + " e " + lower[lower.length - 1];
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export type DistintaCompaniesPage = {
+  networkEnabled: boolean;
+  families: string[];
+  total: number;
+  rows: Array<{ id: string; name: string; countryCode: string | null; verified: boolean; role: string | null; reason: string | null }>;
+};
+
+/**
+ * HOME-FEED2: validate public.homefeed2_distinta_companies. Anything off-contract
+ * is null, which makes the loader fall back to the general Network.
+ */
+export function parseDistintaCompanies(raw: unknown): DistintaCompaniesPage | null {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return null;
+  const v = raw as Record<string, unknown>;
+  if (v.contract !== "HOME-FEED2-distinta-companies-v1") return null;
+  if (typeof v.network_enabled !== "boolean" || !Array.isArray(v.families) || !Array.isArray(v.items)) return null;
+  if (typeof v.total !== "number" || !Number.isInteger(v.total) || v.total < 0) return null;
+  const families = v.families.filter((f): f is string => typeof f === "string" && f in FAMILY_LABELS);
+  const rows: DistintaCompaniesPage["rows"] = [];
+  for (const item of v.items) {
+    if (!item || typeof item !== "object") continue;
+    const r = item as Record<string, unknown>;
+    const id = typeof r.id === "string" ? r.id : "";
+    const name = typeof r.company_name === "string" ? r.company_name.trim().slice(0, 160) : "";
+    if (!UUID_RE.test(id) || !name) continue;
+    const role = typeof r.role_key === "string" ? ROLE_LABELS[r.role_key] ?? null : null;
+    const rowFamilies = Array.isArray(r.families) ? r.families.filter((f): f is string => typeof f === "string") : [];
+    const reason = [homeFeedFamilyText(rowFamilies), role].filter(Boolean).join(" · ") || null;
+    const country = typeof r.country_code === "string" && /^[A-Z]{2}$/.test(r.country_code) ? r.country_code : null;
+    rows.push({ id, name, countryCode: country, verified: r.verified === true, role, reason });
+  }
+  // Without Network access the server never sends names; never show any anyway.
+  return { networkEnabled: v.network_enabled, families, total: v.total, rows: v.network_enabled ? rows : [] };
+}
+
+/** Next offset for the bills source, or -1 when the matches are over. */
+export function nextDistintaOffset(offset: number, taken: number, total: number): number {
+  const next = offset + taken;
+  return taken <= 0 || next >= total ? -1 : next;
+}
+
+/** Inside a group: verified companies first, then the source order. */
+export function sortCompanyRows<T extends { verified: boolean }>(rows: readonly T[]): T[] {
+  return rows
+    .map((row, index) => ({ row, index }))
+    .sort((a, b) => Number(b.row.verified) - Number(a.row.verified) || a.index - b.index)
+    .map((entry) => entry.row);
 }
 
 /** Drop repeated keys across pages (a source page can shift between requests). */
