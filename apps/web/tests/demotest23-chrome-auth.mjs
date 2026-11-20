@@ -215,7 +215,7 @@ try {
           .waitFor({ state: "visible", timeout: 60000 });
         assert.equal(
           await page.getByRole("navigation", { name: "Navigazione principale" })
-            .getByRole("link", { name: "Commerciale", exact: true }).getAttribute("aria-current"),
+            .getByRole("link", { name: /^Commerciale\b/ }).getAttribute("aria-current"),
           "page",
         );
         const worklist = page.locator("#commercial-worklist");
@@ -259,7 +259,7 @@ try {
       await page.getByRole("heading", { name: "Centro RFQ", exact: true })
         .waitFor({ state: "visible", timeout: 60000 });
       const primaryNav = page.getByRole("navigation", { name: "Navigazione principale" });
-      assert.equal(await primaryNav.getByRole("link", { name: "Commerciale", exact: true }).getAttribute("aria-current"), "page",
+      assert.equal(await primaryNav.getByRole("link", { name: /^Commerciale\b/ }).getAttribute("aria-current"), "page",
         "Procurement must belong to the single Commerciale primary destination");
       assert.equal(await primaryNav.getByRole("link", { name: "RFQ Hub", exact: true }).count(), 0,
         "RFQ Hub must no longer be a second primary destination");
