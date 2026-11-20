@@ -34,6 +34,6 @@ test("EUROPE1D keeps mini map as European overview, dialog as detail, and countr
   assert.match(map,/href=\{europeMapCountryHref\(filters,item.code\)\}/);
   assert.match(map,/startTransition\(\(\)=>router\.replace\(href,\{scroll:false\}\)\)/);
   assert.match(map,/setZoomCountry\(null\)/);
-  assert.match(map,/role="group" aria-label="Mappa europea/);
+  assert.match(map,/role="group" aria-label="Mappa dell'Europa estesa/);
   assert.match(map,/aria-label="Scegli area regionale"/);
 });

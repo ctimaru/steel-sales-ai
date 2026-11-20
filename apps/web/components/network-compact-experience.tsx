@@ -274,7 +274,8 @@ export async function NetworkCompactExperience({
       <aside aria-label="Filtri delle aziende" className="min-w-0 lg:sticky lg:top-24" data-testid="network-side-column">
         {/* NET-UX-MAP1: the European map is always visible, including on mobile. */}
         <div className="mb-3" data-testid="network-europe-persistent-map">
-          <NetworkEuropeanMap filters={filters} coverage={europeCoverage} fullMapHref={fullMapHref}/>
+          <NetworkEuropeanMap filters={filters} coverage={europeCoverage} fullMapHref={fullMapHref}
+            countryCounts={Object.fromEntries(networkCountries.map(item=>[item.countryCode,item.total]))}/>
         </div>
         <NetworkFilterDrawer activeCount={activeFilterCount}>
           <section aria-label="Ricerca e filtri delle aziende"
