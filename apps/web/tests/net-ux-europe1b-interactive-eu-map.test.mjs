@@ -42,7 +42,10 @@ test("EUROPE1B: country navigation preserves filters but never stale region or p
   assert.doesNotMatch(countryBuilder,/params\.set\("region"/);
   assert.match(map,/export function europeMapRegionHref/);
   assert.doesNotMatch(map,/params\.set\("np"/);
-  assert.match(map,/router\.replace\(europeMapCountryHref\(filters,code\),\{scroll:false\}\)/);
+  assert.match(map,/<a key=\{shape.code\} href=\{href\}/);
+  assert.match(map,/<a key=\{region.code\} href=\{europeMapRegionHref\(/);
+  assert.doesNotMatch(map,/event\.preventDefault\(\)/);
+  assert.doesNotMatch(map,/router\.replace\(/);
   assert.match(countryFilters,/router\.replace\(/);
 });
 test("EUROPE1B: compact, full-screen dialog, focus, native links and keyboard list",()=>{

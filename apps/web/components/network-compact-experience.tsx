@@ -12,6 +12,7 @@ import {safeNetworkWebsiteUrl, type FreeCompany} from "@/lib/network-free";
 import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compact-directory";
 import {NetworkEuropeanMap} from "@/components/network-europe-map";
 import {NetworkCountryTicker} from "@/components/network-country-ticker";
+import {getNetworkCountryStats} from "@/lib/network-country-stats";
 import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters";
 import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
 import {NetworkRfqSelectionBar} from "@/components/network-rfq-selection-bar";
@@ -215,9 +216,12 @@ function CompactCompanyRow({company,capabilities=[],specMatch,status,selectable,
   </article>;
 }
 
-export function NetworkCompactExperience({
+export async function NetworkCompactExperience({
   accessMode,directory,filters,userId,organizationId,canCompose,europeCoverage,additionalFilters,capabilityLabels={},
 }:Props){
+  // The ticker census is global; directory.total is scoped to the active search.
+  const networkCountries=await getNetworkCountryStats(organizationId,accessMode);
+  const globalCount=networkCountries.length?networkCountries.reduce((sum,item)=>sum+item.total,0):null;
   const specActive=NETWORK_SPEC_PARAMS.some(key=>Boolean(filters[key]));
   const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country||filters.steel||specActive);
   const specMode=Boolean(directory.specMode);
@@ -249,17 +253,23 @@ export function NetworkCompactExperience({
       <h1 className="text-2xl font-bold tracking-tight text-[#173f35]">Cerca aziende
         <span data-testid="network-access-mode" className="ml-2 align-middle rounded-full bg-[#e4f0e9] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#176647]">{accessMode==="pro"?"Pro":"Free"}</span>
       </h1>
-      <p className="text-xs text-[#52615b]" aria-label="Statistiche Network">
-        {knownTotals?<>
-          <strong className="tabular-nums text-[#173f35]">{directory.total.toLocaleString("it-IT")}</strong> {filterActive?"aziende trovate":"aziende nel Network"}
-        </>:<span>Esplora le aziende del Network</span>}
-      </p>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#52615b]"
+        aria-label="Statistiche Network" data-testid="network-count-summary">
+        {globalCount!==null?<span title="Profili pubblicati e schede da fonti pubbliche consultabili">
+          <strong className="tabular-nums text-[#173f35]">{globalCount.toLocaleString("it-IT")}</strong> aziende nel Network
+        </span>:null}
+        {knownTotals?<span>
+          <strong className="tabular-nums text-[#173f35]">{directory.total.toLocaleString("it-IT")}</strong> aziende trovate
+          {" · "}{filters.region?(europeNutsRegionName(filters.country||"IT",filters.region)||filters.region):
+            (networkCountryName(filters.country||"IT")||"Italia")}
+        </span>:<span>Esplora le aziende del Network</span>}
+      </div>
       {/* NET-PRO-UX2: "Moduli e prezzi" now lives in the PRO strip below, next to Intelligence Produttori. */}
     </header>
     <div className="mb-3">
       <NetworkProducersEntry country={filters.country||"IT"} />
     </div>
-    <NetworkCountryTicker organizationId={organizationId} accessMode={accessMode}/>
+    <NetworkCountryTicker organizationId={organizationId} accessMode={accessMode} items={networkCountries}/>
     <div data-testid="network-europe1d-one-screen-shell" className="grid items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
       <aside aria-label="Filtri delle aziende" className="min-w-0 lg:sticky lg:top-24" data-testid="network-side-column">
         {/* NET-UX-MAP1: the European map is always visible, including on mobile. */}
@@ -412,11 +422,16 @@ export function NetworkCompactExperience({
       </p>:null}
         <section id="network-results" aria-label="Risultati aziende" className="overflow-hidden rounded-2xl border border-[#d7e3dc] bg-white">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e8eeeb] px-3 py-2.5 sm:px-4">
-            <h2 className="text-base font-semibold text-[#173f35]">
-              {specMode?(directory.specExactTotal??0).toLocaleString("it-IT")+" compatibili"+
-                (directory.specUndeclaredTotal?" · "+directory.specUndeclaredTotal.toLocaleString("it-IT")+" da verificare":""):
-                knownTotals?companyCount.toLocaleString("it-IT")+" aziende trovate":"Profili disponibili"}
-            </h2>
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <h2 className="text-base font-semibold text-[#173f35]">
+                {specMode?(directory.specExactTotal??0).toLocaleString("it-IT")+" compatibili"+
+                  (directory.specUndeclaredTotal?" · "+directory.specUndeclaredTotal.toLocaleString("it-IT")+" da verificare":""):
+                  knownTotals?companyCount.toLocaleString("it-IT")+" aziende trovate":"Profili disponibili"}
+              </h2>
+              <span className="text-xs font-medium tabular-nums text-[#52615b]" data-testid="network-count-visible">
+                {directory.items.length.toLocaleString("it-IT")} mostrate in questa pagina
+              </span>
+            </div>
             <div className="flex items-center gap-3">
               <span className="hidden text-[11px] text-[#52615b] xl:inline" title="Località pubblicate o provenienti da fonti consultabili; quelle indicative non equivalgono a una sede certificata">Località disponibili: {listedLocationCount}/{directory.items.length}</span>
               {pager("top")}

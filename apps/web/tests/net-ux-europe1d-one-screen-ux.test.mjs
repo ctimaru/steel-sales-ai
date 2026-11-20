@@ -29,8 +29,11 @@ test("EUROPE1D keeps the map visible on mobile and exposes aligned facet labels"
 test("EUROPE1D keeps mini map as European overview, dialog as detail, and country/region navigation distinct",()=>{
   assert.match(map,/europeMapViewBox\(compact\?null:zoomCountry\)/);
   assert.match(map,/data-testid="network-europe1d-overview"/);
-  assert.match(map,/setExpanded\(false\);\s*router\.replace\(europeMapRegionHref/);
-  assert.match(map,/router\.replace\(europeMapCountryHref\(filters,code\),\{scroll:false\}\)/);
+  // Native links refresh the authenticated directory, rather than relying on
+  // a client-only transition that may leave the map and search out of sync.
+  assert.match(map,/href=\{europeMapRegionHref\(filters,country,region.code\)\}/);
+  assert.match(map,/href=\{europeMapCountryHref\(filters,item.code\)\}/);
+  assert.doesNotMatch(map,/router\.replace\(/);
   assert.match(map,/setZoomCountry\(null\)/);
   assert.match(map,/role="group" aria-label="Mappa europea/);
   assert.match(map,/aria-label="Scegli area regionale"/);
