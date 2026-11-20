@@ -3,9 +3,12 @@ import type { Metadata } from "next";
 import { unstable_cache } from "next/cache";
 
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
+import { NetworkRdoDistintaPicker } from "@/components/network-rdo-distinta-picker";
 import { safeBuyerUiLocale } from "@/lib/buyer-ui-locale";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
+import { newRequestHref } from "@/lib/new-request-href";
+import { listNetworkRdoSavedDistintas } from "@/lib/network-rdo-saved-distintas";
 import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { appRoutes } from "@/lib/routes";
 import { privateNoIndexRobots } from "@/lib/seo";
@@ -40,18 +43,34 @@ const cachedQuickAddCatalog = unstable_cache(async () => {
  * and opens step 2, the suppliers. Sending (step 3) always needs a confirmation.
  */
 export default async function NewRequestPage({ searchParams }: {
-  searchParams: Promise<{ lang?: string; aggiungi?: string; network?: string; source?: string }>;
+  searchParams: Promise<{ lang?: string; aggiungi?: string; network?: string; source?: string; nuova?: string }>;
 }) {
   // UI gate is not the authorization boundary. Existing server actions and
   // Supabase policies independently verify the authenticated data owner.
   const context = await requireWorkspaceWriteRole(appRoutes.rfqHub.home);
   const params = await searchParams;
   const locale=safeBuyerUiLocale(params.lang);
-  const [catalogOptions, networkContext] = await Promise.all([
-    cachedQuickAddCatalog().catch(() => []),
-    // Provenance only: the Network company is never added as a recipient automatically.
-    getCommercialNetworkContext(context.organizationId, params.network).catch(() => null),
-  ]);
+  // A Network-originated RDO offers the user's own reusable Distinte first.
+  // The company is validated server-side; direct /distinta entry remains unchanged.
+  const networkContext = await getCommercialNetworkContext(context.organizationId, params.network)
+    .catch(() => null);
+  const savedChoice = networkContext && params.nuova !== "1"
+    ? await listNetworkRdoSavedDistintas(context.organizationId, context.userId)
+    : null;
+  if (networkContext && savedChoice?.items.length) {
+    return (
+      <NetworkRdoDistintaPicker
+        networkCompanyId={networkContext.id}
+        companyName={networkContext.name}
+        items={savedChoice.items}
+        newHref={newRequestHref({ network: networkContext.id }) + "&nuova=1"}
+      />
+    );
+  }
+
+  // With no reusable Distinte, directly enter the existing single builder:
+  // no empty chooser, extra click or unnecessary public catalog load.
+  const catalogOptions = await cachedQuickAddCatalog().catch(() => []);
 
   return (
     <div className="space-y-3" lang={locale}>
@@ -74,6 +93,9 @@ export default async function NewRequestPage({ searchParams }: {
           Trattative
         </Link>
       </header>
+      {savedChoice?.error ? <p role="status" className="rounded-lg border border-[#e9c46a] bg-[#fffaf0] px-3 py-2 text-xs text-[#674b15]">
+        Le Distinte salvate non sono disponibili in questo momento. Puoi comunque creare una nuova richiesta.
+      </p> : null}
       {networkContext ? (
         <p data-testid="new-request-network-provenance"
           className="rounded-lg border border-[#cfe3d7] bg-[#f4faf6] px-3 py-2 text-xs leading-5 text-[#315c49]">
