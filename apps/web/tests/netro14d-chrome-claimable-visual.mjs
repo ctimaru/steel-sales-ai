@@ -284,6 +284,25 @@ try {
         console.log("NET-UX-FILTERS1 SYNTHETIC DIAGNOSTIC",JSON.stringify({width,pageState,rpcDiagnostics}));
       }
       assert.equal(await europeMap.isVisible(), true, "Country map disappeared at "+width);
+      // NET-EUROPE-EXT1: real Chrome verifies geographically extended map and
+      // keyboard-accessible extra-EU choices at desktop and narrow mobile.
+      const miniSvg=europeMap.getByTestId("network-eu-map-mini-svg");
+      assert.equal(await miniSvg.getAttribute("viewBox"),"-240 0 1330 710");
+      for(const countryCode of ["GB","CH","RS","UA","TR"]){
+        assert.equal(await miniSvg.locator('a[data-country="'+countryCode+'"]').count(),1,
+          "Missing clickable European country "+countryCode+" at "+width);
+      }
+      assert.equal(await miniSvg.locator('a[data-country="US"]').count(),0,
+        "US is outside the European map");
+      await europeMap.getByRole("button",{name:"Espandi mappa europea"}).click();
+      const expandedMap=page.getByRole("dialog",{name:"Mappa interattiva dell'Europa estesa"});
+      await expandedMap.waitFor({state:"visible"});
+      assert.equal(await expandedMap.getByRole("navigation",{name:"Paesi europei extra UE"}).getByRole("link").count(),5);
+      await screenshot(page,"network-europe-extended-dialog",width);
+      await expandedMap.getByRole("button",{name:"Chiudi mappa europea"}).click();
+      await expandedMap.waitFor({state:"hidden"});
+      await screenshot(page,"network-europe-extended-overview",width);
+
       if (width === 1440) {
         assert.equal(await filtersCard.isVisible(), true, "Desktop filter card must remain open");
         assert.equal(await toggle.isVisible(), false, "Desktop drawer toggle must stay hidden");
