@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 const read=(path)=>readFileSync(new URL(path,import.meta.url),"utf8");
 const spec=read("../components/network-spec-filters.tsx");
+const routedForm=read("../components/network-filter-route-form.tsx");
 const page=read("../components/network-compact-experience.tsx");
 const chrome=read("./netro14d-chrome-claimable-visual.mjs");
 const workflow=read("../../../.github/workflows/net-ux-filters1-responsive.yml");
@@ -30,7 +31,9 @@ test("NET-UX-TECH1 measurement controls are organized in paired 44px rows",()=>{
 test("NET-UX-TECH1 preserves combined filters and existing GET contract",()=>{
   for(const key of ["q","role","region","country","persona","steel","product","capability","market"])
     assert.ok(spec.includes('"'+key+'"'),"Lost preserved filter: "+key);
-  assert.match(spec,/method="get" action="\/network"/);
+  assert.match(spec,/<NetworkFilterRouteForm ariaLabel="Ricerca per specifica tecnica"/);
+  assert.match(routedForm,/method="get" action="\/network"/);
+  assert.match(routedForm,/event\.preventDefault\(\)/);
   assert.match(spec,/key!=="np"/);
   assert.match(spec,/NETWORK_SPEC_STANDARD_SUGGESTIONS/);
   assert.match(spec,/NETWORK_SPEC_SHAPES/);
