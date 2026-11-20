@@ -563,6 +563,30 @@ try {
       const labels=["Attività e prodotti","Stock e produzioni","Contatti e sedi","Documenti e fonti"];
       assert.equal(await companyHub.getByTestId("network-company-section-nav").locator("button").count(),4);
       assert.equal(await companyHero.getByTestId("network-profile-request-rdo").count(),1);
+      // NET-RDO-INLINE2: a high-contrast button opens an accessible modal without
+      // replacing or reloading the current company page (320/390/1440).
+      const rdoLauncher=companyHero.getByTestId("network-profile-request-rdo");
+      assert.equal(await rdoLauncher.getAttribute("aria-haspopup"),"dialog");
+      const buttonContrast=await rdoLauncher.evaluate((el)=>{
+        const style=getComputedStyle(el);
+        const parse=(value)=>{const m=value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);return m?[Number(m[1]),Number(m[2]),Number(m[3])]:null;};
+        const fg=parse(style.color),bg=parse(style.backgroundColor);
+        const luminance=(parts)=>parts.map(v=>{const n=v/255;return n<=0.04045?n/12.92:Math.pow((n+0.055)/1.055,2.4);})
+          .reduce((sum,v,i)=>sum+v*[0.2126,0.7152,0.0722][i],0);
+        if(!fg||!bg)return 0;
+        const a=luminance(fg),b=luminance(bg);
+        return (Math.max(a,b)+0.05)/(Math.min(a,b)+0.05);
+      });
+      assert.ok(buttonContrast>=4.5,"RDO button must meet WCAG AA text contrast, got "+buttonContrast.toFixed(2));
+      const previousCompanyUrl=page.url();
+      await rdoLauncher.click();
+      const inlineRdo=page.getByTestId("network-rdo-modal");
+      await inlineRdo.waitFor({state:"visible",timeout:15000});
+      assert.equal(page.url(),previousCompanyUrl,"Opening RDO must not navigate or reload the company profile");
+      assert.equal(await inlineRdo.getAttribute("open"),"");
+      await inlineRdo.getByRole("button",{name:"Chiudi la Distinta"}).click();
+      await inlineRdo.waitFor({state:"hidden",timeout:15000});
+      assert.equal(page.url(),previousCompanyUrl);
       for(let i=0;i<cards.length;i++){
         assert.equal(await companyHub.getByTestId("network-company-card-"+cards[i]).count(),1);
         assert.match(await companyHub.getByTestId("network-company-card-"+cards[i]).innerText(),
