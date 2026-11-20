@@ -13,13 +13,17 @@ import {
   encodeHomeFeedCursor,
   homeFeedExhausted,
   interleaveHomeFeed,
+  nextDistintaOffset,
+  parseDistintaCompanies,
+  sortCompanyRows,
+  type HomeFeedCompanyRow,
   type HomeFeedConnect,
   type HomeFeedCursor,
   type HomeFeedItem,
 } from "@/lib/home-feed-model";
 import { getMarketplaceFeed, type MarketplaceFeedItem } from "@/lib/marketplace";
 import { getPublishedCapabilityLabels } from "@/lib/network-compact-capabilities";
-import { getFreeNetworkViewerRole, getNetworkBrowsePage, safeNetworkWebsiteUrl, type FreeCompany } from "@/lib/network-free";
+import { getFreeNetworkViewerRole, getNetworkBrowsePage, type FreeCompany } from "@/lib/network-free";
 import { getNetworkRecipientReadiness } from "@/lib/network-recipient-readiness";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import { networkCountryName } from "@/lib/network-eu-countries";
@@ -52,12 +56,27 @@ function clean(value: unknown, max = 240): string {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
 }
 
-function companyItem(
+function isOwnCompany(viewer: HomeFeedViewer, names: Array<string | null | undefined>): boolean {
+  const own = viewer.organizationName.trim().toLowerCase();
+  return Boolean(own) && names.some((name) => clean(name).toLowerCase() === own);
+}
+
+/** Saved state and Connetti readiness, only for roles that can act on them. */
+async function rowActions(viewer: HomeFeedViewer, ids: string[]) {
+  if (!viewer.canInteract || ids.length === 0) return { saved: new Set<string>(), readiness: new Map<string, HomeFeedConnect>() };
+  const [savedIds, readiness] = await Promise.all([
+    getSavedNetworkCompanyIds(viewer.organizationId, ids).catch(() => [] as string[]),
+    getNetworkRecipientReadiness(viewer.organizationId, ids).catch(() => new Map()),
+  ]);
+  return { saved: new Set(savedIds), readiness: readiness as Map<string, HomeFeedConnect> };
+}
+
+function companyRow(
   company: FreeCompany,
   saved: Set<string>,
   readiness: Map<string, HomeFeedConnect>,
   capabilityLabels: Record<string, string[]>,
-): HomeFeedItem | null {
+): HomeFeedCompanyRow | null {
   if (!UUID.test(company.id)) return null;
   const name = clean(company.trading_name) || clean(company.legal_name);
   if (!name) return null;
@@ -67,37 +86,26 @@ function companyItem(
   const place = [clean(company.location?.city) || clean(company.location?.region), networkCountryName(country) || country]
     .filter(Boolean)
     .join(" · ");
+  // Why it is shown: what it makes or works, when the Network knows it.
+  const products = (Array.isArray(company.products) ? company.products : []).slice(0, 2).map((p) => networkNameIt(p)).filter(Boolean);
+  const capabilities = (capabilityLabels[company.id] ?? []).slice(0, 2).map((c) => networkNameIt(c)).filter(Boolean);
+  const what = products.length ? products : capabilities;
   return {
-    kind: "company",
-    key: "company:" + company.id,
     id: company.id,
     name,
     role: primary?.name ? networkNameIt(primary.name) : null,
     place,
-    products: (Array.isArray(company.products) ? company.products : []).slice(0, 3).map((p) => networkNameIt(p)).filter(Boolean),
     verified: company.verification_status === "verified",
     saved: saved.has(company.id),
     connect: readiness.get(company.id) ?? null,
-    capabilities: (capabilityLabels[company.id] ?? []).slice(0, 3).map((c) => networkNameIt(c)).filter(Boolean),
-    website: websiteOf(company.website_url),
-    locationIndicative: company.geography_status === "sourced_unverified",
-    market: clean(company.market_name, 80) || null,
+    reason: what.length ? what.join(", ") : null,
   };
 }
 
-function websiteOf(value: string | null | undefined): { href: string; domain: string } | null {
-  const href = safeNetworkWebsiteUrl(value);
-  if (!href) return null;
-  try {
-    return { href, domain: new URL(href).hostname.replace(/^www\./, "") };
-  } catch {
-    return null;
-  }
-}
-
-async function loadCompanies(viewer: HomeFeedViewer, cursor: HomeFeedCursor) {
+/** The general published Network, same ranking as /network, as one group. */
+async function loadNetworkGroup(viewer: HomeFeedViewer, cursor: HomeFeedCursor) {
   if (!viewer.networkAccess || cursor.np === 0) {
-    return { items: [] as HomeFeedItem[], next: { np: 0, ni: 0 }, failed: false };
+    return { item: null as HomeFeedItem | null, next: { np: 0, ni: 0 }, failed: false };
   }
   try {
     // Same ranking as /network: the viewer's own role drives the persona order.
@@ -106,29 +114,83 @@ async function loadCompanies(viewer: HomeFeedViewer, cursor: HomeFeedCursor) {
       persona: persona ?? undefined,
       page: cursor.np,
     });
-    const own = viewer.organizationName.trim().toLowerCase();
     const slice = page.items
       .slice(cursor.ni, cursor.ni + HOME_FEED_PAGE.companies)
-      .filter((c) => clean(c.legal_name).toLowerCase() !== own && clean(c.trading_name).toLowerCase() !== own);
+      .filter((c) => !isOwnCompany(viewer, [c.legal_name, c.trading_name]));
     const ids = slice.map((c) => c.id).filter((id) => UUID.test(id));
-    const [savedIds, readiness, capabilityLabels] = await Promise.all([
-      viewer.canInteract ? getSavedNetworkCompanyIds(viewer.organizationId, ids).catch(() => []) : Promise.resolve([]),
-      viewer.canInteract
-        ? getNetworkRecipientReadiness(viewer.organizationId, ids).catch(() => new Map())
-        : Promise.resolve(new Map()),
+    const [actions, capabilityLabels] = await Promise.all([
+      rowActions(viewer, ids),
       // Public, published facility capabilities: the same read /network uses for every tier.
       getPublishedCapabilityLabels(ids).catch(() => ({} as Record<string, string[]>)),
     ]);
-    const saved = new Set(savedIds);
-    const items = slice
-      .map((c) => companyItem(c, saved, readiness as Map<string, HomeFeedConnect>, capabilityLabels))
-      .filter(Boolean) as HomeFeedItem[];
+    const rows = slice
+      .map((c) => companyRow(c, actions.saved, actions.readiness, capabilityLabels))
+      .filter(Boolean) as HomeFeedCompanyRow[];
     const taken = Math.min(HOME_FEED_PAGE.companies, Math.max(0, page.items.length - cursor.ni));
-    return { items, next: advanceNetworkCursor(cursor, page.items.length, taken, page.has_more), failed: false };
+    const item: HomeFeedItem | null = rows.length
+      ? { kind: "companies", key: "companies:network:" + cursor.np + ":" + cursor.ni, source: "network", families: [], companies: sortCompanyRows(rows), lockedTotal: null }
+      : null;
+    return { item, next: advanceNetworkCursor(cursor, page.items.length, taken, page.has_more), failed: false };
   } catch {
     // Stop paging this source rather than retry forever; the rest of the feed continues.
-    return { items: [] as HomeFeedItem[], next: { np: 0, ni: 0 }, failed: true };
+    return { item: null as HomeFeedItem | null, next: { np: 0, ni: 0 }, failed: true };
   }
+}
+
+/**
+ * HOME-FEED2: companies that work the product families of the organization's
+ * own bills (public.homefeed2_distinta_companies). Names only with Network
+ * access; otherwise one teaser with the total. Any failure (including the
+ * function not yet installed) ends this source and the general Network takes over.
+ */
+async function loadDistintaGroup(viewer: HomeFeedViewer, cursor: HomeFeedCursor) {
+  if (!viewer.networkAccess || cursor.dm < 0) return { item: null as HomeFeedItem | null, dm: -1 };
+  try {
+    const db = await createClient();
+    const { data, error } = await db.rpc("homefeed2_distinta_companies", {
+      p_organization_id: viewer.organizationId,
+      p_limit: HOME_FEED_PAGE.matched,
+      p_offset: cursor.dm,
+    });
+    const page = error ? null : parseDistintaCompanies(data);
+    if (!page || page.total === 0 || page.families.length === 0) return { item: null, dm: -1 };
+    if (!page.networkEnabled) {
+      // Teaser once, on the first page only.
+      const item: HomeFeedItem | null = cursor.dm === 0
+        ? { kind: "companies", key: "companies:distinte:locked", source: "distinte", families: page.families, companies: [], lockedTotal: page.total }
+        : null;
+      return { item, dm: -1 };
+    }
+    const visible = page.rows.filter((row) => !isOwnCompany(viewer, [row.name]));
+    const actions = await rowActions(viewer, visible.map((row) => row.id));
+    const rows: HomeFeedCompanyRow[] = visible.map((row) => ({
+      id: row.id,
+      name: row.name,
+      role: row.role,
+      place: row.countryCode ? networkCountryName(row.countryCode) || row.countryCode : "",
+      verified: row.verified,
+      saved: actions.saved.has(row.id),
+      connect: actions.readiness.get(row.id) ?? null,
+      reason: row.reason,
+    }));
+    const dm = nextDistintaOffset(cursor.dm, page.rows.length, page.total);
+    const item: HomeFeedItem | null = rows.length
+      ? { kind: "companies", key: "companies:distinte:" + cursor.dm, source: "distinte", families: page.families, companies: rows, lockedTotal: null }
+      : null;
+    return { item, dm };
+  } catch {
+    return { item: null as HomeFeedItem | null, dm: -1 };
+  }
+}
+
+/** One companies group per page: the bills first, then the general Network. */
+async function loadCompanyGroup(viewer: HomeFeedViewer, cursor: HomeFeedCursor) {
+  const matched = await loadDistintaGroup(viewer, cursor);
+  if (matched.item) {
+    return { item: matched.item, dm: matched.dm, next: { np: cursor.np, ni: cursor.ni }, failed: false };
+  }
+  const network = await loadNetworkGroup(viewer, cursor);
+  return { item: network.item, dm: matched.dm, next: network.next, failed: network.failed };
 }
 
 async function loadSchool(cursor: HomeFeedCursor) {
@@ -266,7 +328,7 @@ async function loadCompanyPosts(cursor: HomeFeedCursor) {
 /** One page of the Home feed. Sources load in parallel and fail independently. */
 export async function loadHomeFeedPage(viewer: HomeFeedViewer, cursor: HomeFeedCursor): Promise<HomeFeedPage> {
   const [companies, school, opportunities, posts] = await Promise.all([
-    loadCompanies(viewer, cursor),
+    loadCompanyGroup(viewer, cursor),
     loadSchool(cursor),
     loadOpportunities(viewer, cursor),
     loadCompanyPosts(cursor),
@@ -279,6 +341,7 @@ export async function loadHomeFeedPage(viewer: HomeFeedViewer, cursor: HomeFeedC
     so: school.next.so,
     mo: opportunities.next,
     pc: posts.next,
+    dm: companies.dm,
   };
   const unavailable: HomeFeedPage["unavailable"] = [];
   if (companies.failed) unavailable.push("network");
@@ -286,19 +349,8 @@ export async function loadHomeFeedPage(viewer: HomeFeedViewer, cursor: HomeFeedC
   if (opportunities.failed) unavailable.push("marketplace");
   if (posts.failed) unavailable.push("posts");
   return {
-    items: withCompanyPosts(interleaveHomeFeed(companies.items, school.items, opportunities.items), posts.items),
+    items: withCompanyPosts(interleaveHomeFeed(companies.item, school.items, opportunities.items), posts.items),
     nextCursor: homeFeedExhausted(next) ? null : encodeHomeFeedCursor(next),
     unavailable,
   };
-}
-
-/**
- * Right rail "Aziende da conoscere": the same ranked Network page as the feed,
- * taken from further down (index 12+), so it does not repeat the opening posts.
- */
-export async function loadHomeSuggestedCompanies(viewer: HomeFeedViewer, limit = 4) {
-  const result = await loadCompanies(viewer, { v: 1, np: 1, ni: 12, sp: "done", so: 0, mo: -1, pc: "x" });
-  return result.items
-    .filter((item): item is Extract<HomeFeedItem, { kind: "company" }> => item.kind === "company")
-    .slice(0, Math.max(0, Math.min(6, limit)));
 }

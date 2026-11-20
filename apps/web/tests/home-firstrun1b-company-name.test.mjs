@@ -50,7 +50,7 @@ test("HOME-FIRSTRUN1B Home title names the company and the hint is admin-only, f
   assert.match(home, /firstRun\.active && organizationNameMatchesPerson\(context\.organizationName, registrantName\)/);
   assert.match(home, /appRoutes\.company\.setup \+ "#company-name"/);
   // The main parallel batch stays one Promise.all (HP16 perceived-speed contract).
-  assert.match(home, /\[setup, commercial, procurement, pulse, feedPage, coverage\] = await Promise\.all/);
+  assert.match(home, /\[setup, commercial, procurement, sales, pulse, feedPage, coverage\] = await Promise\.all/);
 });
 
 test("HOME-FIRSTRUN1B hint copy respects ditte individuali and links to the existing name field", () => {

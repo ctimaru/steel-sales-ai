@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { loadMoreHomeFeed, toggleHomeFeedSavedCompany } from "@/app/(workspace)/dashboard/feed-actions";
+import { loadMoreHomeFeed } from "@/app/(workspace)/dashboard/feed-actions";
 import {
   CompanyPostCard,
   CompanyPostComposer,
@@ -13,7 +13,8 @@ import {
   CompanyPostVerifyFirst,
 } from "@/components/company-post";
 import type { CompanyPostItem, CompanyPostType } from "@/lib/company-posts-model";
-import { companyInitials, type HomeFeedItem } from "@/lib/home-feed-model";
+import { companyInitials, homeFeedFamilyText, type HomeFeedCompanyRow, type HomeFeedItem } from "@/lib/home-feed-model";
+import { appRoutes } from "@/lib/routes";
 import { NetworkSaveToggle } from "@/components/network-save-toggle";
 
 /**
@@ -55,61 +56,81 @@ function PostHeader({ badge, title, subtitle, tone }: { badge: string; title: st
 const actionClass =
   "inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold text-[#3f5248] transition hover:bg-[#f1f6f3] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]";
 
-function CompanyPost({ item, canInteract }: { item: Extract<HomeFeedItem, { kind: "company" }>; canInteract: boolean }) {
+function CompanyRow({ row, canInteract }: { row: HomeFeedCompanyRow; canInteract: boolean }) {
+  const detail = [row.role, row.place].filter(Boolean).join(" · ");
   return (
-    <>
-      <div className="px-4 pt-4">
-        <PostHeader badge={companyInitials(item.name)} title={item.name} subtitle={[item.role, item.place, item.locationIndicative && item.place ? "località indicativa" : null].filter(Boolean).join(" · ")} tone="network" />
-        <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.08em] text-[#28634f]">
-          Nel Network{item.verified ? " · Identità verificata" : ""}
-        </p>
-        {item.products.length || item.capabilities.length ? (
-          <dl className="mt-2 space-y-1.5 text-[11px] text-[#2f4a3e]">
-            {item.products.length ? (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <dt className="font-semibold text-[#4d6156]">Prodotti</dt>
-                {item.products.map((product) => (
-                  <dd key={product} className="rounded-full border border-[#d5e4da] bg-[#f7fbf8] px-2.5 py-1">{product}</dd>
-                ))}
-              </div>
-            ) : null}
-            {item.capabilities.length ? (
-              <div className="flex flex-wrap items-center gap-1.5">
-                <dt className="font-semibold text-[#4d6156]">Lavorazioni</dt>
-                {item.capabilities.map((capability) => (
-                  <dd key={capability} className="rounded-full border border-[#dfe3f2] bg-[#f7f8fd] px-2.5 py-1">{capability}</dd>
-                ))}
-              </div>
-            ) : null}
-          </dl>
-        ) : null}
-        {item.market || item.website ? (
-          <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[#5b6b62]">
-            {item.market ? <span>Settore: {item.market}</span> : null}
-            {item.website ? (
-              <a href={item.website.href} target="_blank" rel="noopener noreferrer nofollow" className="font-medium text-[#175640] underline-offset-4 hover:underline">
-                {item.website.domain} <span aria-hidden="true">↗</span>
-              </a>
-            ) : null}
-          </p>
-        ) : null}
+    <li className="flex min-w-0 items-center gap-3 py-2.5" data-testid="home-feed-company-row">
+      <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e4f0e9] text-[11px] font-bold text-[#175640]">
+        {companyInitials(row.name)}
+      </span>
+      <div className="min-w-0 flex-1">
+        <Link href={"/network/" + row.id} aria-label={"Profilo di " + row.name}
+          className="flex min-w-0 items-center gap-1 text-sm font-semibold text-[#173f35] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2">
+          <span className="truncate">{row.name}</span>
+          {row.verified ? <span className="shrink-0 text-xs text-[#176045]" title="Identità verificata">✓<span className="sr-only"> Identità verificata</span></span> : null}
+        </Link>
+        {detail ? <p className="truncate text-[11px] text-[#5b6b62]">{detail}</p> : null}
+        {row.reason ? <p className="truncate text-[11px] font-medium text-[#28634f]">{row.reason}</p> : null}
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-1 border-t border-[#edf2ef] px-2 py-1">
-        {canInteract && item.connect === "available" ? (
-          <Link href={"/network/" + item.id + "/connect"} className={actionClass} aria-label={"Connetti con " + item.name}>
+      <div className="flex shrink-0 flex-wrap items-center justify-end gap-0.5">
+        {canInteract && row.connect === "available" ? (
+          <Link href={"/network/" + row.id + "/connect"} className={actionClass} aria-label={"Connetti con " + row.name}>
             <span aria-hidden="true">＋</span> Connetti
           </Link>
-        ) : item.connect === "connected" ? (
-          <span className="px-3 text-xs font-semibold text-[#175640]">✓ Connessa</span>
-        ) : item.connect === "pending" ? (
-          <span className="px-3 text-xs font-semibold text-[#175640]">Richiesta inviata</span>
+        ) : row.connect === "connected" ? (
+          <span className="px-2 text-xs font-semibold text-[#175640]">✓ Connessa</span>
+        ) : row.connect === "pending" ? (
+          <span className="px-2 text-xs font-semibold text-[#175640]">Richiesta inviata</span>
         ) : null}
         {/* NET-SAVE-INLINE1: same inline Salva as the Network (toast, Annulla, counter sync). */}
         {canInteract ? (
-          <NetworkSaveToggle companyId={item.id} name={item.name} saved={item.saved} surface="home_feed" appearance="ghost" />
+          <NetworkSaveToggle companyId={row.id} name={row.name} saved={row.saved} surface="home_feed" appearance="ghost" />
         ) : null}
-        <Link href={"/network/" + item.id} className={actionClass} aria-label={"Profilo di " + item.name}>
-          Profilo
+      </div>
+    </li>
+  );
+}
+
+/**
+ * HOME-FEED2: one card per feed page groups the Network companies and says why
+ * they are shown. «Per le tue distinte» when they work the families of the
+ * organization's bills; a teaser with the total when Network PRO is missing.
+ */
+function CompaniesGroupPost({ item, canInteract }: { item: Extract<HomeFeedItem, { kind: "companies" }>; canInteract: boolean }) {
+  const families = homeFeedFamilyText(item.families);
+  const fromBills = item.source === "distinte";
+  const title = fromBills ? "Per le tue distinte" : "Aziende del Network";
+  const subtitle = fromBills && families
+    ? "Lavorano " + families.toLowerCase() + ", come le tue distinte"
+    : "Aziende della filiera che potresti conoscere";
+  if (item.lockedTotal !== null) {
+    return (
+      <div className="px-4 py-4" data-testid="home-feed-companies-locked">
+        <PostHeader badge="NW" title={title} subtitle="Network PRO" tone="network" />
+        <p className="mt-3 text-sm leading-6 text-[#2f4a3e]">
+          <strong className="font-semibold tabular-nums">{item.lockedTotal.toLocaleString("it-IT")}</strong>{" "}
+          {item.lockedTotal === 1 ? "azienda del Network lavora" : "aziende del Network lavorano"}{" "}
+          {families ? families.toLowerCase() : "i prodotti"}, come le tue distinte.
+        </p>
+        <Link href={appRoutes.network.pro} className={actionClass + " mt-2 -ml-3 text-[#175640]"}>
+          Scoprile con Network PRO <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+    );
+  }
+  return (
+    <>
+      <div className="px-4 pt-4">
+        <PostHeader badge="NW" title={title} subtitle={subtitle} tone="network" />
+        <ul className="mt-2 divide-y divide-[#edf2ef]">
+          {item.companies.map((row) => (
+            <CompanyRow key={row.id} row={row} canInteract={canInteract} />
+          ))}
+        </ul>
+      </div>
+      <div className="mt-1 flex flex-wrap items-center gap-1 border-t border-[#edf2ef] px-2 py-1">
+        <Link href={appRoutes.network.directory} className={actionClass}>
+          Vedi altre aziende nel Network <span aria-hidden="true">→</span>
         </Link>
       </div>
     </>
@@ -216,8 +237,8 @@ function Post({
   switch (item.kind) {
     case "post":
       return <CompanyPostCard item={item} isAdmin={isAdmin} onRemoved={onRemoved} />;
-    case "company":
-      return <CompanyPost item={item} canInteract={canInteract} />;
+    case "companies":
+      return <CompaniesGroupPost item={item} canInteract={canInteract} />;
     case "article":
       return <ArticlePost item={item} />;
     case "standard":
@@ -255,6 +276,8 @@ export function HomeFeed({
   const [failed, setFailed] = useState(false);
   const sentinel = useRef<HTMLDivElement | null>(null);
   const keys = useRef(new Set(initialItems.map((item) => item.key)));
+  // HOME-FEED2: a company already shown in a group (e.g. «Per le tue distinte») is not repeated later.
+  const shownCompanies = useRef(new Set(initialItems.flatMap((item) => (item.kind === "companies" ? item.companies.map((row) => row.id) : []))));
   const busy = useRef(false);
 
   const loadMore = useCallback(async () => {
@@ -272,9 +295,16 @@ export function HomeFeed({
           setFailed(true);
           break;
         }
-        for (const item of page.items) {
-          if (keys.current.has(item.key)) continue;
-          keys.current.add(item.key);
+        for (const raw of page.items) {
+          if (keys.current.has(raw.key)) continue;
+          keys.current.add(raw.key);
+          let item = raw;
+          if (item.kind === "companies" && item.lockedTotal === null) {
+            const fresh = item.companies.filter((row) => !shownCompanies.current.has(row.id));
+            if (fresh.length === 0) continue;
+            fresh.forEach((row) => shownCompanies.current.add(row.id));
+            item = { ...item, companies: fresh };
+          }
           added.push(item);
         }
         next = page.nextCursor;
@@ -363,70 +393,5 @@ export function HomeFeed({
         <p role="alert" className="text-center text-xs text-[#9d4e28]">Non è stato possibile caricare altri post.</p>
       ) : null}
     </section>
-  );
-}
-
-/** HOME-FEED1 right rail: "Aziende da conoscere" with the same inline Salva / Connetti. */
-export function HomeSuggestedCompanies({
-  companies,
-  canInteract,
-}: {
-  companies: Array<Extract<HomeFeedItem, { kind: "company" }>>;
-  canInteract: boolean;
-}) {
-  if (!companies.length) return null;
-  return (
-    <section aria-labelledby="home-suggested-heading" data-testid="home-suggested-companies" className="rounded-2xl border border-[#dce5df] bg-white p-4">
-      <h2 id="home-suggested-heading" className="text-sm font-semibold text-[#173f35]">Aziende da conoscere</h2>
-      <ul className="mt-2 divide-y divide-[#edf2ef]">
-        {companies.map((company) => (
-          <li key={company.key} className="py-2.5">
-            <SuggestedCompany company={company} canInteract={canInteract} />
-          </li>
-        ))}
-      </ul>
-      <p className="mt-1 text-[10px] leading-4 text-[#65746c]">Dal Network pubblicato; non è una selezione di fornitori per una RFQ.</p>
-    </section>
-  );
-}
-
-function SuggestedCompany({ company, canInteract }: { company: Extract<HomeFeedItem, { kind: "company" }>; canInteract: boolean }) {
-  const [saved, setSaved] = useState(company.saved);
-  const [pending, startTransition] = useTransition();
-  function toggle() {
-    const next = !saved;
-    setSaved(next);
-    startTransition(async () => {
-      const result = await toggleHomeFeedSavedCompany(company.id, next);
-      if (!result.ok) setSaved(!next);
-    });
-  }
-  return (
-    <div className="flex min-w-0 items-start gap-2.5">
-      <span aria-hidden="true" className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e4f0e9] text-[10px] font-bold text-[#175640]">
-        {companyInitials(company.name)}
-      </span>
-      <div className="min-w-0 flex-1">
-        <Link href={"/network/" + company.id} className="block truncate text-xs font-semibold text-[#173f35] hover:underline focus-visible:outline-2 focus-visible:outline-offset-2">
-          {company.name}
-        </Link>
-        <p className="truncate text-[11px] text-[#5b6b62]">{[company.role, company.place].filter(Boolean).join(" · ")}</p>
-        <div className="mt-1 flex flex-wrap gap-1">
-          {canInteract && company.connect === "available" ? (
-            <Link href={"/network/" + company.id + "/connect"} aria-label={"Connetti con " + company.name}
-              className="inline-flex min-h-9 items-center rounded-full border border-[#7fae97] px-3 text-[11px] font-semibold text-[#175640] hover:bg-[#f2f8f4]">
-              ＋ Connetti
-            </Link>
-          ) : null}
-          {canInteract ? (
-            <button type="button" onClick={toggle} disabled={pending} aria-pressed={saved}
-              aria-label={(saved ? "Rimuovi dai salvati: " : "Salva nella tua lista privata: ") + company.name}
-              className="inline-flex min-h-9 items-center rounded-full border border-[#d5e4da] px-3 text-[11px] font-semibold text-[#3f5248] hover:bg-[#f2f8f4] disabled:opacity-60">
-              {saved ? "★ Salvata" : "☆ Salva"}
-            </button>
-          ) : null}
-        </div>
-      </div>
-    </div>
   );
 }

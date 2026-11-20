@@ -43,10 +43,10 @@ test("HP16 starts independent workspace shell dependencies together", () => {
 });
 
 test("HP16 keeps Dashboard critical reads in one parallel batch", () => {
-  assert.match(dashboard, /\[setup, commercial, procurement, pulse, feedPage, coverage\] = await Promise\.all/);
+  assert.match(dashboard, /\[setup, commercial, procurement, sales, pulse, feedPage, coverage\] = await Promise\.all/);
   assert.match(dashboard, /loadDashboardPulse\(\)/);
   assert.match(dashboard, /loadHomeFeedPage\(feedViewer, initialHomeFeedCursor\)/);
-  assert.match(homeFeedSource, /await Promise\.all\(\[\s*loadCompanies\(viewer, cursor\),\s*loadSchool\(cursor\),\s*loadOpportunities\(viewer, cursor\)/);
+  assert.match(homeFeedSource, /await Promise\.all\(\[\s*loadCompanyGroup\(viewer, cursor\),\s*loadSchool\(cursor\),\s*loadOpportunities\(viewer, cursor\)/);
   assert.doesNotMatch(dashboard, /const networkCatalog = await searchNetwork/);
   assert.doesNotMatch(dashboard, /const setup = isAdmin\s*\? await getCompanySetupState/);
 });

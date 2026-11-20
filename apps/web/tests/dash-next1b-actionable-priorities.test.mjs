@@ -102,10 +102,12 @@ test("NEXT1B Commerciale selected RFQ fallback is on-demand and never cross-tena
 });
 
 test("NEXT1B historic totals are not mistaken for actionable counts or an empty company", () => {
-  assert.match(dashboard, /Totali registrati · non rappresentano attività aperte/);
+  // HOME-REVIEW1 (20 Nov 2026): bare history totals left the Home; actionable sales
+  // counts come from the same index as the «Richieste d'offerta» menu counter.
+  assert.doesNotMatch(dashboard, /Totali registrati · non rappresentano attività aperte/);
   assert.match(dashboard, /mode === "live"/);
-  assert.match(dashboard, /non ci sono movimenti recenti in questa vista/);
-  assert.match(dashboard, /Apri attività commerciali/);
+  assert.match(dashboard, /db\.rpc\("comm_deals2_index", \{\s*p_organization_id: context\.organizationId, p_segment: "sales", p_filter: "todo"/);
+  assert.match(dashboard, /Apri Richieste d’offerta/);
   assert.match(dashboard, /procurementSummary\.attention_total/);
   assert.match(dashboard, /procurementSummary\.active_rfqs/);
 });

@@ -27,11 +27,10 @@ test("DASH-NEXT1A keeps network discovery and primary action role-aware", () => 
 });
 
 test("DASH-NEXT1A compact metrics are real totals, not pseudo open pipelines", () => {
-  assert.match(home, /mode === "live" && operationalKpis\.length > 0/);
-  assert.match(home, /operational\.rfqs/);
-  assert.match(home, /operational\.offers/);
-  assert.match(home, /operational\.orders/);
-  assert.match(home, /Totali registrati · non rappresentano attività aperte/);
+  // HOME-REVIEW1 (20 Nov 2026): bare history totals left the Home; only recent movements stay.
+  assert.match(home, /const showRecentMovements = mode === "live" && recent\.length > 0/);
+  assert.doesNotMatch(home, /Totali registrati · non rappresentano attività aperte/);
+  assert.doesNotMatch(home, /ma non ci sono movimenti recenti in questa vista/);
   assert.match(home, /Nessun dato dimostrativo viene mostrato come reale/);
   // HOME-FOCUS1: RFQ status stays in the left rail as verified totals only.
   assert.match(home, /procurementSummary\.active_rfqs/);
