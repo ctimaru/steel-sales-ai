@@ -252,6 +252,12 @@ def query_places() -> list[tuple]:
 
 
 def stage_batches(rows: list[dict]) -> dict:
+    """Stage valid discoveries without letting one rejected POI block the batch.
+
+    The service-only RPC remains the authority: the client NEVER overrides its
+    quality, source or rights checks. A specific per-item validation error
+    causes the batch to be bisected; an unrecognized error still fails closed.
+    """
     import httpx
     base = os.environ.get("CRAWL_IT65B_SUPABASE_URL", "").rstrip("/")
     secret = os.environ.get("CRAWL_IT65B_SUPABASE_SECRET_KEY", "")
@@ -259,9 +265,13 @@ def stage_batches(rows: list[dict]) -> dict:
             or not secret.startswith("sb_secret_")):
         raise RuntimeError("RO Overture: production service credentials missing")
     totals = {"received": 0, "new_leads": 0, "new_private_seeds": 0}
+    rejected_domains: list[str] = []
+    invalid_item_message = "RO Overture stage: invalid source/country/domain/item"
+
     with httpx.Client(timeout=40.0, follow_redirects=False) as client:
-        for start in range(0, len(rows), MAX_BATCH):
-            batch = rows[start:start + MAX_BATCH]
+        def stage_group(batch: list[dict]) -> None:
+            if not batch:
+                return
             result = client.post(
                 base + "/rest/v1/rpc/net_ro_overture1_stage",
                 headers={"apikey": secret, "Content-Type": "application/json",
@@ -269,6 +279,23 @@ def stage_batches(rows: list[dict]) -> dict:
                 json={"p_release": RELEASE, "p_items": batch},
             )
             if result.status_code != 200:
+                error_message = None
+                if result.status_code == 400:
+                    try:
+                        error_message = result.json().get("message")
+                    except (ValueError, AttributeError, TypeError):
+                        pass
+                if error_message == invalid_item_message:
+                    if len(batch) == 1:
+                        # Keep a searchable, bounded domain sample, not site
+                        # content or an invented positive verification.
+                        rejected_domains.append(batch[0]["domain"])
+                        return
+                    midpoint = len(batch) // 2
+                    stage_group(batch[:midpoint])
+                    stage_group(batch[midpoint:])
+                    return
+                # Access, service, transport and unknown DB errors are fatal.
                 raise RuntimeError(
                     "RO Overture stage HTTP " + str(result.status_code)
                 )
@@ -280,6 +307,12 @@ def stage_batches(rows: list[dict]) -> dict:
                 raise RuntimeError("Unexpected RO Overture staging contract")
             for key in totals:
                 totals[key] += response[key]
+
+        for start in range(0, len(rows), MAX_BATCH):
+            stage_group(rows[start:start + MAX_BATCH])
+
+    totals["rejected_invalid"] = len(rejected_domains)
+    totals["rejected_domains_sample"] = rejected_domains[:10]
     return totals
 
 
