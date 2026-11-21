@@ -100,6 +100,70 @@ def legal_name_is_clean(name: str) -> bool:
     )
 
 
+# AUTO2 identity_supported is not permission to publish. It must never mark a
+# guessed legal name as identity_supported when the AUTO3 SQL quality gate
+# would reject the name (e.g. a copyright year, site menu or agency credit).
+# This is deliberately conservative: finding a *new* identity still requires
+# full first-party corroboration in the reviewer and the SQL gate stays intact.
+_PUBLISHER_NAME_WORDS = re.compile(
+    r"(?i)(?<![A-Za-zÀ-ÿ])(?:"
+    r"home|homepage|contatti|contattaci|news|privacy|cookie|cookies|gdpr|"
+    r"titolare|trattamento|informativa|copyright|messaggio|politica|"
+    r"ditta|azienda|località|localita|scegli|preventivi|preventivo|"
+    r"fornirvi|qualità|qualita|benvenuti|telefono|tel|fax|email|pec|"
+    r"sede|menu|info|pulsante|button|clicca|click|scarica|download|"
+    r"vai|torna|responsabile"
+    r")(?![A-Za-zÀ-ÿ])"
+)
+_PUBLISHER_PREFIX = re.compile(
+    r"(?i)^(?:continua|leggere\s+di\s+pi[uù]|rivista|dal\s+(?:19|20)\d{2}|"
+    r"dom\s+chiuso|immagini|images|fotografie|gallery|galleria|foto|"
+    r"visualizza|installazione\s+servizio\s+gru|"
+    r"chiama\s+ora|call\s+now|richiedi\s+(?:un\s+)?preventivo)\b"
+)
+
+
+def publisher_legal_name_is_clean(name: str) -> bool:
+    """Fail closed on AUTO3-rejected CMS/SEO-contaminated names.
+
+    This is a *preflight* shape check, never a substitute for the SQL
+    publisher's more extensive legal identity, provenance and dedup guards.
+    In particular, the first-party site must independently substantiate any
+    corrected name; this function neither repairs strings nor raises confidence.
+    """
+    value = " ".join(unescape(name or "").split())
+    if not legal_name_is_clean(value):
+        return False
+    form = _FORM.search(value)
+    if not form:
+        return False
+    if not re.match(r"^(?:[A-ZÀ-ÖØ-Þ]|[0-9][A-ZÀ-ÖØ-Þ])", value):
+        return False
+    if re.match(r"^(?:19|20)\d{2}(?:[^A-Za-z0-9]|$)", value):
+        return False
+    if _PUBLISHER_PREFIX.search(value) or _PUBLISHER_NAME_WORDS.search(value):
+        return False
+    if re.search(r"(?i)\b(?:powered\s+by|web\s+agency|hosting\s+by)\b", value):
+        return False
+    if re.search(r"(?i)(?:^|\s)(?:zona\s+artigianale|zona\s+industriale|"
+                 r"contrada|c\.?\s*da|via\s+[A-Za-zÀ-ÿ]{3,}|"
+                 r"viale\s+[A-Za-zÀ-ÿ]{3,})(?:\s|$)", value):
+        return False
+    if re.search(r"(?i)^(?:abruzzo|piemonte|lombardia|veneto|lazio|"
+                 r"puglia|calabria|campania|toscana|sicilia|sardegna)"
+                 r"\s+(?:la|il|lo|le|i|gli)\s+", value):
+        return False
+    if (re.search(r"[?!]", value)
+            or re.search(r"\d{3,}[ ./-]+\d{3,}", value)
+            or re.search(r"[A-Za-zÀ-ÿ]{4,}\.\s", value)
+            or re.search(r"(?i)(?:^|\s)di(?:\s|$)", value)):
+        return False
+    # AUTO3's SQL function only accepts at most six words before the form.
+    if len(value[:form.start()].strip().split()) > MAX_NAME_WORDS:
+        return False
+    return True
+
+
 def _structured_legal_names(pages: list[dict[str, object]], domain: str,
                             first_guess: str, texts: list[str]) -> list[str]:
     """Trust only same-domain Organization.legalName corroborated in BODY text."""
