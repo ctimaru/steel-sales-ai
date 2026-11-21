@@ -11,7 +11,8 @@ test("COMPACT5 keeps the dashboard summary compact and free of filler metrics",(
   // NET-UX LOT1: one inline line next to the title instead of a stats box.
   assert.doesNotMatch(page,/label:"Ruoli nella filiera"/);
   assert.match(page,/directory\.total\.toLocaleString\("it-IT"\)/);
-  assert.match(page,/aziende nel Network/);
+  assert.match(page,/aziende pubblicate/);
+  assert.match(page,/da confermare/);
   assert.doesNotMatch(page,/censite da fonti pubbliche/);
 });
 
