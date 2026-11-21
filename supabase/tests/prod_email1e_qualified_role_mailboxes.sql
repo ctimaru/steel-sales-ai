@@ -28,6 +28,10 @@ select pg_temp.pe1e_ok(
   'info.mts is a qualified role'
 );
 select pg_temp.pe1e_ok(
+  private.netcontact1_qualified_role_local_part('commercial.dep'),
+  'commercial.dep is a qualified English commercial role'
+);
+select pg_temp.pe1e_ok(
   not private.netcontact1_qualified_role_local_part('morandispa'),
   'brand local-part remains excluded'
 );
