@@ -10,7 +10,7 @@ import { createPublicSupabaseClient } from "@/lib/supabase/public";
  * aggregate counts only, no company data. Any failure returns null and the
  * page simply hides the numbers — never an estimate. Memoized per render so
  * the hero pill and the Network showcase share one call; the static page is
- * regenerated at most once an hour (revalidate on the route).
+ * eligible for regeneration every minute (revalidate on the route).
  */
 export type PublicNetworkCounts = {
   total: number;
