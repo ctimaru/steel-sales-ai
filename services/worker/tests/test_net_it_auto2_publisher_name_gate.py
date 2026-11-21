@@ -47,6 +47,8 @@ class PublisherNameShapeTest(unittest.TestCase):
             "M.G. Srl",
             "Tubi Nord S.n.c.",
             "Rossi & C. S.a.s.",
+            "C.M. CARPENTERIA DI CECCON E MORO SAS",
+            "Fratelli Rossi di Marco S.n.c.",
             "Officina Ferro 2012 Srl",
             "3M Italia S.r.l.",
         ):
