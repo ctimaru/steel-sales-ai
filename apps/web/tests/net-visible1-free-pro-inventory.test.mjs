@@ -23,8 +23,10 @@ test("NET-VISIBLE1: canonical Pro default no longer uses the limited technical r
  assert.match(lib,/getNetworkBrowsePage\(organizationId,"free","unconfirmed"/);
 });
 test("NET-PROFILE1: both tiers expose unified discovery with profile-first actions",()=>{
- assert.match(banner,/published\+unconfirmed/);
- assert.match(banner,/aziende nel Network/);
+ assert.doesNotMatch(banner,/published\+unconfirmed/);
+ assert.match(banner,/published\.toLocaleString\("it-IT"\)/);
+ assert.match(banner,/unconfirmed\.toLocaleString\("it-IT"\)/);
+ assert.match(banner,/aziende pubblicate nell’elenco/);
  assert.doesNotMatch(banner,/Mostra aziende/);
  assert.match(banner,/network-company-list/);
  assert.match(pro,/<NetworkLaunchDiscovery directory=\{previewDirectory\}/);

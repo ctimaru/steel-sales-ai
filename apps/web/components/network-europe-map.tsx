@@ -110,7 +110,7 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,
       const href=europeMapCountryHref(filters,shape.code);
       const tiny=shape.code==="MT"||shape.code==="LU";
       const publishedCount=countryCounts[shape.code];
-      const countryCountLabel=countsAvailable?(publishedCount??0).toLocaleString("it-IT")+" aziende nel Network":"Conteggio non disponibile";
+      const countryCountLabel=countsAvailable?(publishedCount??0).toLocaleString("it-IT")+" aziende pubblicate":"Conteggio non disponibile";
       const [left,top,right,bottom]=shape.bounds;
       return <a key={shape.code} href={href}
         aria-label={"Cerca aziende in "+name}
