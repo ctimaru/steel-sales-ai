@@ -1,4 +1,4 @@
--- NET-LAUNCH1: Founder/Pro provisional feed keeps PA1.3, no anonymous reads.
+-- NET-LAUNCH1 + NET-PUBLIC-ONLY1: private candidate records are not a public Pro directory.
 begin;
 create or replace function pg_temp.netlaunch_assert(v boolean,m text)
 returns void language plpgsql as $$
@@ -16,10 +16,10 @@ select pg_temp.netlaunch_assert(
  'paid entitlement gate for both readers');
 select pg_temp.netlaunch_assert(
  (select pg_get_functiondef('private.netlaunch1_pro_discovery_impl(uuid,text,text,text,integer)'::regprocedure)
- like '%netfast_discovered_records%')
+ like '%netfast_public_visible_records%')
  and (select pg_get_functiondef('private.netlaunch1_pro_profile_impl(uuid,uuid)'::regprocedure)
  not like '%network_contacts%'),
- 'only provisional company facts; no private memory');
+ 'public published-only source and no private memory');
 set local role authenticated;
 do $$
 begin

@@ -16,7 +16,7 @@ begin
  then raise exception 'Both existing membership/entitlement guards must remain'; end if;
  if strpos(v_impl,'limit v_limit offset (v_page-1)*v_limit')=0
  then raise exception 'Server page selection must use bounded SQL LIMIT/OFFSET';end if;
- if strpos(v_impl,'private.netfast_discovered_records')=0
+ if strpos(v_impl,'private.netfast_public_visible_records')=0
     or strpos(v_impl,'publication_status=''published''')=0
- then raise exception 'Published/provisional source boundaries are missing';end if;
+ then raise exception 'Published-only public source boundary is missing';end if;
 end $$;
