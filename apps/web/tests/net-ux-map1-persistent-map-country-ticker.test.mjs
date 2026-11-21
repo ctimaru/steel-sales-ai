@@ -39,7 +39,7 @@ test("MAP1: banner precedes the two-column layout and retains safe motion",()=>{
   assert.match(ticker,/getNetworkCountryStats\(organizationId,accessMode\)/);
   assert.match(ticker,/encodeURIComponent\(item.countryCode\)/);
   assert.match(ticker,/<strong className="text-\[#173f35\]">\{name\}<\/strong>/);
-  assert.match(ticker,/item\.total\.toLocaleString\("it-IT"\)/);
+  assert.match(ticker,/item\.published\.toLocaleString\("it-IT"\)/);
   assert.match(ticker,/<span>aziende<\/span>/);
   for(const label of ["produttori","commercianti","terzisti","utilizzatori","Espansione in corso"])
     assert.ok(!ticker.includes(label),label);
@@ -92,7 +92,10 @@ test("MAP1: every supported Network country has a local or inline flag on Window
 test("MAP1 repair: global Network total is distinct from filtered and currently visible counts",()=>{
   assert.match(ui,/export async function NetworkCompactExperience/);
   assert.match(ui,/await getNetworkCountryStats\(organizationId,accessMode\)/);
-  assert.match(ui,/networkCountries\.reduce\(\(sum,item\)=>sum\+item\.total,0\)/);
+  assert.match(ui,/getPublicNetworkCounts\(\)/);
+  assert.match(ui,/const globalCount=publishedCounts\?\.total\?\?null/);
+  assert.match(ui,/sum\+item\.sourced,0/);
+  assert.match(ui,/item\.countryCode,item\.published/);
   assert.match(ui,/data-testid="network-count-summary"/);
   assert.match(ui,/globalCount\.toLocaleString\("it-IT"\)/);
   assert.match(ui,/directory\.total\.toLocaleString\("it-IT"\)/);
