@@ -13,12 +13,12 @@ function rolePath(role: Role, persona?: string) {
   const qs = new URLSearchParams({role});
   if (persona && ["producer", "trader_distributor", "processor_service_provider", "end_user"].includes(persona))
     qs.set("persona", persona);
-  return `/network?${qs.toString()}#network-new-discoveries`;
+  return `/network?${qs.toString()}#network-region-results`;
 }
 
 /** Accessible, shared Free/Pro orientation. No inferred location or lead qualification. */
 export function NetworkDiscoveryOverview({
-  published, discovered, persona, role, region, discoveryUnavailable = false, publishedUnavailable = false,
+  published, persona, role, region, publishedUnavailable = false,
 }: {
   published: number;
   discovered: number;
@@ -28,8 +28,9 @@ export function NetworkDiscoveryOverview({
   discoveryUnavailable?: boolean;
   publishedUnavailable?: boolean;
 }) {
-  const total = published + discovered;
-  const anyUnavailable = publishedUnavailable || discoveryUnavailable;
+  // Source-of-truth is the canonical published directory, never provisional research.
+  const total = published;
+  const anyUnavailable = publishedUnavailable;
   return (
     <section aria-label="Esplora la rete industriale" className="rounded-2xl border border-[#d4e2db] bg-white p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -62,13 +63,8 @@ export function NetworkDiscoveryOverview({
       </nav>
       {region ? (
         <p className="mt-3 rounded-lg bg-[#fff7e6] px-3 py-2 text-xs leading-5 text-[#765821]">
-          Le località ricavate dai siti aziendali possono essere indicative finché non confermate. La fonte è visibile nella scheda.
-          {" "}<Link href="/network#network-new-discoveries" className="font-semibold underline">Mostra anche quelle senza regione</Link>
-        </p>
-      ) : null}
-      {discoveryUnavailable ? (
-        <p role="status" className="mt-3 rounded-lg border border-[#e2d1a4] bg-[#fffaf0] px-3 py-2 text-xs leading-5 text-[#765821]">
-          I profili da confermare non sono momentaneamente disponibili. I profili pubblicati restano consultabili.
+          Sono mostrate solo aziende pubblicate. La provenienza della località è indicata nelle schede.
+          {" "}<Link href="/network#network-region-results" className="font-semibold underline">Azzera il filtro regione</Link>
         </p>
       ) : null}
     </section>

@@ -30,7 +30,8 @@ export function NetworkLaunchDiscovery({
  if(filters.q?.trim())clearParams.set("q",filters.q.trim());
  if(filters.role)clearParams.set("role",filters.role);
  const resetPath="/network"+(clearParams.size?"?"+clearParams.toString():"")+"#network-new-discoveries";
- if(!directory)return null;
+ // Published-only Network: no empty provisional catalogue for users.
+ if(!directory||total===0)return null;
  return <section id="network-new-discoveries" aria-labelledby="network-new-discoveries-title"
     className="rounded-3xl border border-[#bcd8c8] bg-[#f5faf6] p-4 sm:p-6">
    <div className="flex flex-wrap items-start justify-between gap-3">
