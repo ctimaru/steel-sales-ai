@@ -18,7 +18,7 @@ function rolePath(role: Role, persona?: string) {
 
 /** Accessible, shared Free/Pro orientation. No inferred location or lead qualification. */
 export function NetworkDiscoveryOverview({
-  published, discovered, persona, role, region, discoveryUnavailable = false, publishedUnavailable = false,
+  published, persona, role, region, publishedUnavailable = false,
 }: {
   published: number;
   discovered: number;
