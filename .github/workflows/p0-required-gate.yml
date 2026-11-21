@@ -422,6 +422,7 @@ jobs:
             comm_cycle1_actions.sql \
             comm_cycle2a_offer_revisions.sql \
             comm_cycle2b_offer_editor.sql \
+            comm_cycle2c_email_dispatch.sql \
             distinta2_supplier_picker.sql \
             homefeed2_distinta_companies.sql \
             cpost4_capacity_range.sql \

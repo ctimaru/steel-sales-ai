@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 import { CommercialCustomerOfferEditor, type CustomerOfferLine, type CustomerOfferRevision } from "@/components/commercial-customer-offer-editor";
 import type { QuoteUnit } from "@/lib/comm-cycle2b-pricing";
+import { CommercialCustomerOfferEmail } from "@/components/commercial-customer-offer-email";
 
 /**
  * COMM-CYCLE2.B — tenant-scoped server loader. The request remains the anchor;
@@ -14,7 +15,7 @@ export async function CommercialCustomerOfferPanel({ rfqId }: { rfqId: string })
   const context = await getWorkspaceContext();
   const db = await createClient();
   const { data: request, error: requestError } = await db.from("rfqs")
-    .select("id").eq("id",rfqId).eq("organization_id",context.organizationId)
+    .select("id,company_id").eq("id",rfqId).eq("organization_id",context.organizationId)
     .maybeSingle();
   if (requestError || !request) return null;
 
@@ -58,13 +59,51 @@ export async function CommercialCustomerOfferPanel({ rfqId }: { rfqId: string })
     }));
   }
 
+  // Separate email ledger is additive: a migration not yet applied must not
+  // hide or break the existing quote editor.
+  const {data: sends,error: sendsError}=await db.from("comm_offer_email_dispatches")
+    .select("id,revision_no,attempt_no,status,recipient_email,created_at,resolved_at")
+    .eq("organization_id",context.organizationId).eq("rfq_id",rfqId)
+    .order("created_at",{ascending:false}).limit(30);
+  let clientName:string|null=null;
+  if(request.company_id){
+    const {data: company}=await db.from("companies").select("name")
+      .eq("id",request.company_id).eq("organization_id",context.organizationId).maybeSingle();
+    clientName=company?.name??null;
+  }
   return (
-    <CommercialCustomerOfferEditor
-      key={(latest?.id ?? "none") + ":" + (latest?.editVersion ?? 0)}
-      rfqId={rfqId}
-      revisions={revisions}
-      lines={lines}
-      canWrite={canWrite}
-    />
+    <>
+      <CommercialCustomerOfferEditor
+        key={(latest?.id ?? "none") + ":" + (latest?.editVersion ?? 0)}
+        rfqId={rfqId}
+        revisions={revisions}
+        lines={lines}
+        canWrite={canWrite}
+      />
+      {latest?.isManaged && !sendsError && (
+        <div className="mx-auto max-w-6xl">
+          <CommercialCustomerOfferEmail
+            key={latest.id+":"+latest.editVersion}
+            rfqId={rfqId}
+            offerId={latest.id}
+            version={latest.editVersion}
+            status={latest.status}
+            canWrite={canWrite}
+            snapshot={{
+              seller:context.organizationName,client:clientName,revision:latest.revision,
+              validUntil:latest.validity,delivery:latest.delivery,payment:latest.payment,
+              lines:lines.map(line=>({
+                description:line.description,quantity:line.quantity,quantityUnit:line.quantityUnit,
+                rate:line.rate,unit:line.unit,weight:line.weight,
+              })),
+            }}
+            history={(sends??[]).map(d=>({
+              id:d.id,revision:d.revision_no,attempt:d.attempt_no,status:d.status,
+              recipient:d.recipient_email,at:d.created_at,resolved:d.resolved_at,
+            }))}
+          />
+        </div>
+      )}
+    </>
   );
 }
