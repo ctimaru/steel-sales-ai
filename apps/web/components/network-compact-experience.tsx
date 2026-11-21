@@ -411,8 +411,9 @@ export async function NetworkCompactExperience({
               <h2 className="text-base font-semibold text-[#173f35]">
                 {specMode?(directory.specExactTotal??0).toLocaleString("it-IT")+" compatibili"+
                   (directory.specUndeclaredTotal?" · "+directory.specUndeclaredTotal.toLocaleString("it-IT")+" da verificare":""):
-                  knownTotals?companyCount.toLocaleString("it-IT")+" aziende trovate":"Profili disponibili"}
+                  knownTotals?companyCount.toLocaleString("it-IT")+" risultati":"Profili disponibili"}
               </h2>
+              {!specMode&&knownTotals&&directory.discovered>0?<span className="text-xs text-[#52615b]">{directory.published.toLocaleString("it-IT")} pubblicate · {directory.discovered.toLocaleString("it-IT")} da confermare</span>:null}
               <span className="text-xs font-medium tabular-nums text-[#52615b]" data-testid="network-count-visible">
                 {directory.items.length.toLocaleString("it-IT")} mostrate in questa pagina
               </span>
