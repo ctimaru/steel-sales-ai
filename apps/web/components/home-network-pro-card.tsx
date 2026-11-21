@@ -102,7 +102,7 @@ export function HomeNetworkProCard({
           <div data-testid="home-network-pro-stats" className="space-y-3">
             <div>
               <p className="text-[40px] font-extrabold leading-none tracking-tight tabular-nums text-[#f2b544]">{fmt(stats.total)}</p>
-              <p className="mt-1 text-[13px] font-semibold leading-5 text-white">aziende della filiera già nel Network</p>
+              <p className="mt-1 text-[13px] font-semibold leading-5 text-white">aziende pubblicate nel Network</p>
               <p className="text-[11.5px] leading-4 text-[#b8d9ca]">
                 {stats.italy > 0 ? "di cui " + fmt(stats.italy) + " in Italia · " : ""}nuove aziende ogni giorno
               </p>
