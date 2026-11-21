@@ -149,6 +149,8 @@ jobs:
           node tests/net-pro-catalog1a-chrome.mjs
           DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             node tests/net-pro-catalog1b-chrome.mjs
+          # UX4.A: protected PRO vs locked, genuine local Chrome screenshots at 1440/390/320.
+          node tests/net-producers-ux4a-chrome-visual.mjs
       - name: Upload synthetic screenshots for visual acceptance
         if: always()
         uses: actions/upload-artifact@v4
