@@ -271,12 +271,12 @@ export async function NetworkCompactExperience({
         {provisionalCount!==null&&provisionalCount>0?<span title="Schede da fonti pubbliche, non ancora pubblicate come aziende canoniche">
           <strong className="tabular-nums text-[#52615b]">{provisionalCount.toLocaleString("it-IT")}</strong> da confermare
         </span>:null}
-        {knownTotals?<span>
+        {knownTotals&&filterActive?<span>
           <strong className="tabular-nums text-[#173f35]">{directory.total.toLocaleString("it-IT")}</strong> risultati
           {directory.discovered>0?" · "+directory.published.toLocaleString("it-IT")+" pubblicate, "+directory.discovered.toLocaleString("it-IT")+" da confermare":""}
           {" · "}{filters.region?(europeNutsRegionName(filters.country||"IT",filters.region)||filters.region):
             (networkCountryName(filters.country||"IT")||"Italia")}
-        </span>:<span>Esplora le aziende del Network</span>}
+        </span>:!knownTotals?<span>Esplora le aziende del Network</span>:null}
       </div>
       {/* NET-PRO-UX2: "Moduli e prezzi" now lives in the PRO strip below, next to Intelligence Produttori. */}
     </header>
