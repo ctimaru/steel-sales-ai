@@ -27,9 +27,10 @@ export function NetworkInventoryBar({
           <span className="text-[11px] text-[#52615b]">Assegnata al tuo account aziendale</span>
         </div>
         <h2 className="mt-2 text-2xl font-semibold tabular-nums tracking-tight text-[#173f35] sm:text-3xl">
-          {complete?(published+unconfirmed).toLocaleString("it-IT")+" aziende nel Network":"Esplora il Network"}
+          {!publishedUnavailable?published.toLocaleString("it-IT")+" aziende pubblicate nell’elenco":"Esplora il Network"}
         </h2>
         <p className="mt-1 text-xs leading-5 text-[#52615b]">
+          {!discoveryUnavailable&&unconfirmed>0?<span className="font-semibold text-[#52615b]">{unconfirmed.toLocaleString("it-IT")} schede da confermare · </span>:null}
           {hasCriteria ? "Risultati filtrati · " : ""}Esplora le aziende per territorio, settore e attività.
         </p>
       </div>

@@ -14,6 +14,7 @@ import type {CompactNetworkFilters,CompactNetworkPage} from "@/lib/network-compa
 import {NetworkEuropeanMap} from "@/components/network-europe-map";
 import {NetworkCountryTicker} from "@/components/network-country-ticker";
 import {getNetworkCountryStats} from "@/lib/network-country-stats";
+import {getPublicNetworkCounts} from "@/lib/public-network-counts";
 import {NetworkSpecPanel,SpecMatchLine} from "@/components/network-spec-filters";
 import {NetworkAutoSubmitSelect} from "@/components/network-auto-submit-select";
 import {NetworkFilterRouteForm} from "@/components/network-filter-route-form";
@@ -222,8 +223,14 @@ export async function NetworkCompactExperience({
   accessMode,directory,filters,userId,organizationId,canCompose,europeCoverage,additionalFilters,capabilityLabels={},
 }:Props){
   // The ticker census is global; directory.total is scoped to the active search.
-  const networkCountries=await getNetworkCountryStats(organizationId,accessMode);
-  const globalCount=networkCountries.length?networkCountries.reduce((sum,item)=>sum+item.total,0):null;
+  const [networkCountries,publishedCounts]=await Promise.all([
+    getNetworkCountryStats(organizationId,accessMode),
+    getPublicNetworkCounts(),
+  ]);
+  // The Home and the Network headline share the SAME published-only RPC.
+  // Provisional records remain visible in search, but never inflate published totals.
+  const globalCount=publishedCounts?.total??null;
+  const provisionalCount=networkCountries.length?networkCountries.reduce((sum,item)=>sum+item.sourced,0):null;
   const specActive=NETWORK_SPEC_PARAMS.some(key=>Boolean(filters[key]));
   const filterActive=Boolean(filters.q||filters.role||filters.region||filters.product||filters.capability||filters.market||filters.country||filters.steel||specActive);
   const specMode=Boolean(directory.specMode);
@@ -258,14 +265,18 @@ export async function NetworkCompactExperience({
       </h1>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#52615b]"
         aria-label="Statistiche Network" data-testid="network-count-summary">
-        {globalCount!==null?<span title="Profili pubblicati e schede da fonti pubbliche consultabili">
-          <strong className="tabular-nums text-[#173f35]">{globalCount.toLocaleString("it-IT")}</strong> aziende nel Network
+        {globalCount!==null?<span title="Solo aziende canoniche pubblicate, stesso criterio della Home">
+          <strong className="tabular-nums text-[#173f35]">{globalCount.toLocaleString("it-IT")}</strong> aziende pubblicate
         </span>:null}
-        {knownTotals?<span>
-          <strong className="tabular-nums text-[#173f35]">{directory.total.toLocaleString("it-IT")}</strong> aziende trovate
+        {provisionalCount!==null&&provisionalCount>0?<span title="Schede da fonti pubbliche, non ancora pubblicate come aziende canoniche">
+          <strong className="tabular-nums text-[#52615b]">{provisionalCount.toLocaleString("it-IT")}</strong> da confermare
+        </span>:null}
+        {knownTotals&&filterActive?<span>
+          <strong className="tabular-nums text-[#173f35]">{directory.total.toLocaleString("it-IT")}</strong> risultati
+          {directory.discovered>0?" · "+directory.published.toLocaleString("it-IT")+" pubblicate, "+directory.discovered.toLocaleString("it-IT")+" da confermare":""}
           {" · "}{filters.region?(europeNutsRegionName(filters.country||"IT",filters.region)||filters.region):
             (networkCountryName(filters.country||"IT")||"Italia")}
-        </span>:<span>Esplora le aziende del Network</span>}
+        </span>:!knownTotals?<span>Esplora le aziende del Network</span>:null}
       </div>
       {/* NET-PRO-UX2: "Moduli e prezzi" now lives in the PRO strip below, next to Intelligence Produttori. */}
     </header>
@@ -278,7 +289,7 @@ export async function NetworkCompactExperience({
         {/* NET-UX-MAP1: the European map is always visible, including on mobile. */}
         <div className="mb-3" data-testid="network-europe-persistent-map">
           <NetworkEuropeanMap filters={filters} coverage={europeCoverage} fullMapHref={fullMapHref}
-            countryCounts={Object.fromEntries(networkCountries.map(item=>[item.countryCode,item.total]))}/>
+            countryCounts={Object.fromEntries(networkCountries.map(item=>[item.countryCode,item.published]))}/>
         </div>
       </aside>
       <div className="min-w-0 space-y-3">
@@ -400,8 +411,9 @@ export async function NetworkCompactExperience({
               <h2 className="text-base font-semibold text-[#173f35]">
                 {specMode?(directory.specExactTotal??0).toLocaleString("it-IT")+" compatibili"+
                   (directory.specUndeclaredTotal?" · "+directory.specUndeclaredTotal.toLocaleString("it-IT")+" da verificare":""):
-                  knownTotals?companyCount.toLocaleString("it-IT")+" aziende trovate":"Profili disponibili"}
+                  knownTotals?companyCount.toLocaleString("it-IT")+" risultati":"Profili disponibili"}
               </h2>
+              {!specMode&&knownTotals&&directory.discovered>0?<span className="text-xs text-[#52615b]">{directory.published.toLocaleString("it-IT")} pubblicate · {directory.discovered.toLocaleString("it-IT")} da confermare</span>:null}
               <span className="text-xs font-medium tabular-nums text-[#52615b]" data-testid="network-count-visible">
                 {directory.items.length.toLocaleString("it-IT")} mostrate in questa pagina
               </span>

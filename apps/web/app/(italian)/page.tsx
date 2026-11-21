@@ -41,8 +41,8 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = "force-static";
-// HOME-NETPRO-PUBLIC1: regenerate at most hourly so the Network totals stay fresh.
-export const revalidate = 3600;
+// COUNT-PARITY1: keep the public Home static, but refresh published totals at least every minute.
+export const revalidate = 60;
 
 // HOME-MOBILE-B6: rendered inside the geometry section (the former separate tools shelf).
 const publicTools = [

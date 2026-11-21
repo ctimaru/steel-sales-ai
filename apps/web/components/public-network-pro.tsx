@@ -49,7 +49,7 @@ export async function PublicNetworkProHeroCard() {
           <div className="mt-4" data-testid="public-network-pro-counts">
             <div className="flex items-baseline gap-3">
               <p className="text-[44px] max-[700px]:text-[40px] font-extrabold leading-none tracking-tight tabular-nums text-[#f2b544]">{fmt(counts.total)}</p>
-              <p className="text-[13px] font-semibold leading-4">aziende della filiera<br /><span className="font-normal text-[#b8d9ca]">di cui {fmt(counts.italy)} in Italia</span></p>
+              <p className="text-[13px] font-semibold leading-4">aziende pubblicate<br /><span className="font-normal text-[#b8d9ca]">di cui {fmt(counts.italy)} in Italia</span></p>
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-2">
               {tiles.map((tile) => (

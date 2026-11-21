@@ -17,6 +17,8 @@ test("NET-LAUNCH5B provides simple keyboard-accessible map and company shortcuts
 });
 test("NET-LAUNCH5B preserves server-derived Free Pro and unconfirmed source counts",()=>{
  assert.match(bar,/accessMode==="pro"\?"Pro":"Free"/);
- assert.match(bar,/published\+unconfirmed/);
+ assert.match(bar,/published\.toLocaleString\("it-IT"\)/);
+ assert.match(bar,/unconfirmed\.toLocaleString\("it-IT"\)/);
+ assert.doesNotMatch(bar,/published\+unconfirmed/);
  assert.doesNotMatch(bar,/Mostra aziende/);
 });

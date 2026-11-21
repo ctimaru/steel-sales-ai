@@ -38,9 +38,9 @@ test("HOME-NETPRO-PUBLIC1 parser rejects anything but a complete, sane payload",
   assert.equal(parsePublicNetworkCounts({...ok,modules:{producers:1}}),null);
 });
 
-test("HOME-NETPRO-PUBLIC1 page stays static, refreshed hourly; numbers hidden when unavailable",()=>{
+test("HOME-NETPRO-PUBLIC1 page stays static, refreshed every minute; numbers hidden when unavailable",()=>{
   assert.match(home,/export const dynamic = "force-static";/);
-  assert.match(home,/export const revalidate = 3600;/);
+  assert.match(home,/export const revalidate = 60;/);
   assert.match(lib,/^import "server-only";/);
   assert.match(lib,/export const getPublicNetworkCounts = cache\(/);
   assert.match(lib,/createPublicSupabaseClient\(\)/);
