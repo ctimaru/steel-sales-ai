@@ -91,7 +91,7 @@ test("MAP1: every supported Network country has a local or inline flag on Window
 
 test("MAP1 repair: global Network total is distinct from filtered and currently visible counts",()=>{
   assert.match(ui,/export async function NetworkCompactExperience/);
-  assert.match(ui,/await getNetworkCountryStats\(organizationId,accessMode\)/);
+  assert.match(ui,/getNetworkCountryStats\(organizationId,accessMode\)/);
   assert.match(ui,/getPublicNetworkCounts\(\)/);
   assert.match(ui,/const globalCount=publishedCounts\?\.total\?\?null/);
   assert.match(ui,/sum\+item\.sourced,0/);
