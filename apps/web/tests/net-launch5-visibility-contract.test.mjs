@@ -14,7 +14,9 @@ test("NET-LAUNCH5: Free and Pro always use actual published and provisional tota
   assert.match(free, /unconfirmed=\{data\.discovery_page\?\.total\?\?0\}/);
   assert.match(pro, /published=\{results\.total\}/);
   assert.match(pro, /unconfirmed=\{previewDirectory\?\.discovered_total\?\?0\}/);
-  assert.match(bar, /published\+unconfirmed/);
+  assert.match(bar, /published\.toLocaleString\("it-IT"\)/);
+  assert.match(bar, /unconfirmed\.toLocaleString\("it-IT"\)/);
+  assert.doesNotMatch(bar, /published\+unconfirmed/);
   assert.doesNotMatch(bar, /\b500\b/);
 });
 test("NET-LAUNCH5: provisional companies remain visible, labeled, and paged in both tiers", () => {
