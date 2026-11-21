@@ -49,7 +49,8 @@ test("NET-UX5A: catastrophic route errors render safe recovery, not a dead gener
 });
 
 test("NET-UX5A: unknown totals must not render false zeros", () => {
- assert.match(overview,/publishedUnavailable \|\| discoveryUnavailable/);
+ assert.match(overview,/const anyUnavailable = publishedUnavailable;/);
+ assert.doesNotMatch(overview,/publishedUnavailable \|\| discoveryUnavailable/);
  assert.match(overview,/anyUnavailable \? "Scopri la filiera industriale"/);
  assert.match(overview,/Informazioni e livelli di verifica consultabili/);
  assert.match(pro,/publishedUnavailable=\{canonicalUnavailable\}/);
