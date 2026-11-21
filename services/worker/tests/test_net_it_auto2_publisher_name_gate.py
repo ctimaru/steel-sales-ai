@@ -55,6 +55,14 @@ class PublisherNameShapeTest(unittest.TestCase):
             with self.subTest(name=name):
                 self.assertTrue(publisher_legal_name_is_clean(name))
 
+    def test_location_prose_with_di_is_still_rejected(self):
+        for name in (
+            "Provincia di Torino Meccanica S.r.l.",
+            "In provincia di Torino Meccanica S.r.l.",
+        ):
+            with self.subTest(name=name):
+                self.assertFalse(publisher_legal_name_is_clean(name))
+
     def test_site_builder_credit_is_not_company_legal_identity(self):
         self.assertFalse(publisher_legal_name_is_clean(
             "Powered by Tramite S.r.l."))
@@ -124,6 +132,20 @@ class PublisherPreflightReviewTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result["p_verdict"], "identity_supported")
         self.assertNotIn("_identity_correction", result)
         self.assertEqual(result["p_rights_state"], "unknown")
+
+    async def test_di_sas_legal_identity_is_supported_only_on_first_party(self):
+        name = "C.M. CARPENTERIA DI CECCON E MORO SAS"
+        result = await self._review(
+            name,
+            "cmcarpenteria.com",
+            "Sede legale: C.M. CARPENTERIA DI CECCON E MORO SAS - "
+            "Partita IVA: 03423250269. Taglio laser tubo e carpenteria.")
+        self.assertEqual(result["p_verdict"], "identity_supported")
+        self.assertEqual(result["p_observed_name"], name)
+        self.assertNotIn("publisher_legal_name_quality_failed",
+                         result["p_reasons"])
+        self.assertNotIn("_identity_correction", result)
+
 
 
 if __name__ == "__main__":
