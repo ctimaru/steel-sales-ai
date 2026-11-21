@@ -5,7 +5,7 @@ immutable
 set search_path to ''
 as $function$
   select lower(btrim(coalesce(p_local,''))) ~
-    '^(commerciale|commerciali|commercial|sales|vendite|export|info)[._-][a-z0-9]{2,12};
+    '^(commerciale|commerciali|commercial|sales|vendite|export|info)[._-][a-z0-9]{2,12}$';
 $function$;
 
 create or replace function private.netcontact1_stage_qualified_role_channel(
