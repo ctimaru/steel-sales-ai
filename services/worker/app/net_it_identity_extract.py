@@ -156,7 +156,9 @@ def publisher_legal_name_is_clean(name: str) -> bool:
     if (re.search(r"[?!]", value)
             or re.search(r"\d{3,}[ ./-]+\d{3,}", value)
             or re.search(r"[A-Za-zÀ-ÿ]{4,}\.\s", value)
-            or re.search(r"(?i)(?:^|\s)di(?:\s|$)", value)):
+            # "DI" is a lawful part of Italian legal names (e.g. partnership
+            # surnames); reject geographic prose instead of the connector.
+            or re.search(r"(?i)\b(?:in\s+)?provincia\s+di\b", value)):
         return False
     # AUTO3's SQL function only accepts at most six words before the form.
     if len(value[:form.start()].strip().split()) > MAX_NAME_WORDS:
