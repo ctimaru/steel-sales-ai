@@ -14,7 +14,8 @@ test("NET-LAUNCH4: account Free and Pro get the same live directory shortcuts", 
   for(const role of ["producer", "trader_distributor", "processor_service_provider", "end_user"]){
     assert.ok(overview.includes('role: "'+role+'"'));
   }
-  assert.match(overview, /Da confermare|da confermare/);
+  assert.match(overview, /const total = published;/);
+  assert.doesNotMatch(overview, /Da confermare|da confermare/);
   assert.match(overview, /region \?/);
 });
 test("NET-LAUNCH4: Pro search precedes discovery cards and map remains after results", () => {
