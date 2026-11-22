@@ -209,7 +209,7 @@ def _lease(x: Any)->dict:
     domain=x.get("canonical_domain")
     home=x.get("homepage")
     if (not all(isinstance(z,str) and UUID.fullmatch(z) for z in (company,token))
-        or not isinstance(domain,str) or not re.fullmatch(r"[a-z0-9][a-z0-9.-]{3,200}\.[a-z]{2,}",domain)
+        or not isinstance(domain,str) or not re.fullmatch(r"[a-z0-9][a-z0-9.-]{1,200}\.[a-z]{2,}",domain)
         or home!=f"https://{domain}/"):
         raise DiscoveryProblem("unexpected")
     return x
