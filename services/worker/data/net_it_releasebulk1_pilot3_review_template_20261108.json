@@ -1,0 +1,42 @@
+{
+  "batch": "NET-IT-USER1B-PRIVATE21-20261108",
+  "wave": "NET-IT-USER1B-PILOT3-20261108",
+  "status": "readonly_pilot_blocked_rights_not_submittable",
+  "source_rights_verified": false,
+  "identity_review_completed": false,
+  "attested": false,
+  "p_commit": false,
+  "p_expected_fingerprint": null,
+  "items": [
+    {
+      "seed_id": "4c2404a5-8595-4801-998e-561f44ca5c1e",
+      "domain": "lazzarisrl.it",
+      "role": "end_user",
+      "legal_name": "Lazzari S.r.l.",
+      "identity_evidence_url": "https://www.lazzarisrl.it/contatti/",
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    },
+    {
+      "seed_id": "c91fd60a-6ec7-4041-a224-228c02266e6d",
+      "domain": "retissima.it",
+      "role": "end_user",
+      "legal_name": "Retissima S.r.l.",
+      "identity_evidence_url": "https://www.retissima.it/reti_e_recinzioni/cancellata-lima-recinzione-in-ferro-zincato/",
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    },
+    {
+      "seed_id": "3d3b343a-3ff8-445a-ae93-0317dfb46310",
+      "domain": "sottileserre.com",
+      "role": "end_user",
+      "legal_name": "Sottile S.r.l.",
+      "identity_evidence_url": "https://sottileserre.com/serre/serra-in-ferro-zincato/",
+      "rights_reference_url": null,
+      "rights_decision": null,
+      "rights_note": null
+    }
+  ]
+}

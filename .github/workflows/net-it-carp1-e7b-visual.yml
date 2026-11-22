@@ -1,0 +1,132 @@
+name: NET-IT-CARP1.E.7.B Visual Acceptance (isolated)
+
+on:
+  pull_request:
+    paths:
+      - "apps/web/app/(italian)/(platform)/platform/company-discovery/carpenterie/**"
+      - "apps/web/tests/net-it-carp1-e7b-chrome-visual.mjs"
+      - "supabase/tests/net_it_carp1_e7b_local_visual_seed.sql"
+      - "supabase/migrations/*net_it_carp1_e*.sql"
+      - ".github/workflows/net-it-carp1-e7b-visual.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  carpenterie-visual:
+    name: Real Chrome 1440/390/320 + synthetic Platform auth
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      DEMOTEST23_WEB_URL: http://127.0.0.1:3000
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+      FLOW1_LOCAL_PROVIDER: "true"
+      RESEND_API_KEY: ""
+      CI: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+      - name: Local-only historical baseline (no hosted data)
+        run: |
+          cp supabase/ci/p0_pre_worker_baseline.sql supabase/migrations/20260908000000_ci_pre_worker_baseline.sql
+          cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
+      - name: Start and reset ephemeral Supabase + GoTrue
+        run: |
+          set -euo pipefail
+          supabase start
+          supabase db reset --local
+      - name: Mask local keys and prepare Next.js
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          supabase status -o env > "$RUNNER_TEMP/netit-e7b-local.env"
+          source "$RUNNER_TEMP/netit-e7b-local.env"
+          test -n "$ANON_KEY" && test -n "$SERVICE_ROLE_KEY"
+          echo "::add-mask::$ANON_KEY"
+          echo "::add-mask::$SERVICE_ROLE_KEY"
+          echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$ANON_KEY" >> "$GITHUB_ENV"
+      - name: Install Next.js and real Chrome
+        working-directory: apps/web
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chrome
+      - name: Create synthetic GoTrue reviewer (local only)
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/netit-e7b-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            SUPABASE_URL=http://127.0.0.1:54321 \
+            node tests/netgrowth2c1-seed-platform-auditor.mjs
+      - name: Seed one synthetic Platform superadmin and 100 fictional carpenterie
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
+            -v ON_ERROR_STOP=1 \
+            -f "$RUNNER_TEMP/netgrowth2c1-auditor-vars.sql" \
+            -f supabase/tests/net_it_carp1_e7b_local_visual_seed.sql
+      - name: Start local Next.js (no hosted app)
+        working-directory: apps/web
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! npm run build > "$RUNNER_TEMP/netit-e7b-build.log" 2>&1; then
+            tail -n 100 "$RUNNER_TEMP/netit-e7b-build.log"
+            exit 1
+          fi
+          nohup npm run start -- --hostname 127.0.0.1 --port 3000 > "$RUNNER_TEMP/netit-e7b-next.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/netit-e7b-next.pid"
+          for attempt in $(seq 1 60); do
+            if curl --silent --fail --max-time 8 http://127.0.0.1:3000/login > /dev/null; then
+              echo "E7B disposable local Next ready"
+              exit 0
+            fi
+            sleep 3
+          done
+          tail -n 90 "$RUNNER_TEMP/netit-e7b-next.log"
+          exit 1
+      - name: Real Chrome responsive authenticated Platform visual acceptance
+        timeout-minutes: 12
+        working-directory: apps/web
+        run: node tests/net-it-carp1-e7b-chrome-visual.mjs
+      - name: Upload 1440 390 320 synthetic screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-it-carp1-e7b-visual-1440-390-320
+          path: ${{ runner.temp }}/net-it-carp1-e7b-visual/*.png
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Local renderer diagnostics after failed QA
+        if: failure()
+        run: |
+          if [ -f "$RUNNER_TEMP/netit-e7b-build.log" ]; then
+            tail -n 60 "$RUNNER_TEMP/netit-e7b-build.log"
+          fi
+          if [ -f "$RUNNER_TEMP/netit-e7b-next.log" ]; then
+            tail -n 100 "$RUNNER_TEMP/netit-e7b-next.log" | sed -E 's/(password|token|key)=[^ ]+/\1=[redacted]/g'
+          fi
+      - name: Destroy local data and temporary credentials
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/netit-e7b-next.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/netit-e7b-next.pid")" || true
+          fi
+          supabase stop --no-backup || true
+          rm -f "$RUNNER_TEMP/netgrowth2c1-auditor.json" \
+                "$RUNNER_TEMP/netgrowth2c1-auditor-vars.sql" \
+                "$RUNNER_TEMP/netit-e7b-local.env"
