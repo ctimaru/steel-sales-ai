@@ -1,0 +1,40 @@
+name: "CRAWL-IT6.6d — RNA Source Availability & Offline Parser Test"
+
+on:
+  workflow_dispatch:
+    inputs:
+      official_xml_url:
+        description: "Exact official RNA XML URL (diagnostics only; no download)"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crawl-it66d-diagnostics
+  cancel-in-progress: false
+
+jobs:
+  source-diagnostics:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: "Install public worker dependencies"
+        working-directory: services/worker
+        run: python -m pip install -e .
+      - name: "Diagnose official RNA host (no body download)"
+        working-directory: services/worker
+        env:
+          RNA_XML_URL: ${{ inputs.official_xml_url }}
+        run: python -m app.rna_source_diagnostics --dataset-url "$RNA_XML_URL"
+      - name: "Offline parser synthetic fixture smoke (no corporate identifiers)"
+        working-directory: services/worker
+        run: python -m unittest discover -s tests -p test_rna_offline_smoke.py -v
