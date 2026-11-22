@@ -8,9 +8,9 @@ import {newRequestHref} from "@/lib/new-request-href";
 
 type Turn={id:number;question:string;response:EuProducerChatResult};
 const examples=[
-  "Chi produce tubi EN 10219 S355J2H?",
-  "Cerco tubi EN 10219 S355 RHS 200×100×6",
-  "Produttori di tubi inox AISI 316 in Serbia",
+  {label:"EN 10219 · S355J2H",question:"Chi produce tubi EN 10219 S355J2H?"},
+  {label:"RHS · 200×100×6",question:"Cerco tubi EN 10219 S355 RHS 200×100×6"},
+  {label:"Inox · AISI 316",question:"Produttori di tubi inox AISI 316 in Serbia"},
 ];
 const labels:Record<string,string>={
   technical_standard:"Norma",steel_grade:"Grado",section_shape:"Sezione",
@@ -29,10 +29,9 @@ export function EuProducerIntelligenceChat(){
   const [draft,setDraft]=useState("");
   const [busy,setBusy]=useState(false);
   const [turns,setTurns]=useState<Turn[]>([]);
-  async function submit(event:FormEvent<HTMLFormElement>){
-    event.preventDefault();
-    if(busy||!draft.trim())return;
-    const question=draft.trim().slice(0,400);
+  async function runSearch(questionInput:string){
+    if(busy||!questionInput.trim())return;
+    const question=questionInput.trim().slice(0,400);
     const preceding=[...turns].reverse().find(t=>t.response.ok&&t.response.status==="ready");
     const previousIntent=preceding?.response.ok&&preceding.response.status==="ready"
       ?preceding.response.intent:null;
@@ -56,29 +55,11 @@ export function EuProducerIntelligenceChat(){
       }]);
     }finally{setBusy(false);}
   }
-  return <section className="overflow-hidden rounded-[22px] border border-[#bdd9c9] bg-white shadow-[0_7px_26px_rgba(19,64,44,0.06)]"
-    data-testid="eu-producer-intelligence-chat" aria-labelledby="eu-producer-chat-title">
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#dcebe2] bg-[#f1f8f3] px-4 py-3 sm:px-5">
-      <div>
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#52745f]">Intelligence Produttori · Europa</span>
-        <h2 id="eu-producer-chat-title" className="mt-0.5 text-base font-extrabold text-[#133f2c]">Chiedi quali produttori sono documentati</h2>
-      </div>
-      <span className="rounded-full border border-[#b9d6c2] bg-white px-3 py-1 text-[10px] font-semibold text-[#245941]">Risposte con fonti · PRO</span>
-    </div>
-    <div className="space-y-3 px-4 py-4 sm:px-5">
-      <p className="max-w-3xl text-xs leading-5 text-[#5c7364]">
-        Scrivi una domanda naturale. La ricerca AI interpreta i requisiti, ma soltanto
-        le fonti delle aziende possono motivare una risposta. I dati osservati non
-        certificano combinazioni norma × grado × misura × spessore né stock.
-      </p>
-      {turns.length===0?<div className="flex flex-wrap gap-2" aria-label="Domande di esempio">
-        {examples.map(prompt=><button type="button" key={prompt} onClick={()=>setDraft(prompt)}
-          className="min-h-9 rounded-xl border border-[#c7dccc] bg-[#f7fbf8] px-3 py-1.5 text-left text-[11px] font-semibold text-[#27563f] hover:bg-[#eaf6ed] focus-visible:outline-2 focus-visible:outline-[#185740]">
-          {prompt}
-        </button>)}
-      </div>:null}
-      <div className="space-y-4" aria-live="polite" data-testid="eu-producer-chat-transcript">
-        {turns.map(turn=>{
+  function submit(event:FormEvent<HTMLFormElement>){
+    event.preventDefault();
+    void runSearch(draft);
+  }
+  function renderTurn(turn:Turn){
           const r=turn.response;
           const full=r.ok&&r.status==="ready"?r.companies.filter(c=>c.status==="attributes_observed_separately").length:0;
           return <div key={turn.id} className="space-y-2">
@@ -132,6 +113,7 @@ export function EuProducerIntelligenceChat(){
                     </ul>
                     <div className="mt-2 flex flex-wrap gap-3">
                       <Link href={newRequestHref({network:company.companyId,fromNetwork:true})}
+                        style={{color:"#ffffff",WebkitTextFillColor:"#ffffff"}}
                         onClick={()=>{
                           try{window.sessionStorage.setItem(HANDOFF,requestForDistinta(turn));}
                           catch{/* Receiving editor remains available without automatic import. */}
@@ -146,8 +128,19 @@ export function EuProducerIntelligenceChat(){
               </>}
             </div>
           </div>;
-        })}
-      </div>
+  }
+  return <section className="overflow-hidden rounded-[22px] border border-[#bdd9c9] bg-white shadow-[0_7px_26px_rgba(19,64,44,0.06)]"
+    data-testid="eu-producer-intelligence-chat" aria-labelledby="eu-producer-chat-title">
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e4eee7] bg-[#f8fbf9] px-4 py-3 sm:px-5">
+      <h2 id="eu-producer-chat-title" className="text-[15px] font-extrabold text-[#133f2c]">
+        Ricerca tecnica AI
+      </h2>
+      <span className="text-[11px] font-semibold text-[#47735a]">Europa</span>
+    </div>
+    <div className="space-y-3 px-4 py-4 sm:px-5">
+      <p className="max-w-3xl text-xs leading-5 text-[#5c7364]">
+        Norma, acciaio, forma o misura: chiedi e confronta produttori con fonti.
+      </p>
       <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row" aria-label="Ricerca tecnica conversazionale">
         <label htmlFor="eu-producer-technical-question" className="sr-only">Domanda tecnica sui produttori europei</label>
         <input id="eu-producer-technical-question" value={draft} onChange={e=>setDraft(e.target.value)}
@@ -159,7 +152,28 @@ export function EuProducerIntelligenceChat(){
           {busy?"Cerco sulle fonti…":"Cerca produttori"}
         </button>
       </form>
-      <p className="text-[11px] leading-4 text-[#728477]">Solo operatori pubblicati, dati con provenienza e accesso Produttori Europa. Nessuna misura viene dichiarata producibile per deduzione.</p>
+      {turns.length===0?<div className="flex flex-wrap gap-1.5" aria-label="Domande di esempio">
+        {examples.map(example=><button type="button" key={example.question}
+          disabled={busy} onClick={()=>{void runSearch(example.question);}}
+          title={example.question}
+          className="min-h-9 rounded-lg border border-[#c7dccc] bg-[#f7fbf8] px-2.5 py-1 text-left text-[11px] font-semibold text-[#27563f] hover:bg-[#eaf6ed] disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-[#185740]">
+          {example.label}
+        </button>)}
+      </div>:null}
+      <div className="space-y-4" aria-live="polite" data-testid="eu-producer-chat-transcript">
+        {turns.length>1?<details className="group rounded-xl border border-[#dce8df] bg-[#f9fcfa]"
+          data-testid="eu-producer-chat-history">
+          <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-xs font-bold text-[#285d43] focus-visible:outline-2 focus-visible:outline-[#175640] [&::-webkit-details-marker]:hidden">
+            Ricerche precedenti · {turns.length-1}
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>
+          </summary>
+          <div className="space-y-3 border-t border-[#e2ece4] px-3 py-3">
+            {turns.slice(0,-1).map(renderTurn)}
+          </div>
+        </details>:null}
+        {turns.length>0?renderTurn(turns[turns.length-1]!):null}
+      </div>
+
     </div>
   </section>;
 }
