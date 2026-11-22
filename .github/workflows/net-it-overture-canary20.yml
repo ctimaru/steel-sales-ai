@@ -1,0 +1,31 @@
+name: "NET-IT-FAST1 — Overture read-only canary 20"
+
+on:
+  push:
+    branches: ["net-it-overture-canary20-20261117"]
+    paths:
+      - ".github/workflows/net-it-overture-canary20.yml"
+      - "services/worker/scripts/overture_canary20.py"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: net-it-overture-readonly-canary20
+  cancel-in-progress: false
+
+jobs:
+  overture-readonly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install free embedded query engine
+        run: python -m pip install "duckdb>=1.4,<2"
+      - name: Read-only 20-domain Overture Places sample (no Supabase keys)
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: python services/worker/scripts/overture_canary20.py
