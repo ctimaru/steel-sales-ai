@@ -41,7 +41,7 @@ PRODUCT_PATTERNS = (
     ("Stampi e portastampi", re.compile(r"\b(?:portastampi|stampi|mould bases?|molds?)\b", re.I)),
 )
 PRODUCES = re.compile(
-    r"\b(?:produciamo|fabbrichiamo|realizziamo|"
+    r"\b(?:produciamo|fabbrichiamo|realizziamo|produce|"
     r"produzione\s+di|fabbricazione\s+di|"
     r"we\s+manufacture|we\s+produce|production\s+of)\b", re.I,
 )
@@ -119,6 +119,13 @@ def source_backed_facts(page) -> list[dict]:
             # No production claim from "machines for production of tubes".
             prefix = segment[max(0, verb.start() - 75):verb.start()]
             if NEGATIVE.search(prefix):
+                continue
+            # Third-person "produce" is valid only when the immediate
+            # subject is the company itself, not a supplier or partner.
+            if verb.group().lower() == "produce" and (
+                not re.search(r"\\b(?:azienda|impresa|societ[aà])\\b", prefix, re.I)
+                or re.search(r"\\b(?:fornitori|partner|clienti|terzi)\\b", prefix, re.I)
+            ):
                 continue
             object_text = segment[verb.end():verb.end() + 78]
             # A machinery producer must not be mistaken for a tube producer.
