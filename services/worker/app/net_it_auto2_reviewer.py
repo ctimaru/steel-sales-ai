@@ -140,7 +140,7 @@ def _name_evidenced(name: str, page_texts: list[str]) -> bool:
             # that the truncated "2M S.n.c." is the legal company name.
             # A standalone occurrence elsewhere is still valid evidence.
             following = text[match.end():match.end() + 90]
-            if re.match(r"\\s+(?:di|de|del|della)\\s+[a-zà-ÿ]", following):
+            if re.match(r"\s+(?:di|de|del|della)\s+[a-zà-ÿ]", following):
                 continue
             return True
     return False
