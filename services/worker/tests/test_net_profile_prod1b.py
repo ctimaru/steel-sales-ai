@@ -33,6 +33,14 @@ class ManufacturerEvidenceTest(unittest.TestCase):
         p = page("Produzione di profilati in acciaio per strutture industriali e costruzioni.")
         self.assertEqual(source_backed_facts(p)[0]["field_value"], ["Profilati in acciaio"])
 
+    def test_one_quote_must_support_every_product_label(self):
+        p = page("Produciamo tubi per strutture industriali e costruzioni. "
+                 "Fabbrichiamo anche stampi e portastampi per settore meccanico.")
+        rows = source_backed_facts(p)
+        self.assertEqual(rows[0]["field_value"], ["Tubi e condotte"])
+        self.assertNotIn("Stampi e portastampi", rows[0]["field_value"])
+        self.assertIn("tubi", rows[0]["evidence_excerpt"].lower())
+
     def test_machine_makers_must_not_be_mistaken_for_tube_manufacturers(self):
         for phrase in (
             "Produciamo macchine per la produzione di tubi saldati e profilati.",
