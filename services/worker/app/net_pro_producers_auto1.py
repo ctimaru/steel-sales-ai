@@ -582,6 +582,15 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
     # publishes manufacturing capability, size/grade combinations or stock.
     verification = db_rpc(db, "netproducers1_auto1b_verify", {"p_limit": 100})
     page_verification = db_rpc(db, "netproducers1_auto1a3_verify", {"p_limit": 100})
+    # Source-backed, low-risk company activity is separate from premium
+    # technical claims. Opt-in only *after* PROD1.B migration is deployed.
+    # Use the existing Railway producer cron: no new scheduler or credentials.
+    activity_enrichment = {"mode": "disabled", "accepted_facts": 0}
+    if os.getenv("NETPROFILE_PROD1B_ENABLED", "false").lower() == "true":
+        from .net_profile_prod1b import run_cycle as run_activity_cycle
+        activity_enrichment = await run_activity_cycle(
+            db, persist=True, limit=min(5, limit)
+        )
     return {"mode": "private_candidate_intake", "new_sources": seed["added"],
             "processed": len(outcomes),
             "new_candidates": sum(x["candidate_count"] for x in outcomes),
@@ -603,7 +612,8 @@ async def run(db, *, limit: int = 10, dry_run: bool = True) -> dict:
                     "changed_observed_rows", "unchanged_snapshot"
                 ) if any(x["fingerprint_comparison"] == key for x in detail_outcomes)
             },
-            "published_claims": 0, "outcomes": outcomes,
+            "published_claims": 0, "activity_enrichment": activity_enrichment,
+            "outcomes": outcomes,
             "page_outcomes": page_outcomes, "detail_outcomes": detail_outcomes}
 
 
