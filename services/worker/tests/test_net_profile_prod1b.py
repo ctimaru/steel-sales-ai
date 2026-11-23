@@ -115,6 +115,24 @@ class ManufacturerEvidenceTest(unittest.TestCase):
         ), ["https://officineruboni.it/lavorazioni-carpenteria-metallica/"])
 
 
+    def test_tube_cutting_does_not_claim_tube_manufacturing(self):
+        rows = source_backed_facts(page(
+            "Realizziamo taglio laser su tubi e profili in acciaio, "
+            "con lavorazioni su disegno dei clienti."
+        ))
+        self.assertEqual([r["field_key"] for r in rows],
+                         ["description", "services"])
+        self.assertEqual(rows[-1]["field_value"], ["Taglio laser"])
+
+    def test_moulds_for_tube_production_are_not_tube_products(self):
+        rows = source_backed_facts(page(
+            "Produciamo stampi e portastampi per la produzione di tubi "
+            "ad uso industriale."
+        ))
+        self.assertEqual(rows[0]["field_value"], ["Stampi e portastampi"])
+        self.assertNotIn("Tubi e condotte", rows[0]["field_value"])
+
+
     def test_non_steel_profiles_and_bars_never_get_steel_family_labels(self):
         for phrase in (
             "Produciamo barre in ottone per applicazioni industriali.",
