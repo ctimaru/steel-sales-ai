@@ -28,7 +28,18 @@ MAX_HTML = 256_000
 MAX_PAGES = 3
 MAX_LINKS = 8
 
-BAD = re.compile(r"privacy|cookie|legal|terms|conditions|policy|warranty|certifi|quality.?assurance|ISO.?9001",re.I)
+BAD = re.compile(
+    r"privacy|cookie|legal|terms|conditions|policy|politic[ae]|"
+    r"warranty|certifi|quality.?assurance|qualit[aà]|ambient[ea]|"
+    r"whistleblow|gdpr|codice.?etico|ISO.?9001", re.I
+)
+GENERIC_PDF_LABEL = re.compile(
+    r"^(?:scarica|download|download pdf|pdf|apri|open|clicca|click here|leggi)$", re.I
+)
+DESCRIPTIVE_PDF_PATH = re.compile(
+    r"(?:catalog|brochure|listino|scheda.?tecnica|technical.?sheet|"
+    r"tub[ioe]|pipes?|hollow|profil|lamiere|datasheet|specifiche)", re.I
+)
 GOOD = re.compile(r"tub[ioe]|tubes?|pip(?:e|ing)|hollow|profil|stainless|acciai|inox|steel|metal|carbon|catalog|brochure|scheda|specifi|download",re.I)
 PAGE = re.compile(r"catalog|brochure|download|prodot|product|tub|tube|pipe|specifi|technical|document|gamma|range",re.I)
 INDUSTRIAL = re.compile(r"tub[ioe]|tubes?|pip(?:e|ing)|hollow|steel|acciai|inox|profil|stainless|siderurg",re.I)
@@ -190,13 +201,22 @@ def _parse_links(html:bytes,page_url:str,domain:str)->tuple[list[dict],list[str]
         hint=sp.path+" "+label
         if BAD.search(hint):continue
         if re.search(r"\.pdf$",sp.path,re.I):
-            # No generic cross-industry download: source context must be metal
-            # or tubular AND the link itself must be a likely catalogue/product.
-            if industrial and GOOD.search(hint):
-                documents.append({"url":clean,
-                    "title":(" ".join(label.split()) if len(" ".join(label.split()))>=5
-                        else "Official industrial PDF catalogue")[:220],
-                    "discovery_page_url":page_url})
+            # The database requires titles >=8 chars. "Scarica", "PDF" etc
+            # are UI controls, not document titles or evidence. Policy,
+            # safety and certification PDFs must never become catalogues.
+            normalized_label=" ".join(label.split())
+            if not industrial or not GOOD.search(hint):
+                continue
+            if GENERIC_PDF_LABEL.fullmatch(normalized_label) or len(normalized_label)<8:
+                if not DESCRIPTIVE_PDF_PATH.search(sp.path):
+                    continue
+                stem=sp.path.rsplit("/",1)[-1][:-4]
+                normalized_label=" ".join(re.split(r"[-_]+",stem)).strip()
+                if BAD.search(normalized_label) or len(normalized_label)<8:
+                    continue
+            documents.append({"url":clean,
+                "title":normalized_label[:220],
+                "discovery_page_url":page_url})
         elif PAGE.search(hint) and len(pages)<MAX_PAGES*3:
             pages.append(clean)
     return documents,pages,industrial
