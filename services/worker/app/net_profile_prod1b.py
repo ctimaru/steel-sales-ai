@@ -291,7 +291,8 @@ def _official_section_links(page, canonical: str) -> list[str]:
                 continue
             # A company may publish nested /produzione/tubi and /lavorazioni.
             score = 0 if re.search(r"(?:^|/)(?:produzione|prodotti|lavorazioni|"
-                                    r"production|products|manufacturing)/", path, re.I) else 1
+                                    r"production|products|manufacturing)(?:/|-|$)",
+                                    path, re.I) else 1
             old = ranked.get(candidate)
             if old is None or (score, index) < old:
                 ranked[candidate] = (score, index)
