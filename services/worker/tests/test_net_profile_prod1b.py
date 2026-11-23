@@ -31,7 +31,7 @@ class ManufacturerEvidenceTest(unittest.TestCase):
         self.assertEqual(source_backed_facts(p)[0]["field_value"], ["Tubi e condotte"])
 
     def test_hollow_sections_from_specific_factory_phrase(self):
-        p = page("Produzione di profilati in acciaio per strutture industriali e costruzioni.")
+        p = page("La nostra azienda è specializzata nella produzione di profilati in acciaio per strutture industriali.")
         self.assertEqual(source_backed_facts(p)[0]["field_value"], ["Profilati in acciaio"])
 
     def test_one_quote_must_support_every_product_label(self):
@@ -132,6 +132,37 @@ class ManufacturerEvidenceTest(unittest.TestCase):
         self.assertEqual(rows[0]["field_value"], ["Stampi e portastampi"])
         self.assertNotIn("Tubi e condotte", rows[0]["field_value"])
 
+
+    def test_isolated_menu_production_labels_never_prove_manufacturing(self):
+        # Real canary 23 Nov: this is a menu flattened into page text,
+        # previously (wrongly) cited as manufacturing evidence on /fresatura/.
+        for navigation in (
+            "Bonacina Officina Prodotti Barre filettate Cavallotti "
+            "Tirafondi Produzione di viti testa a martello Produzione "
+            "tirafondi DIN 529 Tiranti Tiranti per l'edilizia",
+            "Prodotti Produzione di profilati in acciaio Lavorazioni Contatti",
+            "Produzione di viti e bulloneria per applicazioni industriali.",
+        ):
+            with self.subTest(nav=navigation):
+                self.assertEqual(source_backed_facts(page(navigation)), [])
+
+    def test_passive_manufacturing_inside_explicit_company_clause(self):
+        rows = source_backed_facts(page(
+            "La nostra azienda è specializzata nella produzione di "
+            "viti e bulloneria per strutture industriali."
+        ))
+        self.assertEqual(rows[0]["field_key"], "products")
+        self.assertEqual(rows[0]["field_value"], ["Viti e bulloneria"])
+        self.assertIn("produzione di viti", rows[0]["evidence_excerpt"])
+
+    def test_third_person_produce_requires_exact_company_subject(self):
+        self.assertEqual(source_backed_facts(page(
+            "Il partner tecnologico produce tubi e condotte industriali."
+        )), [])
+        rows = source_backed_facts(page(
+            "La nostra azienda produce tubi e condotte industriali."
+        ))
+        self.assertEqual(rows[0]["field_value"], ["Tubi e condotte"])
 
     def test_non_steel_profiles_and_bars_never_get_steel_family_labels(self):
         for phrase in (
