@@ -185,22 +185,40 @@ _EVIDENCE_CHROME = re.compile(
     r"wp-block-navigation|pagination|toolbar|widget-nav)"
     r"(?![a-z0-9])", re.I,
 )
+# Whitelist *textual* editor wrappers, not generic div/section wrappers.
+# Parent wrappers are never published as one combined assertion when they
+# contain nested block elements; eligible leaf blocks are parsed separately.
 _EVIDENCE_EDITOR = re.compile(
     r"(?:text[-_ ]?editor|rich[-_ ]?text|text[-_ ]?block|"
     r"text[-_ ]?inner|(?:product[-_ ]?)?description|"
-    r"wysiwyg|et_pb_text_inner|elementor-widget-text-editor|"
-    r"wpb_wrapper)", re.I,
+    r"wysiwyg|et_pb_text(?:_inner)?|elementor-widget-text-editor|"
+    r"elementor-widget-container|wpb_wrapper|wpb_text_column|"
+    r"wp-block-(?:group|columns?|media-text|html)|"
+    r"fusion-text|sqs-(?:block|html)-content|w-richtext|"
+    r"framer-text|brxe-text|textwidget|article[-_ ]?body|"
+    r"product[-_ ]?copy|hero[-_ ]?copy|editorial[-_ ]?copy)", re.I,
 )
+_EVIDENCE_BLOCK_CHILD = {
+    "div", "section", "article", "main", "p", "ul", "ol", "li", "table",
+    "tr", "td", "figure", "figcaption", "blockquote", "nav", "header",
+    "footer", "aside", "form", "h1", "h2", "h3", "h4", "h5", "h6",
+}
+_EVIDENCE_INTERACTIVE = {"a", "button", "form", "input", "select", "label", "textarea"}
+
 MAX_EVIDENCE_BLOCKS = 150
 MAX_EVIDENCE_CHARS_PER_BLOCK = 2500
 
 
 class _OfficialContentEvidenceParser(HTMLParser):
-    """Extract contiguous company prose; never join a menu with body text.
+    """Capture independent editorial leaf blocks, never a flattened DOM tree.
 
-    Only these blocks can be used by the automatic public-profile evidence
-    writer. The general crawler retains its original flattened text.
+    Long prose in modern page builders often sits inside div/span wrappers
+    rather than <p>. Allow such leaf text only inside a known editor wrapper
+    or an explicit <article>. Parents with child block elements never become
+    one stitched manufacturer statement. Navigation and calls-to-action are
+    always rejected, including when nested in a normally eligible wrapper.
     """
+
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self._tags: list[tuple[str, bool]] = []
@@ -224,22 +242,40 @@ class _OfficialContentEvidenceParser(HTMLParser):
             or "hidden" in attributes
             or bool(re.search(r"display\s*:\s*none\b", attributes.get("style", ""), re.I))
         )
+        # A content + menu mix is not one coherent narrative. Do not stitch
+        # words on either side of links or between separate div/heading blocks.
+        for capture in self._captures:
+            if tag in _EVIDENCE_BLOCK_CHILD:
+                capture["has_block_child"] = True
+            if tag in _EVIDENCE_INTERACTIVE:
+                capture["interactive_child"] = True
+
+        in_article = any(t == "article" and not skipped for t, skipped in self._tags)
+        in_editor = any(c["kind"] == "editor" for c in self._captures)
         self._tags.append((tag, blocked))
         if blocked or len(self.blocks) >= MAX_EVIDENCE_BLOCKS:
             return
-        if tag == "p":
-            for capture in self._captures:
-                if capture["tag"] == "div":
-                    capture["child_p"] = True
-        is_editor = tag == "div" and bool(_EVIDENCE_EDITOR.search(context))
-        if tag == "p" or is_editor:
+
+        is_editor = (
+            tag in {"div", "section"}
+            and (
+                bool(_EVIDENCE_EDITOR.search(context))
+                or attributes.get("itemprop", "").lower() == "description"
+                or attributes.get("data-widget_type", "").lower().startswith("text-editor")
+            )
+        )
+        # Untagged leaf <div> is acceptable only inside a real <article>
+        # or inside a text editor wrapper, never in an arbitrary page header.
+        is_leaf_div = tag == "div" and (in_article or in_editor)
+        if tag == "p" or is_editor or is_leaf_div:
             self._captures.append({
-                "tag": tag, "depth": len(self._tags),
-                "parts": [], "child_p": False,
+                "tag": tag, "kind": "editor" if is_editor else ("paragraph" if tag == "p" else "leaf"),
+                "depth": len(self._tags), "parts": [], "chars": 0,
+                "has_block_child": False, "interactive_child": False,
             })
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        # Self-closing tags never create an open ancestor or evidence block.
+        # Self-closing tags are not text-bearing capture blocks.
         return
 
     def handle_data(self, data: str) -> None:
@@ -249,23 +285,25 @@ class _OfficialContentEvidenceParser(HTMLParser):
         if not value:
             return
         for capture in self._captures:
-            if sum(len(x) for x in capture["parts"]) < MAX_EVIDENCE_CHARS_PER_BLOCK:
+            if capture["chars"] + len(value) <= MAX_EVIDENCE_CHARS_PER_BLOCK:
                 capture["parts"].append(value)
+                capture["chars"] += len(value)
 
     def _finish(self, min_depth: int) -> None:
-        keep = []
+        remaining = []
         for capture in self._captures:
             if capture["depth"] < min_depth:
-                keep.append(capture)
+                remaining.append(capture)
                 continue
-            if capture["tag"] == "div" and capture["child_p"]:
+            if capture["has_block_child"] or capture["interactive_child"]:
                 continue
             prose = " ".join(capture["parts"]).strip()[:MAX_EVIDENCE_CHARS_PER_BLOCK]
-            if len(prose) >= 24 and prose not in self.blocks and (
+            min_chars = 54 if capture["kind"] == "leaf" else 24
+            if len(prose) >= min_chars and prose not in self.blocks and (
                 len(self.blocks) < MAX_EVIDENCE_BLOCKS
             ):
                 self.blocks.append(prose)
-        self._captures = keep
+        self._captures = remaining
 
     def handle_endtag(self, tag: str) -> None:
         tag = tag.lower()
