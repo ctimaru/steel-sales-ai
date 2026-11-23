@@ -60,4 +60,23 @@ select pg_temp.prod1b_assert(
   'priority signals must preserve leased / first-party / concurrency contract'
 );
 
+-- PROD1.C: official product/working pages returned to the same private lease;
+-- service-only RPCs and atomic queue semantics remain unchanged.
+select pg_temp.prod1b_assert(
+  position('product_urls' in
+    pg_get_functiondef('private.netprofile_prod1b_claim(integer)'::regprocedure))>0
+  and position('last_sha256' in
+    pg_get_functiondef('private.netprofile_prod1b_claim(integer)'::regprocedure))>0
+  and position('skip locked' in lower(
+    pg_get_functiondef('private.netprofile_prod1b_claim(integer)'::regprocedure)))>0,
+  'multi-source first-party URLs must preserve private lease and source SHA'
+);
+select pg_temp.prod1b_assert(
+  position('services' in
+    pg_get_functiondef('private.netprofile_prod1b_complete(uuid,uuid,text,text,text,jsonb,text)'::regprocedure))>0
+  and position('unreviewed working classification' in lower(
+    pg_get_functiondef('private.netprofile_prod1b_complete(uuid,uuid,text,text,text,jsonb,text)'::regprocedure)))>0,
+  'services must be an explicitly allowlisted and source-backed field'
+);
+
 rollback;
