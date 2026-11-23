@@ -134,8 +134,14 @@ def _name_evidenced(name: str, page_texts: list[str]) -> bool:
         return False
     for page in page_texts:
         text = _normalize_full_legal_name(page)
-        if re.search(r"(?<![a-z0-9à-ÿ])" + re.escape(normalized)
-                     + r"(?![a-z0-9à-ÿ])", text):
+        for match in re.finditer(r"(?<![a-z0-9à-ÿ])" + re.escape(normalized)
+                                 + r"(?![a-z0-9à-ÿ])", text):
+            # "2M S.n.c. di Alfred e Denis Murer" is NOT first-party proof
+            # that the truncated "2M S.n.c." is the legal company name.
+            # A standalone occurrence elsewhere is still valid evidence.
+            following = text[match.end():match.end() + 90]
+            if re.match(r"\\s+(?:di|de|del|della)\\s+[a-zà-ÿ]", following):
+                continue
             return True
     return False
 
