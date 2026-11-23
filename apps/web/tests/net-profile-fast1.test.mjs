@@ -15,7 +15,8 @@ test("NET-PROFILE-FAST1 access state is memoized per request",()=>{
 
 test("NET-PROFILE-FAST1 Pro profile: one parallel batch, viewer from the workspace context",()=>{
   assert.doesNotMatch(page,/auth\.getUser\(\)|from\("organization_memberships"\)|createClient/);
-  assert.match(page,/const \[candidateResult, profileResult, claimResult, eligibility, savedResult, inventoryResult, reviewedEvidence, query\] = await Promise\.all\(\[/);
+  assert.match(page,/const \[candidateResult, profileResult, claimResult, eligibility, savedResult, inventoryResult, reviewedEvidence, officialProductPages, query\] = await Promise\.all\(\[/);
+  assert.match(page,/getNetworkProducerOfficialPages\(context\.organizationId, id, "pro"\)/);
   assert.match(page,/if \(!COMPANY_ID\.test\(id\)\) notFound\(\);/);
   // Discoveries still open in the Free reader, reusing the profile already read.
   assert.match(page,/candidateResult\?\.company\.discovery_status === "unconfirmed"/);
@@ -28,7 +29,8 @@ test("NET-PROFILE-FAST1 Pro profile: one parallel batch, viewer from the workspa
 
 test("NET-PROFILE-FAST1 discovery profile: no second read, remaining reads in parallel",()=>{
   assert.match(free,/profile = preloadedProfile \? preloadedProfile :/);
-  assert.match(free,/const \[reviewedEvidence, readiness, savedIds, inventory\] = await Promise\.all\(\[/);
+  assert.match(free,/const \[reviewedEvidence, officialProductPages, readiness, savedIds, inventory\] = await Promise\.all\(\[/);
+  assert.match(free,/getNetworkProducerOfficialPages\(organizationId,companyId,accessMode\)/);
 });
 
 test("NET-PROFILE-FAST1 instant profile-shaped skeleton; sub-pages keep a generic loader",()=>{
