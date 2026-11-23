@@ -15,7 +15,7 @@ CREATE OR REPLACE FUNCTION private.net_it_mass11c_recovery_queue(
 AS $func$
 DECLARE v_items jsonb;
 BEGIN
- IF auth.role() IS DISTINCT FROM 'service_role' OR p_max NOT BETWEEN 1 AND 12 THEN
+ IF auth.role() IS DISTINCT FROM 'service_role' OR p_max IS NULL OR p_max NOT BETWEEN 1 AND 12 THEN
    RAISE EXCEPTION 'Service role and bounded batch required' USING ERRCODE='42501';
  END IF;
  WITH eligible AS MATERIALIZED (
