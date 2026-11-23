@@ -16,14 +16,14 @@ test("NET-PRO-UX2 one PRO strip: Intelligence Produttori + Moduli e prezzi, no d
   assert.doesNotMatch(compact,/>\s*Network PRO · Moduli e prezzi\s*</,"no duplicate header link");
 });
 
-test("NET-PRO-UX2 producers: compact list with evidence chips, details on demand, sticky compare bar",()=>{
+test("NET-PRO-UX2 producers: compact list, details on demand, sticky compare bar (UX3 layout)",()=>{
   assert.match(exp,/data-testid="network-producers-list"/);
   assert.match(exp,/data-testid="network-producer-row"/);
-  assert.match(exp,/Dati tecnici con fonte · \{evidence\.length\}/);
-  assert.match(exp,/Cataloghi ufficiali · \{docs\.length\}/);
-  assert.match(exp,/Menzioni da qualificare · \{mentions\.length\}/);
-  assert.match(exp,/Norme, gamma e cataloghi in qualificazione/);
-  assert.match(exp,/Dettagli tecnici e fonti/);
+  // NET-PRODUCERS-UX3: source counts on one grey line, details in a side panel.
+  assert.match(exp,/\{evidence\.length\} dati tecnici con fonte/);
+  assert.match(exp,/\{mentions\.length\} menzioni da qualificare/);
+  assert.match(exp,/In qualificazione/);
+  assert.match(exp,/data-testid="producer-detail-panel"/);
   assert.match(exp,/data-testid="producer-compare-bar"/);
   assert.match(exp,/href="#producer-compare"/);
   assert.doesNotMatch(exp,/🏭/);

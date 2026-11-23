@@ -8,6 +8,8 @@ const reader=get("lib/network-producer-technical.ts");
 const countries=get("lib/network-eu-countries.ts");
 const page=get("app/(italian)/(workspace)/network/pro/producers/page.tsx");
 const view=get("components/network-producers-experience.tsx");
+// NET-PRODUCERS-UX3: group labels live in the shared helper used by the view.
+const groups=get("lib/network-producer-highlights.ts");
 
 test("EU D5D uses only the existing real organization-country producer entitlement",()=>{
   assert.match(migration,/private\.net_eu_tubifici1_c2_factory_claims_impl\(/);
@@ -54,6 +56,7 @@ test("existing 57 EU claims flow to authorized responsive producer comparison",(
   assert.match(reader,/claims.every\(c=>allowed.has\(c.companyId\)\)/);
   assert.match(page,/getProducerTechnicalClaims\(context.organizationId,ids,country\)/);
   assert.match(view,/network-producers-eu-evidence/);
-  assert.match(view,/Norme dalle fonti/);
+  assert.match(view,/PRODUCER_VALUE_GROUPS/);
+  assert.match(groups,/Norme dalle fonti/);
   assert.match(view,/nessuna combinazione norma, grado, dimensione e spessore/i);
 });

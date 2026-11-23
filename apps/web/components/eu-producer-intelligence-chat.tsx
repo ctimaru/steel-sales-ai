@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import {useState,type FormEvent} from "react";
+import {useEffect,useRef,useState} from "react";
 import {searchEuropeanTubeProducers,type EuProducerChatResult} from "@/app/(italian)/(workspace)/network/pro/producers/ai-actions";
 import {networkCountryName} from "@/lib/network-eu-countries";
 import {newRequestHref} from "@/lib/new-request-href";
 
 type Turn={id:number;question:string;response:EuProducerChatResult};
-const examples=[
+export const PRODUCER_QUESTION_EXAMPLES=[
   "Chi produce tubi EN 10219 S355J2H?",
   "Cerco tubi EN 10219 S355 RHS 200×100×6",
   "Produttori di tubi inox AISI 316 in Serbia",
@@ -25,15 +25,33 @@ function requestForDistinta(t:Turn){
   return "Vorrei preparare una richiesta di offerta per tubi "+terms.join(" ")+
     ". Misure, quantità, disponibilità e conformità da definire e verificare.";
 }
-export function EuProducerIntelligenceChat(){
-  const [draft,setDraft]=useState("");
+/**
+ * NET-PRODUCERS-UX3 (23 Nov 2026): no input of its own any more. The page has
+ * ONE search box; a technical question typed there arrives here as `ask`, and
+ * the answers (with sources) appear under the box. A question recognised by
+ * mistake can be re-run as a company-name search with one click.
+ */
+export function EuProducerIntelligenceChat({ask,onSearchAsName,onClose}:{
+  ask:{id:number;text:string}|null;
+  onSearchAsName:(text:string)=>void;
+  onClose:()=>void;
+}){
   const [busy,setBusy]=useState(false);
   const [turns,setTurns]=useState<Turn[]>([]);
-  async function submit(event:FormEvent<HTMLFormElement>){
-    event.preventDefault();
-    if(busy||!draft.trim())return;
-    const question=draft.trim().slice(0,400);
-    const preceding=[...turns].reverse().find(t=>t.response.ok&&t.response.status==="ready");
+  const turnsRef=useRef<Turn[]>([]);
+  turnsRef.current=turns;
+  const handled=useRef<number|null>(null);
+  useEffect(()=>{
+    if(!ask||handled.current===ask.id)return;
+    handled.current=ask.id;
+    void run(ask.text);
+    // run reads the latest turns through turnsRef; only a new ask triggers it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[ask]);
+  async function run(text:string){
+    const question=text.trim().slice(0,400);
+    if(question.length<4)return;
+    const preceding=[...turnsRef.current].reverse().find(t=>t.response.ok&&t.response.status==="ready");
     const previousIntent=preceding?.response.ok&&preceding.response.status==="ready"
       ?preceding.response.intent:null;
     // Preserve the last resolved user-requested filters, not model-generated
@@ -48,7 +66,6 @@ export function EuProducerIntelligenceChat(){
       setTurns(current=>[...current.slice(-4),{
         id:(current.at(-1)?.id??0)+1,question,response,
       }]);
-      setDraft("");
     }catch{
       setTurns(current=>[...current.slice(-4),{
         id:(current.at(-1)?.id??0)+1,question,
@@ -56,27 +73,31 @@ export function EuProducerIntelligenceChat(){
       }]);
     }finally{setBusy(false);}
   }
-  return <section className="overflow-hidden rounded-[22px] border border-[#bdd9c9] bg-white shadow-[0_7px_26px_rgba(19,64,44,0.06)]"
+  function close(){
+    setTurns([]);
+    onClose();
+  }
+  if(turns.length===0&&!busy)return null;
+  const last=turns.at(-1);
+  return <section className="overflow-hidden rounded-2xl border border-[#c4dccd] bg-white"
     data-testid="eu-producer-intelligence-chat" aria-labelledby="eu-producer-chat-title">
-    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#dcebe2] bg-[#f1f8f3] px-4 py-3 sm:px-5">
-      <div>
-        <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#52745f]">Intelligence Produttori · Europa</span>
-        <h2 id="eu-producer-chat-title" className="mt-0.5 text-base font-extrabold text-[#133f2c]">Chiedi quali produttori sono documentati</h2>
+    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#e1ece4] px-4 py-2.5">
+      <h2 id="eu-producer-chat-title" className="flex items-center gap-2 text-sm font-extrabold text-[#133f2c]">
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-[#1d6948]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>
+        Risposta AI con fonti
+      </h2>
+      <div className="flex items-center gap-3">
+        {last&&!busy?<button type="button" onClick={()=>onSearchAsName(last.question)}
+          className="min-h-9 text-[11px] font-bold text-[#1d6948] underline underline-offset-2 hover:text-[#10452f]">
+          Cerca invece come nome azienda
+        </button>:null}
+        <button type="button" onClick={close} aria-label="Chiudi la risposta AI"
+          className="inline-flex min-h-9 items-center rounded-lg border border-[#d3e2d8] px-3 text-[11px] font-bold text-[#355c47] hover:bg-[#f3f8f4]">
+          Chiudi
+        </button>
       </div>
-      <span className="rounded-full border border-[#b9d6c2] bg-white px-3 py-1 text-[10px] font-semibold text-[#245941]">Risposte con fonti · PRO</span>
     </div>
-    <div className="space-y-3 px-4 py-4 sm:px-5">
-      <p className="max-w-3xl text-xs leading-5 text-[#5c7364]">
-        Scrivi una domanda naturale. La ricerca AI interpreta i requisiti, ma soltanto
-        le fonti delle aziende possono motivare una risposta. I dati osservati non
-        certificano combinazioni norma × grado × misura × spessore né stock.
-      </p>
-      {turns.length===0?<div className="flex flex-wrap gap-2" aria-label="Domande di esempio">
-        {examples.map(prompt=><button type="button" key={prompt} onClick={()=>setDraft(prompt)}
-          className="min-h-9 rounded-xl border border-[#c7dccc] bg-[#f7fbf8] px-3 py-1.5 text-left text-[11px] font-semibold text-[#27563f] hover:bg-[#eaf6ed] focus-visible:outline-2 focus-visible:outline-[#185740]">
-          {prompt}
-        </button>)}
-      </div>:null}
+    <div className="space-y-3 px-4 py-4">
       <div className="space-y-4" aria-live="polite" data-testid="eu-producer-chat-transcript">
         {turns.map(turn=>{
           const r=turn.response;
@@ -148,18 +169,11 @@ export function EuProducerIntelligenceChat(){
           </div>;
         })}
       </div>
-      <form onSubmit={submit} className="flex flex-col gap-2 sm:flex-row" aria-label="Ricerca tecnica conversazionale">
-        <label htmlFor="eu-producer-technical-question" className="sr-only">Domanda tecnica sui produttori europei</label>
-        <input id="eu-producer-technical-question" value={draft} onChange={e=>setDraft(e.target.value)}
-          type="search" maxLength={400} autoComplete="off"
-          placeholder="Es. Chi produce EN 10219 S355J2H?"
-          className="min-h-12 min-w-0 flex-1 rounded-xl border border-[#b9d1c0] bg-white px-4 text-sm text-[#183d2d] placeholder:text-[#798b80] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]"/>
-        <button type="submit" disabled={busy||draft.trim().length<4}
-          className="min-h-12 rounded-xl bg-[#175640] px-6 text-sm font-bold text-white hover:bg-[#104b35] disabled:cursor-not-allowed disabled:opacity-50">
-          {busy?"Cerco sulle fonti…":"Cerca produttori"}
-        </button>
-      </form>
-      <p className="text-[11px] leading-4 text-[#728477]">Solo operatori pubblicati, dati con provenienza e accesso Produttori Europa. Nessuna misura viene dichiarata producibile per deduzione.</p>
+      {busy?<p role="status" className="text-xs font-semibold text-[#3c6050]">Cerco sulle fonti…</p>:null}
+      <p className="text-[11px] leading-4 text-[#6a7d70]">
+        La ricerca AI interpreta i requisiti, ma soltanto le fonti delle aziende possono motivare una risposta.
+        I dati osservati non certificano combinazioni norma × grado × misura × spessore né stock.
+      </p>
     </div>
   </section>;
 }
