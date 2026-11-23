@@ -387,9 +387,12 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
                             urls.append(discovered)
                 visited = {homepage.url} if homepage else set()
                 # Do not let a large navigation menu exhaust the visit budget.
-                for url in urls[:MAX_DISCOVERED_LINKS]:
+                position = 0
+                while position < len(urls) and position < MAX_DISCOVERED_LINKS:
                     if checked >= MAX_SOURCE_PAGES:
                         break
+                    url = urls[position]
+                    position += 1
                     if url in visited or not safe_official_source(url, canonical):
                         continue
                     visited.add(url)
