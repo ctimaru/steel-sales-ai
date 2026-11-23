@@ -91,3 +91,7 @@ AS $func$ SELECT private.net_it_mass11c_recovery_queue(p_max); $func$;
 REVOKE ALL ON FUNCTION public.net_it_mass11c_recovery_queue(integer)
  FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.net_it_mass11c_recovery_queue(integer) TO service_role;
+REVOKE ALL ON FUNCTION private.net_it_mass11c_recovery_queue(integer)
+ FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION private.net_it_mass11c_recovery_queue(integer)
+ TO service_role;
