@@ -185,7 +185,9 @@ begin
  end if;
  if p_status='verified' then
    if p_source_sha256 is null
-      or p_source_sha256 !~ '^[a-f0-9]{64} !~ '^https://[A-Za-z0-9.-]+(/|$)'
+      or p_source_sha256 !~ '^[a-f0-9]{64}$'
+      or v_c.website_domain is null
+      or coalesce(p_source_url,'') !~ '^https://[A-Za-z0-9.-]+(/|$)'
       or lower(split_part(p_source_url,'/',3)) not in (
         lower(v_c.website_domain),'www.'||lower(v_c.website_domain))
       or jsonb_array_length(p_facts)=0 then
