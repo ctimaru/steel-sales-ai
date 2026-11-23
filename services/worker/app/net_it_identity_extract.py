@@ -145,6 +145,14 @@ def publisher_legal_name_is_clean(name: str) -> bool:
         return False
     if re.match(r"^(?:19|20)\d{2}(?:[^A-Za-z0-9]|$)", value):
         return False
+    # Reject legal names with *preceding UI labels*, while preserving a
+    # genuine one-word brand with that spelling followed by a legal form.
+    # A clean name requires independent site-body evidence in AUTO2 anyway.
+    leading = value[:form.start()].strip()
+    if (len(leading.split()) >= 2 and re.match(
+        r"(?i)^(?:whistleblowing|entra|da\s+wikipedia)\b", leading
+    )):
+        return False
     if _PUBLISHER_PREFIX.search(value) or _PUBLISHER_NAME_WORDS.search(value):
         return False
     if re.search(r"(?i)\b(?:powered\s+by|web\s+agency|hosting\s+by)\b", value):
@@ -323,7 +331,13 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
         # After at least one genuine business token, the prior navigation
         # token is a boundary. Never strip "Italy S.r.l." or "More S.r.l."
         # when that token is itself the ENTIRE independently evidenced brand.
-        if picked and bare.casefold().strip(",'’.") in {"italy", "read", "more"}:
+        if picked and bare.casefold().strip(",'’.") in {
+            "italy", "read", "more",
+            # MASS11G: footer menu / compliance links flattened ahead of
+            # the independently named business. Do not ban a standalone
+            # genuine company called "Entra S.r.l." or "Whistleblowing S.r.l.".
+            "whistleblowing", "entra", "wikipedia",
+        }:
             break
         if bare.casefold().strip("'’") in _BOILERPLATE or "/" in bare or "@" in bare:
             break

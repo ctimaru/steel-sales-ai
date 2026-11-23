@@ -342,7 +342,14 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
     if (found and publisher_legal_name_is_clean(found.legal_name)
             and _is_capital_company(found.legal_name)
             and _name_evidenced(found.legal_name, texts)
-            and (legal_name_is_clean(name) or independently_evidenced)
+            # Legacy v4 still recovers known noisy footer forms. But a
+            # flattened *new* UI label (MASS11G) must never turn a clean
+            # substring on the same page into a verified legal identity
+            # without independent legal context or first-party JSON-LD.
+            and ((legal_name_is_clean(name) and not re.match(
+                    r"(?i)^(?:whistleblowing|entra|da\s+wikipedia)\b",
+                    name))
+                 or independently_evidenced)
             and (not matched or not legal_name_is_clean(name)
                  or not _is_capital_company(name)
                  or not publisher_legal_name_is_clean(name)
