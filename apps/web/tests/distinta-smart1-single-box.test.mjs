@@ -100,7 +100,9 @@ test("the three steps share one stepper and scoped high-contrast field rules", (
   assert.match(campaign, /data-testid="rfq-step2" data-distinta-steps/);
   assert.match(steps, /aria-current=\{active \? "step" : undefined\}/);
   // Field borders ≥3:1 and placeholders ≥4.5:1 win over the unlayered base rules.
-  assert.match(css, /\[data-distinta-steps\] :is\(input:not\(\[type="checkbox"\]\):not\(\[type="radio"\]\), select, textarea\) \{\n  border-color: #7a9585;/);
+  // The generic field rule must exclude the bare name field: it is more specific than one class.
+  assert.match(css, /\[data-distinta-steps\] :is\(input:not\(\[type="checkbox"\]\):not\(\[type="radio"\]\):not\(\.distinta-bare-field\), select, textarea\) \{\n  border-color: #7a9585;/);
+  assert.match(css, /\[data-distinta-steps\] :is\(input:not\(\.distinta-bare-field\), select, textarea\):focus \{/);
   assert.match(css, /::placeholder \{\n  color: #5f7568;/);
   // One focus indicator on the box (wrapper), a title-like Distinta name at rest.
   assert.match(box, /distinta-box-input/);
