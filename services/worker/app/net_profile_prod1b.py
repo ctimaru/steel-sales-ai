@@ -121,6 +121,26 @@ PRODUCT_RELATION_BOUNDARY = re.compile(
 )
 
 
+# Flat HTML crawler text can contain a site-wide navigation menu.
+# The heading "Produzione di viti" may be just a link on an unrelated page.
+# A passive "production of X" relation is accepted only inside a positive
+# first-party execution clause, never as an isolated title/anchor/menu label.
+PASSIVE_PRODUCTION_CONTEXT = re.compile(
+    r"(?:\b(?:siamo\s+specializzat[ioe]\s+(?:nella|in)|"
+    r"ci\s+occupiamo\s+della|ci\s+dedichiamo\s+alla|"
+    r"si\s+occupa\s+della|(?:è|e)\s+specializzat[aoe]\s+nella|"
+    r"we\s+speciali[sz]e\s+in))\s*$", re.I
+)
+COMPANY_SUBJECT = re.compile(
+    r"(?:\b(?:la\s+nostra\s+azienda|la\s+societ[aà]|l['’]azienda|"
+    r"our\s+company|the\s+company)\s*$)", re.I
+)
+THIRD_PARTY_CONTEXT = re.compile(
+    r"\b(?:fornitori|partner|clienti|terzi|suppliers?|partners?|"
+    r"customers?|clients?)\b", re.I
+)
+
+
 SALE_ONLY = re.compile(
     r"\b(?:commercializziamo|commercializza|rivendiamo|distribuiamo|"
     r"distribuzione|ingrosso|vendita|sells?|supplies?|resell)\b", re.I,
@@ -196,9 +216,16 @@ def _production_from_segment(segment: str) -> dict | None:
         prefix = segment[max(0, verb.start() - 75):verb.start()]
         if NEGATIVE.search(prefix):
             continue
-        if verb.group().lower() == "produce" and (
-            not re.search(r"\b(?:azienda|impresa|societ[aà])\b", prefix, re.I)
-            or re.search(r"\b(?:fornitori|partner|clienti|terzi)\b", prefix, re.I)
+        action = verb.group().lower()
+        # Third-party claims and isolated nav headings cannot attest what
+        # THIS company produces. This deliberately favors precision over
+        # speculative coverage until semantic HTML extraction is available.
+        if THIRD_PARTY_CONTEXT.search(prefix):
+            continue
+        if action == "produce" and not COMPANY_SUBJECT.search(prefix):
+            continue
+        if action in ("produzione di", "fabbricazione di", "production of") and (
+            not PASSIVE_PRODUCTION_CONTEXT.search(prefix)
         ):
             continue
         object_text = segment[verb.end():verb.end() + 78]
