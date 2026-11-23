@@ -76,7 +76,8 @@ try {
       await page.goto(base+"/commercial?compose=1&method=ai#commercial-ai-intake",{
         waitUntil:"domcontentloaded",timeout:90000,
       });
-      const composer=page.locator("#rfqai2-text-input");
+      // DISTINTA-SMART1: one box above the Distinta; proposals are reviewed under it.
+      const composer=page.locator("#distinta-smart-box");
       await composer.waitFor({state:"visible",timeout:60000});
       await composer.fill(fixture.text);
       await page.getByRole("button",{name:"Analizza la richiesta con AI"}).click();
@@ -90,12 +91,9 @@ try {
       ]);
       assert.equal(firstOutcome,"proposals","Local UX3.B AI analysis must respect the per-user burst window");
       assert.equal(await articles.count(),10,"Ten sourced lines actually entered the reviewer");
-      const live=page.getByTestId("commercial-rfq-live-preview");
-      const proposed=page.getByTestId("commercial-rfq-ai-proposals");
-      const approved=page.getByTestId("commercial-rfq-approved-lines");
-      assert.equal(await proposed.locator("li").count(),10);
-      assert.match(await approved.textContent(),/0 righe/);
-      assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),true);
+      const live=page.getByTestId("distinta-sheet");
+      const approved=page.getByTestId("distinta-sheet-lines");
+      assert.equal(await live.count(),0,"No proposal is counted in the Distinta before approval");
       const row8=page.getByRole("article",{name:"Articolo AI 8",exact:true});
       const row9=page.getByRole("article",{name:"Articolo AI 9",exact:true});
       assert.equal(await row8.locator('input[type="checkbox"]').isDisabled(),true,
@@ -129,8 +127,7 @@ try {
       },null,{timeout:30000});
       assert.match(await row8.innerText(),/S235JRH/);
       assert.match(await row9.innerText(),/EN 10210/);
-      assert.match(await approved.textContent(),/0 righe/);
-      assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),true);
+      assert.equal(await live.count(),0);
 
       // Do not select line 10: only 9 explicitly verified lines may persist.
       for(let i=1;i<=9;i++)
@@ -138,13 +135,12 @@ try {
           .locator('input[type="checkbox"]').check();
       await page.getByRole("button",{name:"Inserisci 9 articoli nella distinta"}).click();
       await page.waitForFunction(()=>
-        document.querySelector('[data-testid="commercial-rfq-approved-lines"]')?.textContent?.includes("9 righe"),
+        document.querySelectorAll('[data-testid="distinta-sheet-lines"] > li').length===9,
         null,{timeout:30000});
-      assert.equal(await approved.locator("li").count(),9);
-      assert.equal(await proposed.count(),0,"Non-imported candidate cannot leak into the saved Distinta");
+      assert.equal(await approved.locator(":scope > li").count(),9);
+      assert.equal(await articles.count(),0,"Non-imported candidate cannot leak into the saved Distinta");
       await noHorizontalOverflow(page,"approved-"+width);
 
-      if(width<1000) await page.getByRole("tab",{name:/Distinta/}).click();
       const title="COMM-RFQ-UX3B PRIVATE LOCAL "+width;
       await live.getByLabel("Nome della distinta").fill(title);
       await page.screenshot({path:path.join(screenshotDir,"ux3b-"+width+"-nine-approved-preview.png"),animations:"disabled"});
@@ -153,11 +149,11 @@ try {
       await save.click();
       const savedLink=live.getByTestId("comm-rfq-saved-distinta-link");
       await savedLink.waitFor({state:"visible",timeout:60000});
-      // The save CTA deliberately changes label after success; the old
-      // role/name locator no longer exists. Assert the actual post-save state.
-      const savedButton=live.getByRole("button",{name:"Distinta salvata ✓",exact:true});
-      assert.equal(await savedButton.isDisabled(),true,
+      // After success the save action becomes the link to the saved Distinta:
+      // there is no second save button that could create a duplicate snapshot.
+      assert.equal(await live.getByRole("button",{name:"Salva solo la distinta"}).count(),0,
         "Second save cannot create a duplicate snapshot");
+      assert.match(await savedLink.innerText(),/Distinta salvata ✓/);
       const href=await savedLink.getAttribute("href");
       assert.match(href,/^\/rfq-hub\/distinte\/[0-9a-f-]{36}$/i);
       const savedId=href.split("/").at(-1);

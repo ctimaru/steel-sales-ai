@@ -212,20 +212,20 @@ try {
           if (width === 390) await page.getByTestId("commercial-ai-first-cta").click();
           else await input.press("Enter");
           await page.waitForURL(u => u.pathname === "/rfq-hub/distinta", { timeout: 90000 }); // DISTINTA-ONE1
-          const draft = page.locator("#rfqai2-text-input");
+          // DISTINTA-SMART1: the handoff lands in the single box.
+          const draft = page.locator("#distinta-smart-box");
           await draft.waitFor({ state: "visible", timeout: 60000 });
-          await page.waitForFunction(expected => document.querySelector("#rfqai2-text-input")?.value === expected, sample);
+          await page.waitForFunction(expected => document.querySelector("#distinta-smart-box")?.value === expected, sample);
           assert.equal(await draft.inputValue(), sample);
           assert.equal(await page.evaluate(() => sessionStorage.getItem("sss:commercial-ai-intake-handoff")), null);
           // COMM-RFQ-CREATE1: the home CTA explicitly starts the analysis,
           // so the focused GPT-like conversation may already show proposals
           // and change the submit button from Analizza to Correggi.
-          const conversation = page.getByTestId("commercial-rfq-gpt-conversation");
+          const conversation = page.getByTestId("distinta-smart-box");
           await conversation.waitFor({ state: "visible" });
-          await conversation.getByTestId("commercial-rfq-sticky-composer").waitFor({ state: "visible" });
           await conversation.getByTestId("commercial-rfq-user-message").first().waitFor({ state: "visible" });
-          assert.equal(await conversation.getByTestId("commercial-rfq-sticky-composer").count(), 1,
-            "One canonical chat composer, not a duplicate AI analyzer");
+          assert.equal(await page.getByTestId("distinta-smart-box").count(), 1,
+            "One canonical box, not a duplicate AI analyzer");
           await page.screenshot({ path: path.join(screenshotsDir, `commercial-ai-to-private-distinta-${width}px.png`), fullPage: false, animations: "disabled" });
           console.log("COMM-TRUST1.D CHAT → PRIVATE DISTINTA PASS", width, "one-shot text, preview, no automatic analysis or dispatch");
 
@@ -233,9 +233,9 @@ try {
             // Explicitly exercise the manual alternative, not merely its href.
             await page.goto(base + "/commercial?experience=classic", { waitUntil: "domcontentloaded", timeout: 90000 });
             await page.getByTestId("commercial-manual-entry").click();
-            // DISTINTA-QUICK1: manual entry = the single screen with the «Aggiungi articolo» bar focused.
+            // DISTINTA-SMART1: manual entry = the single screen with the box focused.
             await page.waitForURL(u => u.pathname === "/rfq-hub/distinta" && u.searchParams.get("aggiungi") === "misura", { timeout: 90000 });
-            await page.getByTestId("distinta-quick-add").waitFor({ state: "visible", timeout: 60000 });
+            await page.getByTestId("distinta-smart-box").waitFor({ state: "visible", timeout: 60000 });
             assert.equal(await page.getByTestId("commercial-rfq-user-message").count(), 0,
               "Manual entry must not silently start an AI analysis");
             console.log("COMM-TRUST1.D MANUAL ENTRY PASS");

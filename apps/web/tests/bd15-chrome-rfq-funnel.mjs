@@ -91,12 +91,11 @@ async function fillTwoQuickLines(page, width) {
   if (await cookie.isVisible()) {
     await cookie.getByRole("button",{name:"Accetta necessari"}).click();
   }
-  const quick = page.getByTestId("distinta-quick-add");
+  // DISTINTA-SMART1: the single box; norm and grade sit behind one toggle.
+  const quick = page.getByTestId("distinta-smart-box");
   await quick.waitFor({ state: "visible", timeout: 60000 });
-  const search = page.locator("#distinta-quick-add-search");
-  await quick.getByLabel("Grado", { exact: true }).fill("S355J2H");
+  const search = page.locator("#distinta-smart-box");
   for (const standard of ["EN 10219", "EN 10210"]) {
-    await quick.getByRole("button", { name: standard, exact: true }).click();
     await search.fill("quadro 100x100x5");
     await quick.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
     // The best suggestion must stay first and active even if the pointer rests on the list.
@@ -104,20 +103,21 @@ async function fillTwoQuickLines(page, width) {
     assert.equal(await results.getByRole("option", { selected: true }).getAttribute("id"),
       await results.getByRole("option").first().getAttribute("id"));
     await search.press("Enter");
-    await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Q.tà");
-    await page.keyboard.type("3");
-    await page.keyboard.press("Enter");
-    await page.waitForFunction(() => document.activeElement?.id === "distinta-quick-add-search");
+    await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Quantità");
+    const options = quick.getByTestId("distinta-smart-options-toggle");
+    if (await options.getAttribute("aria-expanded") !== "true") await options.click();
+    await quick.getByLabel("Norma", { exact: true }).selectOption(standard);
+    await quick.getByLabel("Grado", { exact: true }).fill("S355J2H");
+    const qty = quick.getByLabel("Quantità", { exact: true });
+    await qty.fill("3");
+    await qty.press("Enter");
+    await page.waitForFunction(() => document.activeElement?.id === "distinta-smart-box");
   }
-  assert.equal(await page.locator("#buyer-live-preview").count(), 0, "Adding a line must not auto-open the editor");
-  if (width < 1280) await page.getByRole("tab", { name: /Distinta/ }).click();
+  assert.equal(await page.locator("#buyer-live-preview").count(), 0, "No cart drawer on the single screen");
   await page.waitForFunction(() =>
-    document.querySelectorAll('[data-testid="commercial-rfq-approved-lines"] li').length === 2);
+    document.querySelectorAll('[data-testid="distinta-sheet-lines"] > li').length === 2);
   await page.getByLabel("Nome della distinta", { exact: true }).fill("BD15 E2E LOCAL " + width);
-  await page.getByRole("button", { name: "Modifica gli articoli nella distinta", exact: true }).click();
-  const bill = page.locator("#buyer-live-preview");
-  await page.waitForFunction(() =>
-    document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === 2);
+  const bill = page.getByTestId("distinta-sheet");
   const summary = await bill.innerText();
   assert.match(summary, /EN 10219/);
   assert.match(summary, /EN 10210/);
@@ -165,9 +165,9 @@ try {
         // Fixture-only diagnostic (synthetic lines, no credentials or storage).
         const diagnostic = await page.evaluate(() => ({
           ready: document.querySelector("[data-private-calculator-page]")?.getAttribute("data-buyer-draft-ready"),
-          quickStatus: document.querySelector('[data-testid="distinta-quick-add"] [role="status"]')?.textContent,
-          approved: Array.from(document.querySelectorAll('[data-testid="commercial-rfq-approved-lines"] li')).map(li => (li.textContent || "").slice(0, 160)),
-          bill: (document.querySelector("#buyer-live-preview")?.textContent || "").replace(/\s+/g, " ").slice(0, 1200),
+          quickStatus: document.querySelector('[data-testid="distinta-smart-box"] [role="status"]')?.textContent,
+          approved: Array.from(document.querySelectorAll('[data-testid="distinta-sheet-lines"] > li')).map(li => (li.textContent || "").slice(0, 160)),
+          bill: (document.querySelector('[data-testid="distinta-sheet"]')?.textContent || "").replace(/\s+/g, " ").slice(0, 1200),
         }));
         console.error("BD15 DISTINTA2 disabled RFQ button diagnostic " + width, JSON.stringify(diagnostic));
       }
@@ -175,7 +175,7 @@ try {
       await noOverflow(page,"private bill "+width);
     });
     await step("one action persists bill and opens private draft RFQ " + width, async () => {
-      await page.locator("#buyer-live-preview").getByRole("button",{name:/Crea RFQ privata|Scegli i fornitori/}).click();
+      await page.getByTestId("distinta-sheet").getByRole("button",{name:/Crea RFQ privata|Scegli i fornitori/}).click();
       await page.waitForURL(url => /^\/rfq-hub\/[0-9a-f-]{36}$/.test(url.pathname),{timeout:60000});
       try {
         await page.getByRole("heading",{name:"BD15 E2E LOCAL "+width,exact:true})

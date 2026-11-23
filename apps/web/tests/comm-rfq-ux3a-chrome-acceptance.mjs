@@ -56,6 +56,7 @@ try {
           await page.waitForURL(u=>u.pathname==="/rfq-hub",{timeout:60000});
           await page.getByRole("heading",{name:"Centro RFQ",exact:true}).waitFor({state:"visible",timeout:60000});
           assert.equal(await page.locator("#rfqai2-text-input").count(),0,"Viewer must never receive editable RFQ chat");
+          assert.equal(await page.locator("#distinta-smart-box").count(),0,"Viewer must never receive the editable box");
           assert.equal(await page.getByTestId("comm-cine11-prompt").count(),0);
           await noOverflow(page,"viewer-"+width);
           await page.screenshot({path:path.join(screens,`ux3a-viewer-${width}-readonly.png`),animations:"disabled"});
@@ -63,36 +64,29 @@ try {
           continue;
         }
         await page.goto(base+"/commercial?compose=1&method=ai#commercial-ai-intake",{waitUntil:"domcontentloaded",timeout:90000});
-        const composer = page.locator("#rfqai2-text-input");
+        // DISTINTA-SMART1: one box; a multi-line request goes to the AI with «Analizza».
+        const composer = page.locator("#distinta-smart-box");
         await composer.waitFor({state:"visible",timeout:60000});
         await composer.fill(fixture.text);
         await page.getByRole("button",{name:"Analizza la richiesta con AI"}).click();
         const articles=page.locator(".rfqai3-candidate");
         await articles.first().waitFor({state:"visible",timeout:60000});
         assert.equal(await articles.count(),10,"Ten actual model-result candidates must render");
-        const live=page.getByTestId("commercial-rfq-live-preview");
-        const proposed=page.getByTestId("commercial-rfq-ai-proposals");
-        const approved=page.getByTestId("commercial-rfq-approved-lines");
-        assert.equal(await proposed.locator("li").count(),10);
-        assert.match(await approved.textContent(),/0 righe/);
-        assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),true);
+        // Proposals are reviewed under the box; the Distinta does not exist until approval.
+        const sheet=page.getByTestId("distinta-sheet");
+        const approved=page.getByTestId("distinta-sheet-lines");
+        assert.equal(await sheet.count(),0,"No proposal is counted in the Distinta before approval");
         await noOverflow(page,"ten-candidates-"+width);
         await articles.first().scrollIntoViewIfNeeded();
         await page.screenshot({path:path.join(screens,`ux3a-buyer-${width}-ten-proposals-chat.png`),animations:"disabled"});
-        if(width<1000) {
-          await page.getByRole("tab",{name:/Distinta/}).click();
-          await proposed.waitFor({state:"visible"});
-          await page.screenshot({path:path.join(screens,`ux3a-buyer-${width}-ten-proposals-preview.png`),animations:"disabled"});
-          await page.getByRole("tab",{name:"Conversazione"}).click();
-        }
         // AI analysis ran once only; chat corrections do not call the model.
         await composer.fill("riga 2: 20 barre");
         await page.getByRole("button",{name:"Correggi proposta AI"}).click();
+        const line2=page.getByRole("article",{name:"Articolo AI 2",exact:true});
         await page.waitForFunction(() =>
-          document.querySelector('[data-testid="commercial-rfq-ai-proposals"]')?.textContent?.includes("Modificato da te · da confermare"),
+          document.querySelector('[aria-label="Articolo AI 2"]')?.textContent?.includes("20 PZ"),
           {timeout:60000}
         );
-        const line2=page.getByRole("article",{name:"Articolo AI 2",exact:true});
         assert.match(await line2.innerText(),/20 PZ/);
         const check2=line2.locator('input[type="checkbox"]');
         await check2.check();
@@ -104,37 +98,34 @@ try {
           return article?.textContent?.includes("120 × 80 × 5 mm") || article?.textContent?.includes("120 × 80 × 5");
         },{timeout:60000});
         assert.equal(await check2.isChecked(),false,"New correction revokes previous buyer confirmation");
-        assert.match(await approved.textContent(),/0 righe/);
-        assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),true);
+        assert.equal(await sheet.count(),0);
         await noOverflow(page,"corrected-"+width);
-        if(width<1000) await page.getByRole("tab",{name:/Distinta/}).click();
         await page.screenshot({path:path.join(screens,`ux3a-buyer-${width}-corrected-preview.png`),animations:"disabled"});
-        if(width<1000) await page.getByRole("tab",{name:"Conversazione"}).click();
         // Only five explicitly checked rows join the canonical private Distinta.
         for(let i=1;i<=5;i++){
           await page.getByRole("article",{name:"Articolo AI "+i,exact:true}).locator('input[type="checkbox"]').check();
         }
         await page.getByRole("button",{name:"Inserisci 5 articoli nella distinta"}).click();
         await page.waitForFunction(() =>
-          document.querySelector('[data-testid="commercial-rfq-approved-lines"]')?.textContent?.includes("5 righe"),
+          document.querySelectorAll('[data-testid="distinta-sheet-lines"] > li').length === 5,
           {timeout:60000}
         );
-        assert.equal(await approved.locator("li").count(),5);
-        assert.match(await live.textContent(),/5 righe/);
-        assert.equal(await live.locator("button").filter({hasText:"Salva solo la distinta"}).isDisabled(),false);
-        assert.equal(await proposed.count(),0,"No candidate remains counted as approved automatically");
+        assert.equal(await approved.locator(":scope > li").count(),5);
+        assert.match(await sheet.textContent(),/5 articoli/);
+        assert.equal(await sheet.getByRole("button",{name:"Salva solo la distinta"}).isDisabled(),false);
+        assert.equal(await articles.count(),0,"No candidate remains counted as approved automatically");
         await noOverflow(page,"approved-five-"+width);
-        if(width<1000) await page.getByRole("tab",{name:/Distinta/}).click();
         await page.screenshot({path:path.join(screens,`ux3a-buyer-${width}-five-approved.png`),animations:"disabled"});
         assert.equal(await page.getByTestId("private-cart-trigger").count(),0,
-          "Focused chat already has a live Distinta preview; fixed cart must never cover mobile navigation");
-        // Removing the redundant floating CTA must not remove the authorized
-        // line editor: the preview still opens the canonical private cart.
-        await live.getByRole("button",{name:"Modifica articolo 1"}).click();
-        const editor=page.getByRole("dialog",{name:"Carrello della distinta privata"});
-        await editor.waitFor({state:"visible",timeout:60000});
-        await editor.locator('button[aria-label="Chiudi"]').click();
-        await editor.waitFor({state:"hidden"});
+          "The single screen has no cart drawer or floating trigger");
+        // Each row opens its own details in place (no drawer).
+        const row1=approved.locator(":scope > li").first();
+        const toggle=row1.locator("button[aria-expanded]").first();
+        assert.equal(await toggle.getAttribute("aria-expanded"),"false");
+        await toggle.click();
+        assert.equal(await toggle.getAttribute("aria-expanded"),"true");
+        await row1.getByLabel("Norma della riga 1").waitFor({state:"visible",timeout:30000});
+        await toggle.click();
         console.log("COMM-RFQ-UX3.A TEN → CORRECT → FIVE VERIFIED PRIVATE LINES PASS",width);
       } finally {
         await context.close();

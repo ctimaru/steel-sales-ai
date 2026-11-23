@@ -268,7 +268,7 @@ export function DistintaSmartBox({
               className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[#52695b] hover:bg-[#eef5f0]">×</button>
           ) : intent === "ai" || intent === "correction" ? (
             <button type="button" onClick={analyze} disabled={disabled || ai.pending || value.trim().length < 3}
-              aria-label={ai.hasProposals ? "Correggi proposta" : "Analizza la richiesta con l'assistente"}
+              aria-label={ai.pending ? "Analisi in corso" : ai.hasProposals ? "Correggi proposta AI" : "Analizza la richiesta con AI"}
               className="inline-flex h-8 shrink-0 items-center gap-1 rounded-lg bg-[#175640] px-3 text-xs font-bold text-white hover:bg-[#104632] disabled:opacity-50">
               {ai.pending ? "Analisi…" : ai.hasProposals ? "Correggi" : "Analizza"} <span aria-hidden="true">↵</span>
             </button>
@@ -315,7 +315,8 @@ export function DistintaSmartBox({
             value={quantity} onChange={(event) => { setQuantity(event.target.value); setMessage(null); }}
             onKeyDown={onFieldEnter} placeholder="Quantità"
             className={field + " w-28 text-right tabular-nums"} />
-          <button type="button" onClick={() => setOptionsOpen((current) => !current)} aria-expanded={optionsOpen}
+          <button type="button" data-testid="distinta-smart-options-toggle"
+            onClick={() => setOptionsOpen((current) => !current)} aria-expanded={optionsOpen}
             aria-controls={listId + "-options"}
             className="inline-flex min-h-10 items-center gap-1 rounded-lg px-2 text-sm text-[#36584a] hover:bg-[#f2f8f4]">
             {optionsSummary} <span aria-hidden="true" className="text-xs text-[#6b8475]">{optionsOpen ? "▴" : "▾"}</span>
@@ -388,7 +389,8 @@ export function DistintaSmartBox({
         <div role="log" aria-label="Assistente della distinta" aria-live="polite" aria-relevant="additions"
           data-testid="distinta-smart-thread" className="mt-3 space-y-2 border-t border-[#e3ece6] pt-3">
           {recentTurns.map((turn) => (
-            <div key={turn.id} className={turn.role === "user" ? "flex justify-end" : "flex items-start gap-2"}>
+            <div key={turn.id} className={turn.role === "user" ? "flex justify-end" : "flex items-start gap-2"}
+              data-testid={turn.role === "user" ? "commercial-rfq-user-message" : "commercial-rfq-assistant-message"}>
               {turn.role === "assistant" ? (
                 <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#175640] text-[11px] text-white">✦</span>
               ) : null}

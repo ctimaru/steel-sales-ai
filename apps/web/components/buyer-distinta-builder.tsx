@@ -834,7 +834,7 @@ export function BuyerDistintaBuilder({
   const languageControl = (
     <label className="inline-flex items-center gap-1 text-[11px] text-[#5c7063]">
       <span aria-hidden="true">Lingua</span>
-      <select aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}
+      <select data-testid="distinta-language" aria-label={t("Scegli la lingua")} value={uiLocale} onChange={e=>setUiLocale(safeBuyerUiLocale(e.target.value))}
         className="h-7 rounded-md border border-[#d6e5db] bg-white px-1 text-[11px] font-semibold text-[#175640]">
         {(["it","en","de","fr","es"] as const).map(lang=><option key={lang} value={lang}>{lang.toUpperCase()}</option>)}
       </select>

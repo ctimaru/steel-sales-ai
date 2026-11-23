@@ -86,7 +86,7 @@ export function DistintaSheet({
         </span>
       </header>
 
-      <ol aria-label="Articoli della distinta" className="divide-y divide-[#e8efea]">
+      <ol aria-label="Articoli della distinta" data-testid="distinta-sheet-lines" className="divide-y divide-[#e8efea]">
         {lines.map((line, index) => {
           const calc = calculated[index];
           const open = openRows[line.id] ?? !calc.complete;
