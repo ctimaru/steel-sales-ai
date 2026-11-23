@@ -51,6 +51,35 @@ def test_links_are_from_first_party_and_steel_related_pdf_not_privacy_or_adverts
     assert "https://tubificio.it/cataloghi" in pages
 
 
+def test_live_crash_regression_download_only_and_policy_pdf_are_never_catalogues():
+    # 23 Nov incident: abstagliotubi.it link title 'Scarica' (<8 characters)
+    # points to POLITICA-AZIENDALE.pdf. The old worker crashed in Postgres.
+    html=b"""<h1>Produzione tubi e lavorazioni metalliche</h1>
+    <a href="/wp-content/uploads/2024/11/POLITICA-AZIENDALE.pdf">Scarica</a>
+    <a href="/wp-content/uploads/2024/11/informativa-privacy.pdf">Scarica</a>
+    <a href="/documenti/guida.pdf">PDF</a>
+    <a href="/pdf/catalogo-tubi-acciaio-2026.pdf">Scarica</a>
+    <a href="/docs/scheda-tecnica-profilati.pdf">PDF</a>
+    """
+    links,_,industrial=_parse_links(html,"https://abstagliotubi.it/","abstagliotubi.it")
+    assert industrial
+    assert [item["title"] for item in links]==[
+        "catalogo tubi acciaio 2026", "scheda tecnica profilati"
+    ]
+    assert all(len(item["title"])>=8 for item in links)
+    assert all("POLITICA" not in item["url"].upper() for item in links)
+
+
+def test_generic_pdf_control_without_descriptive_path_stays_out():
+    html=b"""<h1>Steel pipe factory product catalogue</h1>
+    <a href="/files/ab1234.pdf">Download</a>
+    <a href="/files/scheda_tubi_s355.pdf">Download</a>"""
+    links,_,industrial=_parse_links(html,"https://tubificio.it/","tubificio.it")
+    assert industrial
+    assert len(links)==1
+    assert links[0]["title"]=="scheda tubi s355"
+
+
 def test_false_producer_role_cannot_publish_unrelated_downloads():
     html=b"""<h1>Microscopes and cameras</h1>
     <a href="/manuals/catalog.pdf">General catalogue</a>
