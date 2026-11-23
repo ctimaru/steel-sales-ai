@@ -6,6 +6,7 @@ import { NetworkSaveToggle } from "@/components/network-save-toggle";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import { getPublishedNetworkInventory } from "@/lib/network-stock";
 import {getReviewedCompanyEvidence,summarizeReviewedCompanyEvidence} from "@/lib/network-profile-evidence";
+import {getNetworkProducerOfficialPages} from "@/lib/network-producer-official-pages";
 import { notFound } from "next/navigation";
 import { FocusPage } from "@/components/focus-ui";
 import { NetworkActivationCta, NetworkActivationHelp } from "@/components/network-activation-cta";
@@ -48,8 +49,9 @@ export async function FreeNetworkProfileView({
   // Network server action; never expose the control on provisional entries.
   const canSave=!provisional && canWriteWorkspace(workspace.role);
   // NET-PROFILE-FAST1: the remaining reads are independent, so they run together.
-  const [reviewedEvidence, readiness, savedIds, inventory] = await Promise.all([
+  const [reviewedEvidence, officialProductPages, readiness, savedIds, inventory] = await Promise.all([
     getReviewedCompanyEvidence(organizationId,companyId,accessMode).catch(()=>[]),
+    provisional ? Promise.resolve([] as string[]) : getNetworkProducerOfficialPages(organizationId,companyId,accessMode).catch(()=>[]),
     provisional ? Promise.resolve(null) : getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null),
     canSave && accessMode==="pro" ? getSavedNetworkCompanyIds(organizationId,[companyId]) : Promise.resolve([] as string[]),
     provisional ? Promise.resolve([]) : getPublishedNetworkInventory(organizationId, companyId),
@@ -75,6 +77,7 @@ export async function FreeNetworkProfileView({
           roles={profile.roles.map((role)=>role.name)}
           description={profile.company.description || reviewedSummary.description}
           products={[...profile.products,...reviewedSummary.products]}
+          officialProductPages={officialProductPages}
           services={reviewedSummary.services}
           evidenceSourceUrl={safeNetworkWebsiteUrl(reviewedSummary.evidenceSourceUrl)}
           sourceUrl={source}
