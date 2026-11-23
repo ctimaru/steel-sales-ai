@@ -8,7 +8,7 @@ const read = path => readFileSync(new URL(path, import.meta.url), "utf8");
 const page = read("../app/(italian)/(workspace)/commercial/page.tsx");
 const companion = read("../components/commercial-ai-companion.tsx");
 const builder = read("../components/buyer-distinta-builder.tsx");
-const workspace = read("../components/commercial-rfq-workspace.tsx");
+const smartBox = read("../components/distinta-smart-box.tsx");
 const worklist = read("../components/commercial-unified-worklist.tsx");
 const css = read("../components/commercial-cinematic.module.css");
 
@@ -20,10 +20,10 @@ test("COMM-TRUST1.D has exactly one primary chat entry into the canonical Distin
   assert.match(companion, /data-testid="commercial-ai-first-cta"/);
   assert.match(companion, /sessionStorage\.setItem\("sss:commercial-ai-intake-handoff", value\)/);
   assert.match(companion, /newRequestHref\(\)/);
-  // DISTINTA-ONE1: the single screen /rfq-hub/distinta always opens chat + Distinta.
+  // DISTINTA-ONE1 / DISTINTA-SMART1: the single screen opens the one box + Distinta.
   assert.match(read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx"), /focusAiIntake\n/);
-  assert.match(builder, /<CommercialRfqWorkspace/);
-  assert.match(workspace, /data-testid="commercial-rfq-chat-workspace"/);
+  assert.match(builder, /<DistintaSmartBox/);
+  assert.match(smartBox, /data-testid="distinta-smart-box"/);
   assert.doesNotMatch(companion, /analyzeRfqAiFreeText|saveBuyerDistinta\(|sendBuyerDistinta\(|sendEmail\(/);
   assert.ok(page.indexOf("<CommercialDirectorPriorityDesk") < page.indexOf("<CommercialAiCompanion"));
   assert.ok(page.indexOf("<CommercialAiCompanion") < page.indexOf('data-testid="commercial-primary-quick-actions"'));

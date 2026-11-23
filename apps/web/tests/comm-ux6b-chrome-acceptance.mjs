@@ -125,17 +125,15 @@ try {
           await page.waitForURL(url => url.pathname === "/rfq-hub/distinta", { timeout: 60000 });
           const focused = page.getByTestId("new-request-steps");
           await focused.waitFor({ state: "visible", timeout: 60000 });
-          const textField = page.locator("#rfqai2-text-input");
+          // DISTINTA-SMART1: one box above the Distinta, no tabs, no side preview.
+          const textField = page.locator("#distinta-smart-box");
           await textField.waitFor({ state: "visible", timeout: 60000 });
-          const conversation = page.getByTestId("commercial-rfq-gpt-conversation");
-          const composer = page.getByTestId("commercial-rfq-sticky-composer");
-          await conversation.waitFor({ state: "visible", timeout: 60000 });
-          assert.ok(await composer.isVisible(), "The AI-focused route must render a sticky chat composer");
+          const composer = page.getByTestId("distinta-smart-box");
           assert.equal(await page.locator("[data-rfqai-original-request]").count(), 0,
-            "The legacy form accordion must not appear in focused conversational mode");
+            "The legacy form accordion must not appear on the single screen");
           // The buyer explicitly clicked "Analizza con l'AI" on Commerciale.
-          // The focused conversation therefore receives one authenticated
-          // request, while no proposal may enter the approved Distinta by itself.
+          // The box therefore sends one authenticated request, while no proposal
+          // may enter the approved Distinta by itself.
           const userMessage = page.getByTestId("commercial-rfq-user-message").first();
           await userMessage.waitFor({ state: "visible", timeout: 60000 });
           assert.match(await userMessage.innerText(), /40 tubi quadri 100x100x6/);
@@ -146,51 +144,21 @@ try {
             "Full dashboard assistant must be hidden in AI-focused compose");
           assert.equal(await page.getByTestId("commercial-list-pane").count(), 0,
             "Historical worklist must not crowd the AI review");
-          // DISTINTA-QUICK1: no AI/manual switch; one «Aggiungi articolo» bar above the chat.
           assert.equal(await page.getByTestId("commercial-ai-focused-modes").count(), 0);
-          assert.equal(await page.getByTestId("distinta-quick-add").count(), 1);
-          const workspace = page.getByTestId("commercial-rfq-chat-workspace");
-          await workspace.waitFor({ state: "visible" });
-          assert.equal(await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem").count(), 0,
+          assert.equal(await page.getByTestId("distinta-smart-box").count(), 1, "Exactly one input on the screen");
+          assert.equal(await page.getByRole("tab").count(), 0, "Single column: no mobile tabs");
+          assert.equal(await page.getByTestId("buyer-private-language-switch").count(), 0,
+            "No full-width language bar on the single screen");
+          assert.equal(await page.getByTestId("distinta-sheet").count(), 0,
             "No articles are imported before explicit AI analysis and human review");
-          // An explicit AI click on the home may already return review-only
-          // proposals; approved articles and outbound RFQ actions remain empty.
-          if (width === 1440) {
-            assert.ok(await page.getByTestId("commercial-rfq-conversation-pane").isVisible());
-            assert.ok(await page.getByTestId("commercial-rfq-preview-pane").isVisible());
-          } else {
-            await page.getByRole("tab", { name: /Distinta/ }).click();
-            await page.getByTestId("commercial-rfq-preview-pane").waitFor({ state: "visible" });
-            // The latest private bill preview displays a canonical empty-state
-            // message; AI suggestions are separate from approved lines.
-            assert.match(await page.getByTestId("commercial-rfq-live-preview").innerText(), /Ancora nessun articolo/);
-            assert.equal(await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem").count(), 0,
-              "Chat proposals must not auto-approve any Distinta line");
-            await page.screenshot({
-              path: path.join(dir, "rfq-ai-preview-" + width + "px.png"),
-              fullPage: false, animations: "disabled"
-            });
-            const previewTab = page.getByRole("tab", { name: /Distinta/ });
-            await previewTab.focus();
-            await previewTab.press("ArrowLeft");
-            assert.equal(await page.getByRole("tab", { name: "Conversazione" }).getAttribute("aria-selected"), "true",
-              "Keyboard ArrowLeft must restore the conversation");
-            assert.ok(await page.getByTestId("commercial-rfq-conversation-pane").isVisible());
-            assert.ok(await textField.isVisible(),
-              "Keyboard tab switching must restore the canonical composer");
-            assert.match(await userMessage.innerText(), /40 tubi quadri/,
-              "The original request must remain in the conversation");
-            await page.getByRole("tab", { name: "Conversazione" }).press("End");
-            assert.equal(await previewTab.getAttribute("aria-selected"), "true",
-              "Keyboard End must select the Distinta preview");
-            await previewTab.press("Home");
-            assert.equal(await page.getByRole("tab", { name: "Conversazione" }).getAttribute("aria-selected"), "true",
-              "Keyboard Home must select the conversation");
-          }
+          await page.screenshot({
+            path: path.join(dir, "rfq-ai-preview-" + width + "px.png"),
+            fullPage: false, animations: "disabled"
+          });
           assert.equal(await page.locator("[data-private-calculator-toolbar]").count(), 0,
             "No separate calculator on the request screen (DISTINTA-QUICK1)");
           const analyzeAction = composer.getByRole("button", {
-            name: /Analizza la richiesta con AI|Correggi proposta AI|Completa richiesta|Analisi in corso/
+            name: /Analizza la richiesta con AI|Correggi proposta AI|Analisi in corso/
           });
           assert.equal(await analyzeAction.count(), 1,
             "One primary action is present even after an explicit AI intake");
@@ -210,48 +178,43 @@ try {
             path: path.join(dir, "rfq-ai-first-" + width + "px.png"),
             fullPage: false, animations: "disabled"
           });
-          // A bare shorthand must produce a safe clarification instead of
-          // silently guessing a grade, norm, form or quantity from "100x100x5".
-          // A new unsubmitted compose route is needed: the prior home click
-          // already started an AI review and its input is in correction mode.
+          // A bare size is a catalog search: suggestions, no AI call, nothing invented.
           await page.goto(base + "/commercial?compose=1&method=ai", {
             waitUntil: "domcontentloaded", timeout: 90000
           });
-          const shortChat = page.getByTestId("commercial-rfq-gpt-conversation");
-          const shortField = page.locator("#rfqai2-text-input");
+          const shortBox = page.getByTestId("distinta-smart-box");
+          const shortField = page.locator("#distinta-smart-box");
           await shortField.waitFor({ state: "visible", timeout: 60000 });
+          await page.locator('[data-private-calculator-page][data-buyer-draft-ready="true"]').waitFor({ timeout: 60000 });
           await shortField.fill("100x100x5");
-          await shortChat.getByRole("button", { name: "Completa richiesta" }).click();
-          await shortChat.getByTestId("commercial-rfq-user-message").first()
-            .waitFor({ state: "visible", timeout: 60000 });
-          assert.equal(await shortChat.getByTestId("commercial-rfq-user-message").count(), 1);
-          assert.equal(await shortChat.getByTestId("commercial-rfq-assistant-message").count(), 1);
-          assert.match(await shortChat.getByTestId("commercial-rfq-assistant-message").last().innerText(),
-            /tipo di tubo, quantità e lunghezza/);
-          assert.equal(await shortChat.getByTestId("commercial-rfq-ai-proposals").count(), 0,
-            "A local clarification cannot invent AI candidates or dispatch an RFQ");
-          assert.equal(await shortField.inputValue(), "100x100x5",
-            "Keep shorthand text available for the buyer to complete it");
+          await shortBox.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
+          assert.equal(await shortBox.getByRole("button", { name: "Analizza la richiesta con AI" }).count(), 0,
+            "A bare size never goes to the AI");
+          assert.equal(await page.getByTestId("commercial-rfq-user-message").count(), 0);
+          assert.equal(await page.getByTestId("distinta-sheet").count(), 0,
+            "A search cannot invent articles or dispatch an RFQ");
+          assert.equal(await shortField.inputValue(), "100x100x5");
           // COMM-RFQ-CREATE2: la calcolatrice separata non è più nella pagina di creazione richiesta.
           assert.equal(await page.getByTestId("commercial-ai-manual-tools-toggle").count(), 0);
           if (width !== 320) {
-            // Old manual-entry links redirect to the same screen with «Aggiungi articolo» focused.
+            // Old manual-entry links redirect to the same screen with the box focused.
             await page.goto(base + "/commercial?compose=1", { waitUntil: "domcontentloaded", timeout: 90000 });
             await page.waitForURL(url => url.pathname === "/rfq-hub/distinta" && url.searchParams.get("aggiungi") === "misura", { timeout: 60000 });
-            await page.getByTestId("distinta-quick-add").waitFor({ state: "visible", timeout: 60000 });
+            const quick = page.getByTestId("distinta-smart-box");
+            await quick.waitFor({ state: "visible", timeout: 60000 });
+            await page.locator('[data-private-calculator-page][data-buyer-draft-ready="true"]').waitFor({ timeout: 60000 });
             // Fast path: size → quantity → Enter adds a complete row to the Distinta.
-            const quickSearch = page.locator("#distinta-quick-add-search");
+            const quickSearch = page.locator("#distinta-smart-box");
             await quickSearch.fill("100x100x5");
-            await page.getByTestId("distinta-quick-add").getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
+            await quick.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
             await quickSearch.press("Enter");
-            await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Q.tà", null, { timeout: 10000 });
+            await page.waitForFunction(() => document.activeElement?.getAttribute("placeholder") === "Quantità", null, { timeout: 10000 });
             await page.keyboard.type("10");
             await page.keyboard.press("Enter");
-            // On mobile the Distinta column sits in a hidden tab: include hidden nodes.
-            await page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem", { includeHidden: true }).first()
-              .waitFor({ state: "attached", timeout: 30000 });
+            await page.getByTestId("distinta-sheet-lines").locator(":scope > li").first()
+              .waitFor({ state: "visible", timeout: 30000 });
             assert.equal(await quickSearch.evaluate(el => el === document.activeElement), true,
-              "After adding, the focus returns to the search for the next article");
+              "After adding, the focus returns to the box for the next article");
             assert.equal(await page.getByTestId("commercial-rfq-ai-focused-header").count(), 0,
               "Manual New Request does not force an AI-focused screen");
           }

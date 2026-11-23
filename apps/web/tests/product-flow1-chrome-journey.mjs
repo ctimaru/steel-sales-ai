@@ -154,47 +154,44 @@ try {
       await complete.click();
       await page.waitForURL(url => url.pathname === "/rfq-hub/distinta", { timeout: 60000 });
       await page.locator('[data-private-calculator-page][data-buyer-draft-ready="true"]').waitFor({ timeout: 60000 });
-      // DISTINTA-QUICK1: the verified geometry pre-fills the «Aggiungi articolo» bar.
-      const quick = page.getByTestId("distinta-quick-add");
+      // DISTINTA-SMART1: the verified geometry pre-fills the single box (search, not AI).
+      const quick = page.getByTestId("distinta-smart-box");
       await quick.waitFor({ state: "visible", timeout: 60000 });
-      assert.equal(await page.locator("#distinta-quick-add-search").inputValue(), "tondo 60,3x3,2");
-      assert.equal(await quick.getByRole("button", { name: "EN 10219", exact: true }).getAttribute("aria-pressed"), "true");
+      assert.equal(await page.locator("#distinta-smart-box").inputValue(), "tondo 60,3x3,2");
     });
     await step("complete and persist mixed two-line private RFQ " + width, async () => {
-      // DISTINTA-QUICK1: articles come from the «Aggiungi articolo» bar; the title is in the preview.
-      const showTab = async (name) => { if (width < 1280) await page.getByRole("tab", { name }).click(); };
-      const quick = page.getByTestId("distinta-quick-add");
-      const search = page.locator("#distinta-quick-add-search");
+      // DISTINTA-SMART1: pick the size in the single box, then only the quantity;
+      // length, norm and grade sit behind one toggle and stay for the next article.
+      const quick = page.getByTestId("distinta-smart-box");
+      const search = page.locator("#distinta-smart-box");
       const addQuick = async (query, standard, length, bars) => {
-        await quick.getByRole("button", { name: standard, exact: true }).click();
         await search.fill("");
         await search.fill(query);
         await quick.getByRole("option").first().waitFor({ state: "visible", timeout: 30000 });
         await search.press("Enter");
-        await quick.getByLabel("Lunghezza barra in metri", { exact: true }).fill(length);
         const qty = quick.getByLabel("Quantità", { exact: true });
+        await qty.waitFor({ state: "visible", timeout: 30000 });
+        const options = quick.getByTestId("distinta-smart-options-toggle");
+        if (await options.getAttribute("aria-expanded") !== "true") await options.click();
+        await quick.getByLabel("Norma", { exact: true }).selectOption(standard);
+        await quick.getByLabel("Lunghezza barra in metri", { exact: true }).fill(length);
+        await quick.getByLabel("Grado", { exact: true }).fill("S355J2H");
         await qty.fill(bars);
         await qty.press("Enter");
         await quick.getByRole("status").filter({ hasText: /Aggiunto:/ }).waitFor({ timeout: 30000 });
       };
-      await quick.getByLabel("Grado", { exact: true }).fill("S355J2H");
       await addQuick("tondo 60,3x3,2", "EN 10219", "6", "3");
       await addQuick("tondo 60,3x3,2", "EN 10210", "12", "2");
-      await showTab(/Distinta/);
+      const bill = page.getByTestId("distinta-sheet");
+      await bill.waitFor({ state: "visible", timeout: 30000 });
       await page.getByLabel("Nome della distinta", { exact: true }).fill(title);
-      const approved = page.getByTestId("commercial-rfq-approved-lines").getByRole("listitem");
-      await page.waitForFunction(() => document.querySelectorAll('[data-testid="commercial-rfq-approved-lines"] li').length === 2);
-      assert.equal(await approved.count(), 2, "Two quick adds create two rows");
-      await page.getByRole("button", { name: "Modifica gli articoli nella distinta", exact: true }).click();
-      let bill;
-      bill = page.locator("#buyer-live-preview");
-      const lineRows = bill.locator(".bd10-preview-row:not([hidden])");
-      await page.waitForFunction(() => document.querySelectorAll("#buyer-live-preview .bd10-preview-row:not([hidden])").length === 2);
+      const lineRows = page.getByTestId("distinta-sheet-lines").locator(":scope > li");
+      await page.waitForFunction(() => document.querySelectorAll('[data-testid="distinta-sheet-lines"] > li').length === 2);
+      assert.equal(await lineRows.count(), 2, "Two quick adds create two rows");
       for (let index = 0; index < 2; index += 1) {
         const row = lineRows.nth(index);
-        await row.getByRole("button", { name: "Modifica", exact: true }).click();
-        const details = row.getByRole("button", { name: "Apri dettagli riga " + (index + 1), exact: true });
-        if (await details.count()) await details.click();
+        const toggle = row.locator("button[aria-expanded]").first();
+        if (await toggle.getAttribute("aria-expanded") !== "true") await toggle.click();
         await row.getByLabel("Target €/t (facoltativo)", { exact: true }).fill("900");
       }
       await usable(page);

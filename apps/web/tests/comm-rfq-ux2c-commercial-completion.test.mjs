@@ -5,45 +5,33 @@ import ts from "typescript";
 
 const read = path => fs.readFileSync(new URL(path, import.meta.url), "utf8");
 const builder = read("../components/buyer-distinta-builder.tsx");
-const preview = read("../components/commercial-rfq-live-preview.tsx");
-const workspace = read("../components/commercial-rfq-workspace.tsx");
+const sheet = read("../components/distinta-sheet.tsx");
 const entry = read("../components/commercial-ai-companion.tsx");
 
-test("COMM-RFQ-UX2.C preview edits a particular approved line using the canonical cart", () => {
-  assert.match(preview, /onEditLine: \(lineId: string\) => void/);
-  assert.match(preview, /onClick=\{\(\) => onEditLine\(line\.id\)\}/);
-  assert.match(preview, /aria-label=\{"Modifica articolo " \+ \(i \+ 1\)\}/);
-  assert.match(builder, /onEditLine=\{editApprovedLine\}/);
-  assert.match(builder, /function editApprovedLine\(lineId: string\)/);
-  assert.match(builder, /setEditingRows\(\(previous\) => \(\{ \.\.\.previous, \[lineId\]: true \}\)\)/);
-  assert.match(builder, /pendingCartRowRef\.current = lineId/);
-  assert.match(builder, /document\.getElementById\("buyer-row-" \+ lineId\)/);
-  assert.match(builder, /<TechnicalCartShell/);
-  assert.doesNotMatch(preview, /setLines\(|saveBuyerDistinta\(/);
-});
-
-test("COMM-RFQ-UX2.C mobile tablist follows keyboard and roving focus semantics", () => {
-  assert.match(workspace, /onMobileTabKeyDown\(event: KeyboardEvent<HTMLDivElement>\)/);
-  assert.match(workspace, /"ArrowLeft", "ArrowRight", "Home", "End"/);
-  assert.match(workspace, /onKeyDown=\{onMobileTabKeyDown\}/);
-  assert.match(workspace, /chatTab\.current\?\.focus\(\)/);
-  assert.match(workspace, /previewTab\.current\?\.focus\(\)/);
-  assert.match(workspace, /tabIndex=\{mobileView === "chat" \? 0 : -1\}/);
-  assert.match(workspace, /tabIndex=\{mobileView === "preview" \? 0 : -1\}/);
-  assert.match(workspace, /aria-controls=\{chatId\}/);
-  assert.match(workspace, /aria-controls=\{previewId\}/);
+// DISTINTA-SMART1: approved rows are edited in place in the Distinta (no drawer,
+// no mobile tabs: the screen is a single column).
+test("COMM-RFQ-UX2.C / DISTINTA-SMART1 each approved line is edited in place", () => {
+  assert.match(sheet, /aria-expanded=\{open\} aria-controls=\{detailsId\}/);
+  assert.match(sheet, /const open = openRows\[line\.id\] \?\? !calc\.complete;/);
+  assert.match(sheet, /id=\{"buyer-quantity-" \+ line\.id\}/);
+  assert.match(sheet, /onChangeStandard\(line\.id, event\.target\.value\)/);
+  assert.match(sheet, /aria-label=\{"Rimuovi riga " \+ \(index \+ 1\)\}/);
+  assert.match(builder, /onChangeStandard=\{changeLineStandard\}/);
+  assert.match(builder, /onRemove=\{removeLine\}/);
+  // An incomplete row is reached by focus, not by opening a cart.
+  assert.match(builder, /DISTINTA-SMART1: incomplete rows are already open in the Distinta; no drawer\./);
+  assert.doesNotMatch(sheet, /setLines\(|saveBuyerDistinta\(|createBuyerRfqCampaign/);
 });
 
 test("COMM-RFQ-UX2.C saves ONLY verified rows and never dispatches suppliers", () => {
-  assert.match(preview, /const calculated = approvedLines\.map\(calculateBuyerDistintaLine\)/);
-  assert.match(preview, /const candidates = proposals\?\.candidates \?\? \[\]/);
-  assert.match(preview, /const canSave = ready && allComplete && !savePending && !rfqPending/);
-  assert.match(preview, /disabled=\{!canSave \|\| Boolean\(savedId\)\}/);
+  assert.match(sheet, /const allComplete = calculated\.length > 0 && calculated\.every\(\(line\) => line\.complete\);/);
+  assert.match(sheet, /disabled=\{busy \|\| !allComplete\}/);
+  assert.match(builder, /if \(!authenticated \|\| !draftReady \|\| restoreCandidate \|\| !allComplete\) \{/);
   assert.match(builder, /onSave=\{saveDistinta\}/);
   assert.match(builder, /onCreateRfq=\{createRfqHub\}/);
-  assert.match(preview, /I totali sono parziali/);
-  assert.match(preview, /l’invio parte solo dopo la tua conferma/);
-  assert.doesNotMatch(preview, /sendBuyerDistinta|sendDistinta|sendEmail\(/);
+  assert.match(sheet, /righe da completare/);
+  assert.match(sheet, /l’invio parte solo dopo la tua conferma/);
+  assert.doesNotMatch(sheet, /sendBuyerDistinta|sendDistinta|sendEmail\(/);
 });
 
 test("COMM-RFQ-UX2.C keeps home entry disabled until React hydration to avoid dropped mobile text", () => {
@@ -56,8 +44,7 @@ test("COMM-RFQ-UX2.C keeps home entry disabled until React hydration to avoid dr
 
 test("COMM-RFQ-UX2.C changed components parse as TSX", () => {
   for (const [name, source] of [
-    ["commercial-rfq-workspace.tsx", workspace],
-    ["commercial-rfq-live-preview.tsx", preview],
+    ["distinta-sheet.tsx", sheet],
     ["buyer-distinta-builder.tsx", builder], ["commercial-ai-companion.tsx", entry]
   ]) {
     const parsed = ts.createSourceFile(name, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);

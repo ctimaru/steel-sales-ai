@@ -6,7 +6,6 @@ import { useEffect, useId, useRef, useState, type ChangeEvent, type ReactNode } 
 import { consumeCommercialAiTextHandoff } from "@/lib/commercial-ai-intake-handoff";
 import { analyzeRfqAiFreeText } from "@/app/(workspace)/rfq-hub/distinta/ai-actions";
 import { RfqAiTextReview } from "@/components/rfq-ai-text-review";
-import { CommercialRfqConversation, type CommercialRfqTurn } from "@/components/commercial-rfq-conversation";
 import type { RfqAiTextDraftResult } from "@/lib/rfq-ai-free-text";
 import type { BuyerDistintaDraftLine } from "@/lib/buyer-distinta";
 import { parseCommercialRfqLineCorrection, type CommercialRfqLineCorrection } from "@/lib/commercial-rfq-line-correction";
@@ -20,6 +19,32 @@ import { appRoutes } from "@/lib/routes";
  */
 export type RfqAiIntakeMode = "manual" | "text" | "file" | "email";
 const MAX_TEXT_CHARS = 12_000;
+
+/** Purely local presentation history: not synchronized, saved or sent to suppliers.
+ * Each Analyze click sends ONLY the current message to the existing AI action.
+ * No claim of backend conversational memory is made. */
+export type CommercialRfqTurn = {
+  id: number;
+  role: "user" | "assistant";
+  content: string;
+  state?: "result" | "error" | "accepted";
+};
+
+/**
+ * DISTINTA-SMART1: the focused /rfq-hub/distinta screen renders its own single
+ * box. The AI state (draft, proposals, review) stays owned here; the box only
+ * receives these controls. Each Analyze still sends only the current message.
+ */
+export type FocusedAiControls = {
+  turns: CommercialRfqTurn[];
+  value: string;
+  onChange: (value: string) => void;
+  onAnalyze: () => void;
+  pending: boolean;
+  error: string;
+  hasProposals: boolean;
+  review: ReactNode;
+};
 const SAMPLE_RFQ_TEXT = "Cerco 40 tubi quadri 100×100×5 S355J2H EN 10219, lunghezza 6 m ciascuno.";
 const MAX_FILE_BYTES = 25 * 1024 * 1024;
 const ALLOWED_EXTENSIONS = [".xlsx", ".xls", ".pdf", ".eml"] as const;
@@ -32,6 +57,7 @@ const options: { mode: RfqAiIntakeMode; name: string; meta: string }[] = [
 
 export function RfqAiIntakeUx({
   mode, focused = false, onModeChange, workspace, authenticated, children, onInsertTextLines, onPreviewChange,
+  focusedView,
 }: {
   mode: RfqAiIntakeMode;
   focused?: boolean;
@@ -42,7 +68,9 @@ export function RfqAiIntakeUx({
   onInsertTextLines: (lines: BuyerDistintaDraftLine[]) => boolean;
   /** UI-only suggestions; never persisted before explicit human approval. */
   onPreviewChange?: (result: RfqAiTextDraftResult | null) => void;
-  children: ReactNode;
+  /** Required when focused && workspace: renders the single DISTINTA-SMART1 box. */
+  focusedView?: (controls: FocusedAiControls) => ReactNode;
+  children?: ReactNode;
 }) {
   const panelId = useId();
   const [textDraft, setTextDraft] = useState("");
@@ -189,50 +217,45 @@ export function RfqAiIntakeUx({
     setTextError("");
   }
 
-  // The focused Commerciale route renders a real conversational surface.
+  // The focused /rfq-hub/distinta route renders the single DISTINTA-SMART1 box.
   // Keep the four-mode legacy JSX below for manual/public RFQ Hub consumers.
-  if (focused && workspace) {
-    return (
-      <CommercialRfqConversation
-        turns={conversationTurns}
-        value={textDraft}
-        onChange={updateFocusedDraft}
-        onAnalyze={analyzeText}
-        onClear={() => { if (textResult) setTextDraft(""); else updateFocusedDraft(""); }}
-        onSample={() => updateFocusedDraft(SAMPLE_RFQ_TEXT)}
-        pending={textPending}
-        error={textError}
-        hasProposals={Boolean(textResult)}
-        quickAdd={children}
-        review={textResult ? (
-          <RfqAiTextReview
-            result={textResult}
-            correction={pendingCorrection}
-            onCandidatesChange={(updated) => {
-              setTextResult((current) => current ? { ...current, candidates: updated } : null);
-              onPreviewChange?.({ ...textResult, candidates: updated });
-            }}
-            onDismiss={() => {
-              setTextResult(null);
-              setPendingCorrection(null);
-              onPreviewChange?.(null);
-              appendConversationTurn("assistant", "Proposte scartate. Puoi modificare la richiesta e analizzarla di nuovo.");
-            }}
-            onInsert={(items) => {
-              if (!onInsertTextLines(items)) return false;
-              setTextResult(null);
-              setPendingCorrection(null);
-              onPreviewChange?.(null);
-              setTextDraft("");
-              appendConversationTurn("assistant", "Ho aggiunto " + items.length +
-                (items.length === 1 ? " articolo verificato alla Distinta a destra." : " articoli verificati alla Distinta a destra.") +
-                " Puoi continuare aggiungendo altre misure, oppure salvare la Distinta privata.", "accepted");
-              return true;
-            }}
-          />
-        ) : null}
-      />
-    );
+  if (focused && workspace && focusedView) {
+    return focusedView({
+      turns: conversationTurns,
+      value: textDraft,
+      onChange: updateFocusedDraft,
+      onAnalyze: analyzeText,
+      pending: textPending,
+      error: textError,
+      hasProposals: Boolean(textResult),
+      review: textResult ? (
+        <RfqAiTextReview
+          result={textResult}
+          correction={pendingCorrection}
+          onCandidatesChange={(updated) => {
+            setTextResult((current) => current ? { ...current, candidates: updated } : null);
+            onPreviewChange?.({ ...textResult, candidates: updated });
+          }}
+          onDismiss={() => {
+            setTextResult(null);
+            setPendingCorrection(null);
+            onPreviewChange?.(null);
+            appendConversationTurn("assistant", "Proposte scartate. Puoi modificare la richiesta e analizzarla di nuovo.");
+          }}
+          onInsert={(items) => {
+            if (!onInsertTextLines(items)) return false;
+            setTextResult(null);
+            setPendingCorrection(null);
+            onPreviewChange?.(null);
+            setTextDraft("");
+            appendConversationTurn("assistant", "Ho aggiunto " + items.length +
+              (items.length === 1 ? " articolo verificato alla distinta qui sotto." : " articoli verificati alla distinta qui sotto.") +
+              " Puoi continuare con altre misure.", "accepted");
+            return true;
+          }}
+        />
+      ) : null,
+    });
   }
 
   return (

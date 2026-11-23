@@ -9,8 +9,9 @@ test("Commerciale exposes the existing RFQAI assistant without a second RFQ buil
  assert.match(page,/canWrite \? \(/);
  assert.doesNotMatch(page, /<BuyerDistintaBuilder/);
  assert.match(builder,/useState<RfqAiIntakeMode>\(focusAiIntake && workspace \? "text" : "manual"\)/);
- assert.match(builder,/id="commercial-ai-intake" open=\{focusAiIntake\}/);
- assert.match(builder,/1 · Analizza la richiesta/);
+ // DISTINTA-SMART1: the focused intake is the single box, anchored for the home handoff.
+ assert.match(builder,/<div id="commercial-ai-intake" className="scroll-mt-20">/);
+ assert.match(builder,/focusedView=\{\(controls\) => \(/);
  assert.match(builder,/<RfqAiIntakeUx/);
  assert.match(builder,/onInsertTextLines=\{insertRfqAiTextLines\}/);
 });

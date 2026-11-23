@@ -103,12 +103,23 @@ try {
     } else if (p.id === personas[0].id) {
       await step("owner private bill locale switch keeps unsaved commercial draft in one tenant", async () => {
         await navigate(page, "/rfq-hub/distinta?lang=de");
-        const picker = page.locator('[data-testid="buyer-private-language-switch"] select');
+        // DISTINTA-SMART1: the language is a small control in the single box; the
+        // full-width bar is public only. Non-Italian bills search sizes (no AI).
+        const picker = page.getByTestId("distinta-language");
         await picker.waitFor({state:"visible",timeout:30000});
         assert.equal(await picker.inputValue(),"de");
-        // DISTINTA-QUICK1: no separate calculator on this screen; the bill title lives in the
-        // Distinta preview and the «Aggiungi articolo» bar is focused for non-Italian bills.
-        await page.getByTestId("distinta-quick-add").waitFor({state:"visible"});
+        assert.equal(await page.locator('[data-testid="buyer-private-language-switch"]').count(),0);
+        const box = page.getByTestId("distinta-smart-box");
+        await box.waitFor({state:"visible"});
+        await page.locator('[data-private-calculator-page][data-buyer-draft-ready="true"]').waitFor({timeout:30000});
+        // The bill title lives in the Distinta, which appears with the first article.
+        await page.locator("#distinta-smart-box").fill("quadro 100x100x5");
+        await box.getByRole("option").first().waitFor({state:"visible",timeout:30000});
+        await page.locator("#distinta-smart-box").press("Enter");
+        const qty = box.getByLabel("Quantità",{exact:true});
+        await qty.fill("2");
+        await qty.press("Enter");
+        await page.getByTestId("distinta-sheet").waitFor({state:"visible",timeout:30000});
         const name = page.getByLabel("Nome della distinta");
         await name.fill("DEMO-NEXT1F-local-tab");
         await picker.selectOption("fr");

@@ -30,15 +30,14 @@ test("COMM-RFQ-UX1 / DISTINTA-ONE1 the focused workflow is the single «Nuova ri
   assert.match(page, /redirect\(legacyComposeRedirect\(params\)\)/);
 });
 
-test("COMM-RFQ-UX1 puts the text review before manual tools and hides the empty cart statistics", () => {
+test("COMM-RFQ-UX1 / DISTINTA-SMART1 puts the single box first and no calculator or cart on the focused screen", () => {
   assert.match(builder, /focusAiIntake = false/);
   assert.match(builder, /useState<RfqAiIntakeMode>\(focusAiIntake && workspace \? "text" : "manual"\)/);
   assert.match(builder, /\{focusAiIntake && !restoreCandidate \? \(/);
-  assert.ok(builder.indexOf("<CommercialRfqWorkspace") < builder.indexOf("data-private-calculator-shell"));
-  assert.match(builder, /\{!focusAiIntake \? \(/);
-  // DISTINTA-QUICK1: no calculator on the focused screen, only the Distinta editor dialog.
-  assert.match(builder, /hidden=\{focusAiIntake\} data-private-calculator-shell/);
+  assert.ok(builder.indexOf('data-testid="distinta-one-screen"') < builder.indexOf("data-private-calculator-shell"));
+  assert.match(builder, /\{!focusAiIntake \? \(\s*<section id="commercial-rfq-manual-tools" data-private-calculator-shell/);
   assert.doesNotMatch(builder, /data-testid="commercial-ai-manual-tools-toggle"/); // COMM-RFQ-CREATE2: niente calcolatrice qui
+  // The legacy four-mode chooser keeps its own manual switch (public consumers only).
   assert.match(intake, /data-testid="commercial-ai-focused-modes"/);
   assert.match(intake, /aria-pressed=\{mode === "manual"\}/);
   assert.match(intake, /Preferisci configurare manualmente/);
@@ -47,17 +46,17 @@ test("COMM-RFQ-UX1 puts the text review before manual tools and hides the empty 
 });
 
 test("COMM-RFQ-UX1 makes approved articles actionable while keeping private save and RFQ separate", () => {
-  const preview = read("../components/commercial-rfq-live-preview.tsx");
-  assert.match(builder, /<CommercialRfqLivePreview/);
-  assert.match(preview, /data-testid="commercial-rfq-live-preview"/);
-  assert.match(preview, /data-testid="commercial-rfq-approved-lines"/);
+  const sheet = read("../components/distinta-sheet.tsx");
+  assert.match(builder, /<DistintaSheet/);
+  assert.match(sheet, /data-testid="distinta-sheet"/);
+  assert.match(sheet, /aria-label="Articoli della distinta"/);
   assert.match(builder, /onSave=\{saveDistinta\}/);
-  assert.match(builder, /onClick=\{createRfqHub\}/);
-  assert.match(builder, /onOpenEditor=\{openPrivateCart\}/);
-  assert.match(preview, /disabled=\{!canSave \|\| Boolean\(savedId\)\}/);
+  assert.match(builder, /onCreateRfq=\{createRfqHub\}/);
+  assert.match(builder, /onUpdateLine=\{updateLine\}/);
+  assert.match(sheet, /disabled=\{busy \|\| !allComplete\}/);
   assert.match(builder, /Explicit human-approved candidates from the review UI/);
   assert.match(builder, /crea la RFQ con un clic/);
-  assert.match(preview, /l’invio parte solo dopo la tua conferma/);
+  assert.match(sheet, /l’invio parte solo dopo la tua conferma/);
 });
 
 test("COMM-RFQ-UX1 TSX changed modules parse without JSX syntax errors", () => {
