@@ -138,13 +138,15 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,
           strokeWidth={2} vectorEffect="non-scaling-stroke"/>:null}
       </a>;
     })}
-    {/* Selected country outline on top, so neighbours never cover its border. */}
-    {mappedCountries.filter(shape=>shape.code===selectedCountry).map(shape=><path key={"sel-"+shape.code}
-      d={shape.path} fillRule="evenodd" fill="none" stroke={MAP_SELECTED_STROKE}
-      strokeWidth={compact?2.6:2.4} vectorEffect="non-scaling-stroke" aria-hidden="true" pointerEvents="none"/>)}
     {zoomCountry?regionShapes.map(region=>{
       const count=counts?.[region.code];
       const isSelectedRegion=selectedRegion===region.code;
+      // Regions of the selected country stay orange-tinted, so the country still
+      // reads as selected once the map zooms in; a chosen region is the solid accent.
+      const inSelectedCountry=zoomCountry===selectedCountry;
+      const regionFill=isSelectedRegion?MAP_SELECTED_FILL
+        :inSelectedCountry?(selectedRegion?(count?"#fbd3a5":"#fde9d3"):(count?"#f5a650":"#fbd3a5"))
+        :count?"#87bda4":"#d4e7da";
       return <a key={region.code} href={europeMapRegionHref(filters,zoomCountry,region.code)}
         data-nuts-region={region.code}
         aria-current={selectedRegion===region.code?"location":undefined}
@@ -157,15 +159,19 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,
           onNavigate(europeMapRegionHref(filters,zoomCountry,region.code),"region");
         }}>
         <path d={region.path} fillRule="evenodd"
-          fill={isSelectedRegion?MAP_SELECTED_FILL:count?"#87bda4":"#d4e7da"}
+          fill={regionFill}
           stroke={isSelectedRegion?MAP_SELECTED_STROKE:"#ffffff"} strokeWidth={isSelectedRegion?2.6:2} vectorEffect="non-scaling-stroke"
           data-selected={isSelectedRegion?"true":undefined}
-          className={isSelectedRegion?"transition-colors":"transition-colors group-hover:fill-[#398766] group-focus-visible:fill-[#398766] group-focus-visible:stroke-[#9b621e]"}/>
+          className={isSelectedRegion?"transition-colors":inSelectedCountry?"transition-colors group-hover:fill-[#e07510] group-focus-visible:fill-[#e07510] group-focus-visible:stroke-[#6b3300]":"transition-colors group-hover:fill-[#398766] group-focus-visible:fill-[#398766] group-focus-visible:stroke-[#9b621e]"}/>
       </a>;
     }):null}
     {zoomCountry?regionShapes.filter(region=>region.code===selectedRegion).map(region=><path key={"sel-"+region.code}
       d={region.path} fillRule="evenodd" fill="none" stroke={MAP_SELECTED_STROKE}
       strokeWidth={2.6} vectorEffect="non-scaling-stroke" aria-hidden="true" pointerEvents="none"/>):null}
+    {/* Selected country outline on top, so neighbours and its own regions never cover its border. */}
+    {mappedCountries.filter(shape=>shape.code===selectedCountry).map(shape=><path key={"sel-"+shape.code}
+      d={shape.path} fillRule="evenodd" fill="none" stroke={MAP_SELECTED_STROKE}
+      strokeWidth={compact?2.6:2.4} vectorEffect="non-scaling-stroke" aria-hidden="true" pointerEvents="none"/>)}
   </svg>;
 }
 
@@ -177,6 +183,9 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage,countryCounts={
   const router=useRouter();
   const [isPending,startTransition]=useTransition();
   const selectedFromUrl=filters.country||"IT";
+  // Show the click immediately; the URL (and server data) catches up after the transition.
+  const [pendingSelection,setPendingSelection]=useState<{country:string;region:string}|null>(null);
+  useEffect(()=>{setPendingSelection(null);},[filters.country,filters.region]);
   const [zoomCountry,setZoomCountry]=useState<string|null>(
     filters.country && mappedCountries.some(x=>x.code===filters.country)?filters.country:null,
   );
@@ -184,11 +193,11 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage,countryCounts={
   const [regionShapes,setRegionShapes]=useState<RegionOutline[]>([]);
   const [loadedRegionCountry,setLoadedRegionCountry]=useState<string|null>(null);
   const availableRegions=zoomCountry?europeRegionsForCountry(zoomCountry):[];
-  const selectedRegion=filters.region||"";
+  const selectedRegion=pendingSelection?pendingSelection.region:filters.region||"";
   const reliableCoverage=coverage?.country===selectedFromUrl?coverage:null;
   const regionCounts=reliableCoverage?Object.fromEntries(reliableCoverage.regions.map(r=>[r.code,r.count])):null;
   const dialogRef=useRef<HTMLDialogElement>(null);
-  const country=selectedFromUrl;
+  const country=pendingSelection?.country||selectedFromUrl;
   const mappedSelected=mappedCountries.some(x=>x.code===country);
   const countsAvailable=Object.keys(countryCounts).length>0;
   const displayedCount=countryCounts[country]??0;
@@ -231,6 +240,8 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage,countryCounts={
     // Keep the large map visible when selecting a country, so its regions
     // become the next immediate view. Only a region click returns to results.
     if(kind==="region")setExpanded(false);
+    const nextParams=new URLSearchParams(href.split("?")[1]?.split("#")[0]||"");
+    if(countryInHref)setPendingSelection({country:countryInHref,region:nextParams.get("region")||""});
     startTransition(()=>router.replace(href,{scroll:false}));
   };
   const canvas=(compact:boolean)=><EuropeCanvas filters={filters} selectedCountry={country}
