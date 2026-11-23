@@ -41,9 +41,9 @@ PRODUCT_PATTERNS = (
     ("Stampi e portastampi", re.compile(r"\b(?:portastampi|stampi|mould bases?|molds?)\b", re.I)),
 )
 PRODUCES = re.compile(
-    r"\b(?:produciamo|producono|produce|fabbrichiamo|fabbricano|fabbrica|"
-    r"realizziamo|realizza|produzione\s+di|fabbricazione\s+di|"
-    r"we\s+manufacture|manufactures?|we\s+produce|production\s+of)\b", re.I,
+    r"\b(?:produciamo|fabbrichiamo|realizziamo|"
+    r"produzione\s+di|fabbricazione\s+di|"
+    r"we\s+manufacture|we\s+produce|production\s+of)\b", re.I,
 )
 # Restrict automatic acceptance to a positive, short verb-object relationship.
 # Negative context is deliberately broad: false negatives are safer than
