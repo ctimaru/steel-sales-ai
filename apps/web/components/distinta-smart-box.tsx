@@ -6,7 +6,7 @@ import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
 import type { BuyerQuantityMode } from "@/lib/buyer-distinta";
 import { guidedTubeGrades, type GuidedTubeStandard } from "@/lib/buyer-tube-guidance";
 import { buildQuickAddIndex, parseQuickAddMeasure, suggestQuickAdd, type QuickAddSuggestion } from "@/lib/distinta-quick-add";
-import { readSmartBoxHints, smartBoxIntent } from "@/lib/distinta-smart-box";
+import { readSmartBoxHints, smartBoxIntent, type SmartBoxHints } from "@/lib/distinta-smart-box";
 import type { FocusedAiControls } from "@/components/rfq-ai-intake-ux";
 
 export const DISTINTA_SMART_BOX_ID = "distinta-smart-box";
@@ -110,15 +110,15 @@ export function DistintaSmartBox({
   const index = useMemo(() => buildQuickAddIndex(catalogOptions), [catalogOptions]);
   const deferredValue = useDeferredValue(value);
   const hints = useMemo(() => readSmartBoxHints(deferredValue), [deferredValue]);
-  const searchStandard = hints.standard ?? standard;
-  const items = useMemo<ListItem[]>(() => {
-    if (selected || ai.hasProposals || smartBoxIntent(deferredValue, aiEnabled) !== "search") return [];
-    const found: ListItem[] = suggestQuickAdd(index, hints.query, searchStandard, 8);
-    if (aiEnabled && deferredValue.trim().length >= 12) {
-      found.push({ kind: "ai", key: "ai", description: deferredValue.trim() });
-    }
+  function listFor(text: string, textHints: SmartBoxHints): ListItem[] {
+    if (selected || ai.hasProposals || smartBoxIntent(text, aiEnabled) !== "search") return [];
+    const found: ListItem[] = suggestQuickAdd(index, textHints.query, textHints.standard ?? standard, 8);
+    if (aiEnabled && text.trim().length >= 12) found.push({ kind: "ai", key: "ai", description: text.trim() });
     return found;
-  }, [selected, ai.hasProposals, deferredValue, aiEnabled, index, hints.query, searchStandard]);
+  }
+  const items = useMemo<ListItem[]>(() => listFor(deferredValue, hints),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [selected, ai.hasProposals, deferredValue, aiEnabled, index, hints, standard]);
   const showList = open && items.length > 0 && value.trim().length > 0;
   const activeIndex = Math.min(active, Math.max(0, items.length - 1));
 
@@ -130,11 +130,11 @@ export function DistintaSmartBox({
     setMessage(null);
   }
 
-  function choose(item: ListItem) {
+  function choose(item: ListItem, itemHints: SmartBoxHints = hints) {
     if (item.kind === "ai") { analyze(); return; }
     // Norm and grade typed next to the size apply to this and the next articles.
-    if (hints.standard) setStandard(hints.standard);
-    if (hints.grade) setGrade(hints.grade);
+    if (itemHints.standard) setStandard(itemHints.standard);
+    if (itemHints.grade) setGrade(itemHints.grade);
     setSelected(item);
     ai.onChange(item.description);
     setOpen(false);
@@ -218,8 +218,12 @@ export function DistintaSmartBox({
     event.preventDefault();
     if (selected) { quantityRef.current?.focus(); return; }
     if (intent === "ai" || intent === "correction") { analyze(); return; }
-    const pick = items[activeIndex];
-    if (pick) choose(pick);
+    // Enter right after typing: the deferred list may still describe older text.
+    const fresh = deferredValue === value;
+    const currentHints = fresh ? hints : readSmartBoxHints(value);
+    const list = fresh ? items : listFor(value, currentHints);
+    const pick = list[fresh ? activeIndex : 0];
+    if (pick) choose(pick, currentHints);
     else if (value.trim()) setMessage({ tone: "error", text: "Nessuna misura trovata: prova ad esempio quadro 100x100x5." });
   }
 
@@ -229,7 +233,7 @@ export function DistintaSmartBox({
     submit();
   }
 
-  const field = "h-10 rounded-lg border border-[#c9dccf] bg-white px-2.5 text-sm text-[#173f35] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15 disabled:opacity-50";
+  const field = "h-10 rounded-lg border border-[#bfd0c5] bg-white px-2.5 text-sm text-[#173f35] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15 disabled:opacity-50";
   const placeholder = ai.hasProposals ? "Correggi una proposta, ad esempio: riga 2: 20 barre"
     : aiEnabled ? "Cerca una misura o scrivi la richiesta: 40 barre quadro 100x100x5, S355, 12 m"
       : "Cerca una misura: quadro 100x100x5, tondo 60,3x3";
@@ -239,14 +243,15 @@ export function DistintaSmartBox({
 
   return (
     <section data-testid="distinta-smart-box" aria-label="Aggiungi articoli alla distinta"
-      className="rounded-2xl border border-[#d6e5db] bg-white p-3 sm:p-4">
+      className="rounded-2xl border border-[#bfd0c5] bg-white p-3 shadow-[0_1px_3px_rgba(15,46,35,0.08)] sm:p-4">
       <div className="relative">
         <label htmlFor={DISTINTA_SMART_BOX_ID} className="sr-only">
           {aiEnabled ? "Cerca una misura o scrivi la richiesta" : "Cerca una misura"}
         </label>
-        <div className={"flex items-start gap-2 rounded-xl border bg-white px-3 py-2 transition focus-within:ring-2 focus-within:ring-[#175640]/15 " +
-          (selected ? "border-[#175640]" : "border-[#b8d2c4] focus-within:border-[#175640]")}>
-          <span aria-hidden="true" className="pt-1 text-[#6b8475]">
+        {/* One focus indicator only: the wrapper (border + ring); the textarea draws none. */}
+        <div className={"flex items-start gap-2 rounded-xl border-2 bg-white px-3 py-2 transition focus-within:border-[#175640] focus-within:ring-4 focus-within:ring-[#175640]/15 " +
+          (selected ? "border-[#175640]" : "border-[#7a9585] hover:border-[#4a6155]")}>
+          <span aria-hidden="true" className="pt-1 text-[#4a6155]">
             {selected && selected.kind !== "free" ? shapeMarks[selected.family] : "⌕"}
           </span>
           <textarea
@@ -268,12 +273,12 @@ export function DistintaSmartBox({
             onBlur={() => setOpen(false)}
             onChange={(event) => changeText(event.target.value)}
             onKeyDown={onBoxKeyDown}
-            className={"max-h-44 min-h-7 w-full flex-1 resize-none border-0 bg-transparent py-0.5 text-[15px] leading-6 text-[#173f35] outline-none placeholder:text-[#7b8f82] disabled:opacity-60 " +
+            className={"distinta-box-input max-h-44 min-h-7 w-full flex-1 resize-none border-0 bg-transparent py-0.5 text-[15px] leading-6 text-[#173f35] outline-none placeholder:text-[#5f7568] disabled:opacity-60 " +
               (selected ? "font-semibold" : "")}
           />
           {selected ? (
             <button type="button" onClick={resetSelection} aria-label="Cambia articolo"
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[#52695b] hover:bg-[#eef5f0]">×</button>
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-[#3f564a] hover:bg-[#eef5f0]">×</button>
           ) : intent === "ai" || intent === "correction" ? (
             <button type="button" onClick={analyze} disabled={disabled || ai.pending || value.trim().length < 3}
               aria-label={ai.pending ? "Analisi in corso" : ai.hasProposals ? "Correggi proposta AI" : "Analizza la richiesta con AI"}
@@ -285,7 +290,7 @@ export function DistintaSmartBox({
 
         {showList ? (
           <ul id={listId} role="listbox" aria-label="Articoli trovati"
-            className="absolute left-0 right-0 top-full z-30 mt-1 max-h-80 overflow-y-auto rounded-xl border border-[#cfe0d5] bg-white p-1 shadow-[0_14px_36px_rgba(19,65,43,0.16)]">
+            className="absolute left-0 right-0 top-full z-30 mt-1 max-h-80 overflow-y-auto rounded-xl border border-[#bfd0c5] bg-white p-1 shadow-[0_14px_36px_rgba(19,65,43,0.16)]">
             {items.map((item, i) => (
               <li key={item.key} id={listId + "-" + i} role="option" aria-selected={i === activeIndex}
                 onPointerDown={(event) => event.preventDefault()}
@@ -293,8 +298,8 @@ export function DistintaSmartBox({
                 onClick={() => choose(item)}
                 className={"flex min-h-11 cursor-pointer items-center gap-3 rounded-lg px-2.5 py-1.5 text-sm " +
                   (i === activeIndex ? "bg-[#eaf4ee] " : "") +
-                  (item.kind === "free" || item.kind === "ai" ? "mt-1 border-t border-[#e3ece6] pt-2 text-[#175640]" : "text-[#173f35]")}>
-                <span aria-hidden="true" className="w-4 shrink-0 text-center text-[#6b8475]">
+                  (item.kind === "free" || item.kind === "ai" ? "mt-1 border-t border-[#d3e0d7] pt-2 text-[#175640]" : "text-[#173f35]")}>
+                <span aria-hidden="true" className="w-4 shrink-0 text-center text-[#4a6155]">
                   {item.kind === "ai" ? "✦" : item.kind === "free" ? "＋" : shapeMarks[item.family]}
                 </span>
                 {item.kind === "ai" ? (
@@ -304,7 +309,7 @@ export function DistintaSmartBox({
                 ) : (
                   <>
                     <span className="min-w-0 flex-1 truncate font-semibold">{item.description}</span>
-                    <span className="shrink-0 text-xs tabular-nums text-[#52695b]">{fmt(item.weightKgM)} kg/m</span>
+                    <span className="shrink-0 text-xs tabular-nums text-[#3f564a]">{fmt(item.weightKgM)} kg/m</span>
                     {item.kind === "computed" ? (
                       <span className="shrink-0 rounded-full bg-[#fff4e0] px-2 py-0.5 text-[10px] font-semibold text-[#7a5418]">calcolato</span>
                     ) : null}
@@ -327,7 +332,7 @@ export function DistintaSmartBox({
             onClick={() => setOptionsOpen((current) => !current)} aria-expanded={optionsOpen}
             aria-controls={listId + "-options"}
             className="inline-flex min-h-10 items-center gap-1 rounded-lg px-2 text-sm text-[#36584a] hover:bg-[#f2f8f4]">
-            {optionsSummary} <span aria-hidden="true" className="text-xs text-[#6b8475]">{optionsOpen ? "▴" : "▾"}</span>
+            {optionsSummary} <span aria-hidden="true" className="text-xs text-[#4a6155]">{optionsOpen ? "▴" : "▾"}</span>
           </button>
           <button type="button" onClick={submit} disabled={disabled}
             className="ml-auto inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] disabled:opacity-50">
@@ -343,7 +348,7 @@ export function DistintaSmartBox({
                 <option value="tonnes">tonnellate</option>
               </select>
               {quantityMode === "bars" ? (
-                <span className="inline-flex items-center gap-1 text-xs text-[#52695b]">
+                <span className="inline-flex items-center gap-1 text-xs text-[#3f564a]">
                   da
                   <input aria-label="Lunghezza barra in metri" inputMode="decimal" value={barLengthM}
                     onChange={(event) => setBarLengthM(event.target.value)} onKeyDown={onFieldEnter}
@@ -360,7 +365,7 @@ export function DistintaSmartBox({
                 onChange={(event) => setGrade(event.target.value)} onKeyDown={onFieldEnter}
                 className={field + " w-40"} />
               <datalist id={listId + "-grades"}>{guidedTubeGrades.map((value) => <option key={value} value={value} />)}</datalist>
-              <p className="w-full text-[11px] text-[#5c7063]">Valgono anche per i prossimi articoli. Ogni riga resta modificabile nella distinta.</p>
+              <p className="w-full text-[11px] text-[#3f564a]">Valgono anche per i prossimi articoli. Ogni riga resta modificabile nella distinta.</p>
             </div>
           ) : null}
         </div>
@@ -369,17 +374,17 @@ export function DistintaSmartBox({
       <div className="mt-2 flex flex-wrap items-start justify-between gap-2">
         {!selected && !value.trim() && !ai.turns.length && !message ? (
           <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-            <span className="text-[11px] text-[#6b7f73]">Esempi:</span>
+            <span className="text-[11px] text-[#4a6155]">Esempi:</span>
             {[...searchExamples, ...(aiEnabled ? [aiExample] : [])].map((example) => (
               <button key={example} type="button" disabled={disabled}
                 onClick={() => { changeText(example); boxRef.current?.focus(); }}
-                className="min-h-7 rounded-full border border-[#d6e5db] bg-white px-2.5 text-[11px] font-medium text-[#175640] hover:bg-[#eef7f1]">
+                className="min-h-7 rounded-full border border-[#bfd0c5] bg-white px-2.5 text-[11px] font-medium text-[#175640] hover:bg-[#eef7f1]">
                 {example}
               </button>
             ))}
           </div>
         ) : !selected && value.trim() && !message ? (
-          <p className="min-w-0 flex-1 px-1 text-[11px] leading-4 text-[#5c7063]">
+          <p className="min-w-0 flex-1 px-1 text-[11px] leading-4 text-[#3f564a]">
             {intent === "correction" ? "Correggi una riga alla volta (es. riga 2: 20 barre) e confermala qui sotto."
               : intent === "ai" ? "Invio: l’assistente prepara gli articoli, tu li controlli prima che entrino in distinta. Maiusc+Invio per andare a capo."
                 : "Scegli la misura con le frecce e Invio."}
@@ -395,7 +400,7 @@ export function DistintaSmartBox({
 
       {recentTurns.length || ai.pending || ai.review || ai.error ? (
         <div role="log" aria-label="Assistente della distinta" aria-live="polite" aria-relevant="additions"
-          data-testid="distinta-smart-thread" className="mt-3 space-y-2 border-t border-[#e3ece6] pt-3">
+          data-testid="distinta-smart-thread" className="mt-3 space-y-2 border-t border-[#d3e0d7] pt-3">
           {recentTurns.map((turn) => (
             <div key={turn.id} className={turn.role === "user" ? "flex justify-end" : "flex items-start gap-2"}
               data-testid={turn.role === "user" ? "commercial-rfq-user-message" : "commercial-rfq-assistant-message"}>
@@ -410,7 +415,7 @@ export function DistintaSmartBox({
             </div>
           ))}
           {ai.pending ? (
-            <p role="status" className="flex items-center gap-2 text-sm text-[#52695b]">
+            <p role="status" className="flex items-center gap-2 text-sm text-[#3f564a]">
               <span aria-hidden="true" className="flex h-6 w-6 items-center justify-center rounded-full bg-[#175640] text-[11px] text-white">✦</span>
               Sto leggendo la richiesta…
             </p>

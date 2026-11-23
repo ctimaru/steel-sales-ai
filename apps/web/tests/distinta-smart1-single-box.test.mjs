@@ -88,3 +88,33 @@ test("DISTINTA-SMART1 TSX parses", () => {
     assert.deepEqual(parsed.parseDiagnostics.map(d => ts.flattenDiagnosticMessageText(d.messageText, "\n")), [], name);
   }
 });
+
+// DISTINTA-SMART2 (founder request, 23 Nov 2026): stronger contrast on the three steps.
+test("the three steps share one stepper and scoped high-contrast field rules", () => {
+  const css = read("../app/globals.css");
+  const steps = read("../components/request-steps.tsx");
+  const campaign = read("../app/(italian)/(workspace)/marketplace/rfq-hub/[rfqId]/page.tsx");
+  const step1 = read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx");
+  assert.match(step1, /<div data-distinta-steps /);
+  assert.match(campaign, /data-testid="rfq-step3" data-distinta-steps/);
+  assert.match(campaign, /data-testid="rfq-step2" data-distinta-steps/);
+  assert.match(steps, /aria-current=\{active \? "step" : undefined\}/);
+  // Field borders ≥3:1 and placeholders ≥4.5:1 win over the unlayered base rules.
+  assert.match(css, /\[data-distinta-steps\] :is\(input:not\(\[type="checkbox"\]\):not\(\[type="radio"\]\), select, textarea\) \{\n  border-color: #7a9585;/);
+  assert.match(css, /::placeholder \{\n  color: #5f7568;/);
+  // One focus indicator on the box (wrapper), a title-like Distinta name at rest.
+  assert.match(box, /distinta-box-input/);
+  assert.match(css, /\.distinta-box-input:focus-visible \{\n  border-color: transparent;\n  outline: none;/);
+  assert.match(sheet, /className="distinta-bare-field /);
+  assert.match(css, /\.distinta-bare-field \{\n  border-color: transparent;/);
+  // No low-contrast greys (<4.5:1 on white) left in the request components.
+  for (const [name, source] of [["box", box], ["sheet", sheet], ["steps", steps],
+    ["picker", read("../components/rfq-supplier-picker.tsx")], ["dispatch", read("../components/rfq-dispatch-panel.tsx")]]) {
+    assert.doesNotMatch(source, /text-\[#(?:6b8475|7b8f82|6b7f73|718078|788d80|b3c4ba)\]/i, name);
+  }
+});
+
+test("Enter right after typing uses the current text, not the deferred list", () => {
+  assert.match(box, /const fresh = deferredValue === value;/);
+  assert.match(box, /const list = fresh \? items : listFor\(value, currentHints\);/);
+});

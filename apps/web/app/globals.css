@@ -3134,3 +3134,38 @@ nav[aria-label="Categorie ricerca commerciale"] a:focus-visible {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: none; }
 }
+
+/* DISTINTA-SMART2 (founder request, 23 Nov 2026): stronger contrast on the three
+   request steps. The unlayered base rules above (input border-color, :focus-visible)
+   win over Tailwind utilities, so the request screens set their own field rules here.
+   Field borders ≥3:1 on white, placeholders ≥4.5:1. */
+[data-distinta-steps] :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+  border-color: #7a9585;
+}
+[data-distinta-steps] :is(input, select, textarea):focus {
+  border-color: #175640;
+}
+[data-distinta-steps] :is(input, textarea)::placeholder {
+  color: #5f7568;
+  opacity: 1;
+}
+/* The single box draws its focus on the wrapper: no second outline on the textarea. */
+[data-distinta-steps] .distinta-box-input,
+[data-distinta-steps] .distinta-box-input:focus,
+[data-distinta-steps] .distinta-box-input:focus-visible {
+  border-color: transparent;
+  outline: none;
+}
+/* The Distinta name reads as a title at rest and as a field on hover or focus. */
+[data-distinta-steps] .distinta-bare-field {
+  border-color: transparent;
+}
+[data-distinta-steps] .distinta-bare-field:hover {
+  border-color: #9fb4a7;
+}
+[data-distinta-steps] .distinta-bare-field:focus,
+[data-distinta-steps] .distinta-bare-field:focus-visible {
+  border-color: #175640;
+  outline: 2px solid rgb(23 86 64 / 0.2);
+  outline-offset: 1px;
+}

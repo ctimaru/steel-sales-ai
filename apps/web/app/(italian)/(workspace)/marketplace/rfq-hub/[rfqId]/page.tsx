@@ -30,6 +30,7 @@ import {
 import { Rfqh13GovernancePanel } from "@/components/rfqh13-governance-panel";
 import { RfqSupplierAddForm } from "@/components/rfq-supplier-add-form";
 import { RfqSupplierPicker } from "@/components/rfq-supplier-picker";
+import { RequestSteps } from "@/components/request-steps";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
 import { networkNameIt } from "@/lib/network-taxonomy-it";
 import {
@@ -387,7 +388,6 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
   // picker, then the explicit send confirmation. The chat, the RFQ list and the
   // later phases appear once the request has been sent.
   if (isPreparation && canExecuteCritical) {
-    const stepNames = ["Cosa ti serve", "A chi lo chiedi", "Invia"] as const;
     // The UUID in the link is untrusted: re-check Network access and publication.
     const pinnedNetwork = typeof fromNetwork === "string"
       ? await getCommercialNetworkContext(campaign.organization_id, fromNetwork).catch(() => null)
@@ -407,40 +407,28 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
     const stepsHeader = (
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="truncate text-xl font-bold tracking-[-0.02em] text-[#143f30]">{campaign.title}</h1>
-          <ol aria-label="Passaggi della richiesta" className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-            {stepNames.map((step, index) => (
-              <li key={step} aria-current={index === currentStep ? "step" : undefined}
-                className={"flex items-center gap-1.5 " + (index === currentStep ? "font-semibold text-[#143f30]" : "text-[#5c7063]")}>
-                <span aria-hidden="true" className={"flex h-5 w-5 items-center justify-center rounded-full text-[11px] " +
-                  (index < currentStep ? "bg-[#dcebe1] text-[#175640]" : index === currentStep ? "bg-[#175640] text-white" : "border border-[#c9d9cf] text-[#5c7063]")}>
-                  {index < currentStep ? "✓" : index + 1}
-                </span>
-                {step}
-                {index < stepNames.length - 1 ? <span aria-hidden="true" className="ml-1.5 text-[#b3c4ba]">—</span> : null}
-              </li>
-            ))}
-          </ol>
+          <h1 className="truncate text-xl font-bold tracking-[-0.02em] text-[#0f2e23]">{campaign.title}</h1>
+          <RequestSteps current={currentStep} />
         </div>
         <Link href={appRoutes.rfqHub.home}
-          className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] bg-white px-3 text-sm font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
+          className="inline-flex min-h-9 items-center rounded-full border border-[#7a9585] bg-white px-3 text-sm font-semibold !text-[#175640] hover:border-[#175640] hover:bg-[#f2f8f4]">
           Le tue richieste
         </Link>
       </header>
     );
     const distintaLine = (
-      <details className="group rounded-xl border border-[#e1eae4] bg-white">
-        <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-3 py-2 text-xs">
+      <details className="group rounded-xl border border-[#bfd0c5] bg-white shadow-[0_1px_3px_rgba(15,46,35,0.08)]">
+        <summary className="flex min-h-11 cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-3 py-2 text-[13px]">
           <span><span className="font-bold text-[#143f30]">La tua distinta</span>
-            <span className="text-[#5c7063]"> · {lineRows.length} {lineRows.length === 1 ? "articolo" : "articoli"} · {formatNumber(distinta?.total_tonnes ?? null, 3)} t · privata</span></span>
+            <span className="text-[#3f564a]"> · {lineRows.length} {lineRows.length === 1 ? "articolo" : "articoli"} · {formatNumber(distinta?.total_tonnes ?? null, 3)} t · privata</span></span>
           <span className="font-semibold text-[#175640] group-open:hidden">Vedi articoli</span>
           <span className="hidden font-semibold text-[#175640] group-open:inline">Chiudi</span>
         </summary>
-        <ul className="divide-y divide-[#edf2ee] border-t border-[#e7eee9]">
+        <ul className="divide-y divide-[#d3e0d7] border-t border-[#d3e0d7]">
           {lineRows.map((line) => (
             <li key={line.id} className="flex flex-wrap items-baseline justify-between gap-2 px-3 py-2 text-xs">
               <span className="min-w-0 font-semibold text-[#173f35]">{line.line_position}. {line.description}</span>
-              <span className="text-[#5c7063]">
+              <span className="text-[#3f564a]">
                 {[line.standard_code, line.grade_code, formatNumber(line.quantity, line.quantity_mode === "tonnes" ? 3 : line.quantity_mode === "bars" ? 0 : 2) + " " +
                   (line.quantity_mode === "bars" ? "barre" : line.quantity_mode === "tonnes" ? "t" : "m")].filter(Boolean).join(" · ")}
               </span>
@@ -450,11 +438,11 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
       </details>
     );
     const approvals = (
-      <details className="min-w-0 rounded-xl border border-[#e1eae4] bg-white">
+      <details className="min-w-0 rounded-xl border border-[#bfd0c5] bg-white">
         <summary className="min-h-10 cursor-pointer px-3 py-2.5 text-xs font-semibold text-[#173f35]">
           Autorizzazioni e approvazioni aziendali
         </summary>
-        <div className="border-t border-[#e1eae5] p-3">
+        <div className="border-t border-[#d3e0d7] p-3">
           <Rfqh13GovernancePanel rfqId={campaign.id} currentUserId={authData.user?.id ?? null} state={governance} />
         </div>
       </details>
@@ -464,15 +452,15 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
     if (currentStep === 2) {
       const names = pickerSelected.map((supplier) => supplier.name);
       return (
-        <div data-testid="rfq-step3" className="mx-auto min-w-0 max-w-3xl space-y-3 pb-8">
+        <div data-testid="rfq-step3" data-distinta-steps className="mx-auto min-w-0 max-w-3xl space-y-3 pb-8">
           {stepsHeader}
-          <section aria-label="Fornitori scelti" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#cfe3d7] bg-[#f4faf6] px-3 py-2.5">
-            <p className="min-w-0 text-xs text-[#2f5a45]">
+          <section aria-label="Fornitori scelti" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#9fb4a7] bg-[#eef5f0] px-3 py-2.5">
+            <p className="min-w-0 text-[13px] text-[#173f35]">
               <span aria-hidden="true" className="mr-1 font-bold text-[#175640]">✓</span>
               <span className="font-bold text-[#143f30]">{names.length} {names.length === 1 ? "destinatario" : "destinatari"}</span>
               {" · "}{names.slice(0, 3).join(", ")}{names.length > 3 ? " e altri " + (names.length - 3) : ""}
             </p>
-            <Link href={step2Href} className="min-h-9 shrink-0 content-center text-xs font-semibold !text-[#175640] underline-offset-2 hover:underline">
+            <Link href={step2Href} className="min-h-9 shrink-0 content-center text-[13px] font-semibold !text-[#175640] underline underline-offset-2">
               Modifica
             </Link>
           </section>
@@ -501,7 +489,7 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
     }
 
     return (
-      <div data-testid="rfq-step2" className="min-w-0 space-y-4 pb-8">
+      <div data-testid="rfq-step2" data-distinta-steps className="min-w-0 space-y-4 pb-8">
         {stepsHeader}
         {distintaLine}
 
@@ -513,10 +501,10 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
           continueHref={step3Href} />
 
         {/* Stacked, full width: a closed <details> beside a chip overflowed small screens. */}
-        <div className="space-y-2 border-t border-[#e7eee9] pt-3">
+        <div className="space-y-2 border-t border-[#d3e0d7] pt-3">
           {/* DISTINTA2D (founder decision, 18 Nov 2026): Marketplace publishing is shown, locked. */}
           <div data-testid="rfq-step2-marketplace-locked" aria-disabled="true"
-            className="inline-flex min-h-10 max-w-full items-center gap-2 rounded-xl border border-dashed border-[#cfd8d3] bg-[#f7f9f8] px-3 py-2 text-xs text-[#4f6157]">
+            className="inline-flex min-h-10 max-w-full items-center gap-2 rounded-xl border border-dashed border-[#cfd8d3] bg-[#f7f9f8] px-3 py-2 text-xs text-[#3f564a]">
             <span aria-hidden="true">🔒</span>
             <span><span className="font-semibold">Pubblica nel Marketplace</span> · Presto disponibile</span>
           </div>
