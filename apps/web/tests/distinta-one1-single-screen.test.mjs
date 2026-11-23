@@ -45,7 +45,8 @@ test("the single screen: one box + Distinta, step 2 = suppliers", () => {
   assert.match(page, /requireWorkspaceWriteRole/);
   assert.match(page, /focusAiIntake\n/);
   assert.match(page, /openMeasure=\{params\.aggiungi === "misura" \|\| locale !== "it"\}/);
-  assert.match(page, /"Cosa ti serve", "A chi lo chiedi", "Invia"/);
+  assert.match(page, /<RequestSteps current=\{0\}/);
+  assert.match(read("../components/request-steps.tsx"), /"Cosa ti serve", "A chi lo chiedi", "Invia"/);
   // A Network company is provenance only, never an automatic recipient.
   assert.match(page, /non viene aggiunta in automatico/);
   const builder = read("../components/buyer-distinta-builder.tsx");

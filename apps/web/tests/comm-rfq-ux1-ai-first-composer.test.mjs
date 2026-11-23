@@ -23,7 +23,7 @@ test("COMM-RFQ-UX1 retains the private one-shot text transfer with explicit AI c
 
 test("COMM-RFQ-UX1 / DISTINTA-ONE1 the focused workflow is the single «Nuova richiesta» screen", () => {
   const single = read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx");
-  assert.match(single, /data-testid="new-request-steps"/);
+  assert.match(single, /<RequestSteps current=\{0\} testId="new-request-steps" \/>/);
   assert.match(single, /Nuova richiesta/);
   assert.match(single, /focusAiIntake\n/);
   assert.equal((page.match(/<BuyerDistintaBuilder/g) ?? []).length, 0);

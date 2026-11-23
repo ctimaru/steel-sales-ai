@@ -12,7 +12,10 @@ test("BD13: private preparation has explicit 1 select / 2 verify and send / opti
   // recipients picker -> explicit send confirmation -> optional Marketplace.
   const branch = page.slice(page.indexOf("if (isPreparation && canExecuteCritical) {"), page.indexOf("<Rfqc1ChatWorkspace"));
   assert.ok(branch.length > 0, "step-2 branch precedes the chat workspace");
-  assert.match(branch, /"Cosa ti serve", "A chi lo chiedi", "Invia"/);
+  // DISTINTA-SMART2: one shared high-contrast stepper for the three steps.
+  assert.match(branch, /<RequestSteps current=\{currentStep\} \/>/);
+  assert.match(read("../components/request-steps.tsx"),
+    /"Cosa ti serve", "A chi lo chiedi", "Invia"/);
   // DISTINTA3: step 3 (send) is its own screen once at least one recipient exists;
   // step 2 = picker + «Continua»; Marketplace is shown locked.
   assert.match(branch, /const sendStep = query\?\.passo === "invia"|sendStep && supplierRows.length > 0/);

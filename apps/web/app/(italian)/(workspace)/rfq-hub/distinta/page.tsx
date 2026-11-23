@@ -4,6 +4,7 @@ import { unstable_cache } from "next/cache";
 
 import { BuyerDistintaBuilder } from "@/components/buyer-distinta-builder";
 import { NetworkRdoDistintaPicker } from "@/components/network-rdo-distinta-picker";
+import { RequestSteps } from "@/components/request-steps";
 import { safeBuyerUiLocale } from "@/lib/buyer-ui-locale";
 import { buildBuyerDistintaCatalogOptions } from "@/lib/buyer-distinta-catalog";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
@@ -19,8 +20,6 @@ export const metadata: Metadata = {
   title: "Nuova richiesta",
   robots: privateNoIndexRobots,
 };
-
-const steps = ["Cosa ti serve", "A chi lo chiedi", "Invia"] as const;
 
 /**
  * DISTINTA-QUICK1: the published sizes are public, tenant-independent data
@@ -73,23 +72,13 @@ export default async function NewRequestPage({ searchParams }: {
   const catalogOptions = await cachedQuickAddCatalog().catch(() => []);
 
   return (
-    <div className="space-y-3" lang={locale}>
+    <div data-distinta-steps className="space-y-3" lang={locale}>
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-xl font-bold tracking-tight text-[#143f30]">Nuova richiesta</h1>
-          <ol aria-label="Passaggi della richiesta" className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs" data-testid="new-request-steps">
-            {steps.map((step, index) => (
-              <li key={step} aria-current={index === 0 ? "step" : undefined}
-                className={"flex items-center gap-1.5 " + (index === 0 ? "font-semibold text-[#143f30]" : "text-[#5c7063]")}>
-                <span aria-hidden="true" className={"flex h-5 w-5 items-center justify-center rounded-full text-[11px] " +
-                  (index === 0 ? "bg-[#175640] text-white" : "border border-[#c9d9cf] text-[#5c7063]")}>{index + 1}</span>
-                {step}
-                {index < steps.length - 1 ? <span aria-hidden="true" className="ml-1.5 text-[#b3c4ba]">—</span> : null}
-              </li>
-            ))}
-          </ol>
+          <h1 className="text-xl font-bold tracking-tight text-[#0f2e23]">Nuova richiesta</h1>
+          <RequestSteps current={0} testId="new-request-steps" />
         </div>
-        <Link href={appRoutes.commercial.home} className="inline-flex min-h-9 items-center rounded-full border border-[#d6e5db] bg-white px-3 text-sm font-semibold !text-[#175640] hover:bg-[#f2f8f4]">
+        <Link href={appRoutes.commercial.home} className="inline-flex min-h-9 items-center rounded-full border border-[#7a9585] bg-white px-3 text-sm font-semibold !text-[#175640] hover:border-[#175640] hover:bg-[#f2f8f4]">
           Trattative
         </Link>
       </header>

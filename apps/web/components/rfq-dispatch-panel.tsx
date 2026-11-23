@@ -164,13 +164,13 @@ export function RfqDispatchPanel({
 
   return (
     <section className={side
-      ? "rounded-2xl border border-[#d6e5db] bg-white p-3 sm:p-4"
-      : "rounded-3xl border border-[#b8d2c8] bg-[#f5faf8] p-5 sm:p-6"}>
+      ? "rounded-2xl border border-[#bfd0c5] bg-white p-3 shadow-[0_1px_3px_rgba(15,46,35,0.08)] sm:p-4"
+      : "rounded-3xl border border-[#bfd0c5] bg-[#f5faf8] p-5 sm:p-6"}>
       {side ? (
         <div>
           <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#1a5144]">3 · Invia</p>
-          <h2 className="mt-1 text-sm font-bold text-[#143f30]">Invia la richiesta ai fornitori scelti</h2>
-          <p className="mt-1 text-[11px] leading-4 text-[#5c7063]">
+          <h2 className="mt-1 text-base font-bold text-[#0f2e23]">Invia la richiesta ai fornitori scelti</h2>
+          <p className="mt-1 text-xs leading-5 text-[#3f564a]">
             Un&apos;email separata per fornitore, con link personale. I prezzi target restano interni.
           </p>
         </div>
@@ -183,7 +183,7 @@ export function RfqDispatchPanel({
           <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
             {isDraft ? "Invia la richiesta ai fornitori scelti" : "Tracking inviti fornitori."}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-[#66736e]">
+          <p className="mt-2 text-sm leading-6 text-[#3f564a]">
             Ogni fornitore riceve un&apos;email separata con link personale. Gli altri destinatari non sono visibili.
             Il Target €/t e il Target €/m restano dati interni del buyer e non vengono inviati.
           </p>
@@ -193,7 +193,7 @@ export function RfqDispatchPanel({
           {statusCounts.map(([status, count]) => (
             <span
               key={status}
-              className="rounded-full border border-[#d5dfdb] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#52615b]"
+              className="rounded-full border border-[#bfd0c5] bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.08em] text-[#3f564a]"
             >
               {status} · {count}
             </span>
@@ -204,19 +204,19 @@ export function RfqDispatchPanel({
 
       {isDraft && canExecute && !(side && suppliers.length === 0) ? (
         <div className={side
-          ? "mt-3 grid gap-3 border-t border-[#e7eee9] pt-3"
-          : "mt-5 grid gap-4 border-t border-[#dce7e2] pt-5 lg:grid-cols-[260px_1fr_auto] lg:items-end"}>
-          <label className="text-xs font-semibold text-[#52615b]">
+          ? "mt-3 grid gap-3 border-t border-[#d3e0d7] pt-3"
+          : "mt-5 grid gap-4 border-t border-[#d3e0d7] pt-5 lg:grid-cols-[260px_1fr_auto] lg:items-end"}>
+          <label className="text-xs font-semibold text-[#173f35]">
             Scadenza offerta
             <input
               type="datetime-local"
               value={deadline}
               onChange={(event) => { setDeadline(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
-              className="mt-1.5 h-11 w-full rounded-xl border border-[#cfd8d4] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
+              className="mt-1.5 h-11 w-full rounded-xl border border-[#bfd0c5] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
             />
           </label>
 
-          <label className="text-xs font-semibold text-[#52615b]">
+          <label className="text-xs font-semibold text-[#173f35]">
             Messaggio ai fornitori
             <textarea
               value={message}
@@ -224,7 +224,7 @@ export function RfqDispatchPanel({
               rows={side ? 2 : 3}
               maxLength={4000}
               placeholder="Es. Vi chiediamo la vostra migliore offerta e disponibilità."
-              className="mt-1.5 w-full rounded-xl border border-[#cfd8d4] bg-white px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
+              className="mt-1.5 w-full rounded-xl border border-[#bfd0c5] bg-white px-3 py-2.5 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
             />
           </label>
 
@@ -245,19 +245,19 @@ export function RfqDispatchPanel({
         <div role="region" aria-label="Conferma finale invio RFQ"
           className="mt-4 rounded-2xl border-2 border-[#174b3d] bg-white p-4 sm:p-5">
           <h3 className="text-base font-extrabold text-[#173f35]">Conferma l&apos;invio a {suppliers.length} fornitori</h3>
-          <p className="mt-1 text-xs leading-5 text-[#52615b]">
+          <p className="mt-1 text-xs leading-5 text-[#3f564a]">
             Partiranno email separate, una per indirizzo, con il link personale alla richiesta.
             Il Marketplace non verrà pubblicato e i prezzi target interni non saranno condivisi.
           </p>
-          <ul className="mt-3 max-h-60 space-y-2 overflow-y-auto rounded-xl border border-[#e1e8e4] bg-[#f9fbfa] p-3">
+          <ul className="mt-3 max-h-60 space-y-2 overflow-y-auto rounded-xl border border-[#bfd0c5] bg-[#f9fbfa] p-3">
             {suppliers.map((supplier, index) => (
-              <li key={supplier.id} className="flex min-w-0 flex-col gap-1 border-b border-[#e4eae6] pb-2 text-xs last:border-0 last:pb-0 sm:flex-row sm:justify-between">
+              <li key={supplier.id} className="flex min-w-0 flex-col gap-1 border-b border-[#d3e0d7] pb-2 text-xs last:border-0 last:pb-0 sm:flex-row sm:justify-between">
                 <span className="font-bold text-[#173f35]">{index + 1}. {supplier.name || "Fornitore"}</span>
-                <span className="break-all text-[#52615b]">{supplier.email || "Email mancante"}</span>
+                <span className="break-all text-[#3f564a]">{supplier.email || "Email mancante"}</span>
               </li>
             ))}
           </ul>
-          <div className="mt-3 space-y-1 text-xs leading-5 text-[#52615b]">
+          <div className="mt-3 space-y-1 text-xs leading-5 text-[#3f564a]">
             <p><strong>Canale effettivo:</strong> email individuali, non messaggio interno alla piattaforma.</p>
             <p><strong>Scadenza offerta:</strong> {deadline ? new Date(deadline).toLocaleString("it-IT") : "non specificata"}</p>
             <p><strong>Messaggio:</strong> {message.trim() || "Nessun messaggio aggiuntivo"}</p>
@@ -273,7 +273,7 @@ export function RfqDispatchPanel({
               {launchPending ? "Invio in corso…" : "Conferma e invia a " + suppliers.length + " fornitori"}
             </button>
             <button type="button" onClick={() => { setConfirmOpen(false); setConfirmChecked(false); }}
-              disabled={launchPending} className="min-h-11 rounded-xl border border-[#c3d5cb] bg-white px-4 text-sm font-semibold text-[#174b3d] disabled:opacity-50">
+              disabled={launchPending} className="min-h-11 rounded-xl border border-[#bfd0c5] bg-white px-4 text-sm font-semibold text-[#174b3d] disabled:opacity-50">
               Annulla, modifica la RFQ
             </button>
           </div>
@@ -297,13 +297,13 @@ export function RfqDispatchPanel({
       ) : null}
 
       {!isDraft && canExecute ? (
-        <div className="mt-5 flex flex-wrap gap-3 border-t border-[#dce7e2] pt-5">
+        <div className="mt-5 flex flex-wrap gap-3 border-t border-[#d3e0d7] pt-5">
           {failed > 0 ? (
             <button
               type="button"
               onClick={retry}
               disabled={retryPending}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#b8d2c8] bg-white px-5 text-sm font-bold text-[#173f35] disabled:opacity-50"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#bfd0c5] bg-white px-5 text-sm font-bold text-[#173f35] disabled:opacity-50"
             >
               {retryPending ? "Retry in corso…" : "Riprova " + String(failed) + " invii falliti"}
             </button>
@@ -313,14 +313,14 @@ export function RfqDispatchPanel({
             type="button"
             onClick={remind}
             disabled={reminderPending || reminderCandidates < 1}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#b8d2c8] bg-white px-5 text-sm font-bold text-[#173f35] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[#bfd0c5] bg-white px-5 text-sm font-bold text-[#173f35] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {reminderPending
               ? "Promemoria in corso…"
               : "Invia promemoria governato"}
           </button>
 
-          <p className="w-full text-xs leading-5 text-[#718078]">
+          <p className="w-full text-xs leading-5 text-[#4a6155]">
             I promemoria partono solo dopo 24 ore dall&apos;invio precedente, massimo 2 per fornitore.
             Risposte, decline, bounce e complaint vengono esclusi automaticamente.
           </p>
@@ -328,13 +328,13 @@ export function RfqDispatchPanel({
       ) : null}
 
       {!canExecute ? (
-        <p className="mt-4 rounded-xl border border-[#dce2df] bg-white px-4 py-3 text-xs font-semibold text-[#66736e]">
+        <p className="mt-4 rounded-xl border border-[#bfd0c5] bg-white px-4 py-3 text-xs font-semibold text-[#3f564a]">
           Modalità consultazione: launch, retry e reminder restano azioni dell&apos;owner RFQ.
         </p>
       ) : null}
 
       {feedback ? (
-        <p className="mt-4 rounded-xl bg-white px-4 py-3 text-xs font-semibold text-[#52615b]">
+        <p className="mt-4 rounded-xl bg-white px-4 py-3 text-xs font-semibold text-[#3f564a]">
           {feedback}
         </p>
       ) : null}

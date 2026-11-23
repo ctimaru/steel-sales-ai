@@ -269,11 +269,11 @@ export function RfqSupplierPicker({
             className="h-5 w-5 shrink-0 accent-[#175640]" />
           <span className="min-w-0 flex-1">
             <span className="block truncate text-sm font-semibold text-[#173f35]">{name}</span>
-            <span className="block truncate text-[11px] text-[#5c7063]">
+            <span className="block truncate text-[11px] text-[#3f564a]">
               {row.reachable ? (row.reason ?? channelLabel(row.delivery_channel)) : "Nessun contatto verificato: non si può ancora invitare"}
             </span>
           </span>
-          {row.country_code ? <span className="shrink-0 text-[10px] font-semibold text-[#6b7f73]">{row.country_code}</span> : null}
+          {row.country_code ? <span className="shrink-0 text-[10px] font-semibold text-[#4a6155]">{row.country_code}</span> : null}
         </label>
       </li>
     );
@@ -289,10 +289,10 @@ export function RfqSupplierPicker({
 
   return (
     <div data-testid="rfq-supplier-picker" className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
-      <section aria-labelledby="rfq-picker-title" className="min-w-0 rounded-2xl border border-[#d6e5db] bg-white p-3 sm:p-4">
+      <section aria-labelledby="rfq-picker-title" className="min-w-0 rounded-2xl border border-[#bfd0c5] bg-white p-3 shadow-[0_1px_3px_rgba(15,46,35,0.08)] sm:p-4">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
           <h2 id="rfq-picker-title" className="text-base font-bold text-[#143f30]">A chi chiedi l&apos;offerta?</h2>
-          <p className="text-[11px] text-[#5c7063]">Spunta e aggiungi. Da qui non parte nulla.</p>
+          <p className="text-[11px] text-[#3f564a]">Spunta e aggiungi. Da qui non parte nulla.</p>
         </div>
 
         {pinned ? (
@@ -319,16 +319,16 @@ export function RfqSupplierPicker({
                   </p>
                 );
               }
-              if (!pinnedRow) return <p className="px-1 text-xs text-[#5c7063]">Cerco {pinned.name}…</p>;
+              if (!pinnedRow) return <p className="px-1 text-xs text-[#3f564a]">Cerco {pinned.name}…</p>;
               const isChecked = Boolean(checked[pinnedRow.identity_key]);
               return (
-                <label className={"flex min-h-12 items-center gap-3 rounded-xl border border-[#b9d3c4] px-3 py-2 " +
+                <label className={"flex min-h-12 items-center gap-3 rounded-xl border border-[#bfd0c5] px-3 py-2 " +
                   (canEdit ? "cursor-pointer" : "cursor-not-allowed opacity-70") + (isChecked ? " bg-[#eaf4ee]" : " bg-white")}>
                   <input type="checkbox" checked={isChecked} disabled={!canEdit} onChange={() => toggle(pinnedRow)}
                     aria-label={"Seleziona " + pinned.name} className="h-5 w-5 shrink-0 accent-[#175640]" />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold text-[#173f35]">{pinned.name}</span>
-                    <span className="block truncate text-[11px] text-[#5c7063]">{subtitle}</span>
+                    <span className="block truncate text-[11px] text-[#3f564a]">{subtitle}</span>
                   </span>
                 </label>
               );
@@ -338,11 +338,11 @@ export function RfqSupplierPicker({
 
         <div className="relative mt-3">
           <label htmlFor="rfq-picker-search" className="sr-only">Cerca un fornitore</label>
-          <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#6b8475]">⌕</span>
+          <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[#4a6155]">⌕</span>
           <input id="rfq-picker-search" type="search" value={query} autoComplete="off"
             onChange={(event) => { setQuery(event.target.value); setMessage(null); setExpanded(false); }}
             placeholder="Cerca per nome, email, P.IVA o sito"
-            className="h-11 w-full rounded-xl border border-[#c9dccf] bg-white pl-9 pr-3 text-sm text-[#173f35] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15" />
+            className="h-11 w-full rounded-xl border border-[#bfd0c5] bg-white pl-9 pr-3 text-sm text-[#173f35] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15" />
         </div>
 
         {!searchRows ? (
@@ -354,8 +354,8 @@ export function RfqSupplierPicker({
                 <button key={group} type="button" role="tab" aria-selected={selectedTab}
                   onClick={() => { setTab(group); setExpanded(false); }}
                   className={"shrink-0 rounded-full border px-3 py-1.5 text-xs font-semibold transition " +
-                    (selectedTab ? "border-[#175640] bg-[#175640] text-white" : "border-[#d6e5db] bg-white text-[#2f5a45] hover:bg-[#f2f8f4]")}>
-                  {groupTitles[group].title} <span className={selectedTab ? "text-white/80" : "text-[#6b7f73]"}>{count}</span>
+                    (selectedTab ? "border-[#175640] bg-[#175640] text-white" : "border-[#7a9585] bg-white text-[#173f35] hover:border-[#175640] hover:bg-[#f2f8f4]")}>
+                  {groupTitles[group].title} <span className={selectedTab ? "text-white" : "text-[#4a6155]"}>{count}</span>
                 </button>
               );
             })}
@@ -367,20 +367,20 @@ export function RfqSupplierPicker({
         )}
 
         <div role={searchRows ? undefined : "tabpanel"} className="mt-2">
-          {loading && !searchRows ? <p className="px-1 py-3 text-sm text-[#5c7063]">Carico i fornitori…</p>
+          {loading && !searchRows ? <p className="px-1 py-3 text-sm text-[#3f564a]">Carico i fornitori…</p>
             : loadError && !searchRows ? <p role="alert" className="px-1 py-3 text-sm font-semibold text-[#8c431e]">{loadError}</p>
             : !searchRows && activeTab === "recommended" && !networkEnabled ? (
               <p className="rounded-xl border border-dashed border-[#d4c58f] bg-[#fffaf0] p-3 text-xs leading-5 text-[#6b5520]">
                 <strong className="font-bold">Consigliati dal Network</strong> · disponibili con Network PRO: aziende che lavorano i prodotti della tua distinta.
               </p>
             ) : !activeRows.length ? (
-              <p className="rounded-xl bg-[#f6f9f7] px-3 py-3 text-xs text-[#5c7063]">{emptyText()}</p>
+              <p className="rounded-xl bg-[#f6f9f7] px-3 py-3 text-xs text-[#3f564a]">{emptyText()}</p>
             ) : (
               <>
                 {!searchRows && activeTab === "recommended" && familyText ? (
-                  <p className="mb-1.5 px-1 text-[11px] text-[#5c7063]">Aziende del Network che lavorano {familyText}</p>
+                  <p className="mb-1.5 px-1 text-[11px] text-[#3f564a]">Aziende del Network che lavorano {familyText}</p>
                 ) : null}
-                <ul className="divide-y divide-[#edf2ee] overflow-hidden rounded-xl border border-[#e1eae4]">
+                <ul className="divide-y divide-[#d3e0d7] overflow-hidden rounded-xl border border-[#9fb4a7]">
                   {shownRows.map(renderRow)}
                 </ul>
                 {activeRows.length > ROWS_PER_PAGE ? (
@@ -394,15 +394,15 @@ export function RfqSupplierPicker({
         </div>
 
         {canEdit ? (
-          <div className="mt-3 border-t border-[#e7eee9] pt-2">
+          <div className="mt-3 border-t border-[#d3e0d7] pt-2">
             {manualOpen ? (
               <form onSubmit={addManual} className="grid gap-2 pt-1 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
                 <label className="sr-only" htmlFor="rfq-picker-manual-name">Nome del fornitore</label>
                 <input id="rfq-picker-manual-name" name="name" placeholder="Nome azienda (facoltativo)"
-                  className="h-11 rounded-xl border border-[#c9dccf] px-3 text-sm outline-none focus:border-[#175640]" />
+                  className="h-11 rounded-xl border border-[#bfd0c5] px-3 text-sm outline-none focus:border-[#175640]" />
                 <label className="sr-only" htmlFor="rfq-picker-manual-email">Email del fornitore</label>
                 <input id="rfq-picker-manual-email" name="email" type="email" required placeholder="offerte@fornitore.it"
-                  className="h-11 rounded-xl border border-[#c9dccf] px-3 text-sm outline-none focus:border-[#175640]" />
+                  className="h-11 rounded-xl border border-[#bfd0c5] px-3 text-sm outline-none focus:border-[#175640]" />
                 <button type="submit" disabled={pending}
                   className="h-11 rounded-xl border border-[#175640] px-4 text-sm font-bold text-[#175640] hover:bg-[#eef7f1] disabled:opacity-50">
                   Aggiungi
@@ -418,7 +418,7 @@ export function RfqSupplierPicker({
         ) : null}
 
         {checkedRows.length ? (
-          <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#b9d3c4] bg-[#f3faf6] p-2.5 shadow-[0_8px_24px_rgba(19,65,43,0.12)] lg:bottom-3">
+          <div className="sticky bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-10 mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#bfd0c5] bg-[#f3faf6] p-2.5 shadow-[0_8px_24px_rgba(19,65,43,0.12)] lg:bottom-3">
             <p className="text-xs font-semibold text-[#1d5748]">{checkedRows.length} selezionati</p>
             <div className="flex items-center gap-2">
               <button type="button" onClick={() => setChecked({})} disabled={pending}
@@ -438,9 +438,9 @@ export function RfqSupplierPicker({
       </section>
 
       <aside aria-label="Destinatari e invio" className="min-w-0 space-y-3 lg:sticky lg:top-24">
-        <section aria-labelledby="rfq-picker-selected" className="rounded-2xl border border-[#d6e5db] bg-white p-3 sm:p-4">
+        <section aria-labelledby="rfq-picker-selected" className="rounded-2xl border border-[#bfd0c5] bg-white p-3 shadow-[0_1px_3px_rgba(15,46,35,0.08)] sm:p-4">
           <h2 id="rfq-picker-selected" className="text-sm font-bold text-[#143f30]">
-            Destinatari <span className="font-semibold text-[#6b7f73]">· {selected.length}</span>
+            Destinatari <span className="font-semibold text-[#4a6155]">· {selected.length}</span>
           </h2>
           {selected.length ? (
             <ul className="mt-2 max-h-56 space-y-1.5 overflow-y-auto">
@@ -448,12 +448,12 @@ export function RfqSupplierPicker({
                 <li key={supplier.id} className="flex items-center gap-2 rounded-lg bg-[#f5f9f6] px-2.5 py-1.5">
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-xs font-semibold text-[#173f35]">{supplier.name}</span>
-                    <span className="block truncate text-[10px] text-[#5c7063]">{supplier.email ?? channelLabel(supplier.channel)}</span>
+                    <span className="block truncate text-[10px] text-[#3f564a]">{supplier.email ?? channelLabel(supplier.channel)}</span>
                   </span>
                   {canEdit && supplier.removable ? (
                     <button type="button" onClick={() => remove(supplier)} disabled={pending}
                       aria-label={"Togli " + supplier.name}
-                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#6b5b4a] hover:bg-[#f6ebe4] disabled:opacity-50">
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[#4a6155] hover:bg-[#f6ebe4] disabled:opacity-50">
                       {removing === supplier.id ? "…" : "×"}
                     </button>
                   ) : null}
@@ -461,7 +461,7 @@ export function RfqSupplierPicker({
               ))}
             </ul>
           ) : (
-            <p className="mt-2 text-xs leading-5 text-[#5c7063]">Ancora nessuno: spunta i fornitori e premi «Aggiungi».</p>
+            <p className="mt-2 text-xs leading-5 text-[#3f564a]">Ancora nessuno: spunta i fornitori e premi «Aggiungi».</p>
           )}
           {selected.length ? (
             <Link href={continueHref} data-testid="rfq-step2-continue"
@@ -470,11 +470,11 @@ export function RfqSupplierPicker({
             </Link>
           ) : (
             <span aria-disabled="true"
-              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#e6ede9] px-4 text-sm font-bold text-[#4b5d53]">
+              className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl border-2 border-dashed border-[#9fb4a7] bg-[#f4f7f5] px-4 text-sm font-bold text-[#3f564a]">
               Continua: messaggio e invio →
             </span>
           )}
-          <p className="mt-2 text-[11px] leading-4 text-[#5c7063]">Al passo 3 scrivi messaggio e scadenza. Nulla parte senza la tua conferma.</p>
+          <p className="mt-2 text-[11px] leading-4 text-[#3f564a]">Al passo 3 scrivi messaggio e scadenza. Nulla parte senza la tua conferma.</p>
         </section>
       </aside>
     </div>

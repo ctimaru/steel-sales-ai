@@ -64,29 +64,29 @@ export function DistintaSheet({
   const incomplete = calculated.filter((line) => !line.complete).length;
   const busy = !ready || savePending || rfqPending;
   const documentsText = formatBuyerDocumentRequirements(documents);
-  const input = "h-10 w-full rounded-lg border border-[#c9dccf] bg-white px-2.5 text-sm text-[#173f35] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15";
-  const label = "block text-[11px] font-semibold text-[#4f6b5b]";
+  const input = "h-10 w-full rounded-lg border border-[#bfd0c5] bg-white px-2.5 text-sm text-[#173f35] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15";
+  const label = "block text-[11px] font-semibold text-[#3f564a]";
 
   return (
     <section aria-labelledby="distinta-sheet-title" data-testid="distinta-sheet"
-      className="rounded-2xl border border-[#d6e5db] bg-white">
-      <header className="flex flex-wrap items-end justify-between gap-2 border-b border-[#e3ece6] px-3 py-3 sm:px-4">
+      className="rounded-2xl border border-[#bfd0c5] bg-white shadow-[0_1px_3px_rgba(15,46,35,0.08)]">
+      <header className="flex flex-wrap items-end justify-between gap-2 border-b border-[#d3e0d7] px-3 py-3 sm:px-4">
         <div className="min-w-0 flex-1">
           <label htmlFor="distinta-sheet-title" className="sr-only">Nome della distinta</label>
           {/* Disabled until the tab draft decision, so early keystrokes are never overwritten. */}
           <input id="distinta-sheet-title" value={title} disabled={!ready}
             onChange={(event) => onTitleChange(event.target.value)}
-            className="w-full max-w-md rounded-md border border-transparent bg-transparent px-1 py-0.5 text-base font-bold text-[#143f30] hover:border-[#d6e5db] focus:border-[#175640] focus:outline-none" />
-          <p className="px-1 text-xs text-[#5c7063]">
+            className="distinta-bare-field w-full max-w-md rounded-md border bg-transparent px-1 py-0.5 text-base font-bold text-[#0f2e23]" />
+          <p className="px-1 text-xs text-[#3f564a]">
             {lines.length} {lines.length === 1 ? "articolo" : "articoli"} · clic su una riga per norma, grado e note
           </p>
         </div>
-        <span className="rounded-full bg-[#eef5f0] px-2.5 py-1 text-[11px] font-semibold text-[#315e49]">
+        <span className="rounded-full border border-[#9fb4a7] bg-[#eef5f0] px-2.5 py-1 text-[11px] font-semibold text-[#175640]">
           {savedId ? "Salvata" : "Bozza privata"}
         </span>
       </header>
 
-      <ol aria-label="Articoli della distinta" data-testid="distinta-sheet-lines" className="divide-y divide-[#e8efea]">
+      <ol aria-label="Articoli della distinta" data-testid="distinta-sheet-lines" className="divide-y divide-[#d3e0d7]">
         {lines.map((line, index) => {
           const calc = calculated[index];
           const open = openRows[line.id] ?? !calc.complete;
@@ -99,10 +99,10 @@ export function DistintaSheet({
                   onClick={() => setOpenRows((current) => ({ ...current, [line.id]: !open }))}
                   className="min-w-0 rounded-md px-1 py-0.5 text-left hover:bg-[#f4f8f5]">
                   <span className="block truncate text-sm font-semibold text-[#173f35]">
-                    <span className="mr-1.5 text-xs font-normal text-[#7b8f82]">{index + 1}</span>
+                    <span className="mr-1.5 text-xs font-normal text-[#4a6155]">{index + 1}</span>
                     {line.description.trim() || "Articolo da compilare"}
                   </span>
-                  <span className={"block truncate text-xs " + (calc.complete ? "text-[#5c7063]" : "font-semibold text-[#8c511c]")}>
+                  <span className={"block truncate text-xs " + (calc.complete ? "text-[#3f564a]" : "font-semibold text-[#8c511c]")}>
                     {calc.complete
                       ? [line.standard || "Norma da indicare", line.grade, line.quantityMode === "bars" ? "barre da " + line.barLengthM + " m" : ""].filter(Boolean).join(" · ")
                       : missingText(line, calc)}
@@ -113,12 +113,12 @@ export function DistintaSheet({
                   <input id={"buyer-quantity-" + line.id} inputMode="decimal" autoComplete="off" value={line.quantity}
                     disabled={!ready} placeholder="0"
                     onChange={(event) => onUpdateLine(line.id, { quantity: event.target.value })}
-                    className="h-9 w-16 rounded-lg border border-[#c9dccf] bg-white px-2 text-right text-sm tabular-nums text-[#173f35] outline-none focus:border-[#175640]" />
-                  <span className="w-9 text-xs text-[#5c7063]">{unitShort[line.quantityMode]}</span>
+                    className="h-9 w-16 rounded-lg border border-[#bfd0c5] bg-white px-2 text-right text-sm tabular-nums text-[#173f35] outline-none focus:border-[#175640]" />
+                  <span className="w-9 text-xs text-[#3f564a]">{unitShort[line.quantityMode]}</span>
                 </span>
                 <span className="hidden text-right text-sm tabular-nums text-[#173f35] sm:block">{fmt(calc.tonnes, 2)} t</span>
                 <button type="button" onClick={() => onRemove(line.id)} aria-label={"Rimuovi riga " + (index + 1)}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#7b8f82] hover:bg-[#fbefe9] hover:text-[#8c431e]">×</button>
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-[#4a6155] hover:bg-[#fbefe9] hover:text-[#8c431e]">×</button>
               </div>
 
               <div id={detailsId} hidden={!open} className="mt-2 grid gap-2 rounded-xl bg-[#f6faf7] p-3 sm:grid-cols-3">
@@ -186,7 +186,7 @@ export function DistintaSheet({
                     placeholder="Tolleranze, consegna…" className={input + " mt-1"} />
                 </label>
                 <div className="flex items-end justify-between gap-2 sm:col-span-3">
-                  <span className="text-xs text-[#5c7063]">{fmt(calc.meters, 2)} m · {fmt(calc.tonnes, 3)} t</span>
+                  <span className="text-xs text-[#3f564a]">{fmt(calc.meters, 2)} m · {fmt(calc.tonnes, 3)} t</span>
                   <button type="button" onClick={() => onDuplicate(line.id)}
                     disabled={!line.description.trim() || lines.length >= 500}
                     className="min-h-9 rounded-lg px-2 text-xs font-semibold text-[#175640] underline underline-offset-4 disabled:opacity-40">
@@ -201,11 +201,11 @@ export function DistintaSheet({
       <datalist id="distinta-sheet-grades">{guidedTubeGrades.map((value) => <option key={value} value={value} />)}</datalist>
       <datalist id="distinta-sheet-finishes"><option value="Nero" /><option value="Zincato" /><option value="Decapato" /></datalist>
 
-      <footer className="space-y-3 border-t border-[#e3ece6] px-3 py-3 sm:px-4">
+      <footer className="space-y-3 border-t border-[#d3e0d7] px-3 py-3 sm:px-4">
         <details className="group text-xs text-[#36584a]">
           <summary className="inline-flex min-h-8 cursor-pointer items-center gap-1 font-semibold">
             Documenti richiesti {documentsText ? "· " + documentsText : "· facoltativi"}
-            <span aria-hidden="true" className="text-[#6b8475] group-open:rotate-180">⌄</span>
+            <span aria-hidden="true" className="text-[#4a6155] group-open:rotate-180">⌄</span>
           </summary>
           <div className="mt-2 grid gap-2 rounded-xl bg-[#f6faf7] p-3 sm:grid-cols-3">
             <label className={label}>
@@ -230,7 +230,7 @@ export function DistintaSheet({
                 onChange={(event) => onDocumentsChange({ ...documents, iso9001: event.target.checked })} />
               Produttore certificato UNI EN ISO 9001
             </label>
-            <p className="text-[11px] text-[#5c7063] sm:col-span-3">Vale per tutta la richiesta, non per il singolo articolo.</p>
+            <p className="text-[11px] text-[#3f564a] sm:col-span-3">Vale per tutta la richiesta, non per il singolo articolo.</p>
           </div>
         </details>
 
@@ -259,7 +259,7 @@ export function DistintaSheet({
         </div>
         {saveMessage ? <p role="status" className="text-xs text-[#315e49]">{saveMessage}</p> : null}
         {rfqMessage ? <p role="alert" className="text-xs font-semibold text-[#8c511c]">{rfqMessage}</p> : null}
-        <p className="text-[11px] text-[#5c7063]">Scegliere i fornitori non invia nulla: l’invio parte solo dopo la tua conferma.</p>
+        <p className="text-[11px] text-[#3f564a]">Scegliere i fornitori non invia nulla: l’invio parte solo dopo la tua conferma.</p>
       </footer>
     </section>
   );
