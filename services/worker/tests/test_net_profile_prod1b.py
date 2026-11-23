@@ -124,6 +124,33 @@ class ManufacturerEvidenceTest(unittest.TestCase):
                          ["description", "services"])
         self.assertEqual(rows[-1]["field_value"], ["Taglio laser"])
 
+    def test_product_end_use_does_not_become_another_manufactured_family(self):
+        cases = {
+            "Produciamo lamiere per strutture metalliche e carpenteria industriale.":
+                ["Lamiere"],
+            "Produciamo stampi per tubi e condotte industriali.":
+                ["Stampi e portastampi"],
+            "Produciamo profilati in acciaio destinati a strutture metalliche.":
+                ["Profilati in acciaio"],
+            "Produciamo tubi e lamiere per applicazioni industriali.":
+                ["Tubi e condotte", "Lamiere"],
+        }
+        for sentence, expected in cases.items():
+            with self.subTest(sentence=sentence):
+                facts = source_backed_facts(page(sentence))
+                self.assertEqual(facts[0]["field_key"], "products")
+                self.assertEqual(facts[0]["field_value"], expected)
+
+    def test_working_end_use_is_not_a_separate_offered_working(self):
+        facts = source_backed_facts(page(
+            "Eseguiamo taglio laser e saldatura per carpenteria metallica "
+            "e strutture industriali su specifica del cliente."
+        ))
+        self.assertEqual(facts[-1]["field_key"], "services")
+        self.assertEqual(facts[-1]["field_value"], ["Taglio laser", "Saldatura"])
+        self.assertNotIn("products", [x["field_key"] for x in facts])
+
+
     def test_moulds_for_tube_production_are_not_tube_products(self):
         rows = source_backed_facts(page(
             "Produciamo stampi e portastampi per la produzione di tubi "

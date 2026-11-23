@@ -103,6 +103,114 @@ class SemanticEvidenceTest(unittest.TestCase):
         self.assertEqual([x["field_key"] for x in facts], ["description", "services"])
         self.assertEqual(facts[-1]["field_value"], ["Saldatura", "Calandratura"])
 
+    def test_elementor_nested_div_leaf_proves_official_tube_production(self):
+        p = content_page("""<main><div class="elementor-widget-text-editor">
+          <div class="elementor-widget-container">
+            <div class="body-copy"><span>La nostra azienda</span>
+              <strong>produce tubi e condotte</strong> in acciaio
+              per applicazioni strutturali e meccaniche industriali.</div>
+          </div>
+          </div></main>""")
+        self.assertEqual(len(p.evidence_blocks), 1)
+        facts = source_backed_facts(p)
+        self.assertEqual(facts[0]["field_value"], ["Tubi e condotte"])
+        self.assertIn("azienda produce tubi", facts[0]["evidence_excerpt"])
+
+    def test_wordpress_group_leaf_without_paragraph(self):
+        p = content_page("""<main><div class="wp-block-group">
+           <div class="wp-block-group__inner-container">
+             <div class="custom-section">
+               Effettuiamo lavorazioni meccaniche e tornitura conto terzi
+               su componenti industriali per carpenteria e costruzioni.
+             </div>
+           </div>
+         </div></main>""")
+        facts = source_backed_facts(p)
+        self.assertEqual(len(p.evidence_blocks), 1)
+        self.assertEqual([x["field_key"] for x in facts], ["description", "services"])
+        self.assertEqual(facts[-1]["field_value"], ["Tornitura", "Lavorazioni meccaniche"])
+
+    def test_article_untagged_div_leaf_is_bounded_narrative(self):
+        p = content_page("""<main><article><div>
+            Siamo specializzati nella saldatura e nella piegatura
+            di componenti metallici destinati a strutture e progetti
+            meccanici per clienti industriali in Italia.
+          </div></article></main>""")
+        facts = source_backed_facts(p)
+        self.assertEqual(facts[-1]["field_value"], ["Saldatura", "Piegatura"])
+
+    def test_arbitrary_main_div_without_editor_is_not_automatic_proof(self):
+        p = content_page("""<main><div>
+          La nostra azienda produce tubi e condotte per applicazioni
+          strutturali e industriali con processi certificati.
+          </div></main>""")
+        self.assertEqual(source_backed_facts(p), [])
+
+    def test_nested_menu_and_editor_are_never_joined(self):
+        p = content_page("""<main><div class="elementor-widget-text-editor">
+           Produciamo
+           <div class="menu"><span>tubi per strutture industriali</span></div>
+           <div>attrezzature per la produzione di macchine industriali</div>
+          </div></main>""")
+        self.assertEqual(source_backed_facts(p), [])
+
+    def test_links_buttons_headings_never_convert_wrapper_into_proof(self):
+        examples = (
+            """<div class="elementor-widget-text-editor">
+              Produciamo <a href="/tubi/">tubi e condotte industriali</a>
+              con servizi specializzati nei settori strutturali.</div>""",
+            """<div class="elementor-widget-container">
+              <h2>Produciamo tubi e condotte per applicazioni
+              industriali e strutturali.</h2></div>""",
+            """<div class="elementor-widget-text-editor">
+              La nostra azienda produce tubi e condotte industriali
+              <button>Richiedi un preventivo</button></div>""",
+            """<div class="elementor-widget-text-editor">
+              La nostra azienda produce tubi e condotte industriali
+              <p>Il portale è attivo per tutte le aziende registrate.</p>
+              </div>""",
+        )
+        for html in examples:
+            with self.subTest(html=html):
+                self.assertEqual(source_backed_facts(content_page(html)), [])
+
+    def test_editorial_markup_nested_in_hidden_navigation_rejected(self):
+        examples = (
+            """<div class="nav-primary"><div class="wp-block-group">
+                 <span>Produciamo tubi e condotte industriali
+                 destinati a progetti strutturali</span></div></div>""",
+            """<div role="navigation"><article><div>
+                La nostra azienda produce tubi e condotte
+                per il settore industriale italiano.</div></article></div>""",
+            """<div class="popup-modal"><div class="elementor-widget-container">
+                La nostra azienda produce profilati in acciaio
+                per applicazioni strutturali industriali.</div></div>""",
+            """<div aria-hidden="true" class="wp-block-group">
+                La nostra azienda produce tubi e condotte
+                per il mercato delle strutture industriali.</div>""",
+        )
+        for html in examples:
+            with self.subTest(html=html):
+                self.assertEqual(source_backed_facts(content_page(html)), [])
+
+    def test_wordpress_parent_is_not_joined_across_multiple_child_blocks(self):
+        p = content_page("""<main><div class="wp-block-group">
+             <div class="wp-block-group__inner-container">
+               <div>La nostra azienda produce attrezzature
+                    per macchinari e componenti industriali.</div>
+               <div>tubi e condotte per il settore strutturale.</div>
+             </div>
+           </div></main>""")
+        self.assertEqual(source_backed_facts(p), [])
+
+    def test_semantic_itemprop_description_without_paragraph(self):
+        p = content_page("""<main><section itemprop="description">
+          La nostra azienda produce lamiere per componenti
+          destinati a strutture metalliche e costruzioni
+          nel settore siderurgico e meccanico nazionale.
+        </section></main>""")
+        self.assertEqual(source_backed_facts(p)[0]["field_value"], ["Lamiere"])
+
     def test_deduplicates_and_bounds_body_prose(self):
         html = "<main>" + "".join(
             f"<p>Eseguiamo taglio laser su componenti industriali {i}.</p>"
