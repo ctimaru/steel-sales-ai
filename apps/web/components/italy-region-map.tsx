@@ -100,14 +100,20 @@ export function ItalyRegionMap({
                   className="group cursor-pointer outline-none">
                   <path
                     d={region.path}
-                    fill={active ? "#17604e" : count !== null && count > 0 ? "#79bda5" : provisional > 0 ? "#e6cb85" : "#dbe9e1"}
-                    stroke="#ffffff" strokeWidth={2}
-                    className="transition-colors group-hover:fill-[#2c8669] group-focus-visible:fill-[#256e58] group-focus-visible:stroke-[#b56a22] group-focus-visible:stroke-[4px]"
+                    fill={active ? "#f08a1c" : count !== null && count > 0 ? "#79bda5" : provisional > 0 ? "#e6cb85" : "#dbe9e1"}
+                    stroke={active ? "#6b3300" : "#ffffff"} strokeWidth={active ? 3 : 2}
+                    data-selected={active ? "true" : undefined}
+                    className={active ? "transition-colors" : "transition-colors group-hover:fill-[#2c8669] group-focus-visible:fill-[#256e58] group-focus-visible:stroke-[#b56a22] group-focus-visible:stroke-[4px]"}
                   />
                   {/* The enclosing SVG link already has a descriptive aria-label.\n                      Omit <title> to avoid React 19 document-metadata hoisting\n                      during server/client hydration of the interactive map. */}
                 </a>
               );
             })}
+            {/* Selected region outline on top, so neighbours never cover its border. */}
+            {ITALY_REGION_PATHS.filter((region) => region.name === selected).map((region) => (
+              <path key={"sel-" + region.code} d={region.path} fill="none" stroke="#6b3300" strokeWidth={3}
+                aria-hidden="true" pointerEvents="none" />
+            ))}
           </svg>
         </div>
 

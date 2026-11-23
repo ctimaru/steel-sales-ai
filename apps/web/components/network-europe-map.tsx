@@ -14,6 +14,10 @@ const selectableCountryCodes=new Set(EUROPE_NETWORK_COUNTRIES.map(country=>count
 const mappedCountries=EUROPE_EXTENDED_COUNTRY_SHAPES.filter(shape=>selectableCountryCodes.has(shape.code));
 const contextualCountries=EUROPE_EXTENDED_COUNTRY_SHAPES.filter(shape=>!selectableCountryCodes.has(shape.code));
 const europeCountryCount=EUROPE_NETWORK_COUNTRIES.length;
+/** Selected country/region: warm accent, clearly distinct from the green scale
+ * used for counts, with a dark outline so it reads on any neighbour. */
+export const MAP_SELECTED_FILL="#f08a1c";
+export const MAP_SELECTED_STROKE="#6b3300";
 
 /** Same URL facets as the Network filters; never preserve Italian region or page
  * across a country change. Access controls stay in the server-side query path.
@@ -124,16 +128,23 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,
           onNavigate(href,"country");
         }}>
         <path d={shape.path} fillRule="evenodd"
-          fill={isCurrent?"#165b43":publishedCount>0?"#92bea7":countsAvailable?"#d5e5dc":"#bfddcd"} stroke="#ffffff"
-          strokeWidth={compact?2.2:1.8} vectorEffect="non-scaling-stroke"
-          className="transition-colors group-hover:fill-[#2e886a] group-focus-visible:fill-[#1b7352] group-focus-visible:stroke-[#a46620]"/>
+          fill={isCurrent?MAP_SELECTED_FILL:publishedCount>0?"#92bea7":countsAvailable?"#d5e5dc":"#bfddcd"}
+          stroke={isCurrent?MAP_SELECTED_STROKE:"#ffffff"}
+          strokeWidth={isCurrent?(compact?2.6:2.4):(compact?2.2:1.8)} vectorEffect="non-scaling-stroke"
+          data-selected={isCurrent?"true":undefined}
+          className={isCurrent?"transition-colors":"transition-colors group-hover:fill-[#2e886a] group-focus-visible:fill-[#1b7352] group-focus-visible:stroke-[#a46620]"}/>
         {tiny?<circle cx={(left+right)/2} cy={(top+bottom)/2} r={compact?8:5}
-          fill={isCurrent?"#165b43":"#77ad91"} stroke="white"
+          fill={isCurrent?MAP_SELECTED_FILL:"#77ad91"} stroke={isCurrent?MAP_SELECTED_STROKE:"white"}
           strokeWidth={2} vectorEffect="non-scaling-stroke"/>:null}
       </a>;
     })}
+    {/* Selected country outline on top, so neighbours never cover its border. */}
+    {mappedCountries.filter(shape=>shape.code===selectedCountry).map(shape=><path key={"sel-"+shape.code}
+      d={shape.path} fillRule="evenodd" fill="none" stroke={MAP_SELECTED_STROKE}
+      strokeWidth={compact?2.6:2.4} vectorEffect="non-scaling-stroke" aria-hidden="true" pointerEvents="none"/>)}
     {zoomCountry?regionShapes.map(region=>{
       const count=counts?.[region.code];
+      const isSelectedRegion=selectedRegion===region.code;
       return <a key={region.code} href={europeMapRegionHref(filters,zoomCountry,region.code)}
         data-nuts-region={region.code}
         aria-current={selectedRegion===region.code?"location":undefined}
@@ -146,11 +157,15 @@ function EuropeCanvas({filters,selectedCountry,zoomCountry,compact,regionShapes,
           onNavigate(europeMapRegionHref(filters,zoomCountry,region.code),"region");
         }}>
         <path d={region.path} fillRule="evenodd"
-          fill={selectedRegion===region.code?"#155c43":count?"#87bda4":"#d4e7da"}
-          stroke="#ffffff" strokeWidth={2} vectorEffect="non-scaling-stroke"
-          className="transition-colors group-hover:fill-[#398766] group-focus-visible:fill-[#398766] group-focus-visible:stroke-[#9b621e]"/>
+          fill={isSelectedRegion?MAP_SELECTED_FILL:count?"#87bda4":"#d4e7da"}
+          stroke={isSelectedRegion?MAP_SELECTED_STROKE:"#ffffff"} strokeWidth={isSelectedRegion?2.6:2} vectorEffect="non-scaling-stroke"
+          data-selected={isSelectedRegion?"true":undefined}
+          className={isSelectedRegion?"transition-colors":"transition-colors group-hover:fill-[#398766] group-focus-visible:fill-[#398766] group-focus-visible:stroke-[#9b621e]"}/>
       </a>;
     }):null}
+    {zoomCountry?regionShapes.filter(region=>region.code===selectedRegion).map(region=><path key={"sel-"+region.code}
+      d={region.path} fillRule="evenodd" fill="none" stroke={MAP_SELECTED_STROKE}
+      strokeWidth={2.6} vectorEffect="non-scaling-stroke" aria-hidden="true" pointerEvents="none"/>):null}
   </svg>;
 }
 
@@ -353,7 +368,8 @@ export function NetworkEuropeanMap({filters,fullMapHref,coverage,countryCounts={
             </nav>
           </section>:null}
           <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] text-[#527064]">
-            <span className="inline-block h-2.5 w-2.5 rounded-sm bg-[#92bea7]"/> Aziende nel Network
+            <span className="inline-block h-2.5 w-2.5 rounded-sm border border-[#6b3300] bg-[#f08a1c]"/> Selezionato
+            <span className="ml-2 inline-block h-2.5 w-2.5 rounded-sm bg-[#92bea7]"/> Aziende nel Network
             <span className="ml-2 inline-block h-2.5 w-2.5 rounded-sm bg-[#d5e5dc]"/> Nessuna censita
             <span className="ml-2 inline-block h-2.5 w-2.5 rounded-sm bg-[#e0eae4]"/> Contesto geografico
           </div>
