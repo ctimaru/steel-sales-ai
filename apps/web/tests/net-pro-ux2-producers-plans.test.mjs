@@ -40,7 +40,8 @@ test("NET-PRO-UX2 follow-up: comparison selection is scoped to current search, c
   // Next/Form and Next/Link preserve the client component across navigations.
   // The selected list must be empty immediately when the query or page changes,
   // even before a state effect or an explicit form handler runs.
-  assert.match(exp,/const selectionScope=JSON\.stringify\(\[query,page,country\]\)/);
+  // NET-PRODUCERS-FILTERS1: the active filters are part of the scope too.
+  assert.match(exp,/const selectionScope=JSON\.stringify\(\[query,page,country,producerFiltersKey\(filters\)\]\)/);
   assert.match(exp,/const selected=selection\.scope===selectionScope\?selection\.ids:\[\]/);
   assert.match(exp,/const ids=current\.scope===selectionScope\?current\.ids:\[\]/);
   assert.match(exp,/const clearSelection=\(\)=>setSelection\(\{scope:selectionScope,ids:\[\]\}\)/);

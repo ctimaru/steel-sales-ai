@@ -7,6 +7,14 @@ import {useEffect,useRef,useState,type FormEvent,type ReactNode} from "react";
 import {EU_MEMBER_COUNTRIES,OTHER_NETWORK_COUNTRIES,networkCountryName} from "@/lib/network-eu-countries";
 import {EuProducerIntelligenceChat,PRODUCER_QUESTION_EXAMPLES} from "@/components/eu-producer-intelligence-chat";
 import {NetworkSaveToggle} from "@/components/network-save-toggle";
+import {NetworkProducersFilterBar,type FilterFacets} from "@/components/network-producers-filter-bar";
+import {
+  EMPTY_PRODUCER_FILTERS,
+  hasActiveProducerFilters,
+  producerFilterParams,
+  producerFiltersKey,
+  type ProducerFilters,
+} from "@/lib/network-producer-filters";
 import {newRequestHref} from "@/lib/new-request-href";
 import {
   PRODUCER_VALUE_GROUPS,
@@ -45,6 +53,12 @@ type Props={
   technicalClaims:NetworkProducerTechnicalClaim[]|null;
   sourceMentions:ProducerSourceMention[]|null;
   savedIds:string[]|null;
+  /** NET-PRODUCERS-FILTERS1: filters read from the address (Italy only). */
+  filters?:ProducerFilters;
+  facets?:FilterFacets|null;
+  filtersAvailable?:boolean;
+  /** Filters were in the address but the filtered directory was unavailable. */
+  filtersDropped?:boolean;
 };
 
 type DirectoryItem={id:string;name:string;countryCode:string;websiteUrl:string|null};
@@ -67,8 +81,9 @@ function hostname(url:string|null){
   try{return new URL(url).hostname.replace(/^www\./,"");}catch{return null;}
 }
 
-function PageLink({label,query,country,page}:{label:string;query:string;country:string;page:number}){
-  const params=new URLSearchParams({q:query,country,p:String(page)});
+function PageLink({label,query,country,page,filters}:{label:string;query:string;country:string;page:number;filters:ProducerFilters}){
+  // NET-PRODUCERS-FILTERS1: pages keep the active filters and sort.
+  const params=producerFilterParams({q:query,country,page},filters);
   return <Link href={"/network/pro/producers?"+params.toString()}
     className="inline-flex min-h-10 items-center rounded-xl border border-[#c9d9ce] bg-white px-4 text-xs font-semibold text-[#18573d] hover:bg-[#f1f7f2] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#18573d]">
     {label}
@@ -118,11 +133,14 @@ function Disclosure({summary,children}:{summary:ReactNode;children:ReactNode}){
   </details>;
 }
 
-export function NetworkProducersExperience({result,query,country,page,publishedCount,catalogs,technicalClaims,sourceMentions,savedIds}:Props){
+export function NetworkProducersExperience({result,query,country,page,publishedCount,catalogs,technicalClaims,sourceMentions,savedIds,
+  filters=EMPTY_PRODUCER_FILTERS,facets=null,filtersAvailable=false,filtersDropped=false}:Props){
   const router=useRouter();
   const countryLabel=networkCountryName(country)||country;
   // Search/pagination navigations can preserve this client component: stale ids must never disable the new result list.
-  const selectionScope=JSON.stringify([query,page,country]);
+  // NET-PRODUCERS-FILTERS1: the filters are part of the scope, a new filtered list starts with no selection.
+  const selectionScope=JSON.stringify([query,page,country,producerFiltersKey(filters)]);
+  const filtering=hasActiveProducerFilters(filters);
   const [selection,setSelection]=useState<{scope:string;ids:string[]}>({scope:selectionScope,ids:[]});
   const selected=selection.scope===selectionScope?selection.ids:[];
   const clearSelection=()=>setSelection({scope:selectionScope,ids:[]});
@@ -163,9 +181,20 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
     setDraft(text);
     setAsk(current=>({id:(current?.id??0)+1,text}));
   }
+  /** From an AI answer: the standard and grade the user asked for become list filters. */
+  function applyAiFilters(found:{standard:string|null;grade:string|null}){
+    const next:ProducerFilters={
+      ...filters,
+      standards:found.standard?[found.standard]:filters.standards,
+      grades:found.grade?[found.grade]:filters.grades,
+    };
+    setAsk(null);
+    setDraft("");
+    router.push("/network/pro/producers?"+producerFilterParams({country},next).toString());
+  }
   function searchAsName(text:string){
     setAsk(null);
-    const params=new URLSearchParams({q:text.slice(0,120),country});
+    const params=producerFilterParams({q:text.slice(0,120),country},filters);
     router.push("/network/pro/producers?"+params.toString());
   }
 
@@ -248,6 +277,9 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
               <option key={item.code} value={item.code}>{item.name}</option>)}
           </optgroup>
         </select>
+        {filtersAvailable?[...producerFilterParams({country},filters).entries()]
+          .filter(([key])=>key!=="country")
+          .map(([key,value],index)=><input key={key+index} type="hidden" name={key} value={value}/>):null}
         <button type="submit" className="min-h-12 rounded-xl bg-[#175640] px-6 text-sm font-bold text-white hover:bg-[#10452f] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">Cerca</button>
       </Form>
       {!ask?<div className="flex flex-wrap items-center gap-1.5" aria-label="Domande di esempio">
@@ -259,7 +291,14 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
       </div>:null}
     </section>
 
-    <EuProducerIntelligenceChat ask={ask} onSearchAsName={searchAsName} onClose={()=>setAsk(null)}/>
+    <EuProducerIntelligenceChat ask={ask} onSearchAsName={searchAsName} onClose={()=>setAsk(null)}
+      onApplyFilters={filtersAvailable?applyAiFilters:undefined}/>
+
+    {filtersAvailable&&result.status==="ready"?
+      <NetworkProducersFilterBar filters={filters} facets={facets} query={query} country={country}/>:null}
+    {filtersDropped?<p role="status" className="text-xs text-[#7a5a2a]" data-testid="producer-filters-unavailable">
+      I filtri non sono disponibili in questo momento: l&apos;elenco mostra tutti i produttori.
+    </p>:null}
 
     {result.status==="locked"?
       <section role="status" className="grid gap-4 rounded-[22px] border border-[#d7e2d8] bg-white p-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:p-7">
@@ -286,14 +325,25 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
           <h2 className="text-sm font-bold text-[#183d2d]">
             {total?.toLocaleString("it-IT")} {total===1?"risultato":"risultati"}
             {query?<span className="font-semibold text-[#4d6355]"> per «{query}»</span>:null}
+            {filtering?<span className="font-semibold text-[#4d6355]"> con i filtri scelti</span>:null}
             {pages>1?<span className="font-normal text-[#607667]">{" · pagina "+page+" di "+pages}</span>:null}
           </h2>
-          <p className="text-[11px] text-[#607667]">Spunta fino a tre aziende per confrontarle</p>
+          <p className="text-[11px] text-[#607667]">
+            {filtering&&!filters.includeMentions?"Filtri su dati tecnici con fonte · ":filtering?"Filtri su dati tecnici e menzioni da qualificare · ":""}
+            Spunta fino a tre aziende per confrontarle
+          </p>
         </div>
         {companies.length===0?
-          <div className="rounded-xl border border-[#dce7df] bg-white p-6 text-sm text-[#64776a]">
-            Nessuna azienda pubblicata corrisponde alla ricerca.
-            {query?<> <Link href={"/network/pro/producers?country="+encodeURIComponent(country)} className="font-bold text-[#175640] underline">Mostra tutti i produttori</Link></>:null}
+          <div className="rounded-xl border border-[#dce7df] bg-white p-6 text-sm text-[#64776a]" data-testid="network-producers-empty">
+            {filtering?<>
+              <p className="font-semibold text-[#3c5a48]">Nessun produttore ha questi valori documentati.</p>
+              <p className="mt-1 text-xs leading-5">
+                I filtri usano solo i dati tecnici con fonte{facets?" (oggi "+facets.documentedCompanies.toLocaleString("it-IT")+" produttori ne hanno almeno uno)":""}:
+                le altre aziende sono ancora in qualificazione e possono comunque produrre questo materiale.
+                {!filters.includeMentions?" Prova a includere le menzioni da qualificare o a togliere un filtro.":" Prova a togliere un filtro."}
+              </p>
+            </>:"Nessuna azienda pubblicata corrisponde alla ricerca."}
+            {query||filtering?<> <Link href={"/network/pro/producers?country="+encodeURIComponent(country)} className="font-bold text-[#175640] underline">Mostra tutti i produttori</Link></>:null}
           </div>
         :<ul className="divide-y divide-[#e6eee8] overflow-hidden rounded-2xl border border-[#d9e5dc] bg-white" data-testid="network-producers-list">
           {companies.map(company=>{
@@ -408,10 +458,10 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
         <button type="button" onClick={clearSelection} className="min-h-9 rounded-xl border border-white/30 px-3 text-xs font-bold hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white">Svuota</button>
       </div>:null}
       {pages>1?<nav aria-label="Navigazione produttori" className="flex items-center justify-between gap-2">
-        {page>1?<PageLink label="← Precedenti" query={query} country={country} page={page-1}/>:<span/>}
+        {page>1?<PageLink label="← Precedenti" query={query} country={country} page={page-1} filters={filters}/>:<span/>}
         <span className="text-xs text-[#607667]">Pagina {page} di {pages}</span>
         {result.data.total>page*result.data.limit?
-          <PageLink label="Successive →" query={query} country={country} page={page+1}/>:<span/>}
+          <PageLink label="Successive →" query={query} country={country} page={page+1} filters={filters}/>:<span/>}
       </nav>:null}
     </>}
 

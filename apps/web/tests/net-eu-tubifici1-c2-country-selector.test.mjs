@@ -26,8 +26,9 @@ test("EU1.C2: country is preserved through Network entry, search, pagination and
   assert.match(ui,/<select id="manufacturer-country" name="country" defaultValue=\{country\}/);
   assert.match(ui,/EU_MEMBER_COUNTRIES\.map/);
   assert.match(ui,/OTHER_NETWORK_COUNTRIES\.filter\(item=>item\.code!=="US"\)/);
-  assert.match(ui,/new URLSearchParams\(\{q:query,country,p:String\(page\)\}\)/);
-  assert.match(ui,/JSON\.stringify\(\[query,page,country\]\)/);
+  // NET-PRODUCERS-FILTERS1: pagination keeps query, country and the active filters.
+  assert.match(ui,/producerFilterParams\(\{q:query,country,page\},filters\)/);
+  assert.match(ui,/JSON\.stringify\(\[query,page,country,producerFiltersKey\(filters\)\]\)/);
   assert.match(ui,/networkCountryName\(company\.countryCode\)/);
   assert.match(ui,/networkCountryName\(c\.countryCode\)/);
 });

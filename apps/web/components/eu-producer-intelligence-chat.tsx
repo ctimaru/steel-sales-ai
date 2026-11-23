@@ -31,10 +31,12 @@ function requestForDistinta(t:Turn){
  * the answers (with sources) appear under the box. A question recognised by
  * mistake can be re-run as a company-name search with one click.
  */
-export function EuProducerIntelligenceChat({ask,onSearchAsName,onClose}:{
+export function EuProducerIntelligenceChat({ask,onSearchAsName,onClose,onApplyFilters}:{
   ask:{id:number;text:string}|null;
   onSearchAsName:(text:string)=>void;
   onClose:()=>void;
+  /** NET-PRODUCERS-FILTERS1: turn the standard/grade the user asked for into list filters (Italy). */
+  onApplyFilters?:(found:{standard:string|null;grade:string|null})=>void;
 }){
   const [busy,setBusy]=useState(false);
   const [turns,setTurns]=useState<Turn[]>([]);
@@ -122,6 +124,12 @@ export function EuProducerIntelligenceChat({ask,onSearchAsName,onClose}:{
                     "Non significa che nessuna azienda produca il materiale: la copertura dei cataloghi è ancora parziale.":
                     "Le corrispondenze si riferiscono a singoli attributi sulle fonti ufficiali, non a una combinazione esatta né a disponibilità."}
                 </p>
+                {onApplyFilters&&(r.intent.standard||r.intent.grade)?<button type="button"
+                  onClick={()=>onApplyFilters({standard:r.intent.standard,grade:r.intent.grade})}
+                  data-testid="eu-producer-chat-apply-filters"
+                  className="mt-2 inline-flex min-h-9 items-center gap-1 rounded-lg border border-[#bcd5c5] bg-white px-3 text-[11px] font-bold text-[#175640] hover:bg-[#eef6f0]">
+                  Filtra l&apos;elenco italiano: {[r.intent.standard,r.intent.grade].filter(Boolean).join(" · ")}
+                </button>:null}
                 {r.intent.requestedSize?<p className="mt-2 text-xs font-semibold text-[#825e2a]">
                   Dimensioni e spessori richiesti: nessuna capacità specifica è stata confermata dalla ricerca per attributi.
                 </p>:null}
