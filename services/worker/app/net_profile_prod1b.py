@@ -380,6 +380,7 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
             source_url = None
             source_sha256 = None
             facts: list[dict] = []
+            best_score = 0
 
             if (not safe_official_source(site, canonical) or
                     not identity_matches_domain(label, alias, canonical)):
@@ -420,9 +421,14 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
                     if not page or not safe_official_source(page.url, canonical):
                         continue
                     checked += 1
-                    source_url = page.url
-                    facts = source_backed_facts(page)
-                    if facts:
+                    observed = source_backed_facts(page)
+                    score = (2 if any(f["field_key"] == "products" for f in observed)
+                             else 0) + (1 if any(f["field_key"] == "services"
+                                                 for f in observed) else 0)
+                    if score > best_score:
+                        best_score = score
+                        facts = observed
+                        source_url = page.url
                         source_sha256 = hashlib.sha256(
                             ((page.title or "") + "\n" +
                              (page.meta_description or "") + "\n" +
@@ -430,6 +436,9 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
                         ).hexdigest()
                         status = "verified"
                         reason = "explicit_firstparty_manufacturing_or_working_relation"
+                    # A single page can attest both product and working; do
+                    # not conflate evidence from different pages into one URL.
+                    if best_score == 3:
                         break
                     if len(urls) < MAX_DISCOVERED_LINKS:
                         # At most one extra depth from technical section pages,
@@ -441,10 +450,17 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
                                 break
                 # Homepage relation is still valid but lower priority than
                 # dedicated product/manufacturing/workings statements.
-                if not facts and homepage:
-                    source_url = homepage.url
-                    facts = source_backed_facts(homepage)
-                    if facts:
+                if homepage and best_score < 3:
+                    home_facts = source_backed_facts(homepage)
+                    home_score = (2 if any(f["field_key"] == "products"
+                                           for f in home_facts) else 0) + (
+                        1 if any(f["field_key"] == "services"
+                                 for f in home_facts) else 0
+                    )
+                    if home_score > best_score:
+                        best_score = home_score
+                        source_url = homepage.url
+                        facts = home_facts
                         source_sha256 = hashlib.sha256(
                             ((homepage.title or "") + "\n" +
                              (homepage.meta_description or "") + "\n" +
