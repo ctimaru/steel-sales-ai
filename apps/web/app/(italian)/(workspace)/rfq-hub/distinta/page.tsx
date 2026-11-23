@@ -14,6 +14,8 @@ import { listBuyerDistintaPublicDimensions } from "@/lib/public-knowledge";
 import { appRoutes } from "@/lib/routes";
 import { privateNoIndexRobots } from "@/lib/seo";
 import { requireWorkspaceWriteRole } from "@/lib/workspace-context";
+import { createClient } from "@/lib/supabase/server";
+import { nextRdoTitle, romeYear } from "@/lib/distinta-defaults";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
@@ -41,6 +43,27 @@ const cachedQuickAddCatalog = unstable_cache(async () => {
  * with the calculator. «Scegli i fornitori» creates the private RFQ (no send)
  * and opens step 2, the suppliers. Sending (step 3) always needs a confirmation.
  */
+/**
+ * DISTINTA-DEFAULTS1: the next «RDO <anno>/<nnnn>» among the Distinte and RFQs
+ * this user can read (RLS: own Distinte, the organization's RFQs). Only a
+ * suggested, editable name: no counter is reserved or written here.
+ */
+async function loadDefaultDistintaTitle(organizationId: string): Promise<string> {
+  const year = romeYear();
+  const prefix = "RDO " + year + "/%";
+  try {
+    const supabase = await createClient();
+    const [distinte, rfqs] = await Promise.all([
+      supabase.from("buyer_distintas").select("title").eq("organization_id", organizationId).ilike("title", prefix).limit(2000),
+      supabase.from("buyer_rfq_campaigns").select("title").eq("organization_id", organizationId).ilike("title", prefix).limit(2000),
+    ]);
+    const titles = [...(distinte.data ?? []), ...(rfqs.data ?? [])].map((row: { title: string | null }) => row.title);
+    return nextRdoTitle(titles, year);
+  } catch {
+    return nextRdoTitle([], year);
+  }
+}
+
 export default async function NewRequestPage({ searchParams }: {
   searchParams: Promise<{ lang?: string; aggiungi?: string; network?: string; source?: string; nuova?: string }>;
 }) {
@@ -69,7 +92,10 @@ export default async function NewRequestPage({ searchParams }: {
 
   // With no reusable Distinte, directly enter the existing single builder:
   // no empty chooser, extra click or unnecessary public catalog load.
-  const catalogOptions = await cachedQuickAddCatalog().catch(() => []);
+  const [catalogOptions, defaultTitle] = await Promise.all([
+    cachedQuickAddCatalog().catch(() => []),
+    loadDefaultDistintaTitle(context.organizationId),
+  ]);
 
   return (
     <div data-distinta-steps className="space-y-3" lang={locale}>
@@ -92,6 +118,7 @@ export default async function NewRequestPage({ searchParams }: {
         </p>
       ) : null}
       <BuyerDistintaBuilder
+        defaultTitle={defaultTitle}
         workspace
         focusAiIntake
         // The AI chat is Italian; a bill prepared in another language starts from the «Aggiungi articolo» bar.

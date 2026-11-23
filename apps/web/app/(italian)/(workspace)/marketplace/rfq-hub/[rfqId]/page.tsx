@@ -31,6 +31,8 @@ import { Rfqh13GovernancePanel } from "@/components/rfqh13-governance-panel";
 import { RfqSupplierAddForm } from "@/components/rfq-supplier-add-form";
 import { RfqSupplierPicker } from "@/components/rfq-supplier-picker";
 import { RequestSteps } from "@/components/request-steps";
+import { defaultSupplierMessage } from "@/lib/distinta-defaults";
+import { normalizeBuyerDocumentRequirements } from "@/lib/buyer-distinta-documents";
 import { getCommercialNetworkContext } from "@/lib/commercial-network-context";
 import { networkNameIt } from "@/lib/network-taxonomy-it";
 import {
@@ -105,7 +107,7 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
   ] = await Promise.all([
     supabase
       .from("buyer_distintas")
-      .select("id,line_count,total_meters,total_tonnes,target_total_eur")
+      .select("id,line_count,total_meters,total_tonnes,target_total_eur,document_requirements")
       .eq("id", campaign.source_distinta_id)
       .maybeSingle(),
     supabase
@@ -468,6 +470,12 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
           <div id="rfq-review-send" className="scroll-mt-24">
             <RfqDispatchPanel
               layout="side"
+              defaultMessage={defaultSupplierMessage({
+                title: campaign.title,
+                lineCount: lineRows.length,
+                totalTonnes: distinta?.total_tonnes == null ? null : Number(distinta.total_tonnes),
+                documents: normalizeBuyerDocumentRequirements(distinta?.document_requirements),
+              })}
               rfqId={campaign.id}
               campaignStatus={campaign.status}
               dueAt={campaign.due_at}

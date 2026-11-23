@@ -15,6 +15,7 @@ import { BuyerTubeGuidedCreator } from "@/components/buyer-tube-guided-creator";
 import { RfqAiIntakeUx, type RfqAiIntakeMode } from "@/components/rfq-ai-intake-ux";
 import { DistintaSmartBox, DISTINTA_SMART_BOX_ID, type DistintaSmartArticle } from "@/components/distinta-smart-box";
 import { DistintaSheet } from "@/components/distinta-sheet";
+import { isAutomaticDistintaTitle, LEGACY_DEFAULT_TITLE } from "@/lib/distinta-defaults";
 import { quickAddWeightText } from "@/lib/distinta-quick-add";
 import { guidedTubeMassKgM, guidedTubeMeasurement,  type GuidedTubeDraft } from "@/lib/buyer-tube-guidance";
 import { emptyBuyerDocumentRequirements, formatBuyerDocumentRequirements, type BuyerDistintaDocumentRequirements } from "@/lib/buyer-distinta-documents";
@@ -94,6 +95,7 @@ export function BuyerDistintaBuilder({
   stepTwoNetworkCompanyId = null,
   locale = "it",
   compactLanding = false,
+  defaultTitle = null,
 }: {
   authenticated: boolean;
   catalogOptions: BuyerDistintaCatalogOption[];
@@ -118,11 +120,13 @@ export function BuyerDistintaBuilder({
   locale?: BuyerUiLocale;
   /** Compact only the public /distinta landing, not authenticated RFQ Hub. */
   compactLanding?: boolean;
+  /** DISTINTA-DEFAULTS1: suggested «RDO <anno>/<nnnn>» name (workspace only). */
+  defaultTitle?: string | null;
 }) {
   const router = useRouter();
   const [uiLocale,setUiLocale]=useState<BuyerUiLocale>(safeBuyerUiLocale(locale));
   const t=(key:keyof typeof import("@/lib/buyer-ui-locale").buyerUiCopy)=>buyerUiText(key,uiLocale);
-  const [title, setTitle] = useState("Richiesta di offerta");
+  const [title, setTitle] = useState(defaultTitle ?? LEGACY_DEFAULT_TITLE);
   const [documents, setDocuments] = useState<BuyerDistintaDocumentRequirements>(emptyBuyerDocumentRequirements);
   const [previewDraft, setPreviewDraft] = useState<GuidedTubeDraft | null>(null);
   const [wizardRestoreSerial, setWizardRestoreSerial] = useState(0);
@@ -248,8 +252,10 @@ export function BuyerDistintaBuilder({
 
   function persistBrowserDraft() {
     try {
+      // An untouched automatic name is not a reason to keep (and later offer) a draft.
       const value = serializeBuyerSessionDraft({
-        title, lines, documents, guidedSpecsByLine, selectedCatalog, wizardDraft: previewDraft,
+        title: isAutomaticDistintaTitle(title, defaultTitle) ? LEGACY_DEFAULT_TITLE : title,
+        lines, documents, guidedSpecsByLine, selectedCatalog, wizardDraft: previewDraft,
       });
       if (value) window.sessionStorage.setItem(draftKey, value);
       else window.sessionStorage.removeItem(draftKey);
@@ -364,7 +370,8 @@ export function BuyerDistintaBuilder({
   function restoreBrowserDraft() {
     if (!restoreCandidate) return;
     const recovered = restoreCandidate.draft;
-    setTitle(recovered.title);
+    // A draft without a chosen name takes today's suggested RDO number.
+    setTitle(recovered.title === LEGACY_DEFAULT_TITLE && defaultTitle ? defaultTitle : recovered.title);
     setLines(recovered.lines);
     setEditingRows({});
     setDocuments(recovered.documents);

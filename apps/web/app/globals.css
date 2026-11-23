@@ -3161,6 +3161,10 @@ nav[aria-label="Categorie ricerca commerciale"] a:focus-visible {
 /* The Distinta name reads as a title at rest and as a field on hover or focus. */
 [data-distinta-steps] .distinta-bare-field {
   border-color: transparent;
+  /* The base «font: inherit» on inputs would drop the title weight and size. */
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.5rem;
 }
 [data-distinta-steps] .distinta-bare-field:hover {
   border-color: #9fb4a7;
