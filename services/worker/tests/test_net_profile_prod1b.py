@@ -319,6 +319,52 @@ class ActivityCronTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(args["p_facts"][-1]["field_value"],
                          ["Saldatura", "Lavorazioni meccaniche"])
 
+    async def test_production_page_beats_workings_page_without_mixing_sources(self):
+        db = Mock()
+        captured = []
+        def rpc(name, args):
+            captured.append((name, args))
+            if name.endswith("_seed"):
+                data = {"contract": "netprofile-prod1b-seed-v1", "added": 0}
+            elif name.endswith("_claim"):
+                data = {"contract": "netprofile-prod1b-claim-v1", "items": [{
+                    "company_id": "00000000-0000-0000-0000-000000000126",
+                    "lease_token": "00000000-0000-0000-0000-000000000459",
+                    "legal_name": "Officine Ruboni S.r.l.",
+                    "site_url": "https://officineruboni.it/",
+                    "canonical_domain": "officineruboni.it",
+                    "product_urls": [
+                        "https://officineruboni.it/lavorazioni/",
+                        "https://officineruboni.it/produzione/",
+                    ]
+                }]}
+            else:
+                data = {"contract": "netprofile-prod1b-complete-v1", "accepted": 2}
+            result = Mock()
+            result.execute.return_value.data = data
+            return result
+        db.rpc.side_effect = rpc
+        pages = {
+            "https://officineruboni.it/": page(
+                "Benvenuti nel nostro sito industriale.", url="https://officineruboni.it/"),
+            "https://officineruboni.it/lavorazioni/": page(
+                "Eseguiamo taglio laser per commesse meccaniche su disegno.",
+                url="https://officineruboni.it/lavorazioni/"),
+            "https://officineruboni.it/produzione/": page(
+                "Produciamo tubi per applicazioni industriali e strutture.",
+                url="https://officineruboni.it/produzione/"),
+        }
+        with patch("app.net_profile_prod1b._fetch_page",
+                   side_effect=lambda _client, url, _base: pages[url]):
+            out = await run_cycle(db, persist=True, limit=1)
+        self.assertEqual(out["accepted_facts"], 2)
+        payload = captured[-1][1]
+        self.assertEqual(payload["p_source_url"],
+                         "https://officineruboni.it/produzione/")
+        self.assertEqual([x["field_key"] for x in payload["p_facts"]],
+                         ["products", "description"])
+        self.assertEqual(payload["p_facts"][0]["field_value"], ["Tubi e condotte"])
+
     async def test_bounded_source_budget_and_no_implicit_product_claim(self):
         db = Mock()
         calls = []
