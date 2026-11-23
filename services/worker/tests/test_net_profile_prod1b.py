@@ -41,6 +41,33 @@ class ManufacturerEvidenceTest(unittest.TestCase):
         self.assertNotIn("Stampi e portastampi", rows[0]["field_value"])
         self.assertIn("tubi", rows[0]["evidence_excerpt"].lower())
 
+    def test_non_steel_profiles_and_bars_never_get_steel_family_labels(self):
+        for phrase in (
+            "Produciamo barre in ottone per applicazioni industriali.",
+            "Produciamo barre tonde in alluminio e leghe leggere.",
+            "Produciamo profilati in alluminio per serramenti.",
+            "We manufacture aluminum profiles and brass bars.",
+        ):
+            with self.subTest(phrase=phrase):
+                self.assertEqual(source_backed_facts(page(phrase)), [])
+
+    def test_steel_labels_require_material_linked_to_product(self):
+        cases = {
+            "Produciamo profilati in acciaio per strutture industriali.":
+                ["Profilati in acciaio"],
+            "Produciamo barre in acciaio per applicazioni meccaniche.":
+                ["Barre in acciaio"],
+            "We manufacture steel profiles for industrial applications.":
+                ["Profilati in acciaio"],
+            "Produciamo barre in ottone e profilati in acciaio.":
+                ["Profilati in acciaio"],
+        }
+        for phrase, expected in cases.items():
+            with self.subTest(phrase=phrase):
+                actual=source_backed_facts(page(phrase))
+                self.assertTrue(actual)
+                self.assertEqual(actual[0]["field_value"], expected)
+
     def test_machine_makers_must_not_be_mistaken_for_tube_manufacturers(self):
         for phrase in (
             "Produciamo macchine per la produzione di tubi saldati e profilati.",

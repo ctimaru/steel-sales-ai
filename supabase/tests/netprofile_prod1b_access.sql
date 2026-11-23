@@ -49,4 +49,15 @@ select pg_temp.prod1b_assert(
    where oid='public.netprofile_prod1b_complete(uuid,uuid,text,text,text,jsonb,text)'::regprocedure)=false,
   'public wrapper must be SECURITY INVOKER'
 );
+-- Regression: queue order prefers official-source producer evidence, not UUIDs.
+select pg_temp.prod1b_assert(
+  position('network_company_enrichment' in
+    pg_get_functiondef('private.netprofile_prod1b_claim(integer)'::regprocedure))>0
+  and position('network_producer_auto1_product_pages' in
+    pg_get_functiondef('private.netprofile_prod1b_claim(integer)'::regprocedure))>0
+  and position('for update of q skip locked' in
+    lower(pg_get_functiondef('private.netprofile_prod1b_claim(integer)'::regprocedure)))>0,
+  'priority signals must preserve leased / first-party / concurrency contract'
+);
+
 rollback;

@@ -31,9 +31,21 @@ VERSION = "netprofile-prod1b-v1"
 MAX_BATCH = 10
 PRODUCT_PATTERNS = (
     ("Tubi e condotte", re.compile(r"\b(?:tubi|tubo|tubes?|pipes?|condotte)\b", re.I)),
-    ("Profilati in acciaio", re.compile(r"\b(?:profilati|profilo|profiles?|hollow sections?)\b", re.I)),
+    # Steel-specific labels require steel *inside the same product phrase*.
+    # "profili in alluminio" and "barre in ottone" are not steel products.
+    ("Profilati in acciaio", re.compile(
+        r"\b(?:profilati|profili)(?:\s+(?:speciali|aperti|chiusi|tubolari)){0,2}"
+        r"\s+(?:in|di)\s+acciaio\b|"
+        r"\b(?:steel|stainless\s+steel)\s+(?:hollow\s+)?(?:profiles?|sections?)\b",
+        re.I
+    )),
     ("Lamiere", re.compile(r"\b(?:lamiere|lamiera|sheet metal|steel sheets?|plates?)\b", re.I)),
-    ("Barre in acciaio", re.compile(r"\b(?:barre|barretonde|steel bars?|round bars?)\b", re.I)),
+    ("Barre in acciaio", re.compile(
+        r"\bbarre(?:\s+(?:tonde|trafilate|laminate|rettificate)){0,2}"
+        r"\s+(?:in|di)\s+acciaio\b|"
+        r"\b(?:steel\s+bars?|round\s+steel\s+bars?|bars?\s+(?:of|in)\s+steel)\b",
+        re.I
+    )),
     ("Coils e nastri", re.compile(r"\b(?:coils?|nastri|steel strips?)\b", re.I)),
     ("Carpenteria metallica", re.compile(r"\b(?:carpenteria metallica|strutture metalliche|steel structures?)\b", re.I)),
     ("Reti elettrosaldate", re.compile(r"\b(?:reti elettrosaldate|welded wire mesh)\b", re.I)),
