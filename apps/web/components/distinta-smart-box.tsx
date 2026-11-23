@@ -1,6 +1,6 @@
 "use client";
 
-import { useDeferredValue, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useDeferredValue, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 
 import type { BuyerDistintaCatalogOption } from "@/lib/buyer-distinta-catalog";
 import type { BuyerQuantityMode } from "@/lib/buyer-distinta";
@@ -74,6 +74,14 @@ export function DistintaSmartBox({
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [message, setMessage] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
   const prefilled = useRef(false);
+  const focusQuantityNext = useRef(false);
+
+  // Layout effect: focus moves before the browser handles the next keystroke.
+  useLayoutEffect(() => {
+    if (!selected || !focusQuantityNext.current) return;
+    focusQuantityNext.current = false;
+    quantityRef.current?.focus();
+  }, [selected]);
 
   // A site-search size handoff starts in the box, never analysed automatically.
   useEffect(() => {
@@ -131,8 +139,8 @@ export function DistintaSmartBox({
     ai.onChange(item.description);
     setOpen(false);
     setMessage(null);
-    // Synchronous: a deferred focus could steal keystrokes typed meanwhile.
-    quantityRef.current?.focus();
+    // The quantity field mounts with the selection: focus it right after that commit.
+    focusQuantityNext.current = true;
   }
 
   function analyze() {
