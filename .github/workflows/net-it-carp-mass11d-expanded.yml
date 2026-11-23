@@ -1,0 +1,47 @@
+name: "NET-IT-CARP-MASS11D — expanded southern Italian Overture audit"
+on:
+  push:
+    branches: ["net-it-carp-mass11d-expanded-20261123"]
+    paths:
+      - ".github/workflows/net-it-carp-mass11d-expanded.yml"
+      - "services/worker/scripts/overture_carp_mass11d_expanded.py"
+permissions:
+  contents: write
+concurrency:
+  group: net-it-carp-mass11d-expanded-audit
+  cancel-in-progress: false
+jobs:
+  overture-carp-expanded:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout isolated discovery branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          ref: net-it-carp-mass11d-expanded-20261123
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Overture query engine
+        run: python -m pip install "duckdb>=1.4,<2"
+      - name: Extract licensed website pointers, no company writes
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: python services/worker/scripts/overture_carp_mass11d_expanded.py
+      - name: Commit GERS ID provenance audit to isolated branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add services/worker/audits/net_it_carp_mass11d_20261123_gers.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(MASS11D): licensed Overture expanded regional GERS audit [skip ci]"
+            git push origin HEAD:refs/heads/net-it-carp-mass11d-expanded-20261123
+          fi
+      - name: Upload raw site pointer audit for mandatory live dedup
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-it-carp-mass11d-20261123-gers
+          path: services/worker/audits/net_it_carp_mass11d_20261123_gers.csv
+          if-no-files-found: error
