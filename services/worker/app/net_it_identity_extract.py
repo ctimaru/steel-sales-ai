@@ -90,8 +90,12 @@ def legal_name_is_clean(name: str) -> bool:
     first-party evidence. Existing AUTO3 corporate/person restrictions apply.
     """
     value = " ".join(unescape(name or "").split())
+    # MASS11C: country breadcrumbs and CTA labels flattened into a footer
+    # must not be mistaken for the first word of a legal entity.
     return bool(
         3 <= len(value) <= 255
+        and not re.match(r"(?i)^(?:read\s+more\b|italy\s+|"
+                         r"copyright\s+(?:19|20)\d{2}\b)", value)
         and not _GROWTH8_NOISE.search(value)
         and not is_civic_snc_address(value)
         and not re.search(r"(?i)\b(?:contattaci|chiama\s+ora|scarica|"
@@ -162,6 +166,13 @@ def publisher_legal_name_is_clean(name: str) -> bool:
         return False
     # AUTO3's SQL function only accepts at most six words before the form.
     if len(value[:form.start()].strip().split()) > MAX_NAME_WORDS:
+        return False
+    # A CMS may combine a headline with the same brand displayed twice:
+    # "2M Carpenteria Metallica Treviso 2M S.n.c.". This is NOT evidence
+    # for a newly invented full legal name and must remain a recovery case.
+    leading_words = re.findall(r"[0-9A-Za-zÀ-ÿ]+", value[:form.start()])
+    if (len(leading_words) >= 4 and len(leading_words[0]) >= 2
+            and leading_words[0].casefold() == leading_words[-1].casefold()):
         return False
     return True
 
@@ -309,6 +320,11 @@ def _name_before(text: str, form_start: int) -> tuple[str, int] | None:
         # An embedded numeral within an independent brand is NOT rewritten.
         if re.fullmatch(r"(?:19|20)[0-9]{2}(?:[-/](?:19|20)[0-9]{2})?", bare):
             break
+        # After at least one genuine business token, the prior navigation
+        # token is a boundary. Never strip "Italy S.r.l." or "More S.r.l."
+        # when that token is itself the ENTIRE independently evidenced brand.
+        if picked and bare.casefold().strip(",'’.") in {"italy", "read", "more"}:
+            break
         if bare.casefold().strip("'’") in _BOILERPLATE or "/" in bare or "@" in bare:
             break
         # "Utenti. Titolare ..." — a word closing a previous sentence.
@@ -419,5 +435,7 @@ def find_company_identity(page_texts: list[str], domain: str,
                                       (previous.score if previous else 0) + 8)
     if not totals:
         return None
-    best = max(totals.values(), key=lambda i: (i.score, len(i.legal_name)))
+    # Equal first-party evidence must not reward an accidentally longer
+    # concatenation of a page heading and the actual corporate name.
+    best = max(totals.values(), key=lambda i: (i.score, -len(i.legal_name)))
     return best

@@ -134,8 +134,14 @@ def _name_evidenced(name: str, page_texts: list[str]) -> bool:
         return False
     for page in page_texts:
         text = _normalize_full_legal_name(page)
-        if re.search(r"(?<![a-z0-9à-ÿ])" + re.escape(normalized)
-                     + r"(?![a-z0-9à-ÿ])", text):
+        for match in re.finditer(r"(?<![a-z0-9à-ÿ])" + re.escape(normalized)
+                                 + r"(?![a-z0-9à-ÿ])", text):
+            # "2M S.n.c. di Alfred e Denis Murer" is NOT first-party proof
+            # that the truncated "2M S.n.c." is the legal company name.
+            # A standalone occurrence elsewhere is still valid evidence.
+            following = text[match.end():match.end() + 90]
+            if re.match(r"\s+(?:di|de|del|della)\s+[a-zà-ÿ]", following):
+                continue
             return True
     return False
 
@@ -487,6 +493,22 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                 raise RuntimeError("unexpected recovery queue contract")
             candidates = recovery_payload.get("items", [])
             recovering = bool(candidates)
+        # MASS11C: a one-time source-bound recovery pass. The RPC claims only
+        # the named cohort and is optional during a rolling SQL migration.
+        # Never claim special recovery rows on a dry run.
+        mass11c_recovering = False
+        if not recovering and persist:
+            response_c = await client.post(
+                f"{url}/rest/v1/rpc/net_it_mass11c_recovery_queue",
+                headers=headers, json={"p_max": min(limit, RECOVERY_MAX_BATCH)})
+            if response_c.status_code != 404:
+                response_c.raise_for_status()
+                payload_c = response_c.json()
+                if payload_c.get("contract") != "net-it-mass11c-recovery-queue-v1":
+                    raise RuntimeError("unexpected MASS11C recovery contract")
+                candidates = payload_c.get("items", [])
+                mass11c_recovering = bool(candidates)
+                recovering = mass11c_recovering
         if not recovering:
             response = await client.post(f"{url}/rest/v1/rpc/net_it_auto2_queue",
                                          headers=headers,json={"p_max":limit})
@@ -514,6 +536,25 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
         written = 0
         rejected = 0
         recovery_restored = 0
+        mass11c_recovered = 0
+        mass11c_finalized = 0
+
+        async def _finalize_mass11c(candidate_id: str) -> None:
+            nonlocal mass11c_recovered, mass11c_finalized
+            if not mass11c_recovering:
+                return
+            done = await client.post(
+                f"{url}/rest/v1/rpc/net_it_mass11c_recovery_finalize",
+                headers=headers, json={"p_candidate_id": candidate_id})
+            done.raise_for_status()
+            outcome = done.json()
+            if (outcome.get("contract") != "net-it-mass11c-recovery-finalize-v1"
+                    or outcome.get("published") != 0
+                    or outcome.get("recovered") not in (0, 1)):
+                raise RuntimeError("unexpected MASS11C evidence-only finalize")
+            mass11c_finalized += 1
+            mass11c_recovered += int(outcome["recovered"])
+
         if persist:
             for finding in findings:
                 correction = finding.pop("_identity_correction", None)
@@ -559,6 +600,7 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                         headers=headers, json=fallback)
                     if retry.status_code in REJECTED_STATUSES:
                         rejected += 1
+                        await _finalize_mass11c(finding["p_candidate_id"])
                         continue
                     retry.raise_for_status()
                     result = retry.json()
@@ -567,13 +609,15 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                             or result.get("verdict") != "needs_human"):
                         raise RuntimeError("unexpected exception evidence response")
                     written += 1
+                    await _finalize_mass11c(finding["p_candidate_id"])
                     continue
                 r.raise_for_status()
                 result = r.json()
                 if result.get("contract") != "net-it-auto2-review-v1" or result.get("publication_count") != 0:
                     raise RuntimeError("unexpected evidence-only response")
                 written += 1
-                if recovering and result.get("verdict") == "identity_supported":
+                await _finalize_mass11c(finding["p_candidate_id"])
+                if recovering and not mass11c_recovering and result.get("verdict") == "identity_supported":
                     # A fresh, first-party corporate proof can lift ONLY the
                     # 'no_company_on_site' AUTO4 discard, after database
                     # checks. This RPC never publishes or creates approvals.
@@ -612,10 +656,15 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                         raise ValueError("Unexpected site-error backoff contract")
                 except (httpx.HTTPError, ValueError):
                     print(json.dumps({"status": "site_error_backoff_unavailable"}))
+                # A failed inspection is a bounded attempt, never evidence.
+                await _finalize_mass11c(failure["p_candidate_id"])
         return {
             "mode":"evidence_recording" if persist else "dry_run",
-            "queue_kind":"overture4_recovery" if recovering else "standard",
+            "queue_kind":("mass11c_firstparty_recovery" if mass11c_recovering
+                          else "overture4_recovery" if recovering else "standard"),
             "recovery_restored":recovery_restored,
+            "mass11c_recovered":mass11c_recovered,
+            "mass11c_finalized":mass11c_finalized,
             "reviewed":len(findings),"attempted":len(candidates),
             "site_errors":len(failures),
             "recorded":written,"rejected":rejected,
@@ -646,7 +695,8 @@ async def execute_lots(*, limit: int = 50, lots: int = 4,
     summed = {key: 0 for key in ("attempted", "reviewed", "recorded",
                                   "rejected", "site_errors",
                                   "identity_supported", "exceptions",
-                                  "recovery_restored", "published")}
+                                  "recovery_restored", "mass11c_recovered",
+                                  "mass11c_finalized", "published")}
     for lot in range(effective_lots):
         if lot and time.monotonic() - start >= max_seconds:
             break
