@@ -343,16 +343,17 @@ export function NetworkProducersExperience({result,query,country,page,publishedC
                   </p>
                 </div>
                 <div className="col-span-3 flex items-center justify-end gap-1.5 sm:col-span-1">
-                  <NetworkSaveToggle companyId={company.id} name={company.name} saved={saved.has(company.id)} surface="network_directory" compact appearance="toolbar"/>
-                  {url?<a href={url} target="_blank" rel="noopener noreferrer" aria-label={"Sito ufficiale di "+company.name}
-                    className="inline-flex min-h-10 items-center justify-center gap-1 rounded-lg border border-[#d5dfd9] bg-white px-3 text-xs font-bold text-[#3f5248] hover:bg-[#f3f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
-                    Sito <span aria-hidden="true">↗</span>
-                  </a>:null}
+                  {/* UX3B: the optional button comes first, so Salva and Sito stay in the same column on every row. */}
                   {hasDetails?<button type="button" onClick={()=>setDetail({scope:selectionScope,id:company.id})}
                     data-testid="producer-details-open"
                     className="inline-flex min-h-10 items-center gap-1 rounded-lg border border-[#bcd5c5] bg-white px-3 text-xs font-bold text-[#175640] hover:bg-[#eef6f0] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
                     Dettagli <span aria-hidden="true">›</span>
                   </button>:null}
+                  <NetworkSaveToggle companyId={company.id} name={company.name} saved={saved.has(company.id)} surface="network_directory" compact appearance="toolbar"/>
+                  {url?<a href={url} target="_blank" rel="noopener noreferrer" aria-label={"Sito ufficiale di "+company.name}
+                    className="inline-flex min-h-10 items-center justify-center gap-1 rounded-lg border border-[#d5dfd9] bg-white px-3 text-xs font-bold text-[#3f5248] hover:bg-[#f3f8f4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]">
+                    Sito <span aria-hidden="true">↗</span>
+                  </a>:null}
                 </div>
               </article>
             </li>;
