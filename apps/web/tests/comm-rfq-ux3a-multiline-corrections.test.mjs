@@ -6,9 +6,8 @@ import ts from "typescript";
 const read = path => readFileSync(new URL(path, import.meta.url), "utf8");
 const source = read("../lib/commercial-rfq-line-correction.ts");
 const intake = read("../components/rfq-ai-intake-ux.tsx");
-const conversation = read("../components/commercial-rfq-conversation.tsx");
+const box = read("../components/distinta-smart-box.tsx");
 const reviewer = read("../components/rfq-ai-text-review.tsx");
-const preview = read("../components/commercial-rfq-live-preview.tsx");
 const builder = read("../components/buyer-distinta-builder.tsx");
 
 const transpiled = ts.transpileModule(source, {
@@ -56,23 +55,17 @@ test("UX3.A routes each chat correction to review, not model memory or dispatch"
   assert.ok(intake.includes('if (textResult) { setTextDraft(next); setTextError(""); return; }'));
   assert.ok(intake.includes("correction={pendingCorrection}"));
   assert.ok(intake.includes("setTextResult((current) => current ? { ...current, candidates: updated } : null)"));
-  assert.ok(conversation.includes('hasProposals ? "Correggi riga"'));
-  assert.ok(conversation.includes('disabled={!hydrated || pending}'));
-  assert.ok(conversation.includes('const [hydrated, setHydrated] = useState(false)'));
-  assert.ok(conversation.includes('setHydrated(true)'));
+  // DISTINTA-SMART1: while proposals are pending the box sends corrections, not searches.
+  assert.ok(box.includes('const intent = ai.hasProposals ? "correction" : smartBoxIntent(value, aiEnabled);'));
+  assert.ok(box.includes('if (intent === "ai" || intent === "correction") { analyze(); return; }'));
+  assert.ok(box.includes("disabled={disabled || ai.pending}"));
   assert.ok(reviewer.includes('lastCorrectionSerial.current = correction.serial'));
   assert.ok(reviewer.includes("change(target, correction.patch)"));
   assert.ok(reviewer.includes('evidence.origin === "human"'));
   assert.ok(reviewer.includes("setConfirmed((previous) => ({ ...previous, [candidate.candidateId]: false }))"));
   assert.ok(reviewer.includes("if (!selected.length || transferStarted.current) return;"));
-  assert.ok(preview.includes("const candidates = proposals?.candidates ?? []"));
-  assert.ok(preview.includes("const calculated = approvedLines.map(calculateBuyerDistintaLine)"));
-  assert.ok(preview.includes('correctedByBuyer ? "Modificato da te · da confermare"'));
-  assert.ok(preview.includes("Le proposte non vengono salvate né conteggiate finché non le confermi."));
   assert.ok(builder.includes("function insertRfqAiTextLines(proposals: BuyerDistintaDraftLine[])"));
-  assert.ok(builder.includes("<TechnicalCartShell visible={activeLineCount > 0 && (!focusAiIntake || cartOpen)} open={cartOpen}"));
-  assert.ok(builder.includes("onEditLine={editApprovedLine}"));
-  assert.ok(builder.includes("onOpenEditor={openPrivateCart}"));
+  assert.ok(builder.includes("<DistintaSheet"));
 
   assert.ok(intake.includes("if (!onInsertTextLines(items)) return false"));
   assert.ok(!source.includes("sendBuyerDistinta"));
@@ -83,7 +76,7 @@ test("UX3.A changed components parse as TypeScript / TSX", () => {
   for (const [name, text, kind] of [
     ["correction.ts", source, ts.ScriptKind.TS],
     ["rfq-ai-intake-ux.tsx", intake, ts.ScriptKind.TSX],
-    ["commercial-rfq-conversation.tsx", conversation, ts.ScriptKind.TSX],
+    ["distinta-smart-box.tsx", box, ts.ScriptKind.TSX],
     ["rfq-ai-text-review.tsx", reviewer, ts.ScriptKind.TSX],
   ]) {
     const parsed = ts.createSourceFile(name, text, ts.ScriptTarget.Latest, true, kind);

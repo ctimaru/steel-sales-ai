@@ -40,7 +40,7 @@ test("no source file still links to the retired compose screen", () => {
   }
 });
 
-test("the single screen: chat + Distinta, measure panel on demand, step 2 = suppliers", () => {
+test("the single screen: one box + Distinta, step 2 = suppliers", () => {
   const page = read("../app/(italian)/(workspace)/rfq-hub/distinta/page.tsx");
   assert.match(page, /requireWorkspaceWriteRole/);
   assert.match(page, /focusAiIntake\n/);
@@ -49,15 +49,16 @@ test("the single screen: chat + Distinta, measure panel on demand, step 2 = supp
   // A Network company is provenance only, never an automatic recipient.
   assert.match(page, /non viene aggiunta in automatico/);
   const builder = read("../components/buyer-distinta-builder.tsx");
-  // DISTINTA-QUICK1: «aggiungi=misura» focuses the «Aggiungi articolo» bar above the chat.
+  // DISTINTA-SMART1: «aggiungi=misura» focuses the single box.
   assert.match(builder, /autoFocus=\{openMeasure \|\| Boolean\(quickAddPrefill\)\}/);
   assert.match(builder, /router\.push\(appRoutes\.rfqHub\.campaign\(result\.rfqId\)/);
   assert.doesNotMatch(builder, /returnToCommercial/);
-  const preview = read("../components/commercial-rfq-live-preview.tsx");
-  assert.match(preview, /data-testid="distinta-choose-suppliers"/);
-  assert.match(preview, /Scegli i fornitori →/);
-  assert.match(preview, /data-testid="distinta-add-measure"/);
-  assert.match(preview, /l’invio parte solo dopo la tua conferma/);
+  const sheet = read("../components/distinta-sheet.tsx");
+  assert.match(sheet, /data-testid="distinta-choose-suppliers"/);
+  assert.match(sheet, /Scegli i fornitori →/);
+  // No second «aggiungi» entry point next to the Distinta.
+  assert.doesNotMatch(sheet, /distinta-add-measure|Aggiungi riga libera|Aggiungi articolo/);
+  assert.match(sheet, /l’invio parte solo dopo la tua conferma/);
 });
 
 test("no direct email send of the bill of material", () => {

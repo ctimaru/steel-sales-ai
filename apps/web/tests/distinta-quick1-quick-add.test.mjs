@@ -72,16 +72,12 @@ test("weight text uses decimal comma and never a thousands separator", () => {
   assert.equal(quick.quickAddWeightText(1234.56789), "1234,568");
 });
 
-test("the page has one way to add an article next to the chat", () => {
-  const conversation = read("../components/commercial-rfq-conversation.tsx");
-  assert.doesNotMatch(conversation, /Compila manualmente/);
-  assert.doesNotMatch(conversation, /commercial-ai-focused-modes/);
-  assert.match(conversation, /quickAdd/);
+test("the page has one way to add an article: the single box (DISTINTA-SMART1)", () => {
   const builder = read("../components/buyer-distinta-builder.tsx");
-  assert.match(builder, /<DistintaQuickAddBar/);
-  assert.match(builder, /focusAiIntake \? \(\s*<DistintaQuickAddBar/);
-  assert.doesNotMatch(builder, /showManualTools/);
-  const bar = read("../components/distinta-quick-add-bar.tsx");
+  assert.equal((builder.match(/<DistintaSmartBox/g) ?? []).length, 1);
+  assert.doesNotMatch(builder, /DistintaQuickAddBar|CommercialRfqConversation|showManualTools/);
+  const bar = read("../components/distinta-smart-box.tsx");
+  assert.doesNotMatch(bar, /Compila manualmente|commercial-ai-focused-modes/);
   assert.match(bar, /role="combobox"/);
   assert.match(bar, /buildQuickAddIndex/);
   assert.match(bar, /useDeferredValue/);

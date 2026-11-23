@@ -3,35 +3,31 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import ts from "typescript";
 
+// UX2.B made the AI a real conversation. DISTINTA-SMART1 keeps the same AI
+// owner (RfqAiIntakeUx) and its rules, rendered as the thread under the single box.
+
 const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 const builder = read("../components/buyer-distinta-builder.tsx");
 const intake = read("../components/rfq-ai-intake-ux.tsx");
-const conversation = read("../components/commercial-rfq-conversation.tsx");
+const box = read("../components/distinta-smart-box.tsx");
 const reviewer = read("../components/rfq-ai-text-review.tsx");
-const preview = read("../components/commercial-rfq-live-preview.tsx");
 
-test("UX2.B uses an actual chat transcript with the composer in the bottom, not the legacy accordion", () => {
-  assert.match(intake, /if \(focused && workspace\) \{/);
-  assert.match(intake, /<CommercialRfqConversation/);
-  assert.match(intake, /turns=\{conversationTurns\}/);
-  assert.match(builder, /conversation=\{aiIntakePanel\}/);
-  assert.doesNotMatch(builder, /mb-5 flex items-start gap-3.*data-testid="commercial-rfq-conversation-intro"/);
-  assert.match(conversation, /data-testid="commercial-rfq-gpt-conversation"/);
-  assert.match(conversation, /data-testid="commercial-rfq-message-thread"/);
-  assert.match(conversation, /commercial-rfq-user-message/);
-  assert.match(conversation, /commercial-rfq-assistant-message/);
-  assert.match(conversation, /data-testid="commercial-rfq-sticky-composer"/);
-  assert.match(conversation, /role="log"/);
-  assert.match(conversation, /textarea id="rfqai2-text-input"/);
-  assert.match(conversation, /event\.key !== "Enter" \|\| event\.shiftKey \|\| event\.nativeEvent\.isComposing/);
-  // UX3.A keeps the composer available for explicitly numbered corrections
-  // while a batch is being reviewed; it remains disabled during pending AI.
-  assert.ok(conversation.includes('disabled={!hydrated || pending}'));
-  assert.ok(conversation.includes('const [hydrated, setHydrated] = useState(false)'));
-  assert.ok(conversation.includes('setHydrated(true)'));
-  assert.ok(conversation.includes('hasProposals ? "Correggi riga"'));
+test("UX2.B the focused view shows the recent turns under the box, not the legacy accordion", () => {
+  assert.match(intake, /if \(focused && workspace && focusedView\) \{/);
+  assert.match(intake, /turns: conversationTurns,/);
+  assert.match(builder, /focusedView=\{\(controls\) => \(/);
+  assert.match(box, /data-testid="distinta-smart-thread"/);
+  assert.match(box, /role="log"/);
+  assert.match(box, /const recentTurns = ai\.turns\.slice\(-3\)/);
+  assert.match(box, /role="combobox"/);
+  // Enter analyses, Shift+Enter is a new line, IME composition is never submitted.
+  assert.match(box, /if \(event\.nativeEvent\.isComposing\) return;/);
+  assert.match(box, /if \(event\.key !== "Enter" \|\| event\.shiftKey\) return;/);
+  // Disabled until the draft is ready (hydration) and while the AI is working.
+  assert.match(box, /disabled=\{disabled \|\| ai\.pending\}/);
+  assert.match(builder, /disabled=\{!draftReady \|\| Boolean\(restoreCandidate\)\}/);
+  assert.ok(box.includes('ai.hasProposals ? "Correggi"'));
   assert.ok(intake.includes("parseCommercialRfqLineCorrection(submitted, textResult.candidates.length)"));
-  assert.match(conversation, /min-h-11/);
 });
 
 test("UX2.B the AI only interprets explicitly submitted individual text without uploading chat history", () => {
@@ -41,19 +37,16 @@ test("UX2.B the AI only interprets explicitly submitted individual text without 
   assert.match(intake, /if \(focused\) appendConversationTurn\("user", submitted\)/);
   assert.match(intake, /const count = response\.result\.candidates\.length/);
   assert.match(intake, /setTextResult\(response\.result\)/);
-  assert.match(intake, /onPreviewChange\?\.\(response\.result\)/);
   assert.doesNotMatch(intake, /analyzeRfqAiFreeText\((?:conversationTurns|messages|history)\)/);
-  // DISTINTA-QUICK1: the conversation has no manual mode any more; the chat is always text.
-  assert.ok(conversation.includes('canSubmit = hydrated && value.trim().length >= 3 && !pending;'));
+  assert.ok(box.includes("if (disabled || ai.pending || value.trim().length < 3) return;"));
   assert.ok(intake.includes("if (textResult && focused) {"));
   assert.ok(intake.includes("setPendingCorrection({"));
   assert.match(intake, /if \(focused && submitted\.length < 12\)/);
   assert.match(intake, /nessuna misura è stata ancora confermata/);
-  assert.match(conversation, /value\.trim\(\)\.length > 0 && value\.trim\(\)\.length < 12 \? "Completa richiesta"/);
 });
 
 test("UX2.B AI suggestions remain editable and separate from human approved Distinta", () => {
-  assert.match(intake, /review=\{textResult \? \(/);
+  assert.match(intake, /review: textResult \? \(/);
   assert.match(intake, /<RfqAiTextReview/);
   assert.match(reviewer, /onCandidatesChange\?: \(updated: RfqAiLineCandidate\[\]\) => void/);
   assert.match(reviewer, /onCandidatesChange\?\.\(candidates\)/);
@@ -61,24 +54,21 @@ test("UX2.B AI suggestions remain editable and separate from human approved Dist
   assert.match(intake, /if \(!onInsertTextLines\(items\)\) return false/);
   assert.match(intake, /setTextResult\(null\)/);
   assert.match(intake, /Proposte scartate/);
-  assert.match(intake, /articoli verificati alla Distinta a destra/);
-  assert.match(preview, /const calculated = approvedLines\.map\(calculateBuyerDistintaLine\)/);
-  assert.match(preview, /const candidates = proposals\?\.candidates \?\? \[\]/);
-  assert.doesNotMatch(preview, /sendBuyerDistinta|sendDistinta|sendEmail\(/);
+  assert.match(intake, /articoli verificati alla distinta qui sotto/);
+  assert.doesNotMatch(box, /sendBuyerDistinta|sendDistinta|sendEmail\(/);
 });
 
 test("UX2.B preserves explicit save and RFQ governance and never exposes email send in focused workflow", () => {
   assert.match(builder, /onSave=\{saveDistinta\}/);
   assert.match(builder, /onCreateRfq=\{createRfqHub\}/);
   assert.doesNotMatch(builder, /sendBuyerDistinta|Invia direttamente a più fornitori/); // DISTINTA-ONE1
-  assert.match(builder, /onPreviewChange=\{setAiPreview\}/);
-  assert.match(intake, /The focused Commerciale route renders a real conversational surface/);
-  assert.match(conversation, /Invio per analizzare/); // COMM-RFQ-CREATE1: un solo avviso, accanto a Crea RFQ
+  assert.match(intake, /The focused \/rfq-hub\/distinta route renders the single DISTINTA-SMART1 box/);
+  assert.match(box, /Invio: l’assistente prepara gli articoli, tu li controlli prima che entrino in distinta/);
 });
 
 test("UX2.B new and changed TSX parses without JSX syntax errors", () => {
   for (const [name, source] of [
-    ["commercial-rfq-conversation.tsx", conversation],
+    ["distinta-smart-box.tsx", box],
     ["rfq-ai-intake-ux.tsx", intake],
     ["rfq-ai-text-review.tsx", reviewer],
     ["buyer-distinta-builder.tsx", builder],
