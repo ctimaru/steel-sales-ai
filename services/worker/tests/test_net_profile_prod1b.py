@@ -58,6 +58,8 @@ class ManufacturerEvidenceTest(unittest.TestCase):
             "Offriamo tubi e nastri a magazzino. Scopri il catalogo.",
             "Qualità e tecnologia per la lavorazione di tubi.",
             "Azienda produttrice di macchine per la trafilatura di tubi.",
+            "I nostri fornitori producono tubi per applicazioni strutturali.",
+            "Le aziende partner producono profilati e barre in acciaio.",
         ):
             with self.subTest(phrase=phrase):
                 self.assertEqual(source_backed_facts(page(phrase)), [])
