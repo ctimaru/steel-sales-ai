@@ -140,3 +140,7 @@ AS $func$ SELECT private.net_it_mass11c_recovery_finalize(p_candidate_id); $func
 REVOKE ALL ON FUNCTION public.net_it_mass11c_recovery_finalize(uuid)
  FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.net_it_mass11c_recovery_finalize(uuid) TO service_role;
+REVOKE ALL ON FUNCTION private.net_it_mass11c_recovery_finalize(uuid)
+ FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION private.net_it_mass11c_recovery_finalize(uuid)
+ TO service_role;
