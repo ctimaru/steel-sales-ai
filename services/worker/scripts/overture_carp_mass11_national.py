@@ -15,7 +15,7 @@ from urllib.parse import urlsplit
 
 import duckdb
 
-RELEASE = "2026-10-21.0"
+RELEASE = "2026-11-18.0"
 SOURCE = (
     "s3://overturemaps-us-west-2/release/"
     + RELEASE + "/theme=places/type=place/*.parquet"
@@ -24,16 +24,16 @@ LICENSE = "CDLA-Permissive-2.0"
 # Search tiles cover mainland Italy and both major islands. Tiles overlap;
 # never infer legal location/province from a tile.
 AREAS = {
-    "nord_ovest": ((6.60, 9.55, 43.90, 46.75), 2650),
-    "lombardia": ((8.65, 10.95, 44.85, 46.65), 3100),
-    "nord_est": ((10.30, 13.90, 44.75, 46.75), 3250),
-    "emilia_romagna": ((9.10, 12.85, 43.65, 45.35), 2150),
-    "toscana_umbria_marche": ((9.35, 13.85, 42.15, 44.45), 1950),
-    "lazio_abruzzo_molise": ((11.50, 15.25, 40.80, 43.05), 1550),
-    "campania_puglia": ((13.35, 18.65, 39.70, 41.90), 2550),
-    "basilicata_calabria": ((14.45, 17.75, 37.75, 40.80), 680),
-    "sicilia": ((12.25, 15.85, 36.45, 38.60), 1550),
-    "sardegna": ((8.00, 9.95, 38.70, 41.40), 380),
+    "nord_ovest": ((6.60, 9.55, 43.90, 46.75), 350),
+    "lombardia": ((8.65, 10.95, 44.85, 46.65), 450),
+    "nord_est": ((10.30, 13.90, 44.75, 46.75), 400),
+    "emilia_romagna": ((9.10, 12.85, 43.65, 45.35), 250),
+    "toscana_umbria_marche": ((9.35, 13.85, 42.15, 44.45), 200),
+    "lazio_abruzzo_molise": ((11.50, 15.25, 40.80, 43.05), 150),
+    "campania_puglia": ((13.35, 18.65, 39.70, 41.90), 200),
+    "basilicata_calabria": ((14.45, 17.75, 37.75, 40.80), 70),
+    "sicilia": ((12.25, 15.85, 36.45, 38.60), 120),
+    "sardegna": ((8.00, 9.95, 38.70, 41.40), 50),
 }
 CATEGORIES = (
     "metal_fabricator", "sheet_metal_fabricator", "steel_fabricators",
