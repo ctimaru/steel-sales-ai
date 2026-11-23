@@ -1,6 +1,5 @@
--- NET-PROFILE-PROD1.C: deepen first-party product/manufacturing/working pages.
+-- NET-PROFILE-PROD1.C: official multi-page manufacturer and process evidence.
 -- No new cron, no unverified automatic product claims, no inventory/SKU writes.
--- Preserve the original lease and first-party/role requirements from PROD1.B.
 create or replace function private.netprofile_prod1b_claim(p_limit integer default 5)
 returns jsonb language plpgsql security definer set search_path=''
 as $$
@@ -67,33 +66,16 @@ begin
       select jsonb_agg(src.source_url order by src.priority,src.checked_at desc nulls last,src.source_url)
       from (
         select p.source_url,p.last_checked_at as checked_at,
-          case when p.source_url ~* '/(produzion[ei]|lavorazion[ei]|manufactur|processing)'
-              then 0
-              when p.source_url ~* '/(prodott[oi]|product)' then 1
-              else 2 end as priority
+          case when p.source_url ~* '/(produzion[ei]|lavorazion[ei]|manufactur|processing)' then 0
+               when p.source_url ~* '/(prodott[oi]|product)' then 1 else 2 end as priority
         from private.network_producer_auto1_product_pages p
         where p.company_id=c.id
           and p.status='processed' and p.page_kind='products'
-          and p.last_sha256 ~ '^[a-f0-9]{64}
-       from private.network_producer_auto1_product_pages p
-       where p.company_id=c.id and p.status='processed' and p.page_kind='products'
-         and p.last_sha256 ~ '^[a-f0-9]{64}$'
-         and lower(p.canonical_domain)=lower(c.website_domain)
-         and p.source_url ~ '^https://[A-Za-z0-9.-]+(/|$)'
-         and lower(split_part(p.source_url,'/',3)) in
-           (lower(c.website_domain),'www.'||lower(c.website_domain))
-       order by p.last_checked_at desc nulls last,p.source_url limit 1
-    )
-  ) order by q.company_id),'[]'::jsonb)
-  into v_items from leased q join public.network_companies c on c.id=q.company_id;
-  return jsonb_build_object('contract','netprofile-prod1b-claim-v1','items',v_items);
-end;
-$$;
-
+          and p.last_sha256 ~ '^[a-f0-9]{64}$'
           and lower(p.canonical_domain)=lower(c.website_domain)
           and p.source_url ~ '^https://[A-Za-z0-9.-]+(/|$)'
           and lower(split_part(p.source_url,'/',3)) in
-            (lower(c.website_domain),'www.'||lower(c.website_domain))
+             (lower(c.website_domain),'www.'||lower(c.website_domain))
           and p.source_url !~* '(privacy|cookies?|certific|qualit[aà]|quality|policy|news|blog|contatt|contact)'
           and p.source_url !~* '\.(pdf|zip|docx?|xlsx?|csv|xml|jpe?g|png|gif|svg|webp)(\?|$)'
         order by priority,p.last_checked_at desc nulls last,p.source_url
@@ -117,9 +99,7 @@ $$;
 end;
 $$;
 
-
--- Add independent working/services evidence; every service needs a positive
--- first-party first-person process assertion and one exact source excerpt.
+-- Allow source-linked performed workings alongside manufacturing.
 create or replace function private.netprofile_prod1b_complete(
  p_company_id uuid,p_lease_token uuid,p_status text,
  p_source_url text default null,p_source_sha256 text default null,
@@ -247,7 +227,6 @@ revoke all on function private.netprofile_prod1b_claim(integer) from public,anon
 revoke all on function private.netprofile_prod1b_complete(uuid,uuid,text,text,text,jsonb,text) from public,anon,authenticated;
 grant execute on function private.netprofile_prod1b_claim(integer) to service_role;
 grant execute on function private.netprofile_prod1b_complete(uuid,uuid,text,text,text,jsonb,text) to service_role;
-
 
 -- A bounded one-time recheck for previous NO_EVIDENCE records whose processed
 -- first-party technical sections were not all read by the earlier one-page
