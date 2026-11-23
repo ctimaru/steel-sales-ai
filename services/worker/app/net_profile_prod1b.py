@@ -72,7 +72,7 @@ PROCESS_PATTERNS = (
     )),
 )
 PROCESS_VERBS = re.compile(
-    r"\b(?:eseguiamo|effettuiamo|svolgiamo|offriamo\s+(?:servizi\s+di|lavorazioni\s+di)|"
+    r"\b(?:eseguiamo|effettuiamo|svolgiamo|realizziamo|offriamo\s+(?:servizi\s+di|lavorazioni\s+di)|"
     r"ci\s+occupiamo\s+di|(?:siamo\s+)?specializzat[ioe]\s+(?:in|nella|nelle)|"
     r"we\s+(?:perform|carry\s+out|speciali[sz]e\s+in)|"
     r"our\s+company\s+(?:performs|carries\s+out))\b", re.I
@@ -106,6 +106,21 @@ NEGATIVE = re.compile(
     r"\b(?:macchin[ea]|macchinari|impiant[io]|attrezzatur[ea]|"
     r"linee|sistemi|machines?|equipment|plants?|machinery)\b", re.I,
 )
+# Realizing a *process on* tubes does not mean producing the tubes.
+# Likewise manufacturing moulds FOR tube production is not manufacturing tubes.
+PROCESS_OBJECT_HEAD = re.compile(
+    r"^\s*(?:(?:il|la|le|i|di|dei|delle)\s+)?"
+    r"(?:taglio|lavorazion[ie]|saldatur[ae]|piegatur[ae]|"
+    r"calandratur[ae]|tornitur[ae]|fresatur[ae]|"
+    r"machining|welding|cutting|fabrication)\b", re.I
+)
+PRODUCT_RELATION_BOUNDARY = re.compile(
+    r"\b(?:per\s+(?:la|il)\s+(?:produzion[ei]|lavorazion[ei]|fabbricazion[ei])|"
+    r"for\s+(?:the\s+)?(?:production|manufactur(?:e|ing)|processing|cutting))\b",
+    re.I,
+)
+
+
 SALE_ONLY = re.compile(
     r"\b(?:commercializziamo|commercializza|rivendiamo|distribuiamo|"
     r"distribuzione|ingrosso|vendita|sells?|supplies?|resell)\b", re.I,
@@ -187,8 +202,9 @@ def _production_from_segment(segment: str) -> dict | None:
         ):
             continue
         object_text = segment[verb.end():verb.end() + 78]
-        if NEGATIVE.search(object_text[:50]):
+        if NEGATIVE.search(object_text[:50]) or PROCESS_OBJECT_HEAD.search(object_text):
             continue
+        object_text = PRODUCT_RELATION_BOUNDARY.split(object_text, maxsplit=1)[0]
         if SALE_ONLY.search(object_text[:35]) and not re.search(
             r"\b(?:e|and)\s+commercializziamo\b", object_text[:35], re.I
         ):
