@@ -188,11 +188,18 @@ def safe_official_source(url: str, canonical: str) -> bool:
 
 
 def _page_segments(page) -> list[str]:
-    # Metadata is corporate-first-party material too; it is not an AI claim.
-    fields = [page.meta_description or "", page.h1 or "", page.text or ""]
+    # A real HTTP page supplies evidence_blocks, even when it contains ZERO
+    # eligible company-body paragraphs. Do not fall back to the flattened
+    # header/menu/footer or SEO meta-description (false evidence in PROD1.C).
+    # Legacy synthetic fixtures without evidence_blocks remain compatible.
+    blocks = getattr(page, "evidence_blocks", None)
+    fields = (
+        blocks if blocks is not None
+        else [page.meta_description or "", page.h1 or "", page.text or ""]
+    )
     pieces: list[str] = []
     for field in fields:
-        value = " ".join(field.split())[:24000]
+        value = " ".join(str(field).split())[:24000]
         if not value:
             continue
         pieces.extend(re.split(r"(?<=[.!?;])\s+", value))
