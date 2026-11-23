@@ -69,13 +69,16 @@ class LegalNameExtractionRegression(TestCase):
                 self.assertTrue(publisher_legal_name_is_clean(name))
 
     def test_truncated_partnership_identity_is_not_full_name_proof(self):
+        # Short abbreviations (2M S.N.C.) already fail the minimum
+        # standalone evidence length; use a nontrivial corporate name here
+        # to isolate the new "di <partners>" continuation check.
         self.assertFalse(_name_evidenced(
-            "2M S.N.C.",
-            ["2M S.N.C. di Alfred e Denis Murer C.F. e P.I. 03104030261"],
+            "Officina 2M S.N.C.",
+            ["Officina 2M S.N.C. di Alfred e Denis Murer C.F. e P.I. 03104030261"],
         ))
         self.assertTrue(_name_evidenced(
-            "2M S.N.C.",
-            ["2M S.N.C. | P.IVA 03104030261 | carpenteria metallica"],
+            "Officina 2M S.N.C.",
+            ["Officina 2M S.N.C. | P.IVA 03104030261 | carpenteria metallica"],
         ))
 
 
