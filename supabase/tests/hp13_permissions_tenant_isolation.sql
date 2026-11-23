@@ -322,6 +322,11 @@ select pg_temp.hp13_assert(
         -- non-EU regions are not direct browser-accessible tables.
         'net_europe2_region_search',
         'net_europe2_region_coverage',
+        -- NET-PROFILE-PROD1: reviewed read-only profile links to official producer
+        -- product pages. Workspace active/entitled, published canonical producer,
+        -- exact first-party HTTPS domain and processed source SHA required;
+        -- bounded max four URLs, no candidate evidence or private technical claims.
+        'netprofile_prod1_official_pages',
         -- NET-UX-MAP1: reviewed read-only aggregate country ticker facade.
         -- SECURITY DEFINER required to call private ACL-revoked implementation;
         -- internal guard requires active member (Free) or valid org entitlement
