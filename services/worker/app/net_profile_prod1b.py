@@ -112,7 +112,6 @@ def _page_segments(page) -> list[str]:
 
 def source_backed_facts(page) -> list[dict]:
     """Deterministic fact generation with an exact short on-page excerpt."""
-    findings: dict[str, str] = {}
     for segment in _page_segments(page):
         if MARKETING_NOISE.search(segment[:250]):
             continue
@@ -136,33 +135,30 @@ def source_backed_facts(page) -> list[dict]:
             excerpt = _redact_personal_channels(excerpt).strip()
             if not 24 <= len(excerpt) <= 300 or "@" in excerpt or "http" in excerpt.lower():
                 continue
+            labels = []
             for label, pattern in PRODUCT_PATTERNS:
                 hit = pattern.search(object_text)
-                if hit and hit.start() <= 65 and label not in findings:
-                    findings[label] = excerpt
-        if len(findings) >= 5:
-            break
-    if not findings:
-        return []
-    labels = list(findings)[:5]
-    # No catalog-copy descriptions: synthesized from *specific* approved
-    # relations, not scraped text or an inferred product grade/dimension.
-    products = {
-        "field_key": "products",
-        "field_value": labels,
-        "evidence_excerpt": findings[labels[0]],
-    }
-    # Exposed by existing netprofile1d_profile_evidence, not the privileged
-    # producer technical claims, which remain PRO-only.
-    description_text = "Il sito ufficiale documenta la produzione di " + ", ".join(
-        label.lower() for label in labels
-    ) + "."
-    description = {
-        "field_key": "description",
-        "field_value": description_text[:240],
-        "evidence_excerpt": findings[labels[0]],
-    }
-    return [products, description]
+                if hit and hit.start() <= 65:
+                    labels.append(label)
+            if not labels:
+                continue
+            # All labels MUST appear in this exact one source excerpt.
+            # Combining phrases from separate paragraphs under one citation
+            # would make some company product assertions unverifiable.
+            products = {
+                "field_key": "products",
+                "field_value": labels[:5],
+                "evidence_excerpt": excerpt,
+            }
+            description_text = "Il sito ufficiale documenta la produzione di " + ", ".join(
+                label.lower() for label in labels[:5]
+            ) + "."
+            return [products, {
+                "field_key": "description",
+                "field_value": description_text[:240],
+                "evidence_excerpt": excerpt,
+            }]
+    return []
 
 
 def _rpc(db, action: str, payload: dict, contract: str) -> dict:
