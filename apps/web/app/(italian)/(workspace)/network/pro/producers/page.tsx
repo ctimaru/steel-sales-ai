@@ -7,6 +7,7 @@ import {getProducerSourceMentions} from "@/lib/network-producer-source-mentions"
 import {isNetworkFrontendEnabled} from "@/lib/network-flags";
 import {isSupportedNetworkCountry} from "@/lib/network-eu-countries";
 import {getNetworkProCoverage,getNetworkProScopedDirectory} from "@/lib/network-pro-coverage";
+import {getSavedNetworkCompanyIds} from "@/lib/network-saved-set";
 import {getWorkspaceContext} from "@/lib/workspace-context";
 
 export const dynamic="force-dynamic";
@@ -46,13 +47,15 @@ export default async function NetworkProProducersPage({
   const publishedCount=coverage?.countries.find(row=>row.countryCode===country)
     ?.publishedModules.producers??null;
   const ids=result.status==="ready"?result.data.items.map(company=>company.id):[];
-  const [catalogs,technicalClaims,sourceMentions]=result.status==="ready"
+  // NET-PRODUCERS-UX3: «Salva» on each row; the saved set is the user's own private list (RLS).
+  const [catalogs,technicalClaims,sourceMentions,savedIds]=result.status==="ready"
     ?await Promise.all([
       country==="IT"?getNetworkProducerCatalogLinks(context.organizationId,ids):Promise.resolve([]),
       getProducerTechnicalClaims(context.organizationId,ids,country),
       country==="IT"?getProducerSourceMentions(context.organizationId,ids):Promise.resolve([]),
+      getSavedNetworkCompanyIds(context.organizationId,ids).catch(()=>null),
     ])
-    :[[],[],[]];
+    :[[],[],[],[]];
 
   return <NetworkProducersExperience
     result={result}
@@ -63,5 +66,6 @@ export default async function NetworkProProducersPage({
     catalogs={catalogs}
     technicalClaims={technicalClaims}
     sourceMentions={sourceMentions}
+    savedIds={savedIds}
   />;
 }

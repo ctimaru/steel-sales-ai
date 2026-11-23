@@ -141,7 +141,8 @@ test("EU1.E1 ranking is evidence-only and strict grade matching",()=>{
   assert.doesNotMatch(sql,/insert into|update public\.network_companies|delete from/i);
 });
 test("EU1.E1 frontend renders conversational source cards and reviewed RFQ handoff",()=>{
-  assert.match(page,/<EuProducerIntelligenceChat\/>/);
+  // NET-PRODUCERS-UX3: the page has one search box; questions reach the chat as `ask`.
+  assert.match(page,/<EuProducerIntelligenceChat ask=\{ask\}/);
   assert.match(ui,/data-testid="eu-producer-intelligence-chat"/);
   assert.match(ui,/data-testid="eu-producer-source-match"/);
   assert.match(ui,/sourceUrl/);
