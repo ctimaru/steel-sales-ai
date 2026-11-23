@@ -358,6 +358,7 @@ jobs:
             netprofile_ux1b_pending_drafts.sql \
             rfqmail1_recipient_opt_out.sql \
             hp13_permissions_tenant_isolation.sql \
+            netprofile_prod1b_access.sql \
             trader1d3b2_live_source_intelligence.sql \
             hp18_production_journey_acceptance.sql \
             l27_1_release_database_readiness.sql \

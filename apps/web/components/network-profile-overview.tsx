@@ -72,6 +72,7 @@ export function NetworkProfileOverview({
   technicalTopics = [],
   standards = [],
   products = [],
+  officialProductPages = [],
   services = [],
   website,
   email,
@@ -103,6 +104,7 @@ export function NetworkProfileOverview({
   technicalTopics?: string[];
   standards?: string[];
   products?: string[];
+  officialProductPages?: string[];
   services?: string[];
   website?: string | null;
   email?: string | null;
@@ -122,10 +124,11 @@ export function NetworkProfileOverview({
   const initials = name.trim().split(/\s+/).slice(0, 2)
     .map((word) => word.slice(0, 1).toUpperCase()).join("") || "SS";
   const visibleProducts = Array.from(new Set(products.filter(Boolean))).slice(0, 12);
+  const visibleOfficialPages = Array.from(new Set(officialProductPages.filter(Boolean))).slice(0, 4);
   const visibleServices = Array.from(new Set(services.filter(Boolean))).slice(0, 10);
   const visibleStandards = Array.from(new Set(standards.filter(Boolean))).slice(0, 12);
   const visibleRoles = Array.from(new Set([primaryRole, ...roles].filter((role): role is string => Boolean(role)))).slice(0, 3);
-  const hasActivities = Boolean(description?.trim() || visibleProducts.length || visibleServices.length || visibleStandards.length);
+  const hasActivities = Boolean(description?.trim() || visibleProducts.length || visibleServices.length || visibleStandards.length || visibleOfficialPages.length);
   const hasStock = stockCount > 0 && stockContent !== undefined;
   const trustSourceUrl = sourceUrl || evidenceSourceUrl;
   const hasWebSource = Boolean(trustSourceUrl);
@@ -175,6 +178,20 @@ export function NetworkProfileOverview({
                 </dd>
               </div> : null}
             </dl>
+          ) : null}
+          {visibleOfficialPages.length ? (
+            <div className="border-t border-[#e5ece7] pt-3" data-testid="network-producer-official-product-pages">
+              <h4 className="text-xs font-bold text-[#37664d]">Pagine prodotti sul sito ufficiale</h4>
+              <ul className="mt-2 flex flex-wrap gap-2">
+                {visibleOfficialPages.map((url, index) => (
+                  <li key={url}><a href={url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex min-h-10 items-center rounded-lg border border-[#bdd9c5] bg-[#f6faf7] px-3 text-xs font-semibold text-[#205840] hover:bg-[#eaf4ee] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#205840]">
+                    Pagina prodotti {index + 1} ↗
+                  </a></li>
+                ))}
+              </ul>
+              <p className="mt-2 text-xs leading-5 text-[#657469]">Collegamenti a fonti di consultazione, non una conferma di producibilità, disponibilità o specifiche tecniche.</p>
+            </div>
           ) : null}
           {!hasActivities ? <p className={emptyStateClass}>
             Prodotti e specializzazioni non ancora pubblicati nel Network.
