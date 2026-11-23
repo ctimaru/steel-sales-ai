@@ -123,8 +123,8 @@ def source_backed_facts(page) -> list[dict]:
             # Third-person "produce" is valid only when the immediate
             # subject is the company itself, not a supplier or partner.
             if verb.group().lower() == "produce" and (
-                not re.search(r"\\b(?:azienda|impresa|societ[aà])\\b", prefix, re.I)
-                or re.search(r"\\b(?:fornitori|partner|clienti|terzi)\\b", prefix, re.I)
+                not re.search(r"\b(?:azienda|impresa|societ[aà])\b", prefix, re.I)
+                or re.search(r"\b(?:fornitori|partner|clienti|terzi)\b", prefix, re.I)
             ):
                 continue
             object_text = segment[verb.end():verb.end() + 78]
