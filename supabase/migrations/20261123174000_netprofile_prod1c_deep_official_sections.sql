@@ -247,3 +247,33 @@ revoke all on function private.netprofile_prod1b_claim(integer) from public,anon
 revoke all on function private.netprofile_prod1b_complete(uuid,uuid,text,text,text,jsonb,text) from public,anon,authenticated;
 grant execute on function private.netprofile_prod1b_claim(integer) to service_role;
 grant execute on function private.netprofile_prod1b_complete(uuid,uuid,text,text,text,jsonb,text) to service_role;
+
+
+-- A bounded one-time recheck for previous NO_EVIDENCE records whose processed
+-- first-party technical sections were not all read by the earlier one-page
+-- worker. No acceptance or publication occurs in this migration.
+with candidates as (
+  select q.company_id
+  from private.network_profile_producer_activity_queue q
+  where q.state='no_evidence'
+    and q.last_reason='no_explicit_manufacture_relation'
+    and exists (
+      select 1 from private.network_producer_auto1_product_pages p
+      join public.network_companies c on c.id=p.company_id
+      where p.company_id=q.company_id and c.publication_status='published'
+        and c.archived_at is null
+        and p.status='processed' and p.page_kind='products'
+        and p.last_sha256 ~ '^[a-f0-9]{64}$'
+        and lower(p.canonical_domain)=lower(c.website_domain)
+        and p.source_url ~ '^https://[A-Za-z0-9.-]+(/|$)'
+        and lower(split_part(p.source_url,'/',3)) in (
+          lower(c.website_domain),'www.'||lower(c.website_domain)
+        )
+    )
+  order by q.last_checked_at,q.company_id
+  limit 25
+)
+update private.network_profile_producer_activity_queue q
+set state='queued',next_attempt_at=now(),updated_at=now(),
+    last_reason='official_section_depth_recheck'
+from candidates c where q.company_id=c.company_id;
