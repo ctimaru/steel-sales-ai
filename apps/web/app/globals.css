@@ -3139,10 +3139,12 @@ nav[aria-label="Categorie ricerca commerciale"] a:focus-visible {
    request steps. The unlayered base rules above (input border-color, :focus-visible)
    win over Tailwind utilities, so the request screens set their own field rules here.
    Field borders ≥3:1 on white, placeholders ≥4.5:1. */
-[data-distinta-steps] :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+/* Bare fields (the Distinta name) are excluded here: this selector is more specific
+   than a single class, so a later .distinta-bare-field rule alone would lose. */
+[data-distinta-steps] :is(input:not([type="checkbox"]):not([type="radio"]):not(.distinta-bare-field), select, textarea) {
   border-color: #7a9585;
 }
-[data-distinta-steps] :is(input, select, textarea):focus {
+[data-distinta-steps] :is(input:not(.distinta-bare-field), select, textarea):focus {
   border-color: #175640;
 }
 [data-distinta-steps] :is(input, textarea)::placeholder {
