@@ -65,5 +65,8 @@ test("wiring: server name, draft handling, step 3 defaults, local-time deadline"
   assert.doesNotMatch(panel, /toISOString\(\)\.slice\(0, 16\)/, "A saved deadline must not be shown in UTC");
   assert.match(panel, /buyerMessage\?\.trim\(\) \? buyerMessage : \(defaultMessage \?\? ""\)/);
   assert.match(campaign, /defaultMessage=\{defaultSupplierMessage\(\{/);
+  // Pre-filled values inside a wrapping <label> must not become the field's accessible name.
+  assert.match(panel, /aria-label="Messaggio ai fornitori"/);
+  assert.match(panel, /aria-label="Scadenza offerta"/);
   assert.match(campaign, /total_tonnes,target_total_eur,document_requirements/);
 });

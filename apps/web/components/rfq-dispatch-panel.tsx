@@ -222,8 +222,10 @@ export function RfqDispatchPanel({
           : "mt-5 grid gap-4 border-t border-[#d3e0d7] pt-5 lg:grid-cols-[260px_1fr_auto] lg:items-end"}>
           <label className="text-xs font-semibold text-[#173f35]">
             Scadenza offerta
+            {/* aria-label: a pre-filled value inside the <label> would otherwise join the accessible name. */}
             <input
               type="datetime-local"
+              aria-label="Scadenza offerta"
               value={deadline}
               onChange={(event) => { setDeadline(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
               className="mt-1.5 h-11 w-full rounded-xl border border-[#bfd0c5] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
@@ -233,6 +235,7 @@ export function RfqDispatchPanel({
           <label className="text-xs font-semibold text-[#173f35]">
             Messaggio ai fornitori
             <textarea
+              aria-label="Messaggio ai fornitori"
               value={message}
               onChange={(event) => { setMessage(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
               rows={side ? 2 : 3}
