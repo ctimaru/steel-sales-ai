@@ -91,9 +91,17 @@ export function DistintaSmartBox({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialQuery]);
 
+  // The box is the page's main action: once the draft is ready, focus it on
+  // desktop (or when asked) unless the user is already working elsewhere.
   useEffect(() => {
-    if (!autoFocus || disabled) return;
-    const frame = window.requestAnimationFrame(() => boxRef.current?.focus({ preventScroll: true }));
+    if (disabled) return;
+    const finePointer = window.matchMedia?.("(pointer: fine)").matches ?? false;
+    if (!autoFocus && !finePointer) return;
+    const frame = window.requestAnimationFrame(() => {
+      const active = document.activeElement;
+      const idle = !active || active === document.body || active.id === "main-content";
+      if (autoFocus || idle) boxRef.current?.focus({ preventScroll: true });
+    });
     return () => window.cancelAnimationFrame(frame);
   }, [autoFocus, disabled]);
 
@@ -234,7 +242,8 @@ export function DistintaSmartBox({
   }
 
   const field = "h-10 rounded-lg border border-[#bfd0c5] bg-white px-2.5 text-sm text-[#173f35] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15 disabled:opacity-50";
-  const placeholder = ai.hasProposals ? "Correggi una proposta, ad esempio: riga 2: 20 barre"
+  const placeholder = disabled ? "Un attimo, preparo la distinta…"
+    : ai.hasProposals ? "Correggi una proposta, ad esempio: riga 2: 20 barre"
     : aiEnabled ? "Cerca una misura o scrivi la richiesta: 40 barre quadro 100x100x5, S355, 12 m"
       : "Cerca una misura: quadro 100x100x5, tondo 60,3x3";
   const recentTurns = ai.turns.slice(-3);

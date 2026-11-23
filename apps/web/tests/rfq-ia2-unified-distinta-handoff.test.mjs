@@ -93,7 +93,8 @@ test("RFQ-IA2 expired/corrupt/malicious drafts fail closed without creating a se
 
 test("RFQ-IA2 only preserves a tab's temporary draft, never supplier emails and never auto-sends", () => {
   assert.match(builder,/serializeBuyerSessionDraft\(\{/);
-  assert.match(builder,/title, lines, documents, guidedSpecsByLine, selectedCatalog, wizardDraft: previewDraft/);
+  // DISTINTA-DEFAULTS1: an untouched automatic RDO name is stored as «no name chosen».
+  assert.match(builder,/title: isAutomaticDistintaTitle\(title, defaultTitle\) \? LEGACY_DEFAULT_TITLE : title,\n\s*lines, documents, guidedSpecsByLine, selectedCatalog, wizardDraft: previewDraft/);
   assert.match(builder,/if \(!draftReady\) return;/);
   assert.match(builder,/onClick=\{persistBrowserDraft\}/);
   assert.match(builder,/encodeURIComponent\(appRoutes\.rfqHub\.createDistinta\)/);

@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+
+import { defaultOfferDeadline, toDateTimeLocalValue } from "@/lib/distinta-defaults";
 
 import {
   launchBuyerRfq,
@@ -27,6 +29,7 @@ export function RfqDispatchPanel({
   suppliers,
   canExecute = true,
   layout = "full",
+  defaultMessage = null,
 }: {
   rfqId: string;
   campaignStatus: string;
@@ -40,12 +43,13 @@ export function RfqDispatchPanel({
    * one recipient is chosen.
    */
   layout?: "full" | "side";
+  /** DISTINTA-DEFAULTS1: pre-filled message when the RFQ has none yet (editable). */
+  defaultMessage?: string | null;
 }) {
   const router = useRouter();
-  const [deadline, setDeadline] = useState(
-    dueAt ? new Date(dueAt).toISOString().slice(0, 16) : "",
-  );
-  const [message, setMessage] = useState(buyerMessage ?? "");
+  // Empty on the server: local time (and the default) are only known in the browser.
+  const [deadline, setDeadline] = useState("");
+  const [message, setMessage] = useState(buyerMessage?.trim() ? buyerMessage : (defaultMessage ?? ""));
   const [feedback, setFeedback] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmChecked, setConfirmChecked] = useState(false);
@@ -56,6 +60,16 @@ export function RfqDispatchPanel({
   const [reminderPending, startReminderTransition] = useTransition();
 
   const isDraft = campaignStatus === "draft" || campaignStatus === "ready";
+
+  // DISTINTA-DEFAULTS1: show the saved deadline in local time (it was shown as UTC),
+  // or 3 working days ahead at 12:00 for a draft that has none yet.
+  useEffect(() => {
+    setDeadline((current) => {
+      if (current) return current;
+      if (dueAt) return toDateTimeLocalValue(new Date(dueAt));
+      return isDraft ? toDateTimeLocalValue(defaultOfferDeadline()) : "";
+    });
+  }, [dueAt, isDraft]);
   const side = layout === "side" && isDraft;
   const missingEmail = suppliers.filter((supplier) => !supplier.hasEmail).length;
   const failed = suppliers.filter((supplier) => supplier.status === "failed").length;
@@ -208,8 +222,10 @@ export function RfqDispatchPanel({
           : "mt-5 grid gap-4 border-t border-[#d3e0d7] pt-5 lg:grid-cols-[260px_1fr_auto] lg:items-end"}>
           <label className="text-xs font-semibold text-[#173f35]">
             Scadenza offerta
+            {/* aria-label: a pre-filled value inside the <label> would otherwise join the accessible name. */}
             <input
               type="datetime-local"
+              aria-label="Scadenza offerta"
               value={deadline}
               onChange={(event) => { setDeadline(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
               className="mt-1.5 h-11 w-full rounded-xl border border-[#bfd0c5] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#438d7a]"
@@ -219,6 +235,7 @@ export function RfqDispatchPanel({
           <label className="text-xs font-semibold text-[#173f35]">
             Messaggio ai fornitori
             <textarea
+              aria-label="Messaggio ai fornitori"
               value={message}
               onChange={(event) => { setMessage(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
               rows={side ? 2 : 3}
