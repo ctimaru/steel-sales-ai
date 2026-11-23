@@ -114,9 +114,14 @@ PROCESS_OBJECT_HEAD = re.compile(
     r"calandratur[ae]|tornitur[ae]|fresatur[ae]|"
     r"machining|welding|cutting|fabrication)\b", re.I
 )
+# Clauses of purpose or end use are *not* additional products/operations:
+# "produciamo lamiere per strutture metalliche" attests sheets, not
+# manufacturing of metal structures; likewise cutting tubes does not
+# demonstrate manufacturing the tubes. Keep coordinated families BEFORE
+# the purpose clause, e.g. "tubi e lamiere per edilizia".
 PRODUCT_RELATION_BOUNDARY = re.compile(
-    r"\b(?:per\s+(?:la|il)\s+(?:produzion[ei]|lavorazion[ei]|fabbricazion[ei])|"
-    r"for\s+(?:the\s+)?(?:production|manufactur(?:e|ing)|processing|cutting))\b",
+    r"\b(?:per\b|for\b|destinat[ioe]\s+(?:a|ad|alle|ai)|"
+    r"ad\s+uso|used\s+(?:in|for)|intended\s+for|suitable\s+for)\b",
     re.I,
 )
 
@@ -268,6 +273,7 @@ def _process_from_segment(segment: str) -> dict | None:
         object_text = segment[verb.end():verb.end() + 95]
         if NEGATIVE.search(prefix) or NEGATIVE.search(object_text[:45]):
             continue
+        object_text = PRODUCT_RELATION_BOUNDARY.split(object_text, maxsplit=1)[0]
         if re.search(r"\b(?:fornitori|partner|clienti|terzi)\b", prefix, re.I):
             continue
         excerpt = _validated_excerpt(segment, verb)
