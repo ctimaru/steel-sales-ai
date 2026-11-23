@@ -347,7 +347,7 @@ async def inspect_candidate(client: httpx.AsyncClient, candidate: dict,
             # substring on the same page into a verified legal identity
             # without independent legal context or first-party JSON-LD.
             and ((legal_name_is_clean(name) and not re.match(
-                    r"(?i)^(?:whistleblowing|entra|da\\s+wikipedia)\\b",
+                    r"(?i)^(?:whistleblowing|entra|da\s+wikipedia)\b",
                     name))
                  or independently_evidenced)
             and (not matched or not legal_name_is_clean(name)
