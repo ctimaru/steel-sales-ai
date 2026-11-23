@@ -8,6 +8,7 @@ import os
 import re
 import socket
 from contextlib import suppress
+import dataclasses
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from html.parser import HTMLParser
@@ -88,6 +89,10 @@ class CrawledPage:
     text: str
     links: tuple[str, ...]
     structured_data: tuple[dict[str, object], ...] = ()
+    # Optional page-body prose for evidence-only manufacturer extraction.
+    # None distinguishes legacy synthetic pages from fetched pages with no
+    # admissible body text. Never use raw navigation as fallback when empty.
+    evidence_blocks: tuple[str, ...] | None = None
 
 
 class _PublicHTMLParser(HTMLParser):
@@ -157,6 +162,122 @@ class _PublicHTMLParser(HTMLParser):
             links=tuple(self._links[:500]),
             structured_data=structured_data,
         )
+
+
+
+# Semantic body extraction is purposely narrower than the general discovery
+# crawler, whose full text still supports site identity and navigation.
+# Only paragraphs or explicit editorial text containers may substantiate
+# automatic public manufacturing/working statements.
+_EVIDENCE_SUPPRESSED_TAGS = {
+    "nav", "header", "footer", "aside", "form", "dialog", "button",
+    "select", "option", "script", "style", "noscript", "svg", "template",
+    "menu", "a",
+}
+_EVIDENCE_VOID_TAGS = {
+    "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+    "meta", "param", "source", "track", "wbr",
+}
+_EVIDENCE_CHROME = re.compile(
+    r"(?<![a-z0-9])(?:nav(?:bar|igation)?|menu|breadcrumb|"
+    r"header|footer|sidebar|cookie|consent|popup|modal|"
+    r"carousel|slider|social|share|related[-_ ]?posts?|"
+    r"wp-block-navigation|pagination|toolbar|widget-nav)"
+    r"(?![a-z0-9])", re.I,
+)
+_EVIDENCE_EDITOR = re.compile(
+    r"(?:text[-_ ]?editor|rich[-_ ]?text|text[-_ ]?block|"
+    r"text[-_ ]?inner|(?:product[-_ ]?)?description|"
+    r"wysiwyg|et_pb_text_inner|elementor-widget-text-editor|"
+    r"wpb_wrapper)", re.I,
+)
+MAX_EVIDENCE_BLOCKS = 150
+MAX_EVIDENCE_CHARS_PER_BLOCK = 2500
+
+
+class _OfficialContentEvidenceParser(HTMLParser):
+    """Extract contiguous company prose; never join a menu with body text.
+
+    Only these blocks can be used by the automatic public-profile evidence
+    writer. The general crawler retains its original flattened text.
+    """
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self._tags: list[tuple[str, bool]] = []
+        self._captures: list[dict] = []
+        self.blocks: list[str] = []
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        tag = tag.lower()
+        if tag in _EVIDENCE_VOID_TAGS:
+            return
+        attributes = {key.lower(): (value or "") for key, value in attrs}
+        context = " ".join((attributes.get("class", ""), attributes.get("id", "")))
+        role = attributes.get("role", "").lower()
+        blocked = (
+            (self._tags[-1][1] if self._tags else False)
+            or tag in _EVIDENCE_SUPPRESSED_TAGS
+            or bool(_EVIDENCE_CHROME.search(context))
+            or role in {"navigation", "banner", "contentinfo", "search",
+                        "complementary", "dialog", "menu", "menubar"}
+            or attributes.get("aria-hidden", "").lower() == "true"
+            or "hidden" in attributes
+            or bool(re.search(r"display\s*:\s*none\b", attributes.get("style", ""), re.I))
+        )
+        self._tags.append((tag, blocked))
+        if blocked or len(self.blocks) >= MAX_EVIDENCE_BLOCKS:
+            return
+        if tag == "p":
+            for capture in self._captures:
+                if capture["tag"] == "div":
+                    capture["child_p"] = True
+        is_editor = tag == "div" and bool(_EVIDENCE_EDITOR.search(context))
+        if tag == "p" or is_editor:
+            self._captures.append({
+                "tag": tag, "depth": len(self._tags),
+                "parts": [], "child_p": False,
+            })
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        # Self-closing tags never create an open ancestor or evidence block.
+        return
+
+    def handle_data(self, data: str) -> None:
+        if not self._tags or self._tags[-1][1]:
+            return
+        value = " ".join(data.split())
+        if not value:
+            return
+        for capture in self._captures:
+            if sum(len(x) for x in capture["parts"]) < MAX_EVIDENCE_CHARS_PER_BLOCK:
+                capture["parts"].append(value)
+
+    def _finish(self, min_depth: int) -> None:
+        keep = []
+        for capture in self._captures:
+            if capture["depth"] < min_depth:
+                keep.append(capture)
+                continue
+            if capture["tag"] == "div" and capture["child_p"]:
+                continue
+            prose = " ".join(capture["parts"]).strip()[:MAX_EVIDENCE_CHARS_PER_BLOCK]
+            if len(prose) >= 24 and prose not in self.blocks and (
+                len(self.blocks) < MAX_EVIDENCE_BLOCKS
+            ):
+                self.blocks.append(prose)
+        self._captures = keep
+
+    def handle_endtag(self, tag: str) -> None:
+        tag = tag.lower()
+        for position in range(len(self._tags) - 1, -1, -1):
+            if self._tags[position][0] == tag:
+                self._finish(position + 1)
+                del self._tags[position:]
+                break
+
+    def close(self) -> None:
+        super().close()
+        self._finish(1)
 
 
 JSON_LD_SCRIPT_RE = re.compile(
@@ -319,7 +440,13 @@ async def _fetch_page(client: httpx.AsyncClient, url: str, base_url: str) -> Cra
     structured_data = _extract_structured_data(response.text)
     parser = _PublicHTMLParser()
     parser.feed(response.text)
-    return parser.result(final_url, structured_data)
+    evidence = _OfficialContentEvidenceParser()
+    evidence.feed(response.text)
+    evidence.close()
+    return dataclasses.replace(
+        parser.result(final_url, structured_data),
+        evidence_blocks=tuple(evidence.blocks),
+    )
 
 
 def _priority_links(home: CrawledPage) -> list[str]:
