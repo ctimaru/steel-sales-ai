@@ -1,0 +1,39 @@
+name: MKT9 Investor Deck Visual Acceptance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/web/components/mkt9-investor-deck-candidate.tsx'
+      - 'apps/web/lib/mkt9-investor-deck-candidate.ts'
+      - 'apps/web/tests/mkt9-investor-deck-chrome.mjs'
+      - '.github/workflows/mkt9-investor-deck-visual.yml'
+permissions:
+  contents: read
+concurrency:
+  group: mkt9-deck-visual-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --no-audit --no-fund
+      - run: npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/mkt9-investor-deck-chrome.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mkt9-deck-visual
+          path: ${{ runner.temp }}/mkt9-visual
+          if-no-files-found: warn
+          retention-days: 7
