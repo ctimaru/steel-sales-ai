@@ -17,7 +17,7 @@ test("MKT9C defaults closed; no client data intake without legal and bot gate",(
  assert.match(action,/siteverify/);
  assert.match(action,/result.hostname === config.hostname/);
  assert.match(action,/result.action === "community_interest"/);
- assert.ok(action.indexOf("if (!verified) redirect")<action.indexOf('.from("mkt9_community_interest")'));
+ assert.ok(action.indexOf("if (!verified) redirect")<action.indexOf('.rpc("mkt9_reserve_email"'));
  assert.doesNotMatch(form,/MKT9_COMMUNITY_SUPABASE_SECRET|MKT9_TURNSTILE_SECRET/);
 });
 test("MKT9C proposed database separates private intake from investment commitments",()=>{
@@ -28,7 +28,7 @@ test("MKT9C proposed database separates private intake from investment commitmen
  assert.match(sql,/public.is_platform_superadmin\(\)/);
  assert.match(sql,/grant insert\(kind,locale,name,email,organization,notice_version,challenge_digest\).*to service_role/i);
  assert.doesNotMatch(sql,/grant insert.*to (anon|authenticated)/i);
- assert.match(action,/error.code === "23505"/);
+ assert.match(sql,/exception when unique_violation/);
  assert.doesNotMatch(action,/upsert\(|mkt8_investor_outreach_target_upsert|sendEmail|invite_id/);
 });
 test("MKT9C integrates into owner console without auto granting access",()=>{
@@ -53,4 +53,22 @@ test("MKT9C retention and CRM handoff require separate approval",()=>{
  assert.match(purge,/where expires_at <= now\(\)/);
  assert.match(purge,/limit 1000 for update skip locked/);
  assert.doesNotMatch(purge,/cron\.schedule\(/);
+});
+
+test("MKT9C2 email verification is fail closed and limits mail delivery",()=>{
+ assert.match(cfg,/!communityNoticeVersion.includes\("-draft-"\)/);
+ assert.match(cfg,/MKT9_COMMUNITY_MAILBOX_VERIFIED === communityNoticeVersion/);
+ assert.match(action,/randomInt\(0,100000000\)/);
+ assert.match(action,/createHmac\("sha256"/);
+ assert.match(action,/if\(!error && data===true\)/);
+ assert.match(action,/Idempotency-Key/);
+ assert.match(action,/mkt9_confirm_email/);
+ assert.match(sql,/pg_advisory_xact_lock/);
+ assert.match(sql,/attempts>=5/);
+ assert.match(sql,/r.expires_at<=now\(\)/);
+ assert.match(sql,/security invoker set search_path=''/i);
+ assert.match(sql,/revoke all on function .*from public,anon,authenticated,service_role/i);
+ assert.match(form,/autoComplete="one-time-code"/);
+ assert.match(form,/mkt9_community_receipt/);
+ assert.match(crm,/not\("email_verified_at","is",null\)/);
 });
