@@ -1,0 +1,80 @@
+name: MKT9C Community Intake SQL Fixture
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/marketing/mkt9c-community-interest-schema.candidate.sql'
+      - 'supabase/tests/mkt9c-community-interest-fixture.sql'
+      - '.github/workflows/mkt9c-intake-sql.yml'
+      - 'supabase/tests/mkt9c-local-auth-fixture.sql'
+      - 'apps/web/tests/mkt9-community-interest-local-auth.mjs'
+permissions:
+  contents: read
+jobs:
+  fixture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Execute candidate SQL with synthetic data and isolated roles
+        env:
+          PGPASSWORD: fixture-only
+        run: psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -f supabase/tests/mkt9c-community-interest-fixture.sql
+  local-auth:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: supabase/setup-cli@v1
+        with:
+          version: "3.3.0"
+      - run: npm ci --no-audit --no-fund
+        working-directory: apps/web
+      - name: Initialize disposable local Supabase project
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/mkt9-local"
+          cd "$RUNNER_TEMP/mkt9-local"
+          supabase --version
+          supabase init
+          supabase migration new mkt9_local_auth_fixture
+          cp "$GITHUB_WORKSPACE/supabase/tests/mkt9c-local-auth-fixture.sql" supabase/migrations/*_mkt9_local_auth_fixture.sql
+          # CLI uses second-resolution migration timestamps; avoid collisions.
+          sleep 2
+          supabase migration new mkt9_community_interest_candidate
+          cp "$GITHUB_WORKSPACE/docs/marketing/mkt9c-community-interest-schema.candidate.sql" supabase/migrations/*_mkt9_community_interest_candidate.sql
+          supabase start > "$RUNNER_TEMP/mkt9-start.log" 2>&1
+          supabase status -o env > "$RUNNER_TEMP/mkt9-local.env"
+          supabase migration list --local
+      - name: Exercise Auth-issued JWTs through local API
+        working-directory: apps/web
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/mkt9-local.env"
+          set +a
+          node tests/mkt9-community-interest-local-auth.mjs
+      - name: Stop disposable stack
+        if: always()
+        run: |
+          cd "$RUNNER_TEMP/mkt9-local" && supabase stop --no-backup >/dev/null 2>&1 || true
+          rm -f "$RUNNER_TEMP/mkt9-local.env" "$RUNNER_TEMP/mkt9-start.log"

@@ -14,12 +14,14 @@ const items = {
     { label: "Trova aziende", href: "/azienda" },
     { label: "Network", href: "#network" },
     { label: "Scuola", href: "/knowledge" },
+    { label: "Il progetto", href: "/progetto" },
   ],
   en: [
     { label: "RFQ builder", href: "/en/distinta" },
     { label: "Network", href: "/en/network" },
     { label: "Knowledge", href: "/en/knowledge" },
     { label: "Contact", href: "#get-in-touch" },
+    { label: "The project", href: "/en/project" },
   ],
 } as const;
 
