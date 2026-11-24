@@ -58,6 +58,8 @@ jobs:
           supabase init
           supabase migration new mkt9_local_auth_fixture
           cp "$GITHUB_WORKSPACE/supabase/tests/mkt9c-local-auth-fixture.sql" supabase/migrations/*_mkt9_local_auth_fixture.sql
+          # CLI uses second-resolution migration timestamps; avoid collisions.
+          sleep 2
           supabase migration new mkt9_community_interest_candidate
           cp "$GITHUB_WORKSPACE/docs/marketing/mkt9c-community-interest-schema.candidate.sql" supabase/migrations/*_mkt9_community_interest_candidate.sql
           supabase start > "$RUNNER_TEMP/mkt9-start.log" 2>&1
