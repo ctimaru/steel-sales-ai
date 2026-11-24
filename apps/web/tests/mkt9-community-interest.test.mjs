@@ -41,3 +41,16 @@ test("MKT9C integrates into owner console without auto granting access",()=>{
  assert.match(crm,/eq\("kind","investor"\).eq\("status","contacted"\)/);
  assert.match(form,/Nessun account, pagamento, prenotazione o offerta di investimento/);
 });
+
+test("MKT9C retention and CRM handoff require separate approval",()=>{
+ assert.match(cfg,/MKT9_COMMUNITY_RETENTION_APPROVED === communityNoticeVersion/);
+ assert.match(cfg,/MKT9_COMMUNITY_PURGE_VERIFIED === communityNoticeVersion/);
+ assert.match(inbox,/gt\("expires_at",now\)/);
+ assert.match(owner,/gt\("expires_at",new Date\(\).toISOString\(\)\)/);
+ assert.match(crm,/MKT9_COMMUNITY_CRM_TRANSFER_APPROVED === "true"/);
+ assert.match(crm,/gt\("expires_at",new Date\(\).toISOString\(\)\)/);
+ const purge=read("../../../docs/marketing/mkt9c-retention-purge.candidate.sql");
+ assert.match(purge,/where expires_at <= now\(\)/);
+ assert.match(purge,/limit 1000 for update skip locked/);
+ assert.doesNotMatch(purge,/cron\.schedule\(/);
+});
