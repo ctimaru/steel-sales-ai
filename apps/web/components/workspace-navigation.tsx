@@ -132,31 +132,20 @@ function NavIcon({
 
 /**
  * NAV-BADGES1 (founder request, 20 Nov 2026): plan badges on the primary navigation.
- * Network = PRO (yellow), Commerciale and Scuola = FREE (green), Marketplace = Coming soon (grey,
- * two lines so it never covers the icon). Marketplace stays reachable: the change is visual only.
+ * NAV-BADGES2 (founder request, 24 Nov 2026): only Network keeps its PRO badge; the FREE badges on
+ * Commerciale and Scuola and the Coming soon badge on Marketplace are removed.
  */
-type PrimaryBadge = "pro" | "free" | "soon";
+type PrimaryBadge = "pro";
 
 function PrimaryNavBadge({ badge, itemKey, locked, mobile = false }: { badge: PrimaryBadge; itemKey: string; locked: boolean; mobile?: boolean }) {
   const position = mobile ? "right-[14%] top-1" : "right-1 top-1";
-  if (badge === "soon") {
-    return (
-      <span
-        data-testid={"nav-soon-" + itemKey}
-        className={"absolute " + position + " rounded-[5px] border border-[#d7dfdb] bg-[#eef1f0] px-1 py-[1px] text-center text-[7.5px] font-extrabold leading-[8.5px] tracking-[0.05em] text-[#5d6a65]"}
-      >
-        COMING<br />SOON<span className="sr-only"> · In arrivo</span>
-      </span>
-    );
-  }
-  const tone = badge === "pro" ? "bg-[#f2b544] text-[#3a2600]" : "bg-[#dcefe5] text-[#14523b]";
   const size = mobile
     ? "rounded-[4px] px-1 text-[8px] leading-[13px]"
     : "rounded-[5px] px-1.5 py-[1px] text-[9px] tracking-[0.06em]";
   return (
-    <span data-testid={"nav-" + badge + "-" + itemKey} className={"absolute " + position + " " + size + " " + tone + " font-extrabold"}>
-      {badge === "pro" ? "PRO" : "FREE"}
-      <span className="sr-only">{badge === "pro" ? (locked ? " · Premium, non attivo" : " · Premium") : " · Incluso gratis"}</span>
+    <span data-testid={"nav-" + badge + "-" + itemKey} className={"absolute " + position + " " + size + " bg-[#f2b544] text-[#3a2600] font-extrabold"}>
+      PRO
+      <span className="sr-only">{locked ? " · Premium, non attivo" : " · Premium"}</span>
     </span>
   );
 }
@@ -176,7 +165,6 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
       label: "Commerciale",
       icon: "commercial" as const,
       locked: false,
-      badge: "free" as const,
     },
     ...(networkEnabled
       ? [
@@ -195,7 +183,6 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
             mobileLabel: "Mercato",
             icon: "marketplace" as const,
             locked: false,
-            badge: "soon" as const,
           },
         ]
       : []),
@@ -205,7 +192,6 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
       label: "Scuola",
       icon: "knowledge" as const,
       locked: false,
-      badge: "free" as const,
     },
   ];
 }
@@ -231,8 +217,6 @@ export function WorkspaceDesktopPrimaryNavigation({
             aria-current={selected ? "page" : undefined}
             className={[
               "relative flex min-w-[88px] flex-col items-center justify-center gap-1 rounded-t-xl px-2 text-[11px] font-semibold transition",
-              // NAV-BADGES1: a bit more room so the two-line Coming soon badge clears the icon.
-              "badge" in item && item.badge === "soon" ? "min-w-[100px]!" : "",
               selected
                 ? "bg-[#f7faf8] text-[#173f35]"
                 : "text-[#5d6a65] hover:bg-[#f4f6f5] hover:text-[#1d2824]",
@@ -341,6 +325,8 @@ export function WorkspaceContextNavigation({
 
   // Commerciale now has one hierarchical director sidebar, not duplicate top tabs.
   if (current === "home" || current === "commercial") return null;
+  // MKT-VISION1: the Marketplace entry page only shows the vision, so no operational sub-tabs there.
+  if (current === "marketplace" && pathname === appRoutes.marketplace.home) return null;
 
   const items =
     current === "network" ? networkItems

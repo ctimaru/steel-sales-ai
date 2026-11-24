@@ -82,8 +82,8 @@ test("RFQH12 keeps a source-level price history and award drill-down", () => {
 test("RFQH12 stays integrated while PF4 keeps Marketplace navigation compact", () => {
   assert.match(routes, /procurementIntelligence: "\/marketplace\/intelligence"/);
   assert.match(ia, /"marketplace:intelligence"/);
-  assert.match(marketplaceHome, /appRoutes\.rfqHub\.intelligence/);
-  assert.match(marketplaceHome, /Intelligence acquisti/);
+  // MKT-VISION1: the Marketplace entry is a vision page; Intelligence acquisti stays in RFQ Hub.
+  assert.doesNotMatch(marketplaceHome, /Intelligence acquisti/);
   const marketplaceNav = shell.slice(shell.indexOf("const marketplaceNav:"), shell.indexOf("const knowledgeNav:"));
   assert.doesNotMatch(marketplaceNav, /label: "Intelligence"/);
   assert.match(shell, /label: "Analisi", contextKey: "commercial:analysis"/);
