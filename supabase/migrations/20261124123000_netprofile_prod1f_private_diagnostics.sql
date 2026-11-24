@@ -41,8 +41,8 @@ begin
     end if;
   end loop;
   if exists (
-    select 1 from jsonb_object_keys(p_diagnostics) k
-    where k <> 'reason_bucket' and k <> all(v_fields)
+    select 1 from jsonb_object_keys(p_diagnostics) as entry(key)
+    where entry.key <> 'reason_bucket' and entry.key <> all(v_fields)
   ) or (p_diagnostics->>'html_pages')::integer > 5
      or (p_diagnostics->>'editorial_blocks')::integer > 750
      or (p_diagnostics->>'pages_without_editorial')::integer >
