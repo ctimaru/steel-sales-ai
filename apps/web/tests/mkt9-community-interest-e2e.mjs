@@ -26,12 +26,12 @@ const created=await admin.auth.admin.createUser({email,password,email_confirm:tr
 const uid=created.data.user.id;assert.match(uid,/^[0-9a-f-]{36}$/);
 execFileSync("psql",["-h","127.0.0.1","-p","54322","-U","postgres","-d","postgres","-v","ON_ERROR_STOP=1","-c","insert into public.platform_user_roles(user_id,role,status) values ('"+uid+"','platform_superadmin','active')"],{env:{...process.env,PGPASSWORD:"postgres"},stdio:"ignore"});
 assert.ifError((await owner.auth.signInWithPassword({email,password})).error);
-let enabled=false,store=new Map(),mail=[],captchaOK=true,ownerAllowed=true;
+let enabled=false,store=new Map(),mail=[],captchaOK=true,captchaHostname="fixture.invalid",captchaAction="community_interest",captchaUnavailable=false,ownerAllowed=true;
 const jar={get:k=>store.has(k)?{value:store.get(k)}:undefined,set:(k,v)=>store.set(k,v),delete:k=>store.delete(k)};
 const realFetch=globalThis.fetch;
 globalThis.fetch=async (input,init)=>{
  const u=typeof input==="string"?input:input.url||String(input);
- if(u==="https://challenges.cloudflare.com/turnstile/v0/siteverify")return Response.json({success:captchaOK,hostname:"fixture.invalid",action:"community_interest"});
+ if(u==="https://challenges.cloudflare.com/turnstile/v0/siteverify"){if(captchaUnavailable)throw Error("Synthetic provider outage");return Response.json({success:captchaOK,hostname:captchaHostname,action:captchaAction});}
  if(u==="https://api.resend.com/emails"){const payload=JSON.parse(init.body);assert.ok(payload.to.every(e=>e.endsWith("@example.invalid")));mail.push(payload);return Response.json({id:"fixture"});}
  if(u.startsWith(url+"/"))return realFetch(input,init);
  throw Error("Unexpected outbound request");
@@ -93,6 +93,22 @@ try{
  await page.goto(base+"/progetto/interesse?kind=partner");
  assert.equal(await page.getByTestId("community-interest-form").count(),0);
  enabled=true;
+ // Real action, with synthetic Siteverify responses. No database or email on rejection.
+ const rejectionEmail="rejected-"+randomUUID()+"@example.invalid";
+ for(const reason of ["missing","rejected","wrong-host","wrong-action","provider-outage"]){
+  store.clear();mail=[];captchaOK=reason!=="rejected";
+  captchaHostname=reason==="wrong-host"?"other.invalid":"fixture.invalid";
+  captchaAction=reason==="wrong-action"?"login":"community_interest";
+  captchaUnavailable=reason==="provider-outage";
+  const f=new FormData();
+  for(const [k,v] of Object.entries({kind:"partner",locale:"it",name:"Rejected Fixture",email:rejectionEmail,organization:"Fixture",privacy:"on","cf-turnstile-response":reason==="missing"?"":randomUUID()}))f.set(k,v);
+  await assert.rejects(()=>submitCommunityInterest(f),e=>e.target?.endsWith("result=invalid"));
+  assert.equal(mail.length,0);assert.equal(store.has("mkt9_community_pending"),false);
+ }
+ captchaOK=true;captchaHostname="fixture.invalid";captchaAction="community_interest";captchaUnavailable=false;
+ const rejected=await owner.from("mkt9_community_interest").select("id").eq("email",rejectionEmail);
+ assert.ifError(rejected.error);assert.equal(rejected.data.length,0);
+ console.log("MKT9C6 challenge rejection PASS: missing, invalid, wrong host/action, outage; no email or pending cookie");
  for(const [locale,kind] of [["it","partner"],["en","investor"]]){
   store.clear();mail=[];const entry=config.communityPath(locale,kind),addr=kind+"-"+randomUUID()+"@example.invalid";
   await page.goto(base+entry+"&result=received");assert.equal(await page.getByTestId("community-interest-form").count(),1);
