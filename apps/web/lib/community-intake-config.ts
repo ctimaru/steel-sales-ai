@@ -1,5 +1,6 @@
 import "server-only";
 import { legalIdentityConfigured } from "@/lib/legal";
+import { communityWriterConfigured } from "@/lib/community-intake-db";
 export const communityNoticeVersion = "mkt9c-draft-2026-11-24";
 export function communityIntakeConfig() {
   const siteKey = process.env.MKT9_TURNSTILE_SITE_KEY?.trim();
@@ -15,8 +16,7 @@ export function communityIntakeConfig() {
     process.env.MKT9_COMMUNITY_PURGE_VERIFIED === communityNoticeVersion &&
     legalIdentityConfigured() && !!siteKey && !!hostname &&
     !!process.env.MKT9_TURNSTILE_SECRET?.trim() &&
-    !!process.env.MKT9_COMMUNITY_SUPABASE_SECRET?.trim() &&
-    !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+    communityWriterConfigured();
   return { enabled, siteKey: enabled ? siteKey! : "", hostname: enabled ? hostname! : "" };
 }
 export function communityPath(locale: "it" | "en", kind: "partner" | "investor") {
