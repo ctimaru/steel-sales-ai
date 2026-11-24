@@ -83,3 +83,37 @@ begin
 end $$;
 \ir ../../docs/marketing/mkt9c-retention-purge.candidate.sql
 select 'MKT9C retention candidate PASS: expired removed, active preserved, repeat safe' as result;
+
+-- C.2: actual database transaction functions, not provider email delivery.
+set role service_role;
+do $$
+declare id1 uuid:='10000000-0000-4000-8000-000000000001'; id2 uuid:='10000000-0000-4000-8000-000000000002';
+  payload jsonb:='{"kind":"partner","locale":"it","name":"OTP Fixture","email":"otp@example.invalid","organization":"Fixture","notice_version":"mkt9c-draft-2026-11-24"}';
+begin
+ if not public.mkt9_reserve_email(id1,repeat('1',64),repeat('2',64),repeat('3',64),payload) then raise exception 'Reserve denied'; end if;
+ if public.mkt9_reserve_email(id2,repeat('1',64),repeat('4',64),repeat('5',64),payload) then raise exception 'Cooldown bypassed'; end if;
+ if public.mkt9_reserve_email(id2,repeat('9',64),repeat('4',64),repeat('3',64),payload) then raise exception 'Challenge replay accepted'; end if;
+ if public.mkt9_confirm_email(id1,repeat('9',64)) then raise exception 'Wrong code accepted'; end if;
+ if not public.mkt9_confirm_email(id1,repeat('2',64)) then raise exception 'Correct code rejected'; end if;
+ if public.mkt9_confirm_email(id1,repeat('2',64)) then raise exception 'Code reused'; end if;
+ if not public.mkt9_reserve_email(id2,repeat('6',64),repeat('4',64),repeat('5',64),payload||'{"email":"locked@example.invalid"}'::jsonb) then raise exception 'Second reserve denied'; end if;
+ for i in 1..5 loop
+  if public.mkt9_confirm_email(id2,repeat('9',64)) then raise exception 'Wrong code accepted'; end if;
+ end loop;
+ if public.mkt9_confirm_email(id2,repeat('4',64)) then raise exception 'Attempt cap bypassed'; end if;
+end $$;
+reset role;
+do $$
+begin
+ if not exists(select 1 from public.mkt9_community_interest where email='otp@example.invalid' and email_verified_at is not null) then raise exception 'Verified lead missing'; end if;
+ if exists(select 1 from public.mkt9_community_interest where email='locked@example.invalid') then raise exception 'Unverified lead persisted'; end if;
+ if has_function_privilege('anon','public.mkt9_reserve_email(uuid,text,text,text,jsonb)','execute') or has_function_privilege('authenticated','public.mkt9_confirm_email(uuid,text)','execute') then raise exception 'Public RPC access'; end if;
+ if has_table_privilege('authenticated','public.mkt9_community_pending','select') or has_table_privilege('anon','public.mkt9_community_rate','select') then raise exception 'Private challenge data exposed'; end if;
+end $$;
+update public.mkt9_community_pending set expires_at=now()-interval '1 minute';
+update public.mkt9_community_rate set created_at=now()-interval '25 hours';
+\ir ../../docs/marketing/mkt9c-retention-purge.candidate.sql
+do $$ begin
+ if exists(select 1 from public.mkt9_community_pending) or exists(select 1 from public.mkt9_community_rate) then raise exception 'Temporary data not purged'; end if;
+end $$;
+select 'MKT9C2 OTP fixture PASS: reserve, cooldown, replay, attempts, confirmed lead, privileges, purge' as result;
