@@ -17,7 +17,7 @@ test("MKT9C defaults closed; no client data intake without legal and bot gate",(
  assert.match(action,/siteverify/);
  assert.match(action,/result.hostname === config.hostname/);
  assert.match(action,/result.action === "community_interest"/);
- assert.ok(action.indexOf("if (!verified) redirect")<action.indexOf('.rpc("mkt9_reserve_email"'));
+ assert.ok(action.indexOf("if (!verified) redirect")<action.indexOf("await reserveCommunityEmail("));
  assert.doesNotMatch(form,/MKT9_COMMUNITY_SUPABASE_SECRET|MKT9_TURNSTILE_SECRET/);
 });
 test("MKT9C proposed database separates private intake from investment commitments",()=>{
@@ -60,9 +60,9 @@ test("MKT9C2 email verification is fail closed and limits mail delivery",()=>{
  assert.match(cfg,/MKT9_COMMUNITY_MAILBOX_VERIFIED === communityNoticeVersion/);
  assert.match(action,/randomInt\(0,100000000\)/);
  assert.match(action,/createHmac\("sha256"/);
- assert.match(action,/if\(!error && data===true\)/);
+ assert.match(action,/if\(reserved\)/);
  assert.match(action,/Idempotency-Key/);
- assert.match(action,/mkt9_confirm_email/);
+ assert.match(action,/confirmCommunityCode\(/);
  assert.match(sql,/pg_advisory_xact_lock/);
  assert.match(sql,/attempts>=5/);
  assert.match(sql,/r.expires_at<=now\(\)/);
@@ -71,4 +71,19 @@ test("MKT9C2 email verification is fail closed and limits mail delivery",()=>{
  assert.match(form,/autoComplete="one-time-code"/);
  assert.match(form,/mkt9_community_receipt/);
  assert.match(crm,/not\("email_verified_at","is",null\)/);
+});
+
+test("MKT9C5 public acquisition has no service-role fallback",()=>{
+ const db=read("../lib/community-intake-db.ts");
+ const retirement=read("../../../docs/marketing/mkt9c-retire-service-writer.candidate.sql");
+ assert.match(cfg,/communityWriterConfigured\(\)/);
+ assert.doesNotMatch(cfg+action,/MKT9_COMMUNITY_SUPABASE_SECRET|SERVICE_ROLE_KEY/);
+ assert.match(db,/MKT9_COMMUNITY_DATABASE_URL/);
+ assert.match(db,/rejectUnauthorized:true/);
+ assert.match(db,/select current_user as name/);
+ assert.match(db,/role\?\.name!==writerRole/);
+ assert.match(db,/prepare:false/);
+ assert.match(db,/mkt9_reserve_email/);
+ assert.match(db,/mkt9_confirm_email/);
+ assert.match(retirement,/revoke execute .*from service_role/i);
 });
