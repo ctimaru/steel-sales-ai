@@ -49,6 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
 
   const staticEntries: MetadataRoute.Sitemap = [
+    ...(["/progetto", "/en/project"] as const).map(route => ({url: absoluteUrl(route), changeFrequency: "monthly" as const, priority: 0.65, alternates: { languages: { it: absoluteUrl("/progetto"), en: absoluteUrl("/en/project"), "x-default": absoluteUrl("/progetto") } }})),
     {
       url: absoluteUrl("/investitori"),
       changeFrequency: "monthly",
