@@ -516,6 +516,22 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                 candidates = payload_c.get("items", [])
                 mass11c_recovering = bool(candidates)
                 recovering = mass11c_recovering
+        # MASS11G: one bounded deep official-site recheck of the 22 discarded
+        # source-bound company identity holds. The owner SQL checks provenance,
+        # rights, PII, collisions and a one-time crash-safe lease before claim.
+        mass11g_recovering = False
+        if not recovering and persist:
+            response_g = await client.post(
+                f"{url}/rest/v1/rpc/net_it_mass11g_recovery_queue",
+                headers=headers, json={"p_max": min(limit, RECOVERY_MAX_BATCH)})
+            if response_g.status_code != 404:
+                response_g.raise_for_status()
+                payload_g = response_g.json()
+                if payload_g.get("contract") != "net-it-mass11g-recovery-queue-v1":
+                    raise RuntimeError("unexpected MASS11G recovery queue contract")
+                candidates = payload_g.get("items", [])
+                mass11g_recovering = bool(candidates)
+                recovering = mass11g_recovering
         if not recovering:
             response = await client.post(f"{url}/rest/v1/rpc/net_it_auto2_queue",
                                          headers=headers,json={"p_max":limit})
@@ -545,6 +561,24 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
         recovery_restored = 0
         mass11c_recovered = 0
         mass11c_finalized = 0
+        mass11g_recovered = 0
+        mass11g_finalized = 0
+
+        async def _finalize_mass11g(candidate_id: str) -> None:
+            nonlocal mass11g_recovered, mass11g_finalized
+            if not mass11g_recovering:
+                return
+            done = await client.post(
+                f"{url}/rest/v1/rpc/net_it_mass11g_recovery_finalize",
+                headers=headers, json={"p_candidate_id": candidate_id})
+            done.raise_for_status()
+            outcome = done.json()
+            if (outcome.get("contract") != "net-it-mass11g-recovery-finalize-v1"
+                    or outcome.get("published") != 0
+                    or outcome.get("recovered") not in (0, 1)):
+                raise RuntimeError("unexpected MASS11G evidence-only finalize")
+            mass11g_finalized += 1
+            mass11g_recovered += int(outcome["recovered"])
 
         async def _finalize_mass11c(candidate_id: str) -> None:
             nonlocal mass11c_recovered, mass11c_finalized
@@ -608,6 +642,7 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                     if retry.status_code in REJECTED_STATUSES:
                         rejected += 1
                         await _finalize_mass11c(finding["p_candidate_id"])
+                        await _finalize_mass11g(finding["p_candidate_id"])
                         continue
                     retry.raise_for_status()
                     result = retry.json()
@@ -617,6 +652,7 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                         raise RuntimeError("unexpected exception evidence response")
                     written += 1
                     await _finalize_mass11c(finding["p_candidate_id"])
+                    await _finalize_mass11g(finding["p_candidate_id"])
                     continue
                 r.raise_for_status()
                 result = r.json()
@@ -624,7 +660,9 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                     raise RuntimeError("unexpected evidence-only response")
                 written += 1
                 await _finalize_mass11c(finding["p_candidate_id"])
-                if recovering and not mass11c_recovering and result.get("verdict") == "identity_supported":
+                await _finalize_mass11g(finding["p_candidate_id"])
+                if (recovering and not mass11c_recovering and not mass11g_recovering
+                        and result.get("verdict") == "identity_supported"):
                     # A fresh, first-party corporate proof can lift ONLY the
                     # 'no_company_on_site' AUTO4 discard, after database
                     # checks. This RPC never publishes or creates approvals.
@@ -665,13 +703,17 @@ async def execute(*, limit: int = 25, persist: bool = False) -> dict:
                     print(json.dumps({"status": "site_error_backoff_unavailable"}))
                 # A failed inspection is a bounded attempt, never evidence.
                 await _finalize_mass11c(failure["p_candidate_id"])
+                await _finalize_mass11g(failure["p_candidate_id"])
         return {
             "mode":"evidence_recording" if persist else "dry_run",
             "queue_kind":("mass11c_firstparty_recovery" if mass11c_recovering
+                          else "mass11g_firstparty_recovery" if mass11g_recovering
                           else "overture4_recovery" if recovering else "standard"),
             "recovery_restored":recovery_restored,
             "mass11c_recovered":mass11c_recovered,
             "mass11c_finalized":mass11c_finalized,
+            "mass11g_recovered":mass11g_recovered,
+            "mass11g_finalized":mass11g_finalized,
             "reviewed":len(findings),"attempted":len(candidates),
             "site_errors":len(failures),
             "recorded":written,"rejected":rejected,
@@ -703,7 +745,9 @@ async def execute_lots(*, limit: int = 50, lots: int = 4,
                                   "rejected", "site_errors",
                                   "identity_supported", "exceptions",
                                   "recovery_restored", "mass11c_recovered",
-                                  "mass11c_finalized", "published")}
+                                  "mass11c_finalized",
+                                  "mass11g_recovered","mass11g_finalized",
+                                  "published")}
     for lot in range(effective_lots):
         if lot and time.monotonic() - start >= max_seconds:
             break

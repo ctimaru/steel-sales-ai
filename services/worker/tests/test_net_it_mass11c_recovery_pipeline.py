@@ -52,6 +52,10 @@ class StubClient:
                     "role_keys": ["processor_service_provider"],
                 }],
             })
+        if route == "net_it_mass11g_recovery_queue":
+            # This unit test exercises MASS11C or normal AUTO2, so the
+            # optional MASS11G migration is intentionally unavailable.
+            return StubResponse(404)
         if route == "net_it_auto2_queue":
             return StubResponse(200, {"contract": "net-it-auto2-queue-v1",
                                       "items": []})
@@ -105,7 +109,7 @@ class RecoveryWorkerTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(res["published"], 0)
         self.assertEqual(stub.calls, [
             "net_it_auto2_recovery_queue", "net_it_mass11c_recovery_queue",
-            "net_it_auto2_queue"])
+            "net_it_mass11g_recovery_queue", "net_it_auto2_queue"])
 
     async def test_dry_run_does_not_claim_mass11c(self):
         stub = StubClient()

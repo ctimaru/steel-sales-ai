@@ -497,6 +497,9 @@ class ExecuteRejectedFindingTest(unittest.IsolatedAsyncioTestCase):
                 # Older deployment / migration not installed: stay on the
                 # previously tested standard queue, do not fake a contract.
                 return httpx.Response(404)
+            if name == "net_it_mass11g_recovery_queue":
+                # New bounded recovery is likewise optional until deployed.
+                return httpx.Response(404)
             if name == "net_it_auto2_queue":
                 return httpx.Response(200, json={"contract": "net-it-auto2-queue-v1",
                                                  "items": [{"id": "a"}, {"id": "b"}, {"id": "c"}]})
