@@ -71,3 +71,15 @@ begin
 end $$;
 reset role;
 select 'MKT9C isolated PostgreSQL grants, RLS and dedup PASS (identity fixture; real JWT not tested)' as result;
+
+-- Maintenance executed only by the disposable database owner.
+insert into public.mkt9_community_interest(kind,locale,name,email,organization,notice_version,challenge_digest,created_at,expires_at)
+values('investor','it','Expired fixture','expired@example.invalid',null,'mkt9c-draft-2026-11-24',repeat('d',64),now()-interval '91 days',now()-interval '1 day');
+\ir ../../docs/marketing/mkt9c-retention-purge.candidate.sql
+do $$
+begin
+  if exists(select 1 from public.mkt9_community_interest where email='expired@example.invalid') then raise exception 'Expired record survived purge'; end if;
+  if (select count(*) from public.mkt9_community_interest where email='partner@example.invalid' and kind='investor')<>1 then raise exception 'Unexpired record removed'; end if;
+end $$;
+\ir ../../docs/marketing/mkt9c-retention-purge.candidate.sql
+select 'MKT9C retention candidate PASS: expired removed, active preserved, repeat safe' as result;
