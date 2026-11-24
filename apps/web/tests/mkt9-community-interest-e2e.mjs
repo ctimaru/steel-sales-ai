@@ -18,7 +18,7 @@ const root=path.resolve(process.cwd()),require=createRequire(import.meta.url);
 const url=process.env.API_URL,anon=process.env.ANON_KEY,service=process.env.SERVICE_ROLE_KEY;
 assert.ok(["http://127.0.0.1:54321","http://localhost:54321"].includes(url));
 assert.ok(anon&&service);
-Object.assign(process.env,{NEXT_PUBLIC_SUPABASE_URL:url,MKT9_COMMUNITY_SUPABASE_SECRET:service,MKT9_COMMUNITY_OTP_SECRET:"fixture-only-hmac-key-not-for-production",MKT9_TURNSTILE_SECRET:"fixture",RESEND_API_KEY:"fixture",MKT9_COMMUNITY_EMAIL_FROM:"fixture@example.invalid",MKT9_COMMUNITY_CRM_TRANSFER_APPROVED:"false"});
+Object.assign(process.env,{NEXT_PUBLIC_SUPABASE_URL:url,NODE_ENV:"test",MKT9_COMMUNITY_DATABASE_URL:"postgresql://mkt9_intake_writer:fixture-only-writer@127.0.0.1:54322/postgres",MKT9_COMMUNITY_OTP_SECRET:"fixture-only-hmac-key-not-for-production",MKT9_TURNSTILE_SECRET:"fixture",RESEND_API_KEY:"fixture",MKT9_COMMUNITY_EMAIL_FROM:"fixture@example.invalid",MKT9_COMMUNITY_CRM_TRANSFER_APPROVED:"false"});
 const options={auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}};
 const admin=createClient(url,service,options),owner=createClient(url,anon,options);
 const email="owner-"+randomUUID()+"@example.invalid",password=randomUUID()+"Aa1!";
