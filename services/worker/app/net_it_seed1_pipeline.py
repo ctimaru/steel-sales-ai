@@ -288,6 +288,7 @@ class SeedApi:
     """The five NET-IT-SEED1 worker RPCs and nothing else."""
     ALLOWED = frozenset({
         "net_it_seed1_claim_sources", "net_it_seed1_stage",
+        "net_it_autofeed_stage",
         "net_it_seed1_claim_batch", "net_it_seed1_record",
         "net_it_seed1_finish_batch",
     })
