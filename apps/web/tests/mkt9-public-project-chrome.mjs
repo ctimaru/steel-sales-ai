@@ -19,6 +19,7 @@ function load(relative) {
   const output=ts.transpileModule(fs.readFileSync(file,"utf8"),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText;
   const localRequire=name=>{
     if(name==="next/link") return {__esModule:true,default:({href,children,...props})=>React.createElement("a",{href,...props},children)};
+    if(name==="@/lib/community-intake-config") return {communityIntakeConfig:()=>({enabled:false}),communityPath:(locale,kind)=>(locale==="en"?"/en/project/interest":"/progetto/interesse")+"?kind="+kind};
     if(name.startsWith("@/")) return load(name.slice(2)+".ts");
     if(name.startsWith(".")) return load(path.join(path.dirname(relative),name+".tsx"));
     return require(name);
