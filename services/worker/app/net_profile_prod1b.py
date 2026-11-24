@@ -167,10 +167,59 @@ def normalize_words(value: str) -> list[str]:
     return re.findall(r"[a-z0-9]+", plain)
 
 
+_LEGAL_FORM_SUFFIX = re.compile(
+    r"(?i)[\s,]+(s\s*\.?\s*p\s*\.?\s*a\.?|"
+    r"s\s*\.?\s*r\s*\.?\s*l\.?|"
+    r"s\s*\.?\s*n\s*\.?\s*c\.?|"
+    r"s\s*\.?\s*a\s*\.?\s*s\.?|gmbh|ltd\.?)\s*$"
+)
+_DOTTED_NAME = re.compile(r"(?i)(?:[a-z]{1,3}[.\-]){2,8}[a-z]{0,3}\.?")
+
+
+def _legal_acronym_for_exact_domain(legal_name: str) -> tuple[str, str] | None:
+    """Only a whole legal acronym, never a substring of a noisy title.
+
+    A dotted name O.M.O. or So.Pu.Me.V may align to omospa / sopumev;
+    ordinary short alphabetic brand aliases must be UPPERCASE and at least
+    three letters. Extra legal-name words immediately disqualify the match.
+    """
+    suffix = _LEGAL_FORM_SUFFIX.search(legal_name.strip())
+    if not suffix:
+        return None
+    legal_form = re.sub(r"[^a-z]", "", suffix.group(1).lower())
+    if legal_form not in {"spa", "srl", "snc", "sas", "gmbh", "ltd"}:
+        return None
+    body = legal_name[:suffix.start()].strip()
+    if _DOTTED_NAME.fullmatch(body):
+        acronym = re.sub(r"[^a-z]", "", body.lower())
+    elif re.fullmatch(r"[A-Z]{3,6}", body):
+        acronym = body.lower()
+    else:
+        return None
+    if not 3 <= len(acronym) <= 12:
+        return None
+    return acronym, legal_form
+
+
 def identity_matches_domain(legal_name: str, trading_name: str | None, domain: str) -> bool:
-    """Reject obviously cross-linked company/domain records before publishing."""
-    domain_tokens = re.findall(r"[a-z0-9]+", domain.lower().removeprefix("www.").split(".")[0])
+    """Conservatively reject cross-linked company/domain records.
+
+    Domain matches for acronyms must be EXACT, optionally followed by the
+    corporate form. We never infer a match from an arbitrary longer domain
+    (e.g. ABS is NOT verified as abstagliotubi without further proof).
+    """
+    domain_tokens = re.findall(
+        r"[a-z0-9]+", domain.lower().removeprefix("www.").split(".")[0]
+    )
     stem = "".join(domain_tokens)
+    if len(stem) < 3:
+        return False
+    legal_alias = _legal_acronym_for_exact_domain(legal_name or "")
+    if legal_alias and stem in (
+        legal_alias[0], legal_alias[0] + legal_alias[1]
+    ):
+        return True
+    # Preserve the original conservative long-token path for normal names.
     if len(stem) < 4:
         return False
     names = (legal_name or "") + " " + (trading_name or "")
