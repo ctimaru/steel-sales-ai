@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { communityIntakeConfig, communityPath } from "@/lib/community-intake-config";
 
 type Locale = "it" | "en";
 
@@ -78,6 +79,7 @@ const copy = {
 export function InvestorOpportunityPage({ locale, contactHref }: { locale: Locale; contactHref: string }) {
   const c = copy[locale];
   const english = locale === "en";
+  const intakeEnabled = communityIntakeConfig().enabled;
   return (
     <main lang={locale} className="min-h-screen bg-[#f2f4f3] text-[#1d2824]">
       <div className="mx-auto max-w-[1080px] px-4 py-6 sm:px-6 lg:px-8">
@@ -140,6 +142,7 @@ export function InvestorOpportunityPage({ locale, contactHref }: { locale: Local
             </a>
             <a href={linkedIn} rel="noopener noreferrer" target="_blank" className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[#91b4a5] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#235247] sm:w-auto">{c.linkedin} ↗</a>
           </div>
+          {intakeEnabled ? <Link href={communityPath(locale,"investor")} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-white underline">{english?"Send non-binding interest":"Manifesta interesse non vincolante"}</Link> : null}
           <p className="mt-5 max-w-3xl text-xs leading-6 text-[#cbded5]">{c.contactHint}</p>
           <a href="mailto:hello@smartsteelsales.com" className="mt-1 inline-flex min-h-10 items-center text-xs font-semibold text-white underline underline-offset-4">hello@smartsteelsales.com</a>
         </section>
