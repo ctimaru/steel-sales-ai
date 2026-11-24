@@ -374,6 +374,60 @@ def source_backed_facts(page) -> list[dict]:
     )
 
 
+# Audit only counts and bounded reason codes; NEVER record scraped page content,
+# personal contacts, source quotes or unreviewed manufacturing claims.
+DIAGNOSTIC_FIELDS = (
+    "html_pages", "editorial_blocks", "sentence_segments",
+    "pages_without_editorial", "product_verb_segments", "working_verb_segments",
+    "product_relation_segments", "working_relation_segments",
+    "rejected_product_segments", "rejected_working_segments",
+    "fetch_failures",
+)
+
+
+def _page_diagnostics(page) -> dict[str, int]:
+    segments = _page_segments(page)
+    blocks = getattr(page, "evidence_blocks", None)
+    if blocks is None:
+        # Compatibility with synthetic tests only, never used on live fetches.
+        blocks = ()
+    result = {key: 0 for key in DIAGNOSTIC_FIELDS}
+    result["html_pages"] = 1
+    result["editorial_blocks"] = min(len(blocks), 500)
+    result["sentence_segments"] = len(segments)
+    result["pages_without_editorial"] = int(len(blocks) == 0)
+    for segment in segments:
+        product_verb = PRODUCES.search(segment) is not None
+        working_verb = PROCESS_VERBS.search(segment) is not None
+        result["product_verb_segments"] += int(product_verb)
+        result["working_verb_segments"] += int(working_verb)
+        if product_verb:
+            supported = _production_from_segment(segment) is not None
+            result["product_relation_segments"] += int(supported)
+            result["rejected_product_segments"] += int(not supported)
+        if working_verb:
+            supported = _process_from_segment(segment) is not None
+            result["working_relation_segments"] += int(supported)
+            result["rejected_working_segments"] += int(not supported)
+    return result
+
+
+def _diagnostic_reason(status: str, reason: str, metrics: dict, accepted: int) -> str:
+    if reason == "canonical_identity_or_domain_mismatch":
+        return "identity_mismatch"
+    if status == "blocked":
+        return "source_unavailable"
+    if metrics["editorial_blocks"] == 0:
+        return "no_editorial_blocks"
+    if metrics["product_verb_segments"] + metrics["working_verb_segments"] == 0:
+        return "no_explicit_verbs"
+    if metrics["product_relation_segments"] + metrics["working_relation_segments"] == 0:
+        return "rejected_or_unclassified_relation"
+    if accepted == 0:
+        return "already_known_or_policy_excluded"
+    return "accepted"
+
+
 def _official_section_links(page, canonical: str) -> list[str]:
     """Bounded same-company discovery; reject offsite, auth, media, tracking."""
     ranked: dict[str, tuple[int, int]] = {}
@@ -470,6 +524,12 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
             source_sha256 = None
             facts: list[dict] = []
             best_score = 0
+            metrics = {key: 0 for key in DIAGNOSTIC_FIELDS}
+
+            def observe_page(page) -> None:
+                observed = _page_diagnostics(page)
+                for key in DIAGNOSTIC_FIELDS:
+                    metrics[key] += observed[key]
 
             if (not safe_official_source(site, canonical) or
                     not identity_matches_domain(label, alias, canonical)):
@@ -482,11 +542,15 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
                 try:
                     homepage = await _fetch_page(client, site, site)
                 except (httpx.HTTPError, CompanyDiscoveryError):
-                    pass
+                    metrics["fetch_failures"] += 1
                 if homepage and not safe_official_source(homepage.url, canonical):
                     homepage = None
+                    metrics["fetch_failures"] += 1
                 if homepage:
                     checked += 1
+                    observe_page(homepage)
+                elif metrics["fetch_failures"] == 0:
+                    metrics["fetch_failures"] += 1
                 urls = _queued_sources(item, site, canonical)
                 if homepage:
                     for discovered in _official_section_links(homepage, canonical):
@@ -506,10 +570,13 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
                     try:
                         page = await _fetch_page(client, url, site)
                     except (httpx.HTTPError, CompanyDiscoveryError):
+                        metrics["fetch_failures"] += 1
                         continue
                     if not page or not safe_official_source(page.url, canonical):
+                        metrics["fetch_failures"] += 1
                         continue
                     checked += 1
+                    observe_page(page)
                     observed = source_backed_facts(page)
                     score = (2 if any(f["field_key"] == "products" for f in observed)
                              else 0) + (1 if any(f["field_key"] == "services"
@@ -567,10 +634,25 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
                 "p_source_sha256": source_sha256,
                 "p_facts": facts, "p_reason": reason,
             }, "netprofile-prod1b-complete-v1")
+            metrics["reason_bucket"] = _diagnostic_reason(
+                status, reason, metrics, result["accepted"]
+            )
+            metrics_saved = False
+            if os.getenv("NETPROFILE_PROD1F_DIAGNOSTICS_ENABLED", "false").lower() == "true":
+                try:
+                    ack = _rpc(db, "netprofile_prod1f_record_diagnostics", {
+                        "p_company_id": company_id, "p_diagnostics": metrics,
+                    }, "netprofile-prod1f-record-v1")
+                    metrics_saved = ack.get("saved") is True
+                except Exception:
+                    # Diagnostic failures must not undo an already committed
+                    # source-backed enrichment. Surfaced in run output.
+                    metrics_saved = False
             outcomes.append({
                 "company_id": company_id, "status": status,
                 "source_pages_read": checked,
                 "accepted_facts": result["accepted"],
+                "diagnostics": metrics, "diagnostics_saved": metrics_saved,
             })
     return {
         "mode": "verified_firstparty_activity",
@@ -578,6 +660,11 @@ async def run_cycle(db, *, persist: bool = False, limit: int = 5) -> dict:
         "processed": len(outcomes),
         "accepted_facts": sum(o["accepted_facts"] for o in outcomes),
         "published_profiles": sum(o["accepted_facts"] > 0 for o in outcomes),
+        "diagnostics_saved": sum(o["diagnostics_saved"] for o in outcomes),
+        "diagnostics_totals": {
+            key: sum(o["diagnostics"][key] for o in outcomes)
+            for key in DIAGNOSTIC_FIELDS
+        },
         "outcomes": outcomes,
     }
 
