@@ -98,8 +98,8 @@ test("RFQ-IA1 keeps the public SEO tool separate and explicitly links authentica
   assert.match(publicDistinta, /\{authenticated \? \(/);
   assert.match(publicDistinta, /href=\{appRoutes\.rfqHub\.createDistinta\}/);
   assert.match(publicDistinta, /La bozza può essere ripresa nel Workspace/);
-  assert.match(market, /href=\{appRoutes\.rfqHub\.home\}/);
-  assert.match(market, /Le campagne RFQ riservate e i confronti tra fornitori/);
+  // MKT-VISION1 (24 Nov 2026): the Marketplace entry is a vision page that points buyers to the distinta.
+  assert.match(market, /href=\{appRoutes\.rfqHub\.createDistinta\}/);
   // RFQHUB1/DISTINTA2D: Marketplace publishing is «Presto disponibile» at step 2, not promoted here.
   assert.doesNotMatch(rfqHub, /appRoutes\.marketplace\./);
 });
