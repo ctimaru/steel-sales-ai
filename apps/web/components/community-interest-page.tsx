@@ -1,11 +1,15 @@
 import Link from "next/link";
 import Script from "next/script";
 import { communityIntakeConfig, communityPath } from "@/lib/community-intake-config";
-import { submitCommunityInterest } from "@/lib/community-intake-actions";
+import { cookies } from "next/headers";
+import { submitCommunityInterest, confirmCommunityEmail } from "@/lib/community-intake-actions";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
-export function CommunityInterestPage({locale,kind,result}:{locale:"it"|"en";kind:"partner"|"investor";result?:string}) {
+export async function CommunityInterestPage({locale,kind,result}:{locale:"it"|"en";kind:"partner"|"investor";result?:string}) {
   const en=locale==="en", investor=kind==="investor";
   const config=communityIntakeConfig();
+  const jar=await cookies();
+  const pending=!!jar.get("mkt9_community_pending")?.value;
+  const received=result==="received"&&jar.get("mkt9_community_receipt")?.value==="confirmed";
   const home=en?"/en/project":"/progetto";
   const subject=investor?(en?"Investor interest":"Interesse investitori"):(en?"Founding Partners interest":"Interesse Founding Partners");
   const contact="mailto:hello@smartsteelsales.com?subject="+encodeURIComponent(subject+" — Smart Steel Sales");
@@ -20,9 +24,17 @@ export function CommunityInterestPage({locale,kind,result}:{locale:"it"|"en";kin
         {(["partner","investor"] as const).map(k=><Link key={k} href={communityPath(locale,k)} aria-current={kind===k?"page":undefined} className={"rounded-xl border px-3 py-3 text-center text-sm font-semibold "+(kind===k?"app-selected-solid":"app-secondary")}>{k==="partner"?(en?"Companies":"Aziende"):(en?"Investors":"Investitori")}</Link>)}
       </nav>
       {!config.enabled ? <div role="status" className="mt-5 rounded-xl border border-[var(--border)] p-4 text-sm leading-6">{en?"The form is not open yet. You can contact us directly by email.":"Il modulo non è ancora aperto. Puoi contattarci direttamente via email."} <a href={contact} className="font-semibold underline">hello@smartsteelsales.com</a></div> :
-      result==="received" ? <div role="status" className="mt-5 rounded-xl bg-[var(--brand-primary-soft)] p-4 text-sm text-[var(--brand-deep)]">{en?"Thank you. Your interest has been received. It is not a confirmed membership or investment.":"Grazie. La manifestazione di interesse è stata ricevuta. Non equivale a un’adesione o investimento confermato."}</div> :
+      received ? <div role="status" className="mt-5 rounded-xl bg-[var(--brand-primary-soft)] p-4 text-sm text-[var(--brand-deep)]">{en?"Email verified. Your interest has been recorded or was already recorded. It is not a membership or investment.":"Email verificata. La manifestazione è stata registrata o era già presente. Non equivale a un’adesione o investimento."}</div> :
+      pending&&(result==="verify"||result==="verify-error") ? <form action={confirmCommunityEmail} className="mt-5 grid gap-4" data-testid="community-email-code">
+        <p className="text-sm leading-6">{en?"If the request can be processed, a code will arrive by email. Enter it within 10 minutes.":"Se la richiesta può essere elaborata, riceverai un codice via email. Inseriscilo entro 10 minuti."}</p>
+        {result==="verify-error"?<p role="alert" className="text-sm text-[var(--semantic-error)]">{en?"Invalid or expired code. Check the code or start again.":"Codice non valido o scaduto. Controllalo o ricomincia."}</p>:null}
+        <input type="hidden" name="locale" value={locale}/><input type="hidden" name="kind" value={kind}/>
+        <label className="text-sm font-medium">{en?"8-digit code":"Codice di 8 cifre"}<input name="code" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{8}" required maxLength={8} className={field}/></label>
+        <PendingSubmitButton pendingLabel={en?"Verifying…":"Verifica in corso…"} className="public-primary-cta min-h-12 w-full rounded-xl px-4 py-3 text-sm font-bold">{en?"Verify email":"Verifica email"}</PendingSubmitButton>
+        <Link href={communityPath(locale,kind)} className="text-sm font-semibold underline">{en?"Start again":"Ricomincia"}</Link>
+      </form> :
       <form action={submitCommunityInterest} className="mt-5 grid gap-4" data-testid="community-interest-form">
-        {result?<p role="alert" className="text-sm text-[var(--semantic-error)]">{en?"Unable to submit. Check your details and try again.":"Invio non riuscito. Controlla i dati e riprova."}</p>:null}
+        {result&&result!=="received"?<p role="alert" className="text-sm text-[var(--semantic-error)]">{en?"Unable to submit. Check your details and try again.":"Invio non riuscito. Controlla i dati e riprova."}</p>:null}
         <input type="hidden" name="locale" value={locale}/><input type="hidden" name="kind" value={kind}/>
         <label className="text-sm font-medium">{en?"Full name":"Nome e cognome"}<input name="name" autoComplete="name" required minLength={2} maxLength={120} className={field}/></label>
         <label className="text-sm font-medium">Email<input name="email" type="email" autoComplete="email" required maxLength={254} className={field}/></label>
