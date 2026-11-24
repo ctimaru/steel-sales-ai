@@ -9,6 +9,10 @@ on:
       - '.github/workflows/mkt9c-intake-sql.yml'
       - 'supabase/tests/mkt9c-local-auth-fixture.sql'
       - 'apps/web/tests/mkt9-community-interest-local-auth.mjs'
+      - 'apps/web/tests/mkt9-community-interest-e2e.mjs'
+      - 'apps/web/lib/community-intake-actions.ts'
+      - 'apps/web/components/community-interest-page.tsx'
+      - 'apps/web/components/community-interest-inbox.tsx'
 permissions:
   contents: read
 jobs:
@@ -37,7 +41,7 @@ jobs:
         run: psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -f supabase/tests/mkt9c-community-interest-fixture.sql
   local-auth:
     runs-on: ubuntu-24.04
-    timeout-minutes: 18
+    timeout-minutes: 24
     steps:
       - uses: actions/checkout@v4
         with:
@@ -74,6 +78,19 @@ jobs:
           source "$RUNNER_TEMP/mkt9-local.env"
           set +a
           node tests/mkt9-community-interest-local-auth.mjs
+      - name: Install pinned Chromium test dependencies
+        working-directory: apps/web
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser to application actions and local owner inbox
+        working-directory: apps/web
+        run: |
+          set -euo pipefail
+          set -a
+          source "$RUNNER_TEMP/mkt9-local.env"
+          set +a
+          node tests/mkt9-community-interest-e2e.mjs
       - name: Export CLI-generated tested migration candidate
         run: |
           set -euo pipefail
