@@ -23,11 +23,11 @@ REGIONS = frozenset({
     "toscana_umbria_marche", "lazio_abruzzo_molise", "campania_puglia",
     "basilicata_calabria", "sicilia", "sardegna",
 })
-DOMAIN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.[a-z]{2,24}$")
-RELEASE = re.compile(r"^20\\d{2}-\\d{2}-\\d{2}\\.\\d+$")
+DOMAIN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.[a-z]{2,24}$")
+RELEASE = re.compile(r"^20\d{2}-\d{2}-\d{2}\.\d+$")
 AUDIT = re.compile(
-    r"^https://github\\.com/ctimaru/steel-sales-ai/blob/[0-9a-f]{40}/"
-    r"services/worker/audits/[A-Za-z0-9_.-]+\\.csv$"
+    r"^https://github\.com/ctimaru/steel-sales-ai/blob/[0-9a-f]{40}/"
+    r"services/worker/audits/[A-Za-z0-9_.-]+\.csv$"
 )
 EXCLUDED = re.compile(
     r"legno|infissi|serrament|falegnam|ferrament|autoofficina|porte-corazzate"
