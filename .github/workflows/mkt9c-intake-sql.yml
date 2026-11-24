@@ -11,6 +11,12 @@ on:
       - 'apps/web/tests/mkt9-community-interest-local-auth.mjs'
       - 'apps/web/tests/mkt9-community-interest-e2e.mjs'
       - 'apps/web/lib/community-intake-actions.ts'
+      - 'apps/web/lib/community-intake-db.ts'
+      - 'apps/web/lib/community-intake-config.ts'
+      - 'apps/web/package.json'
+      - 'apps/web/package-lock.json'
+      - 'docs/marketing/mkt9c-minimum-privilege.candidate.sql'
+      - 'docs/marketing/mkt9c-retire-service-writer.candidate.sql'
       - 'apps/web/components/community-interest-page.tsx'
       - 'apps/web/components/community-interest-inbox.tsx'
 permissions:
@@ -78,6 +84,15 @@ jobs:
           source "$RUNNER_TEMP/mkt9-local.env"
           set +a
           node tests/mkt9-community-interest-local-auth.mjs
+      - name: Switch disposable Supabase to the dedicated writer
+        env:
+          PGPASSWORD: postgres
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -f docs/marketing/mkt9c-minimum-privilege.candidate.sql
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "alter role mkt9_intake_writer login password 'fixture-only-writer';"
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -f docs/marketing/mkt9c-retire-service-writer.candidate.sql
+          psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "do \$test\$ begin if has_function_privilege('service_role','public.mkt9_confirm_email(uuid,text)','execute') or has_column_privilege('service_role','public.mkt9_community_interest','email','insert') then raise exception 'Legacy writer grant survived'; end if; end \$test\$;"
       - name: Install pinned Chromium test dependencies
         working-directory: apps/web
         run: |
