@@ -34,6 +34,7 @@ export default async function PlatformInvestorDeckPage({
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <BusinessPlanLanguageToggle baseHref={appRoutes.platform.marketingInvestorDeck} locale={locale} />
+          <Link href={"/platform/marketing/founding-partners?lang="+locale} className="platform-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-xs font-semibold">Founding Partners</Link>
           <Link
             href={appRoutes.platform.marketingVisualEvidenceQa}
             className="platform-secondary inline-flex min-h-10 items-center rounded-xl px-4 text-xs font-semibold"
