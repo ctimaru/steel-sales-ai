@@ -6,6 +6,8 @@ export function communityIntakeConfig() {
   const hostname = process.env.MKT9_TURNSTILE_HOSTNAME?.trim().toLowerCase();
   const enabled = process.env.MKT9_COMMUNITY_INTAKE_ENABLED === "true" &&
     process.env.MKT9_COMMUNITY_NOTICE_APPROVED === communityNoticeVersion &&
+    process.env.MKT9_COMMUNITY_RETENTION_APPROVED === communityNoticeVersion &&
+    process.env.MKT9_COMMUNITY_PURGE_VERIFIED === communityNoticeVersion &&
     legalIdentityConfigured() && !!siteKey && !!hostname &&
     !!process.env.MKT9_TURNSTILE_SECRET?.trim() &&
     !!process.env.MKT9_COMMUNITY_SUPABASE_SECRET?.trim() &&
