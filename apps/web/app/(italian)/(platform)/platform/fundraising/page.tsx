@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CommunityInterestInbox } from "@/components/community-interest-inbox";
+import { createClient } from "@/lib/supabase/server";
 
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { InvestorOutreachCopyCard } from "@/components/investor-outreach-copy-card";
@@ -80,7 +81,7 @@ function priorityClass(value: InvestorOutreachPriority) {
 export default async function PlatformFundraisingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string; error?: string; community?: string }>;
+  searchParams: Promise<{ message?: string; error?: string; community?: string; communityLead?: string }>;
 }) {
   await requirePlatformSuperadmin();
 
@@ -89,6 +90,13 @@ export default async function PlatformFundraisingPage({
     getInvestorAccessInvites(),
     searchParams,
   ]);
+
+  let communityLead: {name:string;email:string;organization:string|null}|null = null;
+  if (params.communityLead && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.communityLead)) {
+    const db=await createClient();
+    const {data,error}=await db.from("mkt9_community_interest").select("name,email,organization").eq("id",params.communityLead).eq("kind","investor").eq("status","contacted").maybeSingle();
+    if(!error && data) communityLead=data;
+  }
 
   const activeInvites = invites.filter((invite) => invite.status === "active");
 
@@ -158,22 +166,23 @@ export default async function PlatformFundraisingPage({
           <h2 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
             Aggiungi un investor
           </h2>
+          {communityLead?<p role="status" className="mt-3 rounded-xl border p-3 text-sm">Dati precompilati dalla comunità: verifica identità, email e duplicati prima di creare il target. Nessun accesso è stato concesso.</p>:null}
           <form action={upsertInvestorOutreachTarget} className="mt-5 grid gap-4 sm:grid-cols-2">
             <label className="sm:col-span-2">
               <span className="text-xs font-semibold text-[var(--text-secondary)]">Investor / partner</span>
-              <input name="investor_name" required className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm" />
+              <input name="investor_name" defaultValue={communityLead?.name??""} required className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm" />
             </label>
             <label>
               <span className="text-xs font-semibold text-[var(--text-secondary)]">Fondo / società</span>
-              <input name="firm_name" className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm" />
+              <input name="firm_name" defaultValue={communityLead?.organization??""} className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm" />
             </label>
             <label>
               <span className="text-xs font-semibold text-[var(--text-secondary)]">Email</span>
-              <input name="investor_email" type="email" className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm" />
+              <input name="investor_email" type="email" defaultValue={communityLead?.email??""} className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm" />
             </label>
             <label>
               <span className="text-xs font-semibold text-[var(--text-secondary)]">Tipo</span>
-              <select name="investor_type" defaultValue="vc" className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm">
+              <select name="investor_type" defaultValue={communityLead?"other":"vc"} className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] bg-white px-3 text-sm">
                 <option value="vc">VC</option>
                 <option value="corporate_vc">Corporate VC</option>
                 <option value="family_office">Family Office</option>
@@ -204,7 +213,7 @@ export default async function PlatformFundraisingPage({
             </label>
             <label>
               <span className="text-xs font-semibold text-[var(--text-secondary)]">Fonte</span>
-              <input name="source" placeholder="Intro, evento, ricerca..." className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm" />
+              <input name="source" defaultValue={communityLead?"Community pre-lancio":""} placeholder="Intro, evento, ricerca..." className="mt-1.5 h-11 w-full rounded-xl border border-[var(--border)] px-3 text-sm" />
             </label>
             <label>
               <span className="text-xs font-semibold text-[var(--text-secondary)]">Prossimo follow-up</span>
