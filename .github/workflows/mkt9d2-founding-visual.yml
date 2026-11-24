@@ -1,0 +1,41 @@
+name: MKT9D2 Founding Partners Visual Acceptance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/web/components/founding-partners-preview.tsx'
+      - 'apps/web/lib/founding-partners-preview.ts'
+      - 'apps/web/lib/network-pro-catalog.ts'
+      - 'apps/web/app/**/platform/marketing/founding-partners/page.tsx'
+      - 'apps/web/tests/mkt9-founding-partners-chrome.mjs'
+      - '.github/workflows/mkt9d2-founding-visual.yml'
+permissions:
+  contents: read
+concurrency:
+  group: mkt9d2-visual-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --no-audit --no-fund
+      - run: npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1 esbuild@0.25.12
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/mkt9-founding-partners-chrome.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mkt9d2-founding-visual
+          path: ${{ runner.temp }}/mkt9d2-visual
+          if-no-files-found: warn
+          retention-days: 7
