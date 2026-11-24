@@ -50,3 +50,20 @@ const changed=await owner.from(table).update({status:"contacted"}).eq("id",partn
 assert.ok((await owner.from(table).update({email:"changed@example.invalid"}).eq("id",partner.id)).error);
 const del=await owner.from(table).delete().eq("id",partner.id).select("id").maybeSingle();assert.ifError(del.error);assert.equal(del.data.id,partner.id);
 console.log("MKT9C local Supabase Auth/Data API PASS: anon, ordinary, staff, revoked owner, active owner, service insert, dedup and lifecycle. Synthetic fixture only.");
+
+const otpId=randomUUID();
+const otpPayload={kind:"partner",locale:"it",name:"Verified Fixture",email:"verified@example.invalid",organization:"Fixture",notice_version:"mkt9c-draft-2026-11-24"};
+const args={p_id:otpId,p_email_digest:"1".repeat(64),p_code_digest:"2".repeat(64),p_challenge_digest:"3".repeat(64),p_payload:otpPayload};
+for(const client of [guest,ordinary,staff,owner]) {
+  assert.ok((await client.rpc("mkt9_reserve_email",args)).error,"Unexpected reserve authorization");
+  assert.ok((await client.rpc("mkt9_confirm_email",{p_id:otpId,p_code_digest:args.p_code_digest})).error,"Unexpected confirm authorization");
+  assert.ok((await client.from("mkt9_community_pending").select("id")).error);
+}
+const reserve=await admin.rpc("mkt9_reserve_email",args);assert.ifError(reserve.error);assert.equal(reserve.data,true);
+const before=await owner.from(table).select("id").eq("email",otpPayload.email);assert.ifError(before.error);assert.equal(before.data.length,0);
+const cooldown=await admin.rpc("mkt9_reserve_email",{...args,p_id:randomUUID(),p_challenge_digest:"4".repeat(64)});assert.ifError(cooldown.error);assert.equal(cooldown.data,false);
+const wrong=await admin.rpc("mkt9_confirm_email",{p_id:otpId,p_code_digest:"9".repeat(64)});assert.ifError(wrong.error);assert.equal(wrong.data,false);
+const confirm=await admin.rpc("mkt9_confirm_email",{p_id:otpId,p_code_digest:args.p_code_digest});assert.ifError(confirm.error);assert.equal(confirm.data,true);
+const after=await owner.from(table).select("id,email_verified_at").eq("email",otpPayload.email);assert.ifError(after.error);assert.equal(after.data.length,1);assert.ok(after.data[0].email_verified_at);
+const replay=await admin.rpc("mkt9_confirm_email",{p_id:otpId,p_code_digest:args.p_code_digest});assert.ifError(replay.error);assert.equal(replay.data,false);
+console.log("MKT9C2 local Data API OTP PASS: denied public/owner RPC, no unverified lead, cooldown, wrong code, confirmation and replay.");
