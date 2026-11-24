@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { communityIntakeConfig, communityPath } from "@/lib/community-intake-config";
 import { ProductBrand } from "./product-brand";
 
 const copy = {
@@ -37,7 +38,8 @@ export function PublicProjectPage({locale}:{locale:"it"|"en"}) {
   const home=en?"/en":"/";
   const investor=en?"/en/investors":"/investitori";
   const knowledge=en?"/en/knowledge":"/knowledge";
-  const partnerHref="mailto:hello@smartsteelsales.com?subject="+encodeURIComponent(c.mailSubject);
+  const intakeEnabled=communityIntakeConfig().enabled;
+  const partnerHref=intakeEnabled?communityPath(locale,"partner"):"mailto:hello@smartsteelsales.com?subject="+encodeURIComponent(c.mailSubject);
   return (
     <main lang={locale} className="min-h-screen bg-[var(--surface-canvas)] text-[var(--text-primary)]" data-testid="mkt9b-public-project">
       <header className="border-b border-[var(--border)] bg-white">
@@ -78,7 +80,7 @@ export function PublicProjectPage({locale}:{locale:"it"|"en"}) {
           <p className="mt-2 text-sm text-[var(--text-secondary)]">{c.communityNote}</p>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <article className="flex min-w-0 flex-col rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-7"><h3 className="text-xl font-semibold text-[var(--brand-deep)]">{c.partner}</h3><p className="mt-3 flex-1 text-sm leading-6 text-[var(--text-secondary)]">{c.partnerText}</p><a href={partnerHref} className="public-primary-cta mt-5 inline-flex min-h-12 items-center justify-center rounded-xl border px-4 py-3 text-center text-sm font-bold">{c.partnerCta}</a></article>
-            <article className="flex min-w-0 flex-col rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-7"><h3 className="text-xl font-semibold text-[var(--brand-deep)]">{c.investor}</h3><p className="mt-3 flex-1 text-sm leading-6 text-[var(--text-secondary)]">{c.investorText}</p><Link href={investor} className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--brand-primary)] px-4 py-3 text-center text-sm font-bold text-[var(--brand-deep)]">{c.investorCta}</Link></article>
+            <article className="flex min-w-0 flex-col rounded-2xl border border-[var(--border)] bg-white p-5 sm:p-7"><h3 className="text-xl font-semibold text-[var(--brand-deep)]">{c.investor}</h3><p className="mt-3 flex-1 text-sm leading-6 text-[var(--text-secondary)]">{c.investorText}</p><Link href={investor} className="mt-5 inline-flex min-h-12 items-center justify-center rounded-xl border border-[var(--brand-primary)] px-4 py-3 text-center text-sm font-bold text-[var(--brand-deep)]">{c.investorCta}</Link>{intakeEnabled?<Link href={communityPath(locale,"investor")} className="mt-2 inline-flex min-h-11 items-center justify-center text-center text-sm font-semibold text-[var(--brand-deep)] underline">{en?"Send non-binding interest":"Manifesta interesse non vincolante"}</Link>:null}</article>
           </div>
           <p className="mt-4 max-w-3xl text-xs leading-6 text-[var(--text-secondary)]">{c.note} <Link href="/privacy" className="underline">{c.privacy}</Link></p>
         </section>
