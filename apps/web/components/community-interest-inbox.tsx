@@ -3,6 +3,7 @@ import { requirePlatformSuperadmin } from "@/lib/platform-admin";
 import { changeCommunityInterest } from "@/lib/community-interest-owner-actions";
 import { communityIntakeConfig } from "@/lib/community-intake-config";
 import Link from "next/link";
+import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 const columns="id,kind,locale,name,email,organization,status,created_at,expires_at";
 type Lead={id:string;kind:"partner"|"investor";locale:string;name:string;email:string;organization:string|null;status:"new"|"contacted"|"closed";created_at:string;expires_at:string};
 export async function CommunityInterestInbox({feedback}:{feedback?:string}) {
@@ -21,7 +22,7 @@ export async function CommunityInterestInbox({feedback}:{feedback?:string}) {
     <p className="mt-2 text-sm leading-6 text-[var(--text-secondary)]">Contatti non verificati, non sono clienti, adesioni o investimenti. Nessun accesso alla Investor Room viene concesso automaticamente.</p>
     {feedback==="updated"?<p role="status" className="mt-3 text-sm text-[var(--semantic-success)]">Richiesta aggiornata.</p>:feedback==="error"?<p role="alert" className="mt-3 text-sm text-[var(--semantic-error)]">Impossibile aggiornare la richiesta.</p>:null}
     {unavailable?<p role="status" className="mt-4 rounded-xl border p-4 text-sm">Archivio non disponibile. Verificare migrazione e permessi; nessun conteggio dichiarato.</p>:<>
-      <div className="mt-4 grid grid-cols-2 gap-3">{[["Aziende",partners.count],["Investitori",investors.count]].map(([label,count])=><div key={label} className="rounded-xl border p-4"><p className="text-xs text-[var(--text-secondary)]">{label}</p><p className="mt-1 text-3xl font-semibold tabular-nums">{count??"—"}</p></div>)}</div>
+      <div className="mt-4 grid grid-cols-2 gap-3">{([["Aziende",partners.count],["Investitori",investors.count]] as const).map(([label,count])=><div key={label} className="rounded-xl border p-4"><p className="text-xs text-[var(--text-secondary)]">{label}</p><p className="mt-1 text-3xl font-semibold tabular-nums">{count??"—"}</p></div>)}</div>
       <p className="mt-4 text-xs text-[var(--text-secondary)]">Ultime 100 richieste. Verifica identità e indirizzo prima di procedere; cancella i dati alla scadenza secondo la policy approvata.</p>
       {rows.length===0?<p className="mt-4 text-sm">Nessuna manifestazione ricevuta.</p>:<div className="mt-4 grid gap-3">{rows.map(row=><article key={row.id} className="min-w-0 rounded-xl border border-[var(--border)] p-4">
         <p className="text-xs font-semibold text-[var(--text-secondary)]">{row.kind==="partner"?"Azienda":"Investitore"} · {row.locale.toUpperCase()} · Email non verificata</p>
@@ -30,7 +31,7 @@ export async function CommunityInterestInbox({feedback}:{feedback?:string}) {
         <p className="mt-2 text-xs text-[var(--text-secondary)]">Ricevuta {new Date(row.created_at).toLocaleDateString("it-IT")} · Scadenza {new Date(row.expires_at).toLocaleDateString("it-IT")}</p>
         <form action={changeCommunityInterest} className="mt-3 flex flex-wrap items-center gap-2"><input type="hidden" name="id" value={row.id}/><select name="status" defaultValue={row.status} aria-label="Stato richiesta" className="min-h-11 rounded-lg border px-3 text-sm"><option value="new">Nuova</option><option value="contacted">Contattata</option><option value="closed">Chiusa</option></select><button className="platform-primary min-h-11 rounded-lg px-3 text-sm font-semibold">Salva</button></form>
         {row.kind==="investor"&&row.status==="contacted"?<Link className="mt-3 inline-flex min-h-10 items-center text-sm font-semibold underline" href="/platform/fundraising#new-investor-target">Apri CRM per inserimento verificato</Link>:null}
-        <form action={changeCommunityInterest} className="mt-2"><input type="hidden" name="id" value={row.id}/><input type="hidden" name="status" value="delete"/><button className="min-h-11 rounded-lg border px-3 text-sm text-[var(--semantic-error)]">Elimina richiesta</button></form>
+        <form action={changeCommunityInterest} className="mt-2"><input type="hidden" name="id" value={row.id}/><input type="hidden" name="status" value="delete"/><ConfirmSubmitButton title="Eliminare la richiesta?" description="I dati di questa manifestazione saranno cancellati definitivamente dall’archivio. Eventuali contatti già registrati nel CRM vanno gestiti separatamente." confirmLabel="Elimina" className="min-h-11 rounded-lg border px-3 text-sm text-[var(--semantic-error)]">Elimina richiesta</ConfirmSubmitButton></form>
       </article>)}</div>}
     </>}
   </section>;
