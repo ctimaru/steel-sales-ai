@@ -44,7 +44,7 @@ async def refill_from_configured_audit(api, source: dict) -> dict:
             if not items:
                 result["status"] = "audit_exhausted"
                 return result
-            response = await api.call("net_it_seed1_stage", {
+            response = await api.call("net_it_autofeed_stage", {
                 "p_source_id": str(source["id"]), "p_items": items,
             })
             if (response.get("contract") != "net-it-autofeed-stage-v1"
