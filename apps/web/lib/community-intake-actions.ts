@@ -1,12 +1,11 @@
 "use server";
 import { createHash, createHmac, randomInt, randomUUID } from "node:crypto";
 import { cookies } from "next/headers";
-import { createClient } from "@supabase/supabase-js";
+import { reserveCommunityEmail, confirmCommunityCode } from "@/lib/community-intake-db";
 import { redirect } from "next/navigation";
 import { communityIntakeConfig, communityNoticeVersion, communityPath } from "@/lib/community-intake-config";
 
 function digest(value:string) { return createHmac("sha256",process.env.MKT9_COMMUNITY_OTP_SECRET!).update(value).digest("hex"); }
-function intakeDb() { return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.MKT9_COMMUNITY_SUPABASE_SECRET!,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}}); }
 const cookieOptions={httpOnly:true,secure:true,sameSite:"lax" as const,path:"/",maxAge:600};
 export async function submitCommunityInterest(form: FormData) {
   const locale = form.get("locale") === "en" ? "en" : "it";
@@ -39,12 +38,12 @@ export async function submitCommunityInterest(form: FormData) {
   // Uniform response even when the email budget is exhausted. No PII in cookie or URL.
   jar.set("mkt9_community_pending",id,cookieOptions);
   try {
-    const {data,error}=await intakeDb().rpc("mkt9_reserve_email",{
-      p_id:id,p_email_digest:digest("email:"+email),p_code_digest:digest("code:"+id+":"+code),
-      p_challenge_digest:createHash("sha256").update(token).digest("hex"),
-      p_payload:{kind,locale,name,email,organization:organization||null,notice_version:communityNoticeVersion},
+    const reserved=await reserveCommunityEmail({
+      id,emailDigest:digest("email:"+email),codeDigest:digest("code:"+id+":"+code),
+      challengeDigest:createHash("sha256").update(token).digest("hex"),
+      payload:{kind,locale,name,email,organization:organization||null,notice_version:communityNoticeVersion},
     });
-    if(!error && data===true) {
+    if(reserved) {
       await fetch("https://api.resend.com/emails",{
         method:"POST",headers:{Authorization:"Bearer "+process.env.RESEND_API_KEY!,"Content-Type":"application/json","Idempotency-Key":"mkt9-"+id},
         body:JSON.stringify({from:process.env.MKT9_COMMUNITY_EMAIL_FROM!,to:[email],
@@ -66,8 +65,7 @@ export async function confirmCommunityEmail(form:FormData) {
   if(!/^[0-9a-f-]{36}$/.test(id)||!/^\d{8}$/.test(code)) redirect(back+"&result=verify-error");
   let accepted=false;
   try {
-    const {data,error}=await intakeDb().rpc("mkt9_confirm_email",{p_id:id,p_code_digest:digest("code:"+id+":"+code)});
-    accepted=!error&&data===true;
+    accepted=await confirmCommunityCode(id,digest("code:"+id+":"+code));
   } catch { /* fail closed */ }
   if(!accepted) redirect(back+"&result=verify-error");
   jar.delete("mkt9_community_pending");
