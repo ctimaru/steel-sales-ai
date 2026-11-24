@@ -58,7 +58,7 @@ export function PublicProjectPage({locale}:{locale:"it"|"en"}) {
           <h1 className="mt-5 max-w-3xl break-words text-4xl font-semibold leading-tight tracking-tight sm:text-6xl">{c.title}</h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white sm:text-lg">{c.intro}</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href="#partecipare" className="inline-flex min-h-12 items-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-[var(--brand-deep)]">{c.primary}</a>
+            <a href="#partecipare" style={{color:"#123b34",WebkitTextFillColor:"#123b34"}} className="inline-flex min-h-12 items-center rounded-xl bg-white px-5 py-3 text-sm font-bold text-[#123b34]">{c.primary}</a>
             <Link href={knowledge} className="inline-flex min-h-12 items-center rounded-xl border border-white/50 px-5 py-3 text-sm font-semibold text-white">{c.secondary}</Link>
           </div>
         </div>
