@@ -117,3 +117,40 @@ do $$ begin
  if exists(select 1 from public.mkt9_community_pending) or exists(select 1 from public.mkt9_community_rate) then raise exception 'Temporary data not purged'; end if;
 end $$;
 select 'MKT9C2 OTP fixture PASS: reserve, cooldown, replay, attempts, confirmed lead, privileges, purge' as result;
+
+-- Restricted role candidate tested independently of the existing Data API writer.
+\ir ../../docs/marketing/mkt9c-minimum-privilege.candidate.sql
+do $$
+begin
+ if has_column_privilege('mkt9_intake_writer','public.mkt9_community_interest','email','select')
+ or has_column_privilege('mkt9_intake_writer','public.mkt9_community_interest','status','update')
+ or has_table_privilege('mkt9_intake_writer','public.mkt9_community_interest','delete')
+ or has_column_privilege('mkt9_intake_writer','public.mkt9_community_pending','payload','update')
+ or has_table_privilege('mkt9_intake_writer','public.mkt9_community_rate','delete')
+ or exists(select 1 from pg_roles where rolname='mkt9_intake_writer' and (rolcanlogin or rolsuper or rolbypassrls or rolcreaterole)) then
+  raise exception 'Writer role exceeds intended scope';
+ end if;
+end $$;
+set role mkt9_intake_writer;
+do $$
+declare i uuid:='10000000-0000-4000-8000-000000000003';
+begin
+ if not public.mkt9_reserve_email(i,repeat('6',64),repeat('7',64),repeat('8',64),
+ '{"kind":"investor","locale":"en","name":"Restricted Writer","email":"restricted@example.invalid","organization":null,"notice_version":"mkt9c-draft-2026-11-24"}'::jsonb) then raise exception 'Restricted reserve failed'; end if;
+ if not public.mkt9_confirm_email(i,repeat('7',64)) then raise exception 'Restricted confirmation failed'; end if;
+ begin
+  perform email from public.mkt9_community_interest;
+  raise exception 'Writer could read verified contacts';
+ exception when insufficient_privilege then null;
+ end;
+ begin
+  update public.mkt9_community_interest set status='closed';
+  raise exception 'Writer could change owner status';
+ exception when insufficient_privilege then null;
+ end;
+end $$;
+reset role;
+do $$ begin
+ if not exists(select 1 from public.mkt9_community_interest where email='restricted@example.invalid' and email_verified_at is not null) then raise exception 'Restricted role failed to record verified lead'; end if;
+end $$;
+select 'MKT9C3 restricted database writer PASS: reserve, confirm, cannot read lead or update status' as result;
