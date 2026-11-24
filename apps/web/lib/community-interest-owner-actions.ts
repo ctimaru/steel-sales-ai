@@ -10,7 +10,7 @@ export async function changeCommunityInterest(form:FormData) {
   if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)||!["new","contacted","closed","delete"].includes(status)) redirect(path+"?community=error#community-interest");
   const db=await createClient();
   const result=status==="delete" ? await db.from("mkt9_community_interest").delete().eq("id",id).select("id").maybeSingle() :
-    await db.from("mkt9_community_interest").update({status}).eq("id",id).select("id").maybeSingle();
+    await db.from("mkt9_community_interest").update({status}).eq("id",id).gt("expires_at",new Date().toISOString()).select("id").maybeSingle();
   if(result.error||!result.data) redirect(path+"?community=error#community-interest");
   revalidatePath(path);
   redirect(path+"?community=updated#community-interest");
