@@ -1,0 +1,43 @@
+name: NET-IT-AUTOFEED database review
+on:
+  pull_request:
+    paths:
+      - 'docs/net-it-autofeed1-atomic-intake-review.sql'
+      - 'services/worker/tests/sql/autofeed_*.sql'
+      - '.github/workflows/net-it-autofeed-review.yml'
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: local_test_only
+          POSTGRES_DB: autofeed_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Test SQL in isolated disposable PostgreSQL
+        env:
+          PGHOST: 127.0.0.1
+          PGPORT: "5432"
+          PGUSER: postgres
+          PGPASSWORD: local_test_only
+          PGDATABASE: autofeed_test
+        run: |
+          set -euo pipefail
+          psql -X -v ON_ERROR_STOP=1 -f services/worker/tests/sql/autofeed_fixture.sql
+          psql -X -v ON_ERROR_STOP=1 -f docs/net-it-autofeed1-atomic-intake-review.sql
+          psql -X -v ON_ERROR_STOP=1 -f services/worker/tests/sql/autofeed_acceptance.sql
