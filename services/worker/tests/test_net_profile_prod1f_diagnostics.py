@@ -63,7 +63,7 @@ class PageDiagnosticsTest(unittest.TestCase):
     def test_counts_blocks_positive_relations_and_rejections_without_text(self):
         text = (
             "La nostra azienda produce tubi e condotte per industria. "
-            "I nostri partner producono lamiere per applicazioni strutturali. "
+            "Il nostro partner produce lamiere per applicazioni strutturali. "
             "Eseguiamo taglio laser per componenti industriali. "
             "Macchinari per saldatura e taglio al plasma."
         )
