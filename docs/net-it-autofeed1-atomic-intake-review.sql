@@ -40,7 +40,27 @@ BEGIN
   IF EXISTS (
    SELECT 1 FROM jsonb_array_elements(p_items) i
    WHERE NOT coalesce(
-     (i->>'domain') ~ '^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?[.][a-z]{2,24}
+     (i->>'domain') ~ '^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?[.][a-z]{2,24}$'
+     AND (i->>'domain') !~ '(legno|infissi|serrament|falegnam|ferrament|autoofficina|porte-corazzate)'
+     AND (i->>'domain') NOT IN ('facebook.com','linkedin.com','instagram.com','youtube.com','google.com','google.it','paginegialle.it','europages.com','kompass.com','wordpress.com','wixsite.com','blogspot.com')
+     AND (i->>'url') = 'https://' || (i->>'domain') || '/'
+     AND (i->>'source_license') = 'CDLA-Permissive-2.0'
+     AND (i->>'release') ~ '^20[0-9]{2}-[0-9]{2}-[0-9]{2}[.][0-9]+$'
+     AND (i->>'gers_id') ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+     AND (i->>'evidence') ~ '^https://github[.]com/ctimaru/steel-sales-ai/blob/[0-9a-f]{40}/services/worker/audits/[A-Za-z0-9_.-]+[.]csv$'
+     AND (i->>'region_bucket') IN ('nord_ovest','lombardia','nord_est','emilia_romagna','toscana_umbria_marche','lazio_abruzzo_molise','campania_puglia','basilicata_calabria','sicilia','sardegna')
+     AND (i->>'taxonomy') IN ('metal_fabricator','iron_fabricator','steel_fabricator','welder','laser_cutting_service','sheet_metal_contractor','sheet_metal_fabricator'),false)
+   ) OR (SELECT count(DISTINCT i->>'domain') FROM jsonb_array_elements(p_items) i) <> v_received THEN
+   RAISE EXCEPTION 'Invalid or duplicate autofeed provenance' USING ERRCODE='22023';
+  END IF;
+  SELECT count(*) INTO v_queue FROM private.net_it_seed1_domains WHERE status IN ('staged','claimed');
+  SELECT count(*) INTO v_today FROM private.net_it_seed1_domains
+    WHERE source_id=p_source_id AND staged_at >= (date_trunc('day',now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC');
+  IF v_queue>=100 OR v_today+v_received>1000 OR v_queue+v_received>500 THEN
+   RETURN jsonb_build_object('contract','net-it-autofeed-stage-v1','status','capacity_hold',
+    'received',0,'staged',0,'already_known',0,'published',0);
+  END IF;
+ END IF;
 
  WITH incoming AS (
   SELECT DISTINCT ON (d) d AS domain,u AS proposed_url,e AS evidence_url
@@ -81,7 +101,7 @@ BEGIN
  SELECT (SELECT count(*) FROM incoming),(SELECT count(*) FROM ins),(SELECT count(*) FROM proofs)
  INTO v_valid,v_inserted,v_proofs;
  IF v_auto AND v_proofs<>v_inserted THEN
-  RAISE EXCEPTION 'Autofeed provenance mismatch'; 
+  RAISE EXCEPTION 'Autofeed provenance mismatch';
  END IF;
  v_known := v_valid-v_inserted;
 
@@ -89,196 +109,10 @@ BEGIN
  SET last_result=jsonb_build_object('at',now(),'received',v_received,
    'valid',v_valid,'already_known',v_known,'staged',v_inserted)
  WHERE id=p_source_id;
- RETURN jsonb_build_object('contract',CASE WHEN v_auto THEN 'net-it-autofeed-stage-v1' ELSE 'net-it-seed1-stage-v1' END,'status','ok',
-  'received',v_received,'valid',v_valid,'already_known',v_known,
-  'staged',v_inserted,'published',0);
-END
-$function$
-
-     AND i->>'url' = 'https://' || (i->>'domain') || '/'
-     AND i->>'source_license' = 'CDLA-Permissive-2.0'
-     AND (i->>'release') ~ '^20[0-9]{2}-[0-9]{2}-[0-9]{2}[.][0-9]+
-
- WITH incoming AS (
-  SELECT DISTINCT ON (d) d AS domain,u AS proposed_url,e AS evidence_url
-  FROM (
-   SELECT lower(btrim(i->>'domain')) d,btrim(i->>'url') u,
-          left(btrim(coalesce(i->>'evidence',v_source.source_url)),2000) e
-   FROM jsonb_array_elements(p_items) i
-  ) x
-  WHERE d ~ '^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?[.][a-z]{2,24}$'
-    AND u ~* '^https://' AND char_length(u)<=2000
-    AND lower(split_part(split_part(u,'/',3),':',1)) IN (d,'www.'||d)
-  ORDER BY d
- ), fresh AS (
-  SELECT n.* FROM incoming n
-  WHERE NOT EXISTS(SELECT 1 FROM public.network_companies c
-                   WHERE lower(btrim(c.website_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM public.network_company_discovery_candidates c
-                   WHERE lower(btrim(c.canonical_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM private.network_web_research_seeds s
-                   WHERE lower(btrim(s.canonical_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM public.network_netfast3_suppressed_domains s
-                   WHERE s.domain=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM private.net_it_seed1_domains q
-                   WHERE q.domain=n.domain)
- ), ins AS (
-  INSERT INTO private.net_it_seed1_domains(domain,proposed_url,source_id,evidence_url)
-  SELECT domain,proposed_url,p_source_id,evidence_url FROM fresh
-  ON CONFLICT(domain) DO NOTHING RETURNING 1
- )
- SELECT (SELECT count(*) FROM incoming),(SELECT count(*) FROM ins)
- INTO v_valid,v_inserted;
- v_known := v_valid-v_inserted;
-
- UPDATE private.net_it_seed1_index_sources
- SET last_result=jsonb_build_object('at',now(),'received',v_received,
-   'valid',v_valid,'already_known',v_known,'staged',v_inserted)
- WHERE id=p_source_id;
- RETURN jsonb_build_object('contract','net-it-seed1-stage-v1',
-  'received',v_received,'valid',v_valid,'already_known',v_known,
-  'staged',v_inserted,'published',0);
-END
-$function$
-
-     AND (i->>'gers_id') ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
-
- WITH incoming AS (
-  SELECT DISTINCT ON (d) d AS domain,u AS proposed_url,e AS evidence_url
-  FROM (
-   SELECT lower(btrim(i->>'domain')) d,btrim(i->>'url') u,
-          left(btrim(coalesce(i->>'evidence',v_source.source_url)),2000) e
-   FROM jsonb_array_elements(p_items) i
-  ) x
-  WHERE d ~ '^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?[.][a-z]{2,24}$'
-    AND u ~* '^https://' AND char_length(u)<=2000
-    AND lower(split_part(split_part(u,'/',3),':',1)) IN (d,'www.'||d)
-  ORDER BY d
- ), fresh AS (
-  SELECT n.* FROM incoming n
-  WHERE NOT EXISTS(SELECT 1 FROM public.network_companies c
-                   WHERE lower(btrim(c.website_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM public.network_company_discovery_candidates c
-                   WHERE lower(btrim(c.canonical_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM private.network_web_research_seeds s
-                   WHERE lower(btrim(s.canonical_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM public.network_netfast3_suppressed_domains s
-                   WHERE s.domain=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM private.net_it_seed1_domains q
-                   WHERE q.domain=n.domain)
- ), ins AS (
-  INSERT INTO private.net_it_seed1_domains(domain,proposed_url,source_id,evidence_url)
-  SELECT domain,proposed_url,p_source_id,evidence_url FROM fresh
-  ON CONFLICT(domain) DO NOTHING RETURNING 1
- )
- SELECT (SELECT count(*) FROM incoming),(SELECT count(*) FROM ins)
- INTO v_valid,v_inserted;
- v_known := v_valid-v_inserted;
-
- UPDATE private.net_it_seed1_index_sources
- SET last_result=jsonb_build_object('at',now(),'received',v_received,
-   'valid',v_valid,'already_known',v_known,'staged',v_inserted)
- WHERE id=p_source_id;
- RETURN jsonb_build_object('contract','net-it-seed1-stage-v1',
-  'received',v_received,'valid',v_valid,'already_known',v_known,
-  'staged',v_inserted,'published',0);
-END
-$function$
-
-     AND (i->>'evidence') ~ '^https://github[.]com/ctimaru/steel-sales-ai/blob/[0-9a-f]{40}/services/worker/audits/[A-Za-z0-9_.-]+[.]csv
-
- WITH incoming AS (
-  SELECT DISTINCT ON (d) d AS domain,u AS proposed_url,e AS evidence_url
-  FROM (
-   SELECT lower(btrim(i->>'domain')) d,btrim(i->>'url') u,
-          left(btrim(coalesce(i->>'evidence',v_source.source_url)),2000) e
-   FROM jsonb_array_elements(p_items) i
-  ) x
-  WHERE d ~ '^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?[.][a-z]{2,24}$'
-    AND u ~* '^https://' AND char_length(u)<=2000
-    AND lower(split_part(split_part(u,'/',3),':',1)) IN (d,'www.'||d)
-  ORDER BY d
- ), fresh AS (
-  SELECT n.* FROM incoming n
-  WHERE NOT EXISTS(SELECT 1 FROM public.network_companies c
-                   WHERE lower(btrim(c.website_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM public.network_company_discovery_candidates c
-                   WHERE lower(btrim(c.canonical_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM private.network_web_research_seeds s
-                   WHERE lower(btrim(s.canonical_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM public.network_netfast3_suppressed_domains s
-                   WHERE s.domain=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM private.net_it_seed1_domains q
-                   WHERE q.domain=n.domain)
- ), ins AS (
-  INSERT INTO private.net_it_seed1_domains(domain,proposed_url,source_id,evidence_url)
-  SELECT domain,proposed_url,p_source_id,evidence_url FROM fresh
-  ON CONFLICT(domain) DO NOTHING RETURNING 1
- )
- SELECT (SELECT count(*) FROM incoming),(SELECT count(*) FROM ins)
- INTO v_valid,v_inserted;
- v_known := v_valid-v_inserted;
-
- UPDATE private.net_it_seed1_index_sources
- SET last_result=jsonb_build_object('at',now(),'received',v_received,
-   'valid',v_valid,'already_known',v_known,'staged',v_inserted)
- WHERE id=p_source_id;
- RETURN jsonb_build_object('contract','net-it-seed1-stage-v1',
-  'received',v_received,'valid',v_valid,'already_known',v_known,
-  'staged',v_inserted,'published',0);
-END
-$function$
-
-     AND (i->>'region_bucket') IN ('nord_ovest','lombardia','nord_est','emilia_romagna','toscana_umbria_marche','lazio_abruzzo_molise','campania_puglia','basilicata_calabria','sicilia','sardegna')
-     AND (i->>'taxonomy') IN ('metal_fabricator','iron_fabricator','steel_fabricator','welder','laser_cutting_service','sheet_metal_contractor','sheet_metal_fabricator'),false)
-   ) OR (SELECT count(DISTINCT i->>'domain') FROM jsonb_array_elements(p_items) i) <> v_received THEN
-   RAISE EXCEPTION 'Invalid or duplicate autofeed provenance' USING ERRCODE='22023';
-  END IF;
-  SELECT count(*) INTO v_queue FROM private.net_it_seed1_domains WHERE status IN ('staged','claimed');
-  SELECT count(*) INTO v_today FROM private.net_it_seed1_domains
-    WHERE source_id=p_source_id AND staged_at >= date_trunc('day',now() AT TIME ZONE 'UTC') AT TIME ZONE 'UTC';
-  IF v_queue>=100 OR v_today+v_received>1000 OR v_queue+v_received>500 THEN
-   RETURN jsonb_build_object('contract','net-it-autofeed-stage-v1','status','capacity_hold',
-    'received',0,'staged',0,'already_known',0,'published',0);
-  END IF;
+ IF v_auto THEN
+  RETURN jsonb_build_object('contract','net-it-autofeed-stage-v1','status','ok',
+    'received',v_received,'valid',v_valid,'already_known',v_known,'staged',v_inserted,'published',0);
  END IF;
-
- WITH incoming AS (
-  SELECT DISTINCT ON (d) d AS domain,u AS proposed_url,e AS evidence_url
-  FROM (
-   SELECT lower(btrim(i->>'domain')) d,btrim(i->>'url') u,
-          left(btrim(coalesce(i->>'evidence',v_source.source_url)),2000) e
-   FROM jsonb_array_elements(p_items) i
-  ) x
-  WHERE d ~ '^[a-z0-9]([a-z0-9.-]{0,251}[a-z0-9])?[.][a-z]{2,24}$'
-    AND u ~* '^https://' AND char_length(u)<=2000
-    AND lower(split_part(split_part(u,'/',3),':',1)) IN (d,'www.'||d)
-  ORDER BY d
- ), fresh AS (
-  SELECT n.* FROM incoming n
-  WHERE NOT EXISTS(SELECT 1 FROM public.network_companies c
-                   WHERE lower(btrim(c.website_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM public.network_company_discovery_candidates c
-                   WHERE lower(btrim(c.canonical_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM private.network_web_research_seeds s
-                   WHERE lower(btrim(s.canonical_domain))=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM public.network_netfast3_suppressed_domains s
-                   WHERE s.domain=n.domain)
-    AND NOT EXISTS(SELECT 1 FROM private.net_it_seed1_domains q
-                   WHERE q.domain=n.domain)
- ), ins AS (
-  INSERT INTO private.net_it_seed1_domains(domain,proposed_url,source_id,evidence_url)
-  SELECT domain,proposed_url,p_source_id,evidence_url FROM fresh
-  ON CONFLICT(domain) DO NOTHING RETURNING 1
- )
- SELECT (SELECT count(*) FROM incoming),(SELECT count(*) FROM ins)
- INTO v_valid,v_inserted;
- v_known := v_valid-v_inserted;
-
- UPDATE private.net_it_seed1_index_sources
- SET last_result=jsonb_build_object('at',now(),'received',v_received,
-   'valid',v_valid,'already_known',v_known,'staged',v_inserted)
- WHERE id=p_source_id;
  RETURN jsonb_build_object('contract','net-it-seed1-stage-v1',
   'received',v_received,'valid',v_valid,'already_known',v_known,
   'staged',v_inserted,'published',0);
