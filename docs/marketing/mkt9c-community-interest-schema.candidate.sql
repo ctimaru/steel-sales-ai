@@ -23,6 +23,7 @@ grant select(id,kind,locale,name,email,organization,notice_version,status,create
 create policy mkt9_owner_read on public.mkt9_community_interest for select to authenticated using ((select public.is_platform_superadmin()));
 create policy mkt9_owner_update on public.mkt9_community_interest for update to authenticated using ((select public.is_platform_superadmin())) with check ((select public.is_platform_superadmin()));
 create policy mkt9_owner_delete on public.mkt9_community_interest for delete to authenticated using ((select public.is_platform_superadmin()));
+create index mkt9_community_interest_expiry_idx on public.mkt9_community_interest(expires_at);
 create index mkt9_community_interest_status_idx on public.mkt9_community_interest(status,created_at desc);
 comment on table public.mkt9_community_interest is 'Non-binding contact requests; email ownership not verified. Never memberships, revenue, investor access or commitments.';
 commit;
