@@ -50,7 +50,12 @@ try {
    assert.equal(await investor.count(),1);
    const metrics=await rootNode.evaluate(el=>({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth,clipped:[...el.querySelectorAll("h1,h2,h3,p,a")].filter(n=>{const r=n.getBoundingClientRect();return r.width>0&&(r.left < -2||r.right>document.documentElement.clientWidth+2||n.scrollWidth>n.clientWidth+2&&getComputedStyle(n).display!=="inline");}).map(n=>n.textContent)}));
    assert.ok(metrics.scroll<=metrics.width+2&&metrics.clipped.length===0,JSON.stringify({locale,width,metrics}));
-   await page.locator('a[href="#partecipare"]').click();
+   const primary=page.locator('a[href="#partecipare"]');
+   const colors=await primary.evaluate(el=>{const s=getComputedStyle(el);return {color:s.color,fill:s.webkitTextFillColor,background:s.backgroundColor};});
+   assert.equal(colors.background,"rgb(255, 255, 255)");
+   assert.equal(colors.color,"rgb(18, 59, 52)");
+   assert.equal(colors.fill,"rgb(18, 59, 52)");
+   await primary.click();
    assert.equal(await page.locator("#partecipare").count(),1);
    assert.deepEqual(errors,[]);
    await page.screenshot({path:path.join(out,locale+"-"+width+".png"),fullPage:true,animations:"disabled"});
