@@ -33,23 +33,15 @@ grant select(email_verified_at) on public.mkt9_community_interest to authenticat
 create table public.mkt9_community_pending (
  id uuid primary key,
  payload jsonb not null check(jsonb_typeof(payload)='object' and octet_length(payload::text)<=2048),
- code_digest text not null check(code_digest ~ '^[0-9a-f]{64}
--- Before activation: implement approved retention/purge job, verify real JWT owner/non-owner/anon/service_role with synthetic records, validate provider and legal notice.
-),
- challenge_digest text not null unique check(challenge_digest ~ '^[0-9a-f]{64}
--- Before activation: implement approved retention/purge job, verify real JWT owner/non-owner/anon/service_role with synthetic records, validate provider and legal notice.
-),
+ code_digest text not null check(code_digest ~ '^[0-9a-f]{64}$'),
+ challenge_digest text not null unique check(challenge_digest ~ '^[0-9a-f]{64}$'),
  attempts integer not null default 0 check(attempts between 0 and 5),
  expires_at timestamptz not null default(now()+interval '10 minutes')
 );
 create table public.mkt9_community_rate (
  id uuid primary key,
- email_digest text not null check(email_digest ~ '^[0-9a-f]{64}
--- Before activation: implement approved retention/purge job, verify real JWT owner/non-owner/anon/service_role with synthetic records, validate provider and legal notice.
-),
- challenge_digest text not null unique check(challenge_digest ~ '^[0-9a-f]{64}
--- Before activation: implement approved retention/purge job, verify real JWT owner/non-owner/anon/service_role with synthetic records, validate provider and legal notice.
-),
+ email_digest text not null check(email_digest ~ '^[0-9a-f]{64}$'),
+ challenge_digest text not null unique check(challenge_digest ~ '^[0-9a-f]{64}$'),
  created_at timestamptz not null default now()
 );
 alter table public.mkt9_community_pending enable row level security;
@@ -61,7 +53,7 @@ create index mkt9_pending_expiry_idx on public.mkt9_community_pending(expires_at
 create index mkt9_rate_email_idx on public.mkt9_community_rate(email_digest,created_at);
 create index mkt9_rate_time_idx on public.mkt9_community_rate(created_at);
 create function public.mkt9_reserve_email(p_id uuid,p_email_digest text,p_code_digest text,p_challenge_digest text,p_payload jsonb)
-returns boolean language plpgsql security invoker set search_path='' as $
+returns boolean language plpgsql security invoker set search_path='' as $mkt9$
 begin
   -- Serialize the low-volume sending budget across all instances.
   perform pg_catalog.pg_advisory_xact_lock(933104,1);
@@ -74,9 +66,9 @@ begin
   insert into public.mkt9_community_pending(id,payload,code_digest,challenge_digest) values(p_id,p_payload,p_code_digest,p_challenge_digest);
   insert into public.mkt9_community_rate(id,email_digest,challenge_digest) values(p_id,p_email_digest,p_challenge_digest);
   return true;
-end $;
+end $mkt9$;
 create function public.mkt9_confirm_email(p_id uuid,p_code_digest text)
-returns boolean language plpgsql security invoker set search_path='' as $
+returns boolean language plpgsql security invoker set search_path='' as $mkt9$
 declare r public.mkt9_community_pending%rowtype;
 begin
   select * into r from public.mkt9_community_pending where id=p_id for update;
@@ -94,7 +86,7 @@ begin
   end;
   delete from public.mkt9_community_pending where id=p_id;
   return true;
-end $;
+end $mkt9$;
 revoke all on function public.mkt9_reserve_email(uuid,text,text,text,jsonb),public.mkt9_confirm_email(uuid,text) from public,anon,authenticated,service_role;
 grant execute on function public.mkt9_reserve_email(uuid,text,text,text,jsonb),public.mkt9_confirm_email(uuid,text) to service_role;
 
