@@ -94,7 +94,7 @@ export default async function PlatformFundraisingPage({
   let communityLead: {name:string;email:string;organization:string|null}|null = null;
   if (process.env.MKT9_COMMUNITY_CRM_TRANSFER_APPROVED === "true" && params.communityLead && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.communityLead)) {
     const db=await createClient();
-    const {data,error}=await db.from("mkt9_community_interest").select("name,email,organization").eq("id",params.communityLead).eq("kind","investor").eq("status","contacted").gt("expires_at",new Date().toISOString()).maybeSingle();
+    const {data,error}=await db.from("mkt9_community_interest").select("name,email,organization").eq("id",params.communityLead).eq("kind","investor").eq("status","contacted").not("email_verified_at","is",null).gt("expires_at",new Date().toISOString()).maybeSingle();
     if(!error && data) communityLead=data;
   }
 
