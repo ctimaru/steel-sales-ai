@@ -46,7 +46,7 @@ jobs:
           node-version: '24'
       - uses: supabase/setup-cli@v1
         with:
-          version: latest
+          version: "3.3.0"
       - run: npm ci --no-audit --no-fund
         working-directory: apps/web
       - name: Initialize disposable local Supabase project
