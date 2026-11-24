@@ -1,0 +1,38 @@
+name: MKT9B Public Project Visual Acceptance
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/web/components/public-project-page.tsx'
+      - 'apps/web/tests/mkt9-public-project-chrome.mjs'
+      - '.github/workflows/mkt9b-public-project-visual.yml'
+permissions:
+  contents: read
+concurrency:
+  group: mkt9b-visual-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+jobs:
+  visual:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --no-audit --no-fund
+      - run: npm install --no-save --package-lock=false --no-audit --no-fund playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: node tests/mkt9-public-project-chrome.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mkt9b-project-visual
+          path: ${{ runner.temp }}/mkt9b-visual
+          if-no-files-found: warn
+          retention-days: 7
