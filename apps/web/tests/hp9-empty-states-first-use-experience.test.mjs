@@ -90,10 +90,8 @@ test("HP9 gives every main Network zero state a concrete continuation", () => {
 });
 
 test("HP9 makes Marketplace first use role-aware and filter-aware", () => {
-  assert.match(marketplace, /const hasFilters = Boolean/);
-  assert.match(marketplace, /Azzera filtri/);
-  assert.match(marketplace, /Apri RFQ Hub/);
-  assert.match(marketplace, /Completa Company Profile/);
+  // MKT-VISION1 (24 Nov 2026): the Marketplace entry page is now a vision page without feed or CTAs to sub-routes.
+  assert.match(marketplace, /Crea una distinta/);
   assert.match(marketplaceRequests, /Scegli come iniziare/);
   assert.match(marketplaceRequests, /Apri le opportunità/);
   assert.match(marketplaceResponses, /Controlla le mie ricerche/);
@@ -115,7 +113,6 @@ test("HP9 keeps first-use actions role-aware where write access matters", () => 
   assert.match(products, /canWriteWorkspace/);
   assert.match(customers, /canWriteWorkspace/);
   assert.match(explorerPage, /canWriteWorkspace/);
-  assert.match(marketplace, /canWriteWorkspace/);
   assert.match(marketplaceRequests, /canWriteWorkspace/);
   assert.match(marketplaceResponses, /canWriteWorkspace/);
 });

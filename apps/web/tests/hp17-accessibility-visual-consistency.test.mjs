@@ -117,12 +117,8 @@ test("HP17 login has one semantic page heading and announced success feedback", 
 });
 
 test("HP17 associates Marketplace filters and labels Network/Global Search controls", () => {
-  assert.match(marketplace, /htmlFor="marketplace-product-filter"/);
-  assert.match(marketplace, /id="marketplace-product-filter"/);
-  assert.match(marketplace, /htmlFor="marketplace-country-filter"/);
-  assert.match(marketplace, /id="marketplace-country-filter"/);
-  assert.match(marketplace, /htmlFor="marketplace-closing-filter"/);
-  assert.match(marketplace, /id="marketplace-closing-filter"/);
+  // MKT-VISION1 (24 Nov 2026): the Marketplace entry page is now a vision page without feed or CTAs to sub-routes.
+  assert.doesNotMatch(marketplace, /<select|<input/);
 
   assert.match(network, /aria-label="Nome azienda o dominio"/);
   assert.match(network, /aria-label="Ruolo azienda"/);
