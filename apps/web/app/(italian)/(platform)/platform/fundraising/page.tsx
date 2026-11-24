@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CommunityInterestInbox } from "@/components/community-interest-inbox";
 
 import { ConfirmSubmitButton } from "@/components/confirm-submit-button";
 import { InvestorOutreachCopyCard } from "@/components/investor-outreach-copy-card";
@@ -79,7 +80,7 @@ function priorityClass(value: InvestorOutreachPriority) {
 export default async function PlatformFundraisingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string; error?: string }>;
+  searchParams: Promise<{ message?: string; error?: string; community?: string }>;
 }) {
   await requirePlatformSuperadmin();
 
@@ -135,6 +136,8 @@ export default async function PlatformFundraisingPage({
         </div>
       ) : null}
 
+      <CommunityInterestInbox feedback={params.community} />
+
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {[
           ["Target totali", board.summary.total],
@@ -150,7 +153,7 @@ export default async function PlatformFundraisingPage({
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
-        <article className="rounded-[28px] border border-[var(--border)] bg-white p-6">
+        <article id="new-investor-target" className="scroll-mt-6 rounded-[28px] border border-[var(--border)] bg-white p-6">
           <p className="app-kicker">Nuovo target</p>
           <h2 className="mt-2 text-2xl font-semibold text-[var(--text-primary)]">
             Aggiungi un investor
