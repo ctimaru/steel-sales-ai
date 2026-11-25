@@ -6,6 +6,8 @@ export const appRoutes = {
 
   commercial: {
     home: "/commercial",
+    /** DIR-DESK1 (25 nov 2026): Scrivania della Direzione, solo amministratori. */
+    direction: "/commercial/direzione",
     analysis: "/commercial/analysis",
     search: "/commercial/search",
     products: "/commercial/products",

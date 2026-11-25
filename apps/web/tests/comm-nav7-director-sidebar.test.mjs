@@ -24,19 +24,23 @@ test("OFFICE-PROFILES1 exposes Direzione aziendale with the two offices while re
   ]);
   const direction = commercialDirectorGroups.find(g => g.key === "direction");
   assert.deepEqual(direction.sections.map(section => section.label), ["Ufficio commerciale", "Ufficio acquisti"]);
-  assert.deepEqual(direction.items.filter(item => item.adminOnly).map(item => item.label), ["Team e profili"],
-    "Only the profile management entry is reserved to the Direzione");
+  // DIR-DESK1 (25 nov 2026): the Direzione's own Scrivania comes first, then profiles.
+  assert.deepEqual(direction.items.filter(item => item.adminOnly).map(item => item.label), ["Scrivania della Direzione", "Team e profili"],
+    "Only the Direzione's desk and profile management are reserved to the Direzione");
+  assert.equal(direction.items[0].href, "/commercial/direzione");
   assert.ok(direction.sections.every(section => section.items.every(item => !item.adminOnly)),
     "Each office stays visible to the other one");
   const primary = commercialDirectorGroups.flatMap(g => [...g.items, ...(g.sections ?? []).flatMap(section => section.items)]);
   const items = commercialDirectorGroups.flatMap(commercialDirectorAllItems);
   // RFQHUB1: «Inbox e risposte» and «Distinte» merged into Centro RFQ.
   // COMM-CLIENTS1: no Scrivania; Ufficio commerciale mirrors Ufficio acquisti.
-  assert.equal(primary.length, 9, "Only 9 immediate destinations");
-  assert.equal(items.length, 15, "Less-used destinations remain under disclosure");
+  assert.equal(primary.length, 10, "Only 10 immediate destinations");
+  assert.equal(items.length, 16, "Less-used destinations remain under disclosure");
   assert.deepEqual(direction.sections[0].items.map(item => item.label), ["Richieste d'offerta", "Clienti"]);
   assert.deepEqual(direction.sections[1].items.map(item => item.label), ["Centro RFQ", "Fornitori RFQ"]);
-  assert.ok(!items.some(i => /Scrivania|Riattivazione|Relazioni collegate|Trattative|^Aziende$/.test(i.label)));
+  // The old Ufficio commerciale «Scrivania» stays gone; only the Direzione's admin-only desk exists.
+  assert.ok(!items.some(i => /Riattivazione|Relazioni collegate|Trattative|^Aziende$/.test(i.label)));
+  assert.ok(items.filter(i => /Scrivania/.test(i.label)).every(i => i.adminOnly && i.href === "/commercial/direzione"));
   assert.ok(commercialDirectorGroups.every(g => "moreItems" in g));
   assert.ok(!items.some(i => i.href.includes("#commercial-today")));
   assert.ok(!items.some(i => i.href.includes("?view=sent") || i.href.includes("?view=received")
