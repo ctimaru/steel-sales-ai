@@ -30,6 +30,9 @@ from urllib.parse import urljoin, urlsplit
 
 import httpx
 
+from .net_it_autofeed import SOURCE_URL as AUTOFEED_SOURCE_URL
+from .net_it_autofeed_worker import refill_from_configured_audit
+
 from .company_discovery import (
     ITALIAN_REGIONS, MAX_PAGES_PER_DOMAIN, CompanyDiscoveryError,
     _fetch_page, _priority_links, canonical_domain, canonicalize_seed_url,
@@ -285,6 +288,7 @@ class SeedApi:
     """The five NET-IT-SEED1 worker RPCs and nothing else."""
     ALLOWED = frozenset({
         "net_it_seed1_claim_sources", "net_it_seed1_stage",
+        "net_it_autofeed_stage",
         "net_it_seed1_claim_batch", "net_it_seed1_record",
         "net_it_seed1_finish_batch",
     })
@@ -342,6 +346,13 @@ async def harvest(api: SeedApi, web: httpx.AsyncClient, *, max_sources: int,
               "unreadable": 0, "published": 0}
     for source in claimed.get("items") or []:
         report["sources"] += 1
+        if source.get("url") == AUTOFEED_SOURCE_URL:
+            result = await refill_from_configured_audit(api, source)
+            report["staged"] += result["staged"]
+            report["already_known"] += result["already_known"]
+            report["links_found"] += result["received"]
+            report["autofeed_status"] = result["status"]
+            continue
         try:
             source_url = canonicalize_seed_url(str(source["url"]))
             page = await _fetch_page(web, source_url, source_url)
