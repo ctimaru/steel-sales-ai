@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 
@@ -30,6 +31,7 @@ export function RfqDispatchPanel({
   canExecute = true,
   layout = "full",
   defaultMessage = null,
+  editRecipientsHref = null,
 }: {
   rfqId: string;
   campaignStatus: string;
@@ -45,6 +47,8 @@ export function RfqDispatchPanel({
   layout?: "full" | "side";
   /** DISTINTA-DEFAULTS1: pre-filled message when the RFQ has none yet (editable). */
   defaultMessage?: string | null;
+  /** DISTINTA3B: link back to step 2 to change the recipients (step 3 only). */
+  editRecipientsHref?: string | null;
 }) {
   const router = useRouter();
   // Empty on the server: local time (and the default) are only known in the browser.
@@ -174,6 +178,147 @@ export function RfqDispatchPanel({
       );
       router.refresh();
     });
+  }
+
+  // DISTINTA3B (founder request, 25 Nov 2026): step 3 «Invia» uses the same
+  // layout as step 2 «A chi lo chiedi»: full-width two columns, the work (message
+  // and deadline) on the left, recipients + the one primary action on the right.
+  if (side) {
+    const count = suppliers.length;
+    const recipientsWord = count === 1 ? "destinatario" : "destinatari";
+    const card = "min-w-0 rounded-2xl border border-[#bfd0c5] bg-white p-3 shadow-[0_1px_3px_rgba(15,46,35,0.08)] sm:p-4";
+    return (
+      <div data-testid="rfq-step3-layout" className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+        <section aria-labelledby="rfq-step3-title" className={card}>
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+            <h2 id="rfq-step3-title" className="text-base font-bold text-[#143f30]">Messaggio e scadenza</h2>
+            <p className="text-[11px] text-[#3f564a]">Un&apos;email separata per fornitore. I prezzi target restano interni.</p>
+          </div>
+          {canExecute ? (
+            <div className="mt-3 grid gap-3">
+              <label className="text-xs font-semibold text-[#173f35] sm:max-w-xs">
+                Scadenza offerta
+                {/* aria-label: a pre-filled value inside the <label> would otherwise join the accessible name. */}
+                <input
+                  type="datetime-local"
+                  aria-label="Scadenza offerta"
+                  value={deadline}
+                  onChange={(event) => { setDeadline(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
+                  className="mt-1.5 h-11 w-full rounded-xl border border-[#bfd0c5] bg-white px-3 text-sm text-[#1d2824] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15"
+                />
+              </label>
+              <label className="text-xs font-semibold text-[#173f35]">
+                Messaggio ai fornitori
+                <textarea
+                  aria-label="Messaggio ai fornitori"
+                  value={message}
+                  onChange={(event) => { setMessage(event.target.value); setConfirmOpen(false); setConfirmChecked(false); }}
+                  rows={10}
+                  maxLength={4000}
+                  placeholder="Es. Vi chiediamo la vostra migliore offerta e disponibilità."
+                  className="mt-1.5 w-full resize-y rounded-xl border border-[#bfd0c5] bg-white px-3 py-2.5 text-sm leading-6 text-[#1d2824] outline-none focus:border-[#175640] focus:ring-2 focus:ring-[#175640]/15"
+                />
+              </label>
+            </div>
+          ) : (
+            <p className="mt-3 rounded-xl border border-[#bfd0c5] bg-[#f6f9f7] px-3 py-2 text-xs font-semibold text-[#3f564a]">
+              Modalità consultazione: l&apos;invio resta un&apos;azione dell&apos;owner RFQ.
+            </p>
+          )}
+        </section>
+
+        <aside aria-label="Destinatari e invio" className="min-w-0 space-y-3 lg:sticky lg:top-24">
+          <section aria-label="Fornitori scelti" className={card}>
+            <div className="flex items-baseline justify-between gap-2">
+              <h2 className="text-sm font-bold text-[#143f30]">
+                Destinatari <span className="font-semibold text-[#4a6155]">· {count}</span>
+              </h2>
+              {editRecipientsHref ? (
+                <Link href={editRecipientsHref} className="text-xs font-semibold !text-[#175640] underline underline-offset-2">
+                  Modifica
+                </Link>
+              ) : null}
+            </div>
+            {count ? (
+              <ul className="mt-2 max-h-56 space-y-1.5 overflow-y-auto">
+                {suppliers.map((supplier, index) => (
+                  <li key={supplier.id} className="rounded-lg bg-[#f5f9f6] px-2.5 py-1.5">
+                    <span className="block truncate text-xs font-semibold text-[#173f35]">{supplier.name || "Fornitore " + String(index + 1)}</span>
+                    <span className={"block truncate text-[10px] " + (supplier.email ? "text-[#3f564a]" : "font-semibold text-[#7b5e2b]")}>
+                      {supplier.email || "Email mancante"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-xs leading-5 text-[#3f564a]">Nessun destinatario: torna al passo 2 per sceglierli.</p>
+            )}
+
+            {missingEmail > 0 && canExecute ? (
+              <p className="mt-3 rounded-lg border border-[#ead9c0] bg-[#fffaf1] px-3 py-2 text-[11px] font-semibold leading-4 text-[#7b5e2b]">
+                {missingEmail === 1 ? "1 fornitore non ha" : String(missingEmail) + " fornitori non hanno"} un&apos;email utilizzabile: correggi i destinatari prima di inviare.
+              </p>
+            ) : null}
+
+            {canExecute && !confirmOpen ? (
+              <>
+                <button
+                  type="button"
+                  onClick={reviewRecipients}
+                  disabled={launchPending || count < 1 || missingEmail > 0}
+                  className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {launchPending ? "Invio in corso…" : "Controlla e invia →"}
+                </button>
+                <p className="mt-2 text-[11px] leading-4 text-[#3f564a]">
+                  Prima dell&apos;invio rivedi tutto in un riepilogo. Nulla parte senza la tua conferma.
+                </p>
+              </>
+            ) : null}
+
+            {canExecute && confirmOpen ? (
+              <div role="region" aria-label="Conferma finale invio RFQ"
+                className="mt-3 rounded-xl border-2 border-[#174b3d] bg-white p-3">
+                <h3 className="text-sm font-extrabold text-[#173f35]">
+                  Conferma l&apos;invio a {count} {count === 1 ? "fornitore" : "fornitori"}
+                </h3>
+                <p className="mt-1 text-[11px] leading-4 text-[#3f564a]">
+                  Partiranno email separate, una per indirizzo, con il link personale alla richiesta.
+                  Il Marketplace non verrà pubblicato e i prezzi target interni non saranno condivisi.
+                </p>
+                <dl className="mt-2 space-y-1 text-[11px] leading-4 text-[#3f564a]">
+                  <div><dt className="inline font-bold text-[#173f35]">Scadenza: </dt>
+                    <dd className="inline">{deadline ? new Date(deadline).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" }) : "non specificata"}</dd></div>
+                  <div><dt className="inline font-bold text-[#173f35]">Canale: </dt><dd className="inline">email individuali</dd></div>
+                  <div><dt className="inline font-bold text-[#173f35]">Messaggio: </dt>
+                    <dd className="inline">{message.trim() ? "come scritto a sinistra" : "nessun messaggio aggiuntivo"}</dd></div>
+                </dl>
+                <label className="mt-3 flex min-h-11 cursor-pointer items-start gap-2 rounded-lg bg-[#f0f8f3] p-2.5 text-[11px] font-semibold leading-4 text-[#173f35]">
+                  <input type="checkbox" checked={confirmChecked} onChange={(event) => setConfirmChecked(event.target.checked)}
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-[#174b3d]" />
+                  Ho verificato destinatari e indirizzi. Confermo l&apos;invio reale delle email.
+                </label>
+                <button type="button" onClick={launch} disabled={!confirmChecked || launchPending || missingEmail > 0}
+                  className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50">
+                  {launchPending ? "Invio in corso…" : "Conferma e invia a " + String(count) + " " + recipientsWord}
+                </button>
+                <button type="button" onClick={() => { setConfirmOpen(false); setConfirmChecked(false); }}
+                  disabled={launchPending}
+                  className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-[#bfd0c5] bg-white px-4 text-xs font-semibold text-[#174b3d] disabled:opacity-50">
+                  Annulla, torna a modificare
+                </button>
+              </div>
+            ) : null}
+
+            {feedback ? (
+              <p role="status" className="mt-3 rounded-lg bg-[#f6f9f7] px-3 py-2 text-[11px] font-semibold leading-4 text-[#3f564a]">
+                {feedback}
+              </p>
+            ) : null}
+          </section>
+        </aside>
+      </div>
+    );
   }
 
   return (
