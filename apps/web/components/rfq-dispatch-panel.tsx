@@ -268,10 +268,10 @@ export function RfqDispatchPanel({
                   disabled={launchPending || count < 1 || missingEmail > 0}
                   className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {launchPending ? "Invio in corso…" : "Controlla e invia →"}
+                  {launchPending ? "Invio in corso…" : "Controlla " + String(count) + " " + recipientsWord + " →"}
                 </button>
                 <p className="mt-2 text-[11px] leading-4 text-[#3f564a]">
-                  Prima dell&apos;invio rivedi tutto in un riepilogo. Nulla parte senza la tua conferma.
+                  Prima dell&apos;invio controlli destinatari e indirizzi. Nulla parte senza la tua conferma.
                 </p>
               </>
             ) : null}
@@ -286,13 +286,19 @@ export function RfqDispatchPanel({
                   Partiranno email separate, una per indirizzo, con il link personale alla richiesta.
                   Il Marketplace non verrà pubblicato e i prezzi target interni non saranno condivisi.
                 </p>
-                <dl className="mt-2 space-y-1 text-[11px] leading-4 text-[#3f564a]">
-                  <div><dt className="inline font-bold text-[#173f35]">Scadenza: </dt>
-                    <dd className="inline">{deadline ? new Date(deadline).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" }) : "non specificata"}</dd></div>
-                  <div><dt className="inline font-bold text-[#173f35]">Canale: </dt><dd className="inline">email individuali</dd></div>
-                  <div><dt className="inline font-bold text-[#173f35]">Messaggio: </dt>
-                    <dd className="inline">{message.trim() ? "come scritto a sinistra" : "nessun messaggio aggiuntivo"}</dd></div>
-                </dl>
+                <ul className="mt-2 max-h-48 space-y-1.5 overflow-y-auto rounded-lg border border-[#bfd0c5] bg-[#f9fbfa] p-2">
+                  {suppliers.map((supplier, index) => (
+                    <li key={supplier.id} className="min-w-0 border-b border-[#d3e0d7] pb-1.5 text-[11px] leading-4 last:border-0 last:pb-0">
+                      <span className="block font-bold text-[#173f35]">{index + 1}. {supplier.name || "Fornitore"}</span>
+                      <span className="block break-all text-[#3f564a]">{supplier.email || "Email mancante"}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-2 space-y-1 text-[11px] leading-4 text-[#3f564a]">
+                  <p><strong>Canale effettivo:</strong> email individuali, non messaggio interno alla piattaforma.</p>
+                  <p><strong>Scadenza offerta:</strong> {deadline ? new Date(deadline).toLocaleString("it-IT", { dateStyle: "short", timeStyle: "short" }) : "non specificata"}</p>
+                  <p><strong>Messaggio:</strong> {message.trim() ? "come scritto a sinistra" : "nessun messaggio aggiuntivo"}</p>
+                </div>
                 <label className="mt-3 flex min-h-11 cursor-pointer items-start gap-2 rounded-lg bg-[#f0f8f3] p-2.5 text-[11px] font-semibold leading-4 text-[#173f35]">
                   <input type="checkbox" checked={confirmChecked} onChange={(event) => setConfirmChecked(event.target.checked)}
                     className="mt-0.5 h-4 w-4 shrink-0 accent-[#174b3d]" />
@@ -300,12 +306,12 @@ export function RfqDispatchPanel({
                 </label>
                 <button type="button" onClick={launch} disabled={!confirmChecked || launchPending || missingEmail > 0}
                   className="mt-2 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-[#175640] px-4 text-sm font-bold text-white hover:bg-[#104632] disabled:cursor-not-allowed disabled:opacity-50">
-                  {launchPending ? "Invio in corso…" : "Conferma e invia a " + String(count) + " " + recipientsWord}
+                  {launchPending ? "Invio in corso…" : "Conferma e invia a " + String(count) + (count === 1 ? " fornitore" : " fornitori")}
                 </button>
                 <button type="button" onClick={() => { setConfirmOpen(false); setConfirmChecked(false); }}
                   disabled={launchPending}
                   className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-[#bfd0c5] bg-white px-4 text-xs font-semibold text-[#174b3d] disabled:opacity-50">
-                  Annulla, torna a modificare
+                  Annulla, modifica la RFQ
                 </button>
               </div>
             ) : null}
