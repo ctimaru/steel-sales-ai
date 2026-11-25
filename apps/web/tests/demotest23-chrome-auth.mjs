@@ -417,7 +417,7 @@ try {
       await navigate(mobilePage, route);
       const heading = route === "/dashboard"
         ? homeHeading(personas[0].name)
-        : route === "/rfq-hub" ? "Centro RFQ" : "Compra o vendi, in un unico spazio";
+        : route === "/rfq-hub" ? "Centro RFQ" : "Il mercato dell'acciaio e del tubo, dalla richiesta all'ordine.";
       await mobilePage.getByRole("heading", { name: heading, exact: true })
         .waitFor({ state: "visible", timeout: 60000 });
       const body = await mobilePage.locator("body").innerText();
