@@ -36,6 +36,8 @@ export const commercialDirectorGroups: readonly CommercialDirectorGroup[] = [
     label: "Direzione aziendale",
     description: "Uffici e profili",
     items: [
+      // DIR-DESK1 (25 nov 2026): la Scrivania della Direzione è la prima voce.
+      { label: "Scrivania della Direzione", href: appRoutes.commercial.direction, adminOnly: true },
       { label: "Team e profili", href: appRoutes.company.team, adminOnly: true },
     ],
     moreItems: [],
