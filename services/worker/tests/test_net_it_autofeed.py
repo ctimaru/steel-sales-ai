@@ -39,3 +39,8 @@ class AutoFeedTest(unittest.TestCase):
             select_items(rows, release=RELEASE, audit_url=AUDIT, limit=251)
         with self.assertRaises(ValueError):
             select_items(rows, release=RELEASE, audit_url=AUDIT.replace("a"*40, "main"))
+
+    def test_resume_and_shortlinks(self):
+        rows = [HEAD, row("b.it"), row("a.it"), row("goo.gl"), row("bit.ly")]
+        self.assertEqual([i["domain"] for i in select_items(
+            rows, release=RELEASE, audit_url=AUDIT, after_domain="a.it")], ["b.it"])

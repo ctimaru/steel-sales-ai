@@ -36,11 +36,14 @@ async def refill_from_configured_audit(api, source: dict) -> dict:
         ):
             raise ValueError("audit digest or size mismatch")
         lines = raw.decode("utf-8").splitlines()
-        seen = set()
+        checkpoint = source.get("autofeed_checkpoint") or {}
+        after = (checkpoint.get("after_domain", "")
+                 if checkpoint.get("audit_url") == audit_url
+                 and checkpoint.get("release") == release else "")
         limit = min(int(source["max_links"]), MAX_LOT)
         for _ in range(MAX_BATCHES):
             items = select_items(lines, release=release, audit_url=audit_url,
-                                 known_domains=seen, limit=limit)
+                                 after_domain=after, limit=limit)
             if not items:
                 result["status"] = "audit_exhausted"
                 return result
@@ -56,7 +59,7 @@ async def refill_from_configured_audit(api, source: dict) -> dict:
             result["already_known"] += int(response.get("already_known", 0))
             if result["status"] != "ok" or result["staged"] > 0:
                 return result
-            seen.update(x["domain"] for x in items)
+            after = items[-1]["domain"]
         result["status"] = "scan_budget_exhausted"
         return result
     except (OSError, UnicodeError, ValueError, KeyError):

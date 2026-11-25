@@ -36,11 +36,13 @@ BLOCKED = frozenset({
     "facebook.com", "linkedin.com", "instagram.com", "youtube.com",
     "google.com", "google.it", "paginegialle.it", "europages.com",
     "kompass.com", "wordpress.com", "wixsite.com", "blogspot.com",
+    "goo.gl", "bit.ly", "tinyurl.com", "t.co", "lnkd.in", "ow.ly", "cutt.ly", "rb.gy", "linktr.ee",
 })
 
 
 def select_items(lines: Iterable[str], *, release: str, audit_url: str,
-                 known_domains: Iterable[str] = (), limit: int = MAX_LOT
+                 known_domains: Iterable[str] = (), limit: int = MAX_LOT,
+                 after_domain: str = ""
                  ) -> list[dict[str, str]]:
     """Return strict, deduplicated pointers, never verified companies.
 
@@ -49,6 +51,8 @@ def select_items(lines: Iterable[str], *, release: str, audit_url: str,
     """
     if not 1 <= limit <= MAX_LOT or not RELEASE.fullmatch(release):
         raise ValueError("invalid release or batch limit")
+    if after_domain and not DOMAIN.fullmatch(after_domain):
+        raise ValueError("invalid audit cursor")
     if not AUDIT.fullmatch(audit_url):
         raise ValueError("immutable audit URL required")
     known = {str(d).strip().lower() for d in known_domains}
@@ -81,4 +85,4 @@ def select_items(lines: Iterable[str], *, release: str, audit_url: str,
         if domain in found and found[domain]["gers_id"] != gers:
             conflicting.add(domain)
         found.setdefault(domain, item)
-    return [found[d] for d in sorted(found) if d not in conflicting][:limit]
+    return [found[d] for d in sorted(found) if d not in conflicting and d > after_domain][:limit]

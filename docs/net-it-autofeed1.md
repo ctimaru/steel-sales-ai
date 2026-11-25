@@ -18,3 +18,6 @@ Pure, bounded selection from licensed Overture audit CSV, with immutable audit U
 2. Confirm protected CI, migration and worker deployment in normal release window. No new cron.
 3. Verify production readback: source registered by actual authorized actor; queued domains = provenance rows; first-party visits, evidence verdicts, actual publications and net canonical totals. Demonstrate automatic refill across two scheduled cycles.
 4. Do not report A as a live refill. B, integration tests and authorized source registration remain outstanding.
+
+## C — Resume safety (review draft)
+The special source carries a durable audit URL/release/domain cursor in its existing last_result; the source claim returns that checkpoint only for this marker. Successful staging and provenance update the cursor in the same transaction; capacity holds do not move it. A new immutable audit restarts selection, with live dedup still authoritative. URL shorteners are rejected by selector and database. Recurring Overture audit generation, a production migration, CI and Platform source registration remain prerequisites; this is not a live refill.

@@ -17,6 +17,9 @@ DECLARE
  v_auto boolean;
  v_queue integer;
  v_today integer;
+ v_audit text;
+ v_release text;
+ v_after text;
 BEGIN
  IF NOT private.net_it_seed1_policy_active() THEN
   RAISE EXCEPTION 'Site discovery is not authorized' USING ERRCODE='42501';
@@ -42,7 +45,7 @@ BEGIN
    WHERE NOT coalesce(
      (i->>'domain') ~ '^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?[.][a-z]{2,24}$'
      AND (i->>'domain') !~ '(legno|infissi|serrament|falegnam|ferrament|autoofficina|porte-corazzate)'
-     AND (i->>'domain') NOT IN ('facebook.com','linkedin.com','instagram.com','youtube.com','google.com','google.it','paginegialle.it','europages.com','kompass.com','wordpress.com','wixsite.com','blogspot.com')
+     AND (i->>'domain') NOT IN ('facebook.com','linkedin.com','instagram.com','youtube.com','google.com','google.it','paginegialle.it','europages.com','kompass.com','wordpress.com','wixsite.com','blogspot.com','goo.gl','bit.ly','tinyurl.com','t.co','lnkd.in','ow.ly','cutt.ly','rb.gy','linktr.ee')
      AND (i->>'url') = 'https://' || (i->>'domain') || '/'
      AND (i->>'source_license') = 'CDLA-Permissive-2.0'
      AND (i->>'release') ~ '^20[0-9]{2}-[0-9]{2}-[0-9]{2}[.][0-9]+$'
@@ -52,6 +55,17 @@ BEGIN
      AND (i->>'taxonomy') IN ('metal_fabricator','iron_fabricator','steel_fabricator','welder','laser_cutting_service','sheet_metal_contractor','sheet_metal_fabricator'),false)
    ) OR (SELECT count(DISTINCT i->>'domain') FROM jsonb_array_elements(p_items) i) <> v_received THEN
    RAISE EXCEPTION 'Invalid or duplicate autofeed provenance' USING ERRCODE='22023';
+  END IF;
+  IF (SELECT count(DISTINCT i->>'evidence') FROM jsonb_array_elements(p_items) i)<>1
+   OR (SELECT count(DISTINCT i->>'release') FROM jsonb_array_elements(p_items) i)<>1 THEN
+   RAISE EXCEPTION 'Mixed audit checkpoint' USING ERRCODE='22023';
+  END IF;
+  SELECT min(i->>'evidence'),min(i->>'release'),max((i->>'domain') COLLATE "C")
+    INTO v_audit,v_release,v_after FROM jsonb_array_elements(p_items) i;
+  IF v_source.last_result #>> '{autofeed_checkpoint,audit_url}' = v_audit
+     AND v_source.last_result #>> '{autofeed_checkpoint,release}' = v_release THEN
+   v_after := greatest(v_after COLLATE "C",
+     (v_source.last_result #>> '{autofeed_checkpoint,after_domain}') COLLATE "C");
   END IF;
   SELECT count(*) INTO v_queue FROM private.net_it_seed1_domains WHERE status IN ('staged','claimed');
   SELECT count(*) INTO v_today FROM private.net_it_seed1_domains
@@ -108,6 +122,9 @@ BEGIN
  UPDATE private.net_it_seed1_index_sources
  SET last_result=jsonb_build_object('at',now(),'received',v_received,
    'valid',v_valid,'already_known',v_known,'staged',v_inserted)
+   || CASE WHEN v_auto THEN jsonb_build_object('autofeed_checkpoint',
+       jsonb_build_object('audit_url',v_audit,'release',v_release,'after_domain',v_after))
+      ELSE '{}'::jsonb END
  WHERE id=p_source_id;
  IF v_auto THEN
   RETURN jsonb_build_object('contract','net-it-autofeed-stage-v1','status','ok',
@@ -135,4 +152,35 @@ END;
 $$;
 REVOKE ALL ON FUNCTION public.net_it_autofeed_stage(uuid,jsonb) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.net_it_autofeed_stage(uuid,jsonb) TO service_role;
+-- Preserve existing claim/lock behavior; return the checkpoint only to the special source.
+CREATE OR REPLACE FUNCTION private.net_it_seed1_claim_sources_impl(p_max integer)
+ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path TO ''
+AS $function$
+DECLARE v_rows jsonb;
+BEGIN
+ IF p_max IS NULL OR p_max NOT BETWEEN 1 AND 20 THEN
+  RAISE EXCEPTION 'Bounded source batch required' USING ERRCODE='22023';
+ END IF;
+ IF NOT private.net_it_seed1_policy_active() THEN
+  RETURN jsonb_build_object('contract','net-it-seed1-sources-v1','status','policy_disabled','items','[]'::jsonb);
+ END IF;
+ WITH due AS (
+  SELECT s.id FROM private.net_it_seed1_index_sources s
+  WHERE s.enabled AND (s.last_harvested_at IS NULL
+   OR s.last_harvested_at<=now()-make_interval(hours=>s.min_interval_hours))
+  ORDER BY s.last_harvested_at NULLS FIRST,s.created_at,s.id
+  LIMIT p_max FOR UPDATE SKIP LOCKED
+ ), upd AS (
+  UPDATE private.net_it_seed1_index_sources s SET last_harvested_at=now()
+  FROM due WHERE s.id=due.id
+  RETURNING s.id,s.source_url,s.source_kind,s.max_links,s.profile_path_pattern,s.last_result
+ )
+ SELECT coalesce(jsonb_agg(jsonb_build_object('id',id,'url',source_url,'kind',source_kind,
+   'max_links',max_links,'profile_pattern',profile_path_pattern)
+   || CASE WHEN source_url='https://docs.overturemaps.org/guides/places/#sss-autofeed-v1'
+      THEN jsonb_build_object('autofeed_checkpoint',last_result->'autofeed_checkpoint')
+      ELSE '{}'::jsonb END),'[]'::jsonb) INTO v_rows FROM upd;
+ RETURN jsonb_build_object('contract','net-it-seed1-sources-v1','status','ok','items',v_rows);
+END
+$function$;
 COMMIT;

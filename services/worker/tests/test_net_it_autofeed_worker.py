@@ -63,3 +63,21 @@ class WorkerTest(unittest.IsolatedAsyncioTestCase):
                 result = await refill_from_configured_audit(api, SOURCE)
             self.assertEqual(result["status"], "invalid_audit")
             self.assertFalse(api.calls)
+
+    async def test_checkpoint_resume_and_new_audit_reset(self):
+        raw = AUDIT + AUDIT.splitlines(keepends=True)[1].replace(b"valid.it", b"zeta.it")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "audit.csv"
+            path.write_bytes(raw)
+            env = self.env(path, hashlib.sha256(raw).hexdigest())
+            source = dict(SOURCE, autofeed_checkpoint={
+                "audit_url": env["NET_IT_AUTOFEED_AUDIT_URL"],
+                "release": env["NET_IT_AUTOFEED_RELEASE"], "after_domain": "valid.it"})
+            with patch.dict(os.environ, env, clear=True):
+                api = Api()
+                await refill_from_configured_audit(api, source)
+                self.assertEqual(api.calls[0][1]["p_items"][0]["domain"], "zeta.it")
+                source["autofeed_checkpoint"]["audit_url"] = "old"
+                api = Api()
+                await refill_from_configured_audit(api, source)
+                self.assertEqual(api.calls[0][1]["p_items"][0]["domain"], "valid.it")

@@ -31,6 +31,20 @@ RESET ROLE;
 DO $$ BEGIN
  IF (SELECT count(*) FROM private.net_it_seed1_domains)<>1 OR (SELECT count(*) FROM private.net_it_overture_provenance)<>1 THEN RAISE EXCEPTION 'atomic proof or rollback failed'; END IF;
 END $$;
+DO $
+DECLARE r jsonb;
+BEGIN
+ r:=private.net_it_seed1_claim_sources_impl(2);
+ IF NOT EXISTS (SELECT 1 FROM jsonb_array_elements(r->'items') i
+   WHERE i->>'id'='00000000-0000-4000-8000-000000000001'
+   AND i #>> '{autofeed_checkpoint,after_domain}'='canary.example') THEN
+   RAISE EXCEPTION 'persistent cursor not returned: %',r;
+ END IF;
+ IF EXISTS (SELECT 1 FROM jsonb_array_elements(r->'items') i
+   WHERE i->>'id'='00000000-0000-4000-8000-000000000002' AND i ? 'autofeed_checkpoint') THEN
+   RAISE EXCEPTION 'ordinary source contract changed';
+ END IF;
+END $;
 UPDATE private.test_policy SET active=false;
 SET ROLE service_role;
 DO $$ BEGIN
