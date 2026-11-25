@@ -22,7 +22,11 @@ test("BD13: private preparation has explicit 1 select / 2 verify and send / opti
   const step3 = branch.slice(branch.indexOf('data-testid="rfq-step3"'), branch.indexOf('data-testid="rfq-step2"'));
   assert.match(step3, /<RfqDispatchPanel/);
   assert.match(step3, /layout="side"/);
-  assert.match(step3, /aria-label="Fornitori scelti"/);
+  // DISTINTA3B: step 3 mirrors step 2 — the recipients card «Fornitori scelti»
+  // (with «Modifica» back to step 2) sits in the right column of the panel.
+  assert.match(step3, /editRecipientsHref=\{step2Href\}/);
+  assert.match(dispatch, /aria-label="Fornitori scelti"/);
+  assert.match(dispatch, /lg:grid-cols-\[minmax\(0,1fr\)_340px\]/);
   assert.doesNotMatch(step3, /<RfqSupplierPicker/);
   const step2 = branch.slice(branch.indexOf('data-testid="rfq-step2"'));
   assert.ok(step2.indexOf("<RfqSupplierPicker") > 0 && step2.indexOf("<RfqSupplierPicker") < step2.indexOf('data-testid="rfq-step2-marketplace-locked"'));

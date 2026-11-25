@@ -24,7 +24,7 @@ test("RFQ-IA4 retains one buyer process: private distinta -> RFQ -> optional Mar
   assert.match(bridgePanel, /publishRfqh8MarketplaceBridge/);
   assert.match(bridgePanel, /importRfqh8MarketplaceResponse/);
   assert.match(bridgePanel, /Importa nel confronto RFQ/);
-  assert.match(marketplaceHome, /Apri RFQ Hub/);
+  assert.match(marketplaceHome, /appRoutes\.rfqHub\.createDistinta/); // MKT-VISION1
   assert.match(marketplaceList, /pubblicazioni Marketplace/);
   assert.match(marketplaceNew, /Percorso consigliato/);
   assert.match(marketplaceNew, /href=\{appRoutes\.rfqHub\.createDistinta\}/);

@@ -51,14 +51,13 @@ test("HOME-NETPRO2 card routes locked users to /network/pro and entitled users t
   assert.doesNotMatch(card, /\b39 €|checkout|"use client"|createClient|fetch\(|dangerouslySetInnerHTML/);
 });
 
-test("NAV-BADGES1 navigation badges: PRO on Network, FREE on Commerciale and Scuola, Coming soon on Marketplace", () => {
+test("NAV-BADGES2 navigation badges: PRO only on Network, no FREE or Coming soon badges", () => {
   assert.match(nav, /icon: "network" as const,\s*locked: !networkEntitled,\s*badge: "pro" as const,/);
-  assert.match(nav, /icon: "marketplace" as const,\s*locked: false,\s*badge: "soon" as const,/);
-  assert.match(nav, /icon: "commercial" as const,\s*locked: false,\s*badge: "free" as const,/);
-  assert.match(nav, /icon: "knowledge" as const,\s*locked: false,\s*badge: "free" as const,/);
+  assert.match(nav, /icon: "marketplace" as const,\s*locked: false,\s*\}/);
+  assert.match(nav, /icon: "commercial" as const,\s*locked: false,\s*\}/);
+  assert.match(nav, /icon: "knowledge" as const,\s*locked: false,\s*\}/);
   assert.match(nav, /data-testid=\{"nav-" \+ badge \+ "-" \+ itemKey\}/);
-  assert.match(nav, /data-testid=\{"nav-soon-" \+ itemKey\}/);
-  assert.match(nav, /COMING<br \/>SOON/);
+  assert.doesNotMatch(nav, /badge: "(free|soon)"|nav-soon-|COMING<br|>\s*FREE\s*</);
   assert.match(nav, /bg-\[#f2b544\]/);
   assert.match(nav, /Premium, non attivo/);
   assert.doesNotMatch(nav, /pro: true/);

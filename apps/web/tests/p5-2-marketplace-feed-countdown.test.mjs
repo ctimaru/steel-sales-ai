@@ -21,16 +21,14 @@ test("P5.2 promotes Marketplace home to supplier opportunities and preserves buy
   assert.match(shell, /label: "Le mie pubblicazioni"/);
   assert.match(shell, /label: "Risposte Marketplace"/);
   assert.match(shell, /label: "Attività"/);
-  assert.match(feedPage, /Compra o vendi, in un unico spazio/);
-  assert.match(feedPage, /getMarketplaceFeed/);
+  // MKT-VISION1: the Marketplace entry page is a vision page; the feed data layer stays available.
+  assert.match(feedPage, /Il mercato dell&apos;acciaio e del tubo/);
+  assert.match(data, /export async function getMarketplaceFeed/);
   assert.match(buyerPage, /getMyMarketplaceRequests/);
 });
 
-test("P5.2 feed exposes only privacy-safe teaser concepts", () => {
-  assert.match(feedPage, /Informazioni protette/);
-  assert.match(feedPage, /Quantità/);
-  assert.match(feedPage, /Tempo residuo/);
-  assert.match(feedPage, /Commercial Memory/);
+test("P5.2 Marketplace entry exposes no detailed request data", () => {
+  assert.match(feedPage, /Riservatezza/);
   assert.doesNotMatch(feedPage, /standard_code|grade_designation|outer_diameter_mm|thickness_mm|certification/);
 });
 

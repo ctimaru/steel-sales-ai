@@ -53,8 +53,8 @@ test("HP11 frontend consumes the dedicated readiness RPC instead of the admin-on
 });
 
 test("HP11 Marketplace entry explains buyer and supplier readiness with corrective CTAs", () => {
-  assert.match(feed, /MarketplaceReadinessPanel/);
-  assert.match(feed, /getMarketplaceEntryReadiness\(context\.organizationId, context\.role\)/);
+  // MKT-VISION1 (24 Nov 2026): the Marketplace entry page is now a vision page without feed or CTAs to sub-routes.
+  assert.doesNotMatch(feed, /getMarketplaceEntryReadiness/);
   assert.match(readinessUi, /Marketplace readiness/);
   assert.match(readinessUi, /Pubblica una ricerca/);
   assert.match(readinessUi, /Ricevi match e rispondi/);

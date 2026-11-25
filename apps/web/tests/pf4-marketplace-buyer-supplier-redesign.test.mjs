@@ -18,12 +18,11 @@ const suppliers = read("../app/(workspace)/marketplace/suppliers/page.tsx");
 const supplierDetail = read("../app/(workspace)/marketplace/suppliers/[profileId]/page.tsx");
 const rfqDetail = read("../app/(workspace)/marketplace/rfq-hub/[rfqId]/page.tsx");
 
-test("PF4 makes buyer and supplier jobs explicit at Marketplace entry", () => {
-  assert.match(home, /Compra o vendi, in un unico spazio/);
-  assert.match(home, /Chiedi offerte a più fornitori/);
-  assert.match(home, /Trova richieste a cui puoi rispondere/);
-  assert.match(home, /Apri RFQ Hub/);
-  assert.match(home, /Opportunità per te/);
+test("MKT-VISION1 makes buyer and supplier value explicit at Marketplace entry", () => {
+  assert.match(home, /Cinque passi, un solo flusso/);
+  assert.match(home, /Per chi compra/);
+  assert.match(home, /Per chi vende/);
+  assert.match(home, /appRoutes\.rfqHub\.createDistinta/);
 });
 
 test("PF4 reduces contextual Marketplace navigation to four user jobs", () => {
@@ -66,7 +65,7 @@ test("PF4 removes internal roadmap language from customer-facing Marketplace pag
 });
 
 test("PF4 keeps governed buyer and supplier boundaries while using business language", () => {
-  assert.match(home, /Commercial Memory e Marketplace restano separati/);
+  assert.match(home, /Nulla di privato viene pubblicato in automatico/);
   assert.match(opportunity, /livello di accesso richiesto/);
   assert.match(opportunity, /diritto di risposta viene verificato separatamente/);
   assert.match(requests, /Le RFQ private e i confronti offerte si gestiscono in RFQ Hub/);

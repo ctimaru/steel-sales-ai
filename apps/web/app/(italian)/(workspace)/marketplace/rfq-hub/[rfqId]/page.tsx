@@ -450,26 +450,17 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
       </details>
     );
 
-    // Step 3: phase 2 is closed into a one-line summary; only message, deadline and send remain.
+    // Step 3: same layout as step 2 (DISTINTA3B) — message and deadline on the left,
+    // «Fornitori scelti» (with «Modifica» back to step 2) and the send action on the right.
     if (currentStep === 2) {
-      const names = pickerSelected.map((supplier) => supplier.name);
       return (
-        <div data-testid="rfq-step3" data-distinta-steps className="mx-auto min-w-0 max-w-3xl space-y-3 pb-8">
+        <div data-testid="rfq-step3" data-distinta-steps className="min-w-0 space-y-4 pb-8">
           {stepsHeader}
-          <section aria-label="Fornitori scelti" className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#9fb4a7] bg-[#eef5f0] px-3 py-2.5">
-            <p className="min-w-0 text-[13px] text-[#173f35]">
-              <span aria-hidden="true" className="mr-1 font-bold text-[#175640]">✓</span>
-              <span className="font-bold text-[#143f30]">{names.length} {names.length === 1 ? "destinatario" : "destinatari"}</span>
-              {" · "}{names.slice(0, 3).join(", ")}{names.length > 3 ? " e altri " + (names.length - 3) : ""}
-            </p>
-            <Link href={step2Href} className="min-h-9 shrink-0 content-center text-[13px] font-semibold !text-[#175640] underline underline-offset-2">
-              Modifica
-            </Link>
-          </section>
           {distintaLine}
           <div id="rfq-review-send" className="scroll-mt-24">
             <RfqDispatchPanel
               layout="side"
+              editRecipientsHref={step2Href}
               defaultMessage={defaultSupplierMessage({
                 title: campaign.title,
                 lineCount: lineRows.length,
@@ -491,7 +482,7 @@ export default async function BuyerRfqCampaignPage({ params, searchParams }: {
               }))}
             />
           </div>
-          {approvals}
+          <div className="border-t border-[#d3e0d7] pt-3">{approvals}</div>
         </div>
       );
     }

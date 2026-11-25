@@ -37,13 +37,12 @@ test("PF1 keeps Commercial Memory private while Home becomes a daily cockpit", (
   assert.doesNotMatch(dashboard, /<form action=\{appRoutes\.commercial\.search\}/);
 });
 
-test("PF4 Marketplace separates buyer and supplier jobs without internal program language", () => {
-  assert.match(marketplace, /Compra o vendi, in un unico spazio/);
-  assert.match(marketplace, /Chiedi offerte a più fornitori/);
-  assert.match(marketplace, /Trova richieste a cui puoi rispondere/);
-  assert.match(marketplace, /Apri RFQ Hub/);
-  assert.match(marketplace, /Opportunità per te/);
-  assert.match(marketplace, /getMarketplaceFeed/);
+test("MKT-VISION1 Marketplace illustrates buyer and supplier value without internal program language", () => {
+  assert.match(marketplace, /Marketplace · La nostra visione/);
+  assert.match(marketplace, /Per chi compra/);
+  assert.match(marketplace, /Per chi vende/);
+  assert.match(marketplace, /Crea una distinta/);
+  assert.doesNotMatch(marketplace, /getMarketplaceFeed|coming soon/i);
   assert.doesNotMatch(marketplace, /P5\.|Free teaser|Demand Board|foundation/i);
 });
 

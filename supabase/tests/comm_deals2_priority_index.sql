@@ -107,7 +107,7 @@ select pg_temp.cd2_assert((
   from cd2_result, jsonb_array_elements(payload->'keys') with ordinality as t(k, ord) where label = 'page2'
 ), 'pagination continues the same order');
 select pg_temp.cd2_assert((
-  select payload->'counts' = '{"segments":{"all":5,"sales":3,"purchase":2},"filters":{"todo":2,"waiting":2,"due":1,"drafts":2,"closed":1}}'::jsonb
+  select payload->'counts' = '{"segments":{"all":5,"sales":3,"purchase":2},"filters":{"todo":2,"waiting":2,"due":1,"drafts":2,"review":0,"closed":1}}'::jsonb
   from cd2_result where label = 'all'
 ), 'exact counters');
 select pg_temp.cd2_assert((select (payload->>'total')::int = 2 from cd2_result where label = 'todo'), 'todo filter');
@@ -127,6 +127,32 @@ select pg_temp.cd2_assert((
   select (payload->>'total')::int = 0 and (payload->'counts'->'segments'->>'all')::int = 0
   from cd2_result where label = 'alien'
 ), 'another tenant sees nothing');
+
+-- COMM-REVIEW1: an order without request or offer, received 40 days ago and never
+-- confirmed, is «review», not «todo»; it stays open and sorts after the deals in progress.
+reset role;
+insert into public.orders(id, owner_id, organization_id, rfq_id, offer_id, status, ordered_at, created_at) values
+('00000000-0000-0000-0000-00000000d242', '00000000-0000-0000-0000-00000000d2a1', '00000000-0000-0000-0000-00000000d2f1', null, null, 'received', now() - interval '45 days', now() - interval '40 days');
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000d2a1', true);
+select set_config('request.jwt.claims', '{"sub":"00000000-0000-0000-0000-00000000d2a1","role":"authenticated"}', true);
+insert into cd2_result values
+('review-all', public.comm_deals2_index('00000000-0000-0000-0000-00000000d2f1')),
+('review', public.comm_deals2_index('00000000-0000-0000-0000-00000000d2f1', 'sales', 'review'));
+reset role;
+select pg_temp.cd2_assert((
+  select (payload->'counts'->'filters'->>'review')::int = 1 and (payload->'counts'->'filters'->>'todo')::int = 2
+    and (payload->'counts'->'segments'->>'sales')::int = 4
+  from cd2_result where label = 'review-all'
+), 'stale received order counted in review, todo unchanged, still open');
+select pg_temp.cd2_assert((
+  select (payload->>'total')::int = 1 and payload->'keys'->0->>'key' = 'inbound-order:00000000-0000-0000-0000-00000000d242'
+  from cd2_result where label = 'review'
+), 'review filter lists the stale order only');
+select pg_temp.cd2_assert((
+  select (array_agg(k->>'key' order by ord))[6] = 'inbound-order:00000000-0000-0000-0000-00000000d242'
+  from cd2_result, jsonb_array_elements(payload->'keys') with ordinality as t(k, ord) where label = 'review-all'
+), 'review sorts after open work and before closed deals');
 
 rollback;
 select 'COMM-DEALS2 priority index acceptance passed' as result;

@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'docs/net-it-autofeed1-atomic-intake-review.sql'
+      - 'supabase/migrations/*_net_it_autofeed_atomic_intake.sql'
       - 'services/worker/tests/sql/autofeed_*.sql'
       - '.github/workflows/net-it-autofeed-review.yml'
 permissions:
@@ -41,3 +42,27 @@ jobs:
           psql -X -v ON_ERROR_STOP=1 -f services/worker/tests/sql/autofeed_fixture.sql
           psql -X -v ON_ERROR_STOP=1 -f docs/net-it-autofeed1-atomic-intake-review.sql
           psql -X -v ON_ERROR_STOP=1 -f services/worker/tests/sql/autofeed_acceptance.sql
+      - name: Install pinned Supabase CLI
+        uses: supabase/setup-cli@v3
+        with:
+          version: 2.84.2
+      - name: Generate or verify local release migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          supabase --version
+          supabase migration new --help
+          shopt -s nullglob
+          files=(supabase/migrations/*_net_it_autofeed_atomic_intake.sql)
+          test ${#files[@]} -le 1
+          sed '1c\-- AUTOFEED atomic intake and persistent audit cursor; no source or policy created.' docs/net-it-autofeed1-atomic-intake-review.sql > /tmp/autofeed-release.sql
+          if [ ${#files[@]} -eq 0 ]; then
+            supabase migration new net_it_autofeed_atomic_intake
+            files=(supabase/migrations/*_net_it_autofeed_atomic_intake.sql)
+            test ${#files[@]} -eq 1
+            cp /tmp/autofeed-release.sql "${files[0]}"
+          fi
+          test ${#files[@]} -eq 1
+          cmp /tmp/autofeed-release.sql "${files[0]}"
+          printf 'AUTOFEED_MIGRATION_PATH=%s\n' "${files[0]}"
+          sha256sum "${files[0]}"

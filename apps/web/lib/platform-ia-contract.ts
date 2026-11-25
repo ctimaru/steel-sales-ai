@@ -188,6 +188,7 @@ export const PLATFORM_IA_ROUTE_INVENTORY = [
   { path: "/platform/marketing/one-pager", module: "marketing" },
   { path: "/platform/marketing/pitch-deck", module: "marketing" },
   { path: "/platform/marketing/investor-deck", module: "marketing" },
+  { path: "/platform/marketing/founding-partners", module: "marketing" },
   { path: "/platform/marketing/visual-evidence-qa", module: "marketing" },
   { path: "/platform/marketing/fundraising-readiness", module: "marketing" },
   { path: "/platform/marketing/demo-room/[surface]", module: "marketing" },

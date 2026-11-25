@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { BusinessPlanLanguageToggle } from "@/components/business-plan-language-toggle";
 import { InvestorDeckProduction } from "@/components/investor-deck-production";
+import { Mkt9InvestorDeckCandidate } from "@/components/mkt9-investor-deck-candidate";
 import { resolveBusinessPlanLocale } from "@/lib/business-plan-locale";
 import { requirePlatformSuperadmin } from "@/lib/platform-admin";
 import { appRoutes } from "@/lib/routes";
@@ -21,18 +22,19 @@ export default async function PlatformInvestorDeckPage({
     <div className="mx-auto max-w-[1600px] space-y-5">
       <section className="flex flex-col gap-4 rounded-3xl border border-[var(--border)] bg-[var(--surface-base)] p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6 print:hidden">
         <div>
-          <p className="platform-kicker">MKT7 · Investor release candidate</p>
+          <p className="platform-kicker">MKT9.A · Investor refresh</p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--text-primary)] sm:text-3xl">
-            Investor Deck — MKT7 Release Candidate
+            {locale === "it" ? "Investor Deck — Nuova visione 2027" : "Investor Deck — New 2027 vision"}
           </h1>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--text-secondary)]">
             {locale === "it"
-              ? "Deck visuale evidence-aware. La versione investor-safe è ora rilasciabile tramite scope Marketing; gli asset interni MKT4–MKT6 restano separati."
-              : "Evidence-aware visual deck. The investor-safe version can now be released through the Marketing scope; internal MKT4–MKT6 assets remain separate."}
+              ? "Anteprima riservata al fondatore: nuova narrativa, AI, Network e piano di crescita. La versione MKT7 condivisa con gli investitori non cambia."
+              : "Founder-only preview: new narrative, AI, Network and growth plan. The MKT7 release shared with investors remains unchanged."}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <BusinessPlanLanguageToggle baseHref={appRoutes.platform.marketingInvestorDeck} locale={locale} />
+          <Link href={"/platform/marketing/founding-partners?lang="+locale} className="platform-secondary inline-flex min-h-11 items-center rounded-xl px-4 text-xs font-semibold">Founding Partners</Link>
           <Link
             href={appRoutes.platform.marketingVisualEvidenceQa}
             className="platform-secondary inline-flex min-h-10 items-center rounded-xl px-4 text-xs font-semibold"
@@ -48,7 +50,11 @@ export default async function PlatformInvestorDeckPage({
         </div>
       </section>
 
-      <InvestorDeckProduction locale={locale} />
+      <Mkt9InvestorDeckCandidate locale={locale} />
+      <details className="rounded-2xl border border-[var(--border)] bg-[var(--surface-base)] p-4 print:hidden">
+        <summary className="cursor-pointer text-sm font-semibold text-[var(--text-primary)]">{locale === "it" ? "Versione precedente MKT7 (confronto interno)" : "Previous MKT7 version (internal comparison)"}</summary>
+        <div className="mt-4"><InvestorDeckProduction locale={locale} /></div>
+      </details>
     </div>
   );
 }
