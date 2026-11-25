@@ -6,6 +6,7 @@ import { CommercialCalculatorQuickAccess } from "@/components/commercial-calcula
 import { CommercialDealFactBriefCopy } from "@/components/commercial-deal-fact-brief-copy";
 import { CommercialDealCycleActions } from "@/components/commercial-deal-cycle-actions";
 import { CommercialDealLabelForm } from "@/components/commercial-deal-label-form";
+import { CommercialDealDetailFocus, CommercialDealRowPending } from "@/components/commercial-deal-row-pending";
 import { dealCycleActions, outcomeText } from "@/lib/commercial-cycle";
 import {
   dealDeskHref, isDealDue,
@@ -34,6 +35,8 @@ const filters: ReadonlyArray<{ key: DealFilter; label: string }> = [
   { key: "todo", label: "Da fare" },
   { key: "waiting", label: "In attesa" },
   { key: "due", label: "In scadenza" },
+  // COMM-REVIEW1 (25 nov 2026): ordini ricevuti da oltre 30 giorni e mai confermati.
+  { key: "review", label: "Da verificare" },
   { key: "closed", label: "Archiviate" },
 ];
 const emptyCopy: Record<DealFilter | "", { title: string; body: string }> = {
@@ -43,11 +46,12 @@ const emptyCopy: Record<DealFilter | "", { title: string; body: string }> = {
   due: { title: "Niente in scadenza", body: "Nessuna richiesta aperta scade nei prossimi 7 giorni." },
   // Le bozze di distinta stanno nel Centro RFQ: qui il filtro non esiste più.
   drafts: { title: "Nessuna bozza", body: "Le distinte salvate sono nel Centro RFQ." },
+  review: { title: "Niente da verificare", body: "Qui finiscono gli ordini ricevuti da oltre 30 giorni e mai confermati: confermali o chiudili." },
   closed: { title: "Nessuna richiesta archiviata", body: "Qui compaiono le trattative vinte e quelle chiuse come non concluse, con il motivo." },
 };
 
 const actionTone: Record<CommercialDeal["bucket"], string> = {
-  todo: "text-[#8a4b00]", waiting: "text-[#3f5248]", drafts: "text-[#6f5a2a]", progress: "text-[#276147]", closed: "text-[#6b7d73]",
+  todo: "text-[#8a4b00]", waiting: "text-[#3f5248]", drafts: "text-[#6f5a2a]", progress: "text-[#276147]", review: "text-[#6b4a07]", closed: "text-[#5c7063]",
 };
 
 // Classi letterali: Tailwind le trova solo scritte per intero. Con il dettaglio
@@ -64,13 +68,14 @@ function stepState(step: CommercialDeal["steps"][number]) {
 
 function Steps({ deal, labelled = false }: { deal: CommercialDeal; labelled?: boolean }) {
   return (
-    <span className={"flex " + (labelled ? "w-full gap-1" : "gap-[3px]")} data-testid="commercial-deal-steps">
+    // COMM-REVIEW1: anche nella lista i segmenti occupano la colonna (prima 20×5 px, illeggibili).
+    <span className={"flex w-full gap-1 " + (labelled ? "" : "max-w-[180px]")} data-testid="commercial-deal-steps">
       {deal.steps.map((step) => (
-        <span key={step.label} className={labelled ? "min-w-0 flex-1" : ""} title={step.label + ": " + stepState(step)}>
-          <span aria-hidden="true" className={"block h-[5px] rounded-full " + (labelled ? "w-full " : "w-5 ") +
-            (step.done ? "bg-[#1d9e75]" : step.skipped ? "border border-dashed border-[#b9c9bf] bg-transparent" : "bg-[#d8e3dc]")} />
+        <span key={step.label} className="min-w-0 flex-1" title={step.label + ": " + stepState(step)}>
+          <span aria-hidden="true" className={"block h-1.5 w-full rounded-full " +
+            (step.done ? "bg-[#1d9e75]" : step.skipped ? "border border-dashed border-[#9fb4a7] bg-transparent" : "bg-[#d3e0d7]")} />
           {labelled ? (
-            <span className={"mt-1 block truncate text-[10px] font-semibold " + (step.done ? "text-[#1f5e45]" : "text-[#6b7d73]")}>{step.label}</span>
+            <span className={"mt-1 block truncate text-[10px] font-semibold " + (step.done ? "text-[#1f5e45]" : "text-[#4a6155]")}>{step.label}</span>
           ) : null}
           <span className="sr-only">{step.label + ": " + stepState(step) + ". "}</span>
         </span>
@@ -256,18 +261,18 @@ export async function CommercialDealsDesk({
   return (
     <div className="space-y-3" data-testid="commercial-deals-desk">
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <h1 className="mr-1 text-xl font-bold tracking-tight text-[#143f30]">Richieste d&apos;offerta</h1>
-        <span className="text-xs tabular-nums text-[#5c7063]" data-testid="commercial-deals-open-count">
+        <h1 className="mr-1 text-xl font-bold tracking-[-0.02em] text-[#0f2e23]">Richieste d&apos;offerta</h1>
+        <span className="text-xs font-semibold tabular-nums text-[#3f564a]" data-testid="commercial-deals-open-count">
           {counts.segments.sales === 1 ? "1 aperta" : counts.segments.sales + " aperte"}
         </span>
         <div className="ml-auto flex min-w-0 flex-wrap items-center gap-2">
-          <form action={appRoutes.commercial.home} method="get" role="search" className="relative min-w-0">
+          <form action={appRoutes.commercial.home} method="get" role="search" className="relative min-w-0 flex-1 sm:flex-none">
             {state.filter ? <input type="hidden" name="f" value={state.filter} /> : null}
             <label htmlFor="commercial-deals-q" className="sr-only">Cerca tra le richieste d'offerta</label>
             <span aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-[#7a9184]">⌕</span>
             <input id="commercial-deals-q" type="search" name="q" maxLength={80} defaultValue={state.query}
               placeholder="Cliente, riferimento, materiale…"
-              className="min-h-9 w-[220px] max-w-full rounded-full border border-[#d6e5db] bg-white pl-8 pr-3 text-sm text-[#143f30] placeholder:text-[#7a9184] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
+              className="min-h-9 w-full rounded-full border border-[#bfd0c5] sm:w-[300px] bg-white pl-8 pr-3 text-sm text-[#143f30] placeholder:text-[#7a9184] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640]" />
           </form>
           {canWrite ? (
             // Le richieste d'offerta arrivano dai clienti: da qui si prepara una
@@ -290,7 +295,7 @@ export async function CommercialDealsDesk({
         </div>
       </header>
 
-      <details id="commercial-assistant" className="group rounded-2xl border border-[#d6e5db] bg-white" data-testid="commercial-desk-assistant">
+      <details id="commercial-assistant" className="group rounded-2xl border border-[#bfd0c5] bg-white shadow-[0_1px_3px_rgba(15,46,35,0.08)]" data-testid="commercial-desk-assistant">
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-2 px-3 text-sm text-[#52685b] [&::-webkit-details-marker]:hidden">
           <span aria-hidden="true" className="flex h-6 w-6 items-center justify-center rounded-md bg-[#175640] text-xs !text-white">✦</span>
           <span className="font-semibold !text-[#175640]">Assistente</span>
@@ -306,12 +311,14 @@ export async function CommercialDealsDesk({
         {filters.map((option) => {
           const on = state.filter === option.key;
           const urgent = option.key === "todo" && counts.filters.todo > 0;
+          const review = option.key === "review" && counts.filters.review > 0;
           return (
             <Link key={option.key} href={dealDeskHref({ ...keep, filter: on ? "" : option.key })}
               aria-current={on ? "true" : undefined}
               className={"inline-flex min-h-8 shrink-0 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] " +
                 (on ? "border-[#175640] bg-[#175640] !text-white"
                   : urgent ? "border-[#e2c27a] bg-[#fff4d6] !text-[#6b4a07] hover:bg-[#ffedc0]"
+                  : review ? "border-dashed border-[#c9a85a] bg-white !text-[#6b4a07] hover:bg-[#fffaf0]"
                   : "border-[#d6e5db] bg-white !text-[#3f5c4c] hover:bg-[#f2f8f4]")}>
               {option.label}
               {option.key !== "closed" ? <span className="tabular-nums">{counts.filters[option.key]}</span> : null}
@@ -342,9 +349,9 @@ export async function CommercialDealsDesk({
       ) : null}
 
       <section id="commercial-worklist" aria-label="Elenco richieste d'offerta" className="scroll-mt-28">
-        <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,.9fr)]" : "min-w-0"}>
-          <div className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-2xl border border-[#dce7e0] bg-white"} data-testid="commercial-deals-list">
-            <div aria-hidden="true" className={"hidden border-b border-[#e4ece7] bg-[#f7faf8] px-4 py-2 text-[11px] font-semibold text-[#5c7063] " + columns}>
+        <div className={active ? "grid min-w-0 items-start gap-4 lg:grid-cols-[minmax(0,1fr)_380px]" : "min-w-0"}>
+          <div className={(active ? "hidden lg:block " : "") + "min-w-0 overflow-hidden rounded-2xl border border-[#bfd0c5] bg-white shadow-[0_1px_3px_rgba(15,46,35,0.08)]"} data-testid="commercial-deals-list">
+            <div aria-hidden="true" className={"hidden border-b border-[#d3e0d7] bg-[#f3f8f5] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.06em] text-[#1a5144] " + columns}>
               <span>Richiesta</span><span>Cliente · materiale</span><span>Fase</span><span>Prossima azione</span>
             </div>
             {shown.length ? (
@@ -355,15 +362,18 @@ export async function CommercialDealsDesk({
                   const selected = deal.key === active?.key;
                   return (
                     <li key={deal.key}>
-                      <Link href={dealDeskHref({ ...keep, page, item: deal.key }, "commercial-detail")}
+                      {/* COMM-REVIEW1: niente salto di pagina al clic (da desktop il dettaglio è accanto);
+                          su mobile lo porta in vista CommercialDealDetailFocus. */}
+                      <Link href={dealDeskHref({ ...keep, page, item: deal.key }, "")} scroll={false}
                         aria-current={selected ? "true" : undefined}
                         data-testid="commercial-deal-row"
-                        className={"group flex min-w-0 flex-col gap-1 border-b border-[#edf2ef] px-4 py-3 transition-colors last:border-b-0 hover:bg-[#f5faf7] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#175640] " +
-                          columns + " " + (selected ? "bg-[#edf6f0]" : "")}>
+                        className={"group relative flex min-w-0 cursor-pointer flex-col gap-1 border-b border-[#e4ece7] px-4 py-3 transition-colors last:border-b-0 hover:bg-[#f2f8f4] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#175640] " +
+                          columns + " " + (selected ? "bg-[#e7f3ec] shadow-[inset_4px_0_0_#175640]" : "")}>
+                        <CommercialDealRowPending />
                         {/* Richiesta: cosa chiede il cliente (prodotto dalle righe) e come è arrivata. */}
                         <span className="min-w-0">
                           <span className="block truncate text-sm font-semibold text-[#143f30]">{deal.title}</span>
-                          <span className="mt-0.5 block truncate text-xs tabular-nums text-[#5c7063]">
+                          <span className="mt-0.5 block truncate text-xs tabular-nums text-[#3f564a]">
                             {[deal.reference, deal.origin].filter(Boolean).join(" · ")}
                           </span>
                         </span>
@@ -372,11 +382,11 @@ export async function CommercialDealsDesk({
                           {deal.counterparty
                             ? <span className="block truncate text-sm font-medium text-[#173f35]">{deal.counterparty}</span>
                             : <span className="block truncate text-sm font-semibold text-[#8a4b00]" data-testid="commercial-deal-unlinked">Cliente da collegare</span>}
-                          <span className="block truncate text-xs text-[#5c7063]">{[deal.material, deal.quantity].filter(Boolean).join(" · ") || "Materiale da leggere nel dettaglio"}</span>
+                          <span className="block truncate text-xs text-[#3f564a]">{[deal.material, deal.quantity].filter(Boolean).join(" · ") || "Materiale da leggere nel dettaglio"}</span>
                         </span>
                         {/* Fase: dove siamo, in parole, e il percorso Richiesta → Offerta → Ordine → Consegna. */}
-                        <span className="flex min-w-0 flex-col gap-1">
-                          <span className="truncate text-xs font-semibold text-[#3f5248]">{deal.stage}</span>
+                        <span className="flex min-w-0 flex-col gap-1.5">
+                          <span className="truncate text-[13px] font-semibold text-[#173f35]">{deal.stage}</span>
                           <Steps deal={deal} />
                         </span>
                         {/* Prossima azione: cosa fare e da quanto aspetta. */}
@@ -385,7 +395,7 @@ export async function CommercialDealsDesk({
                             <span className="truncate">{outcomeText(deal.outcome) || deal.action}</span>
                             {deal.bucket === "todo" ? <span aria-hidden="true" className="shrink-0 transition group-hover:translate-x-0.5">→</span> : null}
                           </span>
-                          <span className={"block truncate text-xs tabular-nums " + (dueSoon ? "font-semibold text-[#9a3412]" : "text-[#5c7063]")}>
+                          <span className={"block truncate text-xs tabular-nums " + (dueSoon ? "font-semibold text-[#9a3412]" : "text-[#3f564a]")}>
                             {due ?? sinceText(deal, now)}
                           </span>
                         </span>
@@ -421,7 +431,8 @@ export async function CommercialDealsDesk({
 
           {active ? (
             <aside id="commercial-detail" aria-label="Dettaglio richiesta d'offerta"
-              className="min-w-0 scroll-mt-24 rounded-2xl border border-[#dce7e0] bg-white p-4 lg:sticky lg:top-20 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto">
+              className="min-w-0 scroll-mt-24 rounded-2xl border border-[#bfd0c5] bg-white shadow-[0_1px_3px_rgba(15,46,35,0.08)] p-4 lg:sticky lg:top-24 lg:max-h-[calc(100dvh-7rem)] lg:overflow-y-auto">
+              <CommercialDealDetailFocus targetId="commercial-detail" itemKey={active.key} />
               <Link href={dealDeskHref({ ...keep, page })} className="mb-3 inline-flex min-h-9 items-center text-xs font-semibold !text-[#175640] lg:hidden">← Richieste d&apos;offerta</Link>
               <DealDetail deal={active} state={{ ...state, page }} canWrite={canWrite} />
             </aside>

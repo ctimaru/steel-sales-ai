@@ -17,9 +17,10 @@ import type { DealCycleState, DealOutcome } from "./commercial-cycle.ts";
 
 export type DealSide = "sales" | "purchase";
 export type DealSegment = "all" | DealSide;
-export type DealFilter = "todo" | "waiting" | "due" | "drafts" | "closed";
+export type DealFilter = "todo" | "waiting" | "due" | "drafts" | "review" | "closed";
 /** Dove sta la trattativa adesso. «due» non è un bucket: è una scadenza sopra un bucket aperto. */
-export type DealBucket = "todo" | "waiting" | "drafts" | "progress" | "closed";
+/** «review» (COMM-REVIEW1): ordine ricevuto da oltre 30 giorni e mai confermato, fuori da «Da fare». */
+export type DealBucket = "todo" | "waiting" | "drafts" | "progress" | "review" | "closed";
 export type DealKind = "inbound-rfq" | "inbound-offer" | "inbound-order" | "campaign" | "distinta";
 /** «skipped»: the step did not happen and never will (an order that came without a request). */
 export type DealStep = { label: string; done: boolean; skipped?: boolean };
@@ -63,6 +64,8 @@ export type CommercialDeal = {
 };
 
 export const DEAL_DUE_WINDOW_DAYS = 7;
+/** COMM-REVIEW1 (25 nov 2026): stessa soglia dell'indice SQL (interval '30 days'). */
+export const DEAL_REVIEW_AFTER_DAYS = 30;
 const DAY = 86_400_000;
 
 type Row = Record<string, unknown>;
@@ -153,7 +156,13 @@ function buildSalesDeal(input: SalesInput, routes: DealRoutes): CommercialDeal |
   if (order) {
     const s = text(order.status);
     stage = "Ordine " + label(orderStatus, s).toLocaleLowerCase("it-IT");
-    if (s === "received") { action = "Conferma l'ordine"; bucket = "todo"; }
+    if (s === "received") {
+      // COMM-REVIEW1: registrato da oltre 30 giorni e mai confermato = da verificare.
+      const receivedAt = Date.parse(text(order.created_at));
+      const stale = Number.isFinite(receivedAt) && receivedAt < Date.now() - DEAL_REVIEW_AFTER_DAYS * DAY;
+      if (stale) { action = "Verifica: conferma o chiudi"; bucket = "review"; }
+      else { action = "Conferma l'ordine"; bucket = "todo"; }
+    }
     else if (s === "delivered") { action = "Consegnato"; bucket = "closed"; }
     else if (s === "cancelled") { action = "Ordine annullato"; bucket = "closed"; }
     else if (s === "shipped") { action = "In consegna"; bucket = "progress"; }
@@ -381,7 +390,8 @@ export function dealUrgency(deal: CommercialDeal, now = Date.now()): number {
   if (deal.bucket === "waiting") return due ? 2 : 4;
   if (deal.bucket === "drafts") return 3;
   if (deal.bucket === "progress") return 5;
-  return 6;
+  if (deal.bucket === "review") return 6;
+  return 7;
 }
 
 export function sortDeals(deals: readonly CommercialDeal[], now = Date.now()): CommercialDeal[] {
@@ -424,6 +434,7 @@ export function countDeals(deals: readonly CommercialDeal[], segment: DealSegmen
       waiting: inSegment.filter((d) => d.bucket === "waiting").length,
       due: inSegment.filter((d) => isDealDue(d, now)).length,
       drafts: inSegment.filter((d) => d.bucket === "drafts").length,
+      review: inSegment.filter((d) => d.bucket === "review").length,
       closed: inSegment.filter((d) => d.bucket === "closed").length,
     },
   };
@@ -446,7 +457,7 @@ export type DealDeskState = { segment: DealSegment; filter: DealFilter | ""; que
 export function parseDealDeskState(params: Record<string, string | undefined>): DealDeskState {
   const seg = params.seg === "sales" || params.seg === "purchase" ? params.seg :
     params.view === "received" ? "sales" : params.view === "sent" ? "purchase" : "all";
-  const filters: readonly DealFilter[] = ["todo", "waiting", "due", "drafts", "closed"];
+  const filters: readonly DealFilter[] = ["todo", "waiting", "due", "drafts", "review", "closed"];
   const legacyFocus: Record<string, DealFilter> = { reply: "todo", waiting: "waiting", due: "due" };
   const filter: DealFilter | "" = filters.includes(params.f as DealFilter) ? params.f as DealFilter :
     params.view === "drafts" ? "drafts" : legacyFocus[params.focus ?? ""] ?? "";
@@ -522,7 +533,7 @@ export function parseDealIndex(value: unknown): DealIndex | null {
       segments: { all: count(segmentsRaw.all), sales: count(segmentsRaw.sales), purchase: count(segmentsRaw.purchase) },
       filters: {
         todo: count(filtersRaw.todo), waiting: count(filtersRaw.waiting), due: count(filtersRaw.due),
-        drafts: count(filtersRaw.drafts), closed: count(filtersRaw.closed),
+        drafts: count(filtersRaw.drafts), review: count(filtersRaw.review), closed: count(filtersRaw.closed),
       },
     },
   };
