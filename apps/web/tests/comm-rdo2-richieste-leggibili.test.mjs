@@ -51,7 +51,9 @@ test("ordine diretto: prodotto, ORD-, cliente da collegare, fasi saltate, data d
     // COMM-CYCLE1: Richiesta → Trattativa → Offerta → Ordine.
     ["Richiesta", false, true], ["Trattativa", false, true], ["Offerta", false, true], ["Ordine", true, false],
   ]);
-  assert.equal(deal.action, "Conferma l'ordine");
+  // COMM-REVIEW1: registrato il 22 set e mai confermato = più di 30 giorni fa → da verificare.
+  assert.equal(deal.action, "Verifica: conferma o chiudi");
+  assert.equal(deal.bucket, "review");
 });
 
 test("richiesta senza azienda: si usa il contatto; la ricerca ORD-/OFF- trova l'indice RDO-", () => {
