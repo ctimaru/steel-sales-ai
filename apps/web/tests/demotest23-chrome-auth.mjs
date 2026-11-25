@@ -348,7 +348,8 @@ try {
 
     await step(p.id + " Marketplace access in own session", async () => {
       await navigate(page, "/marketplace");
-      await page.getByRole("heading", { name: "Compra o vendi, in un unico spazio" })
+      // MKT-VISION1 (24 Nov 2026): the Marketplace entry page now illustrates the vision.
+      await page.getByRole("heading", { level: 1, name: /Il mercato dell.acciaio e del tubo, dalla richiesta all.ordine/ })
         .waitFor({ state: "visible", timeout: 60000 });
       const body = await page.locator("body").innerText();
       assert.ok(body.includes("Marketplace"));
