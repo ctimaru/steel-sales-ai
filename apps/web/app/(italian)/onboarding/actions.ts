@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
+import { normalizeTeamProfile, teamAccessFor } from "@/lib/office-profiles";
 import { createClient } from "@/lib/supabase/server";
 import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 
@@ -149,8 +150,12 @@ export async function inviteMember(formData: FormData) {
       encodeURIComponent("Solo un admin può invitare utenti."),
   );
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
-  const role = String(formData.get("role") ?? "member");
-  const businessRole =
+  // TEAM-PROFILES2: «Team e profili» invia un solo «Profilo» (+ sola lettura);
+  // l'onboarding continua a inviare permesso e ruolo separati.
+  const profile = normalizeTeamProfile(formData.get("profile"));
+  const access = profile ? teamAccessFor(profile, formData.get("read_only") === "on") : null;
+  const role = access ? access.role : String(formData.get("role") ?? "member");
+  const businessRole = access ? access.businessRole :
     String(formData.get("business_role") ?? "").trim() || null;
 
   await sendInvitation({
@@ -248,6 +253,43 @@ export async function changeMemberBusinessRole(formData: FormData) {
 
   revalidateTeam();
   teamRedirect(returnTo, "Ruolo commerciale aggiornato.");
+}
+
+/**
+ * TEAM-PROFILES2: un solo «Profilo» per persona. Prima il permesso (se è
+ * l'ultimo amministratore il database rifiuta e nulla cambia), poi l'ufficio.
+ * Il proprio accesso non si cambia da qui.
+ */
+export async function changeMemberProfile(formData: FormData) {
+  const returnTo = teamReturnPath(formData.get("return_to"));
+  const context = await requireWorkspaceAdmin(
+    "/onboarding?error=" +
+      encodeURIComponent("Solo la Direzione può modificare i profili."),
+  );
+  const userId = String(formData.get("user_id") ?? "");
+  const profile = normalizeTeamProfile(formData.get("profile"));
+  if (!profile || !userId) teamRedirect(returnTo, "Scegli un profilo valido.", "error");
+  if (userId === context.userId) teamRedirect(returnTo, "Il tuo profilo lo cambia un'altra persona della Direzione.", "error");
+  const access = teamAccessFor(profile, formData.get("read_only") === "on");
+  const supabase = await createClient();
+
+  const roleResult = await supabase.rpc("set_organization_member_role", {
+    p_organization_id: context.organizationId,
+    p_user_id: userId,
+    p_role: access.role,
+  });
+  if (roleResult.error) teamRedirect(returnTo, safeErrorMessage(roleResult.error, "Operazione non completata. Aggiorna la pagina e riprova."), "error");
+
+  const businessResult = await supabase.rpc("set_organization_member_business_role", {
+    p_organization_id: context.organizationId,
+    p_user_id: userId,
+    p_business_role: access.businessRole,
+  });
+  if (businessResult.error) teamRedirect(returnTo, safeErrorMessage(businessResult.error, "Operazione non completata. Aggiorna la pagina e riprova."), "error");
+
+  revalidateTeam();
+  revalidatePath("/commercial/direzione");
+  teamRedirect(returnTo, "Profilo aggiornato.");
 }
 
 export async function changeMemberStatus(formData: FormData) {

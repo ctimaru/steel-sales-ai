@@ -73,3 +73,42 @@ export function businessRoleLabel(role: string | null | undefined): string {
   if (business === "operations") return "Operations";
   return "Non assegnato";
 }
+
+// ── TEAM-PROFILES2 (founder decisions, 26 nov 2026) ───────────────────────────
+// Nella pagina «Team e profili» c'è un solo campo «Profilo»: Direzione aziendale
+// (= amministratore), Ufficio commerciale, Ufficio acquisti. «Sola lettura» è
+// un'opzione a parte. «Direzione commerciale» e «Operations» non si assegnano
+// più: chi li ha già li vede come «vecchio profilo» finché la Direzione non
+// sceglie un ufficio. Nessun accesso cambia senza una scelta esplicita.
+
+export const TEAM_PROFILE_CHOICES = ["direction", "commercial", "purchasing"] as const;
+export type TeamProfileChoice = (typeof TEAM_PROFILE_CHOICES)[number];
+/** Profilo mostrato in «Team e profili»; «legacy» = vecchio profilo, null = da assegnare. */
+export type TeamProfile = TeamProfileChoice | "legacy" | null;
+
+export function normalizeTeamProfile(value: unknown): TeamProfileChoice | null {
+  return typeof value === "string" && (TEAM_PROFILE_CHOICES as readonly string[]).includes(value)
+    ? (value as TeamProfileChoice)
+    : null;
+}
+
+export function teamProfileOf(role: string, businessRole: string | null | undefined): TeamProfile {
+  if (canAdministerCompany(role)) return "direction";
+  const business = normalizeBusinessRole(businessRole);
+  if (business === "salesperson") return "commercial";
+  if (business === "purchasing") return "purchasing";
+  if (business === "sales_director" || business === "operations") return "legacy";
+  return null;
+}
+
+/** Permesso e ruolo da salvare per il profilo scelto. La Direzione non è mai in sola lettura. */
+export function teamAccessFor(profile: TeamProfileChoice, readOnly: boolean): { role: "admin" | "member" | "viewer"; businessRole: BusinessRole | null } {
+  if (profile === "direction") return { role: "admin", businessRole: null };
+  return { role: readOnly ? "viewer" : "member", businessRole: profile === "commercial" ? "salesperson" : "purchasing" };
+}
+
+export const teamProfileHints: Record<TeamProfileChoice, string> = {
+  direction: "vede la Scrivania della Direzione, approva e assegna i profili",
+  commercial: "modifica richieste d'offerta e clienti, consulta gli acquisti",
+  purchasing: "modifica Centro RFQ e fornitori, consulta le vendite",
+};
