@@ -509,6 +509,79 @@ def _priority_links(home: CrawledPage) -> list[str]:
     return output
 
 
+# First-party locality evidence is deliberately narrower than generic page text.
+# Preserve the observed spelling and punctuation; ISTAT and the existing
+# geographic publisher decide whether a locality may be released.
+_IT_CONTACT_PATH = re.compile(r"(?:^|/)(?:contatti|contatto|contact|contacts|contact-us|contatti-[a-z0-9-]+|dove-siamo|sedi|locations)(?:[/.]|$)", re.I)
+_IT_ADDRESS = re.compile(
+    r"(?<![\w])(?P<street>(?i:via|viale|corso|piazza|strada|vicolo|contrada)\s+"
+    r"[A-Za-zÀ-ÖØ-öø-ÿ'’.\- ]{2,65}?,?\s+(?:n[.°]?\s*)?\d{1,4}(?:[/\-][A-Za-z0-9]{1,4})?)"
+    r"\s*[,;–—\-]?\s*(?P<postal>[0-9]{5})\s*[-–—]?\s+"
+    r"(?P<city>[A-Za-zÀ-ÖØ-öø-ÿ'’ -]{2,45}?)\s*"
+    r"\((?P<province>[A-Z]{2})\)(?!\w)"
+)
+_IT_THIRD_PARTY = re.compile(r"\b(?:cliente|clienti|customer|partner|rivenditore|rivenditori|fornitore|fornitori|supplier|dealer|cantiere|evento|fiera)\b", re.I)
+
+
+def _it_contact_page(url: str) -> bool:
+    path = urlsplit(url).path
+    return path in ("", "/", "/it", "/it/", "/en", "/en/") or bool(_IT_CONTACT_PATH.search(path))
+
+
+def _it_priority_links(home: CrawledPage) -> list[str]:
+    """Reserve at most one existing page slot for an explicitly linked contact page."""
+    ordinary = _priority_links(home)
+    for href in home.links:
+        try:
+            target = canonicalize_seed_url(urljoin(home.url, href))
+            parsed = urlsplit(target)
+        except (CompanyDiscoveryError, ValueError):
+            continue
+        if (parsed.scheme != "https" or parsed.query or parsed.fragment
+                or canonical_domain(target) != canonical_domain(home.url)
+                or not _IT_CONTACT_PATH.search(parsed.path) or target == home.url):
+            continue
+        return ([target] + [u for u in ordinary if u != target])[:MAX_PAGES_PER_DOMAIN - 1]
+    return ordinary
+
+
+def _it_text_localities(pages: list[CrawledPage], domain: str) -> list[dict[str, str]]:
+    """Read actual bounded address excerpts; never manufacture a province or city.
+
+    Home/contact pages only; a street, civic number, CAP, city and explicit
+    province must occur together. Return all distinct localities so ambiguity
+    is visible. This is evidence collection, not an address approval.
+    """
+    found: dict[tuple[str, str, str, str], dict[str, str]] = {}
+    for page in pages[:MAX_PAGES_PER_DOMAIN]:
+        try:
+            parsed = urlsplit(page.url)
+            if (parsed.scheme != "https" or parsed.query or parsed.fragment
+                    or parsed.username or parsed.password
+                    or canonical_domain(page.url) != domain or not _it_contact_page(page.url)):
+                continue
+        except ValueError:
+            continue
+        # Fetched page.text is normalized visible text, not script or metadata.
+        for match in _IT_ADDRESS.finditer(page.text[:MAX_TEXT_CHARS_PER_PAGE]):
+            context = page.text[max(0, match.start() - 100):match.start()]
+            if _IT_THIRD_PARTY.search(context):
+                continue
+            excerpt = match.group(0)
+            # The strict match contains only street, civic, CAP, city and province.
+            # Generic phone redaction would also erase civic + CAP digits.
+            if len(excerpt) > 250:
+                continue
+            city = match["city"].strip(" -")
+            if not city:
+                continue
+            key = (match["postal"], city.casefold(), match["province"], match["street"].casefold())
+            found.setdefault(key, {"city": city, "province_code": match["province"],
+                "postal_code": match["postal"], "source_url": page.url,
+                "source_excerpt": excerpt})
+    return list(found.values())
+
+
 def _redact_personal_channels(value: str) -> str:
     value = re.sub(
         r"\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b",
@@ -1214,6 +1287,21 @@ def extract_candidate(pages: list[CrawledPage], country_code: str) -> dict[str, 
             "title": page.title,
             "snippet": snippet,
         })
+
+    if country_code.upper() == "IT":
+        localities = _it_text_localities(pages, domain)
+        # Do not add a preferred locality when the official pages disagree.
+        # Existing structured location evidence must also be compatible.
+        if len(localities) == 1:
+            loc = localities[0]
+            compatible = all(
+                (not f.get("city") or str(f["city"]).strip().casefold() == loc["city"].casefold())
+                and (not f.get("province_code") or str(f["province_code"]).upper() == loc["province_code"])
+                for f in facility_candidates
+            )
+            if compatible and not any(loc["source_excerpt"] in str(e.get("snippet", "")) for e in evidence):
+                evidence.append({"url": loc["source_url"], "title": None,
+                                 "snippet": loc["source_excerpt"]})
 
     return {
         "source_url": pages[0].url,
