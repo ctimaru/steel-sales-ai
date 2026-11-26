@@ -255,6 +255,9 @@ export function getWorkspaceNavigationContext(
   if (
     isAnyPath(pathname, [
       appRoutes.commercial.home,
+      // TEAM-PROFILES2 (26 Nov 2026): «Team e profili» is a voice of Direzione
+      // aziendale, so the Commerciale sidebar stays visible there.
+      appRoutes.company.team,
       legacyRoutes.search,
       legacyRoutes.products,
       legacyRoutes.customers,

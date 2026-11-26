@@ -23,6 +23,8 @@ export const metadata: Metadata = { title: "Scrivania della Direzione", robots: 
 // aspetta una decisione (approvazioni, senza responsabile con scadenza), poi gli
 // uffici con il valore come titolo e la barra degli stati, poi il carico del
 // team. I quattro riquadri numerici sono assorbiti dalle schede degli uffici.
+// TEAM-PROFILES2: niente pulsante «Team e profili» nell'intestazione, è già
+// la voce successiva del menu di Direzione aziendale.
 
 const CARD = "rounded-2xl border border-[#bfd0c5] bg-white shadow-[0_1px_3px_rgba(15,46,35,0.08)]";
 const COUNT = "rounded-full px-2 py-px text-xs font-bold tabular-nums";
@@ -132,10 +134,6 @@ export default async function DirectorDeskPage() {
             ) : "Niente aspetta una tua decisione: ogni pratica aperta ha un responsabile."}
           </p>
         </div>
-        <Link href={appRoutes.company.team}
-          className="inline-flex min-h-10 items-center rounded-full border border-[#7a9585] bg-white px-4 text-sm font-semibold !text-[#175640] hover:border-[#175640] hover:bg-[#f2f8f4]">
-          Team e profili
-        </Link>
       </header>
 
       {unavailable || desk.truncated ? (

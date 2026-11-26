@@ -15,7 +15,7 @@ test("UXM1 gives team management a canonical company route", () => {
   assert.match(routes, /team: "\/company\/team"/);
   assert.match(team, /hp8_team_state/);
   assert.match(team, /return_to/);
-  assert.match(team, /Team e accessi/);
+  assert.match(team, /Team e profili/);
   assert.match(actions, /revalidatePath\("\/company\/team"\)/);
 });
 
@@ -26,7 +26,7 @@ test("UXM1 keeps the avatar drawer focused on company, account and privileged Pl
   assert.doesNotMatch(menu, /Importa documenti/);
   assert.doesNotMatch(menu, /Revisioni dati/);
   assert.match(menu, /Profilo azienda/);
-  assert.match(menu, /Team e accessi/);
+  assert.match(menu, /Team e profili/);
   assert.match(menu, /Dati e fonti/);
   assert.match(menu, /Account e privacy/);
   assert.doesNotMatch(menu, /Pilot analytics/);

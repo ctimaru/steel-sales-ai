@@ -129,7 +129,7 @@ test("HP8 member access lifecycle remains admin governed", () => {
 
 test("HP8 keeps team administration reachable on a canonical Company route", () => {
   assert.match(routes, /team: "\/company\/team"/);
-  assert.match(navigation, /Team e accessi/);
+  assert.match(navigation, /Team e profili/); // TEAM-PROFILES2: stesso nome del menu Direzione aziendale
   assert.match(teamPage, /hp8_team_state/);
   assert.match(teamPage, /Invita una persona/);
   assert.match(onboarding, /id="team-access"/);

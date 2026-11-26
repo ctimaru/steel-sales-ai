@@ -13,6 +13,7 @@ const compiled = ts.transpileModule(
 ).outputText;
 const {
   canReadOffice, canWriteOffice, canManageOfficeProfiles, officeProfileOf, businessRoleLabel,
+  normalizeTeamProfile, teamProfileOf, teamAccessFor,
 } = await import("data:text/javascript;base64," + Buffer.from(compiled).toString("base64"));
 
 test("OFFICE-PROFILES1 every profile consults both offices", () => {
@@ -58,7 +59,8 @@ test("OFFICE-PROFILES1 wiring: migration, worker, team UI and RFQ chat respect t
   assert.doesNotMatch(migration, /create policy|alter policy|drop policy|enable row level security/i,
     "Profiles migration must not touch RLS");
   assert.match(read("../../../services/worker/app/tenant_admin.py"), /"purchasing"/);
-  assert.match(read("../app/(italian)/(workspace)/company/team/page.tsx"), /value="purchasing">Ufficio acquisti/);
+  // TEAM-PROFILES2: un solo campo «Profilo» con i tre uffici.
+  assert.match(read("../app/(italian)/(workspace)/company/team/page.tsx"), /\{ value: "purchasing", label: officeProfileLabels\.purchasing \}/);
   const page = read("../app/(italian)/(workspace)/marketplace/rfq-hub/[rfqId]/page.tsx");
   assert.match(page, /canWriteOffice\(workspace\.role, workspace\.businessRole, "purchasing"\)/);
   assert.match(page, /purchasingWrite &&/);
@@ -81,4 +83,47 @@ test("OFFICE-PROFILES1 wiring: migration, worker, team UI and RFQ chat respect t
       assert.ok(guardAt > 0 && guardAt < 1400, fn + " must check the office profile first");
     }
   }
+});
+
+// TEAM-PROFILES2 (founder decisions, 26 nov 2026): un solo «Profilo» in Team e profili.
+test("TEAM-PROFILES2 one Profilo field: Direzione = admin, offices = member/viewer + business role", () => {
+  assert.equal(teamProfileOf("admin", null), "direction");
+  assert.equal(teamProfileOf("admin", "salesperson"), "direction");
+  assert.equal(teamProfileOf("member", "salesperson"), "commercial");
+  assert.equal(teamProfileOf("viewer", "purchasing"), "purchasing");
+  assert.equal(teamProfileOf("member", "sales_director"), "legacy", "old profiles are shown, never silently mapped");
+  assert.equal(teamProfileOf("member", "operations"), "legacy");
+  assert.equal(teamProfileOf("member", null), null);
+
+  assert.deepEqual(teamAccessFor("direction", true), { role: "admin", businessRole: null }, "Direzione is never read-only");
+  assert.deepEqual(teamAccessFor("commercial", false), { role: "member", businessRole: "salesperson" });
+  assert.deepEqual(teamAccessFor("purchasing", true), { role: "viewer", businessRole: "purchasing" });
+
+  assert.equal(normalizeTeamProfile("purchasing"), "purchasing");
+  assert.equal(normalizeTeamProfile("sales_director"), null, "old profiles can no longer be assigned");
+  assert.equal(normalizeTeamProfile("operations"), null);
+  assert.equal(normalizeTeamProfile(undefined), null);
+});
+
+test("TEAM-PROFILES2 page and actions: one form per person, self protected, sidebar kept", () => {
+  const page = read("../app/(italian)/(workspace)/company/team/page.tsx");
+  assert.doesNotMatch(page, /value="sales_director"|value="operations"/, "old profiles are not offered");
+  assert.match(page, /title: "Team e profili"/);
+  assert.match(page, /<TeamMemberProfileForm/);
+  assert.match(page, /Sospendi accesso/);
+  for (const id of ["team-group-assign", "team-group-", "team-invitations", "team-invite"]) assert.ok(page.includes(id), id);
+  const form = read("../components/team-member-profile-form.tsx");
+  assert.match(form, /^"use client";/);
+  assert.match(form, /action=\{changeMemberProfile\}/);
+  assert.match(form, /const changed = value !== current && value !== "";/);
+  const actions = read("../app/(italian)/onboarding/actions.ts");
+  assert.match(actions, /export async function changeMemberProfile/);
+  assert.match(actions, /if \(userId === context\.userId\) teamRedirect/);
+  assert.ok(actions.indexOf('"set_organization_member_role", {\n    p_organization_id: context.organizationId,\n    p_user_id: userId,\n    p_role: access.role')
+    < actions.indexOf("p_business_role: access.businessRole"), "permission first: last-admin guard stops before any change");
+  assert.match(actions, /const profile = normalizeTeamProfile\(formData\.get\("profile"\)\);/);
+  const ia = read("../lib/workspace-information-architecture.ts");
+  assert.match(ia, /appRoutes\.commercial\.home,\n\s*\/\/ TEAM-PROFILES2[^\n]*\n[^\n]*\n\s*appRoutes\.company\.team,/);
+  const desk = read("../app/(italian)/(workspace)/commercial/direzione/page.tsx");
+  assert.doesNotMatch(desk, />\s*Team e profili\s*</, "no duplicate Team e profili button on the Scrivania");
 });

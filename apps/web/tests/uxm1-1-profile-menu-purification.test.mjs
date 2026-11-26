@@ -39,7 +39,7 @@ test("UXM1.1 removes operational actions from the profile drawer", () => {
   assert.doesNotMatch(menu, /label="Importa documenti"/);
   assert.doesNotMatch(menu, /label="Revisioni dati"/);
   assert.match(menu, /Profilo azienda/);
-  assert.match(menu, /Team e accessi/);
+  assert.match(menu, /Team e profili/);
   assert.match(menu, /Dati e fonti/);
   assert.match(menu, /Account e privacy/);
 });
