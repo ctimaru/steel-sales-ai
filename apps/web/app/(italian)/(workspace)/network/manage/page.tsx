@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { DenseDisclosure } from "@/components/dense-ui";
+import { CompanyWorkspaceNavigation } from "@/components/company-workspace-navigation";
 import { NetworkInventoryManager } from "@/components/network-inventory-manager";
 import { getManagedNetworkInventory } from "@/lib/network-stock";
 import { redirect } from "next/navigation";
@@ -164,23 +164,6 @@ function ScopeProvenanceBadge({
   );
 }
 
-function CompletenessItem({
-  label,
-  complete,
-}: {
-  label: string;
-  complete: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-xl border border-[#e6ebe8] bg-[#fafbfa] px-3 py-2.5">
-      <span className="text-sm text-[#4f5d57]">{label}</span>
-      <span className={complete ? "text-xs font-bold text-emerald-700" : "text-xs font-bold text-[#8b9792]"}>
-        {complete ? "Completo" : "Da completare"}
-      </span>
-    </div>
-  );
-}
-
 export default async function ManagedNetworkProfilePage({
   searchParams,
 }: {
@@ -229,114 +212,115 @@ export default async function ManagedNetworkProfilePage({
     state.company.logo_updated_at,
   );
 
-  return (
-    <div className="uxf2-dense-page mx-auto max-w-[1180px] space-y-5 pb-16">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
-          ← Torna alla ricerca
-        </Link>
-        <Link href="/network/manage/cataloghi" className={primaryButton}>
-          Cataloghi produttore
-        </Link>
-        <Link href="/network/start" className={secondaryButton}>Il mio percorso →</Link>
-        <Link href={"/network/" + companyId} className={secondaryButton}>
-          Visualizza profilo pubblico
-        </Link>
+  const companyName = state.company.trading_name || state.company.legal_name;
+  const primaryRole = state.roles.find((role) => role.is_primary)?.name;
+  const initials = companyName.trim().split(/\s+/).slice(0, 2).map((word) => word[0]?.toUpperCase()).join("") || "SS";
+  const publicationStatus = state.company.publication_status;
+  const publicationLabel = publicationStatus === "published" ? "Pubblicato nel Network" : publicationStatus === "pending_review" ? "In attesa di revisione" : publicationStatus === "draft" ? "Bozza" : "Non pubblicato";
+  const checklist = [
+    { label: "Identità aziendale", id: "overview", done: completeness.identity },
+    { label: "Prodotti", id: "products", done: completeness.products },
+    { label: "Sedi operative", id: "facilities", done: completeness.facilities },
+    { label: "Capacità industriali", id: "facilities", done: completeness.capabilities },
+    { label: "Mercati e settori", id: "markets", done: completeness.markets },
+    { label: "Certificazioni", id: "certifications", done: completeness.certifications },
+    { label: "Disponibilità alle richieste", id: "inquiries", done: completeness.inquiry_readiness },
+  ];
+
+  const summary = (
+    <section id="summary" className="min-w-0 space-y-4" aria-label="Riepilogo azienda">
+      <div className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#1a5144]">Company workspace</p>
+        <h2 className="mt-1 text-xl font-semibold text-[#1d2824] sm:text-2xl">La tua azienda nel Network</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66736e]">Gestisci le informazioni industriali, la visibilità commerciale e i dati che possono essere consultati dalle altre aziende.</p>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="min-w-0 rounded-xl border border-[#e0e8e3] bg-[#f7faf8] p-4">
+            <p className="text-xs font-semibold text-[#52645b]">Completezza profilo</p>
+            <div className="mt-1 flex flex-wrap items-baseline justify-between gap-2">
+              <p className="text-3xl font-semibold tabular-nums text-[#1d2824]">{state.completeness.percentage}%</p>
+              <p className="text-xs text-[#66736e]">{state.completeness.passed_sections}/{state.completeness.total_sections} sezioni</p>
+            </div>
+            <progress aria-label="Completezza profilo" value={state.completeness.percentage} max={100} className="mt-3 h-2 w-full overflow-hidden rounded-full accent-[#1a5144]" />
+            <p className="mt-2 text-xs text-[#66736e]">Non è un punteggio di affidabilità.</p>
+          </div>
+          <div className="min-w-0 rounded-xl border border-[#e0e8e3] bg-[#f7faf8] p-4">
+            <p className="text-xs font-semibold text-[#52645b]">Richieste dal Network</p>
+            <p className="mt-2 text-lg font-semibold text-[#1d2824]">{inquiryPreferences.inquiries_enabled ? "Inquiry abilitate" : "Inquiry disabilitate"}</p>
+            <p className="mt-2 text-xs leading-5 text-[#66736e]">Preferenza di contatto, distinta dallo stato di pubblicazione.</p>
+            <a href="#inquiries" className="mt-2 inline-block text-xs font-semibold text-[#1a5144] underline underline-offset-2">Gestisci preferenze</a>
+          </div>
+        </div>
+        <dl className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {[["Prodotti", state.products.length, "products"], ["Sedi", state.facilities.length, "facilities"], ["Mercati", state.markets.length, "markets"], ["Certificazioni", state.certifications.length, "certifications"]].map(([label, value, id]) => (
+            <div key={id} className="min-w-0 rounded-xl border border-[#e0e8e3] p-3">
+              <dt className="break-words text-xs text-[#66736e]">{label}</dt>
+              <dd className="mt-1 text-xl font-semibold tabular-nums text-[#1d2824]">{value}</dd>
+              <a href={"#" + id} className="mt-1 inline-block text-xs font-semibold text-[#1a5144] underline underline-offset-2">Gestisci</a>
+            </div>
+          ))}
+        </dl>
       </div>
-
-      {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">
-          {error}
-        </div>
-      ) : null}
-      {message ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">
-          {message}
-        </div>
-      ) : null}
-
-      <section className="rounded-3xl border border-[#dfe7f1] bg-white p-6 shadow-sm sm:p-8">
-        <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Il mio profilo Network</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824] sm:text-4xl">
-              {state.company.trading_name || state.company.legal_name}
-            </h1>
-            <p className="mt-2 text-sm text-[#7a899d]">{state.company.legal_name}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                {({ claimed: "Profilo rivendicato", unclaimed: "Profilo non rivendicato", revoked: "Rivendicazione revocata" } as Record<string, string>)[state.company.claimed_status] ?? "Stato rivendicazione: " + state.company.claimed_status}
-              </span>
-              <VerificationBadge status={state.company.verification_status} />
-              <span className="rounded-full bg-[#eef3fa] px-3 py-1 text-xs font-semibold text-[#4a5b72]">
-                {state.company.country_code}
-              </span>
-            </div>
-            <p className="mt-5 max-w-3xl text-sm leading-6 text-[#66736e]">
-              Questi sono i dati che le altre aziende vedono nella ricerca e nel tuo profilo. Ciò che dichiari resta
-              distinto dalle verifiche della piattaforma.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-[#dce6f3] bg-[#f8faff] p-5">
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#8291a5]">Completezza profilo</p>
-                <p className="mt-1 text-3xl font-semibold text-[#1d2824]">{state.completeness.percentage}%</p>
-              </div>
-              <p className="text-xs font-semibold text-[#7b8ba1]">
-                {state.completeness.passed_sections}/{state.completeness.total_sections}
-              </p>
-            </div>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#e4ebf5]">
-              <div
-                className="h-full rounded-full bg-[#1a5144]"
-                style={{ width: Math.max(4, state.completeness.percentage) + "%" }}
-              />
-            </div>
-            <div className="mt-4 grid gap-2">
-              <CompletenessItem label="Identità" complete={completeness.identity} />
-              <CompletenessItem label="Prodotti" complete={completeness.products} />
-              <CompletenessItem label="Sedi" complete={completeness.facilities} />
-              <CompletenessItem label="Capability" complete={completeness.capabilities} />
-              <CompletenessItem label="Mercati" complete={completeness.markets} />
-              <CompletenessItem label="Certificazioni" complete={completeness.certifications} />
-              <CompletenessItem label="Inquiry" complete={completeness.inquiry_readiness} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <nav className="sticky top-3 z-10 overflow-x-auto rounded-2xl border border-[#dce2df] bg-white/95 p-2 shadow-sm backdrop-blur">
-        <div className="flex min-w-max gap-1">
-          {[
-            ["overview", "Overview"],
-            ["positioning", "Tipologia"],
-            ["products", "Prodotti"],
-            ["stock", "Stock / Arrivi"],
-            ["facilities", "Sedi & capability"],
-            ["markets", "Mercati"],
-            ["certifications", "Certificazioni"],
-            ["contacts", "Contatti pubblici"],
-            ["inquiries", "Inquiry"],
-          ].map(([href, label]) => (
-            <a
-              key={href}
-              href={"#" + href}
-              className="rounded-xl px-3 py-2 text-xs font-semibold text-[#5d6e85] hover:bg-[#f1f5fb] hover:text-[#1a5144]"
-            >
-              {label}
+      <div className="rounded-2xl border border-[#dce2df] bg-white p-4 sm:p-6">
+        <h2 className="text-lg font-semibold text-[#1d2824]">Completa il tuo profilo</h2>
+        <p className="mt-1 text-sm text-[#66736e]">Apri una sezione per aggiornare i dati.</p>
+        <div className="mt-4 divide-y divide-[#e6ebe8]">
+          {checklist.map((item) => (
+            <a key={item.label} href={"#" + item.id} className="flex min-w-0 items-center gap-3 py-3 text-sm hover:text-[#1a5144]">
+              <span aria-hidden="true" className={"flex h-6 w-6 shrink-0 items-center justify-center rounded-full border " + (item.done ? "border-[#bbd9cd] bg-[#e7f3ed] text-[#1a5144]" : "border-[#dce2df] text-[#66736e]")}>{item.done ? "✓" : "○"}</span>
+              <span className="min-w-0 flex-1 font-medium">{item.label}</span>
+              <span className="text-right text-xs text-[#66736e]">{item.done ? "Completo" : "Da completare"}</span>
+              <span aria-hidden="true">›</span>
             </a>
           ))}
         </div>
-      </nav>
+      </div>
+    </section>
+  );
 
-      <NetworkInventoryManager organizationId={managed.organization_id} companyId={companyId} inventory={inventory} canPublish={state.company.publication_status === "published"} />
+  return (
+    <div className="uxf2-dense-page mx-auto max-w-[1280px] min-w-0 space-y-4 pb-16">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+        <Link href="/network" className="font-semibold text-[#52645b] hover:text-[#1a5144]">← Torna alla ricerca</Link>
+        <Link href="/network/start" className="font-semibold text-[#52645b] hover:text-[#1a5144]">Il mio percorso →</Link>
+      </div>
 
-      <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+      {error ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800">{error}</div> : null}
+      {message ? <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">{message}</div> : null}
+
+      <header className="overflow-hidden rounded-2xl border border-[#dce2df] bg-white shadow-sm">
+        <div className="flex items-center justify-between gap-3 bg-[#153e35] px-4 py-3 text-white sm:px-6">
+          <p className="text-xs font-semibold uppercase tracking-wider">Il mio profilo Network</p>
+          <span className="text-right text-xs text-[#d2e5dd]">{publicationLabel}</span>
+        </div>
+        <div className="flex flex-col gap-4 p-4 sm:p-6 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex min-w-0 items-start gap-4 sm:items-center">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-[#dce2df] bg-[#edf5f2] sm:h-20 sm:w-20">
+              {logoUrl ? <img src={logoUrl} alt={"Logo " + companyName} className="h-full w-full object-contain p-1" /> : <span aria-hidden="true" className="text-2xl font-semibold text-[#1a5144]">{initials}</span>}
+            </div>
+            <div className="min-w-0">
+              <h1 className="break-words text-xl font-semibold tracking-tight text-[#1d2824] sm:text-2xl">{companyName}</h1>
+              {state.company.trading_name && state.company.trading_name !== state.company.legal_name ? <p className="mt-1 break-words text-xs text-[#66736e]">{state.company.legal_name}</p> : null}
+              <p className="mt-1 text-sm text-[#66736e]">{[state.company.country_code, primaryRole].filter(Boolean).join(" · ")}</p>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-[#edf1ee] px-2.5 py-1 text-xs font-semibold text-[#52645b]">{({ claimed: "Profilo rivendicato", unclaimed: "Profilo non rivendicato", revoked: "Rivendicazione revocata" } as Record<string, string>)[state.company.claimed_status] ?? "Stato rivendicazione: " + state.company.claimed_status}</span>
+                <VerificationBadge status={state.company.verification_status} />
+              </div>
+            </div>
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <Link href={"/network/" + companyId} className={primaryButton + " max-w-full text-center"}>Visualizza profilo pubblico</Link>
+            <Link href="/network/manage/cataloghi" className={secondaryButton + " max-w-full text-center"}>Cataloghi produttore</Link>
+          </div>
+        </div>
+      </header>
+
+      <CompanyWorkspaceNavigation panels={{
+        summary,
+        overview: (
+          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="overview"
-          eyebrow="01 · Overview"
+          eyebrow="01 · Identità"
           title="Identità commerciale"
           description="I dati legali restano governati dalla piattaforma. Qui puoi gestire la presentazione commerciale del profilo."
         />
@@ -367,7 +351,7 @@ export default async function ManagedNetworkProfilePage({
               PNG, JPEG o WebP fino a 2 MB. Il logo è pubblico nel Network ma non modifica lo stato di verifica dell&apos;azienda.
             </p>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-              <form action={uploadManagedCompanyLogo} encType="multipart/form-data" className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
+              <form action={uploadManagedCompanyLogo} className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
                 <input type="hidden" name="network_company_id" value={companyId} />
                 <div className="min-w-0 flex-1">
                   <FieldLabel>File logo</FieldLabel>
@@ -431,15 +415,12 @@ export default async function ManagedNetworkProfilePage({
           </div>
         </form>
       </section>
-
-      <DenseDisclosure
-        title="Tipologia e posizionamento"
-        description="Ruoli e sottotipi nella filiera. Apri quando devi modificare il posizionamento."
-      >
-        <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        ),
+        positioning: (
+          <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="positioning"
-          eyebrow="02 · Company type"
+          eyebrow="02 · Posizionamento"
           title="Tipologia e posizionamento"
           description="Definisci il ruolo dell'azienda nella filiera. Il ruolo principale guida la lettura del profilo, mentre ruoli secondari e sottotipi descrivono attività ibride."
         />
@@ -538,16 +519,12 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
-      </DenseDisclosure>
-
-      <DenseDisclosure
-        title="Prodotti e relazione commerciale"
-        description="Famiglie, norme, gradi e relazioni commerciali dichiarate."
-      >
-        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        ),
+        products: (
+          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="products"
-          eyebrow="03 · Products"
+          eyebrow="03 · Prodotti"
           title="Prodotti e relazione commerciale"
           description="Definisci cosa produce, distribuisce o tiene a stock l'azienda e, dove disponibile, collega norme, gradi/materiali e range dimensionali canonici. Questo scope prepara il profilo al matching Marketplace."
         />
@@ -838,16 +815,12 @@ export default async function ManagedNetworkProfilePage({
           <button className={primaryButton}>Aggiungi prodotto</button>
         </form>
       </section>
-      </DenseDisclosure>
-
-      <DenseDisclosure
-        title="Sedi, stabilimenti e capability"
-        description="Sedi operative e capacità produttive o di servizio."
-      >
-        <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        ),
+        facilities: (
+          <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="facilities"
-          eyebrow="04 · Facilities"
+          eyebrow="04 · Sedi"
           title="Sedi, stabilimenti e capability"
           description="Descrivi dove opera l'azienda e quali lavorazioni o servizi sono disponibili in ogni sede. Le entità verificate dalla piattaforma diventano read-only finché non vengono riesaminate."
         />
@@ -964,16 +937,12 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
-      </DenseDisclosure>
-
-      <DenseDisclosure
-        title="Mercati e settori serviti"
-        description="Aree geografiche, settori e mercati applicativi."
-      >
-        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        ),
+        markets: (
+          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="markets"
-          eyebrow="05 · Markets"
+          eyebrow="05 · Mercati"
           title="Mercati e settori serviti"
           description="Dichiara i settori nei quali opera l'azienda. Questi segnali alimenteranno filtri, discovery e matching commerciale."
         />
@@ -1009,16 +978,12 @@ export default async function ManagedNetworkProfilePage({
           <button className={primaryButton}>Aggiungi</button>
         </form>
       </section>
-      </DenseDisclosure>
-
-      <DenseDisclosure
-        title="Certificazioni"
-        description="Certificazioni pubblicabili e relativa provenienza."
-      >
-        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        ),
+        certifications: (
+          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="certifications"
-          eyebrow="06 · Certifications"
+          eyebrow="06 · Certificazioni"
           title="Certificazioni"
           description="Registra certificazioni e relativo scope. Le certificazioni dichiarate dall'azienda partono come non verificate; la verifica resta sotto controllo Platform."
         />
@@ -1121,16 +1086,12 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
-      </DenseDisclosure>
-
-      <DenseDisclosure
-        title="Contatti pubblici"
-        description="Contatti destinati alla visibilità Network, separati dalla Commercial Memory."
-      >
-        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        ),
+        contacts: (
+          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="contacts"
-          eyebrow="07 · Public contacts"
+          eyebrow="07 · Contatti"
           title="Contatti pubblici"
           description="Pubblica solo riferimenti che l'azienda vuole rendere visibili nel Network. I contatti della Commercial Memory restano completamente separati."
         />
@@ -1272,13 +1233,9 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
-      </DenseDisclosure>
-
-      <DenseDisclosure
-        title="Inquiry"
-        description="Preferenze di contatto e readiness per richieste dal Network."
-      >
-        <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+        ),
+        inquiries: (
+          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
         <SectionHeader
           id="inquiries"
           eyebrow="08 · Disponibilità nel Network"
@@ -1305,14 +1262,13 @@ export default async function ManagedNetworkProfilePage({
           </form>
         </div>
       </section>
-      </DenseDisclosure>
+        ),
+        stock: (<NetworkInventoryManager organizationId={managed.organization_id} companyId={companyId} inventory={inventory} canPublish={state.company.publication_status === "published"} />),
+      }} />
 
-      <section className="rounded-2xl border border-[#d7dfdb] bg-[#f8faff] p-5">
+      <section className="rounded-xl border border-[#dce2df] bg-white p-4">
         <p className="text-sm font-semibold text-[#33445e]">Governance del profilo</p>
-        <p className="mt-2 text-sm leading-6 text-[#66736e]">
-          Le modifiche effettuate qui sono registrate come dichiarazioni dell&apos;azienda e conservano la provenance.
-          Claim, identità legale e verification restano indipendenti e sotto controllo della piattaforma.
-        </p>
+        <p className="mt-1 text-xs leading-5 text-[#66736e]">Le modifiche sono dichiarazioni aziendali con provenienza registrata. Rivendicazione, identità legale e verifica restano indipendenti e sotto il controllo della piattaforma. Le bozze e i dati commerciali privati non sono pubblicati automaticamente.</p>
       </section>
     </div>
   );

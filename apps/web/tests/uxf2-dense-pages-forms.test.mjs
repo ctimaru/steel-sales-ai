@@ -9,6 +9,7 @@ function read(path) {
 const dense = read("../components/dense-ui.tsx");
 const globals = read("../app/globals.css");
 const profile = read("../app/(workspace)/network/manage/page.tsx");
+const workspaceNav = read("../components/company-workspace-navigation.tsx");
 const registration = read("../app/(platform)/platform/registrations/[id]/page.tsx");
 const people = read("../app/(platform)/platform/people/page.tsx");
 const marketplace = read("../app/(workspace)/marketplace/[id]/page.tsx");
@@ -37,7 +38,11 @@ test("UXF2 turns Network Profile Manager into a progressive editor without remov
   ]) {
     assert.match(profile, new RegExp(label));
   }
-  assert.ok((profile.match(/<DenseDisclosure/g) || []).length >= 7);
+  assert.match(profile, /<CompanyWorkspaceNavigation panels=/);
+  for (const id of ["overview", "positioning", "products", "facilities", "markets", "certifications", "contacts", "stock", "inquiries"]) {
+    assert.ok(workspaceNav.includes(`id: "${id}"`), `Missing managed panel ${id}`);
+  }
+  assert.match(workspaceNav, /hidden=\{active !== section\.id\}/);
   assert.match(profile, /Il mio profilo Network/); // NET-UX LOT1
 });
 
