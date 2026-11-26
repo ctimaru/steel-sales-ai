@@ -6,7 +6,9 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { purchaseDealsFromRows, salesDealsFromRows } from "../lib/commercial-deal-model.ts";
-import { buildDirectorDesk, documentValue, formatEur, lineValueEur, normalizeUnit } from "../lib/director-desk-model.ts";
+import {
+  buildDirectorDesk, deskDueLabel, deskInitials, deskOfficeSegments, deskShare, deskToday, documentValue, formatEur, lineValueEur, normalizeUnit,
+} from "../lib/director-desk-model.ts";
 
 const routes = {
   rfq: (id) => "/commercial/rfqs/" + id, offer: (id) => "/commercial/offers/" + id,
@@ -108,7 +110,8 @@ test("pagina: solo amministratori, prima voce di Direzione aziendale, azioni ric
   const page = read("../app/(italian)/(workspace)/commercial/direzione/page.tsx");
   assert.match(page, /requireWorkspaceAdmin\(appRoutes\.commercial\.home\)/);
   assert.match(page, /Scrivania della Direzione/);
-  for (const testId of ["director-desk-number", "director-desk-office-", "director-desk-people", "director-desk-unassigned", "director-desk-approvals"]) {
+  // DIR-DESK2: i quattro riquadri numerici sono assorbiti dalle schede degli uffici (chip cliccabili).
+  for (const testId of ["director-desk-chip", "director-desk-office-", "director-desk-people", "director-desk-unassigned", "director-desk-approvals", "director-desk-summary", "director-desk-due"]) {
     assert.ok(page.includes(testId), testId);
   }
   const nav = read("../lib/commercial-director-navigation.ts");
@@ -124,4 +127,54 @@ test("pagina: solo amministratori, prima voce di Direzione aziendale, azioni ric
   assert.match(loader, /^import "server-only";/);
   assert.match(loader, /rpc\("hp8_team_state"/);
   assert.doesNotMatch(loader, /notes|body|source_text|raw_spec_text/, "no free text from emails or notes");
+});
+
+// DIR-DESK2 (founder request, 26 nov 2026): aprendo Commerciale la Direzione arriva sulla Scrivania.
+test("ingresso: Commerciale apre la Scrivania per la Direzione, Richieste d'offerta per gli altri", () => {
+  const entry = read("../lib/commercial-director-navigation.ts");
+  assert.match(entry, /return canAdmin \? appRoutes\.commercial\.direction : appRoutes\.commercial\.home;/);
+  assert.match(read("../lib/routes.ts"), /direction: "\/commercial\/direzione"/);
+  const shell = read("../components/app-shell.tsx");
+  assert.match(shell, /const commercialHref = commercialEntryHref\(canAdmin && !demoMode\);/);
+  assert.equal((shell.match(/commercialHref=\{commercialHref\}/g) ?? []).length, 2, "desktop and mobile navigation");
+  const nav = read("../components/workspace-navigation.tsx");
+  assert.match(nav, /key: "commercial" as const,\n\s*href: commercialHref,/);
+  assert.equal((nav.match(/primaryItems\(networkEnabled, networkEntitled, commercialHref\)/g) ?? []).length, 2);
+  // La pagina ricontrolla il ruolo e rimanda gli altri a Richieste d'offerta.
+  assert.match(read("../app/(italian)/(workspace)/commercial/direzione/page.tsx"), /requireWorkspaceAdmin\(appRoutes\.commercial\.home\)/);
+});
+
+// DIR-DESK2 (26 nov 2026): nuova grafica approvata dal founder.
+test("presentazione: iniziali, scadenze in giorni di calendario, barre degli uffici", () => {
+  assert.equal(deskInitials("m.rossi@azienda.it"), "MR");
+  assert.equal(deskInitials("anna@azienda.it"), "AN");
+  assert.equal(deskInitials("@x"), "?");
+
+  const now = Date.parse("2026-11-26T09:00:00+01:00");
+  assert.deepEqual(deskDueLabel(null, now), { label: "Senza scadenza", tone: "none" });
+  assert.deepEqual(deskDueLabel("2026-11-25T18:00:00+01:00", now), { label: "Scaduta", tone: "late" });
+  assert.deepEqual(deskDueLabel("2026-11-26T23:30:00+01:00", now), { label: "Scade oggi", tone: "late" });
+  assert.deepEqual(deskDueLabel("2026-11-27T00:30:00+01:00", now), { label: "Domani", tone: "soon" });
+  assert.deepEqual(deskDueLabel("2026-12-01T10:00:00+01:00", now), { label: "Tra 5 giorni", tone: "soon" });
+  assert.deepEqual(deskDueLabel("2026-12-20T10:00:00+01:00", now), { label: "Tra 24 giorni", tone: "later" });
+  assert.equal(deskToday(now), "Giovedì 26 novembre");
+
+  assert.deepEqual(deskOfficeSegments({ open: 22, todo: 6, waiting: 9, review: 3 }), { todo: 6, waiting: 9, review: 3, rest: 4 });
+  assert.deepEqual(deskOfficeSegments({ open: 2, todo: 2, waiting: 1, review: 0 }), { todo: 2, waiting: 1, review: 0, rest: 0 });
+  assert.equal(deskShare(6, 24), "25.0%");
+  assert.equal(deskShare(0, 24), "0%");
+  assert.equal(deskShare(5, 0), "0%");
+  assert.equal(deskShare(30, 24), "100.0%");
+});
+
+test("pagina DIR-DESK2: prima le decisioni, poi uffici e carico del team", () => {
+  const page = read("../app/(italian)/(workspace)/commercial/direzione/page.tsx");
+  const at = (id) => page.indexOf(id);
+  assert.ok(at('data-testid="director-desk-approvals"') < at('title="Ufficio commerciale"'), "approvals before offices");
+  assert.ok(at('data-testid="director-desk-unassigned"') < at('title="Ufficio commerciale"'), "unassigned before offices");
+  assert.ok(at('title="Ufficio acquisti"') < at('data-testid="director-desk-people"'), "team load last");
+  assert.doesNotMatch(page, /director-desk-number/, "no duplicated KPI tiles");
+  assert.match(page, /Carico del team/);
+  assert.match(page, /todo: appRoutes\.rfqHub\.attention/);
+  assert.match(page, /review: dealDeskHref\(\{ filter: "review" \}\)/);
 });

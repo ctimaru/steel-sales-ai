@@ -183,3 +183,48 @@ export function buildDirectorDesk(deals: readonly DeskDeal[], members: readonly 
 export function formatEur(value: number): string {
   return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(value);
 }
+
+// ── DIR-DESK2: presentazione ──────────────────────────────────────────────────
+
+/** «m.rossi@azienda.it» → «MR»; «anna@…» → «AN». Solo per l'avatar. */
+export function deskInitials(email: string): string {
+  const local = email.split("@")[0] ?? "";
+  const parts = local.split(/[._\-+]+/).filter((p) => /[a-z0-9]/i.test(p));
+  const initials = parts.length >= 2 ? parts[0][0] + parts[1][0] : local.replace(/[^a-z0-9]/gi, "").slice(0, 2);
+  return (initials || "?").toUpperCase();
+}
+
+const romeDay = (time: number) =>
+  new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Rome", year: "numeric", month: "2-digit", day: "2-digit" }).format(time);
+
+export type DeskDueTone = "late" | "soon" | "later" | "none";
+
+/** Scadenza in giorni di calendario (ora di Roma): «Scaduta», «Scade oggi», «Domani», «Tra 4 giorni». */
+export function deskDueLabel(dueAt: string | null, now = Date.now()): { label: string; tone: DeskDueTone } {
+  const due = dueAt ? Date.parse(dueAt) : NaN;
+  if (!Number.isFinite(due)) return { label: "Senza scadenza", tone: "none" };
+  const days = Math.round((Date.parse(romeDay(due)) - Date.parse(romeDay(now))) / 86_400_000);
+  if (days < 0) return { label: "Scaduta", tone: "late" };
+  if (days === 0) return { label: "Scade oggi", tone: "late" };
+  if (days === 1) return { label: "Domani", tone: "soon" };
+  return { label: "Tra " + days + " giorni", tone: days <= 7 ? "soon" : "later" };
+}
+
+/** «Giovedì 26 novembre» (ora di Roma). */
+export function deskToday(now = Date.now()): string {
+  const text = new Intl.DateTimeFormat("it-IT", { timeZone: "Europe/Rome", weekday: "long", day: "numeric", month: "long" }).format(now);
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+/** Quote della barra di un ufficio: da fare, in attesa, da verificare, altre aperte (somma = open). */
+export function deskOfficeSegments(office: Pick<DeskTotals, "open" | "todo" | "waiting" | "review">) {
+  const review = Math.max(0, office.review);
+  const rest = Math.max(0, office.open - office.todo - office.waiting - review);
+  return { todo: office.todo, waiting: office.waiting, review, rest };
+}
+
+/** Percentuale per lo stile della barra, mai oltre 100. */
+export function deskShare(part: number, total: number): string {
+  if (!total || part <= 0) return "0%";
+  return Math.min(100, (part / total) * 100).toFixed(1) + "%";
+}

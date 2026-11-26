@@ -150,7 +150,8 @@ function PrimaryNavBadge({ badge, itemKey, locked, mobile = false }: { badge: Pr
   );
 }
 
-function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
+// DIR-DESK2: the shell passes the Commerciale entry (Scrivania della Direzione for admins).
+function primaryItems(networkEnabled: boolean, networkEntitled: boolean, commercialHref: string = appRoutes.commercial.home) {
   return [
     {
       key: "home" as const,
@@ -161,7 +162,7 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
     },
     {
       key: "commercial" as const,
-      href: appRoutes.commercial.home,
+      href: commercialHref,
       label: "Commerciale",
       icon: "commercial" as const,
       locked: false,
@@ -199,16 +200,18 @@ function primaryItems(networkEnabled: boolean, networkEntitled: boolean) {
 export function WorkspaceDesktopPrimaryNavigation({
   networkEnabled,
   networkEntitled,
+  commercialHref,
 }: {
   networkEnabled: boolean;
   networkEntitled: boolean;
+  commercialHref?: string;
 }) {
   const pathname = usePathname();
   const current = currentPrimarySpace(pathname);
 
   return (
     <nav className="hidden h-full items-stretch gap-1 lg:flex" aria-label="Navigazione principale">
-      {primaryItems(networkEnabled, networkEntitled).map((item) => {
+      {primaryItems(networkEnabled, networkEntitled, commercialHref).map((item) => {
         const selected = current === item.key;
         return (
           <Link
@@ -238,13 +241,15 @@ export function WorkspaceDesktopPrimaryNavigation({
 export function WorkspaceMobileBottomNavigation({
   networkEnabled,
   networkEntitled,
+  commercialHref,
 }: {
   networkEnabled: boolean;
   networkEntitled: boolean;
+  commercialHref?: string;
 }) {
   const pathname = usePathname();
   const current = currentPrimarySpace(pathname);
-  const items = primaryItems(networkEnabled, networkEntitled);
+  const items = primaryItems(networkEnabled, networkEntitled, commercialHref);
 
   return (
     <nav

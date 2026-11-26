@@ -82,7 +82,8 @@ test("UXA2 keeps the avatar drawer focused while Platform becomes a persistent c
 
 test("UXA2 makes Commerciale a first-class landing instead of a random child route", () => {
   assert.match(routes, /home: "\/commercial"/);
-  assert.match(nav, /href: appRoutes\.commercial\.home/);
+  // DIR-DESK2 (26 Nov 2026): /commercial stays the default; the Direzione enters on its Scrivania.
+  assert.match(nav, /commercialHref: string = appRoutes\.commercial\.home/);
   assert.match(nav, /href: appRoutes\.knowledge\.workspace/);
   assert.match(commercialHome, /Commerciale · Le tue trattative/);
   assert.match(commercialHome, /commercial-history-entry/); // COMM-DECLUTTER2: i blocchi informativi in fondo sono stati tolti
