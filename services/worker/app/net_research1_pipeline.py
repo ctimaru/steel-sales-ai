@@ -27,6 +27,7 @@ from .net_research1_extract import clean_page_text, parse_model_json, validate_p
 
 VERSION = "net-research1-v1"
 MAX_PAGES = 10
+CONCURRENCY = 4
 MAX_CORPUS = 9000
 PAGE_CHARS = 2200
 DEFAULT_MODEL = "Qwen/Qwen3-4B-Instruct-2507"
@@ -172,16 +173,22 @@ async def execute(*, limit: int, publish: bool) -> dict:
         payload = queue.json()
         if payload.get("contract") != "net-research1-queue-v1":
             raise RuntimeError("unexpected research queue contract")
-        for company in payload.get("items", []):
-            try:
-                outcome, profile = await research_company(web, reader, company)
-            except Exception as exc:
-                outcome, profile = "failed", {"error": type(exc).__name__}
-            record = await db.post(f"{url}/rest/v1/rpc/net_research1_record", headers=headers,
-                                   json={"p_company_id": company["id"], "p_outcome": outcome,
-                                         "p_profile": profile, "p_publish": publish})
-            if record.status_code != 200:
-                outcome = "rejected_by_database"
+        # NET-RESEARCH1 automatic mode: a few companies at a time (different sites,
+        # bounded load on the model provider), each recorded as soon as it is done.
+        semaphore = asyncio.Semaphore(CONCURRENCY)
+
+        async def one(company: dict) -> str:
+            async with semaphore:
+                try:
+                    outcome, profile = await research_company(web, reader, company)
+                except Exception as exc:
+                    outcome, profile = "failed", {"error": type(exc).__name__}
+                record = await db.post(f"{url}/rest/v1/rpc/net_research1_record", headers=headers,
+                                       json={"p_company_id": company["id"], "p_outcome": outcome,
+                                             "p_profile": profile, "p_publish": publish})
+                return outcome if record.status_code == 200 else "rejected_by_database"
+
+        for outcome in await asyncio.gather(*(one(c) for c in payload.get("items", []))):
             outcomes[outcome] = outcomes.get(outcome, 0) + 1
     return {"version": VERSION, "mode": "publish" if publish else "pilot", "outcomes": outcomes}
 
