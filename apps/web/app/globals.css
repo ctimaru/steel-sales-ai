@@ -3175,3 +3175,23 @@ nav[aria-label="Categorie ricerca commerciale"] a:focus-visible {
   outline: 2px solid rgb(23 86 64 / 0.2);
   outline-offset: 1px;
 }
+
+/* MKT-VISION2 (26 Nov 2026): titoli della pagina Marketplace (Space Grotesk, caricato dalla pagina). */
+.mkt-display {
+  font-family: var(--font-mkt-display), Inter, ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+.mkt-blueprint {
+  background-color: #0f2e23;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+/* La shell annulla le ombre shadow-[0_…]: l'esempio del Marketplace usa classi proprie. */
+.mkt-lift {
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+.mkt-lift-sm {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+}

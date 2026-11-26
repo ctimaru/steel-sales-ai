@@ -50,12 +50,13 @@ test("UXF1 flattens global visual elevation", () => {
 });
 
 test("UXF1 focuses the main workspace entry points", () => {
-  for (const source of [dashboard, commercial, network, marketplace, school]) {
+  for (const source of [dashboard, commercial, network, school]) {
     assert.match(source, /FocusPage/);
   }
+  assert.match(marketplace, /mx-auto w-full max-w-\[1200px\]/); // MKT-VISION2: pagina della visione con layout proprio
   assert.match(commercial, /commercial-history-entry/);
   assert.match(network, /Trova aziende steel/);
-  assert.match(marketplace, /Il mercato dell&apos;acciaio e del tubo, dalla richiesta all&apos;ordine\./);
+  assert.match(marketplace, /Il mercato dell&apos;acciaio e del tubo, <span[^>]*>dalla richiesta all&apos;ordine\.<\/span>/);
   assert.match(school, /SchoolWorkspaceFirstViewport/);
   assert.match(schoolViewport, /school-private-calculator-heading/);
 });

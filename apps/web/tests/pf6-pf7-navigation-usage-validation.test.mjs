@@ -30,14 +30,15 @@ test("PF6 aligns focused page hierarchy across the five macro-spaces", () => {
   assert.match(focusUi, /export function FocusSectionHeader/);
   assert.match(focusUi, /space-y-7/);
   for (const source of [home, commercial, network, marketplace]) {
-    assert.match(source, source === commercial ? /data-testid="comm-cine1-hero"/ : source === home ? /<FocusPage/ : /FocusHeader/);
+    // MKT-VISION2 (26 Nov 2026): the Marketplace vision page has its own hero, approved by the founder.
+    assert.match(source, source === commercial ? /data-testid="comm-cine1-hero"/ : source === home ? /<FocusPage/
+      : source === marketplace ? /data-testid="marketplace-vision"/ : /FocusHeader/);
   }
   assert.match(school, /SchoolWorkspaceFirstViewport locale="it"/);
   assert.match(schoolFirstViewport, /school-workspace-cine-heading/);
   assert.match(home, /<HomeFeed /); // HOME-FEED1 (founder decision, 4 Nov 2026): Home is a three-column feed; superseded layout checks rewritten.
-  for (const source of [network, marketplace]) { // COMM-DECLUTTER2: Commerciale non ha più sezioni informative in fondo.
-    assert.match(source, /FocusSectionHeader/);
-  }
+  assert.match(network, /FocusSectionHeader/); // COMM-DECLUTTER2: Commerciale non ha più sezioni informative in fondo.
+  assert.match(marketplace, /aria-labelledby="marketplace-principles"/); // MKT-VISION2: sezioni con titoli propri
   assert.match(school, /<FocusPage compact/);
   assert.match(emptyState, /app-primary/);
   assert.match(emptyState, /app-secondary/);
