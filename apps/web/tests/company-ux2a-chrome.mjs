@@ -74,6 +74,19 @@ try {
       await check("summary");
       await workspace.locator("#company-panel-summary").getByRole("link", { name: "Gestisci preferenze" }).click();
       await check("inquiries");
+      // Check a real governed save only in the disposable local DB. Never publish stock.
+      if (width === 1440) {
+        await nav.locator('a[href="#overview"]').click();
+        await check("overview");
+        const editor = workspace.locator("#company-panel-overview");
+        const description = editor.locator('textarea[name="description"]');
+        const before = await description.inputValue();
+        await editor.getByRole("button", { name: "Salva overview", exact: true }).click();
+        await page.waitForURL(url => url.pathname === "/network/manage" && url.searchParams.has("message") && url.hash === "#overview", { timeout: 90000 });
+        await check("overview");
+        assert.match(await page.getByRole("status").filter({hasText:"Profilo Network aggiornato"}).innerText(), /Profilo Network aggiornato/);
+        assert.equal(await description.inputValue(), before.trim());
+      }
       // The managed stock editor must still be reachable; do not publish any data.
       await nav.locator('a[href="#stock"]').click();
       await check("stock");
