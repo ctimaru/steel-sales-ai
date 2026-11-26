@@ -81,3 +81,33 @@ class WorkerTest(unittest.IsolatedAsyncioTestCase):
                 api = Api()
                 await refill_from_configured_audit(api, source)
                 self.assertEqual(api.calls[0][1]["p_items"][0]["domain"], "valid.it")
+
+    async def test_successor_only_after_primary_exhaustion(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "first.csv"
+            path.write_bytes(AUDIT)
+            next_path = Path(tmp) / "next.csv"
+            next_raw = AUDIT.replace(b"valid.it", b"milano.it").replace(b",lombardia,", b",milano_tile,")
+            next_path.write_bytes(next_raw)
+            env = self.env(path, hashlib.sha256(AUDIT).hexdigest())
+            env.update({"NET_IT_AUTOFEED_NEXT_AUDIT_PATH": str(next_path),
+                        "NET_IT_AUTOFEED_NEXT_AUDIT_SHA256": hashlib.sha256(next_raw).hexdigest(),
+                        "NET_IT_AUTOFEED_NEXT_RELEASE": "2026-11-18.0",
+                        "NET_IT_AUTOFEED_NEXT_AUDIT_URL": env["NET_IT_AUTOFEED_AUDIT_URL"].replace("a"*40, "b"*40)})
+            source = dict(SOURCE, autofeed_checkpoint={"audit_url": env["NET_IT_AUTOFEED_AUDIT_URL"],
+                "release": env["NET_IT_AUTOFEED_RELEASE"], "after_domain": "valid.it"})
+            with patch.dict(os.environ, env, clear=True):
+                api = Api()
+                result = await refill_from_configured_audit(api, SOURCE)
+                self.assertEqual(api.calls[0][1]["p_items"][0]["domain"], "valid.it")
+                self.assertEqual(len(api.calls), 1)
+                api = Api()
+                result = await refill_from_configured_audit(api, source)
+                self.assertEqual(result["staged"], 1)
+                self.assertEqual(api.calls[0][1]["p_items"][0]["region_bucket"], "milano_tile")
+                source["autofeed_checkpoint"] = {"audit_url": env["NET_IT_AUTOFEED_NEXT_AUDIT_URL"],
+                    "release": env["NET_IT_AUTOFEED_NEXT_RELEASE"], "after_domain": "milano.it"}
+                api = Api()
+                result = await refill_from_configured_audit(api, source)
+                self.assertEqual(result["status"], "audit_exhausted")
+                self.assertFalse(api.calls)

@@ -12,6 +12,8 @@ COPY services/worker/audits/net_it_carp_mass11j_a_20261124_gers.csv /app/audits/
 
 COPY services/worker/audits/net_it_lombardia1b_20261126_fresh_gers.csv /app/audits/net_it_lombardia1b_20261126_fresh_gers.csv
 
+COPY services/worker/audits/net_it_lombardia1i_20261126_fresh_gers.csv /app/audits/net_it_lombardia1i_20261126_fresh_gers.csv
+
 RUN pip install --no-cache-dir .
 
 EXPOSE 8000

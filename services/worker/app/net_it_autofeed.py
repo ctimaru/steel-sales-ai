@@ -23,6 +23,7 @@ REGIONS = frozenset({
     "nord_ovest", "lombardia", "nord_est", "emilia_romagna",
     "toscana_umbria_marche", "lazio_abruzzo_molise", "campania_puglia",
     "basilicata_calabria", "sicilia", "sardegna", "bergamo_tile", "brescia_tile",
+    "milano_tile", "monza_brianza_tile", "lecco_tile",
 })
 DOMAIN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.[a-z]{2,24}$")
 RELEASE = re.compile(r"^20\d{2}-\d{2}-\d{2}\.\d+$")
