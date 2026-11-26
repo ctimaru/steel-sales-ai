@@ -101,6 +101,21 @@ try {
       await page.locator('input[name="password"]').fill(owner.password);
       await page.getByRole("button", { name: "Accedi", exact: true }).click();
       await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
+      // Capture React/Next development diagnostics too: pageerror alone misses
+      // console.error warnings that appear in the Next.js dev issue indicator.
+      const consoleIssues = [];
+      page.on("console", message => {
+        const content = message.text();
+        const isFrameworkWarning = /hydration|validateDOMNesting|same key|cannot specify.*form|each child in a list/i.test(content);
+        if (message.type() !== "error" && !(message.type() === "warning" && isFrameworkWarning)) return;
+        const source = message.location().url;
+        // This runner deliberately blocks all third-party network requests.
+        if (/Failed to load resource/i.test(content) && /^https?:/.test(source)) {
+          const host = new URL(source).hostname;
+          if (host !== "127.0.0.1" && host !== "localhost") return;
+        }
+        consoleIssues.push(content.slice(0, 1200));
+      });
       const response = await page.goto(base + "/company/profile", { waitUntil: "domcontentloaded", timeout: 90000 });
       assert.equal(response?.status(), 200);
       const workspace = page.getByTestId("company-workspace");
@@ -162,6 +177,7 @@ try {
       await check("stock");
       assert.equal(await page.getByTestId("network-stock-manager").count(), 1);
       assert.deepEqual(errors, [], "Uncaught browser errors at " + width);
+      assert.deepEqual([...new Set(consoleIssues)], [], "Browser console errors at " + width);
       console.log("COMPANY-UX2.A Chrome PASS", width, "ten panels, history, deep links, stock and screenshots");
     } finally { await context.close(); }
   }

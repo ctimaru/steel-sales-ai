@@ -351,7 +351,7 @@ export default async function ManagedNetworkProfilePage({
               PNG, JPEG o WebP fino a 2 MB. Il logo è pubblico nel Network ma non modifica lo stato di verifica dell&apos;azienda.
             </p>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
-              <form action={uploadManagedCompanyLogo} encType="multipart/form-data" className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
+              <form action={uploadManagedCompanyLogo} className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
                 <input type="hidden" name="network_company_id" value={companyId} />
                 <div className="min-w-0 flex-1">
                   <FieldLabel>File logo</FieldLabel>
