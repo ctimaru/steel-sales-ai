@@ -21,6 +21,7 @@ type SectionId = (typeof companyWorkspaceSections)[number]["id"];
 function sectionFromHash(): SectionId {
   const id = window.location.hash.slice(1);
   if (id === "products-add" || /^products-item-[0-9a-f-]+$/i.test(id)) return "products";
+  if (id === "facilities-add" || /^facilities-item-[0-9a-f-]+$/i.test(id)) return "facilities";
   return companyWorkspaceSections.find((section) => section.id === id)?.id ?? "summary";
 }
 
@@ -41,19 +42,20 @@ export function CompanyWorkspaceNavigation({ panels }: { panels: Record<SectionI
   }, [pathname, query]);
 
   useEffect(() => {
-    const focusProductTarget = () => {
-      if (active !== "products") return;
+    const focusEditorTarget = () => {
       const hash = window.location.hash.slice(1);
-      if (hash !== "products-add" && !/^products-item-[0-9a-f-]+$/i.test(hash)) return;
+      const matchesProduct = active === "products" && (hash === "products-add" || /^products-item-[0-9a-f-]+$/i.test(hash));
+      const matchesFacility = active === "facilities" && (hash === "facilities-add" || /^facilities-item-[0-9a-f-]+$/i.test(hash));
+      if (!matchesProduct && !matchesFacility) return;
       const target = document.getElementById(hash);
       if (target) {
         target.focus({ preventScroll: true });
         target.scrollIntoView({ block: "start" });
       }
     };
-    focusProductTarget();
-    window.addEventListener("hashchange", focusProductTarget);
-    return () => window.removeEventListener("hashchange", focusProductTarget);
+    focusEditorTarget();
+    window.addEventListener("hashchange", focusEditorTarget);
+    return () => window.removeEventListener("hashchange", focusEditorTarget);
   }, [active, pathname, query]);
 
   function select(id: SectionId) {
