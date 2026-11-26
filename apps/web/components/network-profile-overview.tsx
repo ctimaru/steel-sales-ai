@@ -59,6 +59,7 @@ export function NetworkProfileOverview({
   name,
   legalName,
   vatId = null,
+  vatViesConfirmed = false,
   countryCode,
   location,
   primaryRole,
@@ -93,6 +94,8 @@ export function NetworkProfileOverview({
   legalName?: string | null;
   /** NET-VAT1: published P.IVA, already validated server-side. */
   vatId?: string | null;
+  /** NET-VAT1 fase 3: valid in VIES and registered to this company. */
+  vatViesConfirmed?: boolean;
   countryCode?: string | null;
   location?: string | null;
   primaryRole?: string | null;
@@ -141,6 +144,7 @@ export function NetworkProfileOverview({
   // NET-VAT1 (founder, 26 nov 2026): ragione sociale e P.IVA sotto il nome.
   const vatLabel = vatId ? (countryCode === "IT" ? "P.IVA " : "VAT ") + vatId : null;
   const identityLine = [legalName && legalName !== name ? legalName : null, vatLabel].filter(Boolean).join(" · ");
+  const vatVerified = Boolean(vatLabel && vatViesConfirmed);
   const sectionTitleClass = "text-lg font-semibold tracking-tight text-[#173f35] sm:text-xl";
   const emptyStateClass = "border-l-2 border-[#cfe1d4] py-2 pl-3 text-sm leading-6 text-[#53675b]";
   const publicSourceLink = trustSourceUrl ? (
@@ -314,7 +318,17 @@ export function NetworkProfileOverview({
             <div className="min-w-0 flex-1">
               <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#548068]">Network · Scheda aziendale</p>
               <h1 className="mt-1 break-words text-[25px] font-semibold leading-[1.12] tracking-[-0.03em] text-[#173b2b] sm:text-[32px]">{name}</h1>
-              {identityLine ? <p className="mt-1 break-words text-xs text-[#6b7c70]" data-testid="network-profile-identity">{identityLine}</p> : null}
+              {identityLine ? (
+                <p className="mt-1 break-words text-xs text-[#6b7c70]" data-testid="network-profile-identity">
+                  {identityLine}
+                  {vatVerified ? (
+                    <span className="ml-1.5 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700"
+                      title="Partita IVA attiva nell'archivio VIES della Commissione europea e intestata a questa azienda">
+                      <span aria-hidden="true">✓</span> verificata VIES
+                    </span>
+                  ) : null}
+                </p>
+              ) : null}
               {companyMeta ? <p className="mt-1.5 text-[13px] font-medium leading-5 text-[#536c5c]">{companyMeta}</p> : null}
               {!primaryRole && visibleRoles.length ? <p className="mt-1 text-xs text-[#536c5c]">{visibleRoles.join(" · ")}</p> : null}
             </div>
