@@ -55,6 +55,14 @@ class ViesNameMatchTest(unittest.TestCase):
         self.assertEqual(vies_name_match("F.lli Bianchi S.n.c.", "FRATELLI BIANCHI SNC DI BIANCHI MARIO & C."), "match")
         self.assertEqual(vies_name_match("IN.BRO.FER S.R.L.", "INBROFER SRL"), "match")
 
+    def test_acronyms_and_short_names(self):
+        for ours, theirs in (("C.B.A. S.r.l.", "C.B.A. S.R.L."), ("S.A.M. S.r.l.", "S.A.M. SRL"),
+                             ("SM Group Srl", "SM GROUP SRL"), ("FSI s.r.l.s.", "F.S.I. S.R.L.S."),
+                             ("Officine ORG Srl", "'O.R.G. S.R.L.'"),
+                             ("U.S.A. S.r.l.", "U.S.A. - UMBRIA STAMPI ATTREZZATURE -SOCIETA' A RESPONSA- BI")):
+            self.assertEqual(vies_name_match(ours, theirs), "match", ours)
+        self.assertEqual(vies_name_match("C.B.A. S.r.l.", "ZETA ACCIAI SRL"), "mismatch")
+
     def test_other_company_is_mismatch(self):
         self.assertEqual(vies_name_match("Rossi Tubi S.r.l.", "PIXEL WEB AGENCY SRL"), "mismatch")
 

@@ -111,22 +111,41 @@ def _name_tokens(value: str) -> set[str]:
     return {t for t in re.split(r"[^a-z0-9à-ÿ]+", value) if len(t) >= 3 and t not in _NAME_STOPWORDS}
 
 
+# Only the final legal form: "U.S.A. S.r.l." must keep "U.S.A.".
+TRAILING_LEGAL_FORM = re.compile(
+    r"(?:^|[\s,'\"-])(?:s\.?\s?r\.?\s?l\.?(?:\s?s\.?)?|s\.?\s?p\.?\s?a\.?|s\.?\s?n\.?\s?c\.?"
+    r"|s\.?\s?a\.?\s?s\.?)[\s.,'\"-]*$",
+    re.I,
+)
+
+
+def _compact_name(value: str) -> str:
+    value = unescape(value or "").casefold().replace("f.lli", "fratelli").strip()
+    return re.sub(r"[^a-z0-9]+", "", TRAILING_LEGAL_FORM.sub("", value))
+
+
 def vies_name_match(legal_name: str, registered_name: str | None) -> str:
     """'match' | 'mismatch' | 'unknown' between our legal name and VIES's.
 
-    Only a clear disagreement is 'mismatch': VIES gives a name and it shares
-    no meaningful word with ours (nor contains it once spaces are removed).
+    Acronyms (C.B.A., S.A.M.) and short names compare on the compact form;
+    longer names on shared meaningful words. Only a clear disagreement is
+    'mismatch': VIES gives a name and nothing of ours appears in it.
     """
     registered = (registered_name or "").strip()
-    if not registered or registered.strip("- ") == "":
+    if not registered or registered.strip("-' ") == "":
         return "unknown"
-    ours, theirs = _name_tokens(legal_name), _name_tokens(registered)
+    a, b = _compact_name(legal_name), _compact_name(registered)
+    if not a or not b:
+        return "unknown"
+    short, long_ = sorted((a, b), key=len)
+    if a == b or (len(short) >= 3 and long_.startswith(short)) or (len(short) >= 4 and short in long_):
+        return "match"
+    # An acronym-only name ("C.B.A.") is one word: its compact form.
+    ours = _name_tokens(legal_name) or ({a} if len(a) >= 3 else set())
+    theirs = _name_tokens(registered) or ({b} if len(b) >= 3 else set())
+    # "Officine ORG" vs "O.R.G.": the whole compact acronym is one of our words.
+    if ours & theirs or b in ours or a in theirs:
+        return "match"
     if not ours or not theirs:
         return "unknown"
-    if ours & theirs:
-        return "match"
-    compact = lambda v: re.sub(r"[^a-z0-9]+", "", LEGAL_FORM.sub(" ", unescape(v).casefold()))
-    a, b = compact(legal_name), compact(registered)
-    if len(a) >= 4 and len(b) >= 4 and (a in b or b in a):
-        return "match"
     return "mismatch"
