@@ -31,7 +31,8 @@ CREATE TABLE IF NOT EXISTS private.network_company_vat_exceptions (
   source_url text CHECK (source_url IS NULL OR char_length(source_url) <= 1024),
   reason text NOT NULL CHECK (reason IN (
     'invalid_checksum', 'not_official_site', 'vat_in_use',
-    'company_has_other_vat', 'vat_on_multiple_companies', 'company_not_eligible')),
+    'company_has_other_vat', 'vat_on_multiple_companies', 'company_not_eligible',
+    'vies_name_mismatch')),
   recorded_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (company_id, vat_id, reason)
 );
@@ -95,6 +96,12 @@ BEGIN
   IF NOT FOUND OR v_company.country_code <> 'IT' OR v_company.archived_at IS NOT NULL
      OR v_company.publication_status <> 'published' THEN
     RETURN 'company_not_eligible';
+  END IF;
+  -- Una P.IVA che VIES intesta a un'altra azienda (fase 3) non torna più.
+  IF EXISTS (SELECT 1 FROM private.network_company_vat_exceptions e
+             WHERE e.company_id = p_company_id AND e.vat_id = v_vat
+               AND e.reason = 'vies_name_mismatch') THEN
+    RETURN 'vies_name_mismatch';
   END IF;
   IF NOT private.net_vat1_it_vat_ok(v_vat) THEN
     RETURN private.net_vat1_exception(p_company_id, v_vat, p_source_url, 'invalid_checksum');
