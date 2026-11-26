@@ -7,6 +7,9 @@ on:
       # Network visual QA is owned by Network PRs, not a Commerciale FLOW1 run.
       - "apps/web/app/**/network/**"
       - "apps/web/components/network-*"
+      - "apps/web/components/company-workspace-navigation.tsx"
+      - "apps/web/tests/company-ux2a-chrome.mjs"
+      - "apps/web/app/**/company/profile/**"
       - "apps/web/components/public-network-*"
       - "apps/web/lib/network-*"
       - "apps/web/tests/network-*"
@@ -149,6 +152,11 @@ jobs:
           node tests/net-pro-catalog1a-chrome.mjs
           DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
             node tests/net-pro-catalog1b-chrome.mjs
+      - name: Verify managed Company Workspace and capture 1440 / 390 / 320 screenshots
+        working-directory: apps/web
+        timeout-minutes: 10
+        shell: bash
+        run: node tests/company-ux2a-chrome.mjs
       - name: Upload synthetic screenshots for visual acceptance
         if: always()
         uses: actions/upload-artifact@v4
