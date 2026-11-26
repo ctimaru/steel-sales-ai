@@ -8,6 +8,7 @@ import { getPublishedNetworkInventory } from "@/lib/network-stock";
 import { getReviewedCompanyEvidence, summarizeReviewedCompanyEvidence } from "@/lib/network-profile-evidence";
 import { getNetworkProducerOfficialPages } from "@/lib/network-producer-official-pages";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
+import { getNetworkCompanyVat } from "@/lib/network-vat";
 import {networkNameIt} from "@/lib/network-taxonomy-it";
 import { notFound, redirect } from "next/navigation";
 
@@ -181,7 +182,7 @@ export default async function NetworkCompanyProfilePage({
   const membershipRole = context.role;
   const canInteract = canInteractWithNetwork(context.role);
   const adminOrganizationId: string | null = context.role === "admin" ? context.organizationId : null;
-  const [candidateResult, profileResult, claimResult, eligibility, savedResult, inventoryResult, reviewedEvidence, officialProductPages, query] = await Promise.all([
+  const [candidateResult, profileResult, claimResult, eligibility, savedResult, inventoryResult, reviewedEvidence, officialProductPages, query, vatId] = await Promise.all([
     // NET-LAUNCH1: even entitled Pro viewers must open an unconfirmed discovery
     // in the Free profile reader, not in the canonical Pro-company query.
     // That reader enforces active company membership and returns no private data.
@@ -194,6 +195,7 @@ export default async function NetworkCompanyProfilePage({
     getReviewedCompanyEvidence(context.organizationId, id, "pro").catch(() => []),
     getNetworkProducerOfficialPages(context.organizationId, id, "pro").catch(() => []),
     searchParams,
+    getNetworkCompanyVat(id),
   ]);
   if (candidateResult?.company.discovery_status === "unconfirmed") {
     return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} accessMode="pro" isWorkspaceAdmin={context.role==="admin"} preloadedProfile={candidateResult} />;
@@ -340,6 +342,7 @@ export default async function NetworkCompanyProfilePage({
       <NetworkProfileOverview
         name={displayName}
         legalName={profile.company.legal_name}
+        vatId={vatId}
         countryCode={profile.company.country_code}
         location={locationLabels[0] ?? null}
         primaryRole={primaryRole ? networkNameIt(primaryRole.name) : null}
