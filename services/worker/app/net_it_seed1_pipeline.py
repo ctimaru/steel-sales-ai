@@ -35,7 +35,7 @@ from .net_it_autofeed_worker import refill_from_configured_audit
 
 from .company_discovery import (
     ITALIAN_REGIONS, MAX_PAGES_PER_DOMAIN, CompanyDiscoveryError,
-    _fetch_page, _priority_links, canonical_domain, canonicalize_seed_url,
+    _fetch_page, _priority_links, _it_priority_links, canonical_domain, canonicalize_seed_url,
     extract_candidate, robots_crawl_delay,
 )
 
@@ -400,7 +400,7 @@ async def inspect_site(web: httpx.AsyncClient, item: dict[str, object]) -> tuple
         if canonical_domain(home.url) != domain:
             return "no_candidate", None, "site redirects to another domain"
         pages = [home]
-        for link in _priority_links(home)[: MAX_PAGES_PER_DOMAIN - 1]:
+        for link in _it_priority_links(home)[: MAX_PAGES_PER_DOMAIN - 1]:
             try:
                 page = await _fetch_page(web, link, home.url)
             except (CompanyDiscoveryError, httpx.HTTPError, ValueError):
