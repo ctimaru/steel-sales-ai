@@ -16,6 +16,7 @@ import {
   type WorkspaceNavItem,
 } from "@/components/workspace-navigation";
 import { canAdministerCompany, canWriteWorkspace } from "@/lib/access-policy";
+import { commercialEntryHref } from "@/lib/commercial-director-navigation";
 import { appRoutes } from "@/lib/routes";
 import type { WorkspaceNotificationSnapshot } from "@/lib/workspace-notifications";
 
@@ -123,6 +124,8 @@ export function AppShell({
   const marketplaceItems = networkEnabled ? visibleItems(marketplaceNav, organizationRole) : [];
   const knowledgeItems = visibleItems(knowledgeNav, organizationRole);
   const canAdmin = canAdministerCompany(organizationRole);
+  // DIR-DESK2: la Direzione apre Commerciale sulla propria Scrivania (non in demo: richiede dati reali).
+  const commercialHref = commercialEntryHref(canAdmin && !demoMode);
   const effectiveRole = demoMode ? "Modalità demo" : roleLabel(organizationRole);
   const organizationLabel = workspaceOrganizationLabel(organizationName);
 
@@ -161,6 +164,7 @@ export function AppShell({
             <WorkspaceDesktopPrimaryNavigation
               networkEnabled={networkEnabled}
               networkEntitled={networkEntitled || networkFreeEnabled}
+              commercialHref={commercialHref}
             />
           </div>
 
@@ -208,6 +212,7 @@ export function AppShell({
       <WorkspaceMobileBottomNavigation
         networkEnabled={networkEnabled}
         networkEntitled={networkEntitled || networkFreeEnabled}
+        commercialHref={commercialHref}
       />
     </div></>
   );

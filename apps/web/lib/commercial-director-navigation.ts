@@ -95,6 +95,15 @@ export const commercialDirectorGroups: readonly CommercialDirectorGroup[] = [
   },
 ];
 
+/**
+ * DIR-DESK2 (founder request, 26 Nov 2026): for the Direzione (company admins) «Commerciale» opens
+ * on the Scrivania della Direzione; everyone else opens on Richieste d'offerta. The Scrivania page
+ * re-checks the role server-side and sends non-admins back to /commercial.
+ */
+export function commercialEntryHref(canAdmin: boolean): string {
+  return canAdmin ? appRoutes.commercial.direction : appRoutes.commercial.home;
+}
+
 // Secondary destinations remain reachable without taking space in the default menu.
 export function commercialDirectorAllItems(group: CommercialDirectorGroup) {
   return [

@@ -125,3 +125,18 @@ test("pagina: solo amministratori, prima voce di Direzione aziendale, azioni ric
   assert.match(loader, /rpc\("hp8_team_state"/);
   assert.doesNotMatch(loader, /notes|body|source_text|raw_spec_text/, "no free text from emails or notes");
 });
+
+// DIR-DESK2 (founder request, 26 nov 2026): aprendo Commerciale la Direzione arriva sulla Scrivania.
+test("ingresso: Commerciale apre la Scrivania per la Direzione, Richieste d'offerta per gli altri", () => {
+  const entry = read("../lib/commercial-director-navigation.ts");
+  assert.match(entry, /return canAdmin \? appRoutes\.commercial\.direction : appRoutes\.commercial\.home;/);
+  assert.match(read("../lib/routes.ts"), /direction: "\/commercial\/direzione"/);
+  const shell = read("../components/app-shell.tsx");
+  assert.match(shell, /const commercialHref = commercialEntryHref\(canAdmin && !demoMode\);/);
+  assert.equal((shell.match(/commercialHref=\{commercialHref\}/g) ?? []).length, 2, "desktop and mobile navigation");
+  const nav = read("../components/workspace-navigation.tsx");
+  assert.match(nav, /key: "commercial" as const,\n\s*href: commercialHref,/);
+  assert.equal((nav.match(/primaryItems\(networkEnabled, networkEntitled, commercialHref\)/g) ?? []).length, 2);
+  // La pagina ricontrolla il ruolo e rimanda gli altri a Richieste d'offerta.
+  assert.match(read("../app/(italian)/(workspace)/commercial/direzione/page.tsx"), /requireWorkspaceAdmin\(appRoutes\.commercial\.home\)/);
+});
