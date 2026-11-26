@@ -44,3 +44,12 @@ class AutoFeedTest(unittest.TestCase):
         rows = [HEAD, row("b.it"), row("a.it"), row("goo.gl"), row("bit.ly")]
         self.assertEqual([i["domain"] for i in select_items(
             rows, release=RELEASE, audit_url=AUDIT, after_domain="a.it")], ["b.it"])
+
+    def test_regional_industrial_categories(self):
+        rows = [HEAD, row("officina.it", "machine_shop").replace(",lombardia,", ",bergamo_tile,"),
+                row("impianti.it", "industrial_equipment_manufacturer").replace(",lombardia,", ",brescia_tile,"),
+                row("school.it", "school"), row("unknown.it").replace(",lombardia,", ",unknown_tile,")]
+        items = select_items(rows, release=RELEASE, audit_url=AUDIT)
+        self.assertEqual([i["domain"] for i in items], ["impianti.it", "officina.it"])
+        self.assertEqual(items[0]["region_bucket"], "brescia_tile")
+        self.assertNotIn("city", items[0])
