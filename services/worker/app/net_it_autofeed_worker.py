@@ -17,15 +17,15 @@ MAX_BYTES = 4 * 1024 * 1024
 MAX_BATCHES = 8
 
 
-async def refill_from_configured_audit(api, source: dict) -> dict:
+async def _refill_audit(api, source: dict, prefix: str) -> dict:
     result = {"status": "not_configured", "received": 0, "staged": 0,
               "already_known": 0}
     if source.get("url") != SOURCE_URL:
         raise ValueError("wrong source")
-    path = os.getenv("NET_IT_AUTOFEED_AUDIT_PATH", "")
-    digest = os.getenv("NET_IT_AUTOFEED_AUDIT_SHA256", "")
-    release = os.getenv("NET_IT_AUTOFEED_RELEASE", "")
-    audit_url = os.getenv("NET_IT_AUTOFEED_AUDIT_URL", "")
+    path = os.getenv(prefix + "AUDIT_PATH", "")
+    digest = os.getenv(prefix + "AUDIT_SHA256", "")
+    release = os.getenv(prefix + "RELEASE", "")
+    audit_url = os.getenv(prefix + "AUDIT_URL", "")
     if not all((path, digest, release, audit_url)):
         return result
     try:
@@ -65,3 +65,30 @@ async def refill_from_configured_audit(api, source: dict) -> dict:
     except (OSError, UnicodeError, ValueError, KeyError):
         result["status"] = "invalid_audit"
         return result
+
+
+async def refill_from_configured_audit(api, source: dict) -> dict:
+    """Consume primary then optional successor audit, never reset a successor cursor.
+
+    Only advance after the prior audit is exhausted, not on error/capacity hold.
+    Both audit identities and file hashes remain independently pinned by the operator.
+    """
+    primary = "NET_IT_AUTOFEED_"
+    successor = "NET_IT_AUTOFEED_NEXT_"
+    keys = ("AUDIT_PATH", "AUDIT_SHA256", "RELEASE", "AUDIT_URL")
+    configured = [os.getenv(successor + key, "") for key in keys]
+    if not any(configured):
+        return await _refill_audit(api, source, primary)
+    if not all(configured) or configured[3] == os.getenv(primary + "AUDIT_URL", ""):
+        return {"status": "invalid_audit", "received": 0, "staged": 0, "already_known": 0}
+    checkpoint = source.get("autofeed_checkpoint") or {}
+    if (checkpoint.get("audit_url") == configured[3]
+            and checkpoint.get("release") == configured[2]):
+        return await _refill_audit(api, source, successor)
+    result = await _refill_audit(api, source, primary)
+    if result["status"] != "audit_exhausted" or result["staged"]:
+        return result
+    following = await _refill_audit(api, source, successor)
+    for field in ("received", "staged", "already_known"):
+        following[field] += result[field]
+    return following
