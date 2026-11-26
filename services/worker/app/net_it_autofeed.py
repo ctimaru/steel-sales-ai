@@ -17,11 +17,12 @@ SOURCE_URL = "https://docs.overturemaps.org/guides/places/#sss-autofeed-v1"
 TAXONOMIES = frozenset({
     "metal_fabricator", "iron_fabricator", "steel_fabricator", "welder",
     "laser_cutting_service", "sheet_metal_contractor", "sheet_metal_fabricator",
+    "machine_shop", "industrial_equipment_manufacturer", "machinery_and_tool_manufacturer", "turnery",
 })
 REGIONS = frozenset({
     "nord_ovest", "lombardia", "nord_est", "emilia_romagna",
     "toscana_umbria_marche", "lazio_abruzzo_molise", "campania_puglia",
-    "basilicata_calabria", "sicilia", "sardegna",
+    "basilicata_calabria", "sicilia", "sardegna", "bergamo_tile", "brescia_tile",
 })
 DOMAIN = re.compile(r"^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.[a-z]{2,24}$")
 RELEASE = re.compile(r"^20\d{2}-\d{2}-\d{2}\.\d+$")

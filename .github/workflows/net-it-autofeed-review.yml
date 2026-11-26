@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'docs/net-it-autofeed1-atomic-intake-review.sql'
+      - 'docs/net-it-lombardia1c-review.sql'
+      - 'supabase/migrations/*_net_it_lombardia1c.sql'
       - 'supabase/migrations/*_net_it_autofeed_atomic_intake.sql'
       - 'services/worker/tests/sql/autofeed_*.sql'
       - '.github/workflows/net-it-autofeed-review.yml'
@@ -42,6 +44,8 @@ jobs:
           psql -X -v ON_ERROR_STOP=1 -f services/worker/tests/sql/autofeed_fixture.sql
           psql -X -v ON_ERROR_STOP=1 -f docs/net-it-autofeed1-atomic-intake-review.sql
           psql -X -v ON_ERROR_STOP=1 -f services/worker/tests/sql/autofeed_acceptance.sql
+          psql -X -v ON_ERROR_STOP=1 -f docs/net-it-lombardia1c-review.sql
+          psql -X -v ON_ERROR_STOP=1 -f services/worker/tests/sql/autofeed_lombardia_acceptance.sql
       - name: Install pinned Supabase CLI
         uses: supabase/setup-cli@v3
         with:
@@ -65,4 +69,21 @@ jobs:
           test ${#files[@]} -eq 1
           cmp /tmp/autofeed-release.sql "${files[0]}"
           printf 'AUTOFEED_MIGRATION_PATH=%s\n' "${files[0]}"
+          sha256sum "${files[0]}"
+      - name: Generate or verify Lombardia migration
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(supabase/migrations/*_net_it_lombardia1c.sql)
+          test ${#files[@]} -le 1
+          if [ ${#files[@]} -eq 0 ]; then
+            supabase migration new net_it_lombardia1c
+            files=(supabase/migrations/*_net_it_lombardia1c.sql)
+            test ${#files[@]} -eq 1
+            cp docs/net-it-lombardia1c-review.sql "${files[0]}"
+          fi
+          test ${#files[@]} -eq 1
+          cmp docs/net-it-lombardia1c-review.sql "${files[0]}"
+          printf 'LOMBARDIA_MIGRATION_PATH=%s\n' "${files[0]}"
           sha256sum "${files[0]}"
