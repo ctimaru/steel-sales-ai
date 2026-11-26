@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 export const companyWorkspaceSections = [
   { id: "summary", label: "Riepilogo", group: "Profilo", icon: "M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z" },
@@ -24,6 +25,8 @@ function sectionFromHash(): SectionId {
 
 export function CompanyWorkspaceNavigation({ panels }: { panels: Record<SectionId, ReactNode> }) {
   const [active, setActive] = useState<SectionId>("summary");
+  const pathname = usePathname();
+  const query = useSearchParams().toString();
 
   useEffect(() => {
     const sync = () => setActive(sectionFromHash());
@@ -34,7 +37,7 @@ export function CompanyWorkspaceNavigation({ panels }: { panels: Record<SectionI
       window.removeEventListener("hashchange", sync);
       window.removeEventListener("popstate", sync);
     };
-  }, []);
+  }, [pathname, query]);
 
   function select(id: SectionId) {
     if (window.location.hash !== "#" + id) {
@@ -45,11 +48,11 @@ export function CompanyWorkspaceNavigation({ panels }: { panels: Record<SectionI
 
   return (
     <div className="grid min-w-0 items-start gap-4 lg:grid-cols-[224px_minmax(0,1fr)]" data-testid="company-workspace">
-      <nav aria-label="Gestione azienda" className="min-w-0 rounded-2xl border border-[#dce2df] bg-white p-2 lg:sticky lg:top-4 lg:p-3">
+      <nav aria-label="Gestione azienda" className="flex min-w-0 gap-1 overflow-x-auto rounded-2xl border border-[#dce2df] bg-white p-2 lg:sticky lg:top-4 lg:block lg:p-3">
         {["Profilo", "Operatività"].map((group) => (
-          <div key={group} className="mb-2 last:mb-0">
+          <div key={group} className="shrink-0 lg:mb-2 lg:last:mb-0">
             <p className="hidden px-3 pb-2 pt-2 text-[11px] font-semibold uppercase tracking-wider text-[#66736e] lg:block">{group}</p>
-            <div className="flex flex-wrap gap-1 lg:flex-col">
+            <div className="flex gap-1 lg:flex-col">
               {companyWorkspaceSections.filter((section) => section.group === group).map((section) => (
                 <a
                   key={section.id}
@@ -61,7 +64,7 @@ export function CompanyWorkspaceNavigation({ panels }: { panels: Record<SectionI
                     event.preventDefault();
                     select(section.id);
                   }}
-                  className={"flex min-w-0 items-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold outline-offset-2 transition lg:text-sm " + (active === section.id ? "bg-[#e5f0eb] text-[#1a5144]" : "text-[#52625b] hover:bg-[#f2f6f3] hover:text-[#1a5144]")}
+                  className={"flex min-h-11 min-w-0 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-3 py-2.5 text-xs font-semibold outline-offset-2 transition lg:whitespace-normal lg:text-sm " + (active === section.id ? "bg-[#e5f0eb] text-[#1a5144]" : "text-[#52625b] hover:bg-[#f2f6f3] hover:text-[#1a5144]")}
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 shrink-0" aria-hidden="true"><path d={section.icon} /></svg>
                   <span>{section.label}</span>
