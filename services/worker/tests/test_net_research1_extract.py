@@ -73,6 +73,9 @@ class SummaryGuardTest(unittest.TestCase):
         text = clean_summary("L'azienda Rossi produce tubi saldati dal 1978. È leader del settore. "
                              "Fondata nel 1965 a Brescia. Garantisce qualità e puntualità.", corpus)
         self.assertEqual(text, "Rossi produce tubi saldati dal 1978.")
+        self.assertEqual(clean_summary("Produce tubi saldati. Usa macchine di ultima generazione per "
+                                       "garantire massima precisione e qualità.", corpus),
+                         "Produce tubi saldati.")
 
 
 class HelpersTest(unittest.TestCase):

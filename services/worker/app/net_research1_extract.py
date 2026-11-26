@@ -66,7 +66,9 @@ PROMO = re.compile(
     r"massima qualit|alta qualit|elevat[ao] qualit|puntualit|professionalit|passione|"
     r"soddisfazione del cliente|punto di riferimento|partner ideale|partner affidabile|competitiv|"
     r"di qualit|standard qualitativ|know.how|lunga esperienza|pluriennale esperienza|innovazion|"
-    r"sostenibil|consolidat|efficaci|su misura per ogni esigenza|ogni esigenza",
+    r"sostenibil|consolidat|efficaci|su misura per ogni esigenza|ogni esigenza|garant|"
+    r"attenzione alla qualit|massima precisione|qualit[aà] costante|ultima generazione|"
+    r"soluzioni personalizzate|esperti e sempre aggiornati|tutte le richieste",
     re.I)
 
 
