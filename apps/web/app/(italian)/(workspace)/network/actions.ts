@@ -82,7 +82,7 @@ export async function requestNetworkClaim(formData: FormData) {
 export async function updateManagedNetworkProfile(formData: FormData) {
   await requireWorkspaceAdmin();
   const companyId = textValue(formData, "network_company_id");
-  if (!companyId) redirect("/network/manage?error=Profilo%20non%20valido");
+  if (!companyId) redirect("/network/manage?error=Profilo%20non%20valido#overview");
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("m8_update_managed_network_company", {
@@ -93,17 +93,17 @@ export async function updateManagedNetworkProfile(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/manage?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+    redirect("/network/manage?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")) + "#overview");
   }
 
   revalidatePath("/network/manage");
   revalidatePath("/network/" + companyId);
-  redirect("/network/manage?message=Profilo%20Network%20aggiornato");
+  redirect("/network/manage?message=Profilo%20Network%20aggiornato#overview");
 }
 
 
-function managedProfilePath(key: "message" | "error", value: string) {
-  return "/network/manage?" + key + "=" + encodeURIComponent(value);
+function managedProfilePath(section: string, key: "message" | "error", value: string) {
+  return "/network/manage?" + key + "=" + encodeURIComponent(value) + "#" + section;
 }
 
 function revalidateManagedProfile(companyId: string) {
@@ -119,7 +119,7 @@ export async function setManagedCompanyRole(formData: FormData) {
   const enabled = textValue(formData, "enabled") !== "false";
   const isPrimary = textValue(formData, "is_primary") === "true";
 
-  if (!companyId || !roleKey) redirect(managedProfilePath("error", "Ruolo non valido."));
+  if (!companyId || !roleKey) redirect(managedProfilePath("positioning", "error", "Ruolo non valido."));
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("p3_7b_set_role", {
@@ -129,9 +129,9 @@ export async function setManagedCompanyRole(formData: FormData) {
     p_is_primary: isPrimary,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("positioning", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", enabled ? "Ruolo aziendale aggiornato." : "Ruolo rimosso."));
+  redirect(managedProfilePath("positioning", "message", enabled ? "Ruolo aziendale aggiornato." : "Ruolo rimosso."));
 }
 
 export async function setManagedCompanySubtype(formData: FormData) {
@@ -140,7 +140,7 @@ export async function setManagedCompanySubtype(formData: FormData) {
   const subtypeKey = textValue(formData, "subtype_key");
   const enabled = textValue(formData, "enabled") !== "false";
 
-  if (!companyId || !subtypeKey) redirect(managedProfilePath("error", "Sottotipo non valido."));
+  if (!companyId || !subtypeKey) redirect(managedProfilePath("positioning", "error", "Sottotipo non valido."));
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("p3_7b_set_subtype", {
@@ -149,9 +149,9 @@ export async function setManagedCompanySubtype(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("positioning", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", enabled ? "Sottotipo aggiunto." : "Sottotipo rimosso."));
+  redirect(managedProfilePath("positioning", "message", enabled ? "Sottotipo aggiunto." : "Sottotipo rimosso."));
 }
 
 export async function setManagedCompanyProduct(formData: FormData) {
@@ -163,7 +163,7 @@ export async function setManagedCompanyProduct(formData: FormData) {
   const enabled = textValue(formData, "enabled") !== "false";
 
   if (!companyId || !productKey || !relationshipType) {
-    redirect(managedProfilePath("error", "Relazione prodotto non valida."));
+    redirect(managedProfilePath("products", "error", "Relazione prodotto non valida."));
   }
 
   const supabase = await createClient();
@@ -175,9 +175,9 @@ export async function setManagedCompanyProduct(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("products", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", enabled ? "Prodotto aggiunto al profilo." : "Relazione prodotto rimossa."));
+  redirect(managedProfilePath("products", "message", enabled ? "Prodotto aggiunto al profilo." : "Relazione prodotto rimossa."));
 }
 
 export async function setManagedProductStandardScope(formData: FormData) {
@@ -188,7 +188,7 @@ export async function setManagedProductStandardScope(formData: FormData) {
   const enabled = textValue(formData, "enabled") !== "false";
 
   if (!companyId || !companyProductId || !standardId) {
-    redirect(managedProfilePath("error", "Norma tecnica non valida."));
+    redirect(managedProfilePath("products", "error", "Norma tecnica non valida."));
   }
 
   const supabase = await createClient();
@@ -198,11 +198,10 @@ export async function setManagedProductStandardScope(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("products", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(
-    managedProfilePath(
-      "message",
+    managedProfilePath("products", "message",
       enabled ? "Norma aggiunta allo scope tecnico." : "Norma rimossa dallo scope tecnico.",
     ),
   );
@@ -222,7 +221,7 @@ export async function setManagedProductGradeScope(formData: FormData) {
   }
 
   if (!companyId || !companyProductId || !standardId || !materialGradeId) {
-    redirect(managedProfilePath("error", "Grado materiale non valido."));
+    redirect(managedProfilePath("products", "error", "Grado materiale non valido."));
   }
 
   const supabase = await createClient();
@@ -233,11 +232,10 @@ export async function setManagedProductGradeScope(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("products", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
   redirect(
-    managedProfilePath(
-      "message",
+    managedProfilePath("products", "message",
       enabled ? "Grado aggiunto allo scope tecnico." : "Grado rimosso dallo scope tecnico.",
     ),
   );
@@ -260,7 +258,7 @@ export async function upsertManagedProductDimensionScope(formData: FormData) {
     minMm <= 0 ||
     maxMm < minMm
   ) {
-    redirect(managedProfilePath("error", "Range dimensionale non valido."));
+    redirect(managedProfilePath("products", "error", "Range dimensionale non valido."));
   }
 
   const supabase = await createClient();
@@ -271,9 +269,9 @@ export async function upsertManagedProductDimensionScope(formData: FormData) {
     p_max_mm: maxMm,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("products", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", "Range dimensionale aggiornato."));
+  redirect(managedProfilePath("products", "message", "Range dimensionale aggiornato."));
 }
 
 export async function removeManagedProductDimensionScope(formData: FormData) {
@@ -283,7 +281,7 @@ export async function removeManagedProductDimensionScope(formData: FormData) {
   const dimensionType = textValue(formData, "dimension_type");
 
   if (!companyId || !companyProductId || !dimensionType) {
-    redirect(managedProfilePath("error", "Range dimensionale non valido."));
+    redirect(managedProfilePath("products", "error", "Range dimensionale non valido."));
   }
 
   const supabase = await createClient();
@@ -292,9 +290,9 @@ export async function removeManagedProductDimensionScope(formData: FormData) {
     p_dimension_type: dimensionType,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("products", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", "Range dimensionale rimosso."));
+  redirect(managedProfilePath("products", "message", "Range dimensionale rimosso."));
 }
 
 export async function upsertManagedFacility(formData: FormData) {
@@ -302,7 +300,7 @@ export async function upsertManagedFacility(formData: FormData) {
   const companyId = textValue(formData, "network_company_id");
   const facilityId = textValue(formData, "facility_id") || null;
 
-  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+  if (!companyId) redirect(managedProfilePath("facilities", "error", "Profilo non valido."));
 
   const payload = {
     name: textValue(formData, "name"),
@@ -324,16 +322,16 @@ export async function upsertManagedFacility(formData: FormData) {
     p_payload: payload,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("facilities", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", facilityId ? "Sede aggiornata." : "Sede aggiunta al profilo."));
+  redirect(managedProfilePath("facilities", "message", facilityId ? "Sede aggiornata." : "Sede aggiunta al profilo."));
 }
 
 export async function archiveManagedFacility(formData: FormData) {
   await requireWorkspaceAdmin();
   const companyId = textValue(formData, "network_company_id");
   const facilityId = textValue(formData, "facility_id");
-  if (!companyId || !facilityId) redirect(managedProfilePath("error", "Sede non valida."));
+  if (!companyId || !facilityId) redirect(managedProfilePath("facilities", "error", "Sede non valida."));
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("p3_7b_archive_facility", {
@@ -341,9 +339,9 @@ export async function archiveManagedFacility(formData: FormData) {
     p_facility_id: facilityId,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("facilities", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", "Sede archiviata."));
+  redirect(managedProfilePath("facilities", "message", "Sede archiviata."));
 }
 
 export async function setManagedFacilityCapability(formData: FormData) {
@@ -354,7 +352,7 @@ export async function setManagedFacilityCapability(formData: FormData) {
   const enabled = textValue(formData, "enabled") !== "false";
 
   if (!companyId || !facilityId || !capabilityKey) {
-    redirect(managedProfilePath("error", "Capability non valida."));
+    redirect(managedProfilePath("facilities", "error", "Capability non valida."));
   }
 
   const supabase = await createClient();
@@ -365,9 +363,9 @@ export async function setManagedFacilityCapability(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("facilities", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", enabled ? "Capability aggiunta." : "Capability rimossa."));
+  redirect(managedProfilePath("facilities", "message", enabled ? "Capability aggiunta." : "Capability rimossa."));
 }
 
 export async function setManagedCompanyMarket(formData: FormData) {
@@ -376,7 +374,7 @@ export async function setManagedCompanyMarket(formData: FormData) {
   const marketKey = textValue(formData, "market_key");
   const enabled = textValue(formData, "enabled") !== "false";
 
-  if (!companyId || !marketKey) redirect(managedProfilePath("error", "Mercato non valido."));
+  if (!companyId || !marketKey) redirect(managedProfilePath("markets", "error", "Mercato non valido."));
 
   const supabase = await createClient();
   const { error } = await supabase.rpc("p3_7b_set_market", {
@@ -385,16 +383,16 @@ export async function setManagedCompanyMarket(formData: FormData) {
     p_enabled: enabled,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("markets", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", enabled ? "Mercato aggiunto." : "Mercato rimosso."));
+  redirect(managedProfilePath("markets", "message", enabled ? "Mercato aggiunto." : "Mercato rimosso."));
 }
 
 export async function upsertManagedCertification(formData: FormData) {
   await requireWorkspaceAdmin();
   const companyId = textValue(formData, "network_company_id");
   const certificationId = textValue(formData, "certification_id") || null;
-  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+  if (!companyId) redirect(managedProfilePath("certifications", "error", "Profilo non valido."));
 
   const payload = {
     certification_type_key: textValue(formData, "certification_type_key"),
@@ -414,9 +412,9 @@ export async function upsertManagedCertification(formData: FormData) {
     p_payload: payload,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("certifications", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", certificationId ? "Certificazione aggiornata." : "Certificazione aggiunta."));
+  redirect(managedProfilePath("certifications", "message", certificationId ? "Certificazione aggiornata." : "Certificazione aggiunta."));
 }
 
 export async function removeManagedCertification(formData: FormData) {
@@ -424,7 +422,7 @@ export async function removeManagedCertification(formData: FormData) {
   const companyId = textValue(formData, "network_company_id");
   const certificationId = textValue(formData, "certification_id");
   if (!companyId || !certificationId) {
-    redirect(managedProfilePath("error", "Certificazione non valida."));
+    redirect(managedProfilePath("certifications", "error", "Certificazione non valida."));
   }
 
   const supabase = await createClient();
@@ -433,9 +431,9 @@ export async function removeManagedCertification(formData: FormData) {
     p_certification_id: certificationId,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("certifications", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", "Certificazione rimossa."));
+  redirect(managedProfilePath("certifications", "message", "Certificazione rimossa."));
 }
 
 
@@ -448,15 +446,15 @@ export async function uploadManagedCompanyLogo(formData: FormData) {
   const companyId = textValue(formData, "network_company_id");
   const file = formData.get("logo");
 
-  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+  if (!companyId) redirect(managedProfilePath("overview", "error", "Profilo non valido."));
   if (!file || typeof file === "string" || file.size === 0) {
-    redirect(managedProfilePath("error", "Seleziona un file immagine."));
+    redirect(managedProfilePath("overview", "error", "Seleziona un file immagine."));
   }
   if (!COMPANY_LOGO_MIME_TYPES.has(file.type)) {
-    redirect(managedProfilePath("error", "Formato logo non supportato. Usa PNG, JPEG o WebP."));
+    redirect(managedProfilePath("overview", "error", "Formato logo non supportato. Usa PNG, JPEG o WebP."));
   }
   if (file.size > COMPANY_LOGO_MAX_BYTES) {
-    redirect(managedProfilePath("error", "Il logo non può superare 2 MB."));
+    redirect(managedProfilePath("overview", "error", "Il logo non può superare 2 MB."));
   }
 
   const supabase = await createClient();
@@ -472,7 +470,7 @@ export async function uploadManagedCompanyLogo(formData: FormData) {
     });
 
   if (uploadError) {
-    redirect(managedProfilePath("error", safeErrorMessage(uploadError, "Caricamento logo non completato. Riprova.")));
+    redirect(managedProfilePath("overview", "error", safeErrorMessage(uploadError, "Caricamento logo non completato. Riprova.")));
   }
 
   const { error: profileError } = await supabase.rpc("p3_7d_set_logo_path", {
@@ -482,11 +480,11 @@ export async function uploadManagedCompanyLogo(formData: FormData) {
 
   if (profileError) {
     await supabase.storage.from(COMPANY_LOGO_BUCKET).remove([logoPath]);
-    redirect(managedProfilePath("error", safeErrorMessage(profileError, "Aggiornamento profilo non completato. Aggiorna la pagina e riprova.")));
+    redirect(managedProfilePath("overview", "error", safeErrorMessage(profileError, "Aggiornamento profilo non completato. Aggiorna la pagina e riprova.")));
   }
 
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", "Logo aziendale aggiornato."));
+  redirect(managedProfilePath("overview", "message", "Logo aziendale aggiornato."));
 }
 
 export async function removeManagedCompanyLogo(formData: FormData) {
@@ -494,7 +492,7 @@ export async function removeManagedCompanyLogo(formData: FormData) {
   const companyId = textValue(formData, "network_company_id");
   const logoPath = textValue(formData, "logo_path");
 
-  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+  if (!companyId) redirect(managedProfilePath("overview", "error", "Profilo non valido."));
 
   const supabase = await createClient();
   const { error: profileError } = await supabase.rpc("p3_7d_set_logo_path", {
@@ -502,7 +500,7 @@ export async function removeManagedCompanyLogo(formData: FormData) {
     p_logo_path: null,
   });
 
-  if (profileError) redirect(managedProfilePath("error", safeErrorMessage(profileError, "Aggiornamento profilo non completato. Aggiorna la pagina e riprova.")));
+  if (profileError) redirect(managedProfilePath("overview", "error", safeErrorMessage(profileError, "Aggiornamento profilo non completato. Aggiorna la pagina e riprova.")));
 
   if (logoPath) {
     const { error: removeError } = await supabase.storage
@@ -512,8 +510,7 @@ export async function removeManagedCompanyLogo(formData: FormData) {
     if (removeError) {
       revalidateManagedProfile(companyId);
       redirect(
-        managedProfilePath(
-          "message",
+        managedProfilePath("overview", "message",
           "Logo rimosso dal profilo. La pulizia del file storage richiede una verifica tecnica.",
         ),
       );
@@ -521,7 +518,7 @@ export async function removeManagedCompanyLogo(formData: FormData) {
   }
 
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", "Logo aziendale rimosso."));
+  redirect(managedProfilePath("overview", "message", "Logo aziendale rimosso."));
 }
 
 export async function upsertManagedPublicContact(formData: FormData) {
@@ -529,7 +526,7 @@ export async function upsertManagedPublicContact(formData: FormData) {
   const companyId = textValue(formData, "network_company_id");
   const contactId = textValue(formData, "contact_id") || null;
 
-  if (!companyId) redirect(managedProfilePath("error", "Profilo non valido."));
+  if (!companyId) redirect(managedProfilePath("contacts", "error", "Profilo non valido."));
 
   const payload = {
     contact_type: textValue(formData, "contact_type"),
@@ -548,12 +545,11 @@ export async function upsertManagedPublicContact(formData: FormData) {
     p_payload: payload,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("contacts", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
 
   revalidateManagedProfile(companyId);
   redirect(
-    managedProfilePath(
-      "message",
+    managedProfilePath("contacts", "message",
       contactId ? "Contatto pubblico aggiornato." : "Contatto pubblico aggiunto.",
     ),
   );
@@ -565,7 +561,7 @@ export async function archiveManagedPublicContact(formData: FormData) {
   const contactId = textValue(formData, "contact_id");
 
   if (!companyId || !contactId) {
-    redirect(managedProfilePath("error", "Contatto pubblico non valido."));
+    redirect(managedProfilePath("contacts", "error", "Contatto pubblico non valido."));
   }
 
   const supabase = await createClient();
@@ -574,10 +570,10 @@ export async function archiveManagedPublicContact(formData: FormData) {
     p_contact_id: contactId,
   });
 
-  if (error) redirect(managedProfilePath("error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+  if (error) redirect(managedProfilePath("contacts", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
 
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", "Contatto pubblico archiviato."));
+  redirect(managedProfilePath("contacts", "message", "Contatto pubblico archiviato."));
 }
 
 /** UX1.B: strictly company-managed declarations; approval checked again in SQL. */
@@ -600,7 +596,7 @@ export async function saveManagedNetworkInventory(formData: FormData) {
       product.length < 2 || product.length > 180 ||
       !Number.isFinite(quantity) || quantity <= 0 || quantity > 1000000000 ||
       (publicationStatus === "published" && kind !== "stock" && !/^\d{4}-\d{2}-\d{2}$/.test(date))) {
-    redirect(managedProfilePath("error", "Controlla prodotto, quantità e data prevista prima di salvare."));
+    redirect(managedProfilePath("stock", "error", "Controlla prodotto, quantità e data prevista prima di salvare."));
   }
   const supabase = await createClient();
   const { error } = await supabase.rpc("netprofile_ux1b_upsert", {
@@ -619,11 +615,11 @@ export async function saveManagedNetworkInventory(formData: FormData) {
     p_publication_status: publicationStatus,
   });
   if (error) {
-    redirect(managedProfilePath("error",
+    redirect(managedProfilePath("stock", "error",
       safeErrorMessage(error, "Impossibile aggiornare la disponibilità. Verifica autorizzazioni e dati.")));
   }
   revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("message", publicationStatus === "published"
+  redirect(managedProfilePath("stock", "message", publicationStatus === "published"
     ? "Disponibilità pubblicata nel Network."
     : publicationStatus === "archived" ? "Disponibilità archiviata." : "Bozza privata salvata."));
 }
@@ -828,11 +824,11 @@ export async function setInquiryPreferences(formData: FormData) {
   });
 
   if (error) {
-    redirect("/network/manage?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
+    redirect("/network/manage?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")) + "#inquiries");
   }
 
   revalidatePath("/network/manage");
-  redirect("/network/manage?message=Preferenze%20inquiry%20aggiornate");
+  redirect("/network/manage?message=Preferenze%20inquiry%20aggiornate#inquiries");
 }
 
 export async function blockInquirySenderOrganization(formData: FormData) {
