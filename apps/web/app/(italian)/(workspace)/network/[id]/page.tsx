@@ -182,7 +182,7 @@ export default async function NetworkCompanyProfilePage({
   const membershipRole = context.role;
   const canInteract = canInteractWithNetwork(context.role);
   const adminOrganizationId: string | null = context.role === "admin" ? context.organizationId : null;
-  const [candidateResult, profileResult, claimResult, eligibility, savedResult, inventoryResult, reviewedEvidence, officialProductPages, query, vatId] = await Promise.all([
+  const [candidateResult, profileResult, claimResult, eligibility, savedResult, inventoryResult, reviewedEvidence, officialProductPages, query, companyVat] = await Promise.all([
     // NET-LAUNCH1: even entitled Pro viewers must open an unconfirmed discovery
     // in the Free profile reader, not in the canonical Pro-company query.
     // That reader enforces active company membership and returns no private data.
@@ -342,7 +342,8 @@ export default async function NetworkCompanyProfilePage({
       <NetworkProfileOverview
         name={displayName}
         legalName={profile.company.legal_name}
-        vatId={vatId}
+        vatId={companyVat?.vatId ?? null}
+        vatViesConfirmed={companyVat?.viesConfirmed ?? false}
         countryCode={profile.company.country_code}
         location={locationLabels[0] ?? null}
         primaryRole={primaryRole ? networkNameIt(primaryRole.name) : null}

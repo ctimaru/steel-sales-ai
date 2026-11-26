@@ -50,7 +50,7 @@ export async function FreeNetworkProfileView({
   // Network server action; never expose the control on provisional entries.
   const canSave=!provisional && canWriteWorkspace(workspace.role);
   // NET-PROFILE-FAST1: the remaining reads are independent, so they run together.
-  const [reviewedEvidence, officialProductPages, readiness, savedIds, inventory, vatId] = await Promise.all([
+  const [reviewedEvidence, officialProductPages, readiness, savedIds, inventory, companyVat] = await Promise.all([
     getReviewedCompanyEvidence(organizationId,companyId,accessMode).catch(()=>[]),
     provisional ? Promise.resolve([] as string[]) : getNetworkProducerOfficialPages(organizationId,companyId,accessMode).catch(()=>[]),
     provisional ? Promise.resolve(null) : getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null),
@@ -74,7 +74,8 @@ export async function FreeNetworkProfileView({
         <NetworkProfileOverview
           name={companyName}
           legalName={profile.company.legal_name}
-          vatId={vatId}
+          vatId={companyVat?.vatId ?? null}
+          vatViesConfirmed={companyVat?.viesConfirmed ?? false}
           countryCode={profile.company.country_code}
           location={firstLocation}
           primaryRole={profile.roles[0]?.name ?? null}

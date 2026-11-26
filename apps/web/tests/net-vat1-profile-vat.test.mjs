@@ -35,7 +35,17 @@ test("scheda: P.IVA accanto alla ragione sociale in entrambe le viste", () => {
   assert.match(overview, /\(countryCode === "IT" \? "P\.IVA " : "VAT "\) \+ vatId/);
   assert.match(overview, /data-testid="network-profile-identity"/);
   assert.match(pro, /getNetworkCompanyVat\(id\)/);
-  assert.match(pro, /vatId=\{vatId\}/);
+  assert.match(pro, /vatId=\{companyVat\?\.vatId \?\? null\}/);
   assert.match(free, /provisional \? Promise\.resolve\(null\) : getNetworkCompanyVat\(companyId\)/);
-  assert.match(free, /vatId=\{vatId\}/);
+  assert.match(free, /vatId=\{companyVat\?\.vatId \?\? null\}/);
+});
+
+test("fase 3: «verificata VIES» solo se VIES conferma l'intestazione", () => {
+  const vies = read("../../../supabase/migrations/20261126143000_net_vat1_vies.sql");
+  assert.match(vies, /'vies_confirmed', coalesce\(v\.vat_id = n\.vat_id AND v\.status = 'valid'\s+AND v\.name_match = 'match', false\)/);
+  assert.match(vies, /UPDATE public\.network_companies SET vat_id = NULL\s+WHERE id = p_company_id AND vat_id = p_vat;/);
+  assert.match(lib, /viesConfirmed: row\.vies_confirmed === true/);
+  assert.match(overview, /verificata VIES/);
+  assert.match(pro, /vatViesConfirmed=\{companyVat\?\.viesConfirmed \?\? false\}/);
+  assert.match(free, /vatViesConfirmed=\{companyVat\?\.viesConfirmed \?\? false\}/);
 });
