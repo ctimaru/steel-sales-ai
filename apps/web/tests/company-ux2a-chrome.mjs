@@ -131,8 +131,9 @@ try {
         }
         if (payload.facility_type === "plant") {
           // Local synthetic fixture only, matching the existing P3.7B SQL lock test.
-          const verified = await service.from("network_facilities").update({verification_status:"verified"}).eq("network_company_id",companyId).eq("id",id).select("id").single();
+          const verified = await service.from("network_facilities").update({verification_status:"verified"}).eq("company_id",companyId).eq("id",id).select("id,verification_status").single();
           assert.ifError(verified.error);
+          assert.equal(verified.data?.verification_status, "verified");
           const locked = await admin.rpc("p3_7b_upsert_facility", {p_network_company_id:companyId,p_facility_id:id,p_payload:{...payload,name:"DEMO blocked edit"}});
           assert.ok(locked.error, "Verified facility must require Platform review");
         }
