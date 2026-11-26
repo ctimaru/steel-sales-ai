@@ -19,6 +19,7 @@ const platformKnowledge = read("../app/(platform)/platform/knowledge/page.tsx");
 const platformPilot = read("../app/(platform)/platform/pilot/page.tsx");
 const discovery = read("../app/(platform)/platform/company-discovery/page.tsx");
 const companyProfile = read("../app/(workspace)/network/manage/page.tsx");
+const companyWorkspaceNavigation = read("../components/company-workspace-navigation.tsx");
 const marketplaceNew = read("../app/(workspace)/marketplace/new/page.tsx");
 const marketplaceResponse = read("../components/marketplace-response-workspace.tsx");
 
@@ -68,7 +69,9 @@ test("HP15 keeps confirmation dialogs inside the dynamic mobile viewport", () =>
 test("HP15 keeps known dense surfaces intentionally scrollable instead of overflowing the page", () => {
   assert.match(platformPilot, /overflow-x-auto/);
   assert.match(discovery, /overflow-x-auto/);
-  assert.match(companyProfile, /overflow-x-auto/);
+  assert.match(companyProfile, /<CompanyWorkspaceNavigation/);
+  assert.match(companyWorkspaceNavigation, /overflow-x-auto/);
+  assert.match(companyWorkspaceNavigation, /min-h-11/);
   assert.match(globals, /overflow-x: hidden/);
   assert.match(platformKnowledge, /w-full grid-cols-2/);
 });
