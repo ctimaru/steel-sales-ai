@@ -66,6 +66,15 @@ class ValidateProfileTest(unittest.TestCase):
         self.assertEqual(out["outcome"], "no_content")
 
 
+class SummaryGuardTest(unittest.TestCase):
+    def test_promotional_and_unsupported_sentences_are_removed(self):
+        corpus = "fondata nel 1978 a brescia produce tubi saldati"
+        from app.net_research1_extract import clean_summary
+        text = clean_summary("L'azienda Rossi produce tubi saldati dal 1978. È leader del settore. "
+                             "Fondata nel 1965 a Brescia. Garantisce qualità e puntualità.", corpus)
+        self.assertEqual(text, "Rossi produce tubi saldati dal 1978.")
+
+
 class HelpersTest(unittest.TestCase):
     def test_revenue_from_quote(self):
         self.assertEqual(revenue_from_quote("fatturato 2024 di 18,5 milioni di euro"), 18.5e6)
