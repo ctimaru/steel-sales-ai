@@ -35,7 +35,7 @@ export function DeskAssignSelect({ kind, id, title, assignees }: {
       <label className="sr-only" htmlFor={"assign-" + id}>Assegna «{title}» a</label>
       <select id={"assign-" + id} defaultValue="" disabled={pending || !assignees.length}
         onChange={(event) => assign(event.target.value)}
-        className="h-9 w-full max-w-[240px] rounded-lg border border-[#bfd0c5] bg-white px-2 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:opacity-60">
+        className="h-10 w-full max-w-[240px] rounded-lg border border-[#bfd0c5] bg-white px-2 text-xs font-semibold text-[#173f35] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#175640] disabled:opacity-60">
         <option value="" disabled>{pending ? "Assegnazione…" : "Assegna a…"}</option>
         {assignees.map((a) => <option key={a.userId} value={a.userId}>{a.label} · {a.office}</option>)}
       </select>
@@ -67,11 +67,11 @@ export function DeskApprovalButtons({ rfqId, approvalId, ownRequest }: {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <button type="button" onClick={() => decide("approved")} disabled={pending}
-        className="inline-flex min-h-9 items-center rounded-lg bg-[#175640] px-3 text-xs font-bold text-white hover:bg-[#104632] disabled:opacity-60">
+        className="inline-flex min-h-10 items-center rounded-lg bg-[#175640] px-4 text-xs font-bold text-white hover:bg-[#104632] disabled:opacity-60">
         {pending ? "…" : "Approva"}
       </button>
       <button type="button" onClick={() => decide("rejected")} disabled={pending}
-        className="inline-flex min-h-9 items-center rounded-lg border border-[#bfd0c5] bg-white px-3 text-xs font-semibold text-[#9a3412] hover:bg-[#fff6f1] disabled:opacity-60">
+        className="inline-flex min-h-10 items-center rounded-lg border border-[#bfd0c5] bg-white px-3.5 text-xs font-semibold text-[#9a3412] hover:bg-[#fff6f1] disabled:opacity-60">
         Rifiuta
       </button>
       {error ? <p role="alert" className="w-full text-[11px] font-semibold text-[#9a3412]">{error}</p> : null}
