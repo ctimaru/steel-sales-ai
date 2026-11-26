@@ -141,8 +141,10 @@ async def research_company(client, reader, company: dict) -> tuple[str, dict]:
         raw = await reader.read(model_input(company, pages))
     except Exception as exc:  # provider-specific transport errors
         # Short provider reason for diagnosis (no page text is ever echoed back).
-        reason = re.sub(r"\s+", " ", str(exc))[:50]
-        return "failed", {"error": f"model_{type(exc).__name__}: {reason}"[:80]}
+        # The provider puts a request id first: keep the end, where the reason is.
+        reason = re.sub(r"\s+", " ", str(exc))[-62:]
+        print(json.dumps({"model_error": type(exc).__name__, "reason": str(exc)[-400:]}), flush=True)
+        return "failed", {"error": f"model_{type(exc).__name__[:8]}: {reason}"[:80]}
     profile = validate_profile(raw, cleaned)
     outcome = profile.pop("outcome")
     profile.update(source_urls=[url for url, _ in cleaned], extractor_version=VERSION, model=reader.model)
