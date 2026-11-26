@@ -372,7 +372,12 @@ select pg_temp.hp13_assert(
         -- by id; returns only the company's own vat_id, its provenance kind
         -- and a VIES boolean. No candidate data, URLs, PII or writes.
         -- Empty pinned search_path, anonymous EXECUTE revoked.
-        'net_vat1_public_company_vat'
+        'net_vat1_public_company_vat',
+        -- NET-RESEARCH1 reviewed: read-only, auth.uid() required, one published
+        -- non-archived company by id; returns only the researched company
+        -- profile (labels, bands, official-site source URLs). Pilot rows only
+        -- for private.is_platform_superadmin(). No quotes, PII or writes.
+        'net_research1_company_profile'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'

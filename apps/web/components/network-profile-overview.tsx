@@ -65,6 +65,7 @@ export function NetworkProfileOverview({
   primaryRole,
   roles = [],
   description,
+  researchContent,
   evidenceSourceUrl,
   sourceUrl,
   industrialSource = false,
@@ -101,6 +102,8 @@ export function NetworkProfileOverview({
   primaryRole?: string | null;
   roles?: string[];
   description?: string | null;
+  /** NET-RESEARCH1: «Profilo in breve» block, first in «Attività e prodotti». */
+  researchContent?: ReactNode;
   evidenceSourceUrl?: string | null;
   sourceUrl?: string | null;
   industrialSource?: boolean;
@@ -134,7 +137,7 @@ export function NetworkProfileOverview({
   const visibleServices = Array.from(new Set(services.filter(Boolean))).slice(0, 10);
   const visibleStandards = Array.from(new Set(standards.filter(Boolean))).slice(0, 12);
   const visibleRoles = Array.from(new Set([primaryRole, ...roles].filter((role): role is string => Boolean(role)))).slice(0, 3);
-  const hasActivities = Boolean(description?.trim() || visibleProducts.length || visibleServices.length || visibleStandards.length || visibleOfficialPages.length);
+  const hasActivities = Boolean(researchContent || description?.trim() || visibleProducts.length || visibleServices.length || visibleStandards.length || visibleOfficialPages.length);
   const hasStock = stockCount > 0 && stockContent !== undefined;
   const trustSourceUrl = sourceUrl || evidenceSourceUrl;
   const hasWebSource = Boolean(trustSourceUrl);
@@ -163,7 +166,8 @@ export function NetworkProfileOverview({
       content: (
         <section id="attivita" aria-label="Attività e prodotti" className="min-w-0 space-y-4">
           <h3 className={sectionTitleClass}>Attività e prodotti</h3>
-          {description ? <p className="max-w-4xl whitespace-pre-wrap text-sm leading-6 text-[#45594c]">{description}</p> : null}
+          {researchContent ?? null}
+          {description && !researchContent ? <p className="max-w-4xl whitespace-pre-wrap text-sm leading-6 text-[#45594c]">{description}</p> : null}
           {(visibleProducts.length || visibleServices.length || visibleStandards.length) ? (
             <dl className="divide-y divide-[#e5ece7] border-y border-[#e5ece7]" data-testid="network-profile-industrial-summary">
               {visibleProducts.length ? <div className="grid min-w-0 gap-2 py-3 sm:grid-cols-[150px_minmax(0,1fr)] sm:gap-4">

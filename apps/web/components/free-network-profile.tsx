@@ -13,6 +13,8 @@ import { NetworkActivationCta, NetworkActivationHelp } from "@/components/networ
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 import {getWorkspaceContext} from "@/lib/workspace-context";
 import { getNetworkCompanyVat } from "@/lib/network-vat";
+import { getNetworkCompanyResearch } from "@/lib/network-research";
+import { NetworkResearchProfile } from "@/components/network-research-profile";
 import {canInteractWithNetwork,canWriteWorkspace} from "@/lib/access-policy";
 import { getFreeNetworkProfile, getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
@@ -50,7 +52,7 @@ export async function FreeNetworkProfileView({
   // Network server action; never expose the control on provisional entries.
   const canSave=!provisional && canWriteWorkspace(workspace.role);
   // NET-PROFILE-FAST1: the remaining reads are independent, so they run together.
-  const [reviewedEvidence, officialProductPages, readiness, savedIds, inventory, companyVat] = await Promise.all([
+  const [reviewedEvidence, officialProductPages, readiness, savedIds, inventory, companyVat, research] = await Promise.all([
     getReviewedCompanyEvidence(organizationId,companyId,accessMode).catch(()=>[]),
     provisional ? Promise.resolve([] as string[]) : getNetworkProducerOfficialPages(organizationId,companyId,accessMode).catch(()=>[]),
     provisional ? Promise.resolve(null) : getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null),
@@ -58,6 +60,7 @@ export async function FreeNetworkProfileView({
     provisional ? Promise.resolve([]) : getPublishedNetworkInventory(organizationId, companyId),
     // NET-VAT1: only confirmed, published profiles carry a P.IVA.
     provisional ? Promise.resolve(null) : getNetworkCompanyVat(companyId),
+    provisional ? Promise.resolve(null) : getNetworkCompanyResearch(companyId),
   ]);
   const status=provisional?"unavailable":readiness?.get(companyId);
   const isSaved=savedIds.includes(companyId);
@@ -94,6 +97,7 @@ export async function FreeNetworkProfileView({
           ].filter((item): item is string => Boolean(item))}
           website={website}
           stockCount={inventory.length}
+          researchContent={research ? <NetworkResearchProfile research={research} /> : undefined}
           stockContent={inventory.length ? <NetworkProfileInventory items={inventory} /> : undefined}
           connectionsAvailable={Boolean((status==="available"&&canConnect) || status==="pending" || status==="connected" || canSave)}
           requestHref={!provisional && canWriteWorkspace(workspace.role) ? newRequestHref({network: companyId}) : undefined}
