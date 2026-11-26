@@ -22,7 +22,7 @@ from datetime import date
 
 EMPLOYEE_BANDS = ((9, "1-9"), (49, "10-49"), (249, "50-249"), (999, "250-999"))
 REVENUE_BANDS = ((2e6, "lt2m"), (10e6, "2-10m"), (50e6, "10-50m"), (250e6, "50-250m"))
-LIST_LIMITS = {"activities": 12, "products": 20, "sectors": 12, "markets": 12}
+LIST_LIMITS = {"activities": 12, "products": 12, "sectors": 12, "markets": 12}
 CONTACT_NOISE = re.compile(
     r"[\w.+-]+@[\w-]+\.[\w.-]+|https?://\S+|www\.\S+|\+?\d[\d\s./-]{7,}\d")
 CERT_RE = re.compile(
@@ -64,7 +64,9 @@ def parse_model_json(content: str) -> dict:
 PROMO = re.compile(
     r"\bleader\b|eccellenz|affidabil|all.avanguardia|numero uno|il migliore|i migliori|garantend|"
     r"massima qualit|alta qualit|elevat[ao] qualit|puntualit|professionalit|passione|"
-    r"soddisfazione del cliente|punto di riferimento|partner ideale|partner affidabile|competitiv",
+    r"soddisfazione del cliente|punto di riferimento|partner ideale|partner affidabile|competitiv|"
+    r"di qualit|standard qualitativ|know.how|lunga esperienza|pluriennale esperienza|innovazion|"
+    r"sostenibil|consolidat|efficaci|su misura per ogni esigenza|ogni esigenza",
     re.I)
 
 
@@ -204,7 +206,10 @@ def validate_profile(raw: dict, pages: list[tuple[str, str]], *, today: date | N
     profile: dict = {"facts": {}}
 
     summary = raw.get("summary") if isinstance(raw.get("summary"), str) else ""
+    raw_length = len(summary)
     summary = clean_summary(summary, corpus_plain)
+    # Private tuning signal (facts never leave the database).
+    profile["facts"]["summary_check"] = {"raw_chars": raw_length, "kept_chars": len(summary)}
     if (80 <= len(summary) <= 900 and not CONTACT_NOISE.search(summary)
             and _copied_share(summary, corpus_plain) <= 0.3):
         profile["summary"] = summary
