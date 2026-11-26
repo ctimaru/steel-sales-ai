@@ -20,10 +20,20 @@ try{
  for(const locale of ["it","en"]) for(const width of [1440,390,320]){
   const ctx=await browser.newContext({viewport:{width,height:900},reducedMotion:"reduce"});
   try{
-   await ctx.route("**/*",r=>r.abort());
+   let lookupCalls=0;
+   await ctx.route("**/*",async r=>{
+    const url=r.request().url();
+    if(url==="https://fixture.invalid/")return r.fulfill({status:200,contentType:"text/html",body:'<!doctype html><html lang="'+locale+'"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div></body></html>'});
+    if(url==="https://fixture.invalid/api/platform/marketing/founding-company-lookup"&&r.request().method()==="POST"){
+     lookupCalls++;const body=r.request().postData()||"";
+     const status=body.includes("NO MATCH")?"not_found":body.includes("SERVER ERROR")?"error":"ok";
+     return r.fulfill({status:200,contentType:"application/json",body:JSON.stringify({status,items:status==="ok"?[{legal_name:"Fixture Steel S.p.A.",trading_name:null,country_code:"IT",vat_hint:"••••1234"},{legal_name:"Fixture Steel GmbH",trading_name:null,country_code:"DE",vat_hint:null}]:[]})});
+    }
+    return r.abort();
+   });
    const page=await ctx.newPage(),errors=[];
    page.on("pageerror",e=>errors.push(e.message));
-   await page.setContent('<!doctype html><html lang="'+locale+'"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div></body></html>');
+   await page.goto("https://fixture.invalid/");
    await page.addStyleTag({content:css});
    await page.addScriptTag({content:bundle.outputFiles[0].text});
    await page.getByTestId("founding-preview").waitFor();
@@ -37,7 +47,21 @@ try{
    };
    await assertPrice(0);
    assert.equal(await preset.isDisabled(),true);
-   assert.equal(await page.locator("form,input,textarea").count(),0);
+   assert.equal(await page.locator("form").count(),1);
+   assert.equal(await page.locator("textarea,input[type=email],input[type=password]").count(),0);
+   assert.equal(lookupCalls,0);
+   for(const [query,status] of [["NO MATCH","not_found"],["SERVER ERROR","error"]]){
+    await page.getByTestId("founding-company-query").fill(query);await page.getByTestId("founding-company-search").click();
+    await page.getByTestId("founding-company-message").waitFor();
+    assert.equal(await page.getByTestId("founding-company-result").count(),0);
+   }
+   await page.getByTestId("founding-company-query").fill("Fixture Steel");await page.getByTestId("founding-company-search").click();
+   await page.getByTestId("founding-company-result").first().waitFor();assert.equal(await page.getByTestId("founding-company-result").count(),2);
+   await page.getByTestId("founding-company-result").first().getByRole("button").click();
+   await page.getByTestId("founding-company-selected").waitFor();assert.match(await page.getByTestId("founding-company-selected").innerText(),/Fixture Steel S\.p\.A\./);
+   assert.equal(lookupCalls,3);
+   await page.getByTestId("founding-company-selected").getByRole("button").click();
+   assert.equal(await page.getByTestId("founding-company-selected").count(),0);await assertPrice(0);
    assert.equal(await page.locator('a[href^="https:"],a[href*="checkout"],a[href*="register"]').count(),0);
    await page.screenshot({path:path.join(out,locale+"-"+width+"-empty.png"),fullPage:true,animations:"disabled"});
    for(let i=0;i<keys.length;i++){await page.getByTestId("founding-module-"+keys[i]).click();await assertPrice(i+1);}
@@ -58,5 +82,5 @@ try{
    checked++;
   }finally{await ctx.close();}
  }
- console.log("MKT9D2 interactive visual PASS: "+checked+" locale/viewport combinations, price ladder, presets, clear, keyboard, no purchase or data form");
+ console.log("MKT9D2 interactive visual PASS: "+checked+" locale/viewport combinations, price ladder, presets, clear, keyboard, lookup fixture, no purchase or registration");
 }finally{await browser.close();}

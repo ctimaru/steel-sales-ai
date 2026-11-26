@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FoundingCompanyLookup } from "@/components/founding-company-lookup";
 import { NETWORK_PRO_MODULES, type NetworkProModuleKey } from "@/lib/network-pro-catalog";
 import { FOUNDING_PRESETS, FOUNDING_TERM_MONTHS, foundingQuote, type FoundingRole } from "@/lib/founding-partners-preview";
 
@@ -11,7 +12,7 @@ const labels = {
   configure:"Configura il tuo Network PRO",company:"La tua azienda",lookup:"Ricerca nel Network in preparazione",role:"Qual è la tua attività?",manual:"Seleziona la tua attività",suggested:"Usa configurazione suggerita",
   roles:{producer:"Produttore",distributor:"Commerciante",processor:"Carpenteria / terzista",end_user:"Utilizzatore industriale"},
   modules:{producers:["Produttori","Intelligence Produttori e ricerca tecnica"],distributors:["Commercianti","Distributori, stockholder e grossisti"],end_users:["Utilizzatori industriali","OEM e consumatori industriali"],processors:["Carpenterie e lavorazioni","Carpenterie metalliche e terzisti"]},
-  total:"Il tuo Early Access",monthly:"/mese",vat:"Per azienda, IVA esclusa",reference:"Listino ipotetico di riferimento",difference:"Differenza indicativa su 12 mesi",term:"Condizioni proposte per i primi 12 mesi dall’attivazione.",none:"Seleziona almeno un modulo.",clear:"Azzera selezione",cta:"Prenotazione in preparazione",foot:"Anteprima non vincolante. Nessuna prenotazione, vendita, raccolta dati o diritto di accesso. Prezzi da approvare.",eu:"Europa: disponibilità da validare.",selected:"moduli selezionati",scope:"Italia",benefits:["Ricerca industriale mirata","Intelligence tecnica per il modulo Produttori","Configura solo ciò che ti serve"]
+  total:"Il tuo Early Access",monthly:"/mese",vat:"Per azienda, IVA esclusa",reference:"Listino ipotetico di riferimento",difference:"Differenza indicativa su 12 mesi",term:"Condizioni proposte per i primi 12 mesi dall’attivazione.",none:"Seleziona almeno un modulo.",clear:"Azzera selezione",cta:"Prenotazione in preparazione",foot:"Anteprima non vincolante. Nessuna prenotazione, vendita, salvataggio della selezione o diritto di accesso. Prezzi da approvare.",eu:"Europa: disponibilità da validare.",selected:"moduli selezionati",scope:"Italia",benefits:["Ricerca industriale mirata","Intelligence tecnica per il modulo Produttori","Configura solo ciò che ti serve"]
  },
  en:{
   eyebrow:"FOUNDING PARTNERS · 2027",preview:"Private preview · indicative terms",title:"The future of steel starts with your company.",
@@ -19,7 +20,7 @@ const labels = {
   configure:"Configure your Network PRO",company:"Your company",lookup:"Network company search in preparation",role:"What does your company do?",manual:"Choose your business type",suggested:"Use suggested configuration",
   roles:{producer:"Producer",distributor:"Distributor",processor:"Fabricator / processor",end_user:"Industrial end user"},
   modules:{producers:["Producers","Producer Intelligence and technical search"],distributors:["Distributors","Stockholders, wholesalers and traders"],end_users:["Industrial end users","OEMs and industrial consumers"],processors:["Fabricators and processing","Metal fabricators and specialist services"]},
-  total:"Your Early Access",monthly:"/month",vat:"Per company, excluding VAT",reference:"Indicative reference price",difference:"Illustrative 12-month difference",term:"Proposed terms for the first 12 months after activation.",none:"Select at least one module.",clear:"Clear selection",cta:"Reservations in preparation",foot:"Non-binding preview. No reservation, sale, data collection or access entitlement. Prices subject to approval.",eu:"Europe: availability to be validated.",selected:"modules selected",scope:"Italy",benefits:["Targeted industrial search","Technical intelligence in the Producers module","Configure only what you need"]
+  total:"Your Early Access",monthly:"/month",vat:"Per company, excluding VAT",reference:"Indicative reference price",difference:"Illustrative 12-month difference",term:"Proposed terms for the first 12 months after activation.",none:"Select at least one module.",clear:"Clear selection",cta:"Reservations in preparation",foot:"Non-binding preview. No reservation, sale, saved selection or access entitlement. Prices subject to approval.",eu:"Europe: availability to be validated.",selected:"modules selected",scope:"Italy",benefits:["Targeted industrial search","Technical intelligence in the Producers module","Configure only what you need"]
  }
 } as const;
 const euro=(value:number,locale:"it"|"en")=>new Intl.NumberFormat(locale==="it"?"it-IT":"en-IE",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(value);
@@ -50,7 +51,7 @@ export function FoundingPartnersPreview({locale="it"}:{locale?:"it"|"en"}) {
    <div className="grid min-w-0 gap-5 p-4 sm:p-6 lg:grid-cols-[minmax(0,1fr)_minmax(280px,340px)]">
      <section id="founding-config" className="min-w-0 scroll-mt-4">
        <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-lg font-semibold">{c.company}</h2><span className="rounded-full border border-[#d5dedb] px-3 py-1 text-xs font-semibold">IT · {c.scope}</span></div>
-       <div className="mt-2 flex min-h-11 items-center gap-2 rounded-lg border border-dashed border-[#b0c3bb] bg-[#f5f8f7] px-3 py-2 text-sm text-[#466058]"><svg aria-hidden="true" viewBox="0 0 24 24" className="size-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg>{c.lookup}</div>
+       <FoundingCompanyLookup locale={locale}/>
        <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
          <label className="min-w-0 text-xs font-semibold">{c.role}<select data-testid="founding-role" value={role} onChange={e=>setRole(e.target.value as FoundingRole|"")} className="mt-1 block min-h-11 w-full min-w-0 rounded-lg border border-[#a4b8af] bg-white px-3 py-2 text-sm text-[#20332e]"><option value="">{c.manual}</option>{Object.entries(c.roles).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label>
          <button type="button" data-testid="founding-preset" disabled={!role} onClick={()=>{if(role)setSelected([...FOUNDING_PRESETS[role]])}} className="min-h-11 rounded-lg border border-[#a4b8af] px-3 py-2 text-sm font-semibold text-[#123b34] disabled:opacity-50">{c.suggested}</button>

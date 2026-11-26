@@ -37,3 +37,27 @@ test("D.2 only owner preview, no collection or payments",()=>{
  assert.match(ui,/disabled data-testid="founding-reserve"/);
  assert.doesNotMatch(ui,/\bfetch\s*\(|localStorage|sessionStorage|<form\b|<input\b|createClient|checkout|server action/i);
 });
+
+test("D.3 lookup projection excludes claim and private fields; failure is not absence",()=>{
+ const {foundingCompanyLookupResult:project}=load("lib/founding-company-lookup-contract.ts");
+ const item={legal_name:"Fixture Steel",trading_name:null,country_code:"IT",vat_hint:"••••1234",claim_ref:"private",claim_state:"claimed",email:"private@example.invalid",id:"hidden"};
+ assert.deepEqual(project({status:"ok",mode:"name",items:[item]}),{status:"ok",items:[{legal_name:"Fixture Steel",trading_name:null,country_code:"IT",vat_hint:"••••1234"}]});
+ assert.equal(project({status:"ok",items:[{...item,vat_hint:"IT01234567890"}]}).items[0].vat_hint,null);
+ assert.equal(project({status:"ok",items:Array(10).fill(item)}).items.length,5);
+ assert.deepEqual(project({status:"error",items:[item]}),{status:"error",items:[]});
+ assert.deepEqual(project({status:"not_found",items:[]}),{status:"not_found",items:[]});
+});
+test("D.3 protected handler denies non-owner before lookup and uses no-store",async()=>{
+ const contract=load("lib/founding-company-lookup-contract.ts");
+ let owner=false,calls=0;
+ const {POST}=load("app/api/platform/marketing/founding-company-lookup/route.ts",n=>{
+  if(n==="next/server")return {NextResponse:{json:(body,init)=>Response.json(body,init)}};
+  if(n==="@/lib/platform-admin")return {isPlatformSuperadmin:async()=>owner};
+  if(n==="@/lib/public-company-lookup")return {queryPublicCompany:async(query,trap)=>{calls++;assert.equal(query,"Fixture Steel");assert.equal(trap,"");return {status:"not_found",items:[]}}};
+  if(n==="@/lib/founding-company-lookup-contract")return contract;
+  throw Error(n);
+ });
+ const request=()=>{const form=new FormData();form.set("company_query","Fixture Steel");form.set("company_website","");return new Request("https://fixture.invalid/api",{method:"POST",body:form})};
+ const denied=await POST(request());assert.equal(denied.status,403);assert.equal(calls,0);
+ owner=true;const allowed=await POST(request());assert.equal(allowed.status,200);assert.equal(calls,1);assert.equal(allowed.headers.get("cache-control"),"private, no-store");assert.deepEqual(await allowed.json(),{status:"not_found",items:[]});
+});
