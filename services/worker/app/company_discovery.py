@@ -568,7 +568,9 @@ def _it_text_localities(pages: list[CrawledPage], domain: str) -> list[dict[str,
             if _IT_THIRD_PARTY.search(context):
                 continue
             excerpt = match.group(0)
-            if _redact_personal_channels(excerpt) != excerpt or len(excerpt) > 250:
+            # The strict match contains only street, civic, CAP, city and province.
+            # Generic phone redaction would also erase civic + CAP digits.
+            if len(excerpt) > 250:
                 continue
             city = match["city"].strip(" -")
             if not city:
