@@ -114,7 +114,7 @@ try {
           const host = new URL(source).hostname;
           if (host !== "127.0.0.1" && host !== "localhost") return;
         }
-        consoleIssues.push(content.slice(0, 1200));
+        // Preserve the actual React attribute diff; the standard hydration\n        // preamble alone exceeds 1,200 characters and cannot identify the source.\n        const diagnostic = content.slice(0, 24000);\n        consoleIssues.push(diagnostic);\n        console.error("COMPANY-UX2.A BROWSER DIAGNOSTIC " + new URL(page.url()).pathname + "\\n" + diagnostic);
       });
       const response = await page.goto(base + "/company/profile", { waitUntil: "domcontentloaded", timeout: 90000 });
       assert.equal(response?.status(), 200);
@@ -177,7 +177,7 @@ try {
       await check("stock");
       assert.equal(await page.getByTestId("network-stock-manager").count(), 1);
       assert.deepEqual(errors, [], "Uncaught browser errors at " + width);
-      assert.deepEqual([...new Set(consoleIssues)], [], "Browser console errors at " + width);
+      if (consoleIssues.length) {\n        await page.screenshot({ path: path.join(output, "company-ux2a-console-failed-" + width + ".png"), fullPage: true, animations: "disabled" });\n      }\n      assert.deepEqual([...new Set(consoleIssues)], [], "Browser console errors at " + width);
       console.log("COMPANY-UX2.A Chrome PASS", width, "ten panels, history, deep links, stock and screenshots");
     } finally { await context.close(); }
   }
