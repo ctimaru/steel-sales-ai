@@ -17,6 +17,7 @@ import argparse
 import asyncio
 import json
 import os
+import re
 from urllib.parse import urljoin, urlsplit
 
 import httpx
@@ -26,7 +27,8 @@ from .net_research1_extract import clean_page_text, parse_model_json, validate_p
 
 VERSION = "net-research1-v1"
 MAX_PAGES = 10
-MAX_CORPUS = 15000
+MAX_CORPUS = 9000
+PAGE_CHARS = 2200
 DEFAULT_MODEL = "Qwen/Qwen3-4B-Instruct-2507"
 PAGE_HINTS = (
     ("chi-siamo", 0), ("chisiamo", 0), ("azienda", 0), ("about", 0), ("company", 0), ("profilo", 0),
@@ -100,7 +102,7 @@ async def read_site(client: httpx.AsyncClient, company: dict) -> list[tuple[str,
 def model_input(company: dict, pages: list[tuple[str, str]]) -> str:
     parts, used = [f"Azienda: {company.get('name', '')}"], 0
     for url, text in pages:
-        chunk = clean_page_text(text)
+        chunk = clean_page_text(text, PAGE_CHARS)
         if not chunk:
             continue
         chunk = chunk[:max(0, MAX_CORPUS - used)]
@@ -126,7 +128,7 @@ class HuggingFaceReader:
         output = await asyncio.to_thread(
             self.client.chat_completion,
             messages=[{"role": "system", "content": SYSTEM_PROMPT}, {"role": "user", "content": text}],
-            model=self.model, max_tokens=1200, temperature=0.1)
+            model=self.model, max_tokens=900, temperature=0.1)
         return parse_model_json(output.choices[0].message.content or "")
 
 
@@ -138,7 +140,9 @@ async def research_company(client, reader, company: dict) -> tuple[str, dict]:
     try:
         raw = await reader.read(model_input(company, pages))
     except Exception as exc:  # provider-specific transport errors
-        return "failed", {"error": f"model_{type(exc).__name__}"[:80]}
+        # Short provider reason for diagnosis (no page text is ever echoed back).
+        reason = re.sub(r"\s+", " ", str(exc))[:50]
+        return "failed", {"error": f"model_{type(exc).__name__}: {reason}"[:80]}
     profile = validate_profile(raw, cleaned)
     outcome = profile.pop("outcome")
     profile.update(source_urls=[url for url, _ in cleaned], extractor_version=VERSION, model=reader.model)
