@@ -12,6 +12,7 @@ import { FocusPage } from "@/components/focus-ui";
 import { NetworkActivationCta, NetworkActivationHelp } from "@/components/network-activation-cta";
 import {getNetworkRecipientReadiness} from "@/lib/network-recipient-readiness";
 import {getWorkspaceContext} from "@/lib/workspace-context";
+import { getNetworkCompanyVat } from "@/lib/network-vat";
 import {canInteractWithNetwork,canWriteWorkspace} from "@/lib/access-policy";
 import { getFreeNetworkProfile, getProNetworkDiscoveryProfile, safeNetworkWebsiteUrl } from "@/lib/network-free";
 
@@ -49,12 +50,14 @@ export async function FreeNetworkProfileView({
   // Network server action; never expose the control on provisional entries.
   const canSave=!provisional && canWriteWorkspace(workspace.role);
   // NET-PROFILE-FAST1: the remaining reads are independent, so they run together.
-  const [reviewedEvidence, officialProductPages, readiness, savedIds, inventory] = await Promise.all([
+  const [reviewedEvidence, officialProductPages, readiness, savedIds, inventory, vatId] = await Promise.all([
     getReviewedCompanyEvidence(organizationId,companyId,accessMode).catch(()=>[]),
     provisional ? Promise.resolve([] as string[]) : getNetworkProducerOfficialPages(organizationId,companyId,accessMode).catch(()=>[]),
     provisional ? Promise.resolve(null) : getNetworkRecipientReadiness(organizationId,[companyId]).catch(()=>null),
     canSave && accessMode==="pro" ? getSavedNetworkCompanyIds(organizationId,[companyId]) : Promise.resolve([] as string[]),
     provisional ? Promise.resolve([]) : getPublishedNetworkInventory(organizationId, companyId),
+    // NET-VAT1: only confirmed, published profiles carry a P.IVA.
+    provisional ? Promise.resolve(null) : getNetworkCompanyVat(companyId),
   ]);
   const status=provisional?"unavailable":readiness?.get(companyId);
   const isSaved=savedIds.includes(companyId);
@@ -71,6 +74,7 @@ export async function FreeNetworkProfileView({
         <NetworkProfileOverview
           name={companyName}
           legalName={profile.company.legal_name}
+          vatId={vatId}
           countryCode={profile.company.country_code}
           location={firstLocation}
           primaryRole={profile.roles[0]?.name ?? null}
