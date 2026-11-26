@@ -41,10 +41,13 @@ un'azienda e rispondi SOLO con un oggetto JSON con queste chiavi:
 "summary": 2-4 frasi in italiano, scritte con parole tue (non copiare frasi dal sito), su cosa fa
   l'azienda, per chi e con quali specializzazioni. Comincia direttamente dall'attività (es.
   "Carpenteria metallica che realizza…"), non con "L'azienda X". Tono neutro da scheda tecnica:
-  niente lodi o slogan (leader, qualità, affidabilità, passione, eccellenza). Niente nomi di persone,
+  solo cosa produce o lavora, per quali settori, con quali impianti o certificazioni. Niente lodi o
+  slogan (leader, qualità, esperienza, know-how, innovazione, sostenibilità, affidabilità,
+  passione, eccellenza, soluzioni su misura). Niente nomi di persone,
   email, telefoni, link. Solo fatti presenti nel testo; anni e numeri solo se scritti nel testo.
 "activities": attività e lavorazioni (es. "Taglio laser", "Commercio di tubi"), max 12.
-"products": prodotti principali con le parole del sito, max 20.
+"products": categorie di prodotto principali con le parole del sito (es. "Tubi saldati",
+  "Strutture in acciaio"), non nomi commerciali o codici di modello, max 12.
 "sectors": settori serviti citati nel testo, max 12.
 "markets": Paesi o aree in cui vende, solo se citati, max 12.
 "certifications": codici delle certificazioni citate (es. "ISO 9001", "EN 1090-1"), max 12.
