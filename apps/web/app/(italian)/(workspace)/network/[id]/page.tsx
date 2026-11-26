@@ -9,6 +9,8 @@ import { getReviewedCompanyEvidence, summarizeReviewedCompanyEvidence } from "@/
 import { getNetworkProducerOfficialPages } from "@/lib/network-producer-official-pages";
 import { getSavedNetworkCompanyIds } from "@/lib/network-saved-set";
 import { getNetworkCompanyVat } from "@/lib/network-vat";
+import { getNetworkCompanyResearch } from "@/lib/network-research";
+import { NetworkResearchProfile } from "@/components/network-research-profile";
 import {networkNameIt} from "@/lib/network-taxonomy-it";
 import { notFound, redirect } from "next/navigation";
 
@@ -182,7 +184,7 @@ export default async function NetworkCompanyProfilePage({
   const membershipRole = context.role;
   const canInteract = canInteractWithNetwork(context.role);
   const adminOrganizationId: string | null = context.role === "admin" ? context.organizationId : null;
-  const [candidateResult, profileResult, claimResult, eligibility, savedResult, inventoryResult, reviewedEvidence, officialProductPages, query, companyVat] = await Promise.all([
+  const [candidateResult, profileResult, claimResult, eligibility, savedResult, inventoryResult, reviewedEvidence, officialProductPages, query, companyVat, research] = await Promise.all([
     // NET-LAUNCH1: even entitled Pro viewers must open an unconfirmed discovery
     // in the Free profile reader, not in the canonical Pro-company query.
     // That reader enforces active company membership and returns no private data.
@@ -196,6 +198,7 @@ export default async function NetworkCompanyProfilePage({
     getNetworkProducerOfficialPages(context.organizationId, id, "pro").catch(() => []),
     searchParams,
     getNetworkCompanyVat(id),
+    getNetworkCompanyResearch(id),
   ]);
   if (candidateResult?.company.discovery_status === "unconfirmed") {
     return <FreeNetworkProfileView organizationId={context.organizationId} companyId={id} accessMode="pro" isWorkspaceAdmin={context.role==="admin"} preloadedProfile={candidateResult} />;
@@ -364,6 +367,7 @@ export default async function NetworkCompanyProfilePage({
         email={emailContact?.email}
         phone={phoneContact?.phone}
         stockCount={publishedInventory.length}
+        researchContent={research ? <NetworkResearchProfile research={research} /> : undefined}
         stockContent={publishedInventory.length ? <NetworkProfileInventory items={publishedInventory} /> : undefined}
         connectionsAvailable={Boolean((inquiryEligible && canInteract) || (organizationId && canWriteWorkspace(membershipRole)))}
         requestHref={organizationId && canWriteWorkspace(membershipRole) ? newRequestHref({network: profile.company.id}) : undefined}
