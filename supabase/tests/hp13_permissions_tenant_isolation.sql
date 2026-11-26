@@ -366,7 +366,13 @@ select pg_temp.hp13_assert(
         -- customer line IDs and numeric rates, optimistic version, exact row
         -- coverage and append-only offer_edited audit. Empty search_path,
         -- anonymous execute revoked, no supplier/target price access.
-        'comm_cycle2b_save_offer'
+        'comm_cycle2b_save_offer',
+        -- NET-VAT1 reviewed (founder: P.IVA public on the Network profile):
+        -- read-only, auth.uid() required, one published non-archived company
+        -- by id; returns only the company's own vat_id, its provenance kind
+        -- and a VIES boolean. No candidate data, URLs, PII or writes.
+        -- Empty pinned search_path, anonymous EXECUTE revoked.
+        'net_vat1_public_company_vat'
       )
   ),
   'no unreviewed authenticated SECURITY DEFINER function may be exposed'
