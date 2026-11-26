@@ -80,6 +80,9 @@ await ownerClient.auth.signOut();
 console.log("COMPANY-UX2.A local fixture and admin/viewer RPC gates PASS");
 const output = path.join(process.env.RUNNER_TEMP, "netro14d-synthetic-visual");
 mkdirSync(output, { recursive: true });
+// COMM-NAV7 (#1052): Playwright defaults to caret:"hide" and can mutate
+// an SSR input before React hydration. Keep screenshot capture DOM-neutral;
+// never suppress console or Next.js issue diagnostics.
 const sections = ["summary", "overview", "positioning", "products", "facilities", "markets", "certifications", "contacts", "stock", "inquiries"];
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 try {
@@ -122,7 +125,7 @@ try {
       try {
         await workspace.waitFor({ state: "visible", timeout: 30000 });
       } catch (error) {
-        await page.screenshot({ path: path.join(output, "company-ux2a-entry-failed-" + width + ".png"), fullPage: true, animations: "disabled" });
+        await page.screenshot({ path: path.join(output, "company-ux2a-entry-failed-" + width + ".png"), fullPage: true, animations: "disabled", caret: "initial" });
         console.error("Managed page entry failed", new URL(page.url()).pathname, (await page.locator("body").innerText()).slice(0, 1500), errors);
         throw error;
       }
@@ -141,7 +144,7 @@ try {
           "Horizontal overflow " + width + " " + id + ": " + JSON.stringify(metrics));
         if (capture) await page.screenshot({
           path: path.join(output, "company-ux2a-" + id + "-" + width + ".png"),
-          fullPage: true, animations: "disabled",
+          fullPage: true, animations: "disabled", caret: "initial",
         });
       }
       await check("summary", true);
@@ -177,7 +180,7 @@ try {
       await check("stock");
       assert.equal(await page.getByTestId("network-stock-manager").count(), 1);
       assert.deepEqual(errors, [], "Uncaught browser errors at " + width);
-      if (consoleIssues.length) {\n        await page.screenshot({ path: path.join(output, "company-ux2a-console-failed-" + width + ".png"), fullPage: true, animations: "disabled" });\n      }\n      assert.deepEqual([...new Set(consoleIssues)], [], "Browser console errors at " + width);
+      if (consoleIssues.length) {\n        await page.screenshot({ path: path.join(output, "company-ux2a-console-failed-" + width + ".png"), fullPage: true, animations: "disabled", caret: "initial" });\n      }\n      assert.deepEqual([...new Set(consoleIssues)], [], "Browser console errors at " + width);
       console.log("COMPANY-UX2.A Chrome PASS", width, "ten panels, history, deep links, stock and screenshots");
     } finally { await context.close(); }
   }
