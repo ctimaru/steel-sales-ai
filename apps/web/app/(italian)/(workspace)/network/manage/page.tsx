@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CompanyWorkspaceNavigation } from "@/components/company-workspace-navigation";
+import { CompanyProductCatalog } from "@/components/company-product-catalog";
 import { NetworkInventoryManager } from "@/components/network-inventory-manager";
 import { getManagedNetworkInventory } from "@/lib/network-stock";
 import { redirect } from "next/navigation";
@@ -521,13 +522,15 @@ export default async function ManagedNetworkProfilePage({
       </section>
         ),
         products: (
-          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <section className="min-w-0 space-y-5 rounded-3xl border border-[#dce2df] bg-white p-3 sm:p-6 xl:p-8">
         <SectionHeader
           id="products"
           eyebrow="03 · Prodotti"
           title="Prodotti e relazione commerciale"
           description="Definisci cosa produce, distribuisce o tiene a stock l'azienda e, dove disponibile, collega norme, gradi/materiali e range dimensionali canonici. Questo scope prepara il profilo al matching Marketplace."
         />
+
+        <CompanyProductCatalog state={state} relationshipLabels={relationshipLabels} />
 
         <div className="space-y-4">
           {state.products.map((product) => {
@@ -565,7 +568,7 @@ export default async function ManagedNetworkProfilePage({
               productDimensions.length > 0;
 
             return (
-              <article key={product.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-5">
+              <article key={product.id} id={"products-item-" + product.id} tabIndex={-1} className="min-w-0 scroll-mt-28 rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-3 outline-offset-2 sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-[#2f4059]">{product.name}</p>
@@ -778,12 +781,9 @@ export default async function ManagedNetworkProfilePage({
               </article>
             );
           })}
-          {state.products.length === 0 ? (
-            <p className="text-sm text-[#8a98aa]">Nessun prodotto pubblicato.</p>
-          ) : null}
         </div>
 
-        <form action={setManagedCompanyProduct} className="grid gap-3 rounded-2xl border border-dashed border-[#cfdae8] bg-[#fafcff] p-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
+        <form id="products-add" tabIndex={-1} action={setManagedCompanyProduct} className="grid min-w-0 scroll-mt-28 gap-3 rounded-2xl border border-dashed border-[#cfdae8] bg-[#fafcff] p-4 outline-offset-2 sm:grid-cols-2 lg:grid-cols-4 lg:items-end">
           <input type="hidden" name="network_company_id" value={companyId} />
           <input type="hidden" name="enabled" value="true" />
           <div>

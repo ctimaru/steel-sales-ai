@@ -1,6 +1,6 @@
 /**
  * COMPANY-UX2.A — authenticated managed workspace acceptance.
- * Run only after the Network visual fixture, against its disposable local DB.
+ * COMPANY-UX2.B.1: separate Company acceptance on a disposable local DB.
  */
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync } from "node:fs";
@@ -86,6 +86,34 @@ mkdirSync(output, { recursive: true });
 const sections = ["summary", "overview", "positioning", "products", "facilities", "markets", "certifications", "contacts", "stock", "inquiries"];
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 try {
+  for (const populated of [false, true]) {
+    if (populated) {
+      const admin = await signed(owner);
+      for (const [key, relationship] of [["tubes_pipes", "produces"], ["plates", "distributes"]]) {
+        const result = await admin.rpc("p3_7b_set_product", {
+          p_network_company_id: companyId, p_product_key: key, p_relationship_type: relationship, p_facility_id: null, p_enabled: true,
+        });
+        assert.ifError(result.error);
+        if (key === "tubes_pipes") {
+          assert.ok(result.data?.relation_id);
+          const scope = await admin.rpc("p3_7e_managed_product_scope", { p_network_company_id: companyId });
+          assert.ifError(scope.error);
+          const standard = scope.data.taxonomy.standards.find(item => item.network_product_keys.includes(key) &&
+            scope.data.taxonomy.grades.some(grade => grade.standard_id === item.id));
+          assert.ok(standard, "Canonical standard with grade required");
+          const grade = scope.data.taxonomy.grades.find(item => item.standard_id === standard.id);
+          for (const [rpc, args] of [
+            ["p3_7e_set_product_standard", {p_company_product_id: result.data.relation_id, p_standard_id: standard.id, p_enabled: true}],
+            ["p3_7e_set_product_grade", {p_company_product_id: result.data.relation_id, p_standard_id: standard.id, p_material_grade_id: grade.material_grade_id, p_enabled: true}],
+            ["p3_7e_upsert_product_dimension", {p_company_product_id: result.data.relation_id, p_dimension_type: "outer_diameter", p_min_mm: 21.3, p_max_mm: 610}],
+          ]) {
+            const write = await admin.rpc(rpc, args);
+            assert.ifError(write.error);
+          }
+        }
+      }
+      await admin.auth.signOut();
+    }
   for (const width of [1440, 390, 320]) {
     const context = await browser.newContext({
       viewport: { width, height: width === 1440 ? 900 : width === 390 ? 844 : 720 },
@@ -147,7 +175,7 @@ try {
         assert.ok(metrics.document <= metrics.viewport + 2,
           "Horizontal overflow " + width + " " + id + ": " + JSON.stringify(metrics));
         if (capture) await page.screenshot({
-          path: path.join(output, "company-ux2a-" + id + "-" + width + ".png"),
+          path: path.join(output, "company-ux2b1-" + (populated ? "populated-" : "empty-") + id + "-" + width + ".png"),
           fullPage: true, animations: "disabled", caret: "initial",
         });
       }
@@ -162,6 +190,30 @@ try {
       await check("inquiries");
       await page.goto(base + "/network/manage#products", { waitUntil: "domcontentloaded" });
       await check("products");
+      const catalog = workspace.getByTestId("company-product-catalog");
+      await catalog.waitFor({state:"visible"});
+      const cards = catalog.getByTestId("company-product-card");
+      assert.equal(await cards.count(), populated ? 2 : 0);
+      if (populated) {
+        const tube = cards.filter({has: page.locator('[data-family-shape="tube"]')});
+        assert.equal(await tube.count(), 1);
+        assert.match(await tube.innerText(), /Produce/);
+        for (const label of ["Norme", "Gradi", "Range"]) {
+          assert.equal(await tube.locator("dl > div").filter({hasText:label}).locator("dd").innerText(), "1");
+        }
+        await tube.getByRole("link", {name:"Gestisci specifiche"}).click();
+        await page.waitForURL(url => url.hash.startsWith("#products-item-"));
+        await check("products");
+        assert.ok(await page.locator('[id^="products-item-"]:focus').count(), "Technical editor receives focus");
+      } else {
+        assert.equal(await catalog.getByTestId("company-product-catalog-empty").count(), 1);
+        assert.match(await catalog.innerText(), /non associati alla tua azienda/);
+      }
+      await catalog.getByRole("link", {name:"Aggiungi famiglia"}).click();
+      await page.waitForURL(url=>url.hash==="#products-add");
+      await check("products");
+      await page.locator("#products-add").waitFor({state:"visible"});
+      assert.equal(await page.locator("#products-add select[name=product_key] option").count(), 12);
       await nav.locator('a[href="#summary"]').click();
       await check("summary");
       await workspace.locator("#company-panel-summary").getByRole("link", { name: "Gestisci preferenze" }).click();
@@ -188,7 +240,8 @@ try {
         await page.screenshot({ path: path.join(output, "company-ux2a-console-failed-" + width + ".png"), fullPage: true, animations: "disabled", caret: "initial" });
       }
       assert.deepEqual([...new Set(consoleIssues)], [], "Browser console errors at " + width);
-      console.log("COMPANY-UX2.A Chrome PASS", width, "ten panels, history, deep links, stock and screenshots");
+      console.log("COMPANY-UX2.B.1 Chrome PASS", width, populated ? "populated" : "empty", "catalog, ten panels, navigation, stock and screenshots");
     } finally { await context.close(); }
+  }
   }
 } finally { await browser.close(); }

@@ -20,6 +20,7 @@ type SectionId = (typeof companyWorkspaceSections)[number]["id"];
 
 function sectionFromHash(): SectionId {
   const id = window.location.hash.slice(1);
+  if (id === "products-add" || /^products-item-[0-9a-f-]+$/i.test(id)) return "products";
   return companyWorkspaceSections.find((section) => section.id === id)?.id ?? "summary";
 }
 
@@ -38,6 +39,22 @@ export function CompanyWorkspaceNavigation({ panels }: { panels: Record<SectionI
       window.removeEventListener("popstate", sync);
     };
   }, [pathname, query]);
+
+  useEffect(() => {
+    const focusProductTarget = () => {
+      if (active !== "products") return;
+      const hash = window.location.hash.slice(1);
+      if (hash !== "products-add" && !/^products-item-[0-9a-f-]+$/i.test(hash)) return;
+      const target = document.getElementById(hash);
+      if (target) {
+        target.focus({ preventScroll: true });
+        target.scrollIntoView({ block: "start" });
+      }
+    };
+    focusProductTarget();
+    window.addEventListener("hashchange", focusProductTarget);
+    return () => window.removeEventListener("hashchange", focusProductTarget);
+  }, [active, pathname, query]);
 
   function select(id: SectionId) {
     if (window.location.hash !== "#" + id) {
