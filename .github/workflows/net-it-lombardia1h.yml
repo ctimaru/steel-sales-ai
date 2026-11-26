@@ -1,0 +1,47 @@
+name: "NET-IT-LOMBARDIA1H — Milano/Monza/Lecco licensed industrial candidate census"
+on:
+  push:
+    branches: ["net-it-lombardia1h-20261126"]
+    paths:
+      - ".github/workflows/net-it-lombardia1h.yml"
+      - "services/worker/scripts/overture_lombardia1h.py"
+permissions:
+  contents: write
+concurrency:
+  group: net-it-lombardia1h-source-audit
+  cancel-in-progress: false
+jobs:
+  metalwork-overture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Checkout isolated source audit
+        uses: actions/checkout@v4
+        with:
+          ref: net-it-lombardia1h-20261126
+          persist-credentials: true
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Overture data reader
+        run: python -m pip install "duckdb>=1.4,<2"
+      - name: Read licensed technical websites without production writes
+        env:
+          AWS_EC2_METADATA_DISABLED: "true"
+        run: python services/worker/scripts/overture_lombardia1h.py
+      - name: Preserve audit CSV on isolated branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add services/worker/audits/net_it_lombardia1h_20261126_gers.csv
+          if ! git diff --cached --quiet; then
+            git commit -m "audit(LOMBARDIA1H): licensed GERS first-party website pointers [skip ci]"
+            git push origin HEAD:refs/heads/net-it-lombardia1h-20261126
+          fi
+      - name: Upload audit for mandatory live dedup
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-it-lombardia1h-20261126-gers
+          path: services/worker/audits/net_it_lombardia1h_20261126_gers.csv
+          if-no-files-found: error
