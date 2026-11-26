@@ -61,6 +61,29 @@ def parse_model_json(content: str) -> dict:
     return value if isinstance(value, dict) else {}
 
 
+PROMO = re.compile(
+    r"\bleader\b|eccellenz|affidabil|all.avanguardia|numero uno|il migliore|i migliori|garantend|"
+    r"massima qualit|alta qualit|elevat[ao] qualit|puntualit|professionalit|passione|"
+    r"soddisfazione del cliente|punto di riferimento|partner ideale|partner affidabile|competitiv",
+    re.I)
+
+
+def clean_summary(summary: str, corpus_plain: str) -> str:
+    """Keep only factual sentences: no promotional claims, and every number
+    (years, counts) must also appear on the company's own pages."""
+    kept = []
+    for sentence in re.split(r"(?<=[.!?])\s+", re.sub(r"\s+", " ", summary).strip()):
+        if not sentence or PROMO.search(sentence):
+            continue
+        numbers = re.findall(r"\d+", sentence)
+        if any(n not in corpus_plain for n in numbers):
+            continue
+        kept.append(sentence)
+    text = " ".join(kept)
+    # «L'azienda X è un/una …» → start from the activity.
+    return re.sub(r"^L.azienda\s+", "", text)[:1].upper() + re.sub(r"^L.azienda\s+", "", text)[1:] if text else ""
+
+
 def _copied_share(summary: str, corpus_plain: str, size: int = 8) -> float:
     words = _plain(summary).split()
     shingles = [" ".join(words[i:i + size]) for i in range(max(0, len(words) - size + 1))]
@@ -181,7 +204,7 @@ def validate_profile(raw: dict, pages: list[tuple[str, str]], *, today: date | N
     profile: dict = {"facts": {}}
 
     summary = raw.get("summary") if isinstance(raw.get("summary"), str) else ""
-    summary = re.sub(r"\s+", " ", summary).strip()
+    summary = clean_summary(summary, corpus_plain)
     if (80 <= len(summary) <= 900 and not CONTACT_NOISE.search(summary)
             and _copied_share(summary, corpus_plain) <= 0.3):
         profile["summary"] = summary
