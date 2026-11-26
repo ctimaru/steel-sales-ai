@@ -156,7 +156,11 @@ jobs:
         working-directory: apps/web
         timeout-minutes: 10
         shell: bash
-        run: node tests/company-ux2a-chrome.mjs
+        run: |
+          set -euo pipefail
+          source "$RUNNER_TEMP/demotest23-local.env"
+          DEMOTEST23_LOCAL_SERVICE_ROLE_KEY="$SERVICE_ROLE_KEY" \
+            node tests/company-ux2a-chrome.mjs
       - name: Upload synthetic screenshots for visual acceptance
         if: always()
         uses: actions/upload-artifact@v4
