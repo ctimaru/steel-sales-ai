@@ -64,7 +64,7 @@ export type AdminCompanyClaimItem = CompanyClaimState & {
 export async function getCompanyClaimExperience(
   networkCompanyId: string,
   organizationId: string,
-): Promise<CompanyClaimExperience> {
+): Promise<CompanyClaimExperience | null> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("hp5_company_claim_experience", {
     p_network_company_id: networkCompanyId,
@@ -73,10 +73,24 @@ export async function getCompanyClaimExperience(
 
   if (error) {
     if (error.code === "42501") redirect("/dashboard");
-    throw new Error(error.message);
+    if (error.code === "P0002") return null;
+    throw new Error("company_claim_experience_unavailable");
   }
 
-  return data as CompanyClaimExperience;
+  const experience = data as CompanyClaimExperience | null;
+  // HP5 is the authority and the identity reader for Free and Pro admins alike.
+  // An incomplete or mismatched response must never render a claim form.
+  if (!experience ||
+      experience.network_company_id !== networkCompanyId.toLowerCase() ||
+      experience.organization_id !== organizationId ||
+      typeof experience.legal_name !== "string" || !experience.legal_name.trim() ||
+      typeof experience.eligible !== "boolean" ||
+      typeof experience.eligibility_reason !== "string" ||
+      experience.eligible !== (experience.eligibility_reason === "eligible") ||
+      (experience.eligible && experience.publication_status !== "published")) {
+    throw new Error("company_claim_experience_unavailable");
+  }
+  return experience;
 }
 
 export async function getMyCompanyClaim(

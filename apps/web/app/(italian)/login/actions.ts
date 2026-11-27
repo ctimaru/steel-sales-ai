@@ -9,6 +9,7 @@ import {
   pendingSignupEmailCookieOptions,
 } from "@/lib/auth-email-verification";
 import { isRegistrationNext, registrationEntryForNext, safeCommercialReturnTo, safeInternalNext } from "@/lib/auth-next";
+import { registrationClaimNext } from "@/lib/company-claim-intent";
 import { siteUrl } from "@/lib/site";
 import { trackServerProductEvent } from "@/lib/product-analytics-events.server";
 import { pilotGateMessage, registrationAllowedFor } from "@/lib/registration-access";
@@ -123,12 +124,12 @@ async function routeAfterAuthentication(nextPath?: string) {
     .eq("id", membership.organization_id)
     .maybeSingle();
 
-  const destination =
+  const destination = registrationClaimNext(nextPath) ?? (
     nextPath && !isRegistrationNext(nextPath)
       ? nextPath
       : organization?.guided_setup_completed_at
         ? "/dashboard"
-        : "/onboarding";
+        : "/onboarding");
 
   const { data: legalData } = await supabase.rpc("lr5_current_legal_acceptance_state");
   const legal = (legalData ?? {}) as { accepted?: boolean };

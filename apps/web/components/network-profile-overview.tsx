@@ -164,7 +164,7 @@ export function NetworkProfileOverview({
       summary: "Prodotti, lavorazioni, norme",
       icon: "products",
       content: (
-        <section id="attivita" aria-label="Attività e prodotti" className="min-w-0 space-y-4">
+        <section key="attivita" id="attivita" aria-label="Attività e prodotti" className="min-w-0 space-y-4">
           <h3 className={sectionTitleClass}>Attività e prodotti</h3>
           {researchContent ?? null}
           {description && !researchContent ? <p className="max-w-4xl whitespace-pre-wrap text-sm leading-6 text-[#45594c]">{description}</p> : null}
@@ -226,7 +226,7 @@ export function NetworkProfileOverview({
       icon: "stock",
       count: hasStock ? stockCount : undefined,
       content: (
-        <section id="stock" aria-label="Stock e produzioni" className="min-w-0 space-y-4">
+        <section key="stock" id="stock" aria-label="Stock e produzioni" className="min-w-0 space-y-4">
           <div>
             <h3 className={sectionTitleClass}>Stock e produzioni</h3>
             <p className="mt-2 text-sm leading-6 text-[#647369]">Disponibilità pubblicate, arrivi programmati e produzioni comunicate dall'azienda.</p>
@@ -243,7 +243,7 @@ export function NetworkProfileOverview({
       summary: "Recapiti e stabilimenti",
       icon: "contacts",
       content: (
-        <section id="contatti" aria-label="Contatti aziendali" data-testid="network-profile-header-contact" className="min-w-0 space-y-4">
+        <section key="contatti" id="contatti" aria-label="Contatti aziendali" data-testid="network-profile-header-contact" className="min-w-0 space-y-4">
           <div>
             <h3 className={sectionTitleClass}>Contatti e sedi</h3>
             <p className="mt-2 text-sm leading-6 text-[#647369]">Solo contatti e località pubblicati nel Network.</p>
@@ -279,7 +279,7 @@ export function NetworkProfileOverview({
       targetId: hasTechnicalDetails ? detailsTargetId : undefined,
       targetLabel: technicalTopics.length ? "Apri dati tecnici pubblicati" : "Apri informazioni e fonti",
       content: (
-        <section aria-label="Documenti e fonti" data-testid="network-profile-trust-panel" className="min-w-0 space-y-4">
+        <section key="approfondimenti" aria-label="Documenti e fonti" data-testid="network-profile-trust-panel" className="min-w-0 space-y-4">
           <div>
             <h3 className={sectionTitleClass}>Documenti e fonti</h3>
             <p className="mt-2 text-sm leading-6 text-[#647369]">
