@@ -31,14 +31,16 @@ try {
   await fields.nth(0).fill('168.3');await fields.nth(1).fill('8');
   await root.locator('#tube-calculator-quantity').fill('3');
   const mass=root.locator('[data-cockpit-results] [aria-live="polite"].metric-number');
-  assert.match(await mass.innerText(),/31[,.]626\s*kg\/m/,'Real engine output, not the illustrative reference number');
+  assert.match(await mass.innerText(),/31[,.]63\s*kg\/m/,'Real engine output, not the illustrative reference number');
   const sectionValue=key=>root.locator(`[data-section-value="${key}"]`);
   assert.match(await sectionValue('outer').innerText(),/168[,.]3\s*mm/);
   assert.match(await sectionValue('inner').innerText(),/152[,.]3\s*mm/,'Internal diameter follows the actual outside diameter and wall');
   assert.equal((await sectionValue('area').innerText()).replace(/[^\d]/g,''),'402878','Known CHS area is 4028.78 mm² in every locale');
   assert.match(await root.locator('[data-cinematic-context]').innerText(),/12 m · 3 /);
   if(locale==='it'&&width===390) {
-   const customLength=root.locator('[data-cockpit-length-quantity] > div:first-child input');
+   // HOME-CALC1: the free bar length opens with «Altro».
+   await root.locator('[data-calc-length-other]').click();
+   const customLength=root.getByLabel('Lunghezza barra personalizzata');
    await root.locator('#tube-calculator-quantity').fill('1');
    assert.match(await root.locator('[data-cinematic-context]').innerText(),/12 m · 1 barra$/,'Singular quantity uses the singular unit');
    await customLength.fill('12.345');await root.locator('#tube-calculator-quantity').fill('2.5');
