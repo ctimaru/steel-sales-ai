@@ -1,0 +1,80 @@
+name: MKT9C4 Restricted DB Driver Preflight
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/mkt9c-driver-preflight.yml'
+      - 'docs/marketing/mkt9c-minimum-privilege.candidate.sql'
+      - 'supabase/tests/mkt9c-community-interest-fixture.sql'
+permissions:
+  contents: read
+jobs:
+  restricted-driver:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: fixture-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Apply disposable SQL fixtures and enable only local fixture login
+        env:
+          PGPASSWORD: fixture-only
+        run: |
+          set -euo pipefail
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -f supabase/tests/mkt9c-community-interest-fixture.sql
+          psql -h 127.0.0.1 -U postgres -d postgres -v ON_ERROR_STOP=1 -c "alter role mkt9_intake_writer login password 'fixture-only-writer';"
+      - name: Generate pinned dependency and lockfile in disposable directory
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/mkt9-driver"
+          cp apps/web/package.json apps/web/package-lock.json "$RUNNER_TEMP/mkt9-driver/"
+          cd "$RUNNER_TEMP/mkt9-driver"
+          npm install --save-exact --package-lock-only --ignore-scripts --no-audit --no-fund postgres@3.4.9
+          npm ci --ignore-scripts --no-audit --no-fund
+      - name: Test real restricted TCP login and parameterized OTP functions
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/mkt9-driver"
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import {randomUUID} from 'node:crypto';
+          import postgres from 'postgres';
+          const sql=postgres('postgresql://mkt9_intake_writer:fixture-only-writer@127.0.0.1:5432/postgres',{max:1,prepare:false,connect_timeout:5,ssl:false});
+          try {
+            const [role]=await sql`select current_user as name`;
+            assert.equal(role.name,'mkt9_intake_writer');
+            const id=randomUUID(),payload={kind:'partner',locale:'it',name:'Driver Fixture',email:'driver@example.invalid',organization:'Fixture',notice_version:'mkt9c-draft-2026-11-24'};
+            const [reserved]=await sql`select public.mkt9_reserve_email(${id}::uuid,${'a'.repeat(64)},${'b'.repeat(64)},${'c'.repeat(64)},${sql.json(payload)}) as ok`;
+            assert.equal(reserved.ok,true);
+            const [wrong]=await sql`select public.mkt9_confirm_email(${id}::uuid,${'d'.repeat(64)}) as ok`;
+            assert.equal(wrong.ok,false);
+            const [confirmed]=await sql`select public.mkt9_confirm_email(${id}::uuid,${'b'.repeat(64)}) as ok`;
+            assert.equal(confirmed.ok,true);
+            await assert.rejects(()=>sql`select email from public.mkt9_community_interest`,{code:'42501'});
+            await assert.rejects(()=>sql`update public.mkt9_community_interest set status='closed'`,{code:'42501'});
+            console.log('MKT9C4 restricted TCP driver PASS');
+          } finally {await sql.end({timeout:5});}
+          NODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mkt9c4-pinned-driver-lock
+          path: |
+            ${{ runner.temp }}/mkt9-driver/package.json
+            ${{ runner.temp }}/mkt9-driver/package-lock.json
+          if-no-files-found: error
+          retention-days: 7
