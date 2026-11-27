@@ -361,7 +361,7 @@ export function NetworkInventoryManager({ organizationId, companyId, inventory, 
 
       <div className="flex flex-col items-start justify-between gap-3 border-t border-[#e1e8e2] pt-4 sm:flex-row sm:items-center">
         <p className="max-w-2xl text-xs leading-5 text-[#596b61]">Clienti, offerte e listini restano nello storico commerciale privato. Un catalogo tecnico descrive l’offerta aziendale e non attesta una disponibilità a magazzino.</p>
-        <a href="#products-catalogues" className={secondaryButton + " w-full shrink-0 sm:w-auto"}>Gestisci cataloghi ufficiali</a>
+        <a href="/company/profile#products-catalogues" className={secondaryButton + " w-full shrink-0 sm:w-auto"}>Gestisci cataloghi ufficiali</a>
       </div>
     </section>
   );

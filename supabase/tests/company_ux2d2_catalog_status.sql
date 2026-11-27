@@ -60,10 +60,27 @@ insert into public.network_companies(id,legal_name,country_code,website_url,
    'published','claimed','unverified'),
   (:'other_company','D2 unrelated manufacturer','IT','https://other-ux2d2.example.test',
    'published','claimed','unverified');
-insert into public.network_company_role_assignments(company_id,role_id,is_primary)
-select company.id,role.id,true
-from public.network_companies company cross join public.network_company_roles role
-where company.id in (:'company',:'other_company') and role.canonical_key='producer' and role.status='active';
+-- Role assignments retain their mandatory provenance, like the governed writer.
+with assignments(id,company_id,asserted_by) as (values
+  ('00000000-0000-4000-8000-00000002d235'::uuid,:'company'::uuid,:'owner'::uuid),
+  ('00000000-0000-4000-8000-00000002d236'::uuid,:'other_company'::uuid,:'outsider'::uuid)
+), assertions as (
+  insert into public.network_data_assertions(
+    entity_type,entity_id,field_path,asserted_value,source_type,source_reference,
+    ownership_type,asserted_by,confidence,review_state)
+  select 'company_role_assignment',id,'role_state',
+    jsonb_build_object('role_key','producer','enabled',true,'is_primary',true),
+    'company_declared','company_ux2d2_catalog_status synthetic local role',
+    'company_managed',asserted_by,1.0000,'accepted'
+  from assignments
+  returning id,entity_id
+)
+insert into public.network_company_role_assignments(id,company_id,role_id,is_primary,source_assertion_id)
+select assignment.id,assignment.company_id,role.id,true,assertion.id
+from assignments assignment
+join assertions assertion on assertion.entity_id=assignment.id
+cross join public.network_company_roles role
+where role.canonical_key='producer' and role.status='active';
 insert into public.network_company_claims(network_company_id,organization_id,requested_by,status,
   reviewed_by,reviewed_at,proof_method,proof_status,proof_verified_by,proof_verified_at) values
   (:'company',:'org',:'owner','approved',:'owner',now(),'manual_review','verified',:'owner',now()),
