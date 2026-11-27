@@ -12,7 +12,7 @@ from .assistant import parse_assistant_query
 from .retrieval import search_knowledge
 
 RAG_INTENT = "knowledge_rag"
-DEFAULT_RAG_MODEL = "Qwen/Qwen3-4B-Instruct-2507"
+DEFAULT_RAG_MODEL = "meta-llama/Llama-3.3-70B-Instruct"
 INSUFFICIENT_TOKEN = "EVIDENCE_INSUFFICIENT"
 
 _DOCUMENT_TERMS = (

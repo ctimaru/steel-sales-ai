@@ -30,7 +30,7 @@ MAX_PAGES = 10
 CONCURRENCY = 4
 MAX_CORPUS = 9000
 PAGE_CHARS = 2200
-DEFAULT_MODEL = "Qwen/Qwen3-4B-Instruct-2507"
+DEFAULT_MODEL = "meta-llama/Llama-3.3-70B-Instruct"
 PAGE_HINTS = (
     ("chi-siamo", 0), ("chisiamo", 0), ("azienda", 0), ("about", 0), ("company", 0), ("profilo", 0),
     ("storia", 1), ("history", 1), ("prodott", 1), ("products", 1), ("lavorazion", 1), ("servizi", 1),
