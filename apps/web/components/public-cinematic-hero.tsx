@@ -88,7 +88,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           {en ? null : <HomeQuickWeight />}
           {en ? null : (
             <Link href={links.builder} className={styles.textLink} data-home-distinta-link>
-              Oppure crea una distinta gratis <span aria-hidden="true">→</span>
+              Crea una distinta gratis <span aria-hidden="true">→</span>
             </Link>
           )}
           {en ? <>

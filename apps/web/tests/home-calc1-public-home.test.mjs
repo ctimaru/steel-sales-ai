@@ -33,7 +33,7 @@ test("HOME-CALC1 hero says what the platform does and answers with a weight", ()
   assert.match(hero, /"Pesi, distinte e fornitori"/);
   assert.match(hero, /" per chi lavora l’acciaio\."/);
   assert.match(hero, /\{en \? null : <HomeQuickWeight \/>\}/);
-  assert.match(hero, /Oppure crea una distinta gratis/);
+  assert.match(hero, /Crea una distinta gratis <span/);
   assert.match(proof, /Calcola, prepara la distinta, trova i fornitori\./);
   for (const source of [hero, quick, proof]) {
     assert.equal(transpile(source).diagnostics?.filter((d) => d.category === ts.DiagnosticCategory.Error).length ?? 0, 0);
