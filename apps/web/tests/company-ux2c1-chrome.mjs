@@ -107,11 +107,20 @@ try {
       await page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
       const assistant = page.getByTestId("company-description-assistant");
       async function open() {
-        await page.goto(base + "/company/profile#overview", { waitUntil: "domcontentloaded", timeout: 90000 });
+        const response = await page.goto(base + "/company/profile#overview", { waitUntil: "domcontentloaded", timeout: 90000 });
+        // Moving from the manual field's fragment to #overview is a same-document
+        // navigation. Reload to observe fixture changes made outside the page.
+        if (!response) await page.reload({ waitUntil: "domcontentloaded", timeout: 90000 });
         await assistant.waitFor({ state: "visible", timeout: 30000 });
       }
       async function state(expected) {
-        await page.waitForFunction(value => document.querySelector('[data-testid="company-description-assistant"]')?.getAttribute("data-state") === value, expected, { timeout: 30000 });
+        try {
+          await page.waitForFunction(value => document.querySelector('[data-testid="company-description-assistant"]')?.getAttribute("data-state") === value, expected, { timeout: 30000 });
+        } catch (error) {
+          console.error("C1 state failure", { width, expected, actual: await assistant.getAttribute("data-state"), availability: await assistant.getAttribute("data-availability"), text: (await assistant.innerText()).slice(0, 1200), consoleIssues, errors });
+          await page.screenshot({ path: path.join(output, "company-ux2c1-failed-" + expected + "-" + width + ".png"), fullPage: true, animations: "disabled", caret: "initial" });
+          throw error;
+        }
       }
       async function capture(name) {
         const metrics = await page.evaluate(() => ({ width: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
@@ -126,6 +135,7 @@ try {
 
       const acceptedText = summaryFor(width, "accettazione");
       seedResearch(acceptedText);
+      assert.equal((await review()).availability, "available", "New seeded research must be available before refreshing the UI");
       await open();
       await state("available");
       assert.ok((await assistant.getByTestId("company-description-proposal").innerText()).includes(acceptedText));
