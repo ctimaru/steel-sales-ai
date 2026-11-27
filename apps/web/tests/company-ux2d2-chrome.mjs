@@ -163,8 +163,19 @@ try {
     const errors = [];
     const consoleIssues = [];
     const writes = [];
+    let rpcOverride = null;
     try {
-      await context.route("**/*", route => ["127.0.0.1", "localhost"].includes(new URL(route.request().url()).hostname) ? route.continue() : route.abort());
+      // Keep one interceptor for the whole context. Removing a suspended page
+      // route while it falls back to a context route can handle the same request
+      // twice in Playwright 1.56.1. Every branch here finishes its route once,
+      // and the localhost guard always runs before an RPC-specific override.
+      await context.route("**/*", async route => {
+        const request = route.request();
+        if (!["127.0.0.1", "localhost"].includes(new URL(request.url()).hostname)) return route.abort();
+        const override = rpcOverride;
+        if (request.url() === rpcUrl && request.method() === "POST" && override) return override(route);
+        return route.continue();
+      });
       page = await context.newPage();
       page.on("request", request => {
         if (new URL(request.url()).pathname !== rpcPath || request.method() !== "POST") return;
@@ -334,7 +345,7 @@ try {
       const uploadDraft = await values();
       let committedFinalization;
       const loseFinalizationReceipt = async route => {
-        if (route.request().postDataJSON()?.p_operation !== "finalize") return route.fallback();
+        if (route.request().postDataJSON()?.p_operation !== "finalize") return route.continue();
         const actual = await route.fetch({ maxRedirects: 0 });
         committedFinalization = { status: actual.status(), body: await actual.json() };
         // The real local writer has run. Only its response to the browser is
@@ -343,30 +354,33 @@ try {
       };
       if (width === 320) {
         expectedRpcFailure = 503;
-        await page.route(rpcUrl, loseFinalizationReceipt);
+        rpcOverride = loseFinalizationReceipt;
       }
       if (width === 1440) {
         let releasePreparation;
         const holdPreparation = new Promise(resolve => { releasePreparation = resolve; });
         const preparationSeen = page.waitForRequest(request => request.url() === rpcUrl && request.postDataJSON()?.p_operation === "prepare");
         const delayPreparation = async route => {
-          if (route.request().postDataJSON()?.p_operation !== "prepare") return route.fallback();
+          if (route.request().postDataJSON()?.p_operation !== "prepare") return route.continue();
           await holdPreparation;
-          return route.fallback();
+          return route.continue();
         };
-        await page.route(rpcUrl, delayPreparation);
+        rpcOverride = delayPreparation;
         try {
           // Two synchronous submit events exercise the ref guard before the
           // first state update has disabled the visible controls.
           await form.evaluate(element => { element.requestSubmit(); element.requestSubmit(); });
           await preparationSeen;
           assert.equal(await form.getAttribute("aria-busy"), "true");
-          assert.equal(await form.locator("fieldset").isDisabled(), true);
+          assert.equal(await form.locator("fieldset").evaluate(element => element.hasAttribute("disabled")), true);
+          assert.equal(await form.locator("#producer-catalog-file").isDisabled(), true);
+          assert.equal(await form.locator('button[type="submit"]').isDisabled(), true);
+          assert.equal(await form.getByRole("button", { name: "Annulla caricamento", exact: true }).isDisabled(), true);
           assert.equal(await manager.getByRole("button", { name: "Aggiorna cataloghi", exact: true }).isDisabled(), true);
           await capture(editor, "upload-busy");
         } finally {
           releasePreparation();
-          await page.unroute(rpcUrl, delayPreparation);
+          rpcOverride = null;
         }
       } else {
         await form.getByRole("button", { name: "Invia il catalogo", exact: true }).click();
@@ -379,7 +393,7 @@ try {
         assert.deepEqual(await values(), uploadDraft, "Lost acknowledgement must preserve the entire form");
         assert.equal(await form.getByRole("button", { name: "Invia il catalogo", exact: true }).isDisabled(), true);
         await capture(editor, "uncertain-upload");
-        await page.unroute(rpcUrl, loseFinalizationReceipt);
+        rpcOverride = null;
         const rechecked = page.waitForResponse(response => response.url() === rpcUrl && response.request().postDataJSON()?.p_operation === "status");
         await form.getByRole("button", { name: "Controlla lo stato", exact: true }).click();
         assert.equal((await rechecked).status(), 200);
@@ -470,11 +484,11 @@ try {
         const holdRead = new Promise(resolve => { releaseRead = resolve; });
         const readSeen = page.waitForRequest(request => request.url() === rpcUrl && request.postDataJSON()?.p_operation === "status");
         const delayRead = async route => {
-          if (route.request().postDataJSON()?.p_operation !== "status") return route.fallback();
+          if (route.request().postDataJSON()?.p_operation !== "status") return route.continue();
           await holdRead;
-          return route.fallback();
+          return route.continue();
         };
-        await page.route(rpcUrl, delayRead);
+        rpcOverride = delayRead;
         const refreshed = refresh();
         try {
           await readSeen;
@@ -487,7 +501,7 @@ try {
           await capture(loading, "loading");
         } finally {
           releaseRead();
-          await page.unroute(rpcUrl, delayRead);
+          rpcOverride = null;
         }
         await refreshed;
         await card(uploaded.catalog_id).waitFor({ state: "visible" });
@@ -498,11 +512,11 @@ try {
       const beforeUnavailable = submissionCount();
       let corruptedReads = 0;
       const corruptStatus = async route => {
-        if (route.request().postDataJSON()?.p_operation !== "status") return route.fallback();
+        if (route.request().postDataJSON()?.p_operation !== "status") return route.continue();
         corruptedReads++;
         await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ contract: "unexpected-catalogue-state", eligible: true, items: [] }) });
       };
-      await page.route(rpcUrl, corruptStatus);
+      rpcOverride = corruptStatus;
       await refresh();
       await manager.getByTestId("catalogue-unavailable").waitFor({ state: "visible" });
       assert.equal(await manager.getByTestId("catalogue-empty").count(), 0);
@@ -510,7 +524,7 @@ try {
       assert.equal(corruptedReads, 1);
       assert.equal(submissionCount(), beforeUnavailable);
       await capture(manager.getByTestId("catalogue-unavailable"), "unavailable");
-      await page.unroute(rpcUrl, corruptStatus);
+      rpcOverride = null;
       await refresh();
       await card(uploaded.catalog_id).waitFor({ state: "visible" });
       assert.equal((await status()).items.length, beforeUnavailable);
