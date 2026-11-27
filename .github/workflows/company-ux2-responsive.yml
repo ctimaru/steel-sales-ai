@@ -92,6 +92,14 @@ jobs:
             psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
               -v ON_ERROR_STOP=1 -f "supabase/tests/$test"
           done
+      - name: Report local Supabase security advisors (diagnostic)
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$NEXT_PUBLIC_SUPABASE_URL" = "http://127.0.0.1:54321"
+          mkdir -p "$RUNNER_TEMP/netro14d-synthetic-visual"
+          supabase db advisors --local --type security --level warn --fail-on none --output-format json \
+            > "$RUNNER_TEMP/netro14d-synthetic-visual/company-ux2c1-security-advisors.json"
       - name: Export ephemeral local-only authentication
         shell: bash
         run: |
@@ -168,7 +176,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: company-ux2-1440-390-320
-          path: ${{ runner.temp }}/netro14d-synthetic-visual/*.png
+          path: |
+            ${{ runner.temp }}/netro14d-synthetic-visual/*.png
+            ${{ runner.temp }}/netro14d-synthetic-visual/company-ux2c1-security-advisors.json
           if-no-files-found: ignore
           retention-days: 7
       - name: Destroy disposable browser/database material
