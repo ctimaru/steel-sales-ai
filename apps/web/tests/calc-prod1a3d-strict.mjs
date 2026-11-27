@@ -36,12 +36,12 @@ try{
    // The CHS weight benchmark is independent of the RHS selection above.
    // Therefore only assert it if the visible calculator explicitly displays the benchmark geometry.
    const body=await page.locator("main").innerText();
-   const match=body.match(/24[.,]0\d{2}\s*kg\s*\/\s*m/i);
+   const match=body.match(/24[.,]0\d{1,2}\s*kg\s*\/\s*m/i);
    record.checks.chsValueText=match?.[0]??null;
    record.checks.chsGeometryVisible=/168[.,]3/.test(body)&&/\b6\s*mm\b/.test(body);
    if(record.checks.chsGeometryVisible){
      if(!match)throw new Error("CHS nominal weight not visible with benchmark geometry");
-     const reported=parseNumber(match[0].match(/24[.,]0\d{2}/)[0]);
+     const reported=parseNumber(match[0].match(/24[.,]0\d{1,2}/)[0]);
      record.checks.absoluteError=Number(Math.abs(reported-expected).toFixed(5));
      if(record.checks.absoluteError>0.03)throw new Error("CHS nominal mass differs by >0.03 kg/m");
    } else record.checks.numericStatus="NOT_ASSERTED_GEOMETRY_NOT_VERIFIED";

@@ -113,6 +113,8 @@ const englishText: Record<string, string> = {
   "Spessori suggeriti": "Suggested thicknesses",
   "kg/barra": "kg/bar",
   "barre":"bars",
+  "barra":"bar",
+  "Altro":"Other",
   "Copia non riuscita: controlla i permessi degli appunti.":"Copy failed. Check clipboard permissions.",
   "Impossibile trasferire l'articolo. Verifica lo spazio di sessione del browser e riprova.":"Unable to transfer item. Check browser session storage and retry.",
   "＋ Aggiungi alla distinta":"＋ Add to RFQ bill",

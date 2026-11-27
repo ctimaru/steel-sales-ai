@@ -40,7 +40,7 @@ for(const lang of ["it","en","de","fr","es"])for(const width of [390,1440]){
   if(!result.checks.suggestionClicked){
    const theoretical=Math.PI/4*(168.3**2-(168.3-2*6)**2)*0.00785;
    result.checks.chsBenchmark=Number(theoretical.toFixed(3));
-   result.checks.weightEvidence=txt.match(/\b24[.,]0\d{2}\s*kg\s*\/\s*m/i)?.[0]??null;
+   result.checks.weightEvidence=txt.match(/\b24[.,]0\d{1,2}\s*kg\s*\/\s*m/i)?.[0]??null;
    // benchmark only records evidence until geometry is explicitly confirmed in the DOM.
   }
   await page.screenshot({path:`artifacts/calc-prod1a3c/${lang}-${width}.png`,animations:"disabled"});

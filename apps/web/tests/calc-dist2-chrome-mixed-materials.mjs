@@ -47,7 +47,12 @@ try {
         const dims=calc.locator("[data-cockpit-measurements] input");
         assert.equal(await dims.count(),spec.dims.length,"Required dimensions line "+(i+1));
         for(let d=0;d<spec.dims.length;d++) await dims.nth(d).fill(spec.dims[d]);
-        await calc.locator("[data-cockpit-length-quantity] input").first().fill(spec.length);
+        // HOME-CALC1: bar length = preset buttons; «Altro» opens the free field.
+        {const lengthArea=calc.locator("[data-cockpit-length-quantity]");
+         const preset=lengthArea.getByRole("button",{name:spec.length+" m",exact:true});
+         if(await preset.count()) await preset.click();
+         else { await lengthArea.locator("[data-calc-length-other]").click();
+           await lengthArea.getByLabel("Lunghezza barra personalizzata").fill(spec.length); }}
         await calc.locator("#tube-calculator-quantity").fill(spec.bars);
         const add=calc.locator("[data-cockpit-add]");
         assert.equal(await add.isEnabled(),true,"Valid shape can be added: "+(i+1));

@@ -756,3 +756,46 @@
 @media (max-width: 700px) {
   .bridge { display: none; }
 }
+
+/* HOME-CALC1: secondary route under the quick weight card (Italian home). */
+.textLink {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  color: #cdebdd;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgb(134 232 185 / 45%);
+  text-underline-offset: 4px;
+}
+.textLink:hover { color: #fff; }
+.textLink:focus-visible { outline: 2px solid #8af3c0; outline-offset: 2px; border-radius: 6px; }
+
+/* HOME-CALC1 — Italian hero: title, one line of copy, quick weight card, distinta link.
+   No bottom strip anymore, so the reserved bottom padding goes; on desktop the
+   quick weight card is a compact two-column row so the hero stays within 705px. */
+.heroIt { min-height: 0; }
+.heroIt .container { min-height: 0; }
+@media (min-width: 1024px) {
+  .heroIt .container { padding-top: 44px; padding-bottom: 44px; }
+  .heroIt .copy { max-width: 600px; }
+  .heroIt .title { max-width: 600px; margin-top: 14px; font-size: 2.75rem; }
+  .heroIt .description { margin-top: 14px; font-size: 16px; line-height: 1.6; }
+}
+@media (min-width: 701px) and (max-width: 1023px) {
+  .heroIt .container { padding-bottom: 44px; }
+}
+@media (max-width: 700px) {
+  .heroIt .container { padding-top: 26px; padding-bottom: 36px; }
+  /* Phones: the weight answer and its action come before the longer sentence,
+     so the first-visit consent never covers them. */
+  .heroIt .copy { display: flex; flex-direction: column; align-items: stretch; }
+  .heroIt .eyebrow { order: 0; }
+  .heroIt .title { order: 1; margin-top: 12px; font-size: clamp(1.95rem, 8.4vw, 2.6rem); line-height: 1.07; }
+  .heroIt .copy > form { order: 2; }
+  .heroIt .textLink { order: 3; align-self: flex-start; }
+  .heroIt .description { order: 4; margin-top: 10px; }
+}

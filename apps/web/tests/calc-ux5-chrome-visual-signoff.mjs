@@ -26,6 +26,8 @@ try {
   await calc.locator('[data-cockpit-add]').waitFor({state:"visible"});
   const targets=calc.locator('[data-commercial-targets]');
   assert.equal(await targets.count(),1,"There must be one visible commercial area");
+  const commercialDisclosure=calc.locator('[data-commercial-disclosure]');
+  if(await commercialDisclosure.count() && !(await commercialDisclosure.evaluate(d=>d.open))) await commercialDisclosure.locator(':scope > summary').click();
   assert.equal(await calc.locator('[data-cockpit-kpis] > div').count(),3);
   const price=targets.locator('[data-commercial-price-fields] input').first();
   const priceVisual=await price.evaluate(el=>{
@@ -42,12 +44,13 @@ try {
   assert.ok(resultBox&&resultBox.width>=205,"Result column remains readable");
   const gallery=calc.locator('[data-cinematic-stage]');
   assert.equal(await gallery.count(),1,"One secondary industrial gallery");
-  const image=gallery.locator('[data-cinematic-product] img');
+  // HOME-CALC1: the gallery is one dimensioned drawing, no stock photo.
+  assert.equal(await gallery.locator('[data-cinematic-product]').count(),0,"No decorative photo");
+  const image=gallery.locator('svg[role="img"]');
   await image.scrollIntoViewIfNeeded();
-  await image.evaluate(img=>img.decode());
   const imageBox=await image.boundingBox(),galleryBox=await gallery.boundingBox();
   assert.ok(imageBox&&galleryBox);
-  assert.ok(imageBox.height<=185,"Industrial photo must not dominate the workstation: "+imageBox.height);
+  assert.ok(imageBox.height<=230,"Drawing must not dominate the workstation: "+imageBox.height);
   assert.ok(galleryBox.height<=(width>=680?360:440),
     "Secondary gallery too tall: "+locale+" "+width+" "+galleryBox.height);
   if(width===1440){

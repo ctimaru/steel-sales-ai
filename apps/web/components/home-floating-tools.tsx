@@ -6,7 +6,7 @@ import styles from "./home-floating-tools.module.css";
 type Tool = "weights" | "request";
 const copy = {
   it: {
-    weights: "Pesi e Norme", request: "Crea una richiesta",
+    weights: "Calcolo pesi", request: "Crea distinta",
     dismiss: "Chiudi strumento", fullPage: "Apri a pagina intera",
     loading: "Caricamento strumento…",
   },

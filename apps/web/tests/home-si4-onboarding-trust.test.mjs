@@ -14,7 +14,7 @@ const gate = read("../components/network-access-gate.tsx");
 test("HOME-SI4 keeps public tools available without registration", () => {
   // HOME-MOBILE-B6: the public tools shelf now lives inside the geometry section.
   const proof = read("../components/public-steel-geometry-proof.tsx");
-  assert.match(proof, /Strumenti pubblici · senza account/);
+  assert.match(proof, /Come funziona/);
   assert.match(home, /<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/);
   for (const route of ["/distinta", "/knowledge/norme", "/knowledge/gradi"]) {
     assert.ok(home.includes('href: "' + route + '"') || home.includes('href="' + route + '"'));
@@ -29,13 +29,13 @@ test("HOME-SI4 keeps public company identity and premium Network distinct", () =
   assert.match(network, /abilitazione Network separata/);
   assert.match(network, /href="\/azienda"/);
   assert.match(home, /Non trovi la tua azienda\? Registrala/);
-  assert.match(home, /La ricerca pubblica serve solo a riconoscere/);
+  assert.match(home, /Se c&apos;è già, puoi rivendicare il profilo/);
   assert.match(gate, /Non serve acquistare il Network per rivendicare/);
   assert.doesNotMatch(home + network + trust, /href="\/network"|href="\/rfq-hub"|href="\/platform"/);
 });
 
 test("HOME-SI4 describes the implemented registration journey (SELF1: checked automatic activation)", () => {
-  assert.match(home, /<PublicRegistrationTrust \/>/);
+  assert.doesNotMatch(home, /<PublicRegistrationTrust \/>/) // HOME-CALC1;
   assert.match(trust, /id="registrazione"/);
   assert.match(trust, /aria-labelledby="home-registration-title"/);
   for (const label of ["Crea l’account", "Dati dell’azienda", "Attivazione"]) {
@@ -61,7 +61,7 @@ test("HOME-SI4 makes trust and policy links actionable with lightweight, static 
   assert.match(trust, /href="\/company-data"/);
   assert.match(trust, /href="\/privacy"/);
   assert.match(home, /href="\/company-data"/);
-  assert.match(home, /<PublicNetworkRoleExplorer \/>[\s\S]*<PublicIntelligencePillars \/>[\s\S]*<DeferredPublicCompanyLookup \/>[\s\S]*<PublicRegistrationTrust \/>/);
+  assert.match(home, /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>[\s\S]*<DeferredPublicCompanyLookup \/>/); // HOME-CALC1 order
   assert.match(home, /export const dynamic = "force-static"/);
   for (const part of [home, network, trust]) {
     assert.doesNotMatch(part, /"use client"|useEffect|useState|createClient|fetch\s*\(|cookies\s*\(|<video|<iframe/);

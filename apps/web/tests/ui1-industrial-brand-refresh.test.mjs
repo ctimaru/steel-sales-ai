@@ -49,7 +49,7 @@ test("UI1 keeps the public landing fast and asset-light", () => {
   assert.doesNotMatch(publicHome, /<img|next\/image|video|iframe/i);
   assert.doesNotMatch(publicHome, /animate-|transition-all/);
   assert.match(publicHome, /<PublicCinematicHero locale="it" \/>/);
-  assert.match(cinematicHero, /L’acciaio ha una/);
+  assert.match(cinematicHero, /Pesi, distinte e fornitori/);
   assert.match(cinematicHero, /Super Intelligence Ready/);
   assert.match(cinematicHero, /Strumenti pubblici senza account/);
 });

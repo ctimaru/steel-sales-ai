@@ -15,7 +15,7 @@ try {
     if(await cookie.isVisible()) await cookie.getByRole("button",{name:"Accetta necessari"}).click();
     const root=page.locator("#calcolatore-pesi"), toolbar=root.locator("[data-cockpit-toolbar]");
     const fields=root.locator("[data-cockpit-fields]"), outcomes=root.locator("[data-cockpit-results]");
-    const svg=root.locator("[data-cockpit-results] [data-cockpit-preview] svg"), action=root.locator("[data-cockpit-add]");
+    const svg=root.locator("[data-cinematic-stage] [data-cockpit-preview] svg") /* HOME-CALC1: one drawing, in the stage */, action=root.locator("[data-cockpit-add]");
     const details=root.locator("[data-cockpit-details]");
     assert.equal(await details.isVisible(),true,"Advanced tools must remain available below core cockpit");
     for(const element of [toolbar,fields,outcomes,svg,action])

@@ -19,12 +19,12 @@ test("HOME-CINE1A hero is shared across IT/EN and preserves static SEO", () => {
   }
   assert.match(hero, /aria-labelledby="home-cinematic-title"/);
   assert.match(hero, /<h1 id="home-cinematic-title"/);
-  assert.match(hero, /L’acciaio ha una/);
+  assert.match(hero, /Pesi, distinte e fornitori/);
   assert.match(hero, /Steel has a new/);
 });
 
 test("HOME-CINE1A differentiates public utilities and gated company access", () => {
-  for (const href of ['builder: "/distinta"', 'builder: "/en/distinta"', '"#network"', '"/en/network"']) {
+  for (const href of ['builder: "/distinta"', 'builder: "/en/distinta"', '"#network-pro"', '"/en/network"']) {
     assert.ok(hero.includes(href), "Missing safe route: " + href);
   }
   assert.match(hero, /source=home&surface=hero#calcolatore-pesi/);

@@ -46,8 +46,8 @@ try {
     page.on("pageerror", error => errors.push(error.message));
     await page.goto(origin + (locale === "it" ? "/" : "/en"), { waitUntil: "domcontentloaded" });
     const dock = page.getByTestId("home-floating-dock");
-    const weights = dock.getByRole("button", { name: locale === "it" ? "Pesi e Norme" : "Weights & Standards" });
-    const request = dock.getByRole("button", { name: locale === "it" ? "Crea una richiesta" : "Create an RFQ" });
+    const weights = dock.getByRole("button", { name: locale === "it" ? "Calcolo pesi" : "Weights & Standards" });
+    const request = dock.getByRole("button", { name: locale === "it" ? "Crea distinta" : "Create an RFQ" });
     await weights.waitFor({ state: "visible" });
     if (width <= 700) {
       const compact = await dock.evaluate(node => ({width:node.getBoundingClientRect().width,height:node.getBoundingClientRect().height}));

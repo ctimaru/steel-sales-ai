@@ -101,7 +101,7 @@ test("PERF1 public homepage is statically rendered without request cookies or Su
   assert.match(home, /export const dynamic = "force-static"/);
   assert.match(home, /export default function PublicHomePage/);
   assert.doesNotMatch(home, /createClient|cookies\s*\(|getUser|getClaims|redirect\s*\(|headers\s*\(/);
-  assert.match(home, /<PublicNetworkRoleExplorer \/>/);
+  assert.doesNotMatch(home, /<PublicNetworkRoleExplorer \/>/) // HOME-CALC1;
   assert.match(home, /<DeferredPublicCompanyLookup \/>/);
 });
 

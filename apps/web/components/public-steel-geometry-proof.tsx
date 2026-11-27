@@ -65,14 +65,16 @@ export function PublicSteelGeometryProof({ locale, tools }: { locale: Locale; to
     <section id="steel-tools-proof" className={styles.proof} aria-labelledby="home-cine-proof-heading">
       <div className={styles.proofInner}>
         <div className={styles.proofLead}>
-          <p className={styles.kicker}>{tools ? "Strumenti pubblici · senza account" : <>02 / {en ? "REAL TOOLS · NO ACCOUNT" : "STRUMENTI REALI · SENZA ACCOUNT"}</>}</p>
+          <p className={styles.kicker}>{tools ? "Come funziona" : <>02 / {en ? "REAL TOOLS · NO ACCOUNT" : "STRUMENTI REALI · SENZA ACCOUNT"}</>}</p>
           <h2 id="home-cine-proof-heading" className={styles.proofTitle}>
-            {en ? "From steel geometry to a clearer request." : "Dalla geometria a una richiesta più chiara."}
+            {en ? "From steel geometry to a clearer request." : tools ? "Calcola, prepara la distinta, trova i fornitori." : "Dalla geometria a una richiesta più chiara."}
           </h2>
           <p className={styles.proofDescription}>
             {en
               ? "Start with steel grades, standards and real theoretical-weight tools. Keep the technical details together when preparing your bill of materials."
-              : "Parti da norme, gradi e calcoli di peso teorico reali. Mantieni i dati tecnici ordinati quando prepari la tua distinta."}
+              : tools
+                ? "Calcolo pesi, distinta e Scuola sono gratis e senza account. Il Network ti porta ai produttori e ai commercianti giusti."
+                : "Parti da norme, gradi e calcoli di peso teorico reali. Mantieni i dati tecnici ordinati quando prepari la tua distinta."}
           </p>
           {tools ? (
             <div className={styles.quickTools} data-testid="home-public-tools">
@@ -93,11 +95,12 @@ export function PublicSteelGeometryProof({ locale, tools }: { locale: Locale; to
               </Link>
             </div>
           )}
-          <p className={styles.accessNote}>
+          {/* HOME-CALC1: the Italian home states access rules once, in the Network PRO card. */}
+          {tools ? null : <p className={styles.accessNote}>
             {en
               ? "Technical tools are public. Sending private RFQs and supplier collaboration follow company access controls."
               : "Strumenti tecnici pubblici. L’invio di RFQ private e la collaborazione tra aziende seguono le abilitazioni."}
-          </p>
+          </p>}
         </div>
         <div className={styles.proofPanel}>
           <div className={styles.panelHeading}>
@@ -114,7 +117,7 @@ export function PublicSteelGeometryProof({ locale, tools }: { locale: Locale; to
               </div>
             ))}
           </div>
-          <div className={styles.process}>
+          {tools ? null : <div className={styles.process}>
             <p>{en ? "TECHNICAL-TO-COMMERCIAL FLOW" : "PERCORSO TECNICO-COMMERCIALE"}</p>
             <ol className={styles.processSteps}>
               <li>{en ? "Specifications" : "Specifiche"}</li>
@@ -123,7 +126,7 @@ export function PublicSteelGeometryProof({ locale, tools }: { locale: Locale; to
               <li>RFQ</li>
             </ol>
             <span className={styles.sampleNote}>{en ? "Illustrative flow · no live company data" : "Flusso illustrativo · nessun dato aziendale reale"}</span>
-          </div>
+          </div>}
         </div>
       </div>
     </section>

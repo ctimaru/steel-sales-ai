@@ -71,16 +71,19 @@ try {
     try {
       const response = await page.goto(BASE, { waitUntil: "domcontentloaded", timeout: 50000 });
       assert.equal(response?.status(), 200, viewport.name + " homepage should return HTTP 200");
-      await page.getByRole("heading", { name: /L.acciaio ha una nuova intelligenza/i }).waitFor();
+      await page.getByRole("heading", { name: /Pesi, distinte e fornitori per chi lavora l.acciaio/i }).waitFor();
       // HOME-CINE2A: preserve actual public navigation, not superseded
       // HOME-CONV1A header/hero labels that were intentionally removed.
+      // HOME-CALC1: five blocks — hero (quick weight + Network PRO), how it works, your company, contacts, footer.
       const sections = [
-        "La filiera steel, utile in base al tuo ruolo.",
-        "Tre forme di intelligence. Un solo ecosistema.",
-        "Cinque strumenti. Un unico percorso.",
+        "Tutta la filiera dell’acciaio. Una sola ricerca.",
+        "Calcola, prepara la distinta, trova i fornitori.",
         "Cercala per nome o Partita IVA.",
-        "La tua azienda, un accesso governato.",
       ];
+      for (const removed of ["La filiera steel, utile in base al tuo ruolo.", "Tre forme di intelligence. Un solo ecosistema.",
+        "Cinque strumenti. Un unico percorso.", "La tua azienda, un accesso governato."]) {
+        check(await page.getByRole("heading", { name: removed, exact: true }).count() === 0, "Superseded section still on the home: " + removed);
+      }
       for (const name of sections) {
         check(await page.getByRole("heading", { name, exact: true }).count() === 1, "Missing public section: " + name);
       }
@@ -92,17 +95,23 @@ try {
         viewport.name + " horizontal overflow " + JSON.stringify(layout));
       const publicHeader = page.locator("header").first();
       const hero = page.locator('section[aria-labelledby="home-cinematic-title"]');
-      const primaryHeroAction = hero.getByRole("link", { name: /Norme e pesi/ });
+      // HOME-CALC1: the hero answers with a live weight and opens the full calculator prefilled.
+      const quickWeight = hero.locator("[data-home-quick-weight]");
+      check(await quickWeight.count() === 1, "Hero quick weight missing");
+      await quickWeight.getByRole("textbox").fill("100x100x4");
+      await quickWeight.locator("[data-home-quick-result]").getByText(/kg\/m/).waitFor();
+      check(/11,\d{2}/.test(await quickWeight.locator("[data-home-quick-result]").innerText()),
+        "Quick weight must show the EN 10219 kg/m of 100x100x4");
+      const primaryHeroAction = hero.getByRole("link", { name: /Apri la calcolatrice completa/ });
       check(await primaryHeroAction.count() === 1, "Hero technical primary action missing");
-      check((await primaryHeroAction.getAttribute("href")) ===
-        "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi",
-        "Hero calculator must remain public and live");
-      // HOME-MOBILE-B: under 700px the same link shows the short label «Distinta gratis».
-      const publicDistinta = hero.getByRole("link", { name: /Crea una distinta gratis|Distinta gratis/ });
+      const heroCalculatorHref = await primaryHeroAction.getAttribute("href") ?? "";
+      check(heroCalculatorHref.startsWith("/knowledge/tubes?") && heroCalculatorHref.includes("surface=hero") &&
+        heroCalculatorHref.endsWith("#calcolatore-pesi"), "Hero calculator must remain public and live");
+      const publicDistinta = hero.getByRole("link", { name: /crea una distinta gratis/i });
       check(await publicDistinta.count() === 1 &&
         await publicDistinta.getAttribute("href") === "/distinta", "Public bill CTA missing");
-      check(await page.locator("#home-tools a").count() === 5,
-        "Five product-led tool cards must render");
+      check(await page.locator("#home-tools a").count() === 0,
+        "HOME-CALC1: the five-tool shelf left the Italian home");
       const account = publicHeader.locator('nav[aria-label="Area aziende"]');
       check(await account.count() === 1, "Company account navigation missing");
       const accountLogin = account.locator('a[href="/login"]');
@@ -140,7 +149,7 @@ try {
       }
       // HOME-MOBILE-B: the Italian proof shows the public tool cards; the weight
       // calculator card must keep the tracked School-section destination.
-      check(await geometryProof.getByRole("link", { name: /Calcolo pesi/ }).getAttribute("href") ===
+      check(await geometryProof.getByRole("link", { name: /Calcola il peso/ }).getAttribute("href") ===
         "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
         "Technical proof calculator destination lost");
       const enPage = await page.goto(BASE + "/en", { waitUntil: "domcontentloaded", timeout: 50000 });

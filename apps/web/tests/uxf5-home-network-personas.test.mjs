@@ -13,7 +13,8 @@ test("UXF5 puts the Network value explorer directly after the public hero", () =
   assert.match(hero, /surface=hero#calcolatore-pesi/);
   assert.match(
     home,
-    /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/,
+    // HOME-CALC1: role tabs left the home; the Network PRO card in the hero carries the roles.
+    /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/,
   );
 });
 

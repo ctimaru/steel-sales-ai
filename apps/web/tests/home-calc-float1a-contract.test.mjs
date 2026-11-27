@@ -13,8 +13,8 @@ test("HOME-CALC-FLOAT1A adds bilingual floating tools without replacing cinemati
   assert.match(en, /<PublicCinematicHero locale="en" \/>/);
   assert.match(it, /<HomeFloatingTools locale="it" \/>/);
   assert.match(en, /<HomeFloatingTools locale="en" \/>/);
-  assert.match(component, /Pesi e Norme/);
-  assert.match(component, /Crea una richiesta/);
+  assert.match(component, /Calcolo pesi/);
+  assert.match(component, /Crea distinta/);
   assert.match(component, /Weights & Standards/);
   assert.match(component, /Create an RFQ/);
   assert.match(component, /\/knowledge\/tubes#calcolatore-pesi/);

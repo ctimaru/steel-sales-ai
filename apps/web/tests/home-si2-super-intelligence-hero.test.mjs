@@ -11,7 +11,7 @@ const showcase = fs.readFileSync(new URL("../components/public-intelligence-show
 
 test("HOME-SI2 establishes a truthful AI-ready hero without claiming autonomous decisions", () => {
   assert.match(hero, /Super Intelligence Ready/);
-  assert.match(hero, /L’acciaio ha una/);
+  assert.match(hero, /Pesi, distinte e fornitori/);
   assert.match(home, /<PublicCinematicHero locale="it" \/>/);
   assert.match(showcase, /Flusso illustrativo/);
   assert.match(showcase, /L’AI assiste, la decisione resta alle persone/);
@@ -26,7 +26,7 @@ test("HOME-SI2 prioritizes conversion but preserves free utilities and role expl
   assert.match(home, /href="\/distinta"/);
   assert.match(home, /href="\/knowledge"/);
   assert.match(publicNav, /href: "\/azienda"/);
-  assert.match(home, /<PublicNetworkRoleExplorer \/>/);
+  assert.doesNotMatch(home, /<PublicNetworkRoleExplorer \/>/) // HOME-CALC1;
   assert.match(home, /<DeferredPublicCompanyLookup \/>/);
 });
 

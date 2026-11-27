@@ -12,7 +12,7 @@ const items = {
   it: [
     { label: "Distinta", href: "/distinta" },
     { label: "Trova aziende", href: "/azienda" },
-    { label: "Network", href: "#network" },
+    { label: "Network", href: "#network-pro" },
     { label: "Scuola", href: "/knowledge" },
     { label: "Il progetto", href: "/progetto" },
   ],
