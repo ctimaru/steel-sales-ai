@@ -121,3 +121,7 @@
   .note { grid-column: 1 / -1; margin-top: 6px; }
   .kgm strong { font-size: 32px; }
 }
+/* Very narrow phones: the example chips give way so the action stays above the consent bar. */
+@media (max-width: 380px) {
+  .examples { display: none; }
+}
