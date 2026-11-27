@@ -29,7 +29,7 @@ test("UXF2 turns Network Profile Manager into a progressive editor without remov
   assert.match(profile, /uxf2-dense-page/);
   for (const label of [
     "Tipologia e posizionamento",
-    "Prodotti e relazione commerciale",
+    "Prodotti e cataloghi",
     "Sedi, stabilimenti e capability",
     "Mercati e settori serviti",
     "Certificazioni",

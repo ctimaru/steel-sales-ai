@@ -9,6 +9,9 @@ on:
       - "apps/web/app/**/company/profile/**"
       - "apps/web/components/company-*"
       - "apps/web/components/network-inventory-manager.tsx"
+      - "apps/web/components/producer-catalogue-upload.tsx"
+      - "apps/web/components/producer-structured-moderation.tsx"
+      - "apps/web/components/producer-pdf-size-owner.tsx"
       - "apps/web/components/app-shell.tsx"
       - "apps/web/components/workspace-*"
       - "apps/web/lib/network.ts"
@@ -16,12 +19,15 @@ on:
       - "apps/web/lib/company-description-assistant.ts"
       - "apps/web/lib/company-industrial-assistant.ts"
       - "apps/web/lib/company-inventory-workspace.ts"
+      - "apps/web/lib/company-catalogue-workspace.ts"
       - "apps/web/tests/company-ux2a-chrome.mjs"
       - "apps/web/tests/company-ux2c1-chrome.mjs"
       - "apps/web/tests/company-ux2c2-chrome.mjs"
       - "apps/web/tests/company-ux2d1-chrome.mjs"
+      - "apps/web/tests/company-ux2d2-chrome.mjs"
       - "supabase/tests/company_ux2c1_*.sql"
       - "supabase/tests/company_ux2c2_*.sql"
+      - "supabase/tests/company_ux2d2_*.sql"
       - "supabase/migrations/**"
   workflow_dispatch:
 
@@ -86,14 +92,14 @@ jobs:
           cp supabase/ci/p0_staging_baseline.sql supabase/migrations/20260908000001_ci_staging_baseline.sql
           supabase start > "$RUNNER_TEMP/network-visual-supabase-start.log" 2>&1
           supabase db reset --local > "$RUNNER_TEMP/network-visual-supabase-reset.log" 2>&1
-      - name: Verify Company Intelligence authorization, concurrency and provenance
+      - name: Verify Company review and catalogue authorization contracts
         env:
           PGPASSWORD: postgres
         shell: bash
         run: |
           set -euo pipefail
           test "$NEXT_PUBLIC_SUPABASE_URL" = "http://127.0.0.1:54321"
-          for test in company_ux2c1_description_review.sql company_ux2c1_public_description.sql company_ux2c2_industrial_review.sql; do
+          for test in company_ux2c1_description_review.sql company_ux2c1_public_description.sql company_ux2c2_industrial_review.sql company_ux2d2_catalog_status.sql; do
             psql -h 127.0.0.1 -p 54322 -U postgres -d postgres \
               -v ON_ERROR_STOP=1 -f "supabase/tests/$test"
           done
@@ -190,6 +196,13 @@ jobs:
         run: |
           set -euo pipefail
           node tests/company-ux2d1-chrome.mjs
+      - name: Verify catalogue uploads, rights and withdrawal in Chrome 1440 / 390 / 320
+        working-directory: apps/web
+        timeout-minutes: 12
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tests/company-ux2d2-chrome.mjs
       - name: Upload synthetic screenshots for visual acceptance
         if: always()
         uses: actions/upload-artifact@v4

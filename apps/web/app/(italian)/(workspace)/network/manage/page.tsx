@@ -3,6 +3,7 @@ import { CompanyDescriptionAssistant } from "@/components/company-description-as
 import { CompanyIndustrialAssistant } from "@/components/company-industrial-assistant";
 import { CompanyWorkspaceNavigation } from "@/components/company-workspace-navigation";
 import { CompanyProductCatalog } from "@/components/company-product-catalog";
+import { CompanyCatalogueWorkspace } from "@/components/company-catalogue-workspace";
 import { CompanyIndustrialFootprint, IndustrialRoleMark } from "@/components/company-industrial-footprint";
 import { CompanyMarkets, CompanyCertifications, CertificationVerificationBadge, companyRelationSource } from "@/components/company-markets-certifications";
 import { NetworkInventoryManager } from "@/components/network-inventory-manager";
@@ -324,7 +325,7 @@ export default async function ManagedNetworkProfilePage({
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
             <Link href={"/network/" + companyId} className={primaryButton + " max-w-full text-center"}>Visualizza profilo pubblico</Link>
-            <Link href="/network/manage/cataloghi" className={secondaryButton + " max-w-full text-center"}>Cataloghi produttore</Link>
+            <a href="#products-catalogues" className={secondaryButton + " max-w-full text-center"}>Cataloghi tecnici</a>
           </div>
         </div>
       </header>
@@ -549,8 +550,8 @@ export default async function ManagedNetworkProfilePage({
         <SectionHeader
           id="products"
           eyebrow="03 · Prodotti"
-          title="Prodotti e relazione commerciale"
-          description="Definisci cosa produce, distribuisce o tiene a stock l'azienda e, dove disponibile, collega norme, gradi/materiali e range dimensionali canonici. Questo scope prepara il profilo al matching Marketplace."
+          title="Prodotti e cataloghi"
+          description="Presenta le famiglie di prodotto, gestisci le specifiche e segui i cataloghi tecnici della tua azienda."
         />
 
         <CompanyIndustrialAssistant
@@ -559,6 +560,10 @@ export default async function ManagedNetworkProfilePage({
           action={decideManagedCompanyIndustrialData}
         />
         <CompanyProductCatalog state={state} relationshipLabels={relationshipLabels} />
+        <CompanyCatalogueWorkspace
+          key={"catalogues:" + context.organizationId + ":" + companyId}
+          companyId={companyId} companyName={companyName}
+        />
 
         <div className="space-y-4">
           {state.products.map((product) => {

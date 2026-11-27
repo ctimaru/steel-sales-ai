@@ -21,7 +21,7 @@ type SectionId = (typeof companyWorkspaceSections)[number]["id"];
 function sectionFromHash(): SectionId {
   const id = window.location.hash.slice(1);
   if (id === "company-description") return "overview";
-  if (id === "products-add" || /^products-item-[0-9a-f-]+$/i.test(id)) return "products";
+  if (id === "products-catalogues" || id === "products-add" || /^products-item-[0-9a-f-]+$/i.test(id)) return "products";
   if (id === "facilities-add" || /^facilities-item-[0-9a-f-]+$/i.test(id)) return "facilities";
   if (id === "markets-add" || /^markets-item-[0-9a-f-]+$/i.test(id)) return "markets";
   if (id === "certifications-add" || /^certifications-item-[0-9a-f-]+$/i.test(id)) return "certifications";
@@ -48,7 +48,7 @@ export function CompanyWorkspaceNavigation({ panels }: { panels: Record<SectionI
     const focusEditorTarget = () => {
       const hash = window.location.hash.slice(1);
       const matchesDescription = active === "overview" && hash === "company-description";
-      const matchesProduct = active === "products" && (hash === "products-add" || /^products-item-[0-9a-f-]+$/i.test(hash));
+      const matchesProduct = active === "products" && (hash === "products-catalogues" || hash === "products-add" || /^products-item-[0-9a-f-]+$/i.test(hash));
       const matchesFacility = active === "facilities" && (hash === "facilities-add" || /^facilities-item-[0-9a-f-]+$/i.test(hash));
       const matchesMarket = active === "markets" && (hash === "markets-add" || /^markets-item-[0-9a-f-]+$/i.test(hash));
       const matchesCertification = active === "certifications" && (hash === "certifications-add" || /^certifications-item-[0-9a-f-]+$/i.test(hash));

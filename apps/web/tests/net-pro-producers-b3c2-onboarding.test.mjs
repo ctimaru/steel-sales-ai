@@ -9,6 +9,7 @@ const sql=readFileSync(new URL(
 ),"utf8");
 const page=read("app/(italian)/(workspace)/network/manage/cataloghi/page.tsx");
 const component=read("components/producer-catalogue-upload.tsx");
+const workspace=read("components/company-catalogue-workspace.tsx");
 const manage=read("app/(italian)/(workspace)/network/manage/page.tsx");
 
 test("B3.C2 creates a private pending-provenance intake, never an automatic licence",()=>{
@@ -53,28 +54,33 @@ test("B3.C2 binds immutable bytes to company, document and source",()=>{
   assert.match(sql,/private\.netproducers1_b2_catalog\('revoke'/);
 });
 
-test("B3.C2 exposes a single accessible page without leaking service credentials",()=>{
+test("B3.C2 keeps one governed catalogue workspace without leaking service credentials",()=>{
   assert.match(page,/requireWorkspaceAdmin/);
-  assert.match(page,/getManagedNetworkCompany/);
-  assert.match(page,/ProducerCatalogueUpload/);
-  assert.match(manage,/href="\/network\/manage\/cataloghi"/);
+  assert.match(page,/redirect\("\/company\/profile#products-catalogues"\)/);
+  assert.match(manage,/getManagedNetworkCompany/);
+  assert.match(manage,/<CompanyCatalogueWorkspace/);
+  assert.match(manage,/<a href="#products-catalogues"/);
+  assert.match(workspace,/<ProducerCatalogueUpload companyId=\{companyId\}/);
   assert.match(component,/createClient/);
   assert.match(component,/crypto\.subtle\.digest\("SHA-256"/);
-  assert.match(component,/upsert:false/);
-  assert.match(component,/rights_declaration:true/);
-  assert.match(component,/p_operation:"finalize"/);
-  assert.match(component,/p_operation:"withdraw"/);
-  assert.match(component,/rights_verified!==false/);
-  assert.match(component,/published_claims!==0/);
+  assert.match(component,/upsert:\s*false/);
+  assert.match(component,/rights_declaration:\s*true/);
+  assert.match(component,/p_operation:\s*"prepare"/);
+  assert.match(component,/p_operation:\s*"finalize"/);
+  assert.match(workspace,/p_operation:\s*"withdraw"/);
+  assert.match(component,/rights_verified\s*!==\s*false/);
+  assert.match(component,/published_claims\s*!==\s*0/);
   assert.match(component,/sm:grid-cols-2/);
-  assert.doesNotMatch(page+component,/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEY|service_role/);
+  assert.doesNotMatch(page+component+workspace,/SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SECRET_KEY|service_role/);
 });
 
 test("B3.C2 refuses to present uploaded files as verified manufacturer SKUs",()=>{
-  assert.match(component,/In attesa della verifica automatica/);
-  assert.match(component,/Fonte verificata · analisi tecnica in coda/);
-  assert.match(component,/Documento o autorizzazione da chiarire/);
-  assert.match(page,/Nessun dato equivale automaticamente alla disponibilità/);
-  assert.match(component,/Verifica aziendale necessaria/);
-  assert.match(component,/Revoca/);
+  assert.match(workspace,/pending_provenance: "In attesa di verifica"/);
+  assert.match(workspace,/in_analysis: "Inviato all’analisi tecnica"/);
+  assert.match(workspace,/Questo stato non attesta dati estratti o pubblicati/);
+  assert.match(workspace,/needs_review: "Verifica da completare"/);
+  assert.match(component,/L’invio non aggiorna le disponibilità di Stock e arrivi/);
+  assert.match(workspace,/rivendicazione approvata e identità verificata/);
+  assert.match(workspace,/Conferma revoca/);
+  assert.match(workspace,/Mantieni catalogo/);
 });
