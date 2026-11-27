@@ -137,11 +137,12 @@ try {
       viewport: { width, height: width === 1440 ? 1000 : 844 }, locale: "it-IT",
       reducedMotion: "reduce", serviceWorkers: "block",
     });
+    let page;
+    const errors = [];
+    const consoleIssues = [];
     try {
       await context.route("**/*", route => ["127.0.0.1", "localhost"].includes(new URL(route.request().url()).hostname) ? route.continue() : route.abort());
-      const page = await context.newPage();
-      const errors = [];
-      const consoleIssues = [];
+      page = await context.newPage();
       page.on("pageerror", error => errors.push(error.message));
       page.on("console", message => {
         const content = message.text();
@@ -351,6 +352,36 @@ try {
       assert.deepEqual(errors, [], "Uncaught C2 browser errors at " + width);
       assert.deepEqual([...new Set(consoleIssues)], [], "C2 console issues at " + width);
       console.log("COMPANY-UX2.C.2 Chrome PASS", width, "four canonical additions, explicit choices, stale recovery, preserved unavailable draft, read-only duplicate, ignored persistence and screenshots");
+    } catch (error) {
+      if (page && !page.isClosed()) {
+        try {
+          const cards = await page.getByTestId("company-industrial-proposal").evaluateAll(elements => elements
+            .filter(element => element.getClientRects().length > 0)
+            .slice(0, 12)
+            .map(element => ({
+              kind: element.getAttribute("data-kind")?.slice(0, 24),
+              contentKey: element.getAttribute("data-content-key")?.slice(0, 64),
+              state: element.getAttribute("data-state")?.slice(0, 32),
+              label: element.querySelector('[data-testid="company-industrial-label"]')?.textContent?.slice(0, 160),
+              fields: Array.from(element.querySelectorAll("select")).slice(0, 4).map(field => ({
+                name: field.name.slice(0, 40), value: field.value.slice(0, 160), disabled: field.matches(":disabled"),
+              })),
+              feedback: element.querySelector('[data-testid="company-industrial-feedback"]')?.textContent?.slice(0, 800),
+            })));
+          console.error("C2 case failure", JSON.stringify({ width, cards,
+            errors: errors.slice(-8).map(value => value.slice(0, 1200)),
+            consoleIssues: consoleIssues.slice(-8).map(value => value.slice(0, 1200)),
+          }));
+        } catch (diagnosticError) {
+          console.error("C2 case diagnostics unavailable", String(diagnosticError).slice(0, 400));
+        }
+        try {
+          await page.screenshot({ path: path.join(output, "company-ux2c2-failed-case-" + width + ".png"), animations: "disabled", caret: "initial", timeout: 10000 });
+        } catch (diagnosticError) {
+          console.error("C2 failure screenshot unavailable", String(diagnosticError).slice(0, 400));
+        }
+      }
+      throw error;
     } finally {
       await context.close();
     }

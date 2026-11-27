@@ -220,7 +220,18 @@ function ProposalRow({ companyId, kind, review, state, action, proposal, live, r
         <a data-testid="company-industrial-existing" href={industrialTargetHref(kind, present.anchorId)} className={secondaryButton + " w-full sm:w-auto"}>Consulta il dato nel profilo</a>
       </div> : null}
 
-      {showEditor ? <form ref={formRef} action={formAction} data-testid="company-industrial-form" onSubmit={() => setSubmitted({ hash: proposal.hash, stateHash, selection: draftSelection(kind, draft) })} className="min-w-0 space-y-3">
+      {showEditor ? <form
+        ref={formRef}
+        action={formAction}
+        data-testid="company-industrial-form"
+        onSubmit={() => setSubmitted({ hash: proposal.hash, stateHash, selection: draftSelection(kind, draft) })}
+        onReset={event => {
+          // React also resets forms when a fulfilled action returns stale/error.
+          // Keep the DOM selections aligned with the draft until explicit exit.
+          event.preventDefault();
+        }}
+        className="min-w-0 space-y-3"
+      >
         <input type="hidden" name="network_company_id" value={companyId} />
         <input type="hidden" name="kind" value={kind} />
         <input type="hidden" name="content_key" value={proposal.contentKey} />
