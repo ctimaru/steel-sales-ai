@@ -97,7 +97,8 @@ export async function FreeNetworkProfileView({
           ].filter((item): item is string => Boolean(item))}
           website={website}
           stockCount={inventory.length}
-          researchContent={research ? <NetworkResearchProfile research={research} /> : undefined}
+          researchContent={research ? <NetworkResearchProfile research={research}
+            declaredDescription={profile.company.description_is_company_declared === true ? profile.company.description : null} /> : undefined}
           stockContent={inventory.length ? <NetworkProfileInventory items={inventory} /> : undefined}
           connectionsAvailable={Boolean((status==="available"&&canConnect) || status==="pending" || status==="connected" || canSave)}
           requestHref={!provisional && canWriteWorkspace(workspace.role) ? newRequestHref({network: companyId}) : undefined}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CompanyDescriptionAssistant } from "@/components/company-description-assistant";
 import { CompanyWorkspaceNavigation } from "@/components/company-workspace-navigation";
 import { CompanyProductCatalog } from "@/components/company-product-catalog";
 import { CompanyIndustrialFootprint, IndustrialRoleMark } from "@/components/company-industrial-footprint";
@@ -10,6 +11,7 @@ import { redirect } from "next/navigation";
 import {
   archiveManagedFacility,
   archiveManagedPublicContact,
+  decideManagedCompanyDescription,
   removeManagedCertification,
   removeManagedCompanyLogo,
   removeManagedProductDimensionScope,
@@ -37,6 +39,8 @@ import {
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { networkLabelIt } from "@/lib/network-taxonomy-it";
+import { companyDescriptionHash, getCompanyDescriptionReview, unavailableDescriptionReview } from "@/lib/network-description-assistant";
+import { getWorkspaceContext } from "@/lib/workspace-context";
 
 const inputClass =
   "mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#2d3934] outline-none transition focus:border-[#86a99e] focus:ring-2 focus:ring-[#e5efeb]";
@@ -176,9 +180,9 @@ export default async function ManagedNetworkProfilePage({
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
 
   const { error, message } = await searchParams;
-  const managed = await getManagedNetworkCompany();
+  const [managed, context] = await Promise.all([getManagedNetworkCompany(), getWorkspaceContext()]);
 
-  if (!managed) {
+  if (!managed || managed.organization_id !== context.organizationId) {
     return (
       <div className="mx-auto max-w-5xl space-y-6">
         <Link href="/network" className="text-sm font-semibold text-[#66736e] hover:text-[#1d2824]">
@@ -199,15 +203,17 @@ export default async function ManagedNetworkProfilePage({
     );
   }
 
-  const [state, inquiryPreferences, inventory] = await Promise.all([
+  const [state, inquiryPreferences, inventory, descriptionReview] = await Promise.all([
     getManagedNetworkProfileState(managed.network_company_id),
     getInquiryPreferences(managed.organization_id),
     getManagedNetworkInventory(managed.organization_id, managed.network_company_id),
+    getCompanyDescriptionReview(context.organizationId, managed.network_company_id),
   ]);
 
   if (!state) redirect("/network?error=Profilo%20gestito%20non%20disponibile");
 
   const companyId = managed.network_company_id;
+  const descriptionHash = companyDescriptionHash(state.company.description);
   const roleKeys = new Set(state.roles.map((item) => item.key));
   const availableSubtypes = state.taxonomy.subtypes.filter((item) => roleKeys.has(item.role_key));
   const completeness = state.completeness.sections;
@@ -321,7 +327,7 @@ export default async function ManagedNetworkProfilePage({
       <CompanyWorkspaceNavigation panels={{
         summary,
         overview: (
-          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-4 sm:p-8">
         <SectionHeader
           id="overview"
           eyebrow="01 · Identità"
@@ -400,8 +406,9 @@ export default async function ManagedNetworkProfilePage({
           </div>
         </div>
 
-        <form action={updateManagedNetworkProfile} className="grid gap-5 lg:grid-cols-2">
+        <form key={context.organizationId + ":" + companyId} action={updateManagedNetworkProfile} className="grid gap-5 lg:grid-cols-2" data-testid="company-overview-form">
           <input type="hidden" name="network_company_id" value={companyId} />
+          <input type="hidden" name="expected_description_hash" value={descriptionHash} />
           <div>
             <FieldLabel>Nome commerciale</FieldLabel>
             <input name="trading_name" defaultValue={state.company.trading_name ?? ""} maxLength={255} className={inputClass} />
@@ -411,13 +418,20 @@ export default async function ManagedNetworkProfilePage({
             <input name="website_url" defaultValue={state.company.website_url ?? ""} maxLength={500} className={inputClass} />
           </div>
           <div className="lg:col-span-2">
-            <FieldLabel>Descrizione azienda</FieldLabel>
-            <textarea name="description" defaultValue={state.company.description ?? ""} maxLength={4000} rows={6} className={textareaClass} />
+            <label htmlFor="company-description" className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Descrizione azienda</label>
+            <textarea key={descriptionHash} id="company-description" name="description" defaultValue={state.company.description ?? ""} maxLength={4000} rows={6} className={textareaClass} />
           </div>
           <div className="lg:col-span-2">
             <button className={primaryButton}>Salva overview</button>
           </div>
         </form>
+
+        <CompanyDescriptionAssistant
+          key={context.organizationId + ":" + companyId}
+          companyId={companyId}
+          review={descriptionReview ?? unavailableDescriptionReview(companyId, state.company.description)}
+          action={decideManagedCompanyDescription}
+        />
       </section>
         ),
         positioning: (

@@ -60,6 +60,7 @@ export type NetworkProfile = {
     website_url: string | null;
     website_domain: string | null;
     description: string | null;
+    description_is_company_declared: boolean;
     verification_status: string;
     claimed_status: string;
     provenance_kind: PublicProfileProvenanceKind;
@@ -280,6 +281,7 @@ export async function getNetworkProfile(id: string) {
     ...profile,
     company: {
       ...profile.company,
+      description_is_company_declared: profile.company.description_is_company_declared === true,
       logo_path: identityExtension.logo_path ?? null,
       logo_updated_at: identityExtension.logo_updated_at ?? null,
     },

@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 
 import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 import { requireNetworkAccess } from "@/lib/network-access";
+import { descriptionDecisionInput, isDescriptionFingerprint, parseDescriptionAssistantDecision, type DescriptionAssistantActionState } from "@/lib/company-description-assistant";
 import { createClient } from "@/lib/supabase/server";
 import { requireWorkspaceAdmin, requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
@@ -80,33 +81,92 @@ export async function requestNetworkClaim(formData: FormData) {
 }
 
 export async function updateManagedNetworkProfile(formData: FormData) {
-  await requireWorkspaceAdmin();
+  const context = await requireWorkspaceAdmin();
   const companyId = textValue(formData, "network_company_id");
+  const expectedDescriptionHash = textValue(formData, "expected_description_hash");
   if (!companyId) redirect("/network/manage?error=Profilo%20non%20valido#overview");
+  if (!isDescriptionFingerprint(expectedDescriptionHash)) {
+    redirect(managedProfilePath("overview", "error", "Aggiorna la pagina prima di salvare la descrizione."));
+  }
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("m8_update_managed_network_company", {
+  const { error } = await supabase.rpc("company_ux2c1_update_overview", {
+    p_organization_id: context.organizationId,
     p_network_company_id: companyId,
+    p_expected_description_hash: expectedDescriptionHash,
     p_trading_name: textValue(formData, "trading_name") || null,
     p_website_url: textValue(formData, "website_url") || null,
     p_description: textValue(formData, "description") || null,
   });
 
   if (error) {
+    if (error.code === "40001") {
+      redirect(managedProfilePath("overview", "error", "La descrizione è stata aggiornata da un’altra sessione. Rileggi il testo attuale prima di salvare."));
+    }
     redirect("/network/manage?error=" + encodeURIComponent(safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")) + "#overview");
   }
 
-  revalidatePath("/network/manage");
-  revalidatePath("/network/" + companyId);
+  revalidateManagedProfile(companyId);
   redirect("/network/manage?message=Profilo%20Network%20aggiornato#overview");
 }
 
+export async function decideManagedCompanyDescription(
+  _previous: DescriptionAssistantActionState,
+  formData: FormData,
+): Promise<DescriptionAssistantActionState> {
+  const context = await requireWorkspaceAdmin();
+  const input = descriptionDecisionInput(formData);
+  if (!input) return { status: "error", message: "Controlla la descrizione: inserisci da 1 a 4.000 caratteri e riprova con un confronto aggiornato." };
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("company_ux2c1_decide_description", {
+      p_organization_id: context.organizationId,
+      p_network_company_id: input.companyId,
+      p_expected_proposal_hash: input.proposalHash,
+      p_expected_description_hash: input.descriptionHash,
+      p_action: input.decision,
+      // Acceptance always takes the authoritative proposal from the database.
+      p_description: input.description,
+    });
+    if (error?.message?.includes("company_ux2c1_overview_requires_review")) return {
+      status: "error",
+      message: "Prima di usare la proposta, rileggi e salva i dati dell’overview per allineare il profilo. Poi aggiorna il confronto; la bozza resta disponibile.",
+    };
+    if (error?.code === "40001") return {
+      status: "stale",
+      message: "La descrizione o la proposta è cambiata. Aggiorna il confronto prima di confermare; il testo in modifica rimane disponibile qui.",
+    };
+    if (error?.code === "42501") return {
+      status: "error",
+      message: "Non hai più l’autorizzazione per aggiornare questo profilo. Verifica l’accesso alla tua azienda.",
+    };
+    if (error) return { status: "error", message: "La decisione non è stata salvata. Riprova dopo aver aggiornato il confronto." };
+    const result = parseDescriptionAssistantDecision(data);
+    if (!result) return { status: "error", message: "Non è stato possibile confermare l’esito. Aggiorna il confronto per verificare la decisione registrata." };
+    revalidateManagedProfile(input.companyId);
+    return {
+      status: result.decision,
+      message: result.decision === "ignored"
+        ? "Proposta ignorata. La descrizione aziendale rimane invariata."
+        : result.decision === "edited"
+          ? "Descrizione modificata e salvata come dichiarazione dell’azienda."
+          : "Proposta salvata come descrizione dichiarata dall’azienda.",
+      description: result.description,
+      descriptionHash: result.descriptionHash,
+      changed: result.changed,
+    };
+  } catch {
+    return { status: "error", message: "Non è stato possibile confermare il salvataggio. La bozza è ancora disponibile: aggiorna il confronto prima di riprovare." };
+  }
+}
 
 function managedProfilePath(section: string, key: "message" | "error", value: string) {
   return "/network/manage?" + key + "=" + encodeURIComponent(value) + "#" + section;
 }
 
 function revalidateManagedProfile(companyId: string) {
+  revalidatePath("/company/profile");
   revalidatePath("/network/manage");
   revalidatePath("/network/" + companyId);
   revalidatePath("/network");
