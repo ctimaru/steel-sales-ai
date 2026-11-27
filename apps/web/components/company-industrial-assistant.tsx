@@ -274,6 +274,9 @@ function ProposalRow({ companyId, kind, review, state, action, proposal, live, r
               {missingSite ? <option value={draft.facility} disabled>{draft.facilityLabel || "Sede selezionata"} — non più disponibile</option> : null}
               {state.facilities.map(site => <option key={site.id} value={site.id}>{site.name}</option>)}
             </select>
+            {draft.facility && draft.facility !== "company" ? <p className="mt-2 break-words text-xs leading-5 text-[#52645b] [overflow-wrap:anywhere]">
+              Sede selezionata: {state.facilities.find(site => site.id === draft.facility)?.name || draft.facilityLabel || "Sede non più disponibile"}
+            </p> : null}
           </div> : null}
         </fieldset>
         {missingKey || missingSite ? <p className="text-sm leading-6 text-amber-950">{missingSite ? "La sede selezionata non è più disponibile. Scegli una sede attuale prima di confermare." : "La categoria selezionata non è più disponibile. Scegli una categoria attuale prima di confermare."}</p> : null}

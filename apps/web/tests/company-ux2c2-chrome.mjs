@@ -249,6 +249,7 @@ try {
       assert.equal(await productCard.getByTestId("company-industrial-relationship").inputValue(), "stocks");
       assert.equal(await productCard.getByTestId("company-industrial-facility").inputValue(), facilityId);
       await capture(productCard, "products-stale");
+      await capture(productCard.getByTestId("company-industrial-feedback"), "products-stale-feedback");
       await productCard.getByTestId("company-industrial-refresh").click();
       await page.waitForFunction(key => {
         const button = document.querySelector('[data-content-key="' + key + '"] [data-testid="company-industrial-confirm"]');
