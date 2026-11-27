@@ -91,8 +91,11 @@ try {
           await inner.locator("#calcolatore-pesi").waitFor({ state: "visible", timeout: 60000 });
           assert.equal(await inner.locator("[data-cockpit-workspace] [data-cockpit-fields]").count(), 1);
           assert.equal(await inner.locator("[data-cockpit-workspace] [data-cockpit-results]").count(), 1);
-          assert.equal(await inner.locator("[data-cockpit-workspace] [data-cockpit-results] [data-cockpit-preview]").count(), 1,
-             "Result workspace must contain exactly one primary shape preview; decorative copies are excluded");
+          // HOME-CALC1: one dimensioned drawing in the whole workspace (stage), no copy in the results.
+          assert.equal(await inner.locator("[data-cockpit-workspace] [data-cockpit-preview]").count(), 1,
+             "Workspace must contain exactly one shape preview; decorative copies are excluded");
+          assert.equal(await inner.locator("[data-cockpit-workspace] [data-cinematic-product]").count(), 0,
+             "No decorative product photo in the embedded calculator");
           assert.equal(await inner.locator("header nav, [data-testid=calculator-editorial-disclosure]").count(), 0,
             "Embedded calculator must not carry a second site menu/editorial page");
           const embedded = await inner.locator("[data-calculator-embed]").evaluate((el) => ({
