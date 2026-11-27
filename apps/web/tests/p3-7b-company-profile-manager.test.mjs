@@ -51,7 +51,7 @@ test("P3.7B turns network manage into a structured Company Profile Manager", () 
   assert.match(page, /Certificazioni/);
   assert.match(page, /Completezza profilo/);
   assert.match(page, /Dichiarato dall'azienda/);
-  assert.match(page, /Visualizza profilo pubblico/);
+  assert.match(page, /Vedi profilo nel Network/);
 });
 
 test("P3.7B seeds a usable steel-company certification taxonomy", () => {

@@ -35,7 +35,7 @@ test("PA1.2 embeds real public lookup by company name or VAT", () => {
 test("PA1.2 keeps the rich Network private and premium", () => {
   assert.match(network, /Privato · Premium/);
   assert.match(network, /directory completa, i filtri avanzati e i profili dettagliati/i);
-  assert.match(lookup, /Il Network completo non è pubblico/);
+  assert.match(lookup, /Il profilo pubblicato è visibile alle aziende registrate con accesso al Network/);
   assert.doesNotMatch(home, /href="\/network"/);
   assert.doesNotMatch(network, /href="\/network"/);
   assert.doesNotMatch(lookup, /href="\/network"/);
@@ -77,7 +77,7 @@ test("PA1.2 limits anonymous search and does not create a public directory", () 
 test("PA1.2 maps lookup state into the governed PA1.4 handoff without pretending claim is complete", () => {
   assert.match(lookup, /Rivendica questa azienda/);
   assert.match(lookup, /Azienda non trovata/);
-  assert.match(lookup, /Claim in verifica/);
+  assert.match(lookup, /Richiesta in verifica/);
   assert.match(lookup, /Già rivendicata/);
   assert.match(lookup, /\/register\?claim_ref=/);
   assert.match(lookup, /\/login\?next=/);

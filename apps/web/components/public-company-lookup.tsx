@@ -14,13 +14,13 @@ import { withCommercialReturnTo } from "@/lib/auth-next";
 function claimBadge(state: PublicCompanyLookupItem["claim_state"], locale: "it" | "en") {
   if (state === "claimable") {
     return {
-      label: locale === "en" ? "Available to claim" : "Claim disponibile",
+      label: locale === "en" ? "Available to claim" : "Da rivendicare",
       className: "bg-[#edf5f2] text-[#173f35]",
     };
   }
   if (state === "claim_in_progress") {
     return {
-      label: locale === "en" ? "Claim under review" : "Claim in verifica",
+      label: locale === "en" ? "Request under review" : "Richiesta in verifica",
       className: "bg-amber-50 text-amber-800",
     };
   }
@@ -139,7 +139,7 @@ export function PublicCompanyLookup({
           ? "min-w-0"
           : registrationContext
             ? "min-w-0 rounded-2xl border border-[#dce2df] bg-[#f8faf9] p-3 sm:p-5"
-            : "min-w-0 rounded-[28px] border border-[#dce2df] bg-[#f8faf9] p-5 sm:p-6"
+            : "min-w-0 rounded-[24px] border border-[#dce2df] bg-white p-4 sm:p-6"
       }
     >
       <div hidden={bare}>
@@ -147,10 +147,10 @@ export function PublicCompanyLookup({
           {locale === "en" ? (registrationContext ? "Company check" : "Find your company") : (registrationContext ? "Controllo azienda" : "Trova la tua azienda")}
         </p>
         <h3 className={(registrationContext ? "mt-1 text-lg sm:text-xl" : "mt-2 text-2xl") + " font-semibold tracking-tight text-[#1d2824]"}>
-          {locale === "en" ? (registrationContext ? "Already on Smart Steel Sales?" : "Is your company on Smart Steel Sales?") : (registrationContext ? "Azienda già presente?" : "È già presente su Smart Steel Sales?")}
+          {locale === "en" ? (registrationContext ? "Already on Smart Steel Sales?" : "Find the profile you want to update") : (registrationContext ? "Azienda già presente?" : "Cerca il profilo da aggiornare")}
         </h3>
         <p className="mt-2 text-sm leading-6 text-[#5d6a65]">
-          {locale === "en" ? (registrationContext ? "Optional now: find an existing company and link its profile, without creating a duplicate." : "Search by legal company name or VAT number. If your company already has a claimable profile, link it to this application instead of creating a duplicate.") : (registrationContext ? "Puoi cercarla ora o dopo la verifica email, senza creare profili duplicati." : "Cerca per ragione sociale o Partita IVA. Mostriamo solo l’identità minima necessaria a verificare se il profilo può essere rivendicato.")}
+          {locale === "en" ? (registrationContext ? "You can search now or after verifying your email and use your company’s existing profile." : "Search by legal company name or VAT number, then select your company to request access to its profile.") : (registrationContext ? "Puoi cercarla ora o dopo la verifica email, senza creare profili duplicati." : "Cerca per ragione sociale o Partita IVA, poi seleziona la tua azienda per richiedere la gestione del profilo.")}
         </p>
       </div>
 
@@ -173,7 +173,7 @@ export function PublicCompanyLookup({
               maxLength={120}
               autoComplete="organization"
               placeholder={locale === "en" ? "Company name or VAT number" : "Ragione sociale o Partita IVA"}
-              className="h-12 min-w-0 flex-1 rounded-xl border border-[#cfd9d5] bg-white px-4 text-sm text-[#1d2824] outline-none placeholder:text-[#87938e] focus:border-[#9cc5b7] focus:ring-4 focus:ring-[#e1ece8]"
+              className="h-12 min-h-12 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-4 text-sm text-[#1d2824] outline-none placeholder:text-[#66736e] focus:border-[#9cc5b7] focus:ring-4 focus:ring-[#e1ece8] sm:flex-1"
             />
             <button
               type="submit"
@@ -203,7 +203,7 @@ export function PublicCompanyLookup({
           <div className="rounded-2xl border border-[#dce2df] bg-white p-4">
             <p className="text-sm font-semibold text-[#1d2824]">{locale === "en" ? "Company not found" : "Azienda non trovata"}</p>
             <p className="mt-1 text-xs leading-5 text-[#66736e]">
-              {locale === "en" ? "You can register a new company and complete the application during onboarding." : "Puoi registrare l’azienda e completare i dati durante l’onboarding."}
+              {locale === "en" ? "You can create an account and request a new company profile." : "Puoi creare un account e richiedere un nuovo profilo aziendale."}
             </p>
             <Link
               href={notFoundHref}
@@ -226,7 +226,7 @@ export function PublicCompanyLookup({
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h4 className="text-sm font-semibold text-[#1d2824]">
+                        <h4 className="break-words text-sm font-semibold text-[#1d2824]">
                           {item.legal_name}
                         </h4>
                         <span
@@ -239,9 +239,9 @@ export function PublicCompanyLookup({
                         </span>
                       </div>
                       {item.trading_name && item.trading_name !== item.legal_name ? (
-                        <p className="mt-1 text-xs text-[#66736e]">{item.trading_name}</p>
+                        <p className="mt-1 break-words text-xs text-[#66736e]">{item.trading_name}</p>
                       ) : null}
-                      <p className="mt-2 text-xs text-[#87938e]">
+                      <p className="mt-2 text-xs text-[#66736e]">
                         {item.country_code}
                         {item.vat_hint ? (locale === "en" ? " · VAT " : " · P.IVA ") + item.vat_hint : ""}
                       </p>
@@ -258,8 +258,8 @@ export function PublicCompanyLookup({
       {showNetworkNote ? (
         <div className="mt-4 rounded-xl border border-[#d9e8e2] bg-[#edf5f2] px-4 py-3">
           <p className="text-xs leading-5 text-[#52615b]">
-            <strong className="text-[#173f35]">{locale === "en" ? "The full Network is not public." : "Il Network completo non è pubblico."}</strong>{" "}
-            {locale === "en" ? "Company details and contacts are private to authorized members." : "Directory, filtri, prodotti, capability, mercati e contatti restano un prodotto privato disponibile alle aziende registrate con accesso Network."}{" "}
+            <strong className="text-[#173f35]">{locale === "en" ? "Your profile, in the Network." : "Il tuo profilo, nel Network."}</strong>{" "}
+            {locale === "en" ? "Published profiles are visible to registered companies with Network access. Detailed company information stays within this member area." : "Il profilo pubblicato è visibile alle aziende registrate con accesso al Network. Le informazioni dettagliate restano in quest’area riservata."}{" "}
             <Link
               href="/company-data"
               className="font-semibold text-[#1a5144] underline decoration-[#b8d2c8] underline-offset-4"

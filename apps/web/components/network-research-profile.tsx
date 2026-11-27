@@ -84,7 +84,7 @@ export function NetworkResearchProfile({ research, declaredDescription }: {
             Da fonte pubblica: ricerca sul sito ufficiale dell'azienda{updated ? `, ${updated}` : ""}.
             {source ? <> <a href={source} target="_blank" rel="noopener noreferrer"
               className="font-semibold text-[#235c41] underline underline-offset-2">Consulta la fonte ↗</a></> : null}
-            {" "}L'azienda può correggere questi dati reclamando il profilo.
+            {" "}Le informazioni della ricerca restano distinte dai dati dichiarati dall’azienda.
           </p>
         </div>
       ) : null}

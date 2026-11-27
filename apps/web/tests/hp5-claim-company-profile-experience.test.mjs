@@ -79,9 +79,9 @@ test("HP5 routes public profile claim CTA through a guided experience", () => {
   assert.match(profilePage, /NetworkActivationCta mode="published"/);
   assert.match(activationCta, /Rivendica questa azienda/);
   assert.doesNotMatch(profilePage, /form action=\{requestNetworkClaim\}/);
-  assert.match(claimPage, /HP5 · Claim Company Profile/);
-  assert.match(claimPage, /Step 1 · Ownership proof/);
-  assert.match(claimPage, /Step 2 · Conferma richiesta/);
+  assert.match(claimPage, /Gestione del profilo aziendale/);
+  assert.match(claimPage, /1 · Verifica del legame con l’azienda/);
+  assert.match(claimPage, /2 · Conferma la richiesta/);
   assert.match(claimPage, /claim.*non equivale.*verifica/is);
 });
 

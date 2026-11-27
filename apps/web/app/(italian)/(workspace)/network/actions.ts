@@ -10,6 +10,7 @@ import { requireNetworkAccess } from "@/lib/network-access";
 import { descriptionDecisionInput, isDescriptionFingerprint, parseDescriptionAssistantDecision, type DescriptionAssistantActionState } from "@/lib/company-description-assistant";
 import { industrialDecisionInput, parseIndustrialDecision, type IndustrialActionState } from "@/lib/company-industrial-assistant";
 import { companyInventoryInput, type CompanyInventorySaveResult } from "@/lib/company-inventory-workspace";
+import { companyContactSaveMessage } from "@/lib/company-contact-publication";
 import { createClient } from "@/lib/supabase/server";
 import { requireWorkspaceAdmin, requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
@@ -65,10 +66,10 @@ export async function requestNetworkClaim(formData: FormData) {
 
   const message =
     result.proof_status === "verified"
-      ? "Richiesta inviata. Ownership confermata tramite email aziendale; resta l'approvazione della piattaforma."
+      ? "Richiesta inviata. Appartenenza all’azienda confermata tramite email aziendale; resta l’approvazione della piattaforma."
       : result.shared_company_domain
-        ? "Richiesta inviata. Il dominio è condiviso da più entità legali: ownership in revisione manuale."
-        : "Richiesta inviata. Ownership in revisione manuale.";
+        ? "Richiesta inviata. Il dominio è condiviso da più società: la relazione con l’azienda sarà verificata."
+        : "Richiesta inviata. La relazione con l’azienda sarà verificata prima di abilitare la gestione.";
 
   revalidatePath("/network/" + companyId);
   revalidatePath("/network/" + companyId + "/claim");
@@ -655,7 +656,7 @@ export async function upsertManagedPublicContact(formData: FormData) {
   };
 
   const supabase = await createClient();
-  const { error } = await supabase.rpc("p3_7d_upsert_contact", {
+  const { data, error } = await supabase.rpc("p3_7d_upsert_contact", {
     p_network_company_id: companyId,
     p_contact_id: contactId,
     p_payload: payload,
@@ -664,9 +665,11 @@ export async function upsertManagedPublicContact(formData: FormData) {
   if (error) redirect(managedProfilePath("contacts", "error", safeErrorMessage(error, "Operazione Network non completata. Aggiorna la pagina e riprova.")));
 
   revalidateManagedProfile(companyId);
+  const message = companyContactSaveMessage(data, contactId);
+  if (!message) redirect(managedProfilePath("contacts", "error", "Esito del salvataggio da verificare. Controlla i contatti aggiornati prima di riprovare."));
   redirect(
     managedProfilePath("contacts", "message",
-      contactId ? "Contatto pubblico aggiornato." : "Contatto pubblico aggiunto.",
+      message,
     ),
   );
 }

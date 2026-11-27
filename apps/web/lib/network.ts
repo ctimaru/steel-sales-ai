@@ -640,7 +640,9 @@ export async function getInquiryPreferences(organizationId: string) {
   });
 
   if (error) throw new Error(error.message);
-  return (data ?? { organization_id: organizationId, inquiries_enabled: true }) as {
+  if (!data || typeof data !== "object" || data.organization_id !== organizationId
+    || typeof data.inquiries_enabled !== "boolean") throw new Error("inquiry_preferences_unavailable");
+  return data as {
     organization_id: string;
     inquiries_enabled: boolean;
   };
