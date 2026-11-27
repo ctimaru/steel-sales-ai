@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CompanyDescriptionAssistant } from "@/components/company-description-assistant";
+import { CompanyIndustrialAssistant } from "@/components/company-industrial-assistant";
 import { CompanyWorkspaceNavigation } from "@/components/company-workspace-navigation";
 import { CompanyProductCatalog } from "@/components/company-product-catalog";
 import { CompanyIndustrialFootprint, IndustrialRoleMark } from "@/components/company-industrial-footprint";
@@ -12,6 +13,7 @@ import {
   archiveManagedFacility,
   archiveManagedPublicContact,
   decideManagedCompanyDescription,
+  decideManagedCompanyIndustrialData,
   removeManagedCertification,
   removeManagedCompanyLogo,
   removeManagedProductDimensionScope,
@@ -40,6 +42,7 @@ import {
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { networkLabelIt } from "@/lib/network-taxonomy-it";
 import { companyDescriptionHash, getCompanyDescriptionReview, unavailableDescriptionReview } from "@/lib/network-description-assistant";
+import { getCompanyIndustrialReview, unavailableIndustrialReview } from "@/lib/network-industrial-assistant";
 import { getWorkspaceContext } from "@/lib/workspace-context";
 
 const inputClass =
@@ -203,16 +206,18 @@ export default async function ManagedNetworkProfilePage({
     );
   }
 
-  const [state, inquiryPreferences, inventory, descriptionReview] = await Promise.all([
+  const [state, inquiryPreferences, inventory, descriptionReview, industrialReview] = await Promise.all([
     getManagedNetworkProfileState(managed.network_company_id),
     getInquiryPreferences(managed.organization_id),
     getManagedNetworkInventory(managed.organization_id, managed.network_company_id),
     getCompanyDescriptionReview(context.organizationId, managed.network_company_id),
+    getCompanyIndustrialReview(context.organizationId, managed.network_company_id),
   ]);
 
   if (!state) redirect("/network?error=Profilo%20gestito%20non%20disponibile");
 
   const companyId = managed.network_company_id;
+  const enrichmentReview = industrialReview ?? unavailableIndustrialReview(companyId);
   const descriptionHash = companyDescriptionHash(state.company.description);
   const roleKeys = new Set(state.roles.map((item) => item.key));
   const availableSubtypes = state.taxonomy.subtypes.filter((item) => roleKeys.has(item.role_key));
@@ -548,6 +553,11 @@ export default async function ManagedNetworkProfilePage({
           description="Definisci cosa produce, distribuisce o tiene a stock l'azienda e, dove disponibile, collega norme, gradi/materiali e range dimensionali canonici. Questo scope prepara il profilo al matching Marketplace."
         />
 
+        <CompanyIndustrialAssistant
+          key={"industrial:" + context.organizationId + ":" + companyId + ":product"}
+          companyId={companyId} kind="product" review={enrichmentReview} state={state}
+          action={decideManagedCompanyIndustrialData}
+        />
         <CompanyProductCatalog state={state} relationshipLabels={relationshipLabels} />
 
         <div className="space-y-4">
@@ -843,6 +853,11 @@ export default async function ManagedNetworkProfilePage({
           description="Descrivi dove opera l'azienda e quali lavorazioni o servizi sono disponibili in ogni sede. Le entità verificate dalla piattaforma diventano read-only finché non vengono riesaminate."
         />
 
+        <CompanyIndustrialAssistant
+          key={"industrial:" + context.organizationId + ":" + companyId + ":capability"}
+          companyId={companyId} kind="capability" review={enrichmentReview} state={state}
+          action={decideManagedCompanyIndustrialData}
+        />
         <CompanyIndustrialFootprint state={state} />
 
         <div className="space-y-4">
@@ -965,6 +980,11 @@ export default async function ManagedNetworkProfilePage({
           title="Mercati e settori serviti"
           description="Dichiara i settori nei quali opera l'azienda. Questi segnali alimenteranno filtri, discovery e matching commerciale."
         />
+        <CompanyIndustrialAssistant
+          key={"industrial:" + context.organizationId + ":" + companyId + ":market"}
+          companyId={companyId} kind="market" review={enrichmentReview} state={state}
+          action={decideManagedCompanyIndustrialData}
+        />
         <CompanyMarkets state={state} />
         <div className="space-y-2">
           {state.markets.map((market) => (
@@ -1006,6 +1026,11 @@ export default async function ManagedNetworkProfilePage({
           eyebrow="06 · Certificazioni"
           title="Certificazioni"
           description="Registra certificazioni e relativo ambito di applicazione. Le certificazioni dichiarate dall'azienda partono come non verificate; la verifica è gestita dalla piattaforma."
+        />
+        <CompanyIndustrialAssistant
+          key={"industrial:" + context.organizationId + ":" + companyId + ":certification"}
+          companyId={companyId} kind="certification" review={enrichmentReview} state={state}
+          action={decideManagedCompanyIndustrialData}
         />
         <CompanyCertifications state={state} />
 
