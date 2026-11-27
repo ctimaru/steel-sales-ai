@@ -679,6 +679,16 @@ def main() -> int:
             db, limit=1,
             stage=os.getenv("NETPRODUCERS_B3E_FACT_STAGE_ENABLED") == "1",
         ))
+    # NET-PRODUCERS-FILTERS2 step 3: short facts (standards, grades, processes, shapes)
+    # from official PDF catalogues. Default OFF. «review» only reports the facts for
+    # the sample check; «publish» stages them (pending producer confirmation).
+    f2_mode = os.getenv("NETPRODUCERS_F2_CLAIMS_MODE", "")
+    if args.persist and f2_mode in ("review", "publish"):
+        from .net_pro_producers_pdf_claims_f2 import run_f2_claims_queue
+        try:
+            report["pdf_short_facts"] = run_f2_claims_queue(db, mode=f2_mode, limit=1)
+        except Exception as exc:  # never break the other jobs of this cron
+            report["pdf_short_facts"] = {"error": type(exc).__name__}
     print(json.dumps(report, indent=2))
     return 0
 
