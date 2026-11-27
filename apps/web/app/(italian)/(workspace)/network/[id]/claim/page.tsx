@@ -4,29 +4,28 @@ import { notFound, redirect } from "next/navigation";
 import { requestNetworkClaim } from "@/app/(workspace)/network/actions";
 import { PendingSubmitButton } from "@/components/pending-submit-button";
 import { getCompanyClaimExperience } from "@/lib/company-claims";
-import { getNetworkProfile } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
 import { requireWorkspaceAdmin } from "@/lib/workspace-context";
 
 const ELIGIBILITY_COPY: Record<string, { title: string; body: string }> = {
   company_not_published: {
-    title: "Profilo non disponibile per il claim",
+    title: "Profilo non disponibile per la gestione",
     body: "Il profilo deve essere pubblicato prima di poter avviare una richiesta di gestione.",
   },
   already_managed: {
     title: "Profilo già gestito dalla tua organizzazione",
-    body: "La tua Organization ha già il controllo di questo profilo.",
+    body: "La tua azienda ha già il controllo di questo profilo. Puoi aggiornare i dati dalla pagina di gestione.",
   },
   already_claimed: {
     title: "Profilo già rivendicato",
-    body: "Un'altra Organization controlla già questa identità Network. Non viene creata una seconda identità parallela.",
+    body: "Questo profilo è già gestito da un’altra azienda. Se ritieni che il collegamento sia errato, contatta il team Smart Steel Sales.",
   },
   organization_already_controls_profile: {
-    title: "La tua Organization controlla già un altro profilo",
-    body: "Una Organization può controllare una sola identità Network attiva. Il caso richiede una revisione della relazione esistente.",
+    title: "La tua azienda gestisce già un altro profilo",
+    body: "Ogni account aziendale può gestire una sola identità nel Network. Contatta il team Smart Steel Sales per verificare il collegamento esistente.",
   },
   claim_in_progress: {
-    title: "Claim già in lavorazione",
+    title: "Richiesta già in lavorazione",
     body: "Esiste già una richiesta attiva per questo profilo. Puoi seguirne lo stato qui senza inviarne una seconda.",
   },
 };
@@ -34,8 +33,8 @@ const ELIGIBILITY_COPY: Record<string, { title: string; body: string }> = {
 function proofCopy(reason: string, profileCount: number) {
   if (reason === "unique_company_domain_match") {
     return {
-      title: "Ownership verificabile automaticamente",
-      body: "La tua email è confermata e il dominio aziendale identifica un solo profilo Network. La prova di ownership potrà essere verificata automaticamente.",
+      title: "Email aziendale riconosciuta",
+      body: "La tua email è confermata e il dominio identifica un solo profilo nel Network. La prova del legame con l’azienda può essere verificata automaticamente; la richiesta di gestione resta soggetta all’approvazione della piattaforma.",
       tone: "emerald",
     };
   }
@@ -43,14 +42,14 @@ function proofCopy(reason: string, profileCount: number) {
   if (reason === "company_domain_shared") {
     return {
       title: "Dominio aziendale condiviso",
-      body: `Questo dominio è associato a ${profileCount} entità legali nel Network. L'email dimostra l'affiliazione al gruppo, ma non basta a identificare la singola società: il claim passa in revisione manuale.`,
+      body: `Questo dominio è associato a ${profileCount} società nel Network. L’email indica il legame con il gruppo; il team verificherà quale società sei autorizzato a rappresentare.`,
       tone: "amber",
     };
   }
 
   if (reason === "email_domain_mismatch") {
     return {
-      title: "Revisione manuale ownership",
+      title: "Legame con l’azienda da verificare",
       body: "Il dominio della tua email non coincide con il dominio pubblico dell'azienda. La piattaforma verificherà manualmente la relazione.",
       tone: "amber",
     };
@@ -58,8 +57,8 @@ function proofCopy(reason: string, profileCount: number) {
 
   if (reason === "company_domain_missing") {
     return {
-      title: "Revisione manuale ownership",
-      body: "Il profilo non dispone ancora di un dominio aziendale affidabile. La prova di ownership verrà verificata manualmente.",
+      title: "Legame con l’azienda da verificare",
+      body: "Il profilo non dispone ancora di un dominio aziendale affidabile. Il team verificherà la tua autorizzazione a rappresentare l’azienda.",
       tone: "amber",
     };
   }
@@ -67,14 +66,14 @@ function proofCopy(reason: string, profileCount: number) {
   if (reason === "email_not_confirmed") {
     return {
       title: "Email da confermare",
-      body: "La tua email non risulta confermata. Il claim può essere inviato, ma l'ownership richiederà revisione manuale.",
+      body: "La tua email non risulta confermata. Puoi inviare la richiesta, ma il team dovrà verificare la tua autorizzazione a rappresentare l’azienda.",
       tone: "amber",
     };
   }
 
   return {
-    title: "Revisione manuale ownership",
-    body: "La piattaforma verificherà la relazione tra la tua Organization e questa azienda prima di assegnare il controllo del profilo.",
+    title: "Legame con l’azienda da verificare",
+    body: "Il team verificherà la tua autorizzazione a rappresentare l’azienda prima di assegnarti la gestione del profilo.",
     tone: "amber",
   };
 }
@@ -82,9 +81,9 @@ function proofCopy(reason: string, profileCount: number) {
 function claimStatusLabel(status: string) {
   if (status === "requested") return "Richiesta inviata";
   if (status === "under_review") return "In revisione";
-  if (status === "approved") return "Claim approvato";
-  if (status === "rejected") return "Claim rifiutato";
-  if (status === "revoked") return "Controllo revocato";
+  if (status === "approved") return "Gestione del profilo approvata";
+  if (status === "rejected") return "Richiesta non approvata";
+  if (status === "revoked") return "Gestione del profilo revocata";
   return status;
 }
 
@@ -98,12 +97,11 @@ export default async function ClaimCompanyProfilePage({
   if (!isNetworkFrontendEnabled()) redirect("/dashboard");
 
   const { id } = await params;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) notFound();
   const query = await searchParams;
-  const profile = await getNetworkProfile(id);
-  if (!profile) notFound();
-
-  const context = await requireWorkspaceAdmin("/network/" + id);
+  const context = await requireWorkspaceAdmin("/company/profile");
   const experience = await getCompanyClaimExperience(id, context.organizationId);
+  if (!experience) notFound();
   const proof = proofCopy(
     experience.proof_reason,
     experience.company_domain_profile_count,
@@ -137,15 +135,15 @@ export default async function ClaimCompanyProfilePage({
 
       <section className="rounded-3xl border border-[#dce2df] bg-white p-6 shadow-sm sm:p-8">
         <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#1a5144]">
-          HP5 · Claim Company Profile
+          Gestione del profilo aziendale
         </p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-[#1d2824]">
-          Rivendica {displayName}
+        <h1 className="mt-2 break-words text-3xl font-semibold tracking-tight text-[#1d2824]">
+          Richiedi la gestione di {displayName}
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-[#66736e]">
-          Il claim assegna alla tua Organization il diritto di gestire il profilo pubblico.
-          Non equivale alla verifica della società: lo stato “Azienda verificata” resta una
-          decisione separata della piattaforma.
+          Dopo l’approvazione potrai aggiornare le informazioni e i contatti della tua azienda
+          visibili nel Network. Il claim non equivale alla verifica della società e non attribuisce il badge
+          “Azienda verificata”.
         </p>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -153,34 +151,34 @@ export default async function ClaimCompanyProfilePage({
             <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
               Profilo
             </p>
-            <p className="mt-2 text-sm font-semibold text-[#1d2824]">
+            <p className="mt-2 break-words text-sm font-semibold text-[#1d2824]">
               {experience.legal_name}
             </p>
-            <p className="mt-1 text-xs text-[#66736e]">
+            <p className="mt-1 break-words text-xs text-[#66736e]">
               {experience.country_code}
               {experience.website_domain ? " · " + experience.website_domain : ""}
             </p>
           </div>
           <div className="rounded-2xl border border-[#dce2df] bg-[#f7f9f8] p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
-              Organization richiedente
+              Account aziendale richiedente
             </p>
-            <p className="mt-2 text-sm font-semibold text-[#1d2824]">
+            <p className="mt-2 break-words text-sm font-semibold text-[#1d2824]">
               {experience.organization_name}
             </p>
             <p className="mt-1 text-xs text-[#66736e]">
-              Workspace attivo · ruolo Admin
+              Accesso attivo · amministratore
             </p>
           </div>
           <div className="rounded-2xl border border-[#dce2df] bg-[#f7f9f8] p-4">
             <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#87938e]">
-              Network verification
+              Verifica dell’azienda
             </p>
             <p className="mt-2 text-sm font-semibold text-[#1d2824]">
               {experience.verification_status === "verified" ? "Verificata" : "Non verificata"}
             </p>
             <p className="mt-1 text-xs text-[#66736e]">
-              Stato indipendente dal claim.
+              Distinta dal diritto di gestione.
             </p>
           </div>
         </div>
@@ -197,22 +195,22 @@ export default async function ClaimCompanyProfilePage({
                 {claimStatusLabel(currentClaim.status)}
               </h2>
               <p className="mt-2 text-sm leading-6 text-[#66736e]">
-                Ownership: {currentClaim.proof_status === "verified" ? "verificata" : currentClaim.proof_status === "rejected" ? "prova rifiutata" : "da verificare"}.
-                {" "}Network verification: {experience.verification_status === "verified" ? "verificata" : "separata e non ancora verificata"}.
+                Legame con l’azienda: {currentClaim.proof_status === "verified" ? "verificato" : currentClaim.proof_status === "rejected" ? "prova non accettata" : "da verificare"}.
+                {" "}Verifica dell’azienda: {experience.verification_status === "verified" ? "completata" : "non ancora completata"}.
               </p>
             </div>
             <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#43524c] shadow-sm">
               {currentClaim.proof_method === "authenticated_corporate_email"
                 ? "Email aziendale"
                 : currentClaim.proof_method === "registration_bridge"
-                  ? "Registration bridge"
+                  ? "Registrazione aziendale"
                   : "Revisione manuale"}
             </span>
           </div>
 
           {currentClaim.status === "approved" ? (
             <Link
-              href="/network/manage"
+              href="/company/profile"
               className="mt-5 inline-flex h-10 items-center justify-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]"
             >
               Gestisci il profilo
@@ -221,10 +219,13 @@ export default async function ClaimCompanyProfilePage({
         </section>
       ) : null}
 
-      {blocker && currentClaim?.status !== "rejected" && currentClaim?.status !== "revoked" ? (
+      {blocker ? (
         <section className="rounded-3xl border border-amber-200 bg-amber-50 p-6">
           <h2 className="text-lg font-semibold text-amber-950">{blocker.title}</h2>
           <p className="mt-2 text-sm leading-6 text-amber-800">{blocker.body}</p>
+          {experience.eligibility_reason === "already_managed" && currentClaim?.status !== "approved" ? (
+            <Link href="/company/profile" className="mt-4 inline-flex min-h-11 items-center rounded-xl bg-[#1a5144] px-4 text-sm font-semibold text-white hover:bg-[#226657]">Gestisci il profilo</Link>
+          ) : null}
         </section>
       ) : null}
 
@@ -244,7 +245,7 @@ export default async function ClaimCompanyProfilePage({
                 proof.tone === "emerald" ? "text-emerald-700" : "text-amber-800",
               ].join(" ")}
             >
-              Step 1 · Ownership proof
+              1 · Verifica del legame con l’azienda
             </p>
             <h2
               className={[
@@ -266,15 +267,15 @@ export default async function ClaimCompanyProfilePage({
 
           <section className="rounded-3xl border border-[#dce2df] bg-white p-6">
             <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1a5144]">
-              Step 2 · Conferma richiesta
+              2 · Conferma la richiesta
             </p>
             <h2 className="mt-2 text-xl font-semibold text-[#1d2824]">
               Richiedi il controllo del profilo
             </h2>
             <p className="mt-2 text-sm leading-6 text-[#66736e]">
-              La piattaforma conserva distinta la prova di ownership dalla verifica dei dati
-              aziendali. L’approvazione del claim abilita la gestione, non attribuisce il badge
-              “Azienda verificata”.
+              Conferma di essere autorizzato a rappresentare l’azienda. Dopo l’invio puoi seguire
+              lo stato della richiesta su questa pagina. La gestione del profilo sarà disponibile
+              dopo l’approvazione.
             </p>
 
             <form action={requestNetworkClaim} className="mt-5 space-y-4">
@@ -310,7 +311,7 @@ export default async function ClaimCompanyProfilePage({
                 pendingLabel="Invio richiesta…"
                 className="h-11 rounded-xl bg-[#1a5144] px-5 text-sm font-semibold text-white hover:bg-[#226657] disabled:cursor-not-allowed disabled:opacity-60"
               >
-                Invia richiesta di claim
+                Invia richiesta di gestione
               </PendingSubmitButton>
             </form>
           </section>

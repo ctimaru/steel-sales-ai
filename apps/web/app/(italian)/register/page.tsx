@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CompanyClaimEntryNotice } from "@/components/company-claim-entry-notice";
+import { continueCompanyClaimForMember } from "@/lib/company-claim-entry";
+import { normalizeCompanyClaimRef } from "@/lib/company-claim-intent";
 import { redirect } from "next/navigation";
 
 import { signup } from "@/app/login/actions";
@@ -59,9 +62,7 @@ export default async function RegisterPage({
   const returnTo = safeCommercialReturnTo(requestedReturn);
   const initialCompanySearch = String(companyHint ?? "").trim().slice(0, 120);
   const normalizedClaimRef = String(rawClaimRef ?? "").trim().toLowerCase();
-  const claimRef = /^[0-9a-f]{64}$/.test(normalizedClaimRef)
-    ? normalizedClaimRef
-    : null;
+  const claimRef = normalizeCompanyClaimRef(rawClaimRef);
 
   if (normalizedClaimRef && !claimRef) {
     redirect("/#aziende");
@@ -262,13 +263,22 @@ export default async function RegisterPage({
     redirect("/account-closure?requested=1");
   }
 
-  const { data: memberships } = await supabase
+  const { data: memberships, error: membershipError } = await supabase
     .from("organization_memberships")
-    .select("organization_id,status")
-    .eq("status", "active")
-    .limit(1);
+    .select("organization_id,status,role,is_default")
+    .eq("user_id", user.id)
+    .eq("status", "active");
 
-  if (memberships?.length) {
+  if (membershipError && claimRef) {
+    return <CompanyClaimEntryNotice status="unavailable" retryHref={registrationPath} />;
+  }
+
+  const membership = memberships?.find((item) => item.is_default) ?? memberships?.[0];
+  if (membership) {
+    if (claimRef) {
+      const status = await continueCompanyClaimForMember(claimRef, membership.organization_id);
+      return <CompanyClaimEntryNotice status={status} retryHref={registrationPath} />;
+    }
     redirect("/dashboard");
   }
 

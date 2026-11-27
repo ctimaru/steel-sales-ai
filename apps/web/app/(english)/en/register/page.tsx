@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { CompanyClaimEntryNotice } from "@/components/company-claim-entry-notice";
+import { continueCompanyClaimForMember } from "@/lib/company-claim-entry";
+import { normalizeCompanyClaimRef } from "@/lib/company-claim-intent";
 import { redirect } from "next/navigation";
 
 import { signup } from "@/app/login/actions";
@@ -37,7 +40,7 @@ export default async function EnglishRegistrationPage({ searchParams }: {
   const message = safeUrlFeedback(rawMessage, "en");
   const returnTo = safeCommercialReturnTo(requestedReturn);
   const normalized = String(rawRef ?? "").trim().toLowerCase();
-  const claimRef = /^[0-9a-f]{64}$/.test(normalized) ? normalized : null;
+  const claimRef = normalizeCompanyClaimRef(rawRef);
   if (normalized && !claimRef) redirect("/en/register");
   const registrationPath = withCommercialReturnTo(claimRef ? `/en/register?claim_ref=${encodeURIComponent(claimRef)}` : "/en/register", returnTo);
 
@@ -121,9 +124,19 @@ export default async function EnglishRegistrationPage({ searchParams }: {
     redirect("/account-closure?requested=1");
   }
   if (!user.email_confirmed_at) redirect("/en/verify-email?next=" + encodeURIComponent(registrationPath));
-  const { data: memberships } = await supabase.from("organization_memberships")
-    .select("organization_id,status").eq("status", "active").limit(1);
-  if (memberships?.length) redirect("/dashboard");
+  const { data: memberships, error: membershipError } = await supabase.from("organization_memberships")
+    .select("organization_id,status,role,is_default").eq("user_id", user.id).eq("status", "active");
+  if (membershipError && claimRef) {
+    return <CompanyClaimEntryNotice status="unavailable" locale="en" retryHref={registrationPath} />;
+  }
+  const membership = memberships?.find((item) => item.is_default) ?? memberships?.[0];
+  if (membership) {
+    if (claimRef) {
+      const status = await continueCompanyClaimForMember(claimRef, membership.organization_id);
+      return <CompanyClaimEntryNotice status={status} locale="en" retryHref={registrationPath} />;
+    }
+    redirect("/dashboard");
+  }
 
   const { data: application } = await supabase.from("company_registration_applications")
     .select("id,application_status,legal_name,trading_name,country_code,vat_id,registration_id,website_url,primary_company_type,secondary_company_types,contact_name,contact_phone,short_description,claim_target_network_company_id")

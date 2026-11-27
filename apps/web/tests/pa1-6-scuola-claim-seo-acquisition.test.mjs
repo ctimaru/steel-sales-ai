@@ -55,7 +55,7 @@ test("PA1.6 ships one indexable canonical company acquisition landing, not a pub
   assert.match(companyPage, /<PublicCompanyLookup \/>/);
   assert.match(companyPage, /canonical: absoluteUrl\("\/azienda"\)/);
   assert.match(companyPage, /robots: publicIndexRobots/);
-  assert.match(companyPage, /Non è una directory/);
+  assert.match(companyPage, /Il profilo pubblicato è visibile alle aziende registrate con accesso al Network/);
   assert.doesNotMatch(companyPage, /href="\/network/);
   assert.match(sitemap, /url: absoluteUrl\("\/azienda"\)/);
   assert.match(robots, /"\/azienda"/);

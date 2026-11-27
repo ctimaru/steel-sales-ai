@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CompanyDescriptionAssistant } from "@/components/company-description-assistant";
 import { CompanyIndustrialAssistant } from "@/components/company-industrial-assistant";
+import { CompanyProfileVisibility } from "@/components/company-profile-visibility";
 import { CompanyWorkspaceNavigation } from "@/components/company-workspace-navigation";
 import { CompanyProductCatalog } from "@/components/company-product-catalog";
 import { CompanyIndustrialFootprint, IndustrialRoleMark } from "@/components/company-industrial-footprint";
@@ -33,7 +34,6 @@ import {
   upsertManagedPublicContact,
 } from "@/app/(workspace)/network/actions";
 import {
-  getInquiryPreferences,
   getManagedNetworkCompany,
   getManagedNetworkProfileState,
   getNetworkCompanyLogoUrl,
@@ -44,6 +44,8 @@ import { networkLabelIt } from "@/lib/network-taxonomy-it";
 import { companyDescriptionHash, getCompanyDescriptionReview, unavailableDescriptionReview } from "@/lib/network-description-assistant";
 import { getCompanyIndustrialReview, unavailableIndustrialReview } from "@/lib/network-industrial-assistant";
 import { getWorkspaceContext } from "@/lib/workspace-context";
+import { getCompanyProfileAccess } from "@/lib/company-profile-access";
+import { companyContactPublication } from "@/lib/company-contact-publication";
 
 const inputClass =
   "mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#2d3934] outline-none transition focus:border-[#86a99e] focus:ring-2 focus:ring-[#e5efeb]";
@@ -195,8 +197,8 @@ export default async function ManagedNetworkProfilePage({
           <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#1a5144]">Il mio profilo Network</p>
           <h1 className="mt-2 text-2xl font-semibold text-[#1d2824]">Nessun profilo azienda gestibile</h1>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#66736e]">
-            Per gestire un profilo Network servono Organization Admin attivo, link organizzazione-azienda
-            attivo e claim approvato.
+            La gestione è disponibile per gli amministratori dopo l’approvazione della richiesta di
+            rivendicazione. Cerca la tua azienda per richiederla o controllare il profilo già presente.
           </p>
           <Link href="/network" className={"mt-5 " + primaryButton}>
             Cerca la tua azienda
@@ -206,9 +208,9 @@ export default async function ManagedNetworkProfilePage({
     );
   }
 
-  const [state, inquiryPreferences, inventory, descriptionReview, industrialReview] = await Promise.all([
+  const [state, profileAccess, inventory, descriptionReview, industrialReview] = await Promise.all([
     getManagedNetworkProfileState(managed.network_company_id),
-    getInquiryPreferences(managed.organization_id),
+    getCompanyProfileAccess(managed.organization_id),
     getManagedNetworkInventory(managed.organization_id, managed.network_company_id),
     getCompanyDescriptionReview(context.organizationId, managed.network_company_id),
     getCompanyIndustrialReview(context.organizationId, managed.network_company_id),
@@ -217,6 +219,7 @@ export default async function ManagedNetworkProfilePage({
   if (!state) redirect("/network?error=Profilo%20gestito%20non%20disponibile");
 
   const companyId = managed.network_company_id;
+  const inquiryPreferences = profileAccess.preferences;
   const enrichmentReview = industrialReview ?? unavailableIndustrialReview(companyId);
   const descriptionHash = companyDescriptionHash(state.company.description);
   const roleKeys = new Set(state.roles.map((item) => item.key));
@@ -260,8 +263,8 @@ export default async function ManagedNetworkProfilePage({
           </div>
           <div className="min-w-0 rounded-xl border border-[#e0e8e3] bg-[#f7faf8] p-4">
             <p className="text-xs font-semibold text-[#52645b]">Richieste dal Network</p>
-            <p className="mt-2 text-lg font-semibold text-[#1d2824]">{inquiryPreferences.inquiries_enabled ? "Inquiry abilitate" : "Inquiry disabilitate"}</p>
-            <p className="mt-2 text-xs leading-5 text-[#66736e]">Preferenza di contatto, distinta dallo stato di pubblicazione.</p>
+            <p className="mt-2 text-lg font-semibold text-[#1d2824]">{inquiryPreferences ? (inquiryPreferences.inquiries_enabled ? "Inquiry abilitate" : "Inquiry disabilitate") : profileAccess.inquiries === "pro_required" ? "Funzione Network PRO" : "Stato non disponibile"}</p>
+            <p className="mt-2 text-xs leading-5 text-[#66736e]">{inquiryPreferences ? "Preferenza di contatto, distinta dallo stato di pubblicazione." : "La gestione del profilo aziendale resta disponibile."}</p>
             <a href="#inquiries" className="mt-2 inline-block text-xs font-semibold text-[#1a5144] underline underline-offset-2">Gestisci preferenze</a>
           </div>
         </div>
@@ -323,11 +326,13 @@ export default async function ManagedNetworkProfilePage({
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap gap-2">
-            <Link href={"/network/" + companyId} className={primaryButton + " max-w-full text-center"}>Visualizza profilo pubblico</Link>
+            {publicationStatus === "published" ? <Link href={"/network/" + companyId} className={primaryButton + " max-w-full text-center"}>Vedi profilo nel Network</Link> : <span className="flex min-h-10 items-center text-sm font-medium text-[#52645b]">Scheda non ancora pubblicata</span>}
             <Link href="/network/manage/cataloghi" className={secondaryButton + " max-w-full text-center"}>Cataloghi produttore</Link>
           </div>
         </div>
       </header>
+
+      <CompanyProfileVisibility publicationStatus={publicationStatus} audience={profileAccess.audience} />
 
       <CompanyWorkspaceNavigation panels={{
         summary,
@@ -363,7 +368,7 @@ export default async function ManagedNetworkProfilePage({
           <div>
             <h3 className="font-semibold text-[#34445c]">Logo aziendale</h3>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-[#718197]">
-              PNG, JPEG o WebP fino a 2 MB. Il logo è pubblico nel Network ma non modifica lo stato di verifica dell&apos;azienda.
+              PNG, JPEG o WebP fino a 2 MB. Il logo compare nella scheda Network PRO dell’azienda pubblicata e non modifica lo stato di verifica.
             </p>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end">
               <form action={uploadManagedCompanyLogo} className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-end">
@@ -1138,17 +1143,18 @@ export default async function ManagedNetworkProfilePage({
           id="contacts"
           eyebrow="07 · Contatti"
           title="Contatti pubblici"
-          description="Pubblica solo riferimenti che l'azienda vuole rendere visibili nel Network. I contatti della Commercial Memory restano completamente separati."
+          description="Proponi i riferimenti che vuoi mostrare alle altre aziende. La pubblicazione richiede una revisione; una bozza resta privata. I contatti della Commercial Memory restano completamente separati."
         />
 
         <div className="space-y-4">
           {state.contacts.map((contact) => {
+            const visibility = companyContactPublication(contact.publication_status);
             const editable =
               contact.ownership_type === "company_managed" &&
               contact.verification_status !== "verified";
 
             return (
-              <article key={contact.id} className="rounded-2xl border border-[#dce2df] bg-[#fafbfa] p-5">
+              <article key={contact.id} data-testid="company-contact-card" data-publication-status={contact.publication_status} className="min-w-0 rounded-2xl border border-[#dce2df] bg-[#fafbfa] p-5">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-[#34445c]">
@@ -1164,7 +1170,7 @@ export default async function ManagedNetworkProfilePage({
                       />
                       <VerificationBadge status={contact.verification_status} />
                       <span className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[11px] font-semibold text-[#66736e]">
-                        {contact.publication_status === "published" ? "Pubblico" : "Bozza"}
+                        {visibility.label}
                       </span>
                     </div>
                   </div>
@@ -1176,6 +1182,8 @@ export default async function ManagedNetworkProfilePage({
                     </form>
                   ) : null}
                 </div>
+
+                {contact.publication_status === "pending_review" ? <p className="mb-4 text-sm leading-6 text-[#66736e]">Il contatto è in revisione e non è ancora visibile nella scheda Network.</p> : null}
 
                 {editable ? (
                   <form action={upsertManagedPublicContact} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -1206,13 +1214,14 @@ export default async function ManagedNetworkProfilePage({
                       </select>
                     </div>
                     <div>
-                      <FieldLabel>Visibilità</FieldLabel>
-                      <select name="publication_status" defaultValue={contact.publication_status} className={inputClass}>
-                        <option value="published">Pubblico</option>
-                        <option value="draft">Bozza</option>
+                      <FieldLabel>Visibilità richiesta</FieldLabel>
+                      <select aria-label="Visibilità richiesta del contatto" name="publication_status" defaultValue={visibility.requested} className={inputClass}>
+                        <option value="published">Richiedi pubblicazione</option>
+                        <option value="draft">Mantieni privato</option>
                       </select>
                     </div>
                     <div className="sm:col-span-2 lg:col-span-4">
+                      <p className="mb-3 text-xs leading-5 text-[#66736e]">Se richiedi la pubblicazione, il salvataggio invia i dati in revisione, anche per un contatto già pubblicato.</p>
                       <button className={primaryButton}>Salva contatto</button>
                     </div>
                   </form>
@@ -1237,7 +1246,7 @@ export default async function ManagedNetworkProfilePage({
         <div className="rounded-2xl border border-dashed border-[#c7d5e7] bg-[#fafcff] p-5">
           <h3 className="font-semibold text-[#34445c]">Aggiungi contatto pubblico</h3>
           <p className="mt-1 text-sm text-[#718197]">
-            Inserisci almeno uno tra email, telefono o URL. Il dato sarà trattato come dichiarazione pubblica dell&apos;azienda.
+            Inserisci almeno uno tra email, telefono o URL. Puoi mantenerlo privato o richiederne la pubblicazione dopo la revisione.
           </p>
           <form action={upsertManagedPublicContact} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <input type="hidden" name="network_company_id" value={companyId} />
@@ -1266,10 +1275,10 @@ export default async function ManagedNetworkProfilePage({
               </select>
             </div>
             <div>
-              <FieldLabel>Visibilità</FieldLabel>
-              <select name="publication_status" defaultValue="published" className={inputClass}>
-                <option value="published">Pubblico</option>
-                <option value="draft">Bozza</option>
+              <FieldLabel>Visibilità richiesta</FieldLabel>
+              <select aria-label="Visibilità richiesta del nuovo contatto" name="publication_status" defaultValue="published" className={inputClass}>
+                <option value="published">Richiedi pubblicazione</option>
+                <option value="draft">Mantieni privato</option>
               </select>
             </div>
             <div className="sm:col-span-2 lg:col-span-4">
@@ -1287,7 +1296,7 @@ export default async function ManagedNetworkProfilePage({
           title="Richieste di connessione"
           description="Decidi se le altre aziende del Network possono chiederti di connettervi dal tuo profilo. La modifica non cancella lo storico."
         />
-        <div className="flex flex-col gap-4 rounded-2xl border border-[#e6ebe8] bg-[#fafbfa] p-4 sm:flex-row sm:items-center sm:justify-between">
+        {inquiryPreferences ? <div className="flex flex-col gap-4 rounded-2xl border border-[#e6ebe8] bg-[#fafbfa] p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-semibold text-[#34445c]">
               {inquiryPreferences.inquiries_enabled ? "Inquiry abilitate" : "Inquiry disabilitate"}
@@ -1305,7 +1314,10 @@ export default async function ManagedNetworkProfilePage({
               {inquiryPreferences.inquiries_enabled ? "Disabilita inquiry" : "Abilita inquiry"}
             </button>
           </form>
-        </div>
+        </div> : <div data-testid="company-inquiries-unavailable" className="rounded-2xl border border-[#e6ebe8] bg-[#fafbfa] p-4">
+          <h3 className="font-semibold text-[#34445c]">{profileAccess.inquiries === "pro_required" ? "Richieste commerciali con Network PRO" : "Preferenze temporaneamente non disponibili"}</h3>
+          <p className="mt-2 text-sm leading-6 text-[#66736e]">{profileAccess.inquiries === "pro_required" ? "La gestione delle richieste commerciali è disponibile con Network PRO. Puoi continuare ad aggiornare gratuitamente il profilo aziendale." : "Non è stato possibile leggere le preferenze delle richieste. Ricarica la pagina per riprovare; gli altri dati del profilo restano modificabili."}</p>
+        </div>}
       </section>
         ),
         stock: (<NetworkInventoryManager key={managed.organization_id + ":" + companyId} organizationId={managed.organization_id} companyId={companyId} inventory={inventory} canPublish={state.company.publication_status === "published"} />),
