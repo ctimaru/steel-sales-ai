@@ -368,9 +368,12 @@ try {
     await login(viewerRun.page, viewer, "/dashboard");
     await viewerRun.page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
     await navigate(viewerRun.page, claimPath);
-    await viewerRun.page.waitForURL(url => url.pathname !== claimPath, { timeout: 90000 });
+    // The admin guard redirects directly to this denial page. Wait for the
+    // rendered outcome before inspecting permissions or starting another visit.
+    await viewerRun.page.waitForURL(url => url.pathname === "/company/profile", { timeout: 90000 });
+    await viewerRun.page.getByRole("heading", { level: 1, name: "Nessun profilo azienda gestibile", exact: true })
+      .waitFor({ state: "visible", timeout: 30000 });
     assert.equal(await viewerRun.page.locator('input[name="authority_confirmed"]').count(), 0);
-    await navigate(viewerRun.page, "/company/profile");
     assert.equal(await viewerRun.page.getByTestId("company-overview-form").count(), 0);
     assert.equal(await viewerRun.page.getByRole("button", { name: "Salva contatto", exact: true }).count(), 0);
     await capture(viewerRun, "viewer-denied");
