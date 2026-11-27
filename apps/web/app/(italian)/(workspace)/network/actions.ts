@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 import { requireNetworkAccess } from "@/lib/network-access";
 import { descriptionDecisionInput, isDescriptionFingerprint, parseDescriptionAssistantDecision, type DescriptionAssistantActionState } from "@/lib/company-description-assistant";
+import { industrialDecisionInput, parseIndustrialDecision, type IndustrialActionState } from "@/lib/company-industrial-assistant";
 import { createClient } from "@/lib/supabase/server";
 import { requireWorkspaceAdmin, requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
@@ -158,6 +159,60 @@ export async function decideManagedCompanyDescription(
     };
   } catch {
     return { status: "error", message: "Non è stato possibile confermare il salvataggio. La bozza è ancora disponibile: aggiorna il confronto prima di riprovare." };
+  }
+}
+
+export async function decideManagedCompanyIndustrialData(
+  _previous: IndustrialActionState,
+  formData: FormData,
+): Promise<IndustrialActionState> {
+  const context = await requireWorkspaceAdmin();
+  const input = industrialDecisionInput(formData);
+  if (!input) return { status: "error", message: "Scegli la categoria e completa i campi richiesti prima di confermare. Puoi ignorare la proposta anche senza completarli." };
+
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("company_ux2c2_decide_industrial", {
+      p_organization_id: context.organizationId,
+      p_network_company_id: input.companyId,
+      p_expected_proposal_hash: input.proposalHash,
+      p_expected_state_hash: input.stateHash,
+      p_action: input.action,
+      p_selection: input.selection,
+    });
+    if (error?.code === "40001" || error?.code === "40P01") return {
+      status: "stale", contentKey: input.contentKey,
+      message: "La ricerca o i dati del profilo sono cambiati. Aggiorna il confronto e rileggi la selezione prima di confermare; le tue scelte restano disponibili.",
+    };
+    if (error?.code === "42501") return {
+      status: "error", contentKey: input.contentKey,
+      message: "Non hai più l’autorizzazione per aggiornare questo profilo. Verifica l’accesso alla tua azienda.",
+    };
+    if (error) return {
+      status: "error", contentKey: input.contentKey,
+      message: "Il dato non è stato registrato. Aggiorna il confronto e verifica categoria, relazione e sede selezionate prima di riprovare.",
+    };
+    const result = parseIndustrialDecision(data);
+    if (!result) return {
+      status: "error", contentKey: input.contentKey,
+      message: "Non è stato possibile confermare l’esito. Aggiorna il confronto per verificare la decisione registrata.",
+    };
+    revalidateManagedProfile(input.companyId);
+    return {
+      status: result.effect === "already_present" ? "already_present" : result.decision,
+      contentKey: input.contentKey,
+      message: result.decision === "ignored"
+        ? "Proposta ignorata. I dati industriali del profilo rimangono invariati."
+        : result.effect === "already_present"
+          ? "Il dato è già presente nel profilo. È stata registrata la scelta senza modificare il dato esistente."
+          : "Dato aggiunto al profilo come dichiarazione dell’azienda.",
+      targetId: result.targetId, selection: input.selection, changed: result.changed, stateHash: result.stateHash,
+    };
+  } catch {
+    return {
+      status: "error", contentKey: input.contentKey,
+      message: "Non è stato possibile confermare il salvataggio. Le tue scelte sono ancora disponibili: aggiorna il confronto prima di riprovare.",
+    };
   }
 }
 

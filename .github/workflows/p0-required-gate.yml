@@ -429,7 +429,8 @@ jobs:
             rfqhub1b_supplier_contacts.sql \
             rfqhub1d_supplier_links.sql \
             company_ux2c1_description_review.sql \
-            company_ux2c1_public_description.sql; do
+            company_ux2c1_public_description.sql \
+            company_ux2c2_industrial_review.sql; do
             psql --host 127.0.0.1 --port 54322 --username postgres --dbname postgres \
               --set ON_ERROR_STOP=1 --file "supabase/tests/$test"
           done
