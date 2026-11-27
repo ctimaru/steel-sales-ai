@@ -81,6 +81,7 @@ class ExamineTest(unittest.IsolatedAsyncioTestCase):
         answer = {"status": "valid", "registered_name": "ROSSI MARIO", "name_match": "unknown"}
         result, _ = await self.run_examine([page("Tubi in acciaio. P.IVA 02194750234")], answer)
         self.assertEqual(result["outcome"], "sole_trader_or_no_legal_form")
+        self.assertNotIn("vies_name", result)  # a person's name is never stored
 
     async def test_company_in_liquidation_is_excluded(self):
         answer = {"status": "valid", "registered_name": "ROSSI TUBI SRL IN LIQUIDAZIONE"}
