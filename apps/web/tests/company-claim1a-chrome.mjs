@@ -367,16 +367,20 @@ try {
   try {
     await login(viewerRun.page, viewer, "/dashboard");
     await viewerRun.page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
-    await navigate(viewerRun.page, claimPath);
-    // The admin guard redirects directly to this denial page. Wait for the
-    // rendered outcome before inspecting permissions or starting another visit.
-    await viewerRun.page.waitForURL(url => url.pathname === "/company/profile", { timeout: 90000 });
-    await viewerRun.page.getByRole("heading", { level: 1, name: "Nessun profilo azienda gestibile", exact: true })
-      .waitFor({ state: "visible", timeout: 30000 });
-    assert.equal(await viewerRun.page.locator('input[name="authority_confirmed"]').count(), 0);
-    assert.equal(await viewerRun.page.getByTestId("company-overview-form").count(), 0);
-    assert.equal(await viewerRun.page.getByRole("button", { name: "Salva contatto", exact: true }).count(), 0);
-    await capture(viewerRun, "viewer-denied");
+    for (const [target, screenshot] of [[claimPath, "viewer-claim-denied"], ["/company/profile", "viewer-profile-denied"]]) {
+      await navigate(viewerRun.page, target);
+      // Claim sends non-admins to /company/profile; its role layout then sends
+      // them to /dashboard. Wait for that final, rendered read-only workspace
+      // before checking either denial or starting the next direct visit.
+      await viewerRun.page.waitForURL(url => url.pathname === "/dashboard", { timeout: 90000 });
+      await viewerRun.page.getByTestId("home-layout").waitFor({ state: "visible", timeout: 30000 });
+      await viewerRun.page.getByTestId("home-left-rail").getByText("Sola lettura", { exact: true })
+        .waitFor({ state: "visible", timeout: 30000 });
+      assert.equal(await viewerRun.page.locator('input[name="authority_confirmed"]').count(), 0);
+      assert.equal(await viewerRun.page.getByTestId("company-overview-form").count(), 0);
+      assert.equal(await viewerRun.page.getByRole("button", { name: "Salva contatto", exact: true }).count(), 0);
+      await capture(viewerRun, screenshot);
+    }
   } catch (error) {
     await diagnose(viewerRun, "viewer");
     throw error;
