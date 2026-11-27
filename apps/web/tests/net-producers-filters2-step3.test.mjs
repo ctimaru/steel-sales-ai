@@ -4,7 +4,7 @@ import test from "node:test";
 
 // NET-PRODUCERS-FILTERS2 · passo 3 (founder decisions 18 and 23 Nov 2026).
 const read=p=>readFileSync(new URL(p,import.meta.url),"utf8");
-const sql=read("../../../supabase/migrations/20261123200000_net_producers_filters2_step3_pdf_claims.sql");
+const sql=read("../../../supabase/migrations/20261127180000_net_producers_filters2_step3_pdf_claims.sql");
 const worker=read("../../../services/worker/app/net_pro_producers_pdf_claims_f2.py");
 const cron=read("../../../services/worker/app/net_pro_producers_auto1.py");
 
