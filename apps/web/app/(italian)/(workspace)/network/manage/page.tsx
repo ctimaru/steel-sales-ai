@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CompanyWorkspaceNavigation } from "@/components/company-workspace-navigation";
 import { CompanyProductCatalog } from "@/components/company-product-catalog";
+import { CompanyIndustrialFootprint, IndustrialRoleMark } from "@/components/company-industrial-footprint";
 import { NetworkInventoryManager } from "@/components/network-inventory-manager";
 import { getManagedNetworkInventory } from "@/lib/network-stock";
 import { redirect } from "next/navigation";
@@ -418,7 +419,7 @@ export default async function ManagedNetworkProfilePage({
       </section>
         ),
         positioning: (
-          <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <section className="min-w-0 space-y-6 rounded-3xl border border-[#dce2df] bg-white p-3 sm:p-6 xl:p-8">
         <SectionHeader
           id="positioning"
           eyebrow="02 · Posizionamento"
@@ -430,9 +431,10 @@ export default async function ManagedNetworkProfilePage({
           <h3 className="text-sm font-semibold text-[#34445c]">Ruoli aziendali</h3>
           <div className="mt-3 flex flex-wrap gap-2">
             {state.roles.map((role) => (
-              <div key={role.id} className="flex items-center gap-2 rounded-2xl border border-[#dce2df] bg-[#fafbfa] px-3 py-2">
-                <div>
-                  <p className="text-sm font-semibold text-[#34445c]">
+              <div key={role.id} data-testid="company-industrial-role" className="flex min-w-0 max-w-full flex-wrap items-center gap-3 rounded-2xl border border-[#dce2df] bg-[#fafbfa] p-3">
+                <IndustrialRoleMark roleKey={role.key} />
+                <div className="min-w-0 flex-1">
+                  <p className="break-words text-sm font-semibold text-[#34445c]">
                     {role.name}{role.is_primary ? " · principale" : ""}
                   </p>
                   <div className="mt-1">
@@ -440,7 +442,7 @@ export default async function ManagedNetworkProfilePage({
                   </div>
                 </div>
                 {!role.is_primary ? (
-                  <div className="ml-2 flex gap-1.5">
+                  <div className="flex flex-wrap gap-1.5">
                     <form action={setManagedCompanyRole}>
                       <input type="hidden" name="network_company_id" value={companyId} />
                       <input type="hidden" name="role_key" value={role.key} />
@@ -817,7 +819,7 @@ export default async function ManagedNetworkProfilePage({
       </section>
         ),
         facilities: (
-          <section className="space-y-6 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <section className="min-w-0 space-y-6 rounded-3xl border border-[#dce2df] bg-white p-3 sm:p-6 xl:p-8">
         <SectionHeader
           id="facilities"
           eyebrow="04 · Sedi"
@@ -825,14 +827,16 @@ export default async function ManagedNetworkProfilePage({
           description="Descrivi dove opera l'azienda e quali lavorazioni o servizi sono disponibili in ogni sede. Le entità verificate dalla piattaforma diventano read-only finché non vengono riesaminate."
         />
 
+        <CompanyIndustrialFootprint state={state} />
+
         <div className="space-y-4">
           {state.facilities.map((facility) => {
             const locked = facility.verification_status !== "unverified";
             return (
-              <article key={facility.id} className="rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-5">
+              <article key={facility.id} id={"facilities-item-" + facility.id} tabIndex={-1} className="min-w-0 scroll-mt-28 rounded-2xl border border-[#dfe7f1] bg-[#fafbfa] p-3 outline-offset-2 sm:p-5">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-[#2d3f58]">{facility.name}</h3>
+                    <h3 className="break-words font-semibold text-[#2d3f58]">{facility.name}</h3>
                     <p className="mt-1 text-xs text-[#8090a4]">
                       {facility.facility_type} · {[facility.city, facility.region, facility.country_code].filter(Boolean).join(", ")}
                     </p>
@@ -866,8 +870,8 @@ export default async function ManagedNetworkProfilePage({
                   <p className="text-xs font-bold uppercase tracking-[0.12em] text-[#87938e]">Capability</p>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {facility.capabilities.map((capability) => (
-                      <div key={capability.id} className="flex items-center gap-2 rounded-xl border border-[#dfe7f1] bg-white px-3 py-2">
-                        <div>
+                      <div key={capability.id} className="flex min-w-0 max-w-full flex-wrap items-center gap-2 rounded-xl border border-[#dfe7f1] bg-white px-3 py-2">
+                        <div className="min-w-0">
                           <p className="text-sm font-semibold text-[#43524c]">{capability.name}</p>
                           <div className="mt-1 flex flex-wrap gap-1.5">
                             <ProvenanceBadge item={capability} />
@@ -916,10 +920,9 @@ export default async function ManagedNetworkProfilePage({
               </article>
             );
           })}
-          {state.facilities.length === 0 ? <p className="text-sm text-[#8a98aa]">Nessuna sede ancora presente.</p> : null}
         </div>
 
-        <div className="rounded-2xl border border-dashed border-[#c7d5e7] bg-[#fafcff] p-5">
+        <div id="facilities-add" tabIndex={-1} className="min-w-0 scroll-mt-28 rounded-2xl border border-dashed border-[#c7d5e7] bg-[#fafcff] p-3 outline-offset-2 sm:p-5">
           <h3 className="font-semibold text-[#34445c]">Aggiungi una sede</h3>
           <form action={upsertManagedFacility} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <input type="hidden" name="network_company_id" value={companyId} />

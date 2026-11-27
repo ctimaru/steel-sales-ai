@@ -1,6 +1,6 @@
 /**
  * COMPANY-UX2.A — authenticated managed workspace acceptance.
- * COMPANY-UX2.B.1: separate Company acceptance on a disposable local DB.
+ * COMPANY-UX2.B.2: isolated product, facility, role and capability acceptance.
  */
 import assert from "node:assert/strict";
 import { mkdirSync, readFileSync } from "node:fs";
@@ -112,6 +112,36 @@ try {
           }
         }
       }
+      const role = await admin.rpc("p3_7b_set_role", {
+        p_network_company_id: companyId, p_role_key: "producer", p_enabled: true, p_is_primary: true,
+      });
+      assert.ifError(role.error);
+      const sites = [
+        { name: "DEMO Plant", facility_type: "plant", city: "Torino", region: "Piemonte", country_code: "IT", publication_status: "published", capabilities: ["laser_cutting", "welding_fabrication"] },
+        { name: "DEMO Warehouse", facility_type: "warehouse", city: null, region: null, country_code: "IT", publication_status: "draft", capabilities: [] },
+      ];
+      for (const {capabilities, ...payload} of sites) {
+        const created = await admin.rpc("p3_7b_upsert_facility", {p_network_company_id: companyId, p_facility_id: null, p_payload: payload});
+        assert.ifError(created.error);
+        const id = created.data?.facility_id;
+        assert.ok(id);
+        for (const key of capabilities) {
+          const result = await admin.rpc("p3_7b_set_facility_capability", {p_network_company_id: companyId, p_facility_id: id, p_capability_key: key, p_enabled: true});
+          assert.ifError(result.error);
+        }
+        if (payload.facility_type === "plant") {
+          // Local synthetic fixture only, matching the existing P3.7B SQL lock test.
+          const verified = await service.from("network_facilities").update({verification_status:"verified"}).eq("company_id",companyId).eq("id",id).select("id,verification_status").single();
+          assert.ifError(verified.error);
+          assert.equal(verified.data?.verification_status, "verified");
+          const locked = await admin.rpc("p3_7b_upsert_facility", {p_network_company_id:companyId,p_facility_id:id,p_payload:{...payload,name:"DEMO blocked edit"}});
+          assert.ok(locked.error, "Verified facility must require Platform review");
+        }
+      }
+      const viewerCheck = await signed(viewer);
+      const viewerWrite = await viewerCheck.rpc("p3_7b_upsert_facility", {p_network_company_id:companyId,p_facility_id:null,p_payload:{name:"Blocked viewer",facility_type:"office",country_code:"IT",publication_status:"draft"}});
+      assert.ok(viewerWrite.error, "Viewer may not create a managed facility");
+      await viewerCheck.auth.signOut();
       await admin.auth.signOut();
     }
   for (const width of [1440, 390, 320]) {
@@ -175,14 +205,14 @@ try {
         assert.ok(metrics.document <= metrics.viewport + 2,
           "Horizontal overflow " + width + " " + id + ": " + JSON.stringify(metrics));
         if (capture) await page.screenshot({
-          path: path.join(output, "company-ux2b1-" + (populated ? "populated-" : "empty-") + id + "-" + width + ".png"),
+          path: path.join(output, "company-ux2b2-" + (populated ? "populated-" : "empty-") + id + "-" + width + ".png"),
           fullPage: true, animations: "disabled", caret: "initial",
         });
       }
       await check("summary", true);
       for (const id of sections.slice(1)) {
         await nav.locator('a[href="#' + id + '"]').click();
-        await check(id, ["overview", "products", "stock"].includes(id));
+        await check(id, ["overview", "positioning", "products", "facilities", "stock"].includes(id));
       }
       await page.goBack();
       await check("stock");
@@ -214,6 +244,47 @@ try {
       await check("products");
       await page.locator("#products-add").waitFor({state:"visible"});
       assert.equal(await page.locator("#products-add select[name=product_key] option").count(), 12);
+      await nav.locator('a[href="#positioning"]').click();
+      await check("positioning");
+      const roles = workspace.locator("#company-panel-positioning").getByTestId("company-industrial-role");
+      assert.equal(await roles.count(), populated ? 1 : 0);
+      if (populated) assert.match(await roles.first().innerText(), /principale/);
+      await nav.locator('a[href="#facilities"]').click();
+      await check("facilities");
+      const footprint = workspace.getByTestId("company-industrial-footprint");
+      const siteCards = footprint.getByTestId("company-facility-card");
+      assert.equal(await siteCards.count(), populated ? 2 : 0);
+      const stats = footprint.getByTestId("company-industrial-counts");
+      assert.deepEqual(await stats.locator("dd").allTextContents(), populated ? ["2", "2", "1"] : ["0", "0", "0"]);
+      if (populated) {
+        const plant = siteCards.filter({hasText:"DEMO Plant"});
+        const warehouse = siteCards.filter({hasText:"DEMO Warehouse"});
+        assert.match(await plant.innerText(), /Torino, Piemonte, IT/);
+        assert.match(await plant.innerText(), /Visibilità: Pubblicata/);
+        assert.equal(await plant.getByTestId("company-facility-capability").count(), 2);
+        assert.match(await plant.innerText(), /Dichiarata dall’azienda · Non verificato/);
+        assert.match(await warehouse.innerText(), /Visibilità: Bozza/);
+        assert.equal(await warehouse.getByTestId("company-facility-capability").count(), 0);
+        await plant.getByRole("link",{name:"Consulta sede e lavorazioni"}).click();
+        await page.waitForURL(url=>url.hash.startsWith("#facilities-item-"));
+        await check("facilities");
+        const locked = page.locator('[id^="facilities-item-"]:focus');
+        await locked.waitFor({state:"visible"});
+        assert.match(await locked.innerText(), /non può essere modificata direttamente/);
+        assert.equal(await locked.getByRole("button",{name:"Salva sede",exact:true}).count(), 0);
+        assert.equal(await locked.getByRole("button",{name:"Archivia sede",exact:true}).count(), 0);
+        const href = await warehouse.getByRole("link",{name:"Gestisci sede e lavorazioni"}).getAttribute("href");
+        await warehouse.getByRole("link",{name:"Gestisci sede e lavorazioni"}).click();
+        await page.waitForURL(url=>url.hash===href);
+        await check("facilities");
+        assert.equal(await workspace.locator(href).getByRole("button",{name:"Salva sede",exact:true}).count(), 1);
+      } else {
+        assert.equal(await footprint.getByTestId("company-facilities-empty").count(), 1);
+      }
+      await footprint.getByRole("link",{name:"Aggiungi sede"}).click();
+      await page.waitForURL(url=>url.hash==="#facilities-add");
+      await check("facilities");
+      assert.equal(await page.locator("#facilities-add").getByRole("button",{name:"Crea sede",exact:true}).count(), 1);
       await nav.locator('a[href="#summary"]').click();
       await check("summary");
       await workspace.locator("#company-panel-summary").getByRole("link", { name: "Gestisci preferenze" }).click();
@@ -240,7 +311,7 @@ try {
         await page.screenshot({ path: path.join(output, "company-ux2a-console-failed-" + width + ".png"), fullPage: true, animations: "disabled", caret: "initial" });
       }
       assert.deepEqual([...new Set(consoleIssues)], [], "Browser console errors at " + width);
-      console.log("COMPANY-UX2.B.1 Chrome PASS", width, populated ? "populated" : "empty", "catalog, ten panels, navigation, stock and screenshots");
+      console.log("COMPANY-UX2.B.2 Chrome PASS", width, populated ? "populated" : "empty", "catalog, facility cards, capabilities, roles, navigation, stock and screenshots");
     } finally { await context.close(); }
   }
   }
