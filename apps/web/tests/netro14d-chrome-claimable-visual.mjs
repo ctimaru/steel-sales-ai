@@ -771,7 +771,7 @@ try {
 
         if(co.role==="producer") {
           await navigate(page,profilePath+"/claim");
-          await page.getByRole("heading",{name:/^Rivendica /}).waitFor({state:"visible"});
+          await page.getByRole("heading",{level:1,name:/^Richiedi la gestione di /}).waitFor({state:"visible"});
           assert.match(await page.locator("body").innerText(), /Non verificata/);
           assert.equal(await page.locator('input[name="network_company_id"]').inputValue(),co.id);
           await noOverflow(page,"claim/admin/"+width);

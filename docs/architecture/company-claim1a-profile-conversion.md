@@ -105,10 +105,11 @@ TypeScript checking and the production Next.js build passed. Independent code
 reviews covered the claim handoff, SQL authorization and profile publication
 states; the identified receipt-validation issues were fixed and retested.
 
-The database integration test and authenticated Chrome scenario below are
-implemented but have not run. This workspace has no local PostgreSQL/Docker
-runtime, and the available browsers could not reach the local preview server.
-Their execution remains a CI release gate, not a claimed result.
+The database integration test and authenticated Chrome scenario below run in CI.
+This workspace has no local PostgreSQL/Docker runtime, and the available browsers
+could not reach the local preview server. The execution results and screenshot
+review for each published revision are recorded in
+[PR #1631](https://github.com/ctimaru/steel-sales-ai/pull/1631).
 
 The initial GitHub upload was stopped by automatic authorization review. On
 27 November the founder explicitly authorized publishing this change set to

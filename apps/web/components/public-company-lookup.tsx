@@ -173,7 +173,7 @@ export function PublicCompanyLookup({
               maxLength={120}
               autoComplete="organization"
               placeholder={locale === "en" ? "Company name or VAT number" : "Ragione sociale o Partita IVA"}
-              className="h-12 min-w-0 flex-1 rounded-xl border border-[#cfd9d5] bg-white px-4 text-sm text-[#1d2824] outline-none placeholder:text-[#66736e] focus:border-[#9cc5b7] focus:ring-4 focus:ring-[#e1ece8]"
+              className="h-12 min-h-12 min-w-0 rounded-xl border border-[#cfd9d5] bg-white px-4 text-sm text-[#1d2824] outline-none placeholder:text-[#66736e] focus:border-[#9cc5b7] focus:ring-4 focus:ring-[#e1ece8] sm:flex-1"
             />
             <button
               type="submit"

@@ -186,8 +186,17 @@ try {
     try {
       await navigate(page, "/azienda");
       await page.getByRole("heading", { level: 1, name: "Rivendica il profilo della tua azienda." }).waitFor();
+      const consent = page.getByRole("dialog", { name: "Cookie e privacy", exact: true });
+      await consent.waitFor({ state: "visible", timeout: 30000 });
+      await capture(run, "landing-with-consent");
+      await consent.getByRole("button", { name: "Accetta necessari", exact: true }).click();
+      await consent.waitFor({ state: "hidden" });
+      const queryInput = page.locator('input[name="company_query"]');
+      const queryBounds = await queryInput.boundingBox();
+      assert.ok(queryBounds && queryBounds.height >= 47,
+        "Company search input must retain a 48px touch target at " + width);
       await capture(run, "landing");
-      await page.locator('input[name="company_query"]').fill(companyName);
+      await queryInput.fill(companyName);
       await page.getByRole("button", { name: "Cerca azienda", exact: true }).click();
       const result = page.locator("article").filter({ hasText: companyName });
       await result.waitFor({ state: "visible", timeout: 30000 });
