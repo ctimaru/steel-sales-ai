@@ -195,6 +195,11 @@ try {
       await navigate(geoPage,"/network-visual-qa");
       await geoPage.getByTestId("network-compact-experience")
         .waitFor({state:"visible",timeout:90000});
+      // The wrapper is already present in SSR. Regional polygons only appear
+      // after the map's client effect, so its controls are ready for real clicks.
+      await geoPage.getByTestId("network-eu-map-mini-svg")
+        .locator('a[data-nuts-region="Piemonte"]')
+        .waitFor({state:"attached",timeout:45000});
       await geoPage.evaluate(()=>{window.__networkGeoSpaProbe="intact";});
     };
     await fixture();
@@ -711,9 +716,10 @@ try {
       const stockManager=page.getByTestId("network-stock-manager");
       await stockManager.waitFor({state:"visible"});
       assert.match(await stockManager.innerText(),/3 pubblicate/);
-      assert.match(await stockManager.innerText(),/1 bozze/);
-      const newStock=stockManager.locator("details").first();
-      await newStock.locator("summary").click();
+      assert.match(await stockManager.innerText(),/1 bozza privata/);
+      await stockManager.getByRole("button",{name:"Aggiungi disponibilità",exact:true}).click();
+      const newStock=stockManager.getByTestId("network-stock-form");
+      await newStock.waitFor({state:"visible"});
       assert.equal(await newStock.getByRole("button",{name:"Pubblica nel Network"}).count(),1);
       assert.equal(await newStock.getByRole("button",{name:"Salva bozza privata"}).count(),1);
       await stockManager.scrollIntoViewIfNeeded();
