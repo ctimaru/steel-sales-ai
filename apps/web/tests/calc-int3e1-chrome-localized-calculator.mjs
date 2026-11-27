@@ -46,6 +46,8 @@ try{
     assert.match(await root.innerText(),/Favoriten|Favoris|Favoritos/i);
     // Two quantity inputs plus the two synchronized price inputs (€/m and €/t).
     assert.equal(await root.locator("[data-commercial-targets] input").count(),4);
+    // HOME-CALC1: quantities and prices live in a disclosure that opens on demand.
+    await root.locator("[data-commercial-disclosure] > summary").click();
     assert.match(await root.innerText(),/Tonnen|Tonnes|Toneladas/i);
     assert.match(await root.innerText(),/kg\/m/);
     assert.equal(await root.getByRole("button",{name:c.bill}).isDisabled(),false);
