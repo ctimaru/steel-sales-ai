@@ -789,8 +789,13 @@
   .heroIt .container { padding-bottom: 44px; }
 }
 @media (max-width: 700px) {
-  .heroIt .container { padding-bottom: 36px; }
-}
-@media (max-width: 359px) {
-  .heroIt .copy { display: block; }
+  .heroIt .container { padding-top: 26px; padding-bottom: 36px; }
+  /* Phones: the weight answer and its action come before the longer sentence,
+     so the first-visit consent never covers them. */
+  .heroIt .copy { display: flex; flex-direction: column; align-items: stretch; }
+  .heroIt .eyebrow { order: 0; }
+  .heroIt .title { order: 1; margin-top: 12px; font-size: clamp(1.95rem, 8.4vw, 2.6rem); line-height: 1.07; }
+  .heroIt .copy > form { order: 2; }
+  .heroIt .textLink { order: 3; align-self: flex-start; }
+  .heroIt .description { order: 4; margin-top: 10px; }
 }
