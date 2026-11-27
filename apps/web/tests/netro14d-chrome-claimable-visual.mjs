@@ -195,6 +195,11 @@ try {
       await navigate(geoPage,"/network-visual-qa");
       await geoPage.getByTestId("network-compact-experience")
         .waitFor({state:"visible",timeout:90000});
+      // The wrapper is already present in SSR. Regional polygons only appear
+      // after the map's client effect, so its controls are ready for real clicks.
+      await geoPage.getByTestId("network-eu-map-mini-svg")
+        .locator('a[data-nuts-region="Piemonte"]')
+        .waitFor({state:"attached",timeout:45000});
       await geoPage.evaluate(()=>{window.__networkGeoSpaProbe="intact";});
     };
     await fixture();
