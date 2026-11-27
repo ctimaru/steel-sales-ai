@@ -99,3 +99,19 @@
   .card { margin-top: 20px; padding: 14px; }
   .kgm strong { font-size: 32px; }
 }
+/* Desktop: input and result side by side, so the hero stays compact. */
+@media (min-width: 1024px) {
+  .card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 14px;
+    align-items: start;
+    margin-top: 20px;
+    padding: 14px;
+  }
+  .label, .inputRow, .examples { grid-column: 1; }
+  .result { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; min-height: 0; align-self: stretch; }
+  .open { grid-column: 1 / -1; margin-top: 10px; }
+  .note { grid-column: 1 / -1; margin-top: 6px; }
+  .kgm strong { font-size: 32px; }
+}

@@ -16,7 +16,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
 
   return (
     <>
-    <section aria-labelledby="home-cinematic-title" className={styles.hero}>
+    <section aria-labelledby="home-cinematic-title" className={en ? styles.hero : `${styles.hero} ${styles.heroIt}`}>
       <div className={styles.ambient} data-home-cine-motion="photo" aria-hidden="true" />
       {/* HOME-NETPRO-PUBLIC2: on the Italian home the right side hosts the Network PRO card. */}
       {en ? (
