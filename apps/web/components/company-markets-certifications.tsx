@@ -106,9 +106,9 @@ export function CompanyCertifications({ state }: { state: CertificationState }) 
         </div>
         <a href="#certifications-add" className={addLink}>Aggiungi certificazione</a>
       </div>
-      <dl className="grid grid-cols-3 gap-1.5 rounded-xl border border-[#dce2df] bg-white p-2 text-center" data-testid="company-certification-counts">
+      <dl className="grid gap-1.5 rounded-xl border border-[#dce2df] bg-white p-2 sm:grid-cols-3 sm:text-center" data-testid="company-certification-counts">
         {([["Registrate", state.certifications.length], ["Verifica registrata", verified], ["Riferimento presente", withEvidence]] as const).map(([label, value]) => (
-          <div key={label} className="min-w-0 px-1 py-1"><dt className="break-words text-[11px] leading-4 text-[#52645b]">{label}</dt><dd className="mt-1 text-xl font-semibold tabular-nums text-[#1d2824]">{value}</dd></div>
+          <div key={label} className="flex min-w-0 items-center justify-between gap-3 px-2 py-1 sm:flex-col sm:justify-end sm:gap-1"><dt className="break-words text-xs leading-4 text-[#52645b] sm:flex sm:min-h-8 sm:items-center sm:justify-center sm:text-[11px]">{label}</dt><dd className="shrink-0 text-xl font-semibold tabular-nums text-[#1d2824]">{value}</dd></div>
         ))}
       </dl>
       {state.certifications.length === 0 ? (

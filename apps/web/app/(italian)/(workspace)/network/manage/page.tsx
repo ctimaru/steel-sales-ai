@@ -991,7 +991,7 @@ export default async function ManagedNetworkProfilePage({
           id="certifications"
           eyebrow="06 · Certificazioni"
           title="Certificazioni"
-          description="Registra certificazioni e relativo scope. Le certificazioni dichiarate dall'azienda partono come non verificate; la verifica resta sotto controllo Platform."
+          description="Registra certificazioni e relativo ambito di applicazione. Le certificazioni dichiarate dall'azienda partono come non verificate; la verifica è gestita dalla piattaforma."
         />
         <CompanyCertifications state={state} />
 
