@@ -71,6 +71,7 @@ class ExamineTest(unittest.IsolatedAsyncioTestCase):
     async def test_verified_identity(self):
         result, _ = await self.run_examine([page("Tubi in acciaio. P.IVA 02194750234")])
         self.assertEqual(result["outcome"], "verified")
+        self.assertEqual(result["method"], "first_party_vat_plus_vies")
         self.assertEqual(result["vat"], "02194750234")
         self.assertEqual(result["legal_name"], "Rossi Tubi S.r.l.")
         self.assertEqual(result["page_url"], "https://www.rossitubi.it/")
@@ -101,6 +102,23 @@ class ExamineTest(unittest.IsolatedAsyncioTestCase):
         result, vies = await self.run_examine([page("Tubi in acciaio, contattaci")])
         self.assertEqual(result, {"outcome": "no_vat_on_site"})
         self.assertEqual(vies.calls, 0)
+
+    async def test_crawler_vat_when_site_has_none(self):
+        result, vies = await self.run_examine([page("Tubi in acciaio, contattaci")], vat="02194750234")
+        self.assertEqual(result["outcome"], "verified")
+        self.assertEqual(result["method"], "crawler_vat_plus_vies")
+        self.assertEqual(result["page_url"], "https://www.rossitubi.it/")
+        self.assertEqual(vies.calls, 1)
+
+    async def test_crawler_vat_with_bad_check_digit_is_ignored(self):
+        result, vies = await self.run_examine([page("Tubi in acciaio")], vat="02194750235")
+        self.assertEqual(result, {"outcome": "no_vat_on_site"})
+        self.assertEqual(vies.calls, 0)
+
+    async def test_crawler_vat_still_needs_vies_legal_form(self):
+        answer = {"status": "valid", "registered_name": "ROSSI MARIO"}
+        result, _ = await self.run_examine([page("Tubi in acciaio")], answer, vat="02194750234")
+        self.assertEqual(result["outcome"], "sole_trader_or_no_legal_form")
 
     async def test_agency_credit_vat_is_ignored(self):
         result, _ = await self.run_examine([page("Tubi in acciaio. Realizzato da Web Agency P.IVA 02194750234")])
