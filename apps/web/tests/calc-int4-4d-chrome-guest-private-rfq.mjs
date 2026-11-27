@@ -29,6 +29,8 @@ try {
   assert.equal(await bill.getByRole("checkbox",{name:/Includi i target buyer/}).count(),0);
   await bill.locator('[data-cart-back="true"]').click();
   // DENSE1A: pricing is intentionally secondary and opens on demand.
+  const commercialDisclosure=calculator.locator('[data-commercial-disclosure]');
+  if(await commercialDisclosure.count() && !(await commercialDisclosure.evaluate(d=>d.open))) await commercialDisclosure.locator(':scope > summary').click();
   await calculator.locator("[data-commercial-targets]").getByRole("textbox",{name:"Prezzo €/t"}).fill("850");
   await calculator.locator("[data-target-opt-in]").click();
   await bill.getByRole("button",{name:"Associa target interno alla riga 1"}).click();

@@ -31,14 +31,16 @@ try {
   await fields.nth(0).fill('168.3');await fields.nth(1).fill('8');
   await root.locator('#tube-calculator-quantity').fill('3');
   const mass=root.locator('[data-cockpit-results] [aria-live="polite"].metric-number');
-  assert.match(await mass.innerText(),/31[,.]626\s*kg\/m/,'Real engine output, not the illustrative reference number');
+  assert.match(await mass.innerText(),/31[,.]63\s*kg\/m/,'Real engine output, not the illustrative reference number');
   const sectionValue=key=>root.locator(`[data-section-value="${key}"]`);
   assert.match(await sectionValue('outer').innerText(),/168[,.]3\s*mm/);
   assert.match(await sectionValue('inner').innerText(),/152[,.]3\s*mm/,'Internal diameter follows the actual outside diameter and wall');
   assert.equal((await sectionValue('area').innerText()).replace(/[^\d]/g,''),'402878','Known CHS area is 4028.78 mm² in every locale');
   assert.match(await root.locator('[data-cinematic-context]').innerText(),/12 m · 3 /);
   if(locale==='it'&&width===390) {
-   const customLength=root.locator('[data-cockpit-length-quantity] > div:first-child input');
+   // HOME-CALC1: the free bar length opens with «Altro».
+   await root.locator('[data-calc-length-other]').click();
+   const customLength=root.getByLabel('Lunghezza barra personalizzata');
    await root.locator('#tube-calculator-quantity').fill('1');
    assert.match(await root.locator('[data-cinematic-context]').innerText(),/12 m · 1 barra$/,'Singular quantity uses the singular unit');
    await customLength.fill('12.345');await root.locator('#tube-calculator-quantity').fill('2.5');
@@ -68,13 +70,9 @@ try {
   const focus=await fields.first().evaluate(e=>({color:getComputedStyle(e).outlineColor,bg:getComputedStyle(e).backgroundColor}));
   assert.ok(contrast(focus.color,focus.bg)>=3,'Keyboard focus stays visible on the dark fields');
   async function assertProductPhoto(family) {
-   const photo=root.locator(`[data-cinematic-product="${family}_tube"] img`);
-   await photo.scrollIntoViewIfNeeded();
-   await photo.evaluate(e=>e.decode());
-   const details=await photo.evaluate(e=>({src:e.currentSrc,width:e.naturalWidth,alt:e.alt}));
-   assert.match(details.src,new RegExp(`/calculator/tube-${family}-(384|768)\\.webp$`));
-   assert.ok(details.width>0,'Selected family artwork loads successfully');
-   assert.equal(details.alt,'','Decorative photo does not duplicate the live diagram');
+   // HOME-CALC1: no stock photo; the live dimensioned drawing is the only visual.
+   assert.equal(await root.locator('[data-cinematic-product]').count(),0,'No decorative product photo');
+   assert.equal(await root.locator('[data-cinematic-stage] svg[role="img"]').count(),1,'One live drawing for '+family);
   }
   await assertProductPhoto('round');
   if(containerWidth<680) {
@@ -106,6 +104,8 @@ try {
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/140/);
   await root.locator('[data-cockpit-add]').click();
   if(locale==='it' && width===1440) {
+   const commercialDisclosure=root.locator('[data-commercial-disclosure]');
+   if(await commercialDisclosure.count() && !(await commercialDisclosure.evaluate(d=>d.open))) await commercialDisclosure.locator(':scope > summary').click();
    const targets=root.locator('[data-commercial-targets]');
    const metres=targets.getByRole('textbox',{name:'Metri totali'});
    const tonnes=targets.getByRole('textbox',{name:'Tonnellate'});

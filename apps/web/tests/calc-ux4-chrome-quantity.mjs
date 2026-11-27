@@ -19,8 +19,10 @@ try {
     const fields=root.locator("[data-cockpit-measurements] input");
     await root.locator("[data-calc-shape-buttons] button").nth(1).click();
     await fields.nth(0).fill("80"); await fields.nth(1).fill("6");
-    const length=root.locator("[data-cockpit-length-quantity] input").first();
-    assert.equal(await length.inputValue(),"12");
+    // HOME-CALC1: 12 m is a preset button; the free field opens only with «Altro».
+    assert.equal(await root.locator("[data-cockpit-length-quantity] [aria-pressed='true']").first().innerText(),"12 m");
+    const commercialDisclosure=root.locator('[data-commercial-disclosure]');
+    if(await commercialDisclosure.count() && !(await commercialDisclosure.evaluate(d=>d.open))) await commercialDisclosure.locator(':scope > summary').click();
     const targets=root.locator("[data-commercial-targets]");
     const metres=targets.locator("input").nth(0);
     const tonnes=targets.locator("input").nth(1);

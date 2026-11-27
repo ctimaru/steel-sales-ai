@@ -21,6 +21,8 @@ try {
     await page.locator('[data-testid="mobile-cookie-consent"]')
       .getByRole("button",{name:"Accetta necessari"}).click();
     // CALC-TARGET1: compact private pricing is visible without old mode tabs.
+    const commercialDisclosure=calculator.locator('[data-commercial-disclosure]');
+    if(await commercialDisclosure.count() && !(await commercialDisclosure.evaluate(d=>d.open))) await commercialDisclosure.locator(':scope > summary').click();
     const targets=calculator.locator("[data-commercial-targets]");
     await targets.getByRole("textbox",{name:"Prezzo €/t"}).fill("850");
     assert.notEqual(await targets.getByRole("textbox",{name:"Prezzo €/m"}).inputValue(),"");

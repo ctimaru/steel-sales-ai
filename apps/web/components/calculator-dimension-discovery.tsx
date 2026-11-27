@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import {
-  dimensionLabel, dimensionNumber, searchCalculatorDimensions,
+  dimensionLabel, dimensionNumber, parseTypedDimension, searchCalculatorDimensions,
   type CalculatorDimension, type DimensionFamilyFilter,
 } from "@/lib/calculator-dimension-discovery";
 import type { TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
@@ -10,47 +10,53 @@ import type { TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 const copy: Record<TubeCalculatorLocale,{
   title:string;subtitle:string;search:string;placeholder:string;all:string;round:string;square:string;rect:string;
   wall:string;filters:string;enterHint:string;results:string;apply:string;empty:string;noData:string;onlySource:string;more:string;applied:string;
+  typed:string;typedNote:string;
 }> = {
   it:{title:"Trova la tua misura",subtitle:"Misure pubblicate · selezione rapida",
-    search:"Cerca dimensione",placeholder:"Es. 168,3x6,3 · 100x100x4",
+    search:"Scrivi la misura",placeholder:"Es. 168,3x6,3 · 100x100x4",
     all:"Tutte",round:"Tondi",square:"Quadri",rect:"Rettangolari",wall:"Spessore",
      filters:"Filtri misura",enterHint:"Invio per applicare",
     results:"misure trovate",apply:"Usa misura",empty:"Nessun risultato: modifica i filtri o inserisci le misure manualmente.",
     noData:"Nessuna misura pubblicata disponibile. La compilazione manuale resta attiva.",
     onlySource:"Misura tratta da fonte pubblicata; la norma e il peso teorico vengono calcolati separatamente.",
-    more:"Affina la ricerca per altri risultati.",applied:"Selezione applicata"},
+    more:"Affina la ricerca per altri risultati.",applied:"Selezione applicata",
+    typed:"Calcola questa misura",typedNote:"Misura scritta da te: nessuna fonte pubblicata, solo calcolo teorico."},
   en:{title:"Find your size",subtitle:"Published dimensions · quick selection",
-    search:"Search dimensions",placeholder:"e.g. 168.3x6.3 · 100x100x4",
+    search:"Type a size",placeholder:"e.g. 168.3x6.3 · 100x100x4",
     all:"All",round:"Round",square:"Square",rect:"Rectangular",wall:"Wall",
      filters:"Size filters",enterHint:"Enter to apply",
     results:"matching sizes",apply:"Use size",empty:"No matches. Adjust filters or enter dimensions manually.",
     noData:"No published dimensions available. Manual entry remains enabled.",
     onlySource:"Published-source geometry only; standard and theoretical mass are calculated separately.",
-    more:"Narrow your search for more results.",applied:"Size applied"},
+    more:"Narrow your search for more results.",applied:"Size applied",
+    typed:"Calculate this size",typedNote:"Size typed by you: no published source, theoretical calculation only."},
   de:{title:"Abmessung finden",subtitle:"Veröffentlichte Maße · Schnellauswahl",
-    search:"Abmessungen suchen",placeholder:"z. B. 168,3x6,3 · 100x100x4",
+    search:"Maß eingeben",placeholder:"z. B. 168,3x6,3 · 100x100x4",
     all:"Alle",round:"Rund",square:"Quadrat",rect:"Rechteck",wall:"Wanddicke",
      filters:"Maßfilter",enterHint:"Enter zum Übernehmen",
     results:"passende Maße",apply:"Übernehmen",empty:"Keine Treffer. Filter anpassen oder Maße manuell eingeben.",
     noData:"Keine veröffentlichten Maße verfügbar. Manuelle Eingabe bleibt möglich.",
     onlySource:"Geometrie aus veröffentlichter Quelle; Norm und theoretische Masse werden separat berechnet.",
-    more:"Suche verfeinern für weitere Treffer.",applied:"Maß übernommen"},
+    more:"Suche verfeinern für weitere Treffer.",applied:"Maß übernommen",
+    typed:"Dieses Maß berechnen",typedNote:"Von Ihnen eingegebenes Maß: keine veröffentlichte Quelle, nur theoretische Berechnung."},
   fr:{title:"Trouver une dimension",subtitle:"Dimensions publiées · sélection rapide",
-    search:"Rechercher une dimension",placeholder:"ex. 168,3x6,3 · 100x100x4",
+    search:"Saisissez une dimension",placeholder:"ex. 168,3x6,3 · 100x100x4",
     all:"Toutes",round:"Ronds",square:"Carrés",rect:"Rectangulaires",wall:"Épaisseur",
      filters:"Filtres de dimensions",enterHint:"Entrée pour utiliser",
     results:"dimensions trouvées",apply:"Utiliser",empty:"Aucun résultat. Modifiez les filtres ou saisissez les dimensions.",
     noData:"Aucune dimension publiée disponible. La saisie manuelle reste possible.",
     onlySource:"Géométrie issue d'une source publiée ; norme et masse théorique calculées séparément.",
-    more:"Affinez la recherche pour afficher d'autres résultats.",applied:"Dimension appliquée"},
+    more:"Affinez la recherche pour afficher d'autres résultats.",applied:"Dimension appliquée",
+    typed:"Calculer cette dimension",typedNote:"Dimension saisie par vous : aucune source publiée, calcul théorique uniquement."},
   es:{title:"Buscar una medida",subtitle:"Medidas publicadas · selección rápida",
-    search:"Buscar dimensiones",placeholder:"p. ej. 168,3x6,3 · 100x100x4",
+    search:"Escribe la medida",placeholder:"p. ej. 168,3x6,3 · 100x100x4",
     all:"Todas",round:"Redondos",square:"Cuadrados",rect:"Rectangulares",wall:"Espesor",
      filters:"Filtros de medidas",enterHint:"Intro para aplicar",
     results:"medidas encontradas",apply:"Usar medida",empty:"Sin resultados. Ajusta los filtros o introduce las medidas.",
     noData:"No hay medidas publicadas. La introducción manual sigue disponible.",
     onlySource:"Geometría de una fuente publicada; la norma y el peso teórico se calculan por separado.",
-    more:"Afina la búsqueda para ver más resultados.",applied:"Medida aplicada"},
+    more:"Afina la búsqueda para ver más resultados.",applied:"Medida aplicada",
+    typed:"Calcular esta medida",typedNote:"Medida escrita por ti: sin fuente publicada, solo cálculo teórico."},
 };
 
 function ShapePreview({item,compact=false}:{item:CalculatorDimension;compact?:boolean}) {
@@ -103,6 +109,7 @@ export function CalculatorDimensionDiscovery({
   const families:[DimensionFamilyFilter,string][]=[
     ["all",c.all],["round_tube",c.round],["square_tube",c.square],["rectangular_tube",c.rect],
   ];
+  const typed=useMemo(()=>parseTypedDimension(query),[query]);
   const activeFilters = family !== "all" || wall !== "all";
   const showResults = expandedResults && (query.trim().length > 0 || activeFilters);
   const chooseDimension = (item: CalculatorDimension) => {
@@ -120,7 +127,7 @@ export function CalculatorDimensionDiscovery({
     </div>
     <div className={compact ? "flex min-w-0 items-start gap-2" : "mt-1.5 flex min-w-0 flex-wrap items-start gap-2 sm:flex-nowrap"}>
       <label className="min-w-0 flex-1 text-[11px] font-semibold text-[#375c4b]">
-        <span className="sr-only">{c.search}</span>
+        <span className={compact ? "mb-1 block text-[10px] font-bold uppercase tracking-wide" : "sr-only"} data-discovery-label>{c.search}</span>
         <input type="search" autoComplete="off" value={query}
           onChange={event=>{setQuery(event.target.value);setActiveIndex(0);setExpandedResults(true);}}
           onFocus={()=>{if(query.trim())setExpandedResults(true);}}
@@ -134,6 +141,9 @@ export function CalculatorDimensionDiscovery({
             } else if(event.key==="Enter" && query.trim() && found.results.length){
               event.preventDefault();
               chooseDimension(found.results[Math.min(activeIndex,found.results.length-1)]);
+            } else if(event.key==="Enter" && typed){
+              event.preventDefault();
+              chooseDimension(typed);
             } else if(event.key==="Escape") {
               setExpandedResults(false);
             }
@@ -177,7 +187,13 @@ export function CalculatorDimensionDiscovery({
         {found.matchCount} {c.results} · {c.enterHint}
       </p>
       {items.length===0 ? <p className="mt-1 text-xs text-[#52695d]">{c.noData}</p> :
-        found.matchCount===0 ? <p className="mt-1 text-xs text-[#52695d]">{c.empty}</p> :
+        found.matchCount===0 ? typed ? <button type="button" data-typed-dimension onClick={()=>chooseDimension(typed)}
+          className="mt-1 flex min-h-11 w-full items-center gap-2 rounded-md border border-[#9cc5ae] bg-[#edf7f1] px-2 py-1 text-left text-[#173e30] focus-visible:ring-2 focus-visible:ring-[#16714c]">
+          <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-white"><ShapePreview item={typed} compact/></span>
+          <span className="min-w-0 flex-1"><strong className="block text-[12px] font-bold">{c.typed}: {dimensionLabel(typed)}</strong>
+            <span className="block text-[10px] leading-3 text-[#60786b]">{c.typedNote}</span></span>
+          <span aria-hidden="true" className="shrink-0 text-[11px] text-[#21674c]">↵</span>
+        </button> : <p className="mt-1 text-xs text-[#52695d]">{c.empty}</p> :
         <div id={resultsId} role="listbox" aria-label={c.title} className={compact ? "mt-0.5 grid max-h-[184px] grid-cols-1 gap-0.5 overflow-y-auto overscroll-contain" : "mt-1 grid max-h-[176px] grid-cols-1 gap-1 overflow-y-auto overscroll-contain"}>
           {found.results.map((item,index)=><button key={[item.family,item.primaryMm,item.secondaryMm,item.thicknessMm].join(":")}
             id={resultsId+"-item-"+index} role="option" aria-selected={index===activeIndex}

@@ -130,7 +130,11 @@ async function calculatorTrustCheck(page, width) {
   const length = panel.locator('[aria-label="Lunghezza barra personalizzata"]');
   const price = panel.locator('[aria-label="Prezzo €/t"]');
   await bars.fill("4");
+  // HOME-CALC1: free bar length behind «Altro», prices behind their disclosure.
+  await panel.locator("[data-calc-length-other]").click();
   await length.fill("8");
+  const commercialDisclosure=panel.locator('[data-commercial-disclosure]');
+  if(await commercialDisclosure.count() && !(await commercialDisclosure.evaluate(d=>d.open))) await commercialDisclosure.locator(':scope > summary').click();
   await price.fill("1115");
   await panel.getByRole("button", { name: /Aggiungi alla distinta/ }).click();
 

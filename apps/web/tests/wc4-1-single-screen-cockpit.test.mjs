@@ -35,7 +35,7 @@ test("WC4.1 keeps the key workflow in one cockpit", () => {
     "Misure",
     "Lunghezza barra",
     "Numero barre",
-    "Obiettivo della richiesta",
+    "Converti quantità e prezzi",
     "Peso per barra",
     "Metri totali",
     "Peso totale",
