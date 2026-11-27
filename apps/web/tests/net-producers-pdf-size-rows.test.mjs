@@ -5,6 +5,7 @@ import test from "node:test";
 const read=(p)=>readFileSync(new URL("../"+p,import.meta.url),"utf8");
 const page=read("app/(italian)/(workspace)/network/cataloghi/page.tsx");
 const ownerPage=read("app/(italian)/(workspace)/network/manage/cataloghi/page.tsx");
+const ownerWorkspace=read("components/company-catalogue-workspace.tsx");
 const user=read("components/producer-pdf-size-tables.tsx");
 const owner=read("components/producer-pdf-size-owner.tsx");
 const parser=read("lib/network-producer-pdf-dimensions.ts");
@@ -57,7 +58,9 @@ test("PDF rows are never promoted to graded, exact manufactured SKUs by metadata
 });
 
 test("verified producer can confirm remove restore individual PDF rows",()=>{
- assert.match(ownerPage,/ProducerPdfSizeOwner companyId=/);
+ assert.match(ownerPage,/requireWorkspaceAdmin/);
+ assert.match(ownerPage,/redirect\("\/company\/profile#products-catalogues"\)/);
+ assert.match(ownerWorkspace,/ProducerPdfSizeOwner companyId=\{companyId\}/);
  assert.match(owner,/netproducers_c3_pdf_owner/);
  assert.match(owner,/p_company:companyId/);
  for(const value of ['"confirm"','"remove"','"restore"'])

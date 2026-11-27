@@ -1,228 +1,180 @@
 "use client";
 
-import Link from "next/link";
-import {useCallback,useEffect,useState,type FormEvent} from "react";
-import {createClient} from "@/lib/supabase/client";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { createClient } from "@/lib/supabase/client";
 
-type Item={catalog_id:string;name:string;edition:string;format:string;state:string;created_at:string};
-type State={contract:string;eligible:boolean;items:Item[]};
-const bucket="producer-authorized-catalogs";
-const input="mt-2 w-full rounded-xl border border-[#d1dfd6] bg-white px-3 py-3 text-sm text-[#294c3c] outline-none focus:border-[#1d6b4f] focus:ring-2 focus:ring-[#e1f0e7]";
-const labels:Record<string,string>={
-  awaiting_upload:"Caricamento incompleto",
-  pending_provenance:"In attesa della verifica automatica",
-  verifying:"Confronto con il documento ufficiale",
-  in_analysis:"Fonte verificata · analisi tecnica in coda",
-  needs_review:"Documento o autorizzazione da chiarire",
-  withdrawn:"Revocato"
-};
-const errorMessage=(err:unknown)=>{
-  const code=(err&&typeof err==="object"&&"code" in err)?String(err.code):"";
-  return code==="42501"?"Accesso negato: verifica identità, diritti o scadenza.":
-    code==="22023"?"Controlla URL ufficiale, edizione e formato del documento.":
-    "Operazione non completata. Riprovare o contattare l'assistenza.";
-};
-function hex(bytes:ArrayBuffer){
-  return Array.from(new Uint8Array(bytes),n=>n.toString(16).padStart(2,"0")).join("");
+const bucket = "producer-authorized-catalogs";
+const fieldClass = "mt-1.5 min-h-11 w-full min-w-0 rounded-xl border border-[#d0ddd4] bg-white px-3 py-2 text-sm text-[#2d3934] outline-none focus:border-[#1a7651] focus:ring-2 focus:ring-[#e5efeb]";
+const buttonClass = "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1a7651] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-45";
+const primaryButton = buttonClass + " bg-[#1a5144] text-white hover:bg-[#226657]";
+const secondaryButton = buttonClass + " border border-[#cddbd2] bg-white text-[#175640] hover:bg-[#f3f7f4]";
+
+function errorCode(error: unknown) {
+  return error && typeof error === "object" && "code" in error ? String(error.code) : "";
 }
 
-export function ProducerCatalogueUpload({companyId,companyName}:{
-  companyId:string|null;companyName:string|null;
-}){
-  const [state,setState]=useState<State|null>(null);
-  const [file,setFile]=useState<File|null>(null);
-  const [url,setUrl]=useState("");
-  const [edition,setEdition]=useState("2026");
-  const [rights,setRights]=useState(false);
-  const [busy,setBusy]=useState(false);
-  const [notice,setNotice]=useState("");
-  const [error,setError]=useState("");
+function errorMessage(error: unknown) {
+  const code = errorCode(error);
+  if (code === "42501") return "Invio non autorizzato. Verifica lo stato dell’azienda, i diritti e i limiti di caricamento.";
+  if (code === "22023") return "Controlla il link ufficiale, l’edizione e il formato del documento. I campi sono conservati.";
+  return "Il caricamento non è riuscito. I campi sono conservati: riprova quando il servizio è disponibile.";
+}
 
-  const refresh=useCallback(async()=>{
-    if(!companyId)return;
-    const db=createClient();
-    const {data,error:failure}=await db.rpc("netproducers1_b3c2_catalog_submission",{
-      p_operation:"status",p_payload:{company_id:companyId}
-    });
-    if(failure){setError(errorMessage(failure));return;}
-    if(data?.contract!=="netproducers-b3c2-v1"||
-      typeof data.eligible!=="boolean"||!Array.isArray(data.items)){
-      setError("Stato cataloghi non disponibile.");return;
+function hex(bytes: ArrayBuffer) {
+  return Array.from(new Uint8Array(bytes), (n) => n.toString(16).padStart(2, "0")).join("");
+}
+
+type UploadProps = {
+  companyId: string;
+  enabled: boolean;
+  onUploaded: (message: string) => Promise<void> | void;
+  onCancel: () => void;
+  onCheckStatus: () => Promise<void> | void;
+  onBusyChange?: (busy: boolean) => void;
+};
+
+/** The existing governed prepare/upload/finalize flow; no upload occurs on opening or cancel. */
+export function ProducerCatalogueUpload({ companyId, enabled, onUploaded, onCancel, onCheckStatus, onBusyChange }: UploadProps) {
+  const [file, setFile] = useState<File | null>(null);
+  const [url, setUrl] = useState("");
+  const [edition, setEdition] = useState("");
+  const [rights, setRights] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [unconfirmed, setUnconfirmed] = useState(false);
+  const [error, setError] = useState({ message: "", revision: 0 });
+  const errorRef = useRef<HTMLParagraphElement>(null);
+  const submitting = useRef(false);
+
+  useEffect(() => {
+    if (error.message) {
+      errorRef.current?.focus({ preventScroll: true });
+      errorRef.current?.scrollIntoView({ block: "nearest" });
     }
-    setState(data as State);
-  },[companyId]);
-  useEffect(()=>{void refresh();},[refresh]);
+  }, [error]);
 
-  async function submit(event:FormEvent<HTMLFormElement>){
+  function showError(message: string) {
+    setError((previous) => ({ message, revision: previous.revision + 1 }));
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setNotice("");setError("");
-    if(!companyId||!state?.eligible||!rights||!file)return;
-    const ext=file.name.toLowerCase().endsWith(".pdf")?"pdf":
-      file.name.toLowerCase().endsWith(".csv")?"csv":null;
-    if(!ext){setError("Utilizza un file PDF o CSV.");return;}
-    const max=ext==="pdf"?8*1024*1024:2*1024*1024;
-    if(file.size<1||file.size>max){setError("Dimensione massima: PDF 8 MB, CSV 2 MB.");return;}
-    if(ext==="pdf"&&file.type&&file.type!=="application/pdf"){
-      setError("Formato PDF non valido.");return;
+    if (submitting.current || unconfirmed || !enabled) return;
+    setError((previous) => ({ message: "", revision: previous.revision }));
+    if (!rights || !file) {
+      showError("Seleziona il documento e conferma la dichiarazione dei diritti.");
+      return;
     }
-    if(!url.startsWith("https://")){setError("Inserisci il link ufficiale https del catalogo.");return;}
-    const name=file.name.replace(/[^a-zA-Z0-9 ._-]/g,"_").slice(0,140).trim();
-    if(name.length<5){setError("Nome documento non valido.");return;}
+    const format = file.name.toLowerCase().endsWith(".pdf") ? "pdf" : file.name.toLowerCase().endsWith(".csv") ? "csv" : null;
+    if (!format) {
+      showError("Utilizza un file PDF o CSV.");
+      return;
+    }
+    const maximum = format === "pdf" ? 8 * 1024 * 1024 : 2 * 1024 * 1024;
+    if (file.size < 1 || file.size > maximum) {
+      showError("Dimensione massima: PDF 8 MB, CSV 2 MB. Il documento deve contenere dati.");
+      return;
+    }
+    if (format === "pdf" && file.type && file.type !== "application/pdf") {
+      showError("Formato PDF non valido.");
+      return;
+    }
+    try {
+      const source = new URL(url.trim());
+      if (source.protocol !== "https:" || source.username || source.password || source.hash || source.port) throw new Error("invalid_source");
+    } catch {
+      showError("Inserisci il link HTTPS del catalogo sul sito ufficiale dell’azienda.");
+      return;
+    }
+    if (!edition.trim()) {
+      showError("Indica l’edizione del catalogo.");
+      return;
+    }
+    const name = file.name.replace(/[^a-zA-Z0-9 ._-]/g, "_").slice(0, 140).trim();
+    if (name.length < 5) {
+      showError("Il nome del documento deve contenere almeno cinque caratteri.");
+      return;
+    }
 
+    submitting.current = true;
     setBusy(true);
-    try{
-      const db=createClient();
-      const sha=hex(await crypto.subtle.digest("SHA-256",await file.arrayBuffer()));
-      const {data:prepared,error:prepareError}=await db.rpc(
-        "netproducers1_b3c2_catalog_submission",{
-          p_operation:"prepare",
-          p_payload:{
-            company_id:companyId,source_url:url.trim(),
-            edition:edition.trim(),name,format:ext,sha256:sha,
-            rights_declaration:true
-          }
-        });
-      if(prepareError)throw prepareError;
-      const expectedPath=companyId+"/"+prepared?.catalog_id+"/"+sha+"."+ext;
-      if(prepared?.contract!=="netproducers-b3c2-v1"||
-         prepared?.status!=="prepared"||prepared?.rights_verified!==false||
-         prepared?.published_claims!==0||prepared?.bucket!==bucket||
-         prepared?.object_path!==expectedPath){
+    onBusyChange?.(true);
+    let phase: "hashing" | "preparing" | "uploading" | "finalizing" = "hashing";
+    let rejectedBeforeReservation = false;
+    try {
+      const db = createClient();
+      const sha = hex(await crypto.subtle.digest("SHA-256", await file.arrayBuffer()));
+      phase = "preparing";
+      const { data: prepared, error: prepareError } = await db.rpc("netproducers1_b3c2_catalog_submission", {
+        p_operation: "prepare",
+        p_payload: { company_id: companyId, source_url: url.trim(), edition: edition.trim(), name, format, sha256: sha, rights_declaration: true },
+      });
+      if (prepareError) {
+        rejectedBeforeReservation = ["42501", "22023"].includes(errorCode(prepareError));
+        throw prepareError;
+      }
+      const expectedPath = companyId + "/" + prepared?.catalog_id + "/" + sha + "." + format;
+      if (prepared?.contract !== "netproducers-b3c2-v1" || prepared?.status !== "prepared" || typeof prepared?.catalog_id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(prepared.catalog_id) || prepared?.rights_verified !== false || prepared?.published_claims !== 0 || prepared?.bucket !== bucket || prepared?.object_path !== expectedPath) {
         throw new Error("invalid_upload_reservation");
       }
-      const {error:uploadError}=await db.storage.from(bucket).upload(
-        expectedPath,file,{
-          contentType:ext==="pdf"?"application/pdf":"text/csv",
-          upsert:false,cacheControl:"0"
-        });
-      if(uploadError)throw uploadError;
-      const {data:done,error:finalizeError}=await db.rpc(
-        "netproducers1_b3c2_catalog_submission",{
-          p_operation:"finalize",
-          p_payload:{company_id:companyId,catalog_id:prepared.catalog_id}
-        });
-      if(finalizeError)throw finalizeError;
-      if(done?.contract!=="netproducers-b3c2-v1"||
-         done?.status!=="pending_provenance"||done?.rights_verified!==false||
-         done?.published_claims!==0)throw new Error("invalid_finalized_receipt");
-      setNotice("Catalogo ricevuto. Verifichiamo la fonte e i diritti prima dell'analisi.");
-      setFile(null);setRights(false);
-      const control=document.getElementById("producer-catalog-file") as HTMLInputElement|null;
-      if(control)control.value="";
-      await refresh();
-    }catch(e){setError(errorMessage(e));}
-    finally{setBusy(false);}
+      phase = "uploading";
+      const { error: uploadError } = await db.storage.from(bucket).upload(expectedPath, file, {
+        contentType: format === "pdf" ? "application/pdf" : "text/csv", upsert: false, cacheControl: "0",
+      });
+      if (uploadError) throw uploadError;
+      phase = "finalizing";
+      const { data: done, error: finalizeError } = await db.rpc("netproducers1_b3c2_catalog_submission", {
+        p_operation: "finalize", p_payload: { company_id: companyId, catalog_id: prepared.catalog_id },
+      });
+      if (finalizeError) throw finalizeError;
+      if (done?.contract !== "netproducers-b3c2-v1" || done?.status !== "pending_provenance" || done?.rights_verified !== false || done?.published_claims !== 0) {
+        throw new Error("invalid_finalized_receipt");
+      }
+      await onUploaded("Catalogo ricevuto. Fonte e diritti saranno verificati prima dell’analisi tecnica.");
+    } catch (failure) {
+      if (phase !== "hashing" && !rejectedBeforeReservation) {
+        setUnconfirmed(true);
+        showError("L’esito del caricamento non è confermato. I campi sono conservati. Controlla l’elenco e revoca l’eventuale invio incompleto prima di caricare nuovamente il documento.");
+      } else {
+        showError(errorMessage(failure));
+      }
+    } finally {
+      submitting.current = false;
+      setBusy(false);
+      onBusyChange?.(false);
+    }
   }
 
-  async function withdraw(id:string){
-    if(!companyId||busy)return;
-    setBusy(true);setError("");setNotice("");
-    try{
-      const {data,error:failure}=await createClient().rpc(
-        "netproducers1_b3c2_catalog_submission",{
-          p_operation:"withdraw",p_payload:{company_id:companyId,catalog_id:id}
-        });
-      if(failure)throw failure;
-      if(!["withdrawn","already_withdrawn"].includes(data?.status))
-        throw new Error("invalid_revoke_response");
-      setNotice("Catalogo revocato.");
-      await refresh();
-    }catch(e){setError(errorMessage(e));}
-    finally{setBusy(false);}
-  }
-
-  if(!companyId)return <div className="rounded-2xl border border-[#d9e7de] bg-[#f5faf6] p-5">
-    <h2 className="font-semibold text-[#214e3b]">Verifica prima la tua azienda</h2>
-    <p className="mt-2 text-sm text-[#5a6d62]">
-      È necessario un profilo produttore gestito da un amministratore autorizzato.
-    </p>
-    <Link href="/network" className="mt-4 inline-flex rounded-xl bg-[#19543f] px-4 py-3 text-sm font-semibold text-white">
-      Cerca e verifica la tua azienda</Link>
-  </div>;
-
-  return <div className="space-y-5">
-    <div className="flex flex-wrap gap-2 text-xs font-semibold">
-      <span className="rounded-full bg-[#e8f4ec] px-3 py-2 text-[#175440]">{companyName}</span>
-      <span className="rounded-full bg-[#f1f3f2] px-3 py-2 text-[#4c6358]">
-        {state?.eligible?"Identità aziendale verificata":"Verifica aziendale necessaria"}
-      </span>
-      <span className="rounded-full bg-[#f1f3f2] px-3 py-2 text-[#4c6358]">
-        Dati privati fino a verifica
-      </span>
-    </div>
-    {state?.eligible===false?
-      <div className="rounded-2xl border border-[#e4d7b8] bg-[#fffbf3] p-5">
-        <h2 className="font-semibold text-[#79551d]">Autorizzazione aziendale da completare</h2>
-        <p className="mt-2 text-sm leading-6 text-[#706149]">
-          Per caricare cataloghi occorre un claim aziendale approvato,
-          con prova di identità verificata, e il ruolo di amministratore.
-        </p>
-        <Link className="mt-3 inline-block text-sm font-semibold text-[#1d6b4f] underline"
-          href="/network/manage">Gestisci la verifica aziendale</Link>
-      </div>
-    :state?.eligible?
-    <form onSubmit={submit} className="space-y-4 rounded-2xl border border-[#dbe6df] bg-white p-4 shadow-sm sm:p-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="text-sm font-semibold text-[#28513f] sm:col-span-2">
-          1. Seleziona il catalogo PDF o CSV
-          <input id="producer-catalog-file" type="file" required disabled={busy}
-            accept=".pdf,.csv,application/pdf,text/csv"
-            onChange={e=>setFile(e.target.files?.[0]??null)}
-            className="mt-2 block w-full rounded-xl border border-dashed border-[#9dbbab] bg-[#f5faf6] p-4 text-sm file:mr-3 file:rounded-lg file:border-0 file:bg-[#dcece2] file:px-3 file:py-2"/>
-          <span className="mt-1 block text-xs font-normal text-[#637569]">
-            PDF massimo 8 MB · CSV massimo 2 MB
-          </span>
+  return (
+    <form onSubmit={submit} data-testid="producer-catalogue-form" aria-busy={busy} className="min-w-0 space-y-5">
+      <fieldset disabled={busy} className="min-w-0 space-y-5">
+        <legend className="sr-only">Documento e autorizzazione</legend>
+        <div className="grid min-w-0 gap-4 sm:grid-cols-2">
+          <label className="block min-w-0 text-sm font-semibold text-[#475e50] sm:col-span-2">Catalogo PDF o CSV
+            <input id="producer-catalog-file" name="catalogue_file" type="file" aria-label="Catalogo PDF o CSV" required accept=".pdf,.csv,application/pdf,text/csv" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="mt-1.5 block w-full min-w-0 rounded-xl border border-dashed border-[#9dbbab] bg-[#f5faf6] p-3 text-sm file:mb-2 file:mr-3 file:min-h-10 file:rounded-lg file:border-0 file:bg-[#dcece2] file:px-3 file:py-2 file:text-sm file:font-semibold file:text-[#175640] sm:p-4" />
+            <span className="mt-1.5 block text-sm font-normal leading-6 text-[#596b61]">PDF massimo 8 MB · CSV massimo 2 MB</span>
+            {file ? <span className="mt-1 block break-all text-sm font-normal leading-6 text-[#354d40]">Documento selezionato: {file.name}</span> : null}
+          </label>
+          <label className="block min-w-0 text-sm font-semibold text-[#475e50]">Edizione
+            <input name="catalogue_edition" className={fieldClass} value={edition} onChange={(event) => setEdition(event.target.value)} maxLength={80} required placeholder="Es. 2026 · revisione 2" />
+          </label>
+          <label className="block min-w-0 text-sm font-semibold text-[#475e50] sm:col-span-2">URL ufficiale del catalogo
+            <input name="catalogue_source_url" type="url" aria-label="URL ufficiale del catalogo" className={fieldClass} value={url} onChange={(event) => setUrl(event.target.value)} maxLength={1200} required placeholder="https://www.azienda.it/catalogo.pdf" aria-describedby="catalogue-source-help" />
+            <span id="catalogue-source-help" className="mt-1.5 block text-sm font-normal leading-6 text-[#596b61]">Usa il sito della tua azienda, non un portale o il sito di un altro produttore.</span>
+          </label>
+        </div>
+        <label className="flex min-w-0 items-start gap-3 rounded-xl border border-[#dce8df] bg-[#f5faf6] p-3 text-sm leading-6 text-[#335746] sm:p-4">
+          <input type="checkbox" name="catalogue_rights" aria-label="Dichiaro i diritti del produttore" checked={rights} onChange={(event) => setRights(event.target.checked)} required className="mt-1 h-5 w-5 shrink-0 accent-[#19543f]" />
+          <span><strong>Dichiaro i diritti del produttore.</strong> Sono autorizzato dall'azienda a fornire questo catalogo e a consentirne l'estrazione tecnica, la conservazione dei dati derivati e il loro uso nella ricerca industriale Smart Steel Sales. L'origine e i diritti saranno verificati prima della lavorazione.</span>
         </label>
-        <label className="text-sm font-semibold text-[#28513f]">
-          Edizione
-          <input className={input} value={edition} onChange={e=>setEdition(e.target.value)}
-            maxLength={80} required disabled={busy} placeholder="2026"/>
-        </label>
-        <label className="text-sm font-semibold text-[#28513f] sm:col-span-2">
-          2. URL ufficiale del catalogo (sito aziendale)
-          <input type="url" className={input} value={url} onChange={e=>setUrl(e.target.value)}
-            maxLength={1200} required disabled={busy}
-            placeholder="https://www.tuaproduzione.it/catalogo/prodotti.pdf"/>
-          <span className="mt-1 block text-xs font-normal text-[#637569]">
-            Non utilizzare link di altri produttori o di portali terzi.
-          </span>
-        </label>
-      </div>
-      <label className="flex items-start gap-3 rounded-xl bg-[#f5faf6] p-4 text-sm leading-6 text-[#335746]">
-        <input type="checkbox" checked={rights} onChange={e=>setRights(e.target.checked)}
-          disabled={busy} required className="mt-1 h-4 w-4 accent-[#19543f]"/>
-        <span><strong>3. Dichiaro i diritti del produttore.</strong> Sono autorizzato dall'azienda
-          a fornire questo catalogo e a consentirne l'estrazione tecnica, la conservazione
-          dei dati derivati e il loro uso nella ricerca industriale Smart Steel Sales.
-          L'origine e i diritti saranno verificati prima della lavorazione.</span>
-      </label>
-      <button type="submit" disabled={busy||!rights||!file}
-        className="min-h-11 w-full rounded-xl bg-[#19543f] px-5 py-3 text-sm font-semibold text-white hover:bg-[#257758] disabled:opacity-40 sm:w-auto">
-        {busy?"Caricamento in corso…":"Invia il catalogo"}</button>
-    </form>:<p className="text-sm text-[#5d7567]">Verifica dell'accesso in corso…</p>}
-    {notice&&<p role="status" className="text-sm font-semibold text-[#1c6c4b]">{notice}</p>}
-    {error&&<p role="alert" className="text-sm font-semibold text-[#9a3935]">{error}</p>}
-    {state?.eligible&&<section className="rounded-2xl border border-[#dce8df] bg-white p-4 sm:p-6">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="font-semibold text-[#294b39]">Cataloghi della mia azienda</h2>
-        <button type="button" onClick={()=>void refresh()}
-          className="text-xs font-semibold text-[#1f7150] underline">Aggiorna</button>
-      </div>
-      {!state.items.length?<p className="text-sm text-[#637569]">Nessun catalogo inviato.</p>:
-        <ul className="space-y-2">
-          {state.items.map(item=><li key={item.catalog_id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e1e9e4] px-3 py-3">
-            <div>
-              <p className="text-sm font-semibold text-[#294638]">{item.name}</p>
-              <p className="text-xs text-[#62796a]">{item.format.toUpperCase()} · {item.edition} · {labels[item.state]??"In verifica"}</p>
-            </div>
-            {item.state!=="withdrawn"&&<button type="button" disabled={busy}
-              onClick={()=>void withdraw(item.catalog_id)}
-              className="rounded-lg border border-[#d8aaaa] px-3 py-2 text-xs font-semibold text-[#a24441]">
-              Revoca
-            </button>}
-          </li>)}
-        </ul>}
-    </section>}
-  </div>;
+        {error.message ? <p ref={errorRef} tabIndex={-1} role="alert" data-testid="catalogue-form-feedback" className="rounded-xl border border-rose-200 bg-rose-50 p-3 text-sm leading-6 text-rose-800 outline-none">{error.message}</p> : null}
+        {!enabled ? <p className="text-sm leading-6 text-[#79602e]">L’accesso ai cataloghi non è disponibile. I dati inseriti sono conservati; aggiorna lo stato prima di inviare.</p> : null}
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <button type="submit" disabled={!enabled || unconfirmed || !rights || !file} className={primaryButton}>{busy ? "Caricamento in corso…" : "Invia il catalogo"}</button>
+          {unconfirmed ? <button type="button" onClick={() => void onCheckStatus()} className={secondaryButton}>Controlla lo stato</button> : null}
+          <button type="button" onClick={onCancel} className={secondaryButton}>Annulla caricamento</button>
+        </div>
+        <p className="text-sm leading-6 text-[#596b61]">Il catalogo sarà controllato prima dell’analisi. L’invio non aggiorna le disponibilità di Stock e arrivi.</p>
+      </fieldset>
+    </form>
+  );
 }

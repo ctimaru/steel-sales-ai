@@ -11,6 +11,7 @@ const catalogue=read("components/producer-structured-catalogue.tsx");
 const company=read("components/producer-structured-moderation.tsx");
 const page=read("app/(italian)/(workspace)/network/cataloghi/page.tsx");
 const ownerPage=read("app/(italian)/(workspace)/network/manage/cataloghi/page.tsx");
+const ownerWorkspace=read("components/company-catalogue-workspace.tsx");
 const sec=readFileSync(new URL("../../../supabase/tests/sec1_public_rpc_boundary.sql",import.meta.url),"utf8");
 
 test("facts are auto-published individually from official published first-party records",()=>{
@@ -83,8 +84,9 @@ test("web/mobile page displays numeric ranges ahead of source links",()=>{
 });
 
 test("verified producer can confirm/remove/restore without internal platform review",()=>{
-  assert.match(ownerPage,/ProducerStructuredModeration/);
-  assert.match(ownerPage,/network_company_id/);
+  assert.match(ownerPage,/requireWorkspaceAdmin/);
+  assert.match(ownerPage,/redirect\("\/company\/profile#products-catalogues"\)/);
+  assert.match(ownerWorkspace,/ProducerStructuredModeration companyId=\{companyId\}/);
   assert.match(company,/netproducers1_structured_owner_manage/);
   for(const value of ["confirm","remove","restore","p_company:companyId","p_fact:factId"])
     assert.ok(company.includes(value),value);
