@@ -125,7 +125,33 @@ try {
       async function capture(name) {
         const metrics = await page.evaluate(() => ({ width: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
         assert.ok(metrics.scroll <= metrics.width + 2, "C1 overflow " + name + " at " + width + ": " + JSON.stringify(metrics));
-        await assistant.screenshot({ path: path.join(output, "company-ux2c1-" + name + "-" + width + ".png"), animations: "disabled", caret: "initial" });
+        // A tall locator screenshot can place offscreen fixed shell elements over
+        // the component. Keep the real shell and capture the page from its top.
+        await page.evaluate(() => window.scrollTo({ top: 0, left: 0, behavior: "instant" }));
+        await page.screenshot({ path: path.join(output, "company-ux2c1-" + name + "-" + width + ".png"), fullPage: true, animations: "disabled", caret: "initial" });
+        if (!["proposal", "editing", "stale"].includes(name)) return;
+
+        // Measure the sticky header and fixed mobile navigation, including their
+        // safe-area padding, instead of assuming breakpoint-specific heights.
+        await assistant.evaluate(element => {
+          const headerHeight = document.querySelector("header.sticky")?.getBoundingClientRect().height ?? 0;
+          const top = window.scrollY + element.getBoundingClientRect().top - headerHeight - 16;
+          window.scrollTo({ top: Math.max(0, top), left: 0, behavior: "instant" });
+        });
+        await page.screenshot({ path: path.join(output, "company-ux2c1-" + name + "-top-" + width + ".png"), animations: "disabled", caret: "initial" });
+
+        const needsActionsView = await assistant.evaluate(element => {
+          const navigationHeight = document.querySelector('nav[aria-label="Navigazione mobile principale"]')?.getBoundingClientRect().height ?? 0;
+          const visibleBottom = window.innerHeight - navigationHeight - 16;
+          const remaining = element.getBoundingClientRect().bottom - visibleBottom;
+          if (remaining <= 2) return false;
+          window.scrollBy({ top: remaining, left: 0, behavior: "instant" });
+          return true;
+        });
+        // The top view already covers the actions when the component fits.
+        if (needsActionsView) {
+          await page.screenshot({ path: path.join(output, "company-ux2c1-" + name + "-actions-" + width + ".png"), animations: "disabled", caret: "initial" });
+        }
       }
       await open();
       await state("no_research");

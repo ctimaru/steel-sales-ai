@@ -83,6 +83,55 @@ select pg_temp.c1_assert(:'empty_state'::jsonb->>'availability'='no_research'
   'absence must preserve manual editing and must not fabricate a suggestion');
 reset role;
 
+-- Clearing optional overview fields must retain a JSON null declaration, while
+-- canonical company columns and the existing audit after_value remain SQL NULL.
+-- Roll back this scenario so subsequent decision-count assertions stay isolated.
+savepoint clear_nullable_overview;
+set local role authenticated;
+select public.company_ux2c1_update_overview(:'org',:'company',:'empty_state'::jsonb->>'current_description_hash',
+  'C1 Trading','https://ux2c1.example.test',null) as cleared_description \gset
+select pg_temp.c1_assert(:'cleared_description'::jsonb->'description'='null'::jsonb
+  and :'cleared_description'::jsonb->>'description_hash'=
+    'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+  'clearing description must succeed through the protected writer and return its empty version');
+select pg_temp.c1_raises(format('select public.company_ux2c1_update_overview(%L,%L,%L,%L,%L,%L)',
+  :'org',:'company',:'empty_state'::jsonb->>'current_description_hash','C1 Trading','https://ux2c1.example.test','Stale original copy.'),'40001');
+select public.company_ux2c1_update_overview(:'org',:'company',:'cleared_description'::jsonb->>'description_hash',
+  '   ','',null) as cleared_overview \gset
+-- A repeated clear is a no-op for field assertions and management events.
+select public.company_ux2c1_update_overview(:'org',:'company',:'cleared_overview'::jsonb->>'description_hash',
+  null,null,null);
+reset role;
+select pg_temp.c1_assert((select trading_name is null and website_url is null and description is null
+    and legal_name='C1 Legal Identity' and publication_status='published'
+    and verification_status='unverified' and claimed_status='claimed'
+  from public.network_companies where id=:'company'),
+  'cleared optional fields must remain SQL NULL without changing legal identity, publication, verification or claim');
+select pg_temp.c1_assert((select count(*)=3 and count(distinct a.field_path)=3
+  from public.network_data_assertions a
+  where a.entity_type='company' and a.entity_id=:'company'
+    and a.field_path in ('trading_name','website_url','description')
+    and a.asserted_value='null'::jsonb and a.asserted_value is not null
+    and a.source_type='company_declared' and a.ownership_type='company_managed'
+    and a.review_state='accepted' and a.asserted_by=:'owner'),
+  'each cleared nullable field must have one accepted company declaration containing JSON null');
+select pg_temp.c1_assert((select count(*)=3 and count(distinct e.field_path)=3
+  from public.network_profile_management_events e
+  join public.network_data_assertions a on a.id=e.source_assertion_id
+  where e.network_company_id=:'company' and e.organization_id=:'org' and e.actor_user_id=:'owner'
+    and e.operation='update_overview' and e.entity_type='company' and e.entity_id=:'company'
+    and e.field_path=a.field_path and e.after_value is null
+    and e.before_value=case e.field_path
+      when 'trading_name' then to_jsonb('C1 Trading'::text)
+      when 'website_url' then to_jsonb('https://ux2c1.example.test'::text)
+      when 'description' then to_jsonb('Original company description.'::text) end),
+  'clearing fields must preserve the existing before/after audit and assertion references');
+select pg_temp.c1_assert((select count(*)=3 from public.network_data_assertions where entity_id=:'company')
+  and (select count(*)=3 from public.network_profile_management_events where network_company_id=:'company')
+  and not exists(select 1 from private.company_ux2c1_description_decisions where network_company_id=:'company'),
+  'repeated clear and rejected stale save must not create extra assertions, events or assistant decisions');
+rollback to savepoint clear_nullable_overview;
+
 insert into private.network_company_research(company_id,status,summary,source_urls,extractor_version,
   model,published_at,researched_at,facts) values (
   :'company','published',

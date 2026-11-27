@@ -2,6 +2,119 @@
 -- The research pipeline and its publication state are unchanged. Human decisions
 -- are a separate, private append-only ledger; enrichment review remains separate.
 
+-- Preserve the existing M8 writer, authority, audit and ACL. Nullable fields
+-- need a JSON null assertion when cleared; a SQL NULL violates asserted_value.
+-- CREATE OR REPLACE keeps the existing function signature and grants intact.
+create or replace function private.m8_update_managed_network_company_impl(
+  p_network_company_id uuid,
+  p_trading_name text default null,
+  p_website_url text default null,
+  p_description text default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path=''
+as $function$
+declare
+  v_user uuid;
+  v_before public.network_companies%rowtype;
+  v_after public.network_companies%rowtype;
+  v_assertion_id uuid;
+begin
+  v_user := (select auth.uid());
+  if v_user is null then
+    raise exception 'authentication required' using errcode='42501';
+  end if;
+
+  if not private.m7_user_can_manage_network_company(p_network_company_id,v_user) then
+    raise exception 'approved company claim and active organization admin membership required'
+      using errcode='42501';
+  end if;
+
+  select * into v_before
+  from public.network_companies
+  where id=p_network_company_id
+  for update;
+
+  if not found or v_before.publication_status='archived' then
+    raise exception 'network company not found or archived' using errcode='P0002';
+  end if;
+
+  if p_trading_name is not null and char_length(btrim(p_trading_name))>255 then
+    raise exception 'trading name exceeds 255 characters' using errcode='22023';
+  end if;
+  if p_website_url is not null and char_length(btrim(p_website_url))>500 then
+    raise exception 'website url exceeds 500 characters' using errcode='22023';
+  end if;
+  if p_description is not null and char_length(p_description)>4000 then
+    raise exception 'description exceeds 4000 characters' using errcode='22023';
+  end if;
+
+  update public.network_companies
+  set trading_name=nullif(btrim(p_trading_name),''),
+      website_url=nullif(btrim(p_website_url),''),
+      description=nullif(btrim(p_description),'')
+  where id=p_network_company_id
+  returning * into v_after;
+
+  if v_before.trading_name is distinct from v_after.trading_name then
+    insert into public.network_data_assertions(
+      entity_type,entity_id,field_path,asserted_value,source_type,source_reference,
+      ownership_type,asserted_by,confidence,review_state
+    ) values(
+      'company',p_network_company_id,'trading_name',coalesce(to_jsonb(v_after.trading_name),'null'::jsonb),
+      'company_declared','managed_profile:p3.7a','company_managed',v_user,1.0000,'accepted'
+    ) returning id into v_assertion_id;
+
+    perform private.p3_7_record_profile_event_impl(
+      p_network_company_id,'update_overview','company',p_network_company_id,'trading_name',
+      to_jsonb(v_before.trading_name),to_jsonb(v_after.trading_name),v_assertion_id
+    );
+  end if;
+
+  if v_before.website_url is distinct from v_after.website_url then
+    insert into public.network_data_assertions(
+      entity_type,entity_id,field_path,asserted_value,source_type,source_reference,
+      ownership_type,asserted_by,confidence,review_state
+    ) values(
+      'company',p_network_company_id,'website_url',coalesce(to_jsonb(v_after.website_url),'null'::jsonb),
+      'company_declared','managed_profile:p3.7a','company_managed',v_user,1.0000,'accepted'
+    ) returning id into v_assertion_id;
+
+    perform private.p3_7_record_profile_event_impl(
+      p_network_company_id,'update_overview','company',p_network_company_id,'website_url',
+      to_jsonb(v_before.website_url),to_jsonb(v_after.website_url),v_assertion_id
+    );
+  end if;
+
+  if v_before.description is distinct from v_after.description then
+    insert into public.network_data_assertions(
+      entity_type,entity_id,field_path,asserted_value,source_type,source_reference,
+      ownership_type,asserted_by,confidence,review_state
+    ) values(
+      'company',p_network_company_id,'description',coalesce(to_jsonb(v_after.description),'null'::jsonb),
+      'company_declared','managed_profile:p3.7a','company_managed',v_user,1.0000,'accepted'
+    ) returning id into v_assertion_id;
+
+    perform private.p3_7_record_profile_event_impl(
+      p_network_company_id,'update_overview','company',p_network_company_id,'description',
+      to_jsonb(v_before.description),to_jsonb(v_after.description),v_assertion_id
+    );
+  end if;
+
+  return jsonb_build_object(
+    'network_company_id',v_after.id,
+    'trading_name',v_after.trading_name,
+    'website_url',v_after.website_url,
+    'description',v_after.description,
+    'publication_status',v_after.publication_status,
+    'verification_status',v_after.verification_status,
+    'ownership_contract','P3.7A-v1'
+  );
+end;
+$function$;
+
 create table private.company_ux2c1_description_decisions (
   id uuid primary key default gen_random_uuid(),
   organization_id uuid not null references public.organizations(id) on delete restrict,
