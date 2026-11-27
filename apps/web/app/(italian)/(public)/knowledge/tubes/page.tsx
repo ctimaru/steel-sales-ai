@@ -224,17 +224,10 @@ export default async function PublicTubeWeightsPage({
 
   return (
     <div className="mx-auto max-w-7xl space-y-3 px-3 py-3 sm:px-5 sm:py-5 lg:px-6">
+      {/* HOME-CALC1: the calculator header is the page H1; one title, the tool above the fold. */}
       <div className="flex justify-end" aria-label="Selezione lingua calcolatore">
         <CalculatorPageLanguageSelector locale="it" />
       </div>
-      <section aria-labelledby="seo-ita1-calcolo-peso" className="rounded-xl border border-[#c7ded3] bg-[#f6faf7] px-4 py-3 text-[#173e31] sm:px-5">
-        <h1 id="seo-ita1-calcolo-peso" className="text-lg font-semibold">Calcolo peso tubi in acciaio al metro: tondi, quadri e rettangolari</h1>
-        <p className="mt-1 text-sm leading-6 text-[#52675a]">
-          Inserisci diametro o lati, spessore, lunghezza e numero di barre per calcolare kg/m,
-          peso per barra e tonnellate. Scegli EN 10210, EN 10219 oppure il calcolo geometrico libero.
-          Le masse sono teoriche: verifica sempre la documentazione di fornitura.
-        </p>
-      </section>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(calculatorJsonLd) }}

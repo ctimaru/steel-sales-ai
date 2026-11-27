@@ -193,6 +193,14 @@ function formatNumber(value: number, digits = 3, locale: TubeCalculatorLocale = 
   }).format(value);
 }
 
+/** HOME-CALC1: fixed decimals so kg/m and tonnes always read the same way (24,02 · 22,26 · 0,288). */
+function formatFixed(value: number, digits: number, locale: TubeCalculatorLocale = "it") {
+  return new Intl.NumberFormat(({it:"it-IT",en:"en-GB",de:"de-DE",fr:"fr-FR",es:"es-ES"} as const)[locale], {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(value);
+}
+
 function near(a: number | null, b: number | null, tolerance = 0.005) {
   if (a == null || b == null) return a === b;
   return Math.abs(a - b) <= tolerance;
@@ -468,11 +476,11 @@ export function PublicTubeWeightCalculator({
   const inlineCopy = localizedInlineBill(locale);
   const cine = calculatorCinematicCopy[locale];
   const commercialLabels = {
-    it: {heading:"Obiettivo della richiesta",tonnes:"Tonnellate",price:"Prezzo €",metres:"Modifica barre e lunghezza a sinistra."},
-    en: {heading:"Request target",tonnes:"Tonnes",price:"Price €",metres:"Edit bars and length on the left."},
-    de: {heading:"Anfrageziel",tonnes:"Tonnen",price:"Preis €",metres:"Stäbe und Länge links anpassen."},
-    fr: {heading:"Objectif de la demande",tonnes:"Tonnes",price:"Prix €",metres:"Modifiez les barres et la longueur à gauche."},
-    es: {heading:"Objetivo de la solicitud",tonnes:"Toneladas",price:"Precio €",metres:"Modifica las barras y la longitud a la izquierda."},
+    it: {heading:"Converti quantità e prezzi (m, t, €/m, €/t)",tonnes:"Tonnellate",price:"Prezzo €",metres:"Modifica barre e lunghezza a sinistra."},
+    en: {heading:"Convert quantity and prices (m, t, €/m, €/t)",tonnes:"Tonnes",price:"Price €",metres:"Edit bars and length on the left."},
+    de: {heading:"Menge und Preise umrechnen (m, t, €/m, €/t)",tonnes:"Tonnen",price:"Preis €",metres:"Stäbe und Länge links anpassen."},
+    fr: {heading:"Convertir quantité et prix (m, t, €/m, €/t)",tonnes:"Tonnes",price:"Prix €",metres:"Modifiez les barres et la longueur à gauche."},
+    es: {heading:"Convertir cantidad y precios (m, t, €/m, €/t)",tonnes:"Toneladas",price:"Precio €",metres:"Modifica las barras y la longitud a la izquierda."},
   }[locale];
   const ux4Copy = ({
     it:{ quickLengths:"Lunghezze rapide", invalid:"Inserisci un obiettivo quantità valido." },
@@ -482,6 +490,10 @@ export function PublicTubeWeightCalculator({
     es:{ quickLengths:"Longitudes rápidas", invalid:"Introduce una cantidad solicitada válida." },
   } as const)[locale];
   const formatOutput = (value: number, digits = 3) => formatNumber(value, digits, locale);
+  const formatKgM = (value: number) => formatFixed(value, 2, locale);
+  const formatTonnes = (value: number) => formatFixed(value, 3, locale);
+  // HOME-CALC1: "1 barra", "2 barre" (never "1 barre").
+  const barsWord = (count: number) => (count === 1 ? t("barra") : t("barre"));
   const initialStandard = initialValues?.standard ?? "en10219";
   const [standard, setStandard] = useState<StandardValue>(initialStandard);
   const [family, setFamily] = useState<TubeFamily>(initialValues?.family ?? "round_tube");
@@ -494,6 +506,10 @@ export function PublicTubeWeightCalculator({
   const [thicknessTouched, setThicknessTouched] = useState(Boolean(initialValues?.thickness));
   const [length, setLength] = useState(initialValues?.length ?? "12");
   const [quantity, setQuantity] = useState(initialValues?.quantity ?? "1");
+  // HOME-CALC1: bar length = preset buttons; the free field opens only with «Altro».
+  const [customLengthOpen, setCustomLengthOpen] = useState(false);
+  // Set once: never re-closes the panel while someone is typing a price.
+  const [commercialOpenInitially] = useState(inEmbeddedBuilder || Boolean(initialValues?.targetTonnes?.trim()));
   const [targetTonnes, setTargetTonnes] = useState(initialValues?.targetTonnes ?? "");
   const [commercialQuantity, setCommercialQuantity] = useState<{ mode: "metres" | "tonnes"; raw: string } | null>(null);
   const [commercialPriceUnit, setCommercialPriceUnit] = useState<"metres" | "tonnes">("tonnes");
@@ -625,7 +641,7 @@ export function PublicTubeWeightCalculator({
   const commercialShownMetres = commercialQuantity?.mode === "metres"
     ? commercialQuantity.raw : commercialNumber(commercialMetres, 3);
   const commercialShownTonnes = commercialQuantity?.mode === "tonnes"
-    ? commercialQuantity.raw : commercialNumber(commercialTonnes, 6);
+    ? commercialQuantity.raw : commercialNumber(commercialTonnes, 3);
 
   const currentSnapshot = useMemo<StoredTubeCalculation | null>(() => {
     if (
@@ -744,9 +760,9 @@ export function PublicTubeWeightCalculator({
     return [
       `Smart Steel Sales · ${calculationStandardLabel(calculation)}`,
       calculationDimensionLabel(calculation),
-      `${formatOutput(calculation.kgM, 3)} kg/m`,
+      `${formatKgM(calculation.kgM)} kg/m`,
       `${formatOutput(calculation.kgBar, 2)} ${t("kg/barra")} · ${calculation.length} m`,
-      `${calculation.quantity} ${t("barre")} · ${formatOutput(calculation.totalMeters, 1)} m · ${formatOutput(calculation.totalTonnes, 4)} t`,
+      `${calculation.quantity} ${barsWord(Number(calculation.quantity))} · ${formatOutput(calculation.totalMeters, 1)} m · ${formatTonnes(calculation.totalTonnes)} t`,
     ].join("\n");
   }
 
@@ -892,8 +908,12 @@ export function PublicTubeWeightCalculator({
           reference.source_provider ?? "",
         ].some((value) => value.toLowerCase().replace(",", ".").includes(q));
       })
+      // HOME-CALC1: sources with the chosen standard first, non-equivalent ones after.
+      .sort((left, right) =>
+        Number(standard !== "geometric" && referenceEvidence(left).standard !== standard)
+        - Number(standard !== "geometric" && referenceEvidence(right).standard !== standard))
       .slice(0, 18);
-  }, [references, family, referenceQuery]);
+  }, [references, family, referenceQuery, standard]);
 
   const familyCount = references.filter((reference) => reference.product_family === family).length;
   // Only matching, explicitly documented product standards are comparable.
@@ -1110,10 +1130,8 @@ export function PublicTubeWeightCalculator({
       >
         <header data-cockpit-header className={styles.header}>
           <div className="min-w-0">
-            {!inEmbeddedBuilder ? <p className={cinematic.eyebrow}>{cine.eyebrow}</p> : null}
             <div className="flex items-center gap-2">
-              {inEmbeddedBuilder || locale === "de" || locale === "fr" || locale === "es" || locale === "en" ? <h2 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h2> : <h1 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h1>}
-              <span className="school-badge hidden lg:inline-flex">{t("Gratis")}</span>
+              {inEmbeddedBuilder || locale === "de" || locale === "fr" || locale === "es" || locale === "en" ? <h2 className="text-sm font-bold text-[#15372f] sm:text-base">{t("Peso tubo acciaio")}</h2> : <h1 className="text-sm font-bold text-[#15372f] sm:text-base">Calcolo peso tubi in acciaio al metro</h1>}
             </div>
             {!inEmbeddedBuilder ? <p className={cinematic.description}>{cine.description}</p> : null}
           </div>
@@ -1128,13 +1146,13 @@ export function PublicTubeWeightCalculator({
             compact onChoose={applyDiscoveredDimension} />
           <div data-cockpit-controls className={styles.toolbarControls}>
               <div className="flex min-w-0 flex-wrap items-end gap-2.5">
-                <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{!inEmbeddedBuilder ? <span aria-hidden="true" className={cinematic.step}>1</span> : null}{t("Norma")}
+                <label className="min-w-[150px] flex-1 text-[10px] font-bold uppercase tracking-wide text-[#52615b] sm:max-w-[210px]">{t("Norma")}
                   <select aria-label={t("Norma")} value={standard} onChange={(event) => handleStandardChange(event.target.value as StandardValue)} className="mt-1 h-11 sm:h-10 w-full rounded-lg border border-[#cfdfd6] bg-white px-2.5 text-xs font-semibold text-[#173f34]">
                     {standardOptions.map((option) => <option key={option.value} value={option.value}>{t(option.label)}</option>)}
                   </select>
                 </label>
                 <div role="group" aria-label={t("Sagoma")} className="min-w-0 flex-[2]">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-white/85">{!inEmbeddedBuilder ? <span aria-hidden="true" className={cinematic.step}>2</span> : null}{t("Sagoma")}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-white/85">{t("Sagoma")}</p>
                   <div className="mt-1 grid grid-cols-3 gap-1.5" data-calc-shape-buttons>
                     {familyOptions.map((option) => (
                       <button key={option.value} type="button" aria-pressed={family === option.value}
@@ -1164,7 +1182,7 @@ export function PublicTubeWeightCalculator({
                 <div className="min-w-0">
                   <div className="mb-1.5 flex items-center justify-between gap-2">
                     <h2 id="calculator-measures" className="text-[10px] font-extrabold uppercase tracking-[0.13em] text-[#52615b]">
-                      {!inEmbeddedBuilder ? <span aria-hidden="true" className={cinematic.step}>3</span> : null}{t("Misure")}
+                      {t("Misure")}
                     </h2>
                     <span className="text-xs text-[#52615b]">mm</span>
                   </div>
@@ -1231,7 +1249,7 @@ export function PublicTubeWeightCalculator({
                     ) : null}
                   </div>
 
-                  {!inEmbeddedBuilder ? <h3 className={cinematic.inputHeading}><span aria-hidden="true" className={cinematic.step}>4</span>{cine.lengthQuantity}</h3> : null}
+                  {!inEmbeddedBuilder ? <h3 className={cinematic.inputHeading}>{cine.lengthQuantity}</h3> : null}
                   <div data-cockpit-length-quantity className={styles.lengthQuantity}>
                     <div>
                       <div className="mb-1 flex items-center justify-between gap-2">
@@ -1239,20 +1257,23 @@ export function PublicTubeWeightCalculator({
                         <span className="text-xs text-[#52615b]">m</span>
                       </div>
                       <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                        <input value={length} onChange={(event) => setLength(event.target.value)}
-                          inputMode="decimal" list="tube-calculator-length-presets"
-                          aria-label={t("Lunghezza barra personalizzata")}
-                          className="h-11 sm:h-10 w-[78px] rounded-lg border border-[#d0dfd6] bg-white px-2 text-center text-sm font-semibold tabular-nums text-[#1d2824]" />
-                        <datalist id="tube-calculator-length-presets">
-                          {lengthPresets.map((preset) => <option key={preset} value={preset} />)}
-                        </datalist>
                         <div className="flex flex-wrap gap-1" role="group" aria-label={ux4Copy.quickLengths}>
                           {lengthPresets.map((preset) => (
-                            <button type="button" key={preset} aria-pressed={length === preset}
-                              onClick={() => setLength(preset)}
+                            <button type="button" key={preset} aria-pressed={!customLengthOpen && length === preset}
+                              onClick={() => { setCustomLengthOpen(false); setLength(preset); }}
                               className="min-h-11 sm:min-h-9 rounded-lg border border-[#38644f] px-2 text-xs font-semibold aria-pressed:border-[#65f0b4] aria-pressed:bg-[#216c4b] aria-pressed:text-white">{preset} m</button>
                           ))}
+                          {inEmbeddedBuilder ? null : <button type="button" data-calc-length-other aria-pressed={customLengthOpen || !(lengthPresets as readonly string[]).includes(length)}
+                            aria-expanded={customLengthOpen || !(lengthPresets as readonly string[]).includes(length)}
+                            onClick={() => setCustomLengthOpen(true)}
+                            className="min-h-11 sm:min-h-9 rounded-lg border border-[#38644f] px-2 text-xs font-semibold aria-pressed:border-[#65f0b4] aria-pressed:bg-[#216c4b] aria-pressed:text-white">{t("Altro")}</button>}
                         </div>
+                        {inEmbeddedBuilder || customLengthOpen || !(lengthPresets as readonly string[]).includes(length) ? (
+                          <input value={length} onChange={(event) => setLength(event.target.value)}
+                            inputMode="decimal" autoFocus={customLengthOpen}
+                            aria-label={t("Lunghezza barra personalizzata")}
+                            className="h-11 sm:h-10 w-[78px] rounded-lg border border-[#d0dfd6] bg-white px-2 text-center text-sm font-semibold tabular-nums text-[#1d2824]" />
+                        ) : null}
                       </div>
                     </div>
 
@@ -1296,7 +1317,7 @@ export function PublicTubeWeightCalculator({
                   </div>
 
                   {values.error ? (
-                    <p className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">
+                    <p role="alert" data-calc-input-error className="mt-2 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-medium text-amber-800">
                       {values.error === "Inserisci un obiettivo quantità valido." ? ux4Copy.invalid : t(values.error)}
                     </p>
                   ) : null}
@@ -1304,8 +1325,14 @@ export function PublicTubeWeightCalculator({
 
               </section>
 
-              <section data-commercial-targets data-commercial-price className="mt-3 rounded-xl border border-[#4b9774] bg-[#0a2f23] p-3">
-                <p className="mb-2 text-xs font-bold text-[#dff9eb]">{commercialLabels.heading}</p>
+              {/* HOME-CALC1: quantities in metres/tonnes and €/m–€/t are a secondary task: closed until asked. */}
+              <details data-commercial-disclosure className="group/commercial mt-3 rounded-xl border border-[#4b9774] bg-[#0a2f23]"
+                open={commercialOpenInitially || undefined}>
+              <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-2 px-3 text-xs font-bold text-[#dff9eb] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#75f4bd]">
+                {commercialLabels.heading}
+                <span aria-hidden="true" className="transition-transform group-open/commercial:rotate-180">⌄</span>
+              </summary>
+              <section data-commercial-targets data-commercial-price className="border-t border-[#4b9774]/50 p-3">
                 <div className="grid grid-cols-2 gap-2">
                   <label className="min-w-0 text-[11px] font-semibold text-[#d9f6e6]">
                     <span className="mb-1 block">{t("Metri totali")}</span>
@@ -1373,6 +1400,7 @@ export function PublicTubeWeightCalculator({
                 ) : null}
                 {commercialWeight == null ? <p className="mt-1 text-[10px] text-[#cee5d8]">{({it:"Seleziona una geometria valida per convertire metri e tonnellate.",en:"Select valid dimensions to convert metres and tonnes.",de:"Gültige Abmessungen für die Umrechnung wählen.",fr:"Sélectionnez des dimensions valides pour convertir.",es:"Selecciona dimensiones válidas para convertir."} as const)[locale]}</p> : null}
               </section>
+              </details>
 
               <div className="hidden text-xs text-[#66736e] lg:flex lg:items-center lg:justify-between">
                 <span>{t("Il risultato si aggiorna mentre scrivi.")}</span>
@@ -1381,26 +1409,13 @@ export function PublicTubeWeightCalculator({
             </div>
           </div>
 
-          {!inEmbeddedBuilder ? (
+          {!inEmbeddedBuilder && !values.error ? (
             <div data-cinematic-stage className={cinematic.stage}>
               <div className={cinematic.stageHeading}>
                 <span>{cine.visual}</span><strong>{t(currentStandard.label)}</strong>
               </div>
-              {values.error ? <p role="status" className={cinematic.invalid}>{values.error === "Inserisci un obiettivo quantità valido." ? ux4Copy.invalid : t(values.error)}</p> : <>
-                <div className={cinematic.productPhoto} data-cinematic-product={family}>
-                  <picture>
-                    <source media="(prefers-reduced-data: reduce)" srcSet={`/calculator/tube-${family.replace("_tube", "")}-384.webp`} />
-                    {/* Small, local, decorative artwork. Live dimensions remain in the technical diagram below. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/calculator/tube-${family.replace("_tube", "")}-768.webp`}
-                      srcSet={`/calculator/tube-${family.replace("_tube", "")}-384.webp 384w, /calculator/tube-${family.replace("_tube", "")}-768.webp 768w`}
-                      sizes="(max-width: 679px) 100vw, (max-width: 1100px) 90vw, 450px"
-                      width={768} height={512} alt="" loading="lazy" decoding="async" />
-                  </picture>
-                  <span className={cinematic.photoNote}>{cine.illustration}</span>
-                </div>
-                <div className={cinematic.technicalInset} aria-hidden="true">{sectionDiagram}</div>
-              </>}
+              {/* HOME-CALC1: one dimensioned drawing, no stock photo; the input error is shown once, next to the fields. */}
+              <div className={`${cinematic.technicalInset} ${cinematic.drawingOnly}`} aria-hidden="true">{sectionDiagram}</div>
               {/* Area is already in the live result technical facts above; no duplicate gallery footer. */}
             </div>
           ) : null}
@@ -1416,11 +1431,11 @@ export function PublicTubeWeightCalculator({
                     {standard === "geometric" ? t("Peso al metro · calcolo libero") : `${t("Massa lineare")} · ${currentStandard.label}`}
                   </p>
                   <p aria-live="polite" aria-atomic="true" className="metric-number mt-0.5 break-words text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-                    {values.kgM == null ? "—" : formatOutput(values.kgM, 3)}
+                    {values.kgM == null ? "—" : formatKgM(values.kgM)}
                     <span className="ml-1 text-base font-semibold tracking-normal text-white/85">kg/m</span>
                   </p>
                 </div>
-                {!values.error ? sectionDiagram : null}
+                {inEmbeddedBuilder && !values.error ? sectionDiagram : null}
               </div>
 
               {!inEmbeddedBuilder ? <p className={cinematic.resultContext} data-cinematic-context>
@@ -1444,7 +1459,7 @@ export function PublicTubeWeightCalculator({
                 <div className="min-w-0 rounded-lg border border-[#56b88f]/60 bg-[#15533b] px-2 py-1.5" data-calc-total-weight>
                   <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-[#d6ffe9]">{t("Peso totale")}</p>
                   <p className="metric-number mt-1 break-words text-lg font-bold tabular-nums text-white">
-                    {values.totalTonnes == null ? "—" : formatOutput(values.totalTonnes, 4)}
+                    {values.totalTonnes == null ? "—" : formatTonnes(values.totalTonnes)}
                     <span className="ml-1 text-[10px] text-white/85">t</span>
                   </p>
                 </div>
@@ -1481,10 +1496,11 @@ export function PublicTubeWeightCalculator({
                 className="tube-calculator-rfq-link mt-1.5 inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-[#c3e5d5] bg-[#e3f4eb] px-3 py-2 text-center text-sm font-bold leading-snug text-[#123b34] transition-colors hover:border-[#98d6b6] hover:bg-[#ccebdc] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {!inEmbeddedBuilder ? <svg aria-hidden="true" className={cinematic.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 4h2l2 12h12l2-9H6M9 20h.01M18 20h.01" strokeLinecap="round" strokeLinejoin="round" /></svg> : null}
-                {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}{values.qty != null && values.totalMeters != null ? <span className="hidden sm:inline">{` · ${formatOutput(values.qty,0)} ${t("barre")} / ${formatOutput(values.totalMeters,3)} m`}</span> : null}
+                {t(onAddToDistinta ? "＋ Aggiungi alla distinta" : "Aggiungi questa misura alla distinta →")}{values.qty != null && values.totalMeters != null ? <span className="hidden sm:inline">{` · ${formatOutput(values.qty,0)} ${barsWord(values.qty)} / ${formatOutput(values.totalMeters,3)} m`}</span> : null}
               </button>
-              <p data-effective-order-summary className="mt-1 text-[11px] font-semibold leading-4 text-white/90">
-                {values.qty != null && values.totalMeters != null ? `${formatOutput(values.qty,0)} ${t("barre")} · ${formatOutput(values.totalMeters,3)} m` : "—"}
+              {/* Spoken once for screen readers; visually the action button already carries bars and metres. */}
+              <p data-effective-order-summary className="sr-only">
+                {values.qty != null && values.totalMeters != null ? `${formatOutput(values.qty,0)} ${barsWord(values.qty)} · ${formatOutput(values.totalMeters,3)} m` : "—"}
               </p>
               <p className="mt-1 text-[11px] leading-4 text-white/85">
                 {inlinePublicDistinta ? inlineCopy.billWeightNote : t(onAddToDistinta
@@ -1525,7 +1541,7 @@ export function PublicTubeWeightCalculator({
               {values.targetBars != null ? (
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs">
                   <span>{t("Barre necessarie")} <strong>{values.targetBars}</strong></span>
-                  <span>{t("Tonnellate reali")} <strong>{values.targetActualTonnes == null ? "—" : formatOutput(values.targetActualTonnes, 4)} t</strong></span>
+                  <span>{t("Tonnellate reali")} <strong>{values.targetActualTonnes == null ? "—" : formatTonnes(values.targetActualTonnes)} t</strong></span>
                 </div>
               ) : null}
             </div>
@@ -1623,7 +1639,7 @@ export function PublicTubeWeightCalculator({
                           className="block min-h-11 w-full rounded-lg bg-white/8 px-2 py-2 text-left text-xs hover:bg-white/12"
                         >
                           <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
-                          <span className="block text-white/85">{calculation.quantity} {t("barre")} × {calculation.length} m · {t("Ripristina")}</span>
+                          <span className="block text-white/85">{calculation.quantity} {barsWord(Number(calculation.quantity))} × {calculation.length} m · {t("Ripristina")}</span>
                         </button>
                       )) : (
                         <p className="text-[10px] text-white/85">{t("Nessun calcolo recente.")}</p>
@@ -1643,7 +1659,7 @@ export function PublicTubeWeightCalculator({
                             className="min-h-11 min-w-0 flex-1 px-1.5 py-2 text-left text-xs"
                           >
                             <span className="block truncate font-bold">{calculationStandardLabel(calculation)} · {calculationDimensionLabel(calculation)}</span>
-                            <span className="block text-white/85">{calculation.quantity} {t("barre")} × {calculation.length} m</span>
+                            <span className="block text-white/85">{calculation.quantity} {barsWord(Number(calculation.quantity))} × {calculation.length} m</span>
                           </button>
                           <button
                             type="button"

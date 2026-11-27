@@ -68,13 +68,9 @@ try {
   const focus=await fields.first().evaluate(e=>({color:getComputedStyle(e).outlineColor,bg:getComputedStyle(e).backgroundColor}));
   assert.ok(contrast(focus.color,focus.bg)>=3,'Keyboard focus stays visible on the dark fields');
   async function assertProductPhoto(family) {
-   const photo=root.locator(`[data-cinematic-product="${family}_tube"] img`);
-   await photo.scrollIntoViewIfNeeded();
-   await photo.evaluate(e=>e.decode());
-   const details=await photo.evaluate(e=>({src:e.currentSrc,width:e.naturalWidth,alt:e.alt}));
-   assert.match(details.src,new RegExp(`/calculator/tube-${family}-(384|768)\\.webp$`));
-   assert.ok(details.width>0,'Selected family artwork loads successfully');
-   assert.equal(details.alt,'','Decorative photo does not duplicate the live diagram');
+   // HOME-CALC1: no stock photo; the live dimensioned drawing is the only visual.
+   assert.equal(await root.locator('[data-cinematic-product]').count(),0,'No decorative product photo');
+   assert.equal(await root.locator('[data-cinematic-stage] svg[role="img"]').count(),1,'One live drawing for '+family);
   }
   await assertProductPhoto('round');
   if(containerWidth<680) {
@@ -106,6 +102,8 @@ try {
   assert.match(await root.locator('[data-cinematic-stage] svg[role="img"]').getAttribute('aria-label'),/140/);
   await root.locator('[data-cockpit-add]').click();
   if(locale==='it' && width===1440) {
+   const commercialDisclosure=root.locator('[data-commercial-disclosure]');
+   if(await commercialDisclosure.count() && !(await commercialDisclosure.evaluate(d=>d.open))) await commercialDisclosure.locator(':scope > summary').click();
    const targets=root.locator('[data-commercial-targets]');
    const metres=targets.getByRole('textbox',{name:'Metri totali'});
    const tonnes=targets.getByRole('textbox',{name:'Tonnellate'});

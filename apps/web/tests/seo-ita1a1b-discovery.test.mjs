@@ -10,7 +10,10 @@ test("ITA1A maintains clean canonical, hreflang and parameter noindex", () => {
   assert.match(landing, /robotsForParameterizedPage\(hasParameters\)/);
   assert.match(landing, /en: absoluteUrl\("\/en\/knowledge\/tubes"\)/);
   assert.match(landing, /Calcolo peso tubi acciaio/);
-  assert.match(landing, /Calcolo peso tubi in acciaio al metro/);
+  // HOME-CALC1: the calculator header is the single visible H1 of the landing page.
+  const calculator = readFileSync(new URL("../components/public-tube-weight-calculator.tsx", import.meta.url), "utf8");
+  assert.match(calculator, /<h1[^>]*>Calcolo peso tubi in acciaio al metro<\/h1>/);
+  assert.doesNotMatch(landing, /<h1/);
 });
 test("ITA1B size pages have a visible prefilled calculator CTA", () => {
   const link = dimension.indexOf('Calcola peso e quantità →');

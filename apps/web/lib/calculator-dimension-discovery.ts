@@ -65,6 +65,23 @@ export function normalizeDimensionSearch(value:string):string {
     .replace(/[øØ⌀]/g,"").replace(/[^a-z0-9.x]+/g," ").trim();
 }
 
+/**
+ * HOME-CALC1: a size typed by hand ("168,3x6", "100x100x4", "Ø 60,3 × 3") is
+ * applied even when no published record matches. Two numbers = round D × t,
+ * three numbers = square (B = H) or rectangular. Never becomes a reference.
+ */
+export function parseTypedDimension(value:string):CalculatorDimension|null {
+  const normalized=normalizeDimensionSearch(value).replace(/\s*mm\b/g,"").replace(/\s+/g,"");
+  if(!/^\d+(\.\d+)?(x\d+(\.\d+)?){1,2}$/.test(normalized))return null;
+  const parts=normalized.split("x").map(Number);
+  const [a,b,c]=parts;
+  const candidate:CalculatorDimension = parts.length===2
+    ? {id:`typed:${a}x${b}`,family:"round_tube",primaryMm:a,secondaryMm:a,thicknessMm:b,source:"typed"}
+    : {id:`typed:${a}x${b}x${c}`,family:a===b ? "square_tube" : "rectangular_tube",
+      primaryMm:Math.max(a,b),secondaryMm:Math.min(a,b),thicknessMm:c,source:"typed"};
+  return validCalculatorDimension(candidate) ? candidate : null;
+}
+
 export function searchCalculatorDimensions(
   items:CalculatorDimension[], query:string,
   family:DimensionFamilyFilter="all", thickness:"all"|number="all", limit=8,

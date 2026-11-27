@@ -161,3 +161,9 @@
   .headline { font-size:14px; }
   .explainer {font-size:10px;line-height:1.4}
 }
+
+/* HOME-CALC1: without the extra headline the bar is one line: description left, EU/USA right. */
+@media (min-width: 661px) {
+  .header > .explainer { grid-column:1; grid-row:1; align-self:center; font-size:11px; }
+  .header > .track { grid-column:2; grid-row:1; }
+}

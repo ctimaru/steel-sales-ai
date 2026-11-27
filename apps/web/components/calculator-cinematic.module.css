@@ -414,3 +414,14 @@
     white-space:nowrap;
   }
 }
+
+/* HOME-CALC1 — one dimensioned drawing instead of photo + inset + repeated chips;
+   the size box label stays readable on the dark toolbar. */
+.drawingOnly { grid-column:1/-1; }
+.stage .drawingOnly figure { display:block; }
+.stage .drawingOnly figure > svg { max-width:300px; max-height:220px; margin:4px auto; }
+.stage .drawingOnly figcaption { display:none; }
+.root [data-testid="calculator-dimension-discovery"] [data-discovery-label] { color:#bddacc; }
+@container steel-calculator (min-width:680px) {
+  .stage .drawingOnly figure > svg { max-width:260px; max-height:200px; }
+}

@@ -81,12 +81,7 @@ export function CalculatorRegionSwitch({
       <>
     <section data-calc-region-switch className={styles.root} aria-label={regional?.region??(english ? "Steel calculator region" : "Area del calcolatore acciaio")}>
       <div className={styles.header}>
-        <div className={styles.headerCopy}>
-          <p className={styles.eyebrow}>{regional?.eyebrow??(english ? "SELECT CALCULATION SYSTEM" : "SCEGLI IL SISTEMA DI CALCOLO")}</p>
-          <p className={styles.headline}>
-            {regional?.headline??(english ? "One calculator. Two steel markets." : "Un calcolatore. Due mercati dell'acciaio.")}
-          </p>
-        </div>
+        {/* HOME-CALC1: no second headline above the calculator; the toggle and one line are enough. */}
         <div className={styles.track} data-region={region} role="group"
           aria-label={regional?.chooser??(english ? "Choose EU or US calculator" : "Scegli il calcolatore europeo o americano")}>
           <button type="button" className={styles.option}

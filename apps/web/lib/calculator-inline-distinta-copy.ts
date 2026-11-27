@@ -5,10 +5,10 @@ import type { TubeCalculatorLocale } from "@/lib/tube-calculator-locale";
 
 export const inlineBillCopy = {
   it: {
-    added: "Articolo aggiunto al carrello ✓ · continua a calcolare.",
+    added: "Articolo aggiunto alla distinta ✓ · continua a calcolare.",
     addError: "Impossibile aggiungere la riga: controlla la quantità o lo spazio disponibile.",
-    billWeightNote: "Il peso è teorico. Apri il carrello quando vuoi; nessuna RFQ viene inviata.",
-    seeBill: "Apri il carrello",
+    billWeightNote: "Il peso è teorico. Apri la distinta quando vuoi: nessuna richiesta viene inviata.",
+    seeBill: "Apri la distinta",
     restored: "Distinta recuperata da questa scheda.",
     tooMany: "La distinta contiene già 50 righe. Elimina una riga per proseguire.",
     missing: "La riga non è più disponibile.",
