@@ -218,7 +218,8 @@ async def examine(client: httpx.AsyncClient, vies: ViesGate, candidate: dict) ->
         return {"outcome": "not_in_vies", "vat": vat}
     registered = str(answer.get("registered_name") or "")
     if not registered or not legal_form_key(registered):
-        return {"outcome": "sole_trader_or_no_legal_form", "vat": vat, "vies_name": registered}
+        # A sole trader's VIES name is a person's name: never stored.
+        return {"outcome": "sole_trader_or_no_legal_form", "vat": vat}
     if WINDING_UP_RE.search(registered):
         return {"outcome": "in_liquidation", "vat": vat, "vies_name": registered}
     if not identity_matches(name, domain, registered):
@@ -228,7 +229,7 @@ async def examine(client: httpx.AsyncClient, vies: ViesGate, candidate: dict) ->
         return {"outcome": "no_steel_link", "vat": vat, "vies_name": registered}
     legal_name = format_legal_name(registered, name)
     if not legal_name:
-        return {"outcome": "sole_trader_or_no_legal_form", "vat": vat, "vies_name": registered}
+        return {"outcome": "sole_trader_or_no_legal_form", "vat": vat}
     return {"outcome": "verified", "vat": vat, "vies_name": registered, "legal_name": legal_name,
             "page_url": page_url, "steel_terms": terms, "page_hash": page_hash(pages)}
 
