@@ -32,7 +32,7 @@ import httpx
 from .company_discovery import CompanyDiscoveryError, _fetch_page, canonical_domain, canonicalize_seed_url
 from .net_it_auto2_reviewer import RESTRICTED_REUSE, _identity_links
 from .net_research1_pipeline import research_links
-from .net_vat1_extract import find_firstparty_vat, vies_name_match
+from .net_vat1_extract import find_firstparty_vat, it_vat_ok, vies_name_match
 from .net_vat1_vies import check_vat
 
 VERSION = "net-it-vies1-unblock-v1"
@@ -207,9 +207,17 @@ async def examine(client: httpx.AsyncClient, vies: ViesGate, candidate: dict) ->
     if any(RESTRICTED_REUSE.search(t) for t in texts):
         return {"outcome": "reuse_restricted"}
     finding = find_firstparty_vat(texts, name)
-    if finding.outcome != "found" or finding.page_index is None or not finding.vat_id:
-        return {"outcome": "no_vat_on_site"}
-    vat, page_url = finding.vat_id, pages[finding.page_index].url
+    method = "first_party_vat_plus_vies"
+    if finding.outcome == "found" and finding.page_index is not None and finding.vat_id:
+        vat, page_url = finding.vat_id, pages[finding.page_index].url
+    else:
+        # NET-IT-VIES1.B (founder, 27 nov 2026): no P.IVA printed on the site →
+        # the one the crawler already found for this candidate, still checked
+        # on VIES (holder name, legal form) and with the steel check on the site.
+        crawler_vat = str(candidate.get("vat") or "")
+        if not it_vat_ok(crawler_vat):
+            return {"outcome": "no_vat_on_site"}
+        vat, page_url, method = crawler_vat, pages[0].url, "crawler_vat_plus_vies"
     answer = await vies.check(vat, name)
     status = answer.get("status")
     if status == "unavailable":
@@ -231,7 +239,7 @@ async def examine(client: httpx.AsyncClient, vies: ViesGate, candidate: dict) ->
     if not legal_name:
         return {"outcome": "sole_trader_or_no_legal_form", "vat": vat}
     return {"outcome": "verified", "vat": vat, "vies_name": registered, "legal_name": legal_name,
-            "page_url": page_url, "steel_terms": terms, "page_hash": page_hash(pages)}
+            "page_url": page_url, "steel_terms": terms, "page_hash": page_hash(pages), "method": method}
 
 
 async def examine_batch(candidates: list[dict], *, vies_pause: float = VIES_PAUSE_SECONDS) -> list[dict]:
@@ -288,7 +296,7 @@ async def execute(*, limit: int = 40, dry_run: bool = False) -> dict:
                         json={"p_candidate_id": result["id"], "p_vat": result["vat"],
                               "p_page_url": result["page_url"], "p_vies_name": result["vies_name"],
                               "p_legal_name": result["legal_name"], "p_steel_terms": result["steel_terms"],
-                              "p_page_hash": result["page_hash"]})
+                              "p_page_hash": result["page_hash"], "p_method": result["method"]})
                 else:
                     record = await db.post(
                         f"{url}/rest/v1/rpc/net_it_vies1_record", headers=headers,
