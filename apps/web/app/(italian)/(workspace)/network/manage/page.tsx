@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CompanyWorkspaceNavigation } from "@/components/company-workspace-navigation";
 import { CompanyProductCatalog } from "@/components/company-product-catalog";
 import { CompanyIndustrialFootprint, IndustrialRoleMark } from "@/components/company-industrial-footprint";
+import { CompanyMarkets, CompanyCertifications, CertificationVerificationBadge, companyRelationSource } from "@/components/company-markets-certifications";
 import { NetworkInventoryManager } from "@/components/network-inventory-manager";
 import { getManagedNetworkInventory } from "@/lib/network-stock";
 import { redirect } from "next/navigation";
@@ -35,6 +36,7 @@ import {
   type ManagedProfileRelationMeta,
 } from "@/lib/network";
 import { isNetworkFrontendEnabled } from "@/lib/network-flags";
+import { networkLabelIt } from "@/lib/network-taxonomy-it";
 
 const inputClass =
   "mt-2 h-11 w-full rounded-xl border border-[#d7dfdb] bg-white px-3 text-sm text-[#2d3934] outline-none transition focus:border-[#86a99e] focus:ring-2 focus:ring-[#e5efeb]";
@@ -942,70 +944,72 @@ export default async function ManagedNetworkProfilePage({
       </section>
         ),
         markets: (
-          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <section className="min-w-0 space-y-5 rounded-3xl border border-[#dce2df] bg-white p-4 sm:p-8">
         <SectionHeader
           id="markets"
           eyebrow="05 · Mercati"
           title="Mercati e settori serviti"
           description="Dichiara i settori nei quali opera l'azienda. Questi segnali alimenteranno filtri, discovery e matching commerciale."
         />
-        <div className="flex flex-wrap gap-2">
+        <CompanyMarkets state={state} />
+        <div className="space-y-2">
           {state.markets.map((market) => (
-            <div key={market.id} className="flex items-center gap-2 rounded-xl border border-[#dce2df] bg-[#fafbfa] px-3 py-2">
-              <div>
-                <p className="text-sm font-semibold text-[#43524c]">{market.name}</p>
+            <div key={market.id} id={"markets-item-" + market.id} tabIndex={-1} className="flex min-w-0 scroll-mt-24 flex-wrap items-center justify-between gap-3 rounded-xl border border-[#dce2df] bg-[#fafbfa] p-3 focus:outline focus:outline-2 focus:outline-[#1a5144]">
+              <div className="min-w-0">
+                <p className="break-words text-sm font-semibold text-[#43524c]">{networkLabelIt(market.key, market.name)}</p>
                 <div className="mt-1"><ProvenanceBadge item={market} /></div>
+                {market.ownership_type === "platform_verified" ? <p className="mt-2 text-xs leading-5 text-[#52645b]">Le modifiche a questo settore richiedono una revisione della piattaforma.</p> : null}
               </div>
               <form action={setManagedCompanyMarket}>
                 <input type="hidden" name="network_company_id" value={companyId} />
                 <input type="hidden" name="market_key" value={market.key} />
                 <input type="hidden" name="enabled" value="false" />
-                <button className="ml-1 text-xs font-semibold text-rose-700">Rimuovi</button>
+                <button disabled={market.ownership_type === "platform_verified"} className="min-h-11 rounded-lg px-2 text-xs font-semibold text-rose-700 disabled:cursor-not-allowed disabled:opacity-50">Rimuovi</button>
               </form>
             </div>
           ))}
-          {state.markets.length === 0 ? <p className="text-sm text-[#8a98aa]">Nessun mercato definito.</p> : null}
         </div>
-        <form action={setManagedCompanyMarket} className="flex flex-col gap-3 rounded-2xl border border-dashed border-[#cfdae8] bg-[#fafcff] p-4 sm:flex-row sm:items-end">
+        <form action={setManagedCompanyMarket} id="markets-add" tabIndex={-1} className="flex min-w-0 scroll-mt-24 flex-col gap-3 rounded-2xl border border-dashed border-[#cfdae8] bg-[#fafcff] p-4 focus:outline focus:outline-2 focus:outline-[#1a5144] sm:flex-row sm:items-end">
           <input type="hidden" name="network_company_id" value={companyId} />
           <input type="hidden" name="enabled" value="true" />
           <div className="min-w-0 flex-1">
-            <FieldLabel>Aggiungi mercato</FieldLabel>
-            <select name="market_key" required className={inputClass}>
-              <option value="">Seleziona mercato</option>
+            <FieldLabel>Aggiungi settore</FieldLabel>
+            <select name="market_key" aria-label="Settore da aggiungere" required className={inputClass}>
+              <option value="">Seleziona settore</option>
               {state.taxonomy.markets.map((market) => (
-                <option key={market.key} value={market.key}>{market.name}</option>
+                <option key={market.key} value={market.key}>{networkLabelIt(market.key, market.name)}</option>
               ))}
             </select>
           </div>
-          <button className={primaryButton}>Aggiungi</button>
+          <button className={primaryButton}>Aggiungi settore</button>
         </form>
       </section>
         ),
         certifications: (
-          <section className="space-y-5 rounded-3xl border border-[#dce2df] bg-white p-6 sm:p-8">
+          <section className="min-w-0 space-y-5 rounded-3xl border border-[#dce2df] bg-white p-4 sm:p-8">
         <SectionHeader
           id="certifications"
           eyebrow="06 · Certificazioni"
           title="Certificazioni"
-          description="Registra certificazioni e relativo scope. Le certificazioni dichiarate dall'azienda partono come non verificate; la verifica resta sotto controllo Platform."
+          description="Registra certificazioni e relativo ambito di applicazione. Le certificazioni dichiarate dall'azienda partono come non verificate; la verifica è gestita dalla piattaforma."
         />
+        <CompanyCertifications state={state} />
 
         <div className="space-y-4">
           {state.certifications.map((certification) => {
             const locked = certification.verification_status !== "unverified";
             return (
-              <article key={certification.id} className="rounded-2xl border border-[#dce2df] bg-[#fafbfa] p-5">
+              <article key={certification.id} id={"certifications-item-" + certification.id} tabIndex={-1} className="min-w-0 scroll-mt-24 rounded-2xl border border-[#dce2df] bg-[#fafbfa] p-4 focus:outline focus:outline-2 focus:outline-[#1a5144] sm:p-5">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="font-semibold text-[#2d3f58]">{certification.name}</h3>
-                    <p className="mt-1 text-sm text-[#718197]">
+                    <p className="mt-1 break-words text-sm text-[#52645b] [overflow-wrap:anywhere]">
                       {certification.certificate_identifier || "Identificativo non indicato"}
                       {certification.issuer ? " · " + certification.issuer : ""}
                     </p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      <ProvenanceBadge item={certification} />
-                      <VerificationBadge status={certification.verification_status} />
+                      <span className="rounded-full bg-[#ecefed] px-2.5 py-1 text-[11px] font-semibold text-[#52645b]">{companyRelationSource(certification)}</span>
+                      <CertificationVerificationBadge status={certification.verification_status} />
                     </div>
                   </div>
                   {!locked ? (
@@ -1018,11 +1022,11 @@ export default async function ManagedNetworkProfilePage({
                 </div>
 
                 {locked ? (
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-sm text-emerald-800">
-                    La certificazione ha una verifica Platform e non può essere modificata direttamente.
+                  <div className="rounded-xl border border-[#dce2df] bg-white px-4 py-3 text-sm leading-6 text-[#52645b]">
+                    Questa certificazione è gestita dal processo di verifica della piattaforma e non può essere modificata direttamente.
                   </div>
                 ) : (
-                  <form action={upsertManagedCertification} className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <form action={upsertManagedCertification} className="grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 [&>div]:min-w-0">
                     <input type="hidden" name="network_company_id" value={companyId} />
                     <input type="hidden" name="certification_id" value={certification.id} />
                     <div>
@@ -1046,20 +1050,19 @@ export default async function ManagedNetworkProfilePage({
                     <div><FieldLabel>ID certificato</FieldLabel><input name="certificate_identifier" defaultValue={certification.certificate_identifier ?? ""} className={inputClass} /></div>
                     <div><FieldLabel>Valido dal</FieldLabel><input type="date" name="valid_from" defaultValue={certification.valid_from ?? ""} className={inputClass} /></div>
                     <div><FieldLabel>Valido fino al</FieldLabel><input type="date" name="valid_to" defaultValue={certification.valid_to ?? ""} className={inputClass} /></div>
-                    <div className="sm:col-span-2"><FieldLabel>Evidence reference</FieldLabel><input name="evidence_reference" defaultValue={certification.evidence_reference ?? ""} className={inputClass} /></div>
-                    <div className="sm:col-span-2 lg:col-span-4"><FieldLabel>Scope</FieldLabel><textarea name="scope_text" defaultValue={certification.scope_text ?? ""} rows={3} className={textareaClass} /></div>
+                    <div className="sm:col-span-2"><FieldLabel>Riferimento documentale</FieldLabel><input name="evidence_reference" defaultValue={certification.evidence_reference ?? ""} className={inputClass} /></div>
+                    <div className="sm:col-span-2 lg:col-span-4"><FieldLabel>Ambito della certificazione</FieldLabel><textarea name="scope_text" defaultValue={certification.scope_text ?? ""} rows={3} className={textareaClass} /></div>
                     <div className="sm:col-span-2 lg:col-span-4"><button className={primaryButton}>Salva certificazione</button></div>
                   </form>
                 )}
               </article>
             );
           })}
-          {state.certifications.length === 0 ? <p className="text-sm text-[#8a98aa]">Nessuna certificazione registrata.</p> : null}
         </div>
 
-        <div className="rounded-2xl border border-dashed border-[#c7d5e7] bg-[#fafcff] p-5">
+        <div id="certifications-add" tabIndex={-1} className="min-w-0 scroll-mt-24 rounded-2xl border border-dashed border-[#c7d5e7] bg-[#fafcff] p-4 focus:outline focus:outline-2 focus:outline-[#1a5144] sm:p-5">
           <h3 className="font-semibold text-[#34445c]">Aggiungi certificazione</h3>
-          <form action={upsertManagedCertification} className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <form action={upsertManagedCertification} className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 lg:grid-cols-4 [&>div]:min-w-0">
             <input type="hidden" name="network_company_id" value={companyId} />
             <div>
               <FieldLabel>Tipo</FieldLabel>
@@ -1083,8 +1086,8 @@ export default async function ManagedNetworkProfilePage({
             <div><FieldLabel>ID certificato</FieldLabel><input name="certificate_identifier" className={inputClass} /></div>
             <div><FieldLabel>Valido dal</FieldLabel><input type="date" name="valid_from" className={inputClass} /></div>
             <div><FieldLabel>Valido fino al</FieldLabel><input type="date" name="valid_to" className={inputClass} /></div>
-            <div className="sm:col-span-2"><FieldLabel>Evidence reference</FieldLabel><input name="evidence_reference" placeholder="URL o riferimento documento" className={inputClass} /></div>
-            <div className="sm:col-span-2 lg:col-span-4"><FieldLabel>Scope</FieldLabel><textarea name="scope_text" rows={3} className={textareaClass} /></div>
+            <div className="sm:col-span-2"><FieldLabel>Riferimento documentale</FieldLabel><input name="evidence_reference" placeholder="URL o riferimento documento" className={inputClass} /></div>
+            <div className="sm:col-span-2 lg:col-span-4"><FieldLabel>Ambito della certificazione</FieldLabel><textarea name="scope_text" rows={3} className={textareaClass} /></div>
             <div className="sm:col-span-2 lg:col-span-4"><button className={primaryButton}>Aggiungi certificazione</button></div>
           </form>
         </div>
