@@ -50,7 +50,13 @@ Generation uses the existing Railway `HF_TOKEN` through `huggingface_hub.Inferen
 
 Default generation model:
 
-`Qwen/Qwen3-4B-Instruct-2507`
+`meta-llama/Llama-3.3-70B-Instruct`
+
+Changed on 27 Nov 2026 (founder approval): `Qwen/Qwen3-4B-Instruct-2507` is no longer
+served by Hugging Face inference providers (`model_not_supported`), so generation was
+failing. Production sets `RAG_LLM_MODEL=meta-llama/Llama-3.3-70B-Instruct` and
+`RAG_INFERENCE_PROVIDER=auto` on the `steel-sales-ai` Railway service; NET-RESEARCH1 uses
+the same model.
 
 The model can be changed server-side with:
 
