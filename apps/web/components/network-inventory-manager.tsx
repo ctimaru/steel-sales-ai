@@ -85,7 +85,7 @@ function StockForm({ organizationId, companyId, item, canPublish, onSaved, onCan
         <legend className="sr-only">Dati della disponibilità</legend>
         <div className="grid min-w-0 gap-4 sm:grid-cols-2">
           <label className={labelClass}>Tipo disponibilità
-            <select name="kind" required defaultValue={item?.kind ?? "stock"} className={fieldClass}>
+            <select name="kind" aria-label="Tipo disponibilità" required defaultValue={item?.kind ?? "stock"} className={fieldClass}>
               {kinds.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
           </label>
@@ -97,7 +97,7 @@ function StockForm({ organizationId, companyId, item, canPublish, onSaved, onCan
               <input name="quantity" type="number" min="0.001" max="1000000000" step="0.001" required defaultValue={item?.quantity ?? ""} placeholder="Es. 12,5" className={fieldClass} />
             </label>
             <label className={labelClass}>Unità
-              <select name="unit" defaultValue={item?.unit ?? "t"} className={fieldClass}>
+              <select name="unit" aria-label="Unità" defaultValue={item?.unit ?? "t"} className={fieldClass}>
                 {units.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
             </label>
@@ -292,13 +292,13 @@ export function NetworkInventoryManager({ organizationId, companyId, inventory, 
                   <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Prodotto, specifiche o località" className={fieldClass} />
                 </label>
                 <label className={labelClass}>Filtra per tipo
-                  <select value={kind} onChange={(event) => setKind(event.target.value as typeof kind)} className={fieldClass}>
+                  <select aria-label="Filtra per tipo" value={kind} onChange={(event) => setKind(event.target.value as typeof kind)} className={fieldClass}>
                     <option value="all">Tutti i tipi</option>
                     {kinds.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                   </select>
                 </label>
                 <label className={labelClass}>Filtra per visibilità
-                  <select value={visibility} onChange={(event) => setVisibility(event.target.value as typeof visibility)} className={fieldClass}>
+                  <select aria-label="Filtra per visibilità" value={visibility} onChange={(event) => setVisibility(event.target.value as typeof visibility)} className={fieldClass}>
                     <option value="all">Tutte le disponibilità</option>
                     <option value="draft">Bozze private</option>
                     <option value="published">Pubblicate</option>

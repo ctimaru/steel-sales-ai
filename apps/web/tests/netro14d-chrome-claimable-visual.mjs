@@ -711,9 +711,10 @@ try {
       const stockManager=page.getByTestId("network-stock-manager");
       await stockManager.waitFor({state:"visible"});
       assert.match(await stockManager.innerText(),/3 pubblicate/);
-      assert.match(await stockManager.innerText(),/1 bozze/);
-      const newStock=stockManager.locator("details").first();
-      await newStock.locator("summary").click();
+      assert.match(await stockManager.innerText(),/1 bozza privata/);
+      await stockManager.getByRole("button",{name:"Aggiungi disponibilità",exact:true}).click();
+      const newStock=stockManager.getByTestId("network-stock-form");
+      await newStock.waitFor({state:"visible"});
       assert.equal(await newStock.getByRole("button",{name:"Pubblica nel Network"}).count(),1);
       assert.equal(await newStock.getByRole("button",{name:"Salva bozza privata"}).count(),1);
       await stockManager.scrollIntoViewIfNeeded();
