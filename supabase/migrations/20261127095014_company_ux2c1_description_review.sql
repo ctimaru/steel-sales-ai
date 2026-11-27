@@ -94,7 +94,7 @@ revoke all on function private.company_ux2c1_require_owner(uuid,uuid) from publi
 create function private.company_ux2c1_description_candidate(
   p_network_company_id uuid,p_current_website_url text,p_research private.network_company_research
 )
-returns jsonb language plpgsql immutable security invoker set search_path=''
+returns jsonb language plpgsql stable security invoker set search_path=''
 as $fn$
 declare
   v_summary text;

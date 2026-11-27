@@ -406,7 +406,7 @@ export default async function ManagedNetworkProfilePage({
           </div>
         </div>
 
-        <form key={context.organizationId + ":" + companyId} action={updateManagedNetworkProfile} className="grid gap-5 lg:grid-cols-2" data-testid="company-overview-form">
+        <form key={"overview:" + context.organizationId + ":" + companyId} action={updateManagedNetworkProfile} className="grid gap-5 lg:grid-cols-2" data-testid="company-overview-form">
           <input type="hidden" name="network_company_id" value={companyId} />
           <input type="hidden" name="expected_description_hash" value={descriptionHash} />
           <div>
@@ -427,7 +427,7 @@ export default async function ManagedNetworkProfilePage({
         </form>
 
         <CompanyDescriptionAssistant
-          key={context.organizationId + ":" + companyId}
+          key={"description-assistant:" + context.organizationId + ":" + companyId}
           companyId={companyId}
           review={descriptionReview ?? unavailableDescriptionReview(companyId, state.company.description)}
           action={decideManagedCompanyDescription}
