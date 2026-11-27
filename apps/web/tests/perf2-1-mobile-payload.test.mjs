@@ -29,7 +29,7 @@ test("PERF2.1 serves native Network role controls with no persona hydration", ()
 test("PERF2.1 defers the public lookup chunk while leaving SEO text accessible", () => {
   assert.match(home, /<DeferredPublicCompanyLookup \/>/);
   assert.match(home, /Cercala per nome o Partita IVA/);
-  assert.match(home, /La ricerca pubblica serve solo a riconoscere/);
+  assert.match(home, /Se c&apos;è già, puoi rivendicare il profilo/);
   assert.match(deferred, /"use client"/);
   assert.match(deferred, /dynamic\(/);
   assert.match(deferred, /ssr: false/);
@@ -60,5 +60,5 @@ test("PERF2.1 retains the static homepage and verified session redirect", () => 
   assert.doesNotMatch(home, /createClient\(|getUser\(/);
   assert.match(proxy, /if \(!error && data\.user\)/);
   assert.match(proxy, /target\.pathname = "\/dashboard"/);
-  assert.match(home, /<PublicNetworkRoleExplorer \/>/);
+  assert.doesNotMatch(home, /<PublicNetworkRoleExplorer \/>/) // HOME-CALC1;
 });

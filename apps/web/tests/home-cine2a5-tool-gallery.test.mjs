@@ -11,7 +11,7 @@ test("CINE2A.5 exposes five tools in both languages with safe public and registr
   assert.match(cards, /href: "\/register"/);
   assert.match(cards, /href: "\/en\/register"/);
   assert.match(cards, /id="home-tools"/);
-  assert.match(it, /<HomeCinematicTools locale="it" \/>/);
+  assert.doesNotMatch(it, /<HomeCinematicTools locale="it" \/>/) // HOME-CALC1;
   assert.match(en, /<HomeCinematicTools locale="en" \/>/);
 });
 test("CINE2A.5 retains keyboard accessibility and responsive/reduced motion behavior", () => {

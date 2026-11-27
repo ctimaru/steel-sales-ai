@@ -35,14 +35,14 @@ test("UXF4 keeps a focused homepage value path and existing public sections", ()
   assert.match(hero, /Super Intelligence Ready/);
   assert.match(home, /<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/); // HOME-MOBILE-B6: tools shelf merged into the geometry section
   assert.match(home, /id="aziende"/);
-  assert.match(home, /<PublicNetworkRoleExplorer \/>/);
+  assert.doesNotMatch(home, /<PublicNetworkRoleExplorer \/>/) // HOME-CALC1;
   assert.doesNotMatch(home, /Trust by design/);
   assert.doesNotMatch(home, /rounded-\[24px\].*companyTypes/s);
 });
 
 test("UXF4 keeps public utility, company lookup and private Network boundaries", () => {
   assert.match(home, /<DeferredPublicCompanyLookup \/>/);
-  assert.match(home, /La ricerca pubblica serve solo a riconoscere/);
+  assert.match(home, /Se c&apos;è già, puoi rivendicare il profilo/);
   assert.match(network, /Privato · Premium/);
   for (const type of ["Produttori", "Commercianti", "Terzisti", "Utilizzatori"]) {
     assert.match(network, new RegExp(type));

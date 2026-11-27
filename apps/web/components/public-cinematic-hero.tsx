@@ -1,6 +1,7 @@
 import Link from "next/link";
 import styles from "./public-cinematic-hero.module.css";
 import { PublicNetworkProHeroCard } from "./public-network-pro";
+import { HomeQuickWeight } from "./home-quick-weight";
 
 /**
  * HOME-CINE1B: cinematic experience without video, JavaScript or WebGL.
@@ -11,7 +12,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
   const en = locale === "en";
   const links = en
     ? { builder: "/en/distinta", calculator: "/en/knowledge/tubes", knowledge: "/en/knowledge", network: "/en/network" }
-    : { builder: "/distinta", calculator: "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi", knowledge: "/knowledge", network: "#network" };
+    : { builder: "/distinta", calculator: "/knowledge/tubes?source=home&surface=hero#calcolatore-pesi", knowledge: "/knowledge", network: "#network-pro" };
 
   return (
     <>
@@ -72,18 +73,25 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
         <div className={styles.copy}>
           <p className={styles.eyebrow}>
             <span className={styles.signal} aria-hidden="true" />
-            Super Intelligence Ready <span className={styles.eyebrowDivider} aria-hidden="true">/</span>
-            {en ? "STEEL & TUBE" : "INDUSTRIA STEEL & TUBE"}
+            {en ? <>Super Intelligence Ready <span className={styles.eyebrowDivider} aria-hidden="true">/</span> STEEL & TUBE</> : "Acciaio e tubi"}
           </p>
+          {/* HOME-CALC1: the Italian title says what the platform does, in the words buyers use. */}
           <h1 id="home-cinematic-title" className={styles.title}>
-            {en ? "Steel has a new" : "L’acciaio ha una"}
-            <span>{en ? " intelligence." : " nuova intelligenza."}</span>
+            {en ? "Steel has a new" : "Pesi, distinte e fornitori"}
+            <span>{en ? " intelligence." : " per chi lavora l’acciaio."}</span>
           </h1>
           <p className={styles.description}>
             {en
               ? "From dimensions and theoretical weight to RFQ bills and commercial opportunities. One connected workflow."
-              : "Dalle dimensioni al peso teorico, dalla distinta alle opportunità commerciali. Tutto in un unico percorso."}
+              : "Calcola il peso dei tubi in un secondo, prepara la distinta da mandare ai fornitori e trova chi produce e vende acciaio."}
           </p>
+          {en ? null : <HomeQuickWeight />}
+          {en ? null : (
+            <Link href={links.builder} className={styles.textLink} data-home-distinta-link>
+              Oppure crea una distinta gratis <span aria-hidden="true">→</span>
+            </Link>
+          )}
+          {en ? <>
           <div className={styles.actions}>
             <Link href={links.calculator} className={styles.primary}>
               {en ? "Standards & weights" : "Norme e pesi"} <span aria-hidden="true">↗</span>
@@ -104,11 +112,12 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
             <Link href={links.network}>Network</Link>
             <Link href={links.knowledge}>{en ? "Steel knowledge" : "Scuola"}</Link>
           </nav>
+          </> : null}
         </div>
-        <div className={styles.visualCaption} aria-hidden="true">
+        {en ? <div className={styles.visualCaption} aria-hidden="true">
           <span className={styles.captionKicker}>01 / 03</span>
           <span>{en ? "MATERIAL · DATA · CONNECTIONS" : "MATERIA · DATI · CONNESSIONI"}</span>
-        </div>
+        </div> : null}
         {en ? null : <PublicNetworkProHeroCard />}
         {en ? (
         <aside className={styles.productHint} data-home-cine-motion="product" aria-label={en ? "Illustrative technical workflow preview" : "Anteprima illustrativa del percorso tecnico"}>
@@ -143,7 +152,8 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
         ) : null}
       </div>
     </section>
-    <section className={styles.bridge} aria-label={en ? "From material to business intelligence" : "Dalla materia all'intelligenza commerciale"}>
+    {/* HOME-CALC1: the Italian home explains the path once, in «Come funziona». */}
+    {en ? <section className={styles.bridge} aria-label={en ? "From material to business intelligence" : "Dalla materia all'intelligenza commerciale"}>
       <div className={styles.bridgeInner}>
         <p className={styles.bridgeEyebrow}>{en ? "ONE CONNECTED WORKFLOW" : "UN UNICO PERCORSO"}</p>
         <ol className={styles.bridgeSteps}>
@@ -152,7 +162,7 @@ export function PublicCinematicHero({ locale }: { locale: "it" | "en" }) {
           <li><span>03</span><strong>{en ? "Business connections" : "Relazioni commerciali"}</strong></li>
         </ol>
       </div>
-    </section>
+    </section> : null}
     </>
   );
 }

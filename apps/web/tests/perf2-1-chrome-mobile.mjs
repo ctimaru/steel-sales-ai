@@ -23,18 +23,16 @@ try {
   await testCase("mobile no-JavaScript public HTML and SEO hero", async () => {
     const response = await staticPage.goto(base, { waitUntil: "domcontentloaded", timeout: 30000 });
     assert.equal(response.status(), 200);
-    await staticPage.getByRole("heading", { name: /L.acciaio ha una nuova intelligenza/i }).waitFor();
-    await staticPage.getByRole("heading", { name: /La filiera steel/i }).waitFor();
-    assert.equal(await staticPage.locator('input[name="network-persona"]').count(), 4);
+    await staticPage.getByRole("heading", { name: /Pesi, distinte e fornitori per chi lavora l.acciaio/i }).waitFor();
+    await staticPage.getByRole("heading", { name: /Calcola, prepara la distinta, trova i fornitori/i }).waitFor();
   });
-  await testCase("radio roles work with JS disabled, one visible pane at a time", async () => {
-    for (const key of ["merchant", "user", "processor", "producer", "merchant"]) {
-      await staticPage.locator('label:has(input[name="network-persona"][value="' + key + '"])').click();
-      assert.equal(await staticPage.locator('input[name="network-persona"][value="' + key + '"]').isChecked(), true);
-      const panels = staticPage.locator(".perf21-network-panel:visible");
-      assert.equal(await panels.count(), 1, "Exactly one persona panel should be visible");
-      assert.equal(await panels.first().getAttribute("data-network-persona"), key);
-    }
+  // HOME-CALC1: the persona radios left the home; the hero quick weight is server-rendered.
+  await testCase("quick weight is readable and linked without JavaScript", async () => {
+    const card = staticPage.locator("[data-home-quick-weight]");
+    assert.equal(await card.count(), 1);
+    assert.match(await card.locator("[data-home-quick-result]").innerText(), /24,02\s*kg\/m/);
+    const open = card.getByRole("link", { name: /Apri la calcolatrice completa/ });
+    assert.match(await open.getAttribute("href") ?? "", /^\/knowledge\/tubes\?.*od=168%2C3.*#calcolatore-pesi$/);
   });
   await testCase("no-JavaScript search fallback contains accessible path to /azienda", async () => {
     const fallback = staticPage.locator('[data-testid="perf21-deferred-company-lookup"]');
@@ -51,7 +49,7 @@ try {
   await testCase("mobile homepage with JS stays usable and bounded", async () => {
     const response = await page.goto(base, { waitUntil: "domcontentloaded", timeout: 30000 });
     assert.equal(response.status(), 200);
-    await page.getByRole("heading", { name: /L.acciaio ha una nuova intelligenza/i }).waitFor();
+    await page.getByRole("heading", { name: /Pesi, distinte e fornitori per chi lavora l.acciaio/i }).waitFor();
     const sizes = await page.evaluate(() => ({
       width: document.documentElement.clientWidth,
       total: document.documentElement.scrollWidth,
@@ -66,10 +64,13 @@ try {
     assert.equal(await field.inputValue(), "Steel");
     assert.ok(await page.getByRole("button", { name: "Cerca azienda", exact: true }).isVisible());
   });
-  await testCase("client hydration does not break native persona controls", async () => {
-    await page.locator('label:has(input[name="network-persona"][value="producer"])').click();
-    assert.ok(await page.locator('[data-network-persona="producer"]').isVisible());
-    assert.equal(await page.locator(".perf21-network-panel:visible").count(), 1);
+  await testCase("client hydration makes the quick weight live", async () => {
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const card = page.locator("[data-home-quick-weight]");
+    await card.getByRole("textbox").fill("200x100x5");
+    await card.locator("[data-home-quick-result]").getByText(/22,26/).waitFor({ timeout: 15000 });
+    assert.match(await card.getByRole("link", { name: /Apri la calcolatrice completa/ }).getAttribute("href") ?? "",
+      /family=rectangular_tube.*width=200.*height=100/);
   });
   await testCase("mobile cookie notice stays compact and choices equally reachable", async () => {
     const dialog = page.getByRole("dialog", { name: "Cookie e privacy" });

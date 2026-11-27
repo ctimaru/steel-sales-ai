@@ -30,7 +30,7 @@ test("HOME-SI3 grounds the preview in genuine RFQ Hub labels, without tenant dat
 });
 
 test("HOME-SI3 creates three clear intelligence pillars with honest access boundaries", () => {
-  assert.match(home, /<PublicIntelligencePillars \/>/);
+  assert.doesNotMatch(home, /<PublicIntelligencePillars \/>/) // HOME-CALC1;
   assert.match(showcase, /id="intelligence"/);
   for (const label of ["Procurement Intelligence", "Network Intelligence", "Steel Knowledge"]) {
     assert.match(showcase, new RegExp(label));
@@ -54,7 +54,7 @@ test("HOME-SI3 links only to real public routes or safe registration, never a pr
 
 test("HOME-SI3 keeps the homepage static and the initial Network discoverable", () => {
   assert.match(home, /export const dynamic = "force-static"/);
-  assert.match(home, /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicNetworkRoleExplorer \/>[\s\S]*<PublicIntelligencePillars \/>[\s\S]*<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/);
+  assert.match(home, /<PublicCinematicHero locale="it" \/>[\s\S]*<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>[\s\S]*<DeferredPublicCompanyLookup \/>/); // HOME-CALC1 order
   for (const part of [home, showcase]) {
     assert.doesNotMatch(part, /"use client"|useEffect|useState|fetch\s*\(|createClient|cookies\s*\(|getUser\s*\(|next\/image|<Image|<video|<iframe/);
   }

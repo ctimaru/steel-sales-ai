@@ -5,11 +5,11 @@ const it=readFileSync(new URL("../app/(italian)/page.tsx",import.meta.url),"utf8
 const en=readFileSync(new URL("../app/(english)/en/page.tsx",import.meta.url),"utf8");
 const proof=readFileSync(new URL("../components/public-steel-geometry-proof.tsx",import.meta.url),"utf8");
 test("8F gallery remains primary tool discovery and knowledge shelf is complementary",()=>{
- assert.match(it,/<HomeCinematicTools locale="it"/);
+ assert.doesNotMatch(it,/<HomeCinematicTools locale="it"/) // HOME-CALC1;
  assert.match(en,/<HomeCinematicTools locale="en"/);
  assert.match(it,/label: "Norme"/);
  assert.match(it,/label: "Gradi"/);
- assert.match(it,/label: "Calcolo pesi"/);
+ assert.match(it,/label: "Calcola il peso"/); // HOME-CALC1
  assert.match(it,/label: "Crea distinta"/);
  assert.match(it,/href: "\/knowledge\/norme"/);
  assert.match(it,/href: "\/knowledge\/gradi"/);

@@ -62,7 +62,7 @@ try {
   await check("anonymous mobile homepage remains public", async () => {
     assert.equal(await openHome(anonPage), "/");
     const text = await pageText(anonPage);
-    assert.ok(text.includes("L’acciaio ha una"), "Current cinematic homepage hero missing");
+    assert.ok(text.includes("Pesi, distinte e fornitori"), "Current cinematic homepage hero missing");
     assert.ok(text.includes("Crea una distinta gratis"), "Public bill CTA missing");
     assert.ok(text.includes("Cercala per nome o Partita IVA."), "Company lookup section missing");
   });
@@ -81,7 +81,7 @@ try {
       url: base,
     }]);
     assert.equal(await openHome(anonPage), "/");
-    await anonPage.getByRole("heading", { name: /L.acciaio ha una/i })
+    await anonPage.getByRole("heading", { name: /Pesi, distinte e fornitori/i })
       .waitFor({ state: "visible", timeout: 40000 });
     const text = await pageText(anonPage);
     assert.ok(text.includes("Cercala per nome o Partita IVA."),

@@ -18,7 +18,7 @@ const showcase = fs.readFileSync(
 );
 
 test("PA1.1 public home leads with value before login", () => {
-  assert.match(hero, /L’acciaio ha una/);
+  assert.match(hero, /Pesi, distinte e fornitori/);
   assert.match(hero, /Strumenti pubblici senza account/);
   assert.match(home, /<PublicSteelGeometryProof locale="it" tools=\{publicTools\} \/>/); // HOME-MOBILE-B6: tools shelf merged into the geometry section
   assert.match(home, /Cercala per nome o Partita IVA/);
@@ -38,7 +38,7 @@ test("PA1.1 exposes real public Scuola entry points", () => {
 test("PA1.1 public-value architecture remains intact after PA1.2 adds real company lookup", () => {
   assert.match(home, /Cercala per nome o Partita IVA/);
   assert.match(home, /<DeferredPublicCompanyLookup \/>/);
-  assert.match(home, /La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale/);
+  assert.match(home, /Se c&apos;è già, puoi rivendicare il profilo/);
   assert.match(network, /Privato · Premium/);
   assert.doesNotMatch(home, /href="\/network"/);
 });

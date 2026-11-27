@@ -36,13 +36,15 @@ try {
         const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
         assert.equal(response?.status(), 200, url + " must respond 200");
         const primary = page.locator('section[aria-labelledby="home-cinematic-title"] a').filter({
-          hasText: locale === "it" ? "Norme e pesi" : "Standards & weights",
+          // HOME-CALC1: the Italian hero opens the full calculator from the quick weight card.
+          hasText: locale === "it" ? "Apri la calcolatrice completa" : "Standards & weights",
         }).first();
         assert.equal(await primary.count(), 1, "Hero primary action missing");
         const href = await primary.getAttribute("href");
         assert.ok(href?.includes("/knowledge/tubes"), "Hero CTA must link to calculator");
         const cards = page.locator("#home-tools a");
-        assert.equal(await cards.count(), 5, "Exactly five tool cards expected");
+        // HOME-CALC1: the five-tool shelf stays on the English home only.
+        assert.equal(await cards.count(), locale === "it" ? 0 : 5, "Tool cards count");
         const metrics = await page.evaluate(() => ({
           documentWidth: document.documentElement.scrollWidth,
           viewportWidth: document.documentElement.clientWidth,
@@ -77,7 +79,7 @@ try {
         if ([390, 1440].includes(viewport.width)) {
           const dock = page.getByTestId("home-floating-dock");
           await dock.getByRole("button", {
-            name: locale === "it" ? "Pesi e Norme" : "Weights & Standards",
+            name: locale === "it" ? "Calcolo pesi" : "Weights & Standards",
           }).click();
           const modal = page.locator("#home-floating-weights");
           await modal.waitFor({ state: "visible" });

@@ -1,4 +1,3 @@
-import { HomeCinematicTools } from "@/components/home-cinematic-tools";
 import { PublicHomeHeader } from "@/components/public-home-header";
 import { PublicCinematicHero } from "@/components/public-cinematic-hero";
 import { HomeFloatingTools } from "@/components/home-floating-tools";
@@ -8,17 +7,14 @@ import mobilePolish from "@/components/home-mobile-polish.module.css";
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { PublicNetworkRoleExplorer } from "@/components/public-network-role-explorer";
 import { DeferredPublicCompanyLookup } from "@/components/deferred-public-company-lookup";
-import { PublicIntelligencePillars } from "@/components/public-intelligence-showcase";
-import { PublicRegistrationTrust } from "@/components/public-registration-trust";
 import { PublicContactSection } from "@/components/public-contact-section";
 import { absoluteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Smart Steel Sales — Super Intelligence Ready per l’acciaio",
+  title: "Smart Steel Sales — Pesi, distinte e fornitori per chi lavora l’acciaio",
   description:
-    "Intelligence commerciale per l’acciaio: distinte, RFQ multi-fornitore, confronto offerte, Scuola e Network privato per aziende registrate.",
+    "Calcola il peso dei tubi in acciaio, prepara la distinta per i fornitori e trova produttori e commercianti della filiera. Strumenti gratuiti, senza account.",
   alternates: {
     canonical: absoluteUrl("/"),
     languages: {
@@ -31,9 +27,9 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "Smart Steel Sales — Super Intelligence Ready per l’acciaio",
+    title: "Smart Steel Sales — Pesi, distinte e fornitori per chi lavora l’acciaio",
     description:
-      "Strumenti pubblici, RFQ Hub e Network privato: più chiarezza per chi compra e vende acciaio.",
+      "Calcolo pesi, distinta e Network della filiera: più chiarezza per chi compra e vende acciaio.",
     url: absoluteUrl("/"),
     type: "website",
     locale: "it_IT",
@@ -45,29 +41,36 @@ export const dynamic = "force-static";
 export const revalidate = 60;
 
 // HOME-MOBILE-B6: rendered inside the geometry section (the former separate tools shelf).
+// HOME-CALC1: one path in three steps (calcola → distinta → fornitori) plus the Scuola.
 const publicTools = [
   {
-    label: "Calcolo pesi",
-    description: "kg/m, peso barra e tonnellaggio.",
+    label: "Calcola il peso",
+    description: "kg/m, peso barra e tonnellate di tondi, quadri e rettangolari.",
     href: "/knowledge/tubes?source=home&surface=school_section#calcolatore-pesi",
   },
   {
     label: "Crea distinta",
-    description: "Target €/t, €/m e copia pronta per l'email.",
+    description: "Righe, quantità e prezzo obiettivo €/t, pronte da mandare ai fornitori.",
     href: "/distinta",
   },
   {
-    label: "Norme",
-    description: "Standard, prodotti e riferimenti.",
-    href: "/knowledge/norme",
+    label: "Trova i fornitori",
+    description: "Produttori e commercianti della filiera nel Network.",
+    href: "#network-pro",
   },
   {
-    label: "Gradi",
-    description: "Materiali, designazioni e collegamenti.",
-    href: "/knowledge/gradi",
+    label: "Scuola",
+    description: "Norme, gradi e guide tecniche dell’acciaio.",
+    href: "/knowledge",
   },
 ] as const;
 
+
+// HOME-CALC1: the Scuola reference pages stay one click from the home (internal links for SEO).
+const footerKnowledge = [
+  { label: "Norme", href: "/knowledge/norme" },
+  { label: "Gradi", href: "/knowledge/gradi" },
+] as const;
 
 // HOME-MOBILE-A4: 44px tap targets in a two-column grid on phones; inline row from sm.
 const footerLink = "inline-flex min-h-11 items-center font-semibold hover:text-[#173f35] sm:min-h-0";
@@ -91,7 +94,7 @@ export default function PublicHomePage() {
   };
 
   return (
-    <main className={`${mobilePolish.home} min-h-screen bg-[#f2f4f3] text-[#1d2824]`}>
+    <main className={`${mobilePolish.home} min-h-screen bg-[#f2f4f3] pb-20 text-[#1d2824] sm:pb-16`}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -107,12 +110,9 @@ export default function PublicHomePage() {
 
       <HomeFloatingTools locale="it" />
 
-      <PublicNetworkRoleExplorer />
-
-      <PublicIntelligencePillars />
-
-      <HomeCinematicTools locale="it" />
-
+      {/* HOME-CALC1: five blocks — hero with quick weight and Network PRO, how it works,
+          your company, contacts, footer. Role tabs, pillars, the five-tool shelf and the
+          registration steps live on their own pages. */}
       <PublicSteelGeometryProof locale="it" tools={publicTools} />
 
 
@@ -124,7 +124,7 @@ export default function PublicHomePage() {
               Cercala per nome o Partita IVA.
             </h2>
             <p className="mt-3 text-sm leading-6 text-[#66736e]">
-              Verifica se il profilo è rivendicabile. Se la tua azienda non compare, puoi comunque avviare una nuova richiesta di registrazione.
+              Se c&apos;è già, puoi rivendicare il profilo. Se non c&apos;è, la registri in pochi minuti.
             </p>
           </div>
 
@@ -132,10 +132,6 @@ export default function PublicHomePage() {
             <DeferredPublicCompanyLookup />
           </div>
 
-          <p className="mt-4 max-w-3xl text-xs leading-5 text-[#718078]">
-            La ricerca pubblica serve solo a riconoscere l&apos;identità aziendale. Non apre la directory Network
-            e non espone dati commerciali, prezzi, email, offerte o ordini.
-          </p>
           <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link href="/register" className="inline-flex min-h-11 items-center rounded-xl border border-[#b9c9c2] bg-white px-4 text-sm font-bold text-[#123b34] hover:border-[#1f6b5a] hover:bg-[#edf5f1]">
               Non trovi la tua azienda? Registrala →
@@ -146,8 +142,6 @@ export default function PublicHomePage() {
           </div>
         </div>
       </section>
-
-      <PublicRegistrationTrust />
 
       <PublicContactSection locale="it" />
 
@@ -161,6 +155,9 @@ export default function PublicHomePage() {
               Calcolo pesi
             </Link>
             <Link href="/knowledge" className={footerLink}>Scuola</Link>
+            {footerKnowledge.map((item) => (
+              <Link key={item.href} href={item.href} className={footerLink}>{item.label}</Link>
+            ))}
             <Link href="/distinta" className={footerLink}>Crea distinta</Link>
             <Link href="/login" className={footerLink}>Accedi</Link>
             <Link href="/register" className={footerLink}>Registra azienda</Link>
