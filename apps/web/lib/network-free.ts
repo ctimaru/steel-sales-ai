@@ -40,7 +40,10 @@ export type FreeDirectory = {
 };
 export type FreeProfile = {
   contract: "netux11-free-profile-v1";
-  company: Pick<FreeCompany, "id" | "legal_name" | "trading_name" | "country_code" | "website_url" | "claimed_status" | "verification_status" | "discovery_status"> & { description: string | null };
+  company: Pick<FreeCompany, "id" | "legal_name" | "trading_name" | "country_code" | "website_url" | "claimed_status" | "verification_status" | "discovery_status"> & {
+    description: string | null;
+    description_is_company_declared?: boolean;
+  };
   roles: FreeCompany["roles"];
   products: string[];
   facilities: { city: string | null; region: string | null; country_code: string }[];
@@ -112,7 +115,14 @@ export async function getFreeNetworkProfile(
   if (typeof data !== "object" || (data as FreeProfile).contract !== "netux11-free-profile-v1") {
     throw new Error("network_free_profile_invalid_contract");
   }
-  return data as FreeProfile;
+  const profile = data as FreeProfile;
+  return {
+    ...profile,
+    company: {
+      ...profile.company,
+      description_is_company_declared: profile.company.description_is_company_declared === true,
+    },
+  };
 }
 
 export function safeNetworkWebsiteUrl(value: string | null | undefined) {

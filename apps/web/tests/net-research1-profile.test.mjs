@@ -29,6 +29,9 @@ test("scheda: blocco in cima ad Attività e prodotti, anteprima marcata, fonte e
   assert.match(block, /gt250m: "oltre 250 M€"/);
   assert.match(block, /Da fonte pubblica: ricerca sul sito ufficiale dell'azienda/);
   assert.match(overview, /\{researchContent \?\? null\}\n\s+\{description && !researchContent \? <p/);
-  for (const view of [pro, free]) assert.match(view, /researchContent=\{research \? <NetworkResearchProfile research=\{research\} \/> : undefined\}/);
+  for (const view of [pro, free]) {
+    assert.match(view, /researchContent=\{research \? <NetworkResearchProfile research=\{research\}/);
+    assert.match(view, /declaredDescription=\{profile\.company\.description_is_company_declared === true \? profile\.company\.description : null\} \/> : undefined\}/);
+  }
   assert.match(free, /provisional \? Promise\.resolve\(null\) : getNetworkCompanyResearch\(companyId\)/);
 });

@@ -367,7 +367,8 @@ export default async function NetworkCompanyProfilePage({
         email={emailContact?.email}
         phone={phoneContact?.phone}
         stockCount={publishedInventory.length}
-        researchContent={research ? <NetworkResearchProfile research={research} /> : undefined}
+        researchContent={research ? <NetworkResearchProfile research={research}
+          declaredDescription={profile.company.description_is_company_declared === true ? profile.company.description : null} /> : undefined}
         stockContent={publishedInventory.length ? <NetworkProfileInventory items={publishedInventory} /> : undefined}
         connectionsAvailable={Boolean((inquiryEligible && canInteract) || (organizationId && canWriteWorkspace(membershipRole)))}
         requestHref={organizationId && canWriteWorkspace(membershipRole) ? newRequestHref({network: profile.company.id}) : undefined}
