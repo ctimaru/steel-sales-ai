@@ -1,6 +1,6 @@
 "use server";
 
-import { safeErrorMessage } from "@/lib/user-facing-error";
+import { safeErrorMessage, toUserFacingIssue } from "@/lib/user-facing-error";
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -9,6 +9,7 @@ import { recordPilotUsageEvent } from "@/app/(workspace)/telemetry/actions";
 import { requireNetworkAccess } from "@/lib/network-access";
 import { descriptionDecisionInput, isDescriptionFingerprint, parseDescriptionAssistantDecision, type DescriptionAssistantActionState } from "@/lib/company-description-assistant";
 import { industrialDecisionInput, parseIndustrialDecision, type IndustrialActionState } from "@/lib/company-industrial-assistant";
+import { companyInventoryInput, type CompanyInventorySaveResult } from "@/lib/company-inventory-workspace";
 import { createClient } from "@/lib/supabase/server";
 import { requireWorkspaceAdmin, requireWorkspaceWriteRole } from "@/lib/workspace-context";
 
@@ -691,54 +692,51 @@ export async function archiveManagedPublicContact(formData: FormData) {
   redirect(managedProfilePath("contacts", "message", "Contatto pubblico archiviato."));
 }
 
-/** UX1.B: strictly company-managed declarations; approval checked again in SQL. */
-export async function saveManagedNetworkInventory(formData: FormData) {
+/** UX2.D.1: keep the editor open on validation or writer errors. Ownership is checked again in SQL. */
+export async function saveCompanyInventory(formData: FormData): Promise<CompanyInventorySaveResult> {
   const context = await requireWorkspaceAdmin();
-  const companyId = textValue(formData, "network_company_id");
-  const itemId = textValue(formData, "item_id");
-  const kind = textValue(formData, "kind");
-  const product = textValue(formData, "product_name");
-  const unit = textValue(formData, "unit");
-  const quantityText = textValue(formData, "quantity").replace(",", ".");
-  const quantity = Number(quantityText);
-  const publicationStatus = textValue(formData, "intent") || "draft";
-  const date = textValue(formData, "available_on");
-  const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
-  if (!uuid.test(companyId) || (itemId && !uuid.test(itemId)) ||
-      !["stock", "incoming", "production"].includes(kind) ||
-      !["draft", "published", "archived"].includes(publicationStatus) ||
-      !["t", "kg", "m", "bars", "pcs"].includes(unit) ||
-      product.length < 2 || product.length > 180 ||
-      !Number.isFinite(quantity) || quantity <= 0 || quantity > 1000000000 ||
-      (publicationStatus === "published" && kind !== "stock" && !/^\d{4}-\d{2}-\d{2}$/.test(date))) {
-    redirect(managedProfilePath("stock", "error", "Controlla prodotto, quantità e data prevista prima di salvare."));
+  const parsed = companyInventoryInput(formData);
+  if (!parsed.ok) return { status: "error", message: parsed.message };
+  const input = parsed.input;
+  const unconfirmedMessage = "Non è stato possibile confermare il salvataggio. I dati restano nel modulo: verifica la lista aggiornata prima di riprovare.";
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.rpc("netprofile_ux1b_upsert", {
+      p_organization_id: context.organizationId,
+      p_company_id: input.companyId,
+      p_item_id: input.itemId,
+      p_kind: input.kind,
+      p_product_name: input.productName,
+      p_standard: input.standard,
+      p_grade: input.grade,
+      p_dimensions: input.dimensions,
+      p_quantity: input.quantity,
+      p_unit: input.unit,
+      p_location: input.location,
+      p_available_on: input.availableOn,
+      p_publication_status: input.publicationStatus,
+    });
+    if (error) {
+      const issue = toUserFacingIssue(error, "Impossibile aggiornare la disponibilità. Verifica autorizzazioni e dati.");
+      return { status: "error", message: issue.code === "temporary_unavailable" ? unconfirmedMessage : issue.message };
+    }
+    revalidateManagedProfile(input.companyId);
+    return { status: "saved", message: input.publicationStatus === "published"
+      ? "Disponibilità pubblicata nel Network."
+      : input.publicationStatus === "archived" ? "Disponibilità archiviata." : "Bozza privata salvata." };
+  } catch {
+    return {
+      status: "error",
+      message: unconfirmedMessage,
+    };
   }
-  const supabase = await createClient();
-  const { error } = await supabase.rpc("netprofile_ux1b_upsert", {
-    p_organization_id: context.organizationId,
-    p_company_id: companyId,
-    p_item_id: itemId || null,
-    p_kind: kind,
-    p_product_name: product,
-    p_standard: textValue(formData, "standard") || null,
-    p_grade: textValue(formData, "grade") || null,
-    p_dimensions: textValue(formData, "dimensions") || null,
-    p_quantity: quantity,
-    p_unit: unit,
-    p_location: textValue(formData, "location") || null,
-    p_available_on: kind === "stock" || !date ? null : date,
-    p_publication_status: publicationStatus,
-  });
-  if (error) {
-    redirect(managedProfilePath("stock", "error",
-      safeErrorMessage(error, "Impossibile aggiornare la disponibilità. Verifica autorizzazioni e dati.")));
-  }
-  revalidateManagedProfile(companyId);
-  redirect(managedProfilePath("stock", "message", publicationStatus === "published"
-    ? "Disponibilità pubblicata nel Network."
-    : publicationStatus === "archived" ? "Disponibilità archiviata." : "Bozza privata salvata."));
 }
 
+/** Legacy redirect entry point shares the same validation, context and SQL writer. */
+export async function saveManagedNetworkInventory(formData: FormData) {
+  const result = await saveCompanyInventory(formData);
+  redirect(managedProfilePath("stock", result.status === "saved" ? "message" : "error", result.message));
+}
 
 async function activeOrganizationId() {
   await requireWorkspaceWriteRole();

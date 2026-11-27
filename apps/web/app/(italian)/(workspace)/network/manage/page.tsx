@@ -1308,7 +1308,7 @@ export default async function ManagedNetworkProfilePage({
         </div>
       </section>
         ),
-        stock: (<NetworkInventoryManager organizationId={managed.organization_id} companyId={companyId} inventory={inventory} canPublish={state.company.publication_status === "published"} />),
+        stock: (<NetworkInventoryManager key={managed.organization_id + ":" + companyId} organizationId={managed.organization_id} companyId={companyId} inventory={inventory} canPublish={state.company.publication_status === "published"} />),
       }} />
 
       <section className="rounded-xl border border-[#dce2df] bg-white p-4">

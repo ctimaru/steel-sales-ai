@@ -9,6 +9,7 @@ const reader = read("../lib/network-stock.ts");
 const publicCard = read("../components/network-profile-inventory.tsx");
 const manager = read("../components/network-inventory-manager.tsx");
 const actions = read("../app/(italian)/(workspace)/network/actions.ts");
+const inventorySave = actions.slice(actions.indexOf("export async function saveCompanyInventory("), actions.indexOf("async function activeOrganizationId("));
 const canonical = read("../app/(italian)/(workspace)/network/[id]/page.tsx");
 const free = read("../components/free-network-profile.tsx");
 const manage = read("../app/(italian)/(workspace)/network/manage/page.tsx");
@@ -58,26 +59,27 @@ test("NET-PROFILE-UX1.B: public UI renders actual rows or nothing", () => {
 test("NET-PROFILE-UX1.B: only approved admins can draft, publish and archive", () => {
   assert.match(manage, /<NetworkInventoryManager/);
   assert.match(manage, /getManagedNetworkInventory/);
-  assert.match(manager, /action=\{saveManagedNetworkInventory\}/);
+  assert.match(manager, /await saveCompanyInventory\(formData\)/);
   assert.match(manager, /value="draft"/);
   assert.match(manager, /value="published"/);
   assert.match(manager, /value="archived"/);
   assert.match(manager, /!inventory\.ready/);
-  assert.match(actions, /export async function saveManagedNetworkInventory/);
-  assert.match(actions, /const context = await requireWorkspaceAdmin\(\)/);
-  assert.match(actions, /p_organization_id: context\.organizationId/);
-  assert.match(actions, /supabase\.rpc\("netprofile_ux1b_upsert"/);
+  assert.match(inventorySave, /export async function saveManagedNetworkInventory/);
+  assert.match(inventorySave, /const result = await saveCompanyInventory\(formData\)/);
+  assert.match(inventorySave, /const context = await requireWorkspaceAdmin\(\)/);
+  assert.match(inventorySave, /p_organization_id: context\.organizationId/);
+  assert.match(inventorySave, /supabase\.rpc\("netprofile_ux1b_upsert"/);
   assert.match(migration, /approved company claim and active admin membership required/);
 });
 
-test("NET-PROFILE-UX1.B: ISO dates really pass the server-action validator", () => {
-  const expression = actions.match(/&& !\/(\^[^/]+\$)\/\.test\(date\)/);
-  assert.ok(expression, "find exact server action date regex, do not use a duplicate helper");
-  const validator = new RegExp(expression[1]);
-  assert.equal(validator.test("2026-12-01"), true, "future arrivals accept yyyy-mm-dd");
-  assert.equal(validator.test("2027-01-15"), true, "production dates accept yyyy-mm-dd");
-  assert.equal(validator.test("01/12/2026"), false, "localized date rejected");
-  assert.equal(validator.test("tomorrow"), false, "unparseable date rejected");
+test("NET-PROFILE-UX1.B: the writer uses the behavior-tested declaration validator", () => {
+  // Calendar, precision and field-boundary cases execute the actual helper in
+  // company-inventory-workspace.test.mjs; keep this check on its server wiring.
+  assert.match(inventorySave, /const parsed = companyInventoryInput\(formData\)/);
+  assert.match(inventorySave, /if \(!parsed\.ok\) return \{ status: "error", message: parsed\.message \}/);
+  assert.match(inventorySave, /const input = parsed\.input/);
+  assert.match(inventorySave, /p_available_on: input\.availableOn/);
+  assert.match(inventorySave, /p_quantity: input\.quantity/);
 });
 
 

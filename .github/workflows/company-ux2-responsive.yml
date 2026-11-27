@@ -15,9 +15,11 @@ on:
       - "apps/web/lib/network-*"
       - "apps/web/lib/company-description-assistant.ts"
       - "apps/web/lib/company-industrial-assistant.ts"
+      - "apps/web/lib/company-inventory-workspace.ts"
       - "apps/web/tests/company-ux2a-chrome.mjs"
       - "apps/web/tests/company-ux2c1-chrome.mjs"
       - "apps/web/tests/company-ux2c2-chrome.mjs"
+      - "apps/web/tests/company-ux2d1-chrome.mjs"
       - "supabase/tests/company_ux2c1_*.sql"
       - "supabase/tests/company_ux2c2_*.sql"
       - "supabase/migrations/**"
@@ -181,6 +183,13 @@ jobs:
         run: |
           set -euo pipefail
           node tests/company-ux2c2-chrome.mjs
+      - name: Verify stock workspace lifecycle and visibility in Chrome 1440 / 390 / 320
+        working-directory: apps/web
+        timeout-minutes: 12
+        shell: bash
+        run: |
+          set -euo pipefail
+          node tests/company-ux2d1-chrome.mjs
       - name: Upload synthetic screenshots for visual acceptance
         if: always()
         uses: actions/upload-artifact@v4
