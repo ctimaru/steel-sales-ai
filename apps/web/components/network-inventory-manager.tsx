@@ -92,11 +92,11 @@ function StockForm({ organizationId, companyId, item, canPublish, onSaved, onCan
           <label className={labelClass}>Prodotto / descrizione
             <input name="product_name" required minLength={2} maxLength={180} defaultValue={item?.product_name ?? ""} placeholder="Es. Tubo tondo saldato" className={fieldClass} />
           </label>
-          <div className="grid min-w-0 grid-cols-2 gap-3">
-            <label className={labelClass}>Quantità
+          <div className="flex min-w-0 flex-wrap gap-3">
+            <label className={labelClass + " flex-1 basis-40"}>Quantità
               <input name="quantity" type="number" min="0.001" max="1000000000" step="0.001" required defaultValue={item?.quantity ?? ""} placeholder="Es. 12,5" className={fieldClass} />
             </label>
-            <label className={labelClass}>Unità
+            <label className={labelClass + " flex-1 basis-40"}>Unità
               <select name="unit" aria-label="Unità" defaultValue={item?.unit ?? "t"} className={fieldClass}>
                 {units.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
@@ -249,18 +249,18 @@ export function NetworkInventoryManager({ organizationId, companyId, inventory, 
           ) : null}
 
           <div data-testid="stock-metrics" className="rounded-2xl border border-[#e1e8e2] bg-[#f7faf8] p-3 sm:p-4">
-            <div className="grid grid-cols-3 gap-2 sm:gap-4">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-4">
               {([
                 ["stock", "A magazzino", summary.stock],
                 ["incoming", "In arrivo", summary.incoming],
                 ["production", "Produzioni", summary.production],
               ] as const).map(([metricKind, label, count]) => (
-                <div key={metricKind} data-testid={"stock-metric-" + metricKind} className="min-w-0 rounded-xl border border-[#e1e8e2] bg-white p-2.5 sm:p-3">
-                  <div className="flex items-center justify-between gap-2">
+                <div key={metricKind} data-testid={"stock-metric-" + metricKind} className="flex min-w-0 items-center gap-3 rounded-xl border border-[#e1e8e2] bg-white p-2.5 sm:block sm:p-3">
+                  <div className="flex w-12 shrink-0 items-center justify-between gap-2 sm:w-full">
                     <p className="text-2xl font-semibold tabular-nums tracking-tight text-[#173f35]">{count}</p>
                     <AvailabilityIcon kind={metricKind} className="hidden h-5 w-5 shrink-0 text-[#688073] sm:block" />
                   </div>
-                  <p className="mt-1 text-[11px] font-medium leading-4 text-[#52665a] sm:text-xs">{label}</p>
+                  <p className="min-w-0 break-words text-xs font-medium leading-5 text-[#52665a] sm:mt-1">{label}</p>
                 </div>
               ))}
             </div>
